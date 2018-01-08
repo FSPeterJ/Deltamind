@@ -20,6 +20,7 @@ enum InputType {
 	CONTROLLER
 };
 struct InputPackage {
+	InputPackage(){}
 	Control control;
 	float amount;
 };
@@ -29,8 +30,8 @@ class InputManager
 private:
 	struct InputBridge {
 		std::map<Control, int> keyBind;
-		virtual bool MapKey(Control control, int key) {};
-		virtual InputPackage CheckForInput() {};
+		virtual bool MapKey(Control control, int key) { return false; };
+		virtual InputPackage CheckForInput() { return InputPackage(); };
 	};
 	struct VRInput : public InputBridge {
 		VRInput();

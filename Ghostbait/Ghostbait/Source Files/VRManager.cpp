@@ -25,4 +25,5 @@ bool VRManager::init()
 		Console::WriteLine(vr::VR_GetVRInitErrorAsSymbol(error));
 		return false;
 	}
+	return true;
 }

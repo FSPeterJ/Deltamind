@@ -30,7 +30,7 @@
     <ClInclude Include="Header Files\Object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MessageEvents.h">
+    <ClInclude Include="Header Files\MessageEvents.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -41,7 +41,7 @@
     <ClCompile Include="Source Files\Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MessageEvents.cpp">
+    <ClCompile Include="Source Files\MessageEvents.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

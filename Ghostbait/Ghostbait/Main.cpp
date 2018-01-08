@@ -34,7 +34,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 #endif
 #endif
 	
-	
 	Window wnd(900, 900);
 
 	if(!wnd.Initialize(hInstance, nCmdShow)) { return FALSE; }

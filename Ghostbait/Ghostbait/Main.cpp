@@ -1,5 +1,7 @@
 #include <windows.h>
-#include "Resource.h"
+#include "Window.h"
+#include "MessageEvents.h"
+
 
 #ifndef NDEBUG
 #define _CRTDBG_MAP_ALLOC
@@ -8,11 +10,23 @@
 #include <crtdbg.h>
 #endif
 
-#include "Window.h"
+
 
 #include "Console.h"
 using namespace Console;
 
+void Loop()
+{
+	
+
+};
+
+void Death()
+{
+	WriteLine("DEAD!");
+
+
+}
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow) {
 	UNREFERENCED_PARAMETER(hPrevInstance); UNREFERENCED_PARAMETER(lpCmdLine);
@@ -36,7 +50,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	//Minimize();
 
 	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_GHOSTBAIT));
-
+	MessageEvents::Subscribe(EVENT_Player_Death, Death);
+	EventBase * temp =  new EventBase(EVENT_Player_Death);
+	MessageEvents::SendMessage(EVENT_Player_Death, temp);
 	//Setup();
 
 	MSG msg;
@@ -46,11 +62,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		} else {
-			//Loop();
+			Loop();
 		}
 	}
 
 	Free();
+
+
+
 
 
 	return (int) msg.wParam;

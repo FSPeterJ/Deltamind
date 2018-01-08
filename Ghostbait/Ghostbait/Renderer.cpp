@@ -2,10 +2,10 @@
 #include <math.h>
 #include <fstream>
 
-void Renderer::createDeviceContextAndSwapchain(HWND window)
+void Renderer::createDeviceContextAndSwapchain(Window window)
 {
 	RECT rect;
-	GetWindowRect(window, &rect);
+	GetWindowRect(window.GetOutputWindow(), &rect);
 	DXGI_SWAP_CHAIN_DESC desc = DXGI_SWAP_CHAIN_DESC();
 	desc.BufferCount = 1;
 	desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -17,7 +17,7 @@ void Renderer::createDeviceContextAndSwapchain(HWND window)
 	desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	desc.Flags += DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-	desc.OutputWindow = window;
+	desc.OutputWindow = window.GetOutputWindow();
 	desc.Windowed = true;
 	desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 	desc.SampleDesc.Count = 1;
@@ -35,6 +35,14 @@ void Renderer::createDeviceContextAndSwapchain(HWND window)
 	delete feature;
 }
 
+void Renderer::clearPipelineMemory(pipeline_state_t * pipeline)
+{
+	pipeline->depth_stencil_buffer->Release();
+	pipeline->depth_stencil_state->Release();
+	pipeline->depth_stencil_view->Release();
+	pipeline->rasterizer_state->Release();
+}
+
 bool Renderer::LoadShaderFromCSO(char ** szByteCode, size_t & szByteCodeSize, const char * szFileName)
 {
 	std::ifstream load;
@@ -49,21 +57,61 @@ bool Renderer::LoadShaderFromCSO(char ** szByteCode, size_t & szByteCodeSize, co
 	return true;
 }
 
+void Renderer::loadPipelineState(pipeline_state_t * pipeline)
+{
+	context->RSSetState(pipeline->rasterizer_state);
+	context->OMSetRenderTargets(1, &pipeline->render_target_view, pipeline->depth_stencil_view);
+	context->OMSetDepthStencilState(pipeline->depth_stencil_state, NULL);
+	context->RSSetViewports(1, &pipeline->viewport);
+	context->IASetInputLayout(pipeline->input_layout);
+	context->VSSetShader(pipeline->vertex_shader, NULL, NULL);
+	context->PSSetShader(pipeline->pixel_shader, NULL, NULL);
+}
+
 Renderer::Renderer()
 {
 }
-
 
 Renderer::~Renderer()
 {
 }
 
-void Renderer::Initialize(HWND window)
+void Renderer::Initialize(Window window)
 {
+	createDeviceContextAndSwapchain(window);
+	RECT windRect;
+	GetWindowRect(window.GetOutputWindow(), &windRect);
+	initViewport(windRect, &defaultPipeline);
+	initDepthStencilBuffer(&defaultPipeline);
+	initDepthStencilState(&defaultPipeline);
+	initDepthStencilView(&defaultPipeline);
+	initRasterState(&defaultPipeline);
+	initShaders();
+	defaultPipeline.vertex_shader = PassThroughPositionColorVS;
+	defaultPipeline.pixel_shader = PassThroughPS;
+	defaultPipeline.input_layout = ILPositionColor;
+	device->CreateRenderTargetView(backBuffer, NULL, &defaultPipeline.render_target_view);
+	loadPipelineState(&defaultPipeline);
+	meshManagement = new MeshManager();
+	meshManagement->Initialize(device);
 }
 
 void Renderer::Destroy()
 {
+	cameraBuffer->Release();
+	modelBuffer->Release();
+	ILPositionColor->Release();
+	PassThroughPositionColorVS->Release();
+	PassThroughPS->Release();
+	backBuffer->Release();
+	swapchain->Release();
+	context->Release();
+	device->Release();
+	defaultPipeline.render_target_view->Release();
+	clearPipelineMemory(&defaultPipeline);
+
+	meshManagement->Destroy();
+	delete meshManagement;
 }
 
 void Renderer::initDepthStencilBuffer(pipeline_state_t* pipelineTo)

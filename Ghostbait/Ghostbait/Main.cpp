@@ -3,7 +3,7 @@
 
 #ifndef NDEBUG
 #define _CRTDBG_MAP_ALLOC
-//#define BREAK_AT -1
+#define BREAK_AT -1
 #include <stdlib.h>
 #include <crtdbg.h>
 #endif
@@ -11,6 +11,7 @@
 #include "Window.h"
 
 #include "Console.h"
+#include "Renderer.h"
 using namespace Console;
 
 
@@ -38,7 +39,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_GHOSTBAIT));
 
 	//Setup();
-
+	Renderer * rendInter = new Renderer();
+	rendInter->Initialize(wnd);
 	MSG msg;
 	while(true) {
 		if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -49,7 +51,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			//Loop();
 		}
 	}
-
+	rendInter->Destroy();
+	delete rendInter;
 	Free();
 
 

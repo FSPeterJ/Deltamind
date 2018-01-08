@@ -2,7 +2,7 @@
 
 #include <d3d11.h>
 #include "MeshManager.h"
-
+#include "Window.h"
 class Renderer
 {
 private:
@@ -37,6 +37,8 @@ private:
 	ID3D11Buffer* cameraBuffer;
 	ID3D11Buffer* modelBuffer;
 	pipeline_state_t defaultPipeline;
+	
+	MeshManager* meshManagement = nullptr;
 
 	void initDepthStencilBuffer(pipeline_state_t* pipelineTo);
 	void initDepthStencilState(pipeline_state_t* pipelineTo);
@@ -44,14 +46,19 @@ private:
 	void initRasterState(pipeline_state_t* pipelineTo, bool wireFrame = false);
 	void initShaders();
 	void initViewport(RECT window, pipeline_state_t* pipelineTo);
-	void createDeviceContextAndSwapchain(HWND window);
+	void createDeviceContextAndSwapchain(Window window);
+	void clearPipelineMemory(pipeline_state_t* pipeline);
 	bool LoadShaderFromCSO(char ** szByteCode, size_t& szByteCodeSize, const char* szFileName);
+
+	void loadPipelineState(pipeline_state_t* pipeline);
 
 public:
 	Renderer();
 	~Renderer();
 
-	void Initialize(HWND window);
+	void Initialize(Window window);
 	void Destroy();
+
+	MeshManager* getMeshManager() { return meshManagement; }
 };
 

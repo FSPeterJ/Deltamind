@@ -15,12 +15,15 @@ class MeshManager
 {
 private:
 	std::vector<meshPositionColor> smallMeshes;
+	ID3D11Device* device;
 	void generateCube();
 public:
 	MeshManager();
 	~MeshManager();
 
-	void destroy();
+	void Initialize(ID3D11Device* deviceIn);
+	void Destroy();
+	meshPositionColor * findMesh(const unsigned int id);
 	void registerMesh(const char * meshFilePath, const unsigned int id);
 };
 

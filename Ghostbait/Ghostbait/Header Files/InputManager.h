@@ -1,7 +1,6 @@
 #pragma once
 #include <map>
 #include <assert.h>
-#include <openvr.h>
 
 #define CRASH assert(1 == 0)
 

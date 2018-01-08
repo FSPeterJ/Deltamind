@@ -14,6 +14,18 @@
 #include "Renderer.h"
 using namespace Console;
 
+#include "MessageEvents.h"
+
+#include "VRManager.h"
+
+void Death() {
+	WriteLine("DEAD");
+}
+
+void Setup() {
+	MessageEvents::Subscribe(EVENT_Player_Death, Death);
+	MessageEvents::SendMessage(EVENT_Player_Death, EventMessageBase());
+}
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow) {
 	UNREFERENCED_PARAMETER(hPrevInstance); UNREFERENCED_PARAMETER(lpCmdLine);
@@ -25,7 +37,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 #endif
 #endif
 	
-
 	Window wnd(900, 900);
 
 	if(!wnd.Initialize(hInstance, nCmdShow)) { return FALSE; }
@@ -38,7 +49,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_GHOSTBAIT));
 
-	//Setup();
+	Setup();
+	VRManager man;
+	man.init();
 	Renderer * rendInter = new Renderer();
 	rendInter->Initialize(wnd);
 	MSG msg;

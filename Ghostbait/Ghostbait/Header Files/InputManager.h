@@ -1,35 +1,81 @@
 #pragma once
+#include <map>
+#include <assert.h>
+
+#define CRASH assert(1 == 0)
+
+enum Control {
+	none,
+	forward,
+	backward,
+	left,
+	right,
+	attack,
+	teleport,
+	menu
+};
 enum InputType {
 	VR,
 	KEYBOARD,
 	CONTROLLER
 };
+struct InputPackage {
+	InputPackage(){}
+	Control control;
+	float amount;
+};
 
 class InputManager
 {
-private :
-	class Bridge {
+private:
+	struct InputBridge {
+		std::map<Control, int> keyBind;
+		virtual bool MapKey(Control control, int key) { return false; };
+		virtual InputPackage CheckForInput() { return InputPackage(); };
+	};
+	struct VRInput : public InputBridge {
+		VRInput();
+		bool MapKey(Control control, int key) override;
+		InputPackage CheckForInput() override;
+	};
+	struct KeyboardInput : public InputBridge {
+		bool MapKey(Control control, int key) override;
+		InputPackage CheckForInput() override;
+	public:
+		KeyboardInput();
+	};
+	struct ControllerInput : public InputBridge {
+		bool MapKey(Control control, int key) override;
+		InputPackage CheckForInput() override;
+	public:
+		ControllerInput();
+	};
 
-	};
-	struct Button {
-		bool isDown;
-	};
-	Button forward;
-	Button backward;
-	Button left;
-	Button right;
-	Button shoot;
-	Button menu;
+	InputType inputType = VR;
+	InputBridge bridge = VRInput();
 
 public:
-	InputManager();
-	~InputManager();
-
-	bool GetInput();
-	InputType GetInputType();
-	bool SetInputType(InputType type);
+	InputManager() {};
+	~InputManager() {};
+	
+	//Purpose:
+	//	Called to check input devices for new user input. 
+	//	Should be called every frame.
+	//	Results in a message sent with respective input
+	//Returns:
+	//	The control currently selected
+	InputPackage HandleInput();
+	//Purpose:
+	//	Retreive the current input method (Ex. VR, Keyboard, Controller, etc.)
+	//Returns:	
+	//	The current input method
+	inline InputType GetInputType() {return inputType;};
+	//Purpose:
+	//	Set the current input method (Ex. VR, Keyboard, Controller, etc.)
+	//Parameters:	
+	//	type - the new inpt method to replace the current one
+	void SetInputType(InputType type);
 };
-
 
 
 

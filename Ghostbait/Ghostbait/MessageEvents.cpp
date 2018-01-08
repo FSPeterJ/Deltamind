@@ -1,24 +1,9 @@
 #include "MessageEvents.h"
 
+std::vector<std::function<void()>> MessageEvents::event_func::delegates;
 
+std::unordered_map<int, MessageEvents::event_func> MessageEvents::eventmap;
 
+MessageEvents::MessageEvents() { }
 
-void MessageEvents::Subscribe(const EVENT_TYPES eventtype, const std::function<void()> execute)
-{
-	eventmap[eventtype].add(execute);
-}
-
-void MessageEvents::SendMessage(const EVENT_TYPES eventtype, EventBase* message)
-{
-	eventmap[eventtype]();
-};
-
-MessageEvents::MessageEvents()
-{
-
-}
-
-
-MessageEvents::~MessageEvents()
-{
-}
+MessageEvents::~MessageEvents() {}

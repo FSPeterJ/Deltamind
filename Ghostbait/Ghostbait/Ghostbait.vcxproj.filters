@@ -30,9 +30,6 @@
     <ClInclude Include="Header Files\Object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\Window.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MessageEvents.h">
       <Filter>Header Files</Filter>
     </ClInclude>

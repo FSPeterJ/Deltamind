@@ -159,9 +159,11 @@
     <ClInclude Include="Header Files\Resource.h" />
     <ClInclude Include="Header Files\targetver.h" />
     <ClInclude Include="Header Files\Window.h" />
+    <ClInclude Include="MessageEvents.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="MessageEvents.cpp" />
     <ClCompile Include="Source Files\Window.cpp" />
   </ItemGroup>
   <ItemGroup>

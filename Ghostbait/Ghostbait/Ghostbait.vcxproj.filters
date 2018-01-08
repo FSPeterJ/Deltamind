@@ -30,12 +30,18 @@
     <ClInclude Include="Header Files\Object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MessageEvents.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\Window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MessageEvents.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -33,6 +33,12 @@
     <ClInclude Include="Header Files\MessageEvents.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ObjectFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TestObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -42,6 +48,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\MessageEvents.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

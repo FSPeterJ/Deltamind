@@ -160,11 +160,15 @@
     <ClInclude Include="Header Files\targetver.h" />
     <ClInclude Include="Header Files\Window.h" />
     <ClInclude Include="Header Files\MessageEvents.h" />
+    <ClInclude Include="ObjectFactory.h" />
+    <ClInclude Include="TestObject.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="ObjectFactory.cpp" />
     <ClCompile Include="Source Files\MessageEvents.cpp" />
     <ClCompile Include="Source Files\Window.cpp" />
+    <ClCompile Include="TestObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resource Files\Ghostbait.ico" />

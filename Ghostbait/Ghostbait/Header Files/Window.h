@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <windowsx.h>
 #include "Resource.h"
+#include <string>
 
 #define MAX_LOADSTRING 100
 
@@ -45,6 +46,8 @@ public:
 	/// Processes messages for the main window.
 	/// </summary>
 	static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+
+	inline void UpdateTitle(std::wstring newTitle) { SetWindowText(mainWindow, newTitle.c_str()); }
 
 	inline UINT GetWidth() const { return width; }
 	inline UINT GetHeight() const { return height; }

@@ -1,6 +1,6 @@
 #include "Renderer.h"
 #include <math.h>
-
+#include <fstream>
 
 void Renderer::createDeviceContextAndSwapchain(HWND window)
 {
@@ -33,6 +33,20 @@ void Renderer::createDeviceContextAndSwapchain(HWND window)
 	swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
 
 	delete feature;
+}
+
+bool Renderer::LoadShaderFromCSO(char ** szByteCode, size_t & szByteCodeSize, const char * szFileName)
+{
+	std::ifstream load;
+	load.open(szFileName, std::ios_base::binary);
+	if (!load.is_open()) return false;
+	load.seekg(0, std::ios_base::end);
+	szByteCodeSize = size_t(load.tellg());
+	*szByteCode = new char[szByteCodeSize];
+	load.seekg(0, std::ios_base::beg);
+	load.read(*szByteCode, szByteCodeSize);
+	load.close();
+	return true;
 }
 
 Renderer::Renderer()
@@ -106,6 +120,31 @@ void Renderer::initRasterState(pipeline_state_t * pipelineTo, bool wireFrame)
 
 void Renderer::initShaders()
 {
+	char* byteCode = nullptr;
+	size_t byteCodeSize;
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "PassThroughPositionColorVS.cso");
+	device->CreateVertexShader(byteCode, byteCodeSize, NULL, &PassThroughPositionColorVS);
+
+	D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+
+	device->CreateInputLayout(vertexDesc, ARRAYSIZE(vertexDesc), byteCode, byteCodeSize, &ILPositionColor);
+	delete[] byteCode;
+	byteCode = nullptr;
+
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "PassThroughPS.cso");
+	device->CreatePixelShader(byteCode, byteCodeSize, NULL, &PassThroughPS);
+	delete[] byteCode;
+	byteCode = nullptr;
+
+	CD3D11_BUFFER_DESC constantBufferDesc(sizeof(viewProjectionConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
+	device->CreateBuffer(&constantBufferDesc, nullptr, &cameraBuffer);
+
+	CD3D11_BUFFER_DESC modelBufferDesc(sizeof(DirectX::XMFLOAT4X4), D3D11_BIND_CONSTANT_BUFFER);
+	device->CreateBuffer(&modelBufferDesc, nullptr, &modelBuffer);
 }
 
 void Renderer::initViewport(RECT window, pipeline_state_t * pipelineTo)

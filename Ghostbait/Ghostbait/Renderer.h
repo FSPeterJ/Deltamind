@@ -1,6 +1,7 @@
 #pragma once
 
 #include <d3d11.h>
+#include "MeshManager.h"
 
 class Renderer
 {
@@ -18,11 +19,23 @@ private:
 		D3D11_VIEWPORT viewport;
 	};
 
+	struct viewProjectionConstantBuffer
+	{
+		XMFLOAT4X4 view;
+		XMFLOAT4X4 projection;
+	};
+
 	ID3D11Device* device;
 	ID3D11DeviceContext* context;
 	IDXGISwapChain* swapchain;
 	ID3D11Texture2D* backBuffer;
 
+	ID3D11VertexShader* PassThroughPositionColorVS;
+	ID3D11PixelShader* PassThroughPS;
+
+	ID3D11InputLayout* ILPositionColor;
+	ID3D11Buffer* cameraBuffer;
+	ID3D11Buffer* modelBuffer;
 	pipeline_state_t defaultPipeline;
 
 	void initDepthStencilBuffer(pipeline_state_t* pipelineTo);
@@ -32,6 +45,7 @@ private:
 	void initShaders();
 	void initViewport(RECT window, pipeline_state_t* pipelineTo);
 	void createDeviceContextAndSwapchain(HWND window);
+	bool LoadShaderFromCSO(char ** szByteCode, size_t& szByteCodeSize, const char* szFileName);
 
 public:
 	Renderer();

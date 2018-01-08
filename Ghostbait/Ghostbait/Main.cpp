@@ -18,6 +18,8 @@ using namespace Console;
 #include "TestObject.h"
 
 
+#include "VRManager.h"
+
 void Death() {
 	WriteLine("DEAD");
 }
@@ -66,6 +68,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_GHOSTBAIT));
 
 	Setup();
+	VRManager man;
+	man.init();
 
 	MSG msg;
 	while(true) {

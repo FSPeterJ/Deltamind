@@ -161,8 +161,10 @@
     <ClInclude Include="Header Files\Console.h" />
     <ClInclude Include="Header Files\InputManager.h" />
     <ClInclude Include="Header Files\Object.h" />
+    <ClInclude Include="Header Files\ObjectFactory.h" />
     <ClInclude Include="Header Files\Resource.h" />
     <ClInclude Include="Header Files\targetver.h" />
+    <ClInclude Include="Header Files\TestObject.h" />
     <ClInclude Include="Header Files\VRManager.h" />
     <ClInclude Include="Header Files\Window.h" />
     <ClInclude Include="Header Files\MessageEvents.h" />
@@ -174,6 +176,8 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Source Files\InputManager.cpp" />
     <ClCompile Include="Source Files\MessageEvents.cpp" />
+    <ClCompile Include="Source Files\ObjectFactory.cpp" />
+    <ClCompile Include="Source Files\TestObject.cpp" />
     <ClCompile Include="Source Files\VRManager.cpp" />
     <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="Renderer.cpp" />

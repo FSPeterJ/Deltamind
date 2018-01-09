@@ -1,19 +1,11 @@
 #pragma once
 #include <map>
 #include <assert.h>
+#include "MessageEvents.h"
 
 #define CRASH assert(1 == 0)
 
-enum Control {
-	none,
-	forward,
-	backward,
-	left,
-	right,
-	attack,
-	teleport,
-	menu
-};
+
 enum InputType {
 	VR,
 	KEYBOARD,
@@ -24,6 +16,8 @@ struct InputPackage {
 	Control control;
 	float amount;
 };
+
+
 
 class InputManager
 {

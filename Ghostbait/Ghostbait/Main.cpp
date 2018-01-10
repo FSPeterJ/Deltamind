@@ -22,31 +22,48 @@ using namespace Console;
 #include "VRManager.h"
 
 #include "InputManager.h"
+#include "Messagebox.h"
 
-void Setup() {
-	VRManager man;
-	man.Init();
+Renderer* rendInter;
+VRManager* vrMan;
 
+void Setup(HINSTANCE hInstance, int nCmdShow) {
+
+	Window wnd(900, 900);
+
+	if (!wnd.Initialize(hInstance, nCmdShow)) { Messagebox::ShowError(L"Error!!", L"Main window is not initialized!"); }
+	wnd.UpdateTitle(L"Ghostbait");
+
+	Allocate();
+	WriteLine("App has been initalized!");
+	//Minimize();
+
+	vrMan = new VRManager();
+	vrMan->Init();
+	rendInter = new Renderer();
+	rendInter->Initialize(wnd, vrMan);
 
 	//Object Factory Testing
 	//====================================
 	ObjectFactory::Register<Object>("BaseClass");
 	ObjectFactory::Register<TestObject>("TestObject");
 
-	Object * test = ObjectFactory::CreateObject("BaseClass");
-	Object * test2 = ObjectFactory::CreateObject("TestObject");
-
-
-	//test->testing();
-	//((TestObject*)test2)->testing();
-	delete test;
-	delete test2;
-
-	//====================================
 }
 
 void Loop() {
 	InputManager::HandleInput();
+	rendInter->Render();
+
+}
+
+void CleanUp() {
+	if (vrMan) {
+		delete vrMan;
+	}
+	if (rendInter) {
+		rendInter->Destroy();
+		delete rendInter;
+	}
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow) {
@@ -58,23 +75,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	_CrtSetBreakAlloc(BREAK_AT);
 #endif
 #endif
-	
-	Window wnd(900, 900);
 
-	if(!wnd.Initialize(hInstance, nCmdShow)) { return FALSE; }
-	wnd.UpdateTitle(L"Ghostbait");
-	
-	Renderer* rendInter = new Renderer();
-	rendInter->Initialize(wnd, nullptr);
+	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_GHOSTBAIT));
 
-	Allocate();
-	WriteLine("App has been initalized!");
-	//Minimize();
+	Setup(hInstance, nCmdShow);
 
 	//Object Factory Testing
 	//====================================
-	ObjectFactory::Register<Object>("BaseClass");
-	ObjectFactory::Register<TestObject>("TestObject");
 
 	Object * test = ObjectFactory::CreateObject("BaseClass");
 	Object * test2 = ObjectFactory::CreateObject("TestObject");
@@ -86,10 +93,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	//====================================
 
-	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_GHOSTBAIT));
-
-	Setup();
-
 	rendInter->registerObject(test);
 	rendInter->registerObject(test2);
 	MSG msg;
@@ -99,18 +102,17 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		} else {
-			rendInter->Render();
 			Loop();
 		}
 	}
 
-	rendInter->Destroy();
-	delete rendInter;
+	//Test Objects
 	delete test;
 	delete test2;
 
-	Free();
+	CleanUp();
 
+	Free();
 
 	return (int) msg.wParam;
 }

@@ -29,6 +29,7 @@ void MessageEvents::HandleMessage(EVENT_TYPES eventtype, EventMessageBase& m) {
 	case EVENT_Input:
 	{
 		InputMessage* input = (InputMessage*) &m;
+		if(input->GetControl() != none)
 		WriteLine(input->GetAmount());
 		break;
 	}

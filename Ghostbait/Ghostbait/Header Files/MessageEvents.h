@@ -58,7 +58,7 @@ public:
 	/// </summary>
 	/// <param name="eventtype">The eventtype.</param>
 	/// <param name="message">The message.</param>
-	inline static void SendMessage(EVENT_TYPES eventtype, EventMessageBase& message = EventMessageBase()) { eventmap[eventtype](message); HandleMessage(eventtype, message); };
+	inline static void SendMessage(const EVENT_TYPES eventtype, EventMessageBase& message = EventMessageBase()) { eventmap[eventtype](message); HandleMessage(eventtype, message); };
 
 	//void ProcessEvents();
 	MessageEvents();

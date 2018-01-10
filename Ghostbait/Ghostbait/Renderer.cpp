@@ -140,6 +140,20 @@ void Renderer::renderObjectDefaultState(const Object * obj)
 	context->DrawIndexed(meshManagement->GetElement(UINT_MAX)->indexCount, 0, 0);
 }
 
+void Renderer::renderToEye(eye * eyeTo)
+{
+	float color[] = { 0.5f, 0.5f, 1.0f, 1.0f };
+	context->ClearRenderTargetView(eyeTo->renderInfo.rtv, color);
+	context->ClearDepthStencilView(eyeTo->renderInfo.dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	context->OMSetRenderTargets(1, &eyeTo->renderInfo.rtv, eyeTo->renderInfo.dsv);
+	context->UpdateSubresource(cameraBuffer, 0, NULL, &eyeTo->camera, 0, 0);
+
+	for (size_t i = 0; i < renderedObjects.size(); ++i)
+	{
+		renderObjectDefaultState(renderedObjects[i]);
+	}
+}
+
 void Renderer::loadPipelineState(pipeline_state_t * pipeline)
 {
 	context->RSSetState(pipeline->rasterizer_state);
@@ -185,7 +199,7 @@ Renderer::~Renderer()
 {
 }
 
-void Renderer::Initialize(Window window)
+void Renderer::Initialize(Window window, VRManager * vr)
 {
 	createDeviceContextAndSwapchain(window);
 	RECT windRect;
@@ -212,6 +226,7 @@ void Renderer::Initialize(Window window)
 	XMStoreFloat4x4(&defaultCamera.projection, XMMatrixTranspose(XMMatrixPerspectiveFovLH(60.0f * XM_PI / 180.0f, defaultPipeline.viewport.Width / defaultPipeline.viewport.Height, 0.001f, 300.0f)));
 
 	setupVRTargets();
+	VRManagement = vr;
 }
 
 void Renderer::Destroy()
@@ -277,12 +292,20 @@ bool Renderer::unregisterObject(const Object * toRemove, renderState specialInst
 
 void Renderer::Render()
 {
-	
+	if (VRManagement)
+	{
+		VRManagement->GetVRMatricies((float**)&leftEye.camera.projection, (float**)&rightEye.camera.projection, (float**)&leftEye.camera.view, (float**)&rightEye.camera.view);
+		renderToEye(&leftEye);
+		renderToEye(&rightEye);
+	}
 	float color[] = { 0.5f, 0.5f, 1.0f, 1.0f };
 	context->ClearRenderTargetView(defaultPipeline.render_target_view, color);
 	context->ClearDepthStencilView(defaultPipeline.depth_stencil_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	context->OMSetRenderTargets(1, &defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view);
 
 	context->UpdateSubresource(cameraBuffer, 0, NULL, &defaultCamera, 0, 0);
+
+
 	for (size_t i = 0; i < renderedObjects.size(); ++i)
 	{
 		renderObjectDefaultState(renderedObjects[i]);

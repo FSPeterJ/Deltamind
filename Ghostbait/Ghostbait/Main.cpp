@@ -65,7 +65,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	wnd.UpdateTitle(L"Ghostbait");
 	
 	Renderer* rendInter = new Renderer();
-	rendInter->Initialize(wnd);
+	rendInter->Initialize(wnd, nullptr);
 
 	Allocate();
 	WriteLine("App has been initalized!");

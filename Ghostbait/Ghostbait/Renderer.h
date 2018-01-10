@@ -3,7 +3,7 @@
 #include <d3d11.h>
 #include "MeshManager.h"
 #include "Window.h"
-#include "openvr.h"
+#include "VRManager.h"
 #include "Object.h"
 
 enum renderState
@@ -47,8 +47,7 @@ private:
 	struct eye
 	{
 		renderTargetInfo renderInfo;
-		XMMATRIX view;
-		XMMATRIX proj;
+		viewProjectionConstantBuffer camera;
 	};
 
 #pragma endregion
@@ -74,6 +73,7 @@ private:
 	std::vector<const Object*> renderedObjects;
 	
 	MeshManager* meshManagement = nullptr;
+	VRManager* VRManagement = nullptr;
 
 	void initDepthStencilBuffer(pipeline_state_t* pipelineTo);
 	void initDepthStencilState(pipeline_state_t* pipelineTo);
@@ -88,6 +88,7 @@ private:
 	void setupVRTargets();
 
 	void renderObjectDefaultState(const Object* obj);
+	void renderToEye(eye* eyeTo);
 
 	void loadPipelineState(pipeline_state_t* pipeline);
 
@@ -105,7 +106,7 @@ public:
 	//Parameters: window
 	//[window] Used to initialize the render texture and viewport, among other things.
 	//////////////////////////////////////////////////////////////////////////////////
-	void Initialize(Window window);
+	void Initialize(Window window, VRManager * vr);
 
 	//////////////////////////////////////////////////////////////////////////////////
 	//Destroy

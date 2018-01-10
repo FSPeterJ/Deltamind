@@ -160,6 +160,7 @@
   <ItemGroup>
     <ClInclude Include="Header Files\Console.h" />
     <ClInclude Include="Header Files\InputManager.h" />
+    <ClInclude Include="Header Files\MessageStructs.h" />
     <ClInclude Include="Header Files\Object.h" />
     <ClInclude Include="Header Files\ObjectFactory.h" />
     <ClInclude Include="Header Files\Resource.h" />

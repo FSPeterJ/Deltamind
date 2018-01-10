@@ -45,6 +45,9 @@
     <ClInclude Include="Header Files\InputManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Header Files\MessageStructs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Header Files\VRManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>

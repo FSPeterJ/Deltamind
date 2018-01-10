@@ -21,13 +21,19 @@ using namespace Console;
 
 #include "VRManager.h"
 
+#include "InputManager.h"
+
 void Death() {
 	WriteLine("DEAD");
 }
 
 void Setup() {
-	MessageEvents::Subscribe(EVENT_Player_Death, Death);
-	MessageEvents::SendMessage(EVENT_Player_Death, EventMessageBase());
+	//MessageEvents::Subscribe(EVENT_Player_Death, Death);
+	//MessageEvents::SendMessage(EVENT_Player_Death, EventMessageBase());
+
+	InputManager input;
+
+	input.HandleInput();
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow) {

@@ -80,7 +80,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	Object * test2 = ObjectFactory::CreateObject("TestObject");
 
 	XMFLOAT4 test1newpos = XMFLOAT4(2.0f, 1.0f, 0.0f, 1.0f);
-	test->object.r[3] = XMLoadFloat4(&test1newpos);
+	test->position.r[3] = XMLoadFloat4(&test1newpos);
 	//test->testing();
 	//((TestObject*)test2)->testing();
 

@@ -110,7 +110,7 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////////////
 	//Destroy
-	//Used to clean up the rendering system's memory and any subsystems.  This needs to be called before the object is destroyed and is not called automatically.
+	//Used to clean up the rendering system's memory and any subsystems.  This needs to be called before the position is destroyed and is not called automatically.
 	//
 	//Parameters: none
 	//////////////////////////////////////////////////////////////////////////////////
@@ -118,24 +118,24 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////////////
 	//registerObject
-	//Used to have the rendering system begin to render the object.  Only needs to be called once per object.
+	//Used to have the rendering system begin to render the position.  Only needs to be called once per position.
 	//
 	//Parameters: toRegister, specialInstructions
-	//[toRegister] A pointer to the object to place in the system
+	//[toRegister] A pointer to the position to place in the system
 	//[specialInstructions] Used to specify any special rendering instructions, such as transparent items.
 	//////////////////////////////////////////////////////////////////////////////////
 	void registerObject(const Object* toRegister, renderState specialInstructions = RENDER_STATE_DEFAULT);
 
 	//////////////////////////////////////////////////////////////////////////////////
 	//unregisterObject
-	//Used to have the rendering system stop rendering the object.  Only needs to be called once per object.
+	//Used to have the rendering system stop rendering the position.  Only needs to be called once per position.
 	//
 	//Parameters: toRemove, specialInstructions
-	//[toRegister] A pointer to the object to remove from the system
+	//[toRegister] A pointer to the position to remove from the system
 	//[specialInstructions] Used to specify any special rendering instructions, such as transparent items.
 	//
 	//Return value: bool
-	//Used to indicate if the object was found.
+	//Used to indicate if the position was found.
 	//////////////////////////////////////////////////////////////////////////////////
 	bool unregisterObject(const Object* toRemove, renderState specialInstructions = RENDER_STATE_DEFAULT);
 	MeshManager* getMeshManager() { return meshManagement; }

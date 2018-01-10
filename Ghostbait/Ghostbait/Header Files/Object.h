@@ -26,7 +26,7 @@ protected:
 private:
 
 public:
-	DirectX::XMMATRIX object = DirectX::XMMatrixIdentity();
+	DirectX::XMMATRIX position = DirectX::XMMatrixIdentity();
 	ComponentBase* Components[MAX_COMPONENTS];
 	Object() {};
 	virtual ~Object() {};

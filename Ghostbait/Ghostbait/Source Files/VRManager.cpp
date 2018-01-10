@@ -38,10 +38,10 @@ bool VRManager::Init() {
 		return false;
 	}
 
-	leftProj = MatToFloatArr(Transpose(pVRHMD->GetProjectionMatrix(vr::EVREye::Eye_Left, 0.1f, 30.0f)));
-	rightProj = MatToFloatArr(Transpose(pVRHMD->GetProjectionMatrix(vr::EVREye::Eye_Right, 0.1f, 30.0f)));
-	leftEyeToHead = MatToFloatArr(Transpose(Mat34ToMat44(pVRHMD->GetEyeToHeadTransform(vr::EVREye::Eye_Left))));
-	rightEyeToHead = MatToFloatArr(Transpose(Mat34ToMat44(pVRHMD->GetEyeToHeadTransform(vr::EVREye::Eye_Right))));
+	MatToFloatArr(Transpose(pVRHMD->GetProjectionMatrix(vr::EVREye::Eye_Left, 0.1f, 30.0f)), &leftProj);
+	MatToFloatArr(Transpose(pVRHMD->GetProjectionMatrix(vr::EVREye::Eye_Right, 0.1f, 30.0f)), &rightProj);
+	MatToFloatArr(Transpose(Mat34ToMat44(pVRHMD->GetEyeToHeadTransform(vr::EVREye::Eye_Left))), &leftEyeToHead);
+	MatToFloatArr(Transpose(Mat34ToMat44(pVRHMD->GetEyeToHeadTransform(vr::EVREye::Eye_Right))), &rightEyeToHead);
 
 
 	return true;
@@ -75,25 +75,23 @@ vr::HmdMatrix44_t VRManager::Transpose(vr::HmdMatrix44_t m) {
 	tran.m[3][2] = m.m[2][3];
 	return tran;
 }
-float* VRManager::MatToFloatArr(vr::HmdMatrix44_t m) {
-	float mat[16];
-	mat[0] = m.m[0][0];
-	mat[1] = m.m[0][1];
-	mat[2] = m.m[0][2];
-	mat[3] = m.m[0][3];
-	mat[4] = m.m[1][0];
-	mat[5] = m.m[1][1];
-	mat[6] = m.m[1][2];
-	mat[7] = m.m[1][3];
-	mat[8] = m.m[2][0];
-	mat[9] = m.m[2][1];
-	mat[10] = m.m[2][2];
-	mat[11] = m.m[2][3];
-	mat[12] = m.m[3][0];
-	mat[13] = m.m[3][1];
-	mat[14] = m.m[3][2];
-	mat[15] = m.m[3][3];
-	return mat;
+void VRManager::MatToFloatArr(vr::HmdMatrix44_t m, float** outM) {
+	*outM[0] = m.m[0][0];
+	*outM[1] = m.m[0][1];
+	*outM[2] = m.m[0][2];
+	*outM[3] = m.m[0][3];
+	*outM[4] = m.m[1][0];
+	*outM[5] = m.m[1][1];
+	*outM[6] = m.m[1][2];
+	*outM[7] = m.m[1][3];
+	*outM[8] = m.m[2][0];
+	*outM[9] = m.m[2][1];
+	*outM[10] = m.m[2][2];
+	*outM[11] = m.m[2][3];
+	*outM[12] = m.m[3][0];
+	*outM[13] = m.m[3][1];
+	*outM[14] = m.m[3][2];
+	*outM[15] = m.m[3][3];
 }
 vr::HmdMatrix44_t VRManager::Mat34ToMat44(vr::HmdMatrix34_t m) {
 	vr::HmdMatrix44_t mat;
@@ -118,40 +116,30 @@ vr::HmdMatrix44_t VRManager::Mat34ToMat44(vr::HmdMatrix34_t m) {
 	mat.m[3][3] = 1;
 	return mat;
 }
-float* VRManager::FloatArrTimesFloatArr(float* m1, float* m2) {
-	float result[16];
-	
-	//		m1					m2
-	//	0	1	2	3	:	0	1	2	3
-	//	4	5	6	7	:	4	5	6	7
-	//	8	9	10	11	:	8	9	10	11
-	//	12	13	14	15	:	12	13	14	15
+void VRManager::FloatArrTimesFloatArr(float* m1, float* m2, float** outM) {
+	*outM[0] = m1[0] * m2[0] + m1[1] * m2[4] + m1[2] * m2[8] + m1[3] * m2[12];	
+	*outM[1] = m1[0] * m2[1] + m1[1] * m2[5] + m1[2] * m2[9] + m1[3] * m2[13];
+	*outM[2] = m1[0] * m2[2] + m1[1] * m2[6] + m1[2] * m2[10] + m1[3] * m2[14];
+	*outM[3] = m1[0] * m2[3] + m1[1] * m2[7] + m1[2] * m2[11] + m1[3] * m2[15];
 
-	result[0] = m1[0] * m2[0] + m1[1] * m2[4] + m1[2] * m2[8] + m1[3] * m2[12];	
-	result[1] = m1[0] * m2[1] + m1[1] * m2[5] + m1[2] * m2[9] + m1[3] * m2[13];
-	result[2] = m1[0] * m2[2] + m1[1] * m2[6] + m1[2] * m2[10] + m1[3] * m2[14];
-	result[3] = m1[0] * m2[3] + m1[1] * m2[7] + m1[2] * m2[11] + m1[3] * m2[15];
+	*outM[4] = m1[4] * m2[0] + m1[5] * m2[4] + m1[6] * m2[8] + m1[7] * m2[12];
+	*outM[5] = m1[4] * m2[1] + m1[5] * m2[5] + m1[6] * m2[9] + m1[7] * m2[13];
+	*outM[6] = m1[4] * m2[2] + m1[5] * m2[6] + m1[6] * m2[10] + m1[7] * m2[14];
+	*outM[7] = m1[4] * m2[3] + m1[5] * m2[7] + m1[6] * m2[11] + m1[7] * m2[15];
 
-	result[4] = m1[4] * m2[0] + m1[5] * m2[4] + m1[6] * m2[8] + m1[7] * m2[12];
-	result[5] = m1[4] * m2[1] + m1[5] * m2[5] + m1[6] * m2[9] + m1[7] * m2[13];
-	result[6] = m1[4] * m2[2] + m1[5] * m2[6] + m1[6] * m2[10] + m1[7] * m2[14];
-	result[7] = m1[4] * m2[3] + m1[5] * m2[7] + m1[6] * m2[11] + m1[7] * m2[15];
+	*outM[8] = m1[8] * m2[0] + m1[9] * m2[4] + m1[10] * m2[8] + m1[11] * m2[12];
+	*outM[9] = m1[8] * m2[1] + m1[9] * m2[5] + m1[10] * m2[9] + m1[11] * m2[13];
+	*outM[10] = m1[8] * m2[2] + m1[9] * m2[6] + m1[10] * m2[10] + m1[11] * m2[14];
+	*outM[11] = m1[8] * m2[3] + m1[9] * m2[7] + m1[10] * m2[11] + m1[11] * m2[15];
 
-	result[8] = m1[8] * m2[0] + m1[9] * m2[4] + m1[10] * m2[8] + m1[11] * m2[12];
-	result[9] = m1[8] * m2[1] + m1[9] * m2[5] + m1[10] * m2[9] + m1[11] * m2[13];
-	result[10] = m1[8] * m2[2] + m1[9] * m2[6] + m1[10] * m2[10] + m1[11] * m2[14];
-	result[11] = m1[8] * m2[3] + m1[9] * m2[7] + m1[10] * m2[11] + m1[11] * m2[15];
-
-	result[12] = m1[12] * m2[0] + m1[13] * m2[4] + m1[14] * m2[8] + m1[15] * m2[12];
-	result[13] = m1[12] * m2[1] + m1[13] * m2[5] + m1[14] * m2[9] + m1[15] * m2[13];
-	result[14] = m1[12] * m2[2] + m1[13] * m2[6] + m1[14] * m2[10] + m1[15] * m2[14];
-	result[15] = m1[12] * m2[3] + m1[13] * m2[7] + m1[14] * m2[11] + m1[15] * m2[15];
-
-	return result;
+	*outM[12] = m1[12] * m2[0] + m1[13] * m2[4] + m1[14] * m2[8] + m1[15] * m2[12];
+	*outM[13] = m1[12] * m2[1] + m1[13] * m2[5] + m1[14] * m2[9] + m1[15] * m2[13];
+	*outM[14] = m1[12] * m2[2] + m1[13] * m2[6] + m1[14] * m2[10] + m1[15] * m2[14];
+	*outM[15] = m1[12] * m2[3] + m1[13] * m2[7] + m1[14] * m2[11] + m1[15] * m2[15];
 }
 
-float* VRManager::FloatArrInverse44(float* m) {
-	float inv[16], det, invOut[16];
+void VRManager::FloatArrInverse44(float* m, float** invOut) {
+	float inv[16], det, result[16];
 
 	inv[0] = m[5] * m[10] * m[15] -
 		m[5] * m[11] * m[14] -
@@ -268,14 +256,13 @@ float* VRManager::FloatArrInverse44(float* m) {
 	det = m[0] * inv[0] + m[1] * inv[4] + m[2] * inv[8] + m[3] * inv[12];
 
 	if (det == 0)
-		return false;
+		return;
 
-	det = 1.0 / det;
+	det = 1.0f / det;
 
 	for (int i = 0; i < 16; i++)
-		invOut[i] = inv[i] * det;
-
-	return invOut;
+		result[i] = inv[i] * det;
+	*invOut = result;
 }
 
 void VRManager::GetVRMatricies(float** _leftProj, float** _rightProj, float** _leftView, float** _rightView) {
@@ -283,8 +270,8 @@ void VRManager::GetVRMatricies(float** _leftProj, float** _rightProj, float** _l
 
 	*_leftProj = leftProj;
 	*_rightProj = rightProj;
-	*_leftView = FloatArrTimesFloatArr(leftEyeToHead, hmdPose);
-	*_rightView = FloatArrTimesFloatArr(rightEyeToHead, hmdPose);
+	FloatArrTimesFloatArr(leftEyeToHead, hmdPose, _leftView);
+	FloatArrTimesFloatArr(rightEyeToHead, hmdPose, _rightView);
 }
 
 void VRManager::UpdateVRPoses() {
@@ -298,12 +285,12 @@ void VRManager::UpdateVRPoses() {
 	{
 		if (trackedDevicePose[deviceIndex].bPoseIsValid)
 		{
-			trackedDevicePoseMatrices[deviceIndex] = MatToFloatArr(Transpose(Mat34ToMat44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking)));
+			MatToFloatArr(Transpose(Mat34ToMat44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking)), &trackedDevicePoseMatrices[deviceIndex]);
 		}
 	}
 	
 	if (trackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd].bPoseIsValid) {
-		hmdPose = FloatArrInverse44(trackedDevicePoseMatrices[vr::k_unTrackedDeviceIndex_Hmd]);
+		FloatArrInverse44(trackedDevicePoseMatrices[vr::k_unTrackedDeviceIndex_Hmd], &hmdPose);
 	}
 }
 

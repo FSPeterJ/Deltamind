@@ -8,7 +8,5 @@ class TestObject:
 public:
 	TestObject();
 	~TestObject();
-	//void testing() { Console::WriteLine(x); };
-
 };
 

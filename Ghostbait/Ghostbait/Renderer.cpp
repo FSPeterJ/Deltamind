@@ -395,7 +395,7 @@ void Renderer::initShaders()
 	device->CreateBuffer(&modelBufferDesc, nullptr, &modelBuffer);
 }
 
-void Renderer::initViewport(RECT window, pipeline_state_t * pipelineTo)
+void Renderer::initViewport(const RECT window, pipeline_state_t * pipelineTo)
 {
 	D3D11_VIEWPORT tempView;
 	tempView.Height = (float)window.bottom - (float)window.top;

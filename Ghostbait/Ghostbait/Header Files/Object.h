@@ -7,18 +7,10 @@
 #include <iostream>
 #include "ObjectFactoryInterface.h"
 
-enum ComponentsListing
-{
-	MESH,
-	ANIMATION,
-	MATERIAL,
-	MAX_COMPONENTS
-};
-
 #define ALIGN(w) __declspec(align(w))
 #define ALIGNMENT 16
 
-ALIGN(ALIGNMENT) class Object : public ObjectFactoryInterface
+ALIGN(ALIGNMENT) class Object: public ObjectFactoryInterface
 {
 
 protected:
@@ -26,8 +18,12 @@ protected:
 private:
 
 public:
+
+	//NOTE: Should these be moved to private with getter/setter?
 	DirectX::XMMATRIX position = DirectX::XMMatrixIdentity();
 	ComponentBase* Components[MAX_COMPONENTS];
+	//Endnote
+
 	Object() {};
 	virtual ~Object() {};
 

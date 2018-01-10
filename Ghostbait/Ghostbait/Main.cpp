@@ -58,12 +58,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	_CrtSetBreakAlloc(BREAK_AT);
 #endif
 #endif
-	
+
 	Window wnd(900, 900);
 
 	if(!wnd.Initialize(hInstance, nCmdShow)) { return FALSE; }
 	wnd.UpdateTitle(L"Ghostbait");
-	
+
 	Renderer* rendInter = new Renderer();
 	rendInter->Initialize(wnd, nullptr);
 
@@ -73,6 +73,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	//Object Factory Testing
 	//====================================
+	ObjectFactory::Initialize(rendInter->getMeshManager());
 	ObjectFactory::Register<Object>("BaseClass");
 	ObjectFactory::Register<TestObject>("TestObject");
 
@@ -98,7 +99,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			if(msg.message == WM_QUIT) { break; }
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-		} else {
+		}
+		else {
 			rendInter->Render();
 			Loop();
 		}
@@ -111,6 +113,5 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	Free();
 
-
-	return (int) msg.wParam;
+	return (int)msg.wParam;
 }

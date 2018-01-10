@@ -25,7 +25,7 @@ using namespace Console;
 
 void Setup() {
 	VRManager man;
-	man.init();
+	man.Init();
 
 
 	//Object Factory Testing

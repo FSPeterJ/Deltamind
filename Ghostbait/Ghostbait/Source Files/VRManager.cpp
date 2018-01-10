@@ -25,7 +25,7 @@ bool VRManager::Init() {
 
 	pVRRenderModel = (vr::IVRRenderModels*) vr::VR_GetGenericInterface(vr::IVRRenderModels_Version, &error);
 	if (!pVRRenderModel) {
-		shutdown();
+		Shutdown();
 		Console::Write("Unable to get render model: ");
 		Console::WriteLine(vr::VR_GetVRInitErrorAsSymbol(error));
 		return false;
@@ -33,7 +33,7 @@ bool VRManager::Init() {
 
 	pVRCompositor = vr::VRCompositor();
 	if (!pVRCompositor) {
-		shutdown();
+		Shutdown();
 		Console::WriteLine("Compositor initialization failed! ");
 		return false;
 	}

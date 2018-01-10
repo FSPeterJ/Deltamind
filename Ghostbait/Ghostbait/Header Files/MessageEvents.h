@@ -1,19 +1,21 @@
 #pragma once
 #include <unordered_map>
 #include <functional>
+#include "MessageStructs.h"
+#include "Console.h"
+using namespace Console;
 
 enum EVENT_TYPES {
 	EVENT_Action,
 	EVENT_Player_Death,
 	EVENT_Player_Move,
-	EVENT_LENGTH
+	EVENT_LENGTH,
+	EVENT_Input
 };
 
-class EventMessageBase {
-public:
-	EventMessageBase() {};
-	~EventMessageBase() {};
-};
+class EventMessageBase;
+
+
 
 class MessageEvents {
 private:
@@ -25,7 +27,7 @@ private:
 				element();
 			}
 		}
-		void static add(const std::function<void()> execute) {
+		static void add(const std::function<void()> execute) {
 			delegates.push_back(execute);
 		}
 		event_func() {};
@@ -35,14 +37,20 @@ private:
 	static std::unordered_map<int, event_func> eventmap;
 
 public:
-	void static Subscribe(const EVENT_TYPES eventtype, const std::function<void()>  execute) {
+
+	void  Subscribe(const EVENT_TYPES eventtype, const std::function<void()>  execute) {
 		eventmap[eventtype].add(execute);
 	};
-	void static SendMessage(const EVENT_TYPES eventtype, EventMessageBase* message) {
+	static void SendMessage(const EVENT_TYPES eventtype, EventMessageBase* message) {
 		eventmap[eventtype]();
 	};
-	void static SendMessage(const EVENT_TYPES eventtype, EventMessageBase message) {
+	static void SendMessage(EVENT_TYPES eventtype, EventMessageBase& message) {
 		eventmap[eventtype]();
+
+		if(eventtype == EVENT_Input) {
+			InputMessage* input = (InputMessage*)&message;
+			WriteLine(input->amount);
+		}
 	};
 
 	//void ProcessEvents();

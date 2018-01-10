@@ -1,4 +1,4 @@
-#include "..\Header Files\InputManager.h"
+#include "InputManager.h"
 
 //Input Constructors
 InputManager::VRInput::VRInput() {
@@ -64,9 +64,21 @@ bool InputManager::ControllerInput::MapKey(Control control, int key) {
 //Main interface
 InputPackage InputManager::HandleInput() {
 	InputPackage input = bridge.CheckForInput();
+	
 	//SendMessage with input
+	InputMessage msg;
+	msg.amount = input.amount;
+	msg.c = input.control;
+
+	InputMessage test;
+	test.amount = 5.0f;
+	test.c = forward;
+
+	MessageEvents::SendMessage(EVENT_Input, test);
+
 	return input;
 }
+
 void InputManager::SetInputType(InputType type) {
 	inputType = type;
 	switch (type) {

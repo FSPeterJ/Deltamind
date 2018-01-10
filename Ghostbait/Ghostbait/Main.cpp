@@ -3,7 +3,7 @@
 
 #ifndef NDEBUG
 #define _CRTDBG_MAP_ALLOC
-//#define BREAK_AT -1
+#define BREAK_AT -1
 #include <stdlib.h>
 #include <crtdbg.h>
 #endif
@@ -11,6 +11,7 @@
 #include "Window.h"
 
 #include "Console.h"
+#include "Renderer.h"
 using namespace Console;
 
 #include "MessageEvents.h"
@@ -20,13 +21,19 @@ using namespace Console;
 
 #include "VRManager.h"
 
+#include "InputManager.h"
+
 void Death() {
 	WriteLine("DEAD");
 }
 
 void Setup() {
-	MessageEvents::Subscribe(EVENT_Player_Death, Death);
-	MessageEvents::SendMessage(EVENT_Player_Death, EventMessageBase());
+	//MessageEvents::Subscribe(EVENT_Player_Death, Death);
+	//MessageEvents::SendMessage(EVENT_Player_Death, EventMessageBase());
+
+	InputManager input;
+
+	input.HandleInput();
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow) {
@@ -70,7 +77,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	Setup();
 	VRManager man;
 	man.init();
-
+	Renderer * rendInter = new Renderer();
+	rendInter->Initialize(wnd);
 	MSG msg;
 	while(true) {
 		if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -78,10 +86,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		} else {
+			rendInter->Render();
 			//Loop();
 		}
 	}
-
+	rendInter->Destroy();
+	delete rendInter;
 	Free();
 
 

@@ -279,7 +279,7 @@ float* VRManager::FloatArrInverse44(float* m) {
 }
 
 void VRManager::GetVRMatricies(float** _leftProj, float** _rightProj, float** _leftView, float** _rightView) {
-	//Get hmdPosition
+	UpdateVRPoses();
 
 	*_leftProj = leftProj;
 	*_rightProj = rightProj;

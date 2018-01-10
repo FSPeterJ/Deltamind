@@ -4,6 +4,13 @@
 #include "MeshManager.h"
 #include "Window.h"
 #include "openvr.h"
+#include "Object.h"
+
+enum renderState
+{
+	RENDER_STATE_DEFAULT, RENDER_STATE_TRANSPARENT
+};
+
 class Renderer
 {
 private:
@@ -40,6 +47,8 @@ private:
 	pipeline_state_t defaultPipeline;
 
 	viewProjectionConstantBuffer defaultCamera;
+
+	std::vector<const Object*> renderedObjects;
 	
 	MeshManager* meshManagement = nullptr;
 
@@ -52,6 +61,7 @@ private:
 	void createDeviceContextAndSwapchain(Window window);
 	void clearPipelineMemory(pipeline_state_t* pipeline);
 	bool LoadShaderFromCSO(char ** szByteCode, size_t& szByteCodeSize, const char* szFileName);
+	void renderObjectDefaultState(const Object* obj);
 
 	void loadPipelineState(pipeline_state_t* pipeline);
 
@@ -62,9 +72,45 @@ public:
 	Renderer();
 	~Renderer();
 
+	//////////////////////////////////////////////////////////////////////////////////
+	//Initialize
+	//Used to initialize the rendering system.  This needs to be called before any rendering is done and is not called automatically.
+	//
+	//Parameters: window
+	//[window] Used to initialize the render texture and viewport, among other things.
+	//////////////////////////////////////////////////////////////////////////////////
 	void Initialize(Window window);
+
+	//////////////////////////////////////////////////////////////////////////////////
+	//Destroy
+	//Used to clean up the rendering system's memory and any subsystems.  This needs to be called before the object is destroyed and is not called automatically.
+	//
+	//Parameters: none
+	//////////////////////////////////////////////////////////////////////////////////
 	void Destroy();
 
+	//////////////////////////////////////////////////////////////////////////////////
+	//registerObject
+	//Used to have the rendering system begin to render the object.  Only needs to be called once per object.
+	//
+	//Parameters: toRegister, specialInstructions
+	//[toRegister] A pointer to the object to place in the system
+	//[specialInstructions] Used to specify any special rendering instructions, such as transparent items.
+	//////////////////////////////////////////////////////////////////////////////////
+	void registerObject(const Object* toRegister, renderState specialInstructions = RENDER_STATE_DEFAULT);
+
+	//////////////////////////////////////////////////////////////////////////////////
+	//unregisterObject
+	//Used to have the rendering system stop rendering the object.  Only needs to be called once per object.
+	//
+	//Parameters: toRemove, specialInstructions
+	//[toRegister] A pointer to the object to remove from the system
+	//[specialInstructions] Used to specify any special rendering instructions, such as transparent items.
+	//
+	//Return value: bool
+	//Used to indicate if the object was found.
+	//////////////////////////////////////////////////////////////////////////////////
+	bool unregisterObject(const Object* toRemove, renderState specialInstructions = RENDER_STATE_DEFAULT);
 	MeshManager* getMeshManager() { return meshManagement; }
 
 	void Render();

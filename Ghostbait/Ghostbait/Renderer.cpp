@@ -57,6 +57,18 @@ bool Renderer::LoadShaderFromCSO(char ** szByteCode, size_t & szByteCodeSize, co
 	return true;
 }
 
+void Renderer::renderObjectDefaultState(const Object * obj)
+{
+	UINT stride = sizeof(VertexPositionColor);
+	UINT offset = 0;
+
+	context->IASetVertexBuffers(0, 1, &meshManagement->findMesh(UINT_MAX)->vertexBuffer, &stride, &offset);
+	context->IASetIndexBuffer(meshManagement->findMesh(UINT_MAX)->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(obj->object), 0, 0);
+
+	context->DrawIndexed(meshManagement->findMesh(UINT_MAX)->indexCount, 0, 0);
+}
+
 void Renderer::loadPipelineState(pipeline_state_t * pipeline)
 {
 	context->RSSetState(pipeline->rasterizer_state);
@@ -124,7 +136,7 @@ void Renderer::Initialize(Window window)
 	context->VSSetConstantBuffers(0, 1, &cameraBuffer);
 	context->VSSetConstantBuffers(1, 1, &modelBuffer);
 
-	XMMATRIX camTemp = XMMatrixTranspose(XMLoadFloat4x4(&lookAt(XMFLOAT3(0.0f, 2.0f, 5.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f))));
+	XMMATRIX camTemp = XMMatrixTranspose(XMLoadFloat4x4(&lookAt(XMFLOAT3(0.0f, 2.0f, -5.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f))));
 	XMStoreFloat4x4(&defaultCamera.view, XMMatrixInverse(&XMMatrixDeterminant(camTemp), camTemp));
 	XMStoreFloat4x4(&defaultCamera.projection, XMMatrixTranspose(XMMatrixPerspectiveFovLH(60.0f * XM_PI / 180.0f, defaultPipeline.viewport.Width / defaultPipeline.viewport.Height, 0.001f, 300.0f)));
 }
@@ -147,20 +159,60 @@ void Renderer::Destroy()
 	delete meshManagement;
 }
 
+void Renderer::registerObject(const Object * toRegister, renderState specialInstructions)
+{
+	switch (specialInstructions)
+	{
+	case RENDER_STATE_DEFAULT:
+	{
+		renderedObjects.push_back(toRegister);
+	}
+	break;
+	case RENDER_STATE_TRANSPARENT:
+	{
+
+	}
+	break;
+	}
+}
+
+bool Renderer::unregisterObject(const Object * toRemove, renderState specialInstructions)
+{
+	switch (specialInstructions)
+	{
+	case RENDER_STATE_DEFAULT:
+	{
+		for (std::vector<const Object*>::iterator iter = renderedObjects.begin(); iter != renderedObjects.end(); ++iter)
+		{
+			if (*iter == toRemove)
+			{
+				renderedObjects.erase(iter);
+				return true;
+			}
+		}
+	}
+	break;
+	case RENDER_STATE_TRANSPARENT:
+	{
+
+	}
+	break;
+	}
+	return false;
+}
+
 void Renderer::Render()
 {
-	UINT stride = sizeof(VertexPositionColor);
-	UINT offset = 0;
+	
 	float color[] = { 0.5f, 0.5f, 1.0f, 1.0f };
 	context->ClearRenderTargetView(defaultPipeline.render_target_view, color);
 	context->ClearDepthStencilView(defaultPipeline.depth_stencil_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	context->UpdateSubresource(cameraBuffer, 0, NULL, &defaultCamera, 0, 0);
-	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixIdentity(), 0, 0);
-	context->IASetVertexBuffers(0, 1, &meshManagement->findMesh(UINT_MAX)->vertexBuffer, &stride, &offset);
-	context->IASetIndexBuffer(meshManagement->findMesh(UINT_MAX)->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-
-	context->DrawIndexed(meshManagement->findMesh(UINT_MAX)->indexCount, 0, 0);
+	for (size_t i = 0; i < renderedObjects.size(); ++i)
+	{
+		renderObjectDefaultState(renderedObjects[i]);
+	}
 
 	swapchain->Present(0, 0);
 }

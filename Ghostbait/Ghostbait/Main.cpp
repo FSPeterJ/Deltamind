@@ -64,11 +64,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	Object * test = ObjectFactory::CreateObject("BaseClass");
 	Object * test2 = ObjectFactory::CreateObject("TestObject");
 
-
+	XMFLOAT4 test1newpos = XMFLOAT4(2.0f, 1.0f, 0.0f, 1.0f);
+	test->object.r[3] = XMLoadFloat4(&test1newpos);
 	//test->testing();
 	//((TestObject*)test2)->testing();
-	delete test;
-	delete test2;
 
 	//====================================
 
@@ -79,6 +78,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	man.init();
 	Renderer * rendInter = new Renderer();
 	rendInter->Initialize(wnd);
+	rendInter->registerObject(test);
+	rendInter->registerObject(test2);
 	MSG msg;
 	while(true) {
 		if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -92,6 +93,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	}
 	rendInter->Destroy();
 	delete rendInter;
+	delete test;
+	delete test2;
+
 	Free();
 
 

@@ -12,10 +12,10 @@ private:
 
 	vr::HmdMatrix44_t Transpose(vr::HmdMatrix44_t m);
 	vr::HmdMatrix44_t Mat34ToMat44(vr::HmdMatrix34_t m);
+
+	float* FloatArrInverse44(float* m);
 	float* MatToFloatArr(vr::HmdMatrix44_t m);
 	float* FloatArrTimesFloatArr(float* m1, float* m2);
-
-
 
 	vr::TrackedDevicePose_t trackedDevicePose[vr::k_unMaxTrackedDeviceCount];
 	float* trackedDevicePoseMatrices[vr::k_unMaxTrackedDeviceCount];

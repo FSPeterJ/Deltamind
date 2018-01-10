@@ -158,8 +158,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Header Files\ComponentBase.h" />
     <ClInclude Include="Header Files\Console.h" />
+    <ClInclude Include="Header Files\Header.h" />
     <ClInclude Include="Header Files\InputManager.h" />
+    <ClInclude Include="Header Files\ManagerInterface.h" />
     <ClInclude Include="Header Files\MessageStructs.h" />
     <ClInclude Include="Header Files\Object.h" />
     <ClInclude Include="Header Files\ObjectFactory.h" />

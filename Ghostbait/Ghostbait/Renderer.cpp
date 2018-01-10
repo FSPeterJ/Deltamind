@@ -43,6 +43,14 @@ void Renderer::clearPipelineMemory(pipeline_state_t * pipeline)
 	pipeline->rasterizer_state->Release();
 }
 
+void Renderer::clearTextureMemory(renderTargetInfo * info)
+{
+	info->depthBuffer->Release();
+	info->dsv->Release();
+	info->rtv->Release();
+	info->texture->Release();
+}
+
 bool Renderer::LoadShaderFromCSO(char ** szByteCode, size_t & szByteCodeSize, const char * szFileName)
 {
 	std::ifstream load;
@@ -55,6 +63,69 @@ bool Renderer::LoadShaderFromCSO(char ** szByteCode, size_t & szByteCodeSize, co
 	load.read(*szByteCode, szByteCodeSize);
 	load.close();
 	return true;
+}
+
+void Renderer::setupVRTargets()
+{
+	leftEye.renderInfo.viewport = D3D11_VIEWPORT();
+	leftEye.renderInfo.viewport.Height = 1500;
+	leftEye.renderInfo.viewport.Width = 1500;
+	leftEye.renderInfo.viewport.MaxDepth = 1.0f;
+	leftEye.renderInfo.viewport.MinDepth = 0.0f;
+	leftEye.renderInfo.viewport.TopLeftX = 0.0f;
+	leftEye.renderInfo.viewport.TopLeftY = 0.0f;
+
+	rightEye.renderInfo.viewport = D3D11_VIEWPORT();
+	rightEye.renderInfo.viewport.Height = 1500;
+	rightEye.renderInfo.viewport.Width = 1500;
+	rightEye.renderInfo.viewport.MaxDepth = 1.0f;
+	rightEye.renderInfo.viewport.MinDepth = 0.0f;
+	rightEye.renderInfo.viewport.TopLeftX = 0.0f;
+	rightEye.renderInfo.viewport.TopLeftY = 0.0f;
+
+	DXGI_SAMPLE_DESC sampleDesc;
+	sampleDesc.Count = 1;
+	sampleDesc.Quality = 0;
+
+	D3D11_TEXTURE2D_DESC texDesc;
+	texDesc.Height = 1500;
+	texDesc.Width = 1500;
+	texDesc.Usage = D3D11_USAGE_DEFAULT;
+	texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	texDesc.MipLevels = 1;
+	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	texDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+	texDesc.ArraySize = 1;
+	texDesc.CPUAccessFlags = 0;
+	texDesc.SampleDesc = sampleDesc;
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc;
+	viewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	viewDesc.Texture2D.MipLevels = texDesc.MipLevels;
+	viewDesc.Texture2D.MostDetailedMip = 0;
+
+	device->CreateTexture2D(&texDesc, nullptr, &leftEye.renderInfo.texture);
+	device->CreateRenderTargetView(leftEye.renderInfo.texture, nullptr, &leftEye.renderInfo.rtv);
+
+	device->CreateTexture2D(&texDesc, nullptr, &rightEye.renderInfo.texture);
+	device->CreateRenderTargetView(rightEye.renderInfo.texture, nullptr, &rightEye.renderInfo.rtv);
+
+	texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	texDesc.MiscFlags = NULL;
+	texDesc.Format = DXGI_FORMAT_D32_FLOAT;
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilDesc;
+	depthStencilDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	depthStencilDesc.Texture2D.MipSlice = 0;
+	depthStencilDesc.Flags = 0;
+
+	device->CreateTexture2D(&texDesc, nullptr, &leftEye.renderInfo.depthBuffer);
+	device->CreateDepthStencilView(leftEye.renderInfo.depthBuffer, &depthStencilDesc, &leftEye.renderInfo.dsv);
+
+	device->CreateTexture2D(&texDesc, nullptr, &rightEye.renderInfo.depthBuffer);
+	device->CreateDepthStencilView(rightEye.renderInfo.depthBuffer, &depthStencilDesc, &rightEye.renderInfo.dsv);
 }
 
 void Renderer::renderObjectDefaultState(const Object * obj)
@@ -139,6 +210,8 @@ void Renderer::Initialize(Window window)
 	XMMATRIX camTemp = XMMatrixTranspose(XMLoadFloat4x4(&lookAt(XMFLOAT3(0.0f, 2.0f, -5.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f))));
 	XMStoreFloat4x4(&defaultCamera.view, XMMatrixInverse(&XMMatrixDeterminant(camTemp), camTemp));
 	XMStoreFloat4x4(&defaultCamera.projection, XMMatrixTranspose(XMMatrixPerspectiveFovLH(60.0f * XM_PI / 180.0f, defaultPipeline.viewport.Width / defaultPipeline.viewport.Height, 0.001f, 300.0f)));
+
+	setupVRTargets();
 }
 
 void Renderer::Destroy()
@@ -154,7 +227,8 @@ void Renderer::Destroy()
 	device->Release();
 	defaultPipeline.render_target_view->Release();
 	clearPipelineMemory(&defaultPipeline);
-
+	clearTextureMemory(&leftEye.renderInfo);
+	clearTextureMemory(&rightEye.renderInfo);
 	meshManagement->Destroy();
 	delete meshManagement;
 }

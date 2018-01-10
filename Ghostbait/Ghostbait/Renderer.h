@@ -14,6 +14,8 @@ enum renderState
 class Renderer
 {
 private:
+
+#pragma region structures
 	struct pipeline_state_t
 	{
 		ID3D11InputLayout* 	input_layout;
@@ -33,6 +35,24 @@ private:
 		XMFLOAT4X4 projection;
 	};
 
+	struct renderTargetInfo
+	{
+		ID3D11RenderTargetView* rtv;
+		ID3D11Texture2D* texture;
+		ID3D11DepthStencilView* dsv;
+		ID3D11Texture2D* depthBuffer;
+		D3D11_VIEWPORT viewport;
+	};
+
+	struct eye
+	{
+		renderTargetInfo renderInfo;
+		XMMATRIX view;
+		XMMATRIX proj;
+	};
+
+#pragma endregion
+
 	ID3D11Device* device;
 	ID3D11DeviceContext* context;
 	IDXGISwapChain* swapchain;
@@ -48,6 +68,9 @@ private:
 
 	viewProjectionConstantBuffer defaultCamera;
 
+	eye leftEye;
+	eye rightEye;
+
 	std::vector<const Object*> renderedObjects;
 	
 	MeshManager* meshManagement = nullptr;
@@ -60,7 +83,10 @@ private:
 	void initViewport(RECT window, pipeline_state_t* pipelineTo);
 	void createDeviceContextAndSwapchain(Window window);
 	void clearPipelineMemory(pipeline_state_t* pipeline);
+	void clearTextureMemory(renderTargetInfo* info);
 	bool LoadShaderFromCSO(char ** szByteCode, size_t& szByteCodeSize, const char* szFileName);
+	void setupVRTargets();
+
 	void renderObjectDefaultState(const Object* obj);
 
 	void loadPipelineState(pipeline_state_t* pipeline);

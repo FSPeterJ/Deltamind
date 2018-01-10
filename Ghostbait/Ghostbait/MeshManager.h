@@ -1,9 +1,10 @@
 #pragma once
 #include <vector>
 #include "VertexTypes.h"
+#include "ManagerInterface.h"
 #include <d3d11.h>
 
-struct meshPositionColor
+struct meshPositionColor : ComponentBase
 {
 	unsigned int meshId;
 	ID3D11Buffer* vertexBuffer;
@@ -11,7 +12,7 @@ struct meshPositionColor
 	unsigned int indexCount;
 };
 
-class MeshManager
+class MeshManager : virtual public ManagerInterface
 {
 private:
 	std::vector<meshPositionColor> smallMeshes;
@@ -23,7 +24,7 @@ public:
 
 	void Initialize(ID3D11Device* deviceIn);
 	void Destroy();
-	meshPositionColor * findMesh(const unsigned int id);
-	void registerMesh(const char * meshFilePath, const unsigned int id);
+	void AddElement(const char * _meshFilePath, const unsigned int _id) override;
+	meshPositionColor* GetElement(const unsigned int _id) override;
 };
 

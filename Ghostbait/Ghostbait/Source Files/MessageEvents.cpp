@@ -1,6 +1,6 @@
 #include "MessageEvents.h"
 
-std::vector<std::function<void()>> MessageEvents::Delegate::delegates;
+std::vector<std::function<void(EventMessageBase)>> MessageEvents::Delegate::delegates;
 
 std::unordered_map<EVENT_TYPES, MessageEvents::Delegate> MessageEvents::eventmap;
 
@@ -12,6 +12,12 @@ void MessageEvents::HandleMessage(EVENT_TYPES eventtype, EventMessageBase& m) {
 	switch(eventtype) {
 	case EVENT_Action:
 	{
+		break;
+	}
+	case EVENT_Instantiate:
+	{
+		InstantiateMessage* instantiate = (InstantiateMessage*) &m;
+		WriteLine("An object was instantiated with a prefab ID of " + std::to_string(instantiate->GetId()));
 		break;
 	}
 	case EVENT_Player_Death:

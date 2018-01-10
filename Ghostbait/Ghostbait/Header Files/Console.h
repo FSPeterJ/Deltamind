@@ -25,26 +25,26 @@ namespace Console {
 	/// </summary>
 	inline static void Free() { FreeConsole(); }
 
-	inline static void Write(std::string s) { std::cout << s; }
+	inline static void Write(const std::string s) { std::cout << s; }
+	
+	inline static void Write(const int i) { std::cout << std::to_string(i); }
 
-	inline static void Write(int i) { std::cout << std::to_string(i); }
+	inline static void Write(const float i) { std::cout << std::to_string(i); }
 
-	inline static void Write(float i) { std::cout << std::to_string(i); }
+	inline static void WriteLine(const std::string s) { std::cout << s << std::endl; }
 
-	inline static void WriteLine(std::string s) { std::cout << s << std::endl; }
+	inline static void WriteLine(const int i) { std::cout << std::to_string(i) << std::endl; }
 
-	inline static void WriteLine(int i) { std::cout << std::to_string(i) << std::endl; }
-
-	inline static void WriteLine(float i) { std::cout << std::to_string(i) << std::endl; }
+	inline static void WriteLine(const float i) { std::cout << std::to_string(i) << std::endl; }
 #else
 	static void Allocate() {}
 	static void Free() {}
-	static void Write(std::string s) {}
-	static void Write(int i) {}
-	static void Write(float i) {}
-	static void WriteLine(std::string s) {}
-	static void WriteLine(int i) {}
-	static void WriteLine(float i) {}
+	static void Write(const std::string s) {}
+	static void Write(const int i) {}
+	static void Write(const float i) {}
+	static void WriteLine(const std::string s) {}
+	static void WriteLine(const int i) {}
+	static void WriteLine(const float i) {}
 	static void Minimize() {}
 	static void Maximize() {}
 #endif

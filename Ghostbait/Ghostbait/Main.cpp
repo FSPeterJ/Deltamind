@@ -23,9 +23,13 @@ using namespace Console;
 
 #include "InputManager.h"
 
+
 void Setup() {
+
 	VRManager man;
 	man.Init();
+
+	MessageEvents::SendMessage(EVENT_Instantiate, InstantiateMessage(0));
 
 
 	//Object Factory Testing

@@ -306,3 +306,14 @@ void VRManager::UpdateVRPoses() {
 		hmdPose = FloatArrInverse44(trackedDevicePoseMatrices[vr::k_unTrackedDeviceIndex_Hmd]);
 	}
 }
+
+void VRManager::SendToHMD(void* leftTexture, void* rightTexture) {
+	vr::EVRCompositorError error;
+	vr::Texture_t leftTex = { leftTexture, vr::TextureType_DirectX, vr::ColorSpace_Auto };
+	vr::Texture_t rightTex = { rightTexture, vr::TextureType_DirectX, vr::ColorSpace_Auto };
+
+	error = pVRCompositor->Submit(vr::EVREye::Eye_Left, &leftTex);
+	if (error) Console::Write("Unable to submit left eye texture");
+	error = pVRCompositor->Submit(vr::EVREye::Eye_Right, &rightTex);
+	if (error) Console::Write("Unable to submit right eye texture");
+}

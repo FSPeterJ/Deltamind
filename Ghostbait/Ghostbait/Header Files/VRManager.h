@@ -17,6 +17,7 @@ private:
 	float* MatToFloatArr(vr::HmdMatrix44_t m);
 	float* FloatArrTimesFloatArr(float* m1, float* m2);
 
+	void UpdateVRPoses();
 	vr::TrackedDevicePose_t trackedDevicePose[vr::k_unMaxTrackedDeviceCount];
 	float* trackedDevicePoseMatrices[vr::k_unMaxTrackedDeviceCount];
 
@@ -32,7 +33,7 @@ public:
 	bool Init();
 	void Shutdown();
 
-	void UpdateVRPoses();
 	void GetVRMatricies(float** leftProj, float** rightProj, float** leftView, float** rightView);
+	void SendToHMD(void* leftTexture, void* rightTexture);
 };
 

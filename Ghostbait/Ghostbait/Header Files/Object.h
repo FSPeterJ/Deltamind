@@ -3,35 +3,38 @@
 #include <directxmath.h>
 #include <d3dcompiler.h>
 #include "MessageEvents.h"
+#include "ComponentBase.h"
 #include <iostream>
 #include "ObjectFactoryInterface.h"
 
-using namespace DirectX;
+enum ComponentsListing
+{
+	MESH,
+	ANIMATION,
+	MATERIAL,
+	MAX_COMPONENTS
+};
 
 #define ALIGN(w) __declspec(align(w))
 #define ALIGNMENT 16
 
-ALIGN(ALIGNMENT) class Object : ObjectFactoryInterface
+ALIGN(ALIGNMENT) class Object : public ObjectFactoryInterface
 {
+
 protected:
 
 private:
 
 public:
-	XMMATRIX object = XMMatrixIdentity();
-
+	DirectX::XMMATRIX object = DirectX::XMMatrixIdentity();
+	ComponentBase* Components[MAX_COMPONENTS];
 	Object() {};
 	virtual ~Object() {};
 
-	void* operator new(size_t i) { return _mm_malloc(i, ALIGNMENT); }
+	void* operator new(size_t _i) { return _mm_malloc(_i, ALIGNMENT); }
 
-	void operator delete(void* p) { _mm_free(p); }
+	void operator delete(void* _p) { _mm_free(_p); }
 
-
-	//void testing() { Console::WriteLine("object"); };
+	ComponentBase* GetComponent(const int _componentID) { return Components[_componentID]; };
+	void SetComponent(const int _componentId, ComponentBase* _component) { Components[_componentId] = _component; };
 };
-
-//inline void* Object::GetMesh(ManagerInterface* manager, int id)
-//{
-//	manager->GetElement(id);
-//}

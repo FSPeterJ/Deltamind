@@ -1,11 +1,9 @@
 #pragma once
 #include "ManagerInterface.h"
 
-class ObjectFactoryInterface
+__interface ObjectFactoryInterface
 {
 public:
-	ObjectFactoryInterface() {}
-	virtual ~ObjectFactoryInterface() {}
 	// Override with instructions for the factory on how to assemble the object
 	//virtual void* GetMesh(ManagerInterface* manager, int id ) = 0;
 	//virtual void* GetAnimation(ManagerInterface* manager, int id ) = 0;

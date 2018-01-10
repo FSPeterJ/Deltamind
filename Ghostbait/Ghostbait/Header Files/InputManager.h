@@ -1,5 +1,5 @@
 #pragma once
-#include <map>
+#include <unordered_map>
 #include <assert.h>
 #include "MessageEvents.h"
 
@@ -23,7 +23,7 @@ class InputManager
 {
 private:
 	struct InputBridge {
-		std::map<Control, int> keyBind;
+		std::unordered_map<Control, int> keyBind;
 		virtual bool MapKey(Control control, int key) { return false; };
 		virtual InputPackage CheckForInput() { return InputPackage(); };
 	};

@@ -15,43 +15,47 @@ enum EVENT_TYPES {
 
 class EventMessageBase;
 
-
-
 class MessageEvents {
 private:
-	class event_func: std::function<void()> {
+	class Delegate: std::function<void()> {
 		static std::vector<std::function<void()>> delegates;
 	public:
 		void operator()() const {
-			for(const std::function<void()> element : delegates) {
-				element();
-			}
+			for(const std::function<void()> element : delegates) { element(); }
 		}
-		static void add(const std::function<void()> execute) {
-			delegates.push_back(execute);
-		}
-		event_func() {};
-		~event_func() {};
+
+		inline static void add(const std::function<void()> execute) { delegates.push_back(execute); }
+
+		Delegate(void) {};
+		~Delegate(void) {};
 	};
 
-	static std::unordered_map<int, event_func> eventmap;
+	static std::unordered_map<int, Delegate> eventmap;
 
+	static void HandleMessage(const EVENT_TYPES t, EventMessageBase* m) { HandleMessage(t, *m); }
+	static void HandleMessage(const EVENT_TYPES t, EventMessageBase& m);
 public:
 
-	void  Subscribe(const EVENT_TYPES eventtype, const std::function<void()>  execute) {
-		eventmap[eventtype].add(execute);
-	};
-	static void SendMessage(const EVENT_TYPES eventtype, EventMessageBase* message) {
-		eventmap[eventtype]();
-	};
-	static void SendMessage(EVENT_TYPES eventtype, EventMessageBase& message) {
-		eventmap[eventtype]();
+	/// <summary>
+	/// Subscribes to the specified eventtype.
+	/// </summary>
+	/// <param name="eventtype">The eventtype.</param>
+	/// <param name="execute">The function to execute.</param>
+	inline static void Subscribe(const EVENT_TYPES eventtype, const std::function<void()>  execute) { eventmap[eventtype].add(execute); };
 
-		if(eventtype == EVENT_Input) {
-			InputMessage* input = (InputMessage*)&message;
-			WriteLine(input->amount);
-		}
-	};
+	/// <summary>
+	/// Sends a message.
+	/// </summary>
+	/// <param name="eventtype">The eventtype.</param>
+	/// <param name="message">The message.</param>
+	inline static void SendMessage(const EVENT_TYPES eventtype, EventMessageBase* message = 0) { eventmap[eventtype](); HandleMessage(eventtype, message); };
+
+	/// <summary>
+	/// Sends a message.
+	/// </summary>
+	/// <param name="eventtype">The eventtype.</param>
+	/// <param name="message">The message.</param>
+	inline static void SendMessage(EVENT_TYPES eventtype, EventMessageBase& message = EventMessageBase()) { eventmap[eventtype](); HandleMessage(eventtype, message); };
 
 	//void ProcessEvents();
 	MessageEvents();

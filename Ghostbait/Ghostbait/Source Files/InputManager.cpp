@@ -1,5 +1,8 @@
 #include "InputManager.h"
 
+InputType InputManager::inputType = VR;
+InputManager::InputBridge InputManager::bridge = VRInput();
+
 //Input Constructors
 InputManager::VRInput::VRInput() {
 	MapKey(none, 0);
@@ -44,37 +47,26 @@ bool InputManager::VRInput::MapKey(Control control, int key) {
 		keyBind[control] = key;
 		return true;
 	}
-	else return false;
+	else { return false; }
 }
 bool InputManager::KeyboardInput::MapKey(Control control, int key) {
 	if (keyBind.find(control) != keyBind.end()) {
 		keyBind[control] = key;
 		return true;
 	}
-	else return false;
+	else { return false; }
 }
 bool InputManager::ControllerInput::MapKey(Control control, int key) {
-	if (keyBind.find(control) != keyBind.end()) {
+	if(keyBind.find(control) != keyBind.end()) {
 		keyBind[control] = key;
 		return true;
-	}
-	else return false;
+	} else { return false; };
 }
 
-//Main interface
 InputPackage InputManager::HandleInput() {
 	InputPackage input = bridge.CheckForInput();
 	
-	//SendMessage with input
-	InputMessage msg;
-	msg.amount = input.amount;
-	msg.c = input.control;
-
-	InputMessage test;
-	test.amount = 5.0f;
-	test.c = forward;
-
-	MessageEvents::SendMessage(EVENT_Input, test);
+	MessageEvents::SendMessage(EVENT_Input, InputMessage(input.control, input.amount));
 
 	return input;
 }
@@ -92,6 +84,6 @@ void InputManager::SetInputType(InputType type) {
 		bridge = ControllerInput();
 		break;
 	default:
-		CRASH;
+		Messagebox::ShowError(L"Input Type Error", L"No InputType is defined!");
 	}
 }

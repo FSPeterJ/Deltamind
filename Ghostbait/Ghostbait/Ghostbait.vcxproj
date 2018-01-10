@@ -158,6 +158,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Examples.h" />
     <ClInclude Include="Header Files\Console.h" />
     <ClInclude Include="Header Files\InputManager.h" />
     <ClInclude Include="Header Files\MessageStructs.h" />
@@ -170,6 +171,7 @@
     <ClInclude Include="Header Files\Window.h" />
     <ClInclude Include="Header Files\MessageEvents.h" />
     <ClInclude Include="MeshManager.h" />
+    <ClInclude Include="Messagebox.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="VertexTypes.h" />
   </ItemGroup>

@@ -26,6 +26,23 @@ using namespace Console;
 void Setup() {
 	VRManager man;
 	man.init();
+
+
+	//Object Factory Testing
+	//====================================
+	ObjectFactory::Register<Object>("BaseClass");
+	ObjectFactory::Register<TestObject>("TestObject");
+
+	Object * test = ObjectFactory::CreateObject("BaseClass");
+	Object * test2 = ObjectFactory::CreateObject("TestObject");
+
+
+	//test->testing();
+	//((TestObject*)test2)->testing();
+	delete test;
+	delete test2;
+
+	//====================================
 }
 
 void Loop() {
@@ -53,22 +70,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	Allocate();
 	WriteLine("App has been initalized!");
 	//Minimize();
-
-	//Object Factory Testing
-	//====================================
-	ObjectFactory::Register<Object>("BaseClass");
-	ObjectFactory::Register<TestObject>("TestObject");
-
-	Object * test = ObjectFactory::CreateObject("BaseClass");
-	Object * test2 = ObjectFactory::CreateObject("TestObject");
-
-
-	//test->testing();
-	//((TestObject*)test2)->testing();
-	delete test;
-	delete test2;
-
-	//====================================
 
 	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_GHOSTBAIT));
 

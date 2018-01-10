@@ -2,7 +2,7 @@
 
 std::vector<std::function<void()>> MessageEvents::Delegate::delegates;
 
-std::unordered_map<int, MessageEvents::Delegate> MessageEvents::eventmap;
+std::unordered_map<EVENT_TYPES, MessageEvents::Delegate> MessageEvents::eventmap;
 
 MessageEvents::MessageEvents() {}
 

@@ -18,28 +18,33 @@ struct InputPackage {
 
 class InputManager {
 private:
-	struct InputBridge {
+	struct Input {
+		virtual bool MapKey(Control control, int key) = 0;
+		virtual InputPackage CheckForInput() = 0;
+	};
+
+	struct InputBridge : Input {
 		std::unordered_map<Control, int> keyBind;
-		virtual bool MapKey(Control control, int key) { return false; };
-		virtual InputPackage CheckForInput() { return InputPackage(); };
+		bool MapKey(Control control, int key) { return false; }
+		InputPackage CheckForInput() { return InputPackage(); }
 	};
 
 	struct VRInput: public InputBridge {
 		VRInput();
-		bool MapKey(Control control, int key) override;
-		InputPackage CheckForInput() override;
+		bool MapKey(Control control, int key);
+		InputPackage CheckForInput();
 	};
 
 	struct KeyboardInput: public InputBridge {
-		bool MapKey(Control control, int key) override;
-		InputPackage CheckForInput() override;
+		bool MapKey(Control control, int key);
+		InputPackage CheckForInput();
 	public:
 		KeyboardInput();
 	};
 
 	struct ControllerInput: public InputBridge {
-		bool MapKey(Control control, int key) override;
-		InputPackage CheckForInput() override;
+		bool MapKey(Control control, int key);
+		InputPackage CheckForInput();
 	public:
 		ControllerInput();
 	};

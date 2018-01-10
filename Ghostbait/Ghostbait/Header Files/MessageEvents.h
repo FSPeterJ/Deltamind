@@ -30,7 +30,7 @@ private:
 		~Delegate(void) {};
 	};
 
-	static std::unordered_map<int, Delegate> eventmap;
+	static std::unordered_map<EVENT_TYPES, Delegate> eventmap;
 
 	static void HandleMessage(const EVENT_TYPES t, EventMessageBase* m) { HandleMessage(t, *m); }
 	static void HandleMessage(const EVENT_TYPES t, EventMessageBase& m);

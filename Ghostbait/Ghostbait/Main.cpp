@@ -23,17 +23,30 @@ using namespace Console;
 
 #include "InputManager.h"
 
-void Death() {
-	WriteLine("DEAD");
+void Setup() {
+	VRManager man;
+	man.init();
+
+
+	//Object Factory Testing
+	//====================================
+	ObjectFactory::Register<Object>("BaseClass");
+	ObjectFactory::Register<TestObject>("TestObject");
+
+	Object * test = ObjectFactory::CreateObject("BaseClass");
+	Object * test2 = ObjectFactory::CreateObject("TestObject");
+
+
+	//test->testing();
+	//((TestObject*)test2)->testing();
+	delete test;
+	delete test2;
+
+	//====================================
 }
 
-void Setup() {
-	//MessageEvents::Subscribe(EVENT_Player_Death, Death);
-	//MessageEvents::SendMessage(EVENT_Player_Death, EventMessageBase());
-
-	InputManager input;
-
-	input.HandleInput();
+void Loop() {
+	InputManager::HandleInput();
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow) {
@@ -51,34 +64,17 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	if(!wnd.Initialize(hInstance, nCmdShow)) { return FALSE; }
 	wnd.UpdateTitle(L"Ghostbait");
 	
+	Renderer* rendInter = new Renderer();
+	rendInter->Initialize(wnd);
 
 	Allocate();
 	WriteLine("App has been initalized!");
 	//Minimize();
 
-	//Object Factory Testing
-	//====================================
-	ObjectFactory::Register<Object>("BaseClass");
-	ObjectFactory::Register<TestObject>("TestObject");
-
-	Object * test = ObjectFactory::CreateObject("BaseClass");
-	Object * test2 = ObjectFactory::CreateObject("TestObject");
-
-
-	//test->testing();
-	//((TestObject*)test2)->testing();
-	delete test;
-	delete test2;
-
-	//====================================
-
 	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_GHOSTBAIT));
 
 	Setup();
-	VRManager man;
-	man.init();
-	Renderer * rendInter = new Renderer();
-	rendInter->Initialize(wnd);
+
 	MSG msg;
 	while(true) {
 		if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -87,11 +83,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			DispatchMessage(&msg);
 		} else {
 			rendInter->Render();
-			//Loop();
+			Loop();
 		}
 	}
+
 	rendInter->Destroy();
 	delete rendInter;
+
 	Free();
 
 

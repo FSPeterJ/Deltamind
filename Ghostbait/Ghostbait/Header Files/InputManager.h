@@ -2,75 +2,77 @@
 #include <unordered_map>
 #include <assert.h>
 #include "MessageEvents.h"
-
-#define CRASH assert(1 == 0)
-
+#include "Messagebox.h"
 
 enum InputType {
 	VR,
 	KEYBOARD,
 	CONTROLLER
 };
+
 struct InputPackage {
-	InputPackage(){}
+	InputPackage() {}
 	Control control;
 	float amount;
 };
 
-
-
-class InputManager
-{
+class InputManager {
 private:
-	struct InputBridge {
+	struct Input {
+		virtual bool MapKey(Control control, int key) = 0;
+		virtual InputPackage CheckForInput() = 0;
+	};
+
+	struct InputBridge : Input {
 		std::unordered_map<Control, int> keyBind;
-		virtual bool MapKey(Control control, int key) { return false; };
-		virtual InputPackage CheckForInput() { return InputPackage(); };
+		bool MapKey(Control control, int key) { return false; }
+		InputPackage CheckForInput() { return InputPackage(); }
 	};
-	struct VRInput : public InputBridge {
+
+	struct VRInput: public InputBridge {
 		VRInput();
-		bool MapKey(Control control, int key) override;
-		InputPackage CheckForInput() override;
+		bool MapKey(Control control, int key);
+		InputPackage CheckForInput();
 	};
-	struct KeyboardInput : public InputBridge {
-		bool MapKey(Control control, int key) override;
-		InputPackage CheckForInput() override;
+
+	struct KeyboardInput: public InputBridge {
+		bool MapKey(Control control, int key);
+		InputPackage CheckForInput();
 	public:
 		KeyboardInput();
 	};
-	struct ControllerInput : public InputBridge {
-		bool MapKey(Control control, int key) override;
-		InputPackage CheckForInput() override;
+
+	struct ControllerInput: public InputBridge {
+		bool MapKey(Control control, int key);
+		InputPackage CheckForInput();
 	public:
 		ControllerInput();
 	};
 
-	InputType inputType = VR;
-	InputBridge bridge = VRInput();
+	static InputType inputType;
+	static InputBridge bridge;
 
 public:
 	InputManager() {};
 	~InputManager() {};
-	
-	//Purpose:
-	//	Called to check input devices for new user input. 
-	//	Should be called every frame.
-	//	Results in a message sent with respective input
-	//Returns:
-	//	The control currently selected
-	InputPackage HandleInput();
-	//Purpose:
-	//	Retreive the current input method (Ex. VR, Keyboard, Controller, etc.)
-	//Returns:	
-	//	The current input method
-	inline InputType GetInputType() {return inputType;};
-	//Purpose:
-	//	Set the current input method (Ex. VR, Keyboard, Controller, etc.)
-	//Parameters:	
-	//	type - the new inpt method to replace the current one
-	void SetInputType(InputType type);
+
+	/// <summary>
+	/// Called to check input devices for new user input.
+	/// Should be called every frame.
+	/// Results in a message sent with respective input.
+	/// </summary>
+	/// <returns>The control currently selected.</returns>
+	static InputPackage HandleInput();
+
+	/// <summary>
+	/// Retreive the current input method (Ex. VR, Keyboard, Controller, etc.)
+	/// </summary>
+	/// <returns>The current input method.</returns>
+	static inline InputType GetInputType() { return inputType; };
+
+	/// <summary>
+	/// Sets the current input method (Ex. VR, Keyboard, Controller, etc.)
+	/// </summary>
+	/// <param name="type">The new input method to replace the current one.</param>
+	static void SetInputType(InputType type);
 };
-
-
-
-

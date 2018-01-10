@@ -19,14 +19,16 @@ public:
 };
 
 class InputMessage: public EventMessageBase {
-public:	
-	Control c;
+	Control ctrl;
 	float amount;
- 
+public:
+	/// <summary>
+	/// Initializes a new instance of the <see cref="InputMessage"/> class.
+	/// </summary>
+	/// <param name="_ctrl">The control.</param>
+	/// <param name="_amount">The amount.</param>
+	InputMessage(Control _ctrl, float _amount) : ctrl(_ctrl), amount(_amount) {}
 
-	 InputMessage() { }
-
-	 void operator=(const EventMessageBase& base) {
-		 //EventMessageBase::operator=(base);
-	 } 
+	 const float GetAmount() const { return amount; }
+	 const Control GetControl() const { return ctrl; }
 };

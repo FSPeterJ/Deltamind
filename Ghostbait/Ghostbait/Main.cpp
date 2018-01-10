@@ -48,6 +48,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::Register<Object>("BaseClass");
 	ObjectFactory::Register<TestObject>("TestObject");
 
+	MessageEvents::SendMessage(EVENT_Instantiate, InstantiateMessage(0));
 }
 
 void Loop() {

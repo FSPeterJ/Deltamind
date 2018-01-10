@@ -24,9 +24,9 @@ void Renderer::createDeviceContextAndSwapchain(Window window)
 	desc.SampleDesc.Quality = 0;
 
 	D3D_FEATURE_LEVEL * feature = new D3D_FEATURE_LEVEL(D3D_FEATURE_LEVEL_10_1);
-	D3D_FEATURE_LEVEL * outputFeature = 0;
+	D3D_FEATURE_LEVEL * outputFeature = nullptr;
 #if _DEBUG
-	D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, D3D11_CREATE_DEVICE_DEBUG, feature, 1, D3D11_SDK_VERSION, &desc, &swapchain, &device, outputFeature, &context);
+	D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, D3D11_CREATE_DEVICE_DEBUG, feature, 1, D3D11_SDK_VERSION, &desc, &swapchain, &device, outputFeature, &context);
 #else
 	D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, feature, 1, D3D11_SDK_VERSION, &desc, &swapchain, &device, outputFeature, &context);
 #endif
@@ -157,10 +157,10 @@ void Renderer::Render()
 
 	context->UpdateSubresource(cameraBuffer, 0, NULL, &defaultCamera, 0, 0);
 	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixIdentity(), 0, 0);
-	context->IASetVertexBuffers(0, 1, &meshManagement->findMesh(UINT_MAX)->vertexBuffer, &stride, &offset);
-	context->IASetIndexBuffer(meshManagement->findMesh(UINT_MAX)->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	context->IASetVertexBuffers(0, 1, &meshManagement->GetElement(UINT_MAX)->vertexBuffer, &stride, &offset);
+	context->IASetIndexBuffer(meshManagement->GetElement(UINT_MAX)->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-	context->DrawIndexed(meshManagement->findMesh(UINT_MAX)->indexCount, 0, 0);
+	context->DrawIndexed(meshManagement->GetElement(UINT_MAX)->indexCount, 0, 0);
 
 	swapchain->Present(0, 0);
 }

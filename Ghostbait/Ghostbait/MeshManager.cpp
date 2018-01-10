@@ -96,7 +96,12 @@ void MeshManager::Destroy()
 	}
 }
 
-meshPositionColor * MeshManager::findMesh(const unsigned int id)
+void MeshManager::AddElement(const char * meshFilePath, const unsigned int id)
+{
+}
+
+
+meshPositionColor*  MeshManager::GetElement(const unsigned int id)
 {
 	for (size_t i = 0; i < smallMeshes.size(); ++i)
 	{

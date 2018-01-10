@@ -68,6 +68,32 @@ void Renderer::loadPipelineState(pipeline_state_t * pipeline)
 	context->PSSetShader(pipeline->pixel_shader, NULL, NULL);
 }
 
+DirectX::XMFLOAT4X4 Renderer::lookAt(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 up)
+{
+	DirectX::XMFLOAT4X4 ret;
+	DirectX::XMStoreFloat4x4(&ret, XMMatrixIdentity());
+	DirectX::XMFLOAT3 x;
+	DirectX::XMFLOAT3 y;
+	DirectX::XMFLOAT3 z;
+	XMStoreFloat3(&z, XMVector3Normalize(XMLoadFloat3(&target) - XMLoadFloat3(&pos)));
+	XMStoreFloat3(&x, XMVector3Normalize(XMVector3Cross(XMLoadFloat3(&up), XMLoadFloat3(&z))));
+	XMStoreFloat3(&y, XMVector3Normalize(XMVector3Cross(XMLoadFloat3(&z), XMLoadFloat3(&x))));
+	ret._11 = x.x;
+	ret._12 = x.y;
+	ret._13 = x.z;
+	ret._41 = pos.x;
+	ret._21 = y.x;
+	ret._22 = y.y;
+	ret._23 = y.z;
+	ret._42 = pos.y;
+	ret._31 = z.x;
+	ret._32 = z.y;
+	ret._33 = z.z;
+	ret._43 = pos.z;
+	//XMStoreFloat4x4(&ret, XMMatrixTranslation(pos.x, pos.y, pos.z) * XMLoadFloat4x4(&ret));
+	return ret;
+}
+
 Renderer::Renderer()
 {
 }
@@ -94,6 +120,13 @@ void Renderer::Initialize(Window window)
 	loadPipelineState(&defaultPipeline);
 	meshManagement = new MeshManager();
 	meshManagement->Initialize(device);
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	context->VSSetConstantBuffers(0, 1, &cameraBuffer);
+	context->VSSetConstantBuffers(1, 1, &modelBuffer);
+
+	XMMATRIX camTemp = XMMatrixTranspose(XMLoadFloat4x4(&lookAt(XMFLOAT3(0.0f, 2.0f, 5.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f))));
+	XMStoreFloat4x4(&defaultCamera.view, XMMatrixInverse(&XMMatrixDeterminant(camTemp), camTemp));
+	XMStoreFloat4x4(&defaultCamera.projection, XMMatrixTranspose(XMMatrixPerspectiveFovLH(60.0f * XM_PI / 180.0f, defaultPipeline.viewport.Width / defaultPipeline.viewport.Height, 0.001f, 300.0f)));
 }
 
 void Renderer::Destroy()
@@ -112,6 +145,24 @@ void Renderer::Destroy()
 
 	meshManagement->Destroy();
 	delete meshManagement;
+}
+
+void Renderer::Render()
+{
+	UINT stride = sizeof(VertexPositionColor);
+	UINT offset = 0;
+	float color[] = { 0.5f, 0.5f, 1.0f, 1.0f };
+	context->ClearRenderTargetView(defaultPipeline.render_target_view, color);
+	context->ClearDepthStencilView(defaultPipeline.depth_stencil_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	context->UpdateSubresource(cameraBuffer, 0, NULL, &defaultCamera, 0, 0);
+	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixIdentity(), 0, 0);
+	context->IASetVertexBuffers(0, 1, &meshManagement->findMesh(UINT_MAX)->vertexBuffer, &stride, &offset);
+	context->IASetIndexBuffer(meshManagement->findMesh(UINT_MAX)->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+	context->DrawIndexed(meshManagement->findMesh(UINT_MAX)->indexCount, 0, 0);
+
+	swapchain->Present(0, 0);
 }
 
 void Renderer::initDepthStencilBuffer(pipeline_state_t* pipelineTo)

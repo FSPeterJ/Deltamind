@@ -3,6 +3,7 @@
 #include <d3d11.h>
 #include "MeshManager.h"
 #include "Window.h"
+#include "openvr.h"
 class Renderer
 {
 private:
@@ -37,6 +38,8 @@ private:
 	ID3D11Buffer* cameraBuffer;
 	ID3D11Buffer* modelBuffer;
 	pipeline_state_t defaultPipeline;
+
+	viewProjectionConstantBuffer defaultCamera;
 	
 	MeshManager* meshManagement = nullptr;
 
@@ -52,6 +55,9 @@ private:
 
 	void loadPipelineState(pipeline_state_t* pipeline);
 
+	DirectX::XMFLOAT4X4 lookAt(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 up);
+
+
 public:
 	Renderer();
 	~Renderer();
@@ -60,5 +66,7 @@ public:
 	void Destroy();
 
 	MeshManager* getMeshManager() { return meshManagement; }
+
+	void Render();
 };
 

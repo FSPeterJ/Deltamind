@@ -13,10 +13,11 @@ private:
 	vr::HmdMatrix44_t Transpose(vr::HmdMatrix44_t m);
 	vr::HmdMatrix44_t Mat34ToMat44(vr::HmdMatrix34_t m);
 
-	float* FloatArrInverse44(float* m);
-	float* MatToFloatArr(vr::HmdMatrix44_t m);
-	float* FloatArrTimesFloatArr(float* m1, float* m2);
+	void FloatArrInverse44(float* m, float** invOut);
+	void MatToFloatArr(vr::HmdMatrix44_t m, float** outM);
+	void FloatArrTimesFloatArr(float* m1, float* m2, float** outM);
 
+	void UpdateVRPoses();
 	vr::TrackedDevicePose_t trackedDevicePose[vr::k_unMaxTrackedDeviceCount];
 	float* trackedDevicePoseMatrices[vr::k_unMaxTrackedDeviceCount];
 
@@ -32,8 +33,7 @@ public:
 	bool Init();
 	void Shutdown();
 
-	void UpdateVRPoses();
 	void GetVRMatricies(float** leftProj, float** rightProj, float** leftView, float** rightView);
-
+	void SendToHMD(void* leftTexture, void* rightTexture);
 };
 

@@ -295,6 +295,11 @@ void Renderer::Render()
 	if (VRManagement)
 	{
 		VRManagement->GetVRMatricies((float**)&leftEye.camera.projection, (float**)&rightEye.camera.projection, (float**)&leftEye.camera.view, (float**)&rightEye.camera.view);
+		XMStoreFloat4x4(&leftEye.camera.projection, XMMatrixTranspose(XMLoadFloat4x4(&leftEye.camera.projection)));
+		XMStoreFloat4x4(&rightEye.camera.projection, XMMatrixTranspose(XMLoadFloat4x4(&rightEye.camera.projection)));
+		XMStoreFloat4x4(&leftEye.camera.view, XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat4x4(&leftEye.camera.view)), XMLoadFloat4x4(&leftEye.camera.view))));
+		XMStoreFloat4x4(&rightEye.camera.view, XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat4x4(&rightEye.camera.view)), XMLoadFloat4x4(&rightEye.camera.view))));
+
 		renderToEye(&leftEye);
 		renderToEye(&rightEye);
 		VRManagement->SendToHMD((void*)leftEye.renderInfo.texture, (void*)rightEye.renderInfo.texture);

@@ -20,6 +20,7 @@ private:
 	void UpdateVRPoses();
 	vr::TrackedDevicePose_t trackedDevicePose[vr::k_unMaxTrackedDeviceCount];
 	float* trackedDevicePoseMatrices[vr::k_unMaxTrackedDeviceCount];
+	void Shutdown();
 
 public:
 	vr::IVRSystem *pVRHMD;
@@ -31,7 +32,6 @@ public:
 	~VRManager();
 
 	bool Init();
-	void Shutdown();
 
 	void GetVRMatricies(float** leftProj, float** rightProj, float** leftView, float** rightView);
 	void SendToHMD(void* leftTexture, void* rightTexture);

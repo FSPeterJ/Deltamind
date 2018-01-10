@@ -1,6 +1,7 @@
 #include "VRManager.h"
 #include "Console.h"
-
+#include "Messagebox.h"
+#include <string>
 
 VRManager::VRManager()
 {
@@ -18,6 +19,8 @@ bool VRManager::Init() {
 		pVRHMD = nullptr;
 		Console::Write("Unable to initialize VR: ");
 		Console::WriteLine(vr::VR_GetVRInitErrorAsSymbol(error));
+		Messagebox::ShowError(L"Unable to initialize VR", L"Check the CONSOLE!!!");
+
 		return false;
 	}
 
@@ -58,40 +61,45 @@ void VRManager::Shutdown() {
 
 vr::HmdMatrix44_t VRManager::Transpose(vr::HmdMatrix44_t m) {
 	vr::HmdMatrix44_t tran;
+	tran.m[0][0] = m.m[0][0];
 	tran.m[0][1] = m.m[1][0];
 	tran.m[0][2] = m.m[2][0];
 	tran.m[0][3] = m.m[3][0];
 
 	tran.m[1][0] = m.m[0][1];
+	tran.m[1][1] = m.m[1][1];
 	tran.m[1][2] = m.m[2][1];
 	tran.m[1][3] = m.m[3][1];
 
 	tran.m[2][0] = m.m[0][2];
 	tran.m[2][1] = m.m[1][2];
+	tran.m[2][2] = m.m[2][2];
 	tran.m[2][3] = m.m[3][2];
 
 	tran.m[3][0] = m.m[0][3];
 	tran.m[3][1] = m.m[1][3];
 	tran.m[3][2] = m.m[2][3];
+	tran.m[3][3] = m.m[3][3];
 	return tran;
 }
 void VRManager::MatToFloatArr(vr::HmdMatrix44_t m, float** outM) {
-	*outM[0] = m.m[0][0];
-	*outM[1] = m.m[0][1];
-	*outM[2] = m.m[0][2];
-	*outM[3] = m.m[0][3];
-	*outM[4] = m.m[1][0];
-	*outM[5] = m.m[1][1];
-	*outM[6] = m.m[1][2];
-	*outM[7] = m.m[1][3];
-	*outM[8] = m.m[2][0];
-	*outM[9] = m.m[2][1];
-	*outM[10] = m.m[2][2];
-	*outM[11] = m.m[2][3];
-	*outM[12] = m.m[3][0];
-	*outM[13] = m.m[3][1];
-	*outM[14] = m.m[3][2];
-	*outM[15] = m.m[3][3];
+	(*outM) = new float[16];
+	(*outM)[0] = m.m[0][0];
+	(*outM)[1] = m.m[0][1];
+	(*outM)[2] = m.m[0][2];
+	(*outM)[3] = m.m[0][3];
+	(*outM)[4] = m.m[1][0];
+	(*outM)[5] = m.m[1][1];
+	(*outM)[6] = m.m[1][2];
+	(*outM)[7] = m.m[1][3];
+	(*outM)[8] = m.m[2][0];
+	(*outM)[9] = m.m[2][1];
+	(*outM)[10] = m.m[2][2];
+	(*outM)[11] = m.m[2][3];
+	(*outM)[12] = m.m[3][0];
+	(*outM)[13] = m.m[3][1];
+	(*outM)[14] = m.m[3][2];
+	(*outM)[15] = m.m[3][3];
 }
 vr::HmdMatrix44_t VRManager::Mat34ToMat44(vr::HmdMatrix34_t m) {
 	vr::HmdMatrix44_t mat;
@@ -117,25 +125,26 @@ vr::HmdMatrix44_t VRManager::Mat34ToMat44(vr::HmdMatrix34_t m) {
 	return mat;
 }
 void VRManager::FloatArrTimesFloatArr(float* m1, float* m2, float** outM) {
-	*outM[0] = m1[0] * m2[0] + m1[1] * m2[4] + m1[2] * m2[8] + m1[3] * m2[12];	
-	*outM[1] = m1[0] * m2[1] + m1[1] * m2[5] + m1[2] * m2[9] + m1[3] * m2[13];
-	*outM[2] = m1[0] * m2[2] + m1[1] * m2[6] + m1[2] * m2[10] + m1[3] * m2[14];
-	*outM[3] = m1[0] * m2[3] + m1[1] * m2[7] + m1[2] * m2[11] + m1[3] * m2[15];
+	(*outM) = new float[16];
+	(*outM)[0] = m1[0] * m2[0] + m1[1] * m2[4] + m1[2] * m2[8] + m1[3] * m2[12];	
+	(*outM)[1] = m1[0] * m2[1] + m1[1] * m2[5] + m1[2] * m2[9] + m1[3] * m2[13];
+	(*outM)[2] = m1[0] * m2[2] + m1[1] * m2[6] + m1[2] * m2[10] + m1[3] * m2[14];
+	(*outM)[3] = m1[0] * m2[3] + m1[1] * m2[7] + m1[2] * m2[11] + m1[3] * m2[15];
 
-	*outM[4] = m1[4] * m2[0] + m1[5] * m2[4] + m1[6] * m2[8] + m1[7] * m2[12];
-	*outM[5] = m1[4] * m2[1] + m1[5] * m2[5] + m1[6] * m2[9] + m1[7] * m2[13];
-	*outM[6] = m1[4] * m2[2] + m1[5] * m2[6] + m1[6] * m2[10] + m1[7] * m2[14];
-	*outM[7] = m1[4] * m2[3] + m1[5] * m2[7] + m1[6] * m2[11] + m1[7] * m2[15];
+	(*outM)[4] = m1[4] * m2[0] + m1[5] * m2[4] + m1[6] * m2[8] + m1[7] * m2[12];
+	(*outM)[5] = m1[4] * m2[1] + m1[5] * m2[5] + m1[6] * m2[9] + m1[7] * m2[13];
+	(*outM)[6] = m1[4] * m2[2] + m1[5] * m2[6] + m1[6] * m2[10] + m1[7] * m2[14];
+	(*outM)[7] = m1[4] * m2[3] + m1[5] * m2[7] + m1[6] * m2[11] + m1[7] * m2[15];
 
-	*outM[8] = m1[8] * m2[0] + m1[9] * m2[4] + m1[10] * m2[8] + m1[11] * m2[12];
-	*outM[9] = m1[8] * m2[1] + m1[9] * m2[5] + m1[10] * m2[9] + m1[11] * m2[13];
-	*outM[10] = m1[8] * m2[2] + m1[9] * m2[6] + m1[10] * m2[10] + m1[11] * m2[14];
-	*outM[11] = m1[8] * m2[3] + m1[9] * m2[7] + m1[10] * m2[11] + m1[11] * m2[15];
+	(*outM)[8] = m1[8] * m2[0] + m1[9] * m2[4] + m1[10] * m2[8] + m1[11] * m2[12];
+	(*outM)[9] = m1[8] * m2[1] + m1[9] * m2[5] + m1[10] * m2[9] + m1[11] * m2[13];
+	(*outM)[10] = m1[8] * m2[2] + m1[9] * m2[6] + m1[10] * m2[10] + m1[11] * m2[14];
+	(*outM)[11] = m1[8] * m2[3] + m1[9] * m2[7] + m1[10] * m2[11] + m1[11] * m2[15];
 
-	*outM[12] = m1[12] * m2[0] + m1[13] * m2[4] + m1[14] * m2[8] + m1[15] * m2[12];
-	*outM[13] = m1[12] * m2[1] + m1[13] * m2[5] + m1[14] * m2[9] + m1[15] * m2[13];
-	*outM[14] = m1[12] * m2[2] + m1[13] * m2[6] + m1[14] * m2[10] + m1[15] * m2[14];
-	*outM[15] = m1[12] * m2[3] + m1[13] * m2[7] + m1[14] * m2[11] + m1[15] * m2[15];
+	(*outM)[12] = m1[12] * m2[0] + m1[13] * m2[4] + m1[14] * m2[8] + m1[15] * m2[12];
+	(*outM)[13] = m1[12] * m2[1] + m1[13] * m2[5] + m1[14] * m2[9] + m1[15] * m2[13];
+	(*outM)[14] = m1[12] * m2[2] + m1[13] * m2[6] + m1[14] * m2[10] + m1[15] * m2[14];
+	(*outM)[15] = m1[12] * m2[3] + m1[13] * m2[7] + m1[14] * m2[11] + m1[15] * m2[15];
 }
 
 void VRManager::FloatArrInverse44(float* m, float** invOut) {

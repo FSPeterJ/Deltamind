@@ -13,7 +13,7 @@ namespace Console {
 		FILE* new_std_in_out;
 		freopen_s(&new_std_in_out, "CONOUT$", "w", stdout);
 		freopen_s(&new_std_in_out, "CONIN$", "r", stdin);
-		//EnableMenuItem(GetSystemMenu(GetConsoleWindow(), FALSE), SC_CLOSE, MF_GRAYED);
+		EnableMenuItem(GetSystemMenu(GetConsoleWindow(), FALSE), SC_CLOSE, MF_GRAYED);
 	}
 
 	inline static void Minimize() { ShowWindow(GetConsoleWindow(), SW_MINIMIZE); }

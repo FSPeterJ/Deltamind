@@ -34,5 +34,6 @@ public:
 
 	void UpdateVRPoses();
 	void GetVRMatricies(float** leftProj, float** rightProj, float** leftView, float** rightView);
+
 };
 

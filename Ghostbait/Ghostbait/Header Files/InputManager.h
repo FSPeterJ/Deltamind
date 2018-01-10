@@ -11,7 +11,7 @@ enum InputType {
 };
 
 struct InputPackage {
-	InputPackage() {}
+	InputPackage(Control _control, float _amount) : control(_control), amount(_amount) {}
 	Control control;
 	float amount;
 };
@@ -26,7 +26,7 @@ private:
 	struct InputBridge : Input {
 		std::unordered_map<Control, int> keyBind;
 		bool MapKey(Control control, int key) { return false; }
-		InputPackage CheckForInput() { return InputPackage(); }
+		InputPackage CheckForInput() { return InputPackage(none, 0.0f); }
 	};
 
 	struct VRInput: public InputBridge {

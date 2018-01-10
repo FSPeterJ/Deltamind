@@ -23,21 +23,15 @@ InputManager::ControllerInput::ControllerInput() {
 
 //Input readers
 InputPackage InputManager::VRInput::CheckForInput() {
-	InputPackage message;
-	message.control = Control::none;
-	message.amount = 1;
+	InputPackage message(none, 1);
 	return message;
 }
 InputPackage InputManager::KeyboardInput::CheckForInput() {
-	InputPackage message;
-	message.control = Control::none;
-	message.amount = 1;
+	InputPackage message(none, 1);
 	return message;
 }
 InputPackage InputManager::ControllerInput::CheckForInput() {
-	InputPackage message;
-	message.control = Control::none;
-	message.amount = 1;
+	InputPackage message(none, 1);
 	return message;
 }
 

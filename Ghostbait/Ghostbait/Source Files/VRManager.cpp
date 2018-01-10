@@ -1,6 +1,7 @@
 #include "VRManager.h"
 #include "Console.h"
-
+#include "Messagebox.h"
+#include <string>
 
 VRManager::VRManager()
 {
@@ -18,6 +19,8 @@ bool VRManager::Init() {
 		pVRHMD = nullptr;
 		Console::Write("Unable to initialize VR: ");
 		Console::WriteLine(vr::VR_GetVRInitErrorAsSymbol(error));
+		Messagebox::ShowError(L"Unable to initialize VR", L"Check the CONSOLE!!!");
+
 		return false;
 	}
 

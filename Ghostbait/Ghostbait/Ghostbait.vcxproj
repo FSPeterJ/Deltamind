@@ -162,6 +162,7 @@
     <ClInclude Include="Header Files\InputManager.h" />
     <ClInclude Include="Header Files\Object.h" />
     <ClInclude Include="Header Files\ObjectFactory.h" />
+    <ClInclude Include="Header Files\ObjectFactoryInterface.h" />
     <ClInclude Include="Header Files\Resource.h" />
     <ClInclude Include="Header Files\targetver.h" />
     <ClInclude Include="Header Files\TestObject.h" />

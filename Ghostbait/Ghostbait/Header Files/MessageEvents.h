@@ -44,11 +44,11 @@ public:
 	inline static void Subscribe(const EVENT_TYPES eventtype, const std::function<void()>  execute) { eventmap[eventtype].add(execute); };
 
 	/// <summary>
-	/// Sends a message.
+	/// Sends a message and stores it in the event queue.
 	/// </summary>
 	/// <param name="eventtype">The eventtype.</param>
 	/// <param name="message">The message.</param>
-	inline static void SendMessage(const EVENT_TYPES eventtype, EventMessageBase* message = 0) { eventmap[eventtype](); HandleMessage(eventtype, message); };
+	inline static void SendQueueMessage(const EVENT_TYPES eventtype, EventMessageBase* message = 0) { eventmap[eventtype](); HandleMessage(eventtype, message); };
 
 	/// <summary>
 	/// Sends a message.

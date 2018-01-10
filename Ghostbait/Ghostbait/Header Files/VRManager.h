@@ -3,6 +3,11 @@
 
 class VRManager
 {
+private:
+	float* hmdPose;
+	vr::TrackedDevicePose_t trackedDevicePose[vr::k_unMaxTrackedDeviceCount];
+	float* trackedDevicePoseMatrices[vr::k_unMaxTrackedDeviceCount];
+
 public:
 	vr::IVRSystem *pVRHMD;
 	vr::IVRRenderModels* pVRRenderModel;
@@ -13,6 +18,7 @@ public:
 	~VRManager();
 
 	bool init();
+	void UpdateVRPoses();
 	void shutdown();
 };
 

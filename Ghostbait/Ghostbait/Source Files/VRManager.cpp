@@ -40,6 +40,14 @@ bool VRManager::init() {
 	return true;
 }
 
+void VRManager::UpdateVRPoses() {
+	if (!pVRHMD) {
+		return;
+	}
+	
+	pVRCompositor->WaitGetPoses(trackedDevicePose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
+}
+
 void VRManager::shutdown() {
 	if (pVRHMD) {
 		pVRHMD = nullptr;

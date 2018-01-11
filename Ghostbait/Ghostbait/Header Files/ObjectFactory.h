@@ -103,7 +103,7 @@ public:
 	/// gives an immutable pointer to the requested prefab
 	/// </summary>
 	/// <param name="_pid">Prefab id</param>
-	static const Object *  RequestPrefab(const unsigned _pid)
+	static const Object *  RequestPrefab(const PrefabId _pid)
 	{
 		return prefabs[_pid];
 	}
@@ -111,7 +111,7 @@ public:
 	/// <summary>
 	/// Gets the count of prefabs
 	/// </summary>
-	static int GetPrefabCount()
+	static size_t GetPrefabCount()
 	{
 		return prefabs.size();
 	}

@@ -38,12 +38,13 @@ public:
 
 class InstantiateMessage: public EventMessageBase {
 	PrefabId obj;
+	DirectX::XMFLOAT4 position;
 public:
 	/// <summary>
 	/// Initializes a new instance of the <see cref="InstantiateMessage"/> class.
 	/// </summary>
 	/// <param name="_obj">The object's prefab id.</param>
-	InstantiateMessage(PrefabId _obj) : obj(_obj) {}
+	InstantiateMessage(PrefabId _obj, DirectX::XMFLOAT4 _position) : obj(_obj), position(_position) {}
 
 	const PrefabId GetId() const { return obj; }
 };

@@ -93,13 +93,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	//Object Factory Testing
 	//====================================
 
-
 	Object * test = ObjectFactory::CreatePrefab(&std::string("BaseClass"));
 	Object * test2 = ObjectFactory::CreatePrefab(&std::string("TestObject"));
 
 	ObjectManager::Initialize();
 
-	MessageEvents::SendMessage(EVENT_Instantiate, InstantiateMessage(0));
+	MessageEvents::SendMessage(EVENT_Instantiate, InstantiateMessage(0, { 0,0,0,0 }));
 
 	XMFLOAT4 test1newpos = XMFLOAT4(2.0f, 1.0f, 0.0f, 1.0f);
 	test->position.r[3] = XMLoadFloat4(&test1newpos);

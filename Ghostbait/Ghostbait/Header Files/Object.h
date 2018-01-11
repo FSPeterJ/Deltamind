@@ -33,4 +33,6 @@ public:
 
 	ComponentBase* GetComponent(const int _componentID) { return Components[_componentID]; };
 	void SetComponent(const int _componentId, ComponentBase* _component) { Components[_componentId] = _component; };
+
+	static int GetTypeId() {	return 0;};
 };

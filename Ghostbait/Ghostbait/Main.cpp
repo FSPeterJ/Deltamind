@@ -22,31 +22,49 @@ using namespace Console;
 #include "VRManager.h"
 
 #include "InputManager.h"
+#include "Messagebox.h"
 
-void Setup() {
-	VRManager man;
-	man.Init();
+Renderer* rendInter;
+VRManager* vrMan;
 
+void Setup(HINSTANCE hInstance, int nCmdShow) {
+
+	Window wnd(900, 900);
+
+	if (!wnd.Initialize(hInstance, nCmdShow)) { Messagebox::ShowError(L"Error!!", L"Main window is not initialized!"); }
+	wnd.UpdateTitle(L"Ghostbait");
+
+	Allocate();
+	WriteLine("App has been initalized!");
+	//Minimize();
+
+	vrMan = new VRManager();
+	vrMan->Init();
+	rendInter = new Renderer();
+	rendInter->Initialize(wnd, vrMan);
 
 	//Object Factory Testing
 	//====================================
-	ObjectFactory::Register<Object>("BaseClass");
-	ObjectFactory::Register<TestObject>("TestObject");
+	ObjectFactory::Initialize(rendInter->getMeshManager());
+	ObjectFactory::Register<Object>(Object().GetTypeId());
+	ObjectFactory::Register<TestObject>(TestObject().GetTypeId());
 
-	Object * test = ObjectFactory::CreateObject("BaseClass");
-	Object * test2 = ObjectFactory::CreateObject("TestObject");
-
-
-	//test->testing();
-	//((TestObject*)test2)->testing();
-	delete test;
-	delete test2;
-
-	//====================================
 }
 
 void Loop() {
 	InputManager::HandleInput();
+	rendInter->Render();
+
+}
+
+void CleanUp() {
+	if (vrMan) {
+		delete vrMan;
+	}
+	if (rendInter) {
+		rendInter->Destroy();
+		delete rendInter;
+	}
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow) {
@@ -59,26 +77,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 #endif
 #endif
 
-	Window wnd(900, 900);
+	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_GHOSTBAIT));
 
-	if(!wnd.Initialize(hInstance, nCmdShow)) { return FALSE; }
-	wnd.UpdateTitle(L"Ghostbait");
-
-	Renderer* rendInter = new Renderer();
-	rendInter->Initialize(wnd, nullptr);
-
-	Allocate();
-	WriteLine("App has been initalized!");
-	//Minimize();
+	Setup(hInstance, nCmdShow);
 
 	//Object Factory Testing
 	//====================================
-	ObjectFactory::Initialize(rendInter->getMeshManager());
-	ObjectFactory::Register<Object>("BaseClass");
-	ObjectFactory::Register<TestObject>("TestObject");
 
-	Object * test = ObjectFactory::CreateObject("BaseClass");
-	Object * test2 = ObjectFactory::CreateObject("TestObject");
+
+	Object * test = ObjectFactory::CreatePrefab(&std::string("BaseClass"));
+	Object * test2 = ObjectFactory::CreatePrefab(&std::string("TestObject"));
 
 	XMFLOAT4 test1newpos = XMFLOAT4(2.0f, 1.0f, 0.0f, 1.0f);
 	test->position.r[3] = XMLoadFloat4(&test1newpos);
@@ -86,10 +94,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	//((TestObject*)test2)->testing();
 
 	//====================================
-
-	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_GHOSTBAIT));
-
-	Setup();
 
 	rendInter->registerObject(test);
 	rendInter->registerObject(test2);
@@ -99,19 +103,18 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			if(msg.message == WM_QUIT) { break; }
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-		}
-		else {
-			rendInter->Render();
+		} else {
 			Loop();
 		}
 	}
 
-	rendInter->Destroy();
-	delete rendInter;
+	//Test Objects
 	delete test;
 	delete test2;
 
+	CleanUp();
+
 	Free();
 
-	return (int)msg.wParam;
+	return (int) msg.wParam;
 }

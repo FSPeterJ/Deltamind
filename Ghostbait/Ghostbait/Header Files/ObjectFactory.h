@@ -3,9 +3,16 @@
 #include <unordered_map>
 #include "MeshManager.h"
 
+
+
+/// <summary>
+/// Creates and manages prefabs loaded from the disk.
+/// </summary>
 class ObjectFactory
 {
-
+	/// <summary>
+	/// Translates a typename's constructor for Objects
+	/// </summary>
 	template <typename T>
 	static Object* ConstructorFunc()
 	{
@@ -13,11 +20,16 @@ class ObjectFactory
 	}
 	ObjectFactory() {};
 
-	static std::unordered_map<std::string, std::function<Object*(void)>> registeredConstructors;
+	static std::unordered_map<int, std::function<Object*(void)>> registeredConstructors;
 
+	//map Names to prefabs
 	static std::unordered_map<std::string, Object*> prefabNames;
-	// the state the object is in when it is first loaded
-	static std::unordered_map<int, Object*> prefabs;
+	
+	//static std::unordered_map<int, Object*> prefabs;
+	
+	//pointer storage for prefabs, access by prefab ID
+	static std::vector<Object*> prefabs;
+
 	// Managers
 	static MeshManager * meshManager;
 public:
@@ -28,7 +40,9 @@ public:
 	//	return &factory;
 	//}
 
-	// Initializes the Object Factory and hands off the managers it needs to access
+	/// <summary>
+	/// Initializes the Object Factory and hands off the managers it needs to access
+	/// </summary>
 	static void Initialize(MeshManager * _meshManager)
 	{
 		meshManager = _meshManager;
@@ -36,34 +50,52 @@ public:
 
 	~ObjectFactory() {};
 
+	/// <summary>
+	/// Registeres the constructor of a given object and it's object type ID (class) in the factory
+	/// </summary>
+	/// <param name="_id">Class ID to register.</param>
 	template <typename T>
-	static void Register(const char* _name)
+	static void Register(const int _id)
 	{
-		registeredConstructors[_name] = &ConstructorFunc<T>;
+		registeredConstructors[_id] = &ConstructorFunc<T>;
 	}
 
-	static Object* CreateObject(char *_type)
+	/// <summary>
+	/// Creates a prefab in the prefab pool from a file if it doesn't exist already
+	/// </summary>
+	/// <param name="_name">name of the file to load.</param>
+	static Object* CreatePrefab(std::string *_name)
 	{
-		if(prefabNames[_type])
+		Object * prefab = prefabNames[_name];
+		if(prefabNames[_name])
 		{
-			//Objectmanagers, turn on object
-			Object *newObject = nullptr;
+			//This object prefab already exists.
 		}
 		else
 		{
-			Object *newObject = nullptr;
-			newObject = registeredConstructors[_type]();
-			newObject->SetComponent(MESH, meshManager->GetElement(UINT_MAX));
-			return newObject;
+			
+			FILE* file = nullptr;
+			int reads;
+			fopen_s(&file, _name->c_str(), "rb");
+			if(file)
+			{
+				// Filetype, ObjectType, [Components]
+				// Components are not dynamic at this time.
+				//reads = fread(&address, sizeof(item), instances, file);
+				//if(filetype != ObjectFileType)
+				//{
+				//	//Debug("A non-object filetype cannot be loaded as an object");
+				//	return nullptr;
+				//}
+			}
+			fclose(file);
+			prefab = registeredConstructors[prefab->GetTypeId()]();
+			prefabs.push_back(prefab);
+			prefabNames[_name] = prefab;
+			prefab->SetComponent(MESH, meshManager->GetElement(UINT_MAX));
 		}
+		return prefab;
 	}
-
-	static Object* CreateObject(int _id)
-	{
-		return nullptr;
-	}
-
-
 };
 
 

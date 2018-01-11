@@ -19,7 +19,7 @@ private:
 
 	void UpdateVRPoses();
 	vr::TrackedDevicePose_t trackedDevicePose[vr::k_unMaxTrackedDeviceCount];
-	float* trackedDevicePoseMatrices[vr::k_unMaxTrackedDeviceCount];
+	float** trackedDevicePoseMatrices;
 	void Shutdown();
 
 public:

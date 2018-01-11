@@ -290,15 +290,45 @@ bool Renderer::unregisterObject(const Object * toRemove, renderState specialInst
 	return false;
 }
 
+XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
+	XMFLOAT4X4 mat;
+	mat._11 = arr[0];
+	mat._12 = arr[1];
+	mat._13 = arr[2];
+	mat._14 = arr[3];
+	mat._21 = arr[4];
+	mat._22 = arr[5];
+	mat._23 = arr[6];
+	mat._24 = arr[7];
+	mat._31 = arr[8];
+	mat._32 = arr[9];
+	mat._33 = arr[10];
+	mat._34 = arr[11];
+	mat._41 = arr[12];
+	mat._42 = arr[13];
+	mat._43 = arr[14];
+	mat._44 = arr[15];
+	return mat;
+}
+
 void Renderer::Render()
 {
 	if (VRManagement)
 	{
-		VRManagement->GetVRMatricies((float**)&leftEye.camera.projection, (float**)&rightEye.camera.projection, (float**)&leftEye.camera.view, (float**)&rightEye.camera.view);
+		float* leftProj;
+		float* rightProj;
+		float* leftView;
+		float* rightView;
+		VRManagement->GetVRMatricies(&leftProj, &rightProj, &leftView, &rightView);
+		leftEye.camera.projection = FloatArrayToFloat4x4(leftProj);
+		leftEye.camera.view = FloatArrayToFloat4x4(leftView);
+		rightEye.camera.projection = FloatArrayToFloat4x4(rightProj);
+		rightEye.camera.view = FloatArrayToFloat4x4(rightView);
+
 		XMStoreFloat4x4(&leftEye.camera.projection, XMMatrixTranspose(XMLoadFloat4x4(&leftEye.camera.projection)));
 		XMStoreFloat4x4(&rightEye.camera.projection, XMMatrixTranspose(XMLoadFloat4x4(&rightEye.camera.projection)));
-		XMStoreFloat4x4(&leftEye.camera.view, XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat4x4(&leftEye.camera.view)), XMLoadFloat4x4(&leftEye.camera.view))));
-		XMStoreFloat4x4(&rightEye.camera.view, XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat4x4(&rightEye.camera.view)), XMLoadFloat4x4(&rightEye.camera.view))));
+		XMStoreFloat4x4(&leftEye.camera.view, XMMatrixTranspose(XMLoadFloat4x4(&leftEye.camera.view)));//XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat4x4(&leftEye.camera.view)), XMLoadFloat4x4(&leftEye.camera.view))));
+		XMStoreFloat4x4(&rightEye.camera.view, XMMatrixTranspose(XMLoadFloat4x4(&leftEye.camera.view)));//XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat4x4(&rightEye.camera.view)), XMLoadFloat4x4(&rightEye.camera.view))));
 
 		renderToEye(&leftEye);
 		renderToEye(&rightEye);

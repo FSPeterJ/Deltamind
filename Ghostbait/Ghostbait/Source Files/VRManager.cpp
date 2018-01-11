@@ -41,11 +41,17 @@ bool VRManager::Init() {
 		return false;
 	}
 
-	MatToFloatArr(Transpose(pVRHMD->GetProjectionMatrix(vr::EVREye::Eye_Left, 0.1f, 30.0f)), &leftProj);
-	MatToFloatArr(Transpose(pVRHMD->GetProjectionMatrix(vr::EVREye::Eye_Right, 0.1f, 30.0f)), &rightProj);
-	MatToFloatArr(Transpose(Mat34ToMat44(pVRHMD->GetEyeToHeadTransform(vr::EVREye::Eye_Left))), &leftEyeToHead);
-	MatToFloatArr(Transpose(Mat34ToMat44(pVRHMD->GetEyeToHeadTransform(vr::EVREye::Eye_Right))), &rightEyeToHead);
+	MatToFloatArr(Transpose(pVRHMD->GetProjectionMatrix(vr::EVREye::Eye_Left, 0.1f, 100.0f)), &leftProj);
+	MatToFloatArr(Transpose(pVRHMD->GetProjectionMatrix(vr::EVREye::Eye_Right, 0.1f, 100.0f)), &rightProj);
+	float* leftView, *rightView;
+	MatToFloatArr(Transpose(Mat34ToMat44(pVRHMD->GetEyeToHeadTransform(vr::EVREye::Eye_Left))), &leftView);
+	FloatArrInverse44(leftView, &leftEyeToHead);
+	float* res;
+	FloatArrTimesFloatArr(leftView, leftEyeToHead, &res);
+	MatToFloatArr(Transpose(Mat34ToMat44(pVRHMD->GetEyeToHeadTransform(vr::EVREye::Eye_Right))), &rightView);
+	FloatArrInverse44(rightView, &rightEyeToHead);
 
+	trackedDevicePoseMatrices = new float*[vr::k_unMaxTrackedDeviceCount];
 
 	return true;
 }
@@ -106,21 +112,21 @@ vr::HmdMatrix44_t VRManager::Mat34ToMat44(vr::HmdMatrix34_t m) {
 	mat.m[0][0] = m.m[0][0];
 	mat.m[0][1] = m.m[0][1];
 	mat.m[0][2] = m.m[0][2];
-	mat.m[0][3] = 0;
+	mat.m[0][3] = m.m[0][3];
 				  
 	mat.m[1][0] = m.m[1][0];
 	mat.m[1][1] = m.m[1][1];
 	mat.m[1][2] = m.m[1][2];
-	mat.m[1][3] = 0;
+	mat.m[1][3] = m.m[1][3];
 				  
 	mat.m[2][0] = m.m[2][0];
 	mat.m[2][1] = m.m[2][1];
 	mat.m[2][2] = m.m[2][2];
-	mat.m[2][3] = 0;
+	mat.m[2][3] = m.m[2][3];
 				  
-	mat.m[3][0] = m.m[3][0];
-	mat.m[3][1] = m.m[3][1];
-	mat.m[3][2] = m.m[3][2];
+	mat.m[3][0] = 0;
+	mat.m[3][1] = 0;
+	mat.m[3][2] = 0;
 	mat.m[3][3] = 1;
 	return mat;
 }
@@ -281,6 +287,7 @@ void VRManager::GetVRMatricies(float** _leftProj, float** _rightProj, float** _l
 	*_rightProj = rightProj;
 	FloatArrTimesFloatArr(leftEyeToHead, hmdPose, _leftView);
 	FloatArrTimesFloatArr(rightEyeToHead, hmdPose, _rightView);
+
 }
 
 void VRManager::UpdateVRPoses() {
@@ -294,12 +301,36 @@ void VRManager::UpdateVRPoses() {
 	{
 		if (trackedDevicePose[deviceIndex].bPoseIsValid)
 		{
-			MatToFloatArr(Transpose(Mat34ToMat44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking)), &trackedDevicePoseMatrices[deviceIndex]);
+			MatToFloatArr(Transpose(Mat34ToMat44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking)), &(trackedDevicePoseMatrices[deviceIndex]));
 		}
 	}
 	
 	if (trackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd].bPoseIsValid) {
 		FloatArrInverse44(trackedDevicePoseMatrices[vr::k_unTrackedDeviceIndex_Hmd], &hmdPose);
+		//Console::WriteLine(hmdPose[0]);
+		//Console::Write(hmdPose[1]);
+		//Console::Write(hmdPose[2]);
+		//Console::Write(hmdPose[3]);
+		//Console::WriteLine(hmdPose[4]);
+		//Console::Write(hmdPose[5]);
+		//Console::Write(hmdPose[6]);
+		//Console::Write(hmdPose[7]);
+		//Console::WriteLine(hmdPose[8]);
+		//Console::Write(hmdPose[9]);
+		//Console::Write(hmdPose[10]);
+		//Console::Write(hmdPose[11]);
+		//Console::WriteLine(hmdPose[12]);
+		//Console::Write(hmdPose[13]);
+		//Console::Write(hmdPose[14]);
+		//Console::Write(hmdPose[15]);
+		////Console::WriteLine("");
+		//hmdPose = trackedDevicePoseMatrices[vr::k_unTrackedDeviceIndex_Hmd];
+
+
+
+
+
+		int i = 0;
 	}
 }
 
@@ -309,7 +340,9 @@ void VRManager::SendToHMD(void* leftTexture, void* rightTexture) {
 	vr::Texture_t rightTex = { rightTexture, vr::TextureType_DirectX, vr::ColorSpace_Auto };
 
 	error = pVRCompositor->Submit(vr::EVREye::Eye_Left, &leftTex);
-	if (error) Console::Write("Unable to submit left eye texture");
+	if (error) 
+		Console::Write("Unable to submit left eye texture");
 	error = pVRCompositor->Submit(vr::EVREye::Eye_Right, &rightTex);
-	if (error) Console::Write("Unable to submit right eye texture");
+	if (error) 
+		Console::Write("Unable to submit right eye texture");
 }

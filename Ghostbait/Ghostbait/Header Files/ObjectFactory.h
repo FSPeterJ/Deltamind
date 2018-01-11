@@ -3,19 +3,15 @@
 #include <unordered_map>
 #include "MeshManager.h"
 
-
-
 /// <summary>
 /// Creates and manages prefabs loaded from the disk.
 /// </summary>
-class ObjectFactory
-{
+class ObjectFactory {
 	/// <summary>
 	/// Translates a typename's constructor for Objects
 	/// </summary>
 	template <typename T>
-	static Object* ConstructorFunc()
-	{
+	static Object* ConstructorFunc() {
 		return new T;
 	}
 	ObjectFactory() {};
@@ -43,8 +39,7 @@ public:
 	/// <summary>
 	/// Initializes the Object Factory and hands off the managers it needs to access
 	/// </summary>
-	static void Initialize(MeshManager * _meshManager)
-	{
+	static void Initialize(MeshManager * _meshManager) {
 		meshManager = _meshManager;
 	}
 
@@ -55,8 +50,7 @@ public:
 	/// </summary>
 	/// <param name="_id">Class ID to register.</param>
 	template <typename T>
-	static void Register(const int _id)
-	{
+	static void Register(const int _id) {
 		registeredConstructors[_id] = &ConstructorFunc<T>;
 	}
 
@@ -64,21 +58,16 @@ public:
 	/// Creates a prefab in the prefab pool from a file if it doesn't exist already
 	/// </summary>
 	/// <param name="_name">name of the file to load.</param>
-	static Object* CreatePrefab(std::string *_name)
-	{
+	static Object* CreatePrefab(std::string *_name) {
 		Object * prefab = prefabNames[*_name];
-		if(prefabNames[*_name])
-		{
+		if(prefabNames[*_name]) {
 			//This object prefab already exists.
-		}
-		else
-		{
+		} else {
 			int ObjectType = 0;
 			FILE* file = nullptr;
 			//int reads;
 			fopen_s(&file, _name->c_str(), "rb");
-			if(file)
-			{
+			if(file) {
 				// Filetype, ObjectType, [Components]
 				// Components are not dynamic at this time.
 				//reads = fread(&address, sizeof(item), instances, file);
@@ -103,18 +92,14 @@ public:
 	/// gives an immutable pointer to the requested prefab
 	/// </summary>
 	/// <param name="_pid">Prefab id</param>
-	static const Object *  RequestPrefab(const PrefabId _pid)
-	{
+	static const Object *  RequestPrefab(const PrefabId _pid) {
 		return prefabs[_pid];
 	}
 
 	/// <summary>
 	/// Gets the count of prefabs
 	/// </summary>
-	static size_t GetPrefabCount()
-	{
+	static size_t GetPrefabCount() {
 		return prefabs.size();
 	}
 };
-
-

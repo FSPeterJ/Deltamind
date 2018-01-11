@@ -25,8 +25,20 @@ using namespace Console;
 #include "InputManager.h"
 #include "Messagebox.h"
 
+#include "Game.h"
+#include "ThreadPool.h"
+
+
 Renderer* rendInter;
 VRManager* vrMan;
+Game* game;
+
+void ExecuteAsync() {
+
+	WriteLine("I am executed asyncly!");
+
+}
+
 
 void Setup(HINSTANCE hInstance, int nCmdShow) {
 
@@ -38,6 +50,10 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	Allocate();
 	WriteLine("App has been initalized!");
 	//Minimize();
+
+	ThreadPool::Start();
+	ThreadPool::MakeJob(ExecuteAsync);
+
 
 	vrMan = new VRManager();
 	rendInter = new Renderer();
@@ -51,19 +67,24 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 		rendInter->Initialize(wnd, nullptr);
 	}
 
+	ObjectManager::Initialize();
+
 	//Object Factory Testing
 	//====================================
 	ObjectFactory::Initialize(rendInter->getMeshManager());
 	ObjectFactory::Register<Object>(Object().GetTypeId());
 	ObjectFactory::Register<TestObject>(TestObject().GetTypeId());
 
-	
+	game = new Game();
+	game->Start();
+
+
 }
 
 void Loop() {
 	InputManager::HandleInput();
 	rendInter->Render();
-
+	game->Update();
 }
 
 void CleanUp() {
@@ -74,6 +95,7 @@ void CleanUp() {
 		rendInter->Destroy();
 		delete rendInter;
 	}
+	if(game) { game->Clean(); delete game; }
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow) {
@@ -90,25 +112,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	Setup(hInstance, nCmdShow);
 
-	//Object Factory Testing
-	//====================================
-
-	Object * test = ObjectFactory::CreatePrefab(&std::string("BaseClass"));
-	Object * test2 = ObjectFactory::CreatePrefab(&std::string("TestObject"));
-
-	ObjectManager::Initialize();
-
-	MessageEvents::SendMessage(EVENT_Instantiate, InstantiateMessage(0, { 0,0,0,0 }));
-
-	XMFLOAT4 test1newpos = XMFLOAT4(2.0f, 1.0f, 0.0f, 1.0f);
-	test->position.r[3] = XMLoadFloat4(&test1newpos);
-	//test->testing();
-	//((TestObject*)test2)->testing();
-
-	//====================================
-
-	rendInter->registerObject(test);
-	rendInter->registerObject(test2);
 	MSG msg;
 	while(true) {
 		if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -120,10 +123,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			Loop();
 		}
 	}
-
-	//Test Objects
-	delete test;
-	delete test2;
 
 	CleanUp();
 

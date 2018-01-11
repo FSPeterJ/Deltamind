@@ -22,11 +22,11 @@ private:
 				activeList.pop_back();
 			}
 		}
-	public:
 		void Add(const Object* o) {
 			objects.push_back(*o);
 			activeList.push_back(&objects[objects.size() - 1]);
 		}
+	public
 		bool Activate(const Object* o) {
 			if(inactiveList.size()) {
 				activeList.push_back(inactiveList[0]);

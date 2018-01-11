@@ -44,3 +44,16 @@ public:
 
 	const PrefabId GetId() const { return obj; }
 };
+
+class DestroyMessage: public EventMessageBase {
+	Object* obj;
+public:
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="DestroyMessage"/> class.
+	/// </summary>
+	/// <param name="_obj">The object.</param>
+	DestroyMessage(Object* _obj) : obj(_obj) {}
+
+	Object* GetObject() const { return obj; }
+};

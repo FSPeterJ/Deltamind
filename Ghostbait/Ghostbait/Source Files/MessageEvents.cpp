@@ -8,6 +8,7 @@ MessageEvents::MessageEvents() {}
 
 MessageEvents::~MessageEvents() {}
 
+//for testing only. used to test messages that have no subscribers yet
 void MessageEvents::HandleMessage(EVENT_TYPES eventtype, EventMessageBase& m) {
 	switch(eventtype) {
 	case EVENT_Action:

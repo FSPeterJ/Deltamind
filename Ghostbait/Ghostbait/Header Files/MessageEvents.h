@@ -12,6 +12,7 @@ enum EVENT_TYPES {
 	EVENT_LENGTH,
 	EVENT_Input,
 	EVENT_Instantiate,
+	EVENT_Destroy,
 };
 
 class EventMessageBase;

@@ -2,11 +2,11 @@
 
 
 #include "MessageEvents.h"
-void Death();
+void Death(EventMessageBase);
 void SendMessge(void) {
 	MessageEvents::Subscribe(EVENT_Player_Death, Death);
 	MessageEvents::SendMessage(EVENT_Player_Death);
 }
-void Death(void) {
+void Death(EventMessageBase e) {
 	WriteLine("Death");
 }

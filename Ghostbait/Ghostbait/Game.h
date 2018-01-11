@@ -17,7 +17,9 @@ public:
 		Object * test = ObjectFactory::CreatePrefab(&std::string("BaseClass"));
 		Object * test2 = ObjectFactory::CreatePrefab(&std::string("TestObject"));
 
-		MessageEvents::SendMessage(EVENT_Instantiate, InstantiateMessage(0, {0,0,0,0}));
+		ObjectManager::Initialize();
+
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 0,0,0,0 }));
 
 		XMFLOAT4 test1newpos = XMFLOAT4(2.0f, 1.0f, 0.0f, 1.0f);
 		test->position.r[3] = XMLoadFloat4(&test1newpos);

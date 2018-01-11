@@ -7,14 +7,18 @@ std::vector<ObjectManager::Pool> ObjectManager::objectPool;
 std::unordered_map<const Object *, ObjectManager::Pool*> ObjectManager::poolScope;
 
 ObjectManager::ObjectManager() {
-	MessageEvents::Subscribe(EVENT_Instantiate, Instantiate);
-	MessageEvents::Subscribe(EVENT_Destroy, Destroy);
 	
-	objectPool.resize(ObjectFactory::GetPrefabCount());
 	
 }
 
 ObjectManager::~ObjectManager() {}
+
+void ObjectManager::Initialize()
+{
+		MessageEvents::Subscribe(EVENT_Instantiate, Instantiate);
+		MessageEvents::Subscribe(EVENT_Destroy, Destroy);
+		objectPool.resize(ObjectFactory::GetPrefabCount());
+}
 
 void ObjectManager::Instantiate(EventMessageBase e) {
 	InstantiateMessage* instantiate = (InstantiateMessage*) &e;

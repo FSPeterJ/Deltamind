@@ -49,9 +49,9 @@ private:
 	static void Instantiate(EventMessageBase e);
 	static void Destroy(EventMessageBase e);
 
-public:
 	ObjectManager();
+public:
 	~ObjectManager();
-
+	static void Initialize();
 	static void CreatePool(int _size, Object* poolType) {}
 };

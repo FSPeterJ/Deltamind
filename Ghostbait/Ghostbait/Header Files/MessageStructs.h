@@ -5,14 +5,14 @@
 #undef GetObject
 
 enum Control {
-	NONE,
-	FORWARD,
-	BACKWARD,
-	LEFT,
-	RIGHT,
-	ATTACK,
-	TELEPORT,
-	MENU
+	none,
+	forward,
+	backward,
+	left,
+	right,
+	attack,
+	teleport,
+	menu
 };
 
 class EventMessageBase {

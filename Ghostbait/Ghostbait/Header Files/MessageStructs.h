@@ -1,5 +1,8 @@
 #pragma once
 #include "StdHeader.h"
+#include "Object.h"
+
+#undef GetObject
 
 enum Control {
 	none,
@@ -44,6 +47,8 @@ public:
 
 	const PrefabId GetId() const { return obj; }
 };
+
+class Object;
 
 class DestroyMessage: public EventMessageBase {
 	Object* obj;

@@ -1,5 +1,7 @@
 #include "ObjectManager.h"
 
+#undef GetObject
+
 std::vector<ObjectManager::Pool> ObjectManager::objectPool;
 std::unordered_map<Object*, ObjectManager::Pool*> ObjectManager::poolScope;
 

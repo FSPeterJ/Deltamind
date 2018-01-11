@@ -158,6 +158,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Game.h" />
     <ClInclude Include="Header Files\ComponentBase.h" />
     <ClInclude Include="Examples.h" />
     <ClInclude Include="Header Files\Console.h" />
@@ -181,6 +182,7 @@
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="ObjectManager.h" />
     <ClInclude Include="Renderer.h" />
+    <ClInclude Include="ThreadPool.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
@@ -193,6 +195,7 @@
     <ClCompile Include="Source Files\VRManager.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Source Files\Window.cpp" />
+    <ClCompile Include="ThreadPool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resource Files\Ghostbait.ico" />

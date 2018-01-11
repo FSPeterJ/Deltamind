@@ -10,21 +10,25 @@ enum EVENT_TYPES {
 	EVENT_Player_Death,
 	EVENT_Player_Move,
 	EVENT_LENGTH,
-	EVENT_Input
+	EVENT_Input,
+	EVENT_Instantiate,
+	EVENT_Destroy,
 };
 
 class EventMessageBase;
 
 class MessageEvents {
 private:
-	class Delegate: std::function<void()> {
-		static std::vector<std::function<void()>> delegates;
+	class Delegate: std::function<void(EventMessageBase)> {
+		static std::vector<std::function<void(EventMessageBase)>> delegates;
 	public:
-		void operator()() const {
-			for(const std::function<void()> element : delegates) { element(); }
+		void operator()(EventMessageBase e) const {
+			for(const std::function<void(EventMessageBase)> element : delegates) {
+				element(e);
+			}
 		}
 
-		inline static void add(const std::function<void()> execute) { delegates.push_back(execute); }
+		inline static void add(const std::function<void(EventMessageBase)> execute) { delegates.push_back(execute); }
 
 		Delegate(void) {};
 		~Delegate(void) {};
@@ -41,21 +45,21 @@ public:
 	/// </summary>
 	/// <param name="eventtype">The eventtype.</param>
 	/// <param name="execute">The function to execute.</param>
-	inline static void Subscribe(const EVENT_TYPES eventtype, const std::function<void()>  execute) { eventmap[eventtype].add(execute); };
+	inline static void Subscribe(const EVENT_TYPES eventtype, std::function<void(EventMessageBase)> execute) { eventmap[eventtype].add(execute); };
 
 	/// <summary>
 	/// Sends a message and stores it in the event queue.
 	/// </summary>
 	/// <param name="eventtype">The eventtype.</param>
 	/// <param name="message">The message.</param>
-	inline static void SendQueueMessage(const EVENT_TYPES eventtype, EventMessageBase* message = 0) { eventmap[eventtype](); HandleMessage(eventtype, message); };
+	inline static void SendQueueMessage(const EVENT_TYPES eventtype, EventMessageBase* message = 0) { eventmap[eventtype](*message); HandleMessage(eventtype, message); };
 
 	/// <summary>
 	/// Sends a message.
 	/// </summary>
 	/// <param name="eventtype">The eventtype.</param>
 	/// <param name="message">The message.</param>
-	inline static void SendMessage(EVENT_TYPES eventtype, EventMessageBase& message = EventMessageBase()) { eventmap[eventtype](); HandleMessage(eventtype, message); };
+	inline static void SendMessage(const EVENT_TYPES eventtype, EventMessageBase& message = EventMessageBase()) { eventmap[eventtype](message); HandleMessage(eventtype, message); };
 
 	//void ProcessEvents();
 	MessageEvents();

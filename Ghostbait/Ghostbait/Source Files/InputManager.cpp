@@ -5,14 +5,14 @@ InputManager::InputBridge InputManager::bridge = VRInput();
 
 //Input Constructors
 InputManager::VRInput::VRInput() {
-	MapKey(NONE, 0);
-	MapKey(FORWARD, 1);
-	MapKey(BACKWARD, 2);
-	MapKey(LEFT, 3);
-	MapKey(RIGHT, 4);
-	MapKey(TELEPORT, 5);
-	MapKey(ATTACK, 6);
-	MapKey(MENU, 7);
+	MapKey(none, 0);
+	MapKey(forward, 1);
+	MapKey(backward, 2);
+	MapKey(left, 3);
+	MapKey(right, 4);
+	MapKey(teleport, 5);
+	MapKey(attack, 6);
+	MapKey(menu, 7);
 }
 InputManager::KeyboardInput::KeyboardInput() {
 
@@ -23,21 +23,15 @@ InputManager::ControllerInput::ControllerInput() {
 
 //Input readers
 InputPackage InputManager::VRInput::CheckForInput() {
-	InputPackage message;
-	message.control = Control::NONE;
-	message.amount = 1;
+	InputPackage message(none, 1);
 	return message;
 }
 InputPackage InputManager::KeyboardInput::CheckForInput() {
-	InputPackage message;
-	message.control = Control::NONE;
-	message.amount = 1;
+	InputPackage message(none, 1);
 	return message;
 }
 InputPackage InputManager::ControllerInput::CheckForInput() {
-	InputPackage message;
-	message.control = Control::NONE;
-	message.amount = 1;
+	InputPackage message(none, 1);
 	return message;
 }
 

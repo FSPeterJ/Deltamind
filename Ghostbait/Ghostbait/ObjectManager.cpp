@@ -20,8 +20,10 @@ void ObjectManager::Initialize()
 		objectPool.resize(ObjectFactory::GetPrefabCount());
 }
 
-void ObjectManager::Instantiate(EventMessageBase e) {
-	InstantiateMessage* instantiate = (InstantiateMessage*) &e;
+void ObjectManager::Instantiate(EventMessageBase *e) {
+	InstantiateMessage* instantiate = (InstantiateMessage*) e;
+	WriteLine("An object was instantiated with a prefab ID of " + std::to_string(instantiate->GetId()));
+
 	PrefabId pid = instantiate->GetId();
 
 	const Object * o = ObjectFactory::RequestPrefab(pid);
@@ -33,8 +35,8 @@ void ObjectManager::Instantiate(EventMessageBase e) {
 	}
 }
 
-void ObjectManager::Destroy(EventMessageBase e) {
-	DestroyMessage* destroy = (DestroyMessage*) &e;
+void ObjectManager::Destroy(EventMessageBase *e) {
+	DestroyMessage* destroy = (DestroyMessage*) e;
 	Object* o = destroy->GetObject();
 	poolScope[o]->Deactivate(o);
 }

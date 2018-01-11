@@ -46,8 +46,8 @@ private:
 	static std::vector<Pool> objectPool;
 	static std::unordered_map<const Object*, Pool*> poolScope;
 
-	static void Instantiate(EventMessageBase e);
-	static void Destroy(EventMessageBase e);
+	static void Instantiate(EventMessageBase* e);
+	static void Destroy(EventMessageBase* e);
 
 	ObjectManager();
 public:

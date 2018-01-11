@@ -1,6 +1,6 @@
 #include "MessageEvents.h"
 
-std::vector<std::function<void(EventMessageBase)>> MessageEvents::Delegate::delegates;
+std::vector<std::function<void(EventMessageBase*)>> MessageEvents::Delegate::delegates;
 
 std::unordered_map<EVENT_TYPES, MessageEvents::Delegate> MessageEvents::eventmap;
 

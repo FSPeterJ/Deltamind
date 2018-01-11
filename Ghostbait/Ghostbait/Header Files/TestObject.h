@@ -8,5 +8,6 @@ class TestObject:
 public:
 	TestObject();
 	~TestObject();
+	static int GetTypeId() { return 1; };
 };
 

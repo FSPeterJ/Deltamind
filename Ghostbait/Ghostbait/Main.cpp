@@ -95,6 +95,7 @@ void CleanUp() {
 		rendInter->Destroy();
 		delete rendInter;
 	}
+	ObjectFactory::Shutdown();
 	if(game) { game->Clean(); delete game; }
 }
 

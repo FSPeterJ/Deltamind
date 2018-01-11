@@ -102,4 +102,12 @@ public:
 	static size_t GetPrefabCount() {
 		return prefabs.size();
 	}
+
+	static void Shutdown()
+	{
+		for (auto prefab : prefabs)
+		{
+			delete prefab;
+		}
+	}
 };

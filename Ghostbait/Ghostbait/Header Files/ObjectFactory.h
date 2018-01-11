@@ -87,6 +87,7 @@ public:
 				//	//Debug("A non-object filetype cannot be loaded as an object");
 				//	return nullptr;
 				//}
+				ObjectType = 0;
 				fclose(file);
 			}
 			prefab = registeredConstructors[ObjectType]();
@@ -96,6 +97,15 @@ public:
 			prefab->SetComponent(MESH, meshManager->GetElement(UINT_MAX));
 		}
 		return prefab;
+	}
+
+	/// <summary>
+	/// gives an immutable pointer to the requested prefab
+	/// </summary>
+	/// <param name="_pid">Prefab id</param>
+	static const Object *  RequestPrefab(const int _pid)
+	{
+		return prefabs[_pid];
 	}
 };
 

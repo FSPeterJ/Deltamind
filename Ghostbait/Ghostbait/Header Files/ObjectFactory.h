@@ -75,7 +75,7 @@ public:
 		{
 			int ObjectType = 0;
 			FILE* file = nullptr;
-			int reads;
+			//int reads;
 			fopen_s(&file, _name->c_str(), "rb");
 			if(file)
 			{

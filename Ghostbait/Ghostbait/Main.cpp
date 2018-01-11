@@ -49,7 +49,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::Register<Object>(Object().GetTypeId());
 	ObjectFactory::Register<TestObject>(TestObject().GetTypeId());
 
-	MessageEvents::SendMessage(EVENT_Instantiate, InstantiateMessage(0));
+	MessageEvents::SendMessage(EVENT_Instantiate, InstantiateMessage(0, {0,0,0,0} ));
 }
 
 void Loop() {
@@ -84,7 +84,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	//Object Factory Testing
 	//====================================
-
 
 	Object * test = ObjectFactory::CreatePrefab(&std::string("BaseClass"));
 	Object * test2 = ObjectFactory::CreatePrefab(&std::string("TestObject"));

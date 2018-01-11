@@ -6,13 +6,10 @@
 using namespace Console;
 
 enum EVENT_TYPES {
-	EVENT_Action,
-	EVENT_Player_Death,
-	EVENT_Player_Move,
-	EVENT_LENGTH,
 	EVENT_Input,
 	EVENT_Instantiate,
 	EVENT_Destroy,
+	EVENT_LENGTH,
 };
 
 class EventMessageBase;

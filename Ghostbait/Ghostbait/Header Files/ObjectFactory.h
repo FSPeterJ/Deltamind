@@ -107,6 +107,14 @@ public:
 	{
 		return prefabs[_pid];
 	}
+
+	/// <summary>
+	/// Gets the count of prefabs
+	/// </summary>
+	static int GetPrefabCount()
+	{
+		return prefabs.size();
+	}
 };
 
 

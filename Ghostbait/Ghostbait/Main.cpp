@@ -31,7 +31,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	Window wnd(900, 900);
 
-	if (!wnd.Initialize(hInstance, nCmdShow)) { Messagebox::ShowError(L"Error!!", L"Main window is not initialized!"); }
+	if(!wnd.Initialize(hInstance, nCmdShow)) { Messagebox::ShowError(L"Error!!", L"Main window is not initialized!"); }
 	wnd.UpdateTitle(L"Ghostbait");
 
 	Allocate();
@@ -39,9 +39,16 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//Minimize();
 
 	vrMan = new VRManager();
-	vrMan->Init();
 	rendInter = new Renderer();
-	rendInter->Initialize(wnd, vrMan);
+	if(vrMan->Init())
+	{
+		rendInter->Initialize(wnd, vrMan);
+	}
+	else
+	{
+		WriteLine("VR not initialized! Defaulting to 2D");
+		rendInter->Initialize(wnd, nullptr);
+	}
 
 	//Object Factory Testing
 	//====================================
@@ -59,10 +66,10 @@ void Loop() {
 }
 
 void CleanUp() {
-	if (vrMan) {
+	if(vrMan) {
 		delete vrMan;
 	}
-	if (rendInter) {
+	if(rendInter) {
 		rendInter->Destroy();
 		delete rendInter;
 	}
@@ -104,7 +111,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			if(msg.message == WM_QUIT) { break; }
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-		} else {
+		}
+		else {
 			Loop();
 		}
 	}
@@ -117,5 +125,5 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	Free();
 
-	return (int) msg.wParam;
+	return (int)msg.wParam;
 }

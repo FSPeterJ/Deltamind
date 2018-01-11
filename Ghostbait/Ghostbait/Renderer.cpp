@@ -313,7 +313,7 @@ XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 
 void Renderer::Render()
 {
-	if (VRManagement && FALSE)
+	if (VRManagement)
 	{
 		float* leftProj;
 		float* rightProj;

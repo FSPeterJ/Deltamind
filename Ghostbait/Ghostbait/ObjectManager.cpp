@@ -1,9 +1,10 @@
 #include "ObjectManager.h"
+#include "ObjectFactory.h"
 
 #undef GetObject
 
 std::vector<ObjectManager::Pool> ObjectManager::objectPool;
-std::unordered_map<Object*, ObjectManager::Pool*> ObjectManager::poolScope;
+std::unordered_map<const Object *, ObjectManager::Pool*> ObjectManager::poolScope;
 
 ObjectManager::ObjectManager() {
 	MessageEvents::Subscribe(EVENT_Instantiate, Instantiate);
@@ -19,7 +20,7 @@ void ObjectManager::Instantiate(EventMessageBase e) { //PrefabId pid
 	PrefabId pid = instantiate->GetId();
 
 	//TODO uncomment below once it exists
-	Object* o = nullptr;// ObjectFactory::RequestPrefab(pid);
+	const Object * o = ObjectFactory::RequestPrefab(pid);
 
 	Pool pool = objectPool[pid];
 

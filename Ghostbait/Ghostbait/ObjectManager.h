@@ -26,7 +26,7 @@ private:
 			objects.push_back(*o);
 			activeList.push_back(&objects[objects.size() - 1]);
 		}
-	public
+	public:
 		bool Activate(const Object* o) {
 			if(inactiveList.size()) {
 				activeList.push_back(inactiveList[0]);

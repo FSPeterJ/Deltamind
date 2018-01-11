@@ -30,10 +30,10 @@ public:
 	/// </summary>
 	/// <param name="_ctrl">The control.</param>
 	/// <param name="_amount">The amount.</param>
-	InputMessage(Control _ctrl, float _amount) : ctrl(_ctrl), amount(_amount) {}
+	InputMessage(const Control _ctrl, const float _amount): ctrl(_ctrl), amount(_amount) {}
 
-	 const float GetAmount() const { return amount; }
-	 const Control GetControl() const { return ctrl; }
+	const float GetAmount() const { return amount; }
+	const Control GetControl() const { return ctrl; }
 };
 
 class InstantiateMessage: public EventMessageBase {

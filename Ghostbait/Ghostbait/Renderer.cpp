@@ -313,7 +313,7 @@ XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 
 void Renderer::Render()
 {
-	if (VRManagement)
+	if (VRManagement && FALSE)
 	{
 		float* leftProj;
 		float* rightProj;
@@ -431,7 +431,7 @@ void Renderer::initShaders()
 	device->CreateBuffer(&modelBufferDesc, nullptr, &modelBuffer);
 }
 
-void Renderer::initViewport(RECT window, pipeline_state_t * pipelineTo)
+void Renderer::initViewport(const RECT window, pipeline_state_t * pipelineTo)
 {
 	D3D11_VIEWPORT tempView;
 	tempView.Height = (float)window.bottom - (float)window.top;

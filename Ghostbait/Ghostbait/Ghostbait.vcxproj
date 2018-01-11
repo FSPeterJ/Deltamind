@@ -164,6 +164,7 @@
     <ClInclude Include="Header Files\Header.h" />
     <ClInclude Include="Header Files\InputManager.h" />
     <ClInclude Include="Header Files\ManagerInterface.h" />
+    <ClInclude Include="Header Files\MeshManager.h" />
     <ClInclude Include="Header Files\Messagebox.h" />
     <ClInclude Include="Header Files\MessageStructs.h" />
     <ClInclude Include="Header Files\Object.h" />
@@ -173,23 +174,23 @@
     <ClInclude Include="Header Files\StdHeader.h" />
     <ClInclude Include="Header Files\targetver.h" />
     <ClInclude Include="Header Files\TestObject.h" />
+    <ClInclude Include="Header Files\VertexTypes.h" />
     <ClInclude Include="Header Files\VRManager.h" />
     <ClInclude Include="Header Files\Window.h" />
     <ClInclude Include="Header Files\MessageEvents.h" />
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="ObjectManager.h" />
     <ClInclude Include="Renderer.h" />
-    <ClInclude Include="VertexTypes.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="ObjectManager.cpp" />
     <ClCompile Include="Source Files\InputManager.cpp" />
+    <ClCompile Include="Source Files\MeshManager.cpp" />
     <ClCompile Include="Source Files\MessageEvents.cpp" />
     <ClCompile Include="Source Files\ObjectFactory.cpp" />
     <ClCompile Include="Source Files\TestObject.cpp" />
     <ClCompile Include="Source Files\VRManager.cpp" />
-    <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Source Files\Window.cpp" />
   </ItemGroup>

@@ -115,6 +115,14 @@ public:
 	{
 		return prefabs.size();
 	}
+
+	static void Shutdown()
+	{
+		for (auto prefab : prefabs)
+		{
+			delete prefab;
+		}
+	}
 };
 
 

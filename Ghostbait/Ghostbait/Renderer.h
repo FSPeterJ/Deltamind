@@ -5,6 +5,7 @@
 #include "Window.h"
 #include "VRManager.h"
 #include "Object.h"
+#include "MessageEvents.h"
 
 enum renderState
 {
@@ -125,6 +126,26 @@ public:
 	//[specialInstructions] Used to specify any special rendering instructions, such as transparent items.
 	//////////////////////////////////////////////////////////////////////////////////
 	void registerObject(const Object* toRegister, renderState specialInstructions = RENDER_STATE_DEFAULT);
+	
+	//////////////////////////////////////////////////////////////////////////////////
+	//registerObject
+	//Used to have the rendering system start rendering the object. 
+	//
+	//Parameters: 
+	//[toRegister] 
+	//[specialInstructions] 
+	//////////////////////////////////////////////////////////////////////////////////
+	void registerObject(EventMessageBase* e);
+
+	//////////////////////////////////////////////////////////////////////////////////
+	//unregisterObject
+	//Used to have the rendering system stop rendering the object. 
+	//
+	//Parameters: 
+	//[toRegister] 
+	//[specialInstructions] 
+	//////////////////////////////////////////////////////////////////////////////////
+	void unregisterObject(EventMessageBase* e);
 
 	//////////////////////////////////////////////////////////////////////////////////
 	//unregisterObject

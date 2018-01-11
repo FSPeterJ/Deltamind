@@ -1,6 +1,6 @@
 #pragma once
 #include "StdHeader.h"
-#include "Object.h"
+#include "DirectXMath.h"
 
 #undef GetObject
 
@@ -60,6 +60,19 @@ public:
 	/// </summary>
 	/// <param name="_obj">The object.</param>
 	DestroyMessage(Object* _obj) : obj(_obj) {}
+
+	Object* GetObject() const { return obj; }
+};
+
+class NewObjectMessage: public EventMessageBase {
+	Object* obj;
+public:
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="NewObjectMessage"/> class.
+	/// </summary>
+	/// <param name="_obj">The object.</param>
+	NewObjectMessage(Object* _obj): obj(_obj) {}
 
 	Object* GetObject() const { return obj; }
 };

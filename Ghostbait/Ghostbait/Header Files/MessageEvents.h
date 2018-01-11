@@ -7,7 +7,8 @@ using namespace Console;
 
 enum EVENT_TYPES {
 	EVENT_Input,
-	EVENT_Instantiate,
+	EVENT_InstantiateRequest,
+	EVENT_Instantiated,
 	EVENT_Destroy,
 	EVENT_LENGTH,
 };
@@ -17,7 +18,7 @@ class EventMessageBase;
 class MessageEvents {
 private:
 	class Delegate: std::function<void(EventMessageBase *)> {
-		static std::vector<std::function<void(EventMessageBase*)>> delegates;
+		std::vector<std::function<void(EventMessageBase*)>> delegates;
 	public:
 		void operator()(EventMessageBase *e) const {
 			for(const std::function<void(EventMessageBase*)> element : delegates) {
@@ -25,7 +26,10 @@ private:
 			}
 		}
 
-		inline static void add(const std::function<void(EventMessageBase *)> execute) { delegates.push_back(execute); }
+		void add(const std::function<void(EventMessageBase *)> execute)
+		{
+			delegates.push_back(execute);
+		}
 
 		Delegate(void) {};
 		~Delegate(void) {};

@@ -10,8 +10,8 @@ class ObjectManager: public ManagerInterface {
 private:
 	class Pool {
 	private:
-		std::vector<const Object*> activeList;
-		std::vector<const Object*> inactiveList; //Linked list with head/tail ptrs
+		std::vector< Object*> activeList;
+		std::vector< Object*> inactiveList; //Linked list with head/tail ptrs
 		std::vector<Object> objects;
 
 		void RemoveObjectFromActive(const Object* o) {
@@ -22,22 +22,24 @@ private:
 				activeList.pop_back();
 			}
 		}
-		void Add(const Object* o) {
+		Object* Add(const Object* o) {
 			objects.push_back(*o);
 			activeList.push_back(&objects[objects.size() - 1]);
+			return &objects.back();
 		}
 	public:
-		bool Activate(const Object* o) {
+		//Returns a pointer to the activated or added object
+		Object* Activate(const Object* o) {
 			if(inactiveList.size()) {
 				activeList.push_back(inactiveList[0]);
 				inactiveList.erase(inactiveList.begin());
-				return false;
-			} else {
-				Add(o);
-				return true;
+				return activeList.back();
+			}
+			else {
+				return Add(o);
 			}
 		}
-		void Deactivate(const Object* o) {
+		void Deactivate(Object* o) {
 			RemoveObjectFromActive(o);
 			inactiveList.push_back(o);
 		}

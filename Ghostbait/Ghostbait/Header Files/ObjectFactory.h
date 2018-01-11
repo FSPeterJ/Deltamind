@@ -24,9 +24,9 @@ class ObjectFactory
 
 	//map Names to prefabs
 	static std::unordered_map<std::string, Object*> prefabNames;
-	
+
 	//static std::unordered_map<int, Object*> prefabs;
-	
+
 	//pointer storage for prefabs, access by prefab ID
 	static std::vector<Object*> prefabs;
 
@@ -66,14 +66,14 @@ public:
 	/// <param name="_name">name of the file to load.</param>
 	static Object* CreatePrefab(std::string *_name)
 	{
-		Object * prefab = prefabNames[_name];
-		if(prefabNames[_name])
+		Object * prefab = prefabNames[*_name];
+		if(prefabNames[*_name])
 		{
 			//This object prefab already exists.
 		}
 		else
 		{
-			
+			int ObjectType = 0;
 			FILE* file = nullptr;
 			int reads;
 			fopen_s(&file, _name->c_str(), "rb");
@@ -87,11 +87,12 @@ public:
 				//	//Debug("A non-object filetype cannot be loaded as an object");
 				//	return nullptr;
 				//}
+				fclose(file);
 			}
-			fclose(file);
-			prefab = registeredConstructors[prefab->GetTypeId()]();
+			prefab = registeredConstructors[ObjectType]();
 			prefabs.push_back(prefab);
-			prefabNames[_name] = prefab;
+			//
+			prefabNames[*_name] = prefab;
 			prefab->SetComponent(MESH, meshManager->GetElement(UINT_MAX));
 		}
 		return prefab;

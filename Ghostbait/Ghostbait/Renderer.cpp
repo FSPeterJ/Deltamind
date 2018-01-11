@@ -292,7 +292,7 @@ bool Renderer::unregisterObject(const Object * toRemove, renderState specialInst
 
 void Renderer::Render()
 {
-	if (VRManagement)
+	if (VRManagement && FALSE)
 	{
 		VRManagement->GetVRMatricies((float**)&leftEye.camera.projection, (float**)&rightEye.camera.projection, (float**)&leftEye.camera.view, (float**)&rightEye.camera.view);
 		renderToEye(&leftEye);

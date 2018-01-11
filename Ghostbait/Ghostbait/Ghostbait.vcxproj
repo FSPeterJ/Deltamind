@@ -171,12 +171,14 @@
     <ClInclude Include="Header Files\ObjectFactory.h" />
     <ClInclude Include="Header Files\ObjectFactoryInterface.h" />
     <ClInclude Include="Header Files\Resource.h" />
+    <ClInclude Include="Header Files\StdHeader.h" />
     <ClInclude Include="Header Files\targetver.h" />
     <ClInclude Include="Header Files\TestObject.h" />
     <ClInclude Include="Header Files\VertexTypes.h" />
     <ClInclude Include="Header Files\VRManager.h" />
     <ClInclude Include="Header Files\Window.h" />
     <ClInclude Include="Header Files\MessageEvents.h" />
+    <ClInclude Include="MeshManager.h" />
     <ClInclude Include="Renderer.h" />
   </ItemGroup>
   <ItemGroup>

@@ -9,12 +9,15 @@ ObjectManager::ObjectManager() {
 	MessageEvents::Subscribe(EVENT_Instantiate, Instantiate);
 	MessageEvents::Subscribe(EVENT_Destroy, Destroy);
 
-	//After factory has the list of prefab ids, ask it for them so the pool list can be made
+	//TODO After factory has the list of prefab ids, ask it for them so the pool list can be made
+	//for(PrefabId pid : ObjectFactory::GetPrefabIds()) {
+	//	objectPool.insert(objectPool.begin() + pid, Pool());
+	//}
 }
 
 ObjectManager::~ObjectManager() {}
 
-void ObjectManager::Instantiate(EventMessageBase e) { //PrefabId pid
+void ObjectManager::Instantiate(EventMessageBase e) {
 	InstantiateMessage* instantiate = (InstantiateMessage*) &e;
 	PrefabId pid = instantiate->GetId();
 

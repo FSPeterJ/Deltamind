@@ -1,8 +1,8 @@
 #pragma once
 #include <unordered_map>
-#include <functional>
 #include "MessageStructs.h"
 #include "Console.h"
+#include "Delegate.h"
 using namespace Console;
 
 enum EVENT_TYPES {
@@ -16,22 +16,8 @@ class EventMessageBase;
 
 class MessageEvents {
 private:
-	class Delegate: std::function<void(EventMessageBase *)> {
-		static std::vector<std::function<void(EventMessageBase*)>> delegates;
-	public:
-		void operator()(EventMessageBase *e) const {
-			for(const std::function<void(EventMessageBase*)> element : delegates) {
-				element(e);
-			}
-		}
 
-		inline static void add(const std::function<void(EventMessageBase *)> execute) { delegates.push_back(execute); }
-
-		Delegate(void) {};
-		~Delegate(void) {};
-	};
-
-	static std::unordered_map<EVENT_TYPES, Delegate> eventmap;
+	static std::unordered_map<EVENT_TYPES, Delegate<EventMessageBase*>> eventmap;
 
 	static void HandleMessage(const EVENT_TYPES t, EventMessageBase* m) { HandleMessage(t, *m); }
 	static void HandleMessage(const EVENT_TYPES t, EventMessageBase& m);

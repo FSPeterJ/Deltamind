@@ -159,9 +159,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Game.h" />
+    <ClInclude Include="GameObject.h" />
     <ClInclude Include="Header Files\ComponentBase.h" />
     <ClInclude Include="Examples.h" />
     <ClInclude Include="Header Files\Console.h" />
+    <ClInclude Include="Header Files\Delegate.h" />
     <ClInclude Include="Header Files\Header.h" />
     <ClInclude Include="Header Files\InputManager.h" />
     <ClInclude Include="Header Files\ManagerInterface.h" />

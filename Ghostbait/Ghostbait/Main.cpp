@@ -3,7 +3,7 @@
 
 #ifndef NDEBUG
 #define _CRTDBG_MAP_ALLOC
-#define BREAK_AT -1
+//#define BREAK_AT -1
 #include <stdlib.h>
 #include <crtdbg.h>
 #endif
@@ -12,11 +12,15 @@
 
 #include "Console.h"
 #include "Renderer.h"
+#include "ObjectManager.h"
 using namespace Console;
 
 #include "MessageEvents.h"
 #include "ObjectFactory.h"
 #include "TestObject.h"
+
+#include "GameObject.h"
+#include "EngineStructure.h"
 
 
 #include "VRManager.h"
@@ -24,47 +28,99 @@ using namespace Console;
 #include "InputManager.h"
 #include "Messagebox.h"
 
+#include "Game.h"
+#include "ThreadPool.h"
+
+
 Renderer* rendInter;
 VRManager* vrMan;
+Game* game;
+
+void ExecuteAsync() {
+
+	WriteLine("I am executed asyncly!");
+
+}
+
 
 void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	Window wnd(900, 900);
 
-	if (!wnd.Initialize(hInstance, nCmdShow)) { Messagebox::ShowError(L"Error!!", L"Main window is not initialized!"); }
+	if(!wnd.Initialize(hInstance, nCmdShow)) { Messagebox::ShowError(L"Error!!", L"Main window is not initialized!"); }
 	wnd.UpdateTitle(L"Ghostbait");
 
 	Allocate();
 	WriteLine("App has been initalized!");
 	//Minimize();
 
+
+	EngineStructure engine;
+
+
+	SomeCoolObject* testObj = new SomeCoolObject();
+
+	engine.ExecuteAwake();
+
+	delete testObj;
+
+	Messagebox::ShowError(L"Exit", "Stopping");
+
+
+
+
+
+
+
+	ThreadPool::Start();
+	ThreadPool::MakeJob(ExecuteAsync);
+
+
 	vrMan = new VRManager();
-	vrMan->Init();
 	rendInter = new Renderer();
-	rendInter->Initialize(wnd, vrMan);
+	if(vrMan->Init())
+	{
+		rendInter->Initialize(wnd, vrMan);
+	}
+	else
+	{
+		WriteLine("VR not initialized! Defaulting to 2D");
+		rendInter->Initialize(wnd, nullptr);
+	}
+
+
+
+
+	ObjectManager::Initialize();
 
 	//Object Factory Testing
 	//====================================
-	ObjectFactory::Register<Object>("BaseClass");
-	ObjectFactory::Register<TestObject>("TestObject");
+	ObjectFactory::Initialize(rendInter->getMeshManager());
+	ObjectFactory::Register<Object>(Object().GetTypeId());
+	ObjectFactory::Register<TestObject>(TestObject().GetTypeId());
 
-	MessageEvents::SendMessage(EVENT_Instantiate, InstantiateMessage(0));
+	game = new Game();
+	game->Start();
+
+
 }
 
 void Loop() {
 	InputManager::HandleInput();
 	rendInter->Render();
-
+	game->Update();
 }
 
 void CleanUp() {
-	if (vrMan) {
+	if(vrMan) {
 		delete vrMan;
 	}
-	if (rendInter) {
+	if(rendInter) {
 		rendInter->Destroy();
 		delete rendInter;
 	}
+	ObjectFactory::Shutdown();
+	if(game) { game->Clean(); delete game; }
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow) {
@@ -109,7 +165,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			if(msg.message == WM_QUIT) { break; }
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-		} else {
+		}
+		else {
 			test2->position = vrMan->hmdPose;
 			//test3->position = XMMatrixTranspose(XMLoadFloat4x4(&(rendInter->leftEye.camera.view)));
 			//test4->position = XMMatrixTranspose(XMLoadFloat4x4(&(rendInter->rightEye.camera.view)));
@@ -118,13 +175,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		}
 	}
 
-	//Test Objects
-	delete test;
-	delete test2;
-
 	CleanUp();
 
 	Free();
 
-	return (int) msg.wParam;
+	return (int)msg.wParam;
 }

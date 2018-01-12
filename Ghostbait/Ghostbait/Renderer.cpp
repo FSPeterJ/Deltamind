@@ -55,7 +55,7 @@ bool Renderer::LoadShaderFromCSO(char ** szByteCode, size_t & szByteCodeSize, co
 {
 	std::ifstream load;
 	load.open(szFileName, std::ios_base::binary);
-	if (!load.is_open()) return false;
+	if(!load.is_open()) return false;
 	load.seekg(0, std::ios_base::end);
 	szByteCodeSize = size_t(load.tellg());
 	*szByteCode = new char[szByteCodeSize];
@@ -148,7 +148,7 @@ void Renderer::renderToEye(eye * eyeTo)
 	context->OMSetRenderTargets(1, &eyeTo->renderInfo.rtv, eyeTo->renderInfo.dsv);
 	context->UpdateSubresource(cameraBuffer, 0, NULL, &eyeTo->camera, 0, 0);
 
-	for (size_t i = 0; i < renderedObjects.size(); ++i)
+	for(size_t i = 0; i < renderedObjects.size(); ++i)
 	{
 		renderObjectDefaultState(renderedObjects[i]);
 	}
@@ -228,6 +228,9 @@ void Renderer::Initialize(Window window, VRManager * vr)
 	XMStoreFloat4x4(&defaultCamera.projection, XMMatrixTranspose(XMMatrixPerspectiveFovLH(60.0f * XM_PI / 180.0f, defaultPipeline.viewport.Width / defaultPipeline.viewport.Height, 0.001f, 300.0f)));
 
 	setupVRTargets();
+
+	MessageEvents::Subscribe(EVENT_Instantiated, [this](EventMessageBase * _e) {this->registerObject(_e); });
+	MessageEvents::Subscribe(EVENT_Destroy, [this](EventMessageBase * _e) {this->unregisterObject(_e); });
 }
 
 void Renderer::Destroy()
@@ -251,45 +254,70 @@ void Renderer::Destroy()
 
 void Renderer::registerObject(const Object * toRegister, renderState specialInstructions)
 {
-	switch (specialInstructions)
+	switch(specialInstructions)
 	{
-	case RENDER_STATE_DEFAULT:
-	{
-		renderedObjects.push_back(toRegister);
-	}
-	break;
-	case RENDER_STATE_TRANSPARENT:
-	{
+		case RENDER_STATE_DEFAULT:
+		{
+			renderedObjects.push_back(toRegister);
+		}
+		break;
+		case RENDER_STATE_TRANSPARENT:
+		{
 
+		}
+		break;
 	}
-	break;
+}
+
+void Renderer::registerObject(EventMessageBase* e)
+{
+	//TODO: Need logic to determine which objects group to push to 
+	//based off of what the object has - may include instructions in the future
+	NewObjectMessage* instantiate = (NewObjectMessage*)e;
+	renderedObjects.push_back(instantiate->GetObject());
+}
+
+void Renderer::unregisterObject(EventMessageBase* e)
+{
+	DestroyMessage* removeobjMessage = (DestroyMessage*)e;
+	//TODO: Need logic for which register it is under
+	for(std::vector<const Object*>::iterator iter = renderedObjects.begin(); iter != renderedObjects.end(); ++iter)
+	{
+		if(*iter == removeobjMessage->GetObject())
+		{
+			renderedObjects.erase(iter);
+			return;
+		}
 	}
 }
 
 bool Renderer::unregisterObject(const Object * toRemove, renderState specialInstructions)
 {
-	switch (specialInstructions)
+	switch(specialInstructions)
 	{
-	case RENDER_STATE_DEFAULT:
-	{
-		for (std::vector<const Object*>::iterator iter = renderedObjects.begin(); iter != renderedObjects.end(); ++iter)
+		case RENDER_STATE_DEFAULT:
 		{
-			if (*iter == toRemove)
+			for(std::vector<const Object*>::iterator iter = renderedObjects.begin(); iter != renderedObjects.end(); ++iter)
 			{
-				renderedObjects.erase(iter);
-				return true;
+				if(*iter == toRemove)
+				{
+					renderedObjects.erase(iter);
+					return true;
+				}
 			}
 		}
-	}
-	break;
-	case RENDER_STATE_TRANSPARENT:
-	{
+		break;
+		case RENDER_STATE_TRANSPARENT:
+		{
 
-	}
-	break;
+		}
+		break;
 	}
 	return false;
 }
+
+
+
 
 XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 	XMFLOAT4X4 mat;
@@ -314,7 +342,7 @@ XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 
 void Renderer::Render()
 {
-	if (VRManagement)
+	if(VRManagement)
 	{
 		VRManagement->GetVRMatricies(&leftEye.camera.projection, &rightEye.camera.projection, &leftEye.camera.view, &rightEye.camera.view);
 
@@ -339,7 +367,7 @@ void Renderer::Render()
 	context->UpdateSubresource(cameraBuffer, 0, NULL, &(leftEye.camera), 0, 0);
 
 
-	for (size_t i = 0; i < renderedObjects.size(); ++i)
+	for(size_t i = 0; i < renderedObjects.size(); ++i)
 	{
 		renderObjectDefaultState(renderedObjects[i]);
 	}
@@ -383,7 +411,7 @@ void Renderer::initDepthStencilView(pipeline_state_t * pipelineTo)
 void Renderer::initRasterState(pipeline_state_t * pipelineTo, bool wireFrame)
 {
 	D3D11_RASTERIZER_DESC rasterDesc;
-	if (wireFrame)
+	if(wireFrame)
 		rasterDesc.FillMode = D3D11_FILL_WIREFRAME;
 	else
 		rasterDesc.FillMode = D3D11_FILL_SOLID;
@@ -428,7 +456,7 @@ void Renderer::initShaders()
 	device->CreateBuffer(&modelBufferDesc, nullptr, &modelBuffer);
 }
 
-void Renderer::initViewport(RECT window, pipeline_state_t * pipelineTo)
+void Renderer::initViewport(const RECT window, pipeline_state_t * pipelineTo)
 {
 	D3D11_VIEWPORT tempView;
 	tempView.Height = VRManagement->RecommendedRenderHeight;//(float)window.bottom - (float)window.top;

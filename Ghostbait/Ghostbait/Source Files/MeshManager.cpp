@@ -96,16 +96,26 @@ void MeshManager::Destroy()
 	}
 }
 
-void MeshManager::AddElement(const char * meshFilePath, const unsigned int id)
+meshPositionColor* MeshManager::ConstructMesh(const char* _meshFilePath)
 {
+	return new meshPositionColor;
 }
 
 
-meshPositionColor*  MeshManager::GetElement(const unsigned int id)
+int MeshManager::AddElement(const char* _meshFilePath, const unsigned int _id = 0)
 {
+	meshPositionColor* mesh = GetElement(_id);
+	smallMeshes.push_back(*mesh);
+	return smallMeshes.size();
+}
+
+
+meshPositionColor*  MeshManager::GetElement(const unsigned int _id)
+{
+	//
 	for (size_t i = 0; i < smallMeshes.size(); ++i)
 	{
-		if (smallMeshes[i].meshId == id)
+		if (smallMeshes[i].meshId == _id)
 			return &smallMeshes[i];
 	}
 	return nullptr;

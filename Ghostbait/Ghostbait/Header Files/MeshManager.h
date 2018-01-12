@@ -16,15 +16,17 @@ class MeshManager : virtual public ManagerInterface
 {
 private:
 	std::vector<meshPositionColor> smallMeshes;
-	ID3D11Device* device;
+	std::vector<meshPositionColor> meshes;
+	ID3D11Device* device = nullptr;
 	void generateCube();
 public:
 	MeshManager();
 	~MeshManager();
 
-	void Initialize(ID3D11Device* deviceIn);
+	void Initialize(ID3D11Device* _deviceIn);
 	void Destroy();
-	void AddElement(const char * _meshFilePath, const unsigned int _id) override;
+	meshPositionColor* ConstructMesh(const char* _meshFilePath);
+	int AddElement(const char* _meshFilePath, const unsigned int _id) override;
 	meshPositionColor* GetElement(const unsigned int _id) override;
 };
 

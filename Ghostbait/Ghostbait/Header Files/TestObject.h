@@ -8,7 +8,6 @@ class TestObject:
 public:
 	TestObject();
 	~TestObject();
-	//void testing() { Console::WriteLine(x); };
-
+	static int GetTypeId() { return 1; };
 };
 

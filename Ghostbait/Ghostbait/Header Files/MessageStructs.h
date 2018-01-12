@@ -1,6 +1,6 @@
 #pragma once
 #include "StdHeader.h"
-#include "Object.h"
+#include "DirectXMath.h"
 
 #undef GetObject
 
@@ -30,20 +30,21 @@ public:
 	/// </summary>
 	/// <param name="_ctrl">The control.</param>
 	/// <param name="_amount">The amount.</param>
-	InputMessage(Control _ctrl, float _amount) : ctrl(_ctrl), amount(_amount) {}
+	InputMessage(const Control _ctrl, const float _amount): ctrl(_ctrl), amount(_amount) {}
 
-	 const float GetAmount() const { return amount; }
-	 const Control GetControl() const { return ctrl; }
+	const float GetAmount() const { return amount; }
+	const Control GetControl() const { return ctrl; }
 };
 
 class InstantiateMessage: public EventMessageBase {
 	PrefabId obj;
+	DirectX::XMFLOAT4 position;
 public:
 	/// <summary>
 	/// Initializes a new instance of the <see cref="InstantiateMessage"/> class.
 	/// </summary>
 	/// <param name="_obj">The object's prefab id.</param>
-	InstantiateMessage(PrefabId _obj) : obj(_obj) {}
+	InstantiateMessage(PrefabId _obj, DirectX::XMFLOAT4 _position) : obj(_obj), position(_position) {}
 
 	const PrefabId GetId() const { return obj; }
 };
@@ -59,6 +60,19 @@ public:
 	/// </summary>
 	/// <param name="_obj">The object.</param>
 	DestroyMessage(Object* _obj) : obj(_obj) {}
+
+	Object* GetObject() const { return obj; }
+};
+
+class NewObjectMessage: public EventMessageBase {
+	Object* obj;
+public:
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="NewObjectMessage"/> class.
+	/// </summary>
+	/// <param name="_obj">The object.</param>
+	NewObjectMessage(Object* _obj): obj(_obj) {}
 
 	Object* GetObject() const { return obj; }
 };

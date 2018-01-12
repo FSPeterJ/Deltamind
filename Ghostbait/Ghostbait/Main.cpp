@@ -19,6 +19,9 @@ using namespace Console;
 #include "ObjectFactory.h"
 #include "TestObject.h"
 
+#include "GameObject.h"
+#include "EngineStructure.h"
+
 
 #include "VRManager.h"
 
@@ -65,7 +68,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 		std::cout << e.what();
 	}
 
-
+*/
 	vrMan = new VRManager();
 	rendInter = new Renderer();
 	if(vrMan->Init())
@@ -78,7 +81,10 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 		rendInter->Initialize(wnd, nullptr);
 	}
 
-	ObjectManager::Initialize();
+
+
+
+	
 
 	//Object Factory Testing
 	//====================================
@@ -133,6 +139,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			DispatchMessage(&msg);
 		}
 		else {
+			//test2->position = vrMan->hmdPose;
+			//test3->position = XMMatrixTranspose(XMLoadFloat4x4(&(rendInter->leftEye.camera.view)));
+			//test4->position = XMMatrixTranspose(XMLoadFloat4x4(&(rendInter->rightEye.camera.view)));
+
 			Loop();
 		}
 	}

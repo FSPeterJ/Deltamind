@@ -41,20 +41,100 @@ bool VRManager::Init() {
 		return false;
 	}
 
-	MatToFloatArr(Transpose(pVRHMD->GetProjectionMatrix(vr::EVREye::Eye_Left, 0.1f, 100.0f)), &leftProj);
-	MatToFloatArr(Transpose(pVRHMD->GetProjectionMatrix(vr::EVREye::Eye_Right, 0.1f, 100.0f)), &rightProj);
-	float* leftView, *rightView;
-	MatToFloatArr(Transpose(Mat34ToMat44(pVRHMD->GetEyeToHeadTransform(vr::EVREye::Eye_Left))), &leftView);
-	FloatArrInverse44(leftView, &leftEyeToHead);
-	float* res;
-	FloatArrTimesFloatArr(leftView, leftEyeToHead, &res);
-	MatToFloatArr(Transpose(Mat34ToMat44(pVRHMD->GetEyeToHeadTransform(vr::EVREye::Eye_Right))), &rightView);
-	FloatArrInverse44(rightView, &rightEyeToHead);
+	float top, bott, left, right, nearPlane = 0.01f, farPlane = 100.0f;
+	pVRHMD->GetProjectionRaw(vr::Eye_Left, &left, &right, &top, &bott);
+	left *= nearPlane;
+	right *= nearPlane;
+	top *= -1.0f * nearPlane;
+	bott *= -1.0f * nearPlane;
+	//leftProj = DirectX::XMMatrixPerspectiveLH(abs(left - right), abs(bott - top), nearPlane, farPlane);
+	leftProj = DirectX::XMMatrixPerspectiveOffCenterLH(left, right, bott, top, nearPlane, farPlane);
+	pVRHMD->GetProjectionRaw(vr::Eye_Right, &left, &right, &top, &bott);
+	left *= nearPlane;
+	right *= nearPlane;
+	top *= -1.0f * nearPlane;
+	bott *= -1.0f * nearPlane;
+	//rightProj = DirectX::XMMatrixPerspectiveLH(abs(left - right), abs(bott - top), nearPlane, farPlane);
+	rightProj = DirectX::XMMatrixPerspectiveOffCenterLH(left, right, bott, top, nearPlane, farPlane);
 
-	trackedDevicePoseMatrices = new float*[vr::k_unMaxTrackedDeviceCount];
+	//rightProj = VRProjectionToDirectXMatrix(pVRHMD->GetProjectionMatrix(vr::EVREye::Eye_Left, 0.001f, 1000.0f));
+	//rightProj = VRProjectionToDirectXMatrix(pVRHMD->GetProjectionMatrix(vr::EVREye::Eye_Right, 0.001f, 1000.0f));
+	DirectX::XMVECTOR det;
+	leftEyeToHead = DirectX::XMMatrixInverse(&det, VRMatrix34ToDirectXMatrix44(pVRHMD->GetEyeToHeadTransform(vr::EVREye::Eye_Left)));
+	rightEyeToHead = DirectX::XMMatrixInverse(&det, VRMatrix34ToDirectXMatrix44(pVRHMD->GetEyeToHeadTransform(vr::EVREye::Eye_Right)));
+
+	trackedDevicePoseMatrices = new DirectX::XMMATRIX[vr::k_unMaxTrackedDeviceCount];
 
 	return true;
 }
+
+DirectX::XMMATRIX VRManager::VRProjectionToDirectXMatrix(vr::HmdMatrix44_t m) {
+	DirectX::XMMATRIX outM;
+	outM = DirectX::XMMATRIX(
+		m.m[0][0], m.m[1][0], m.m[2][0], m.m[3][0],
+		m.m[0][1], m.m[1][1], m.m[2][1], m.m[3][1],
+		m.m[0][2], m.m[1][2], m.m[2][2], m.m[3][2],// * -1.0f,
+		m.m[0][3], m.m[1][3], m.m[2][3], m.m[3][3]
+	);
+
+	//outM = DirectX::XMMATRIX(
+	//	m.m[0][0], m.m[0][1], m.m[0][2], m.m[0][3],
+	//	m.m[1][0], m.m[1][1], m.m[1][2], m.m[1][3],
+	//	m.m[2][0], m.m[2][1], m.m[2][2], m.m[2][3],// * -1.0f,
+	//	m.m[3][0], m.m[3][1], m.m[3][2], m.m[3][3]
+	//);
+	return outM;
+}
+DirectX::XMMATRIX VRManager::VRMatrix34ToDirectXMatrix44(vr::HmdMatrix34_t m) {
+	vr::HmdMatrix44_t mat;
+	mat.m[0][0] = m.m[0][0];
+	mat.m[0][1] = m.m[0][1];
+	mat.m[0][2] = m.m[0][2];
+	mat.m[0][3] = m.m[0][3];
+
+	mat.m[1][0] = m.m[1][0];
+	mat.m[1][1] = m.m[1][1];
+	mat.m[1][2] = m.m[1][2];
+	mat.m[1][3] = m.m[1][3];
+
+	mat.m[2][0] = m.m[2][0];
+	mat.m[2][1] = m.m[2][1];
+	mat.m[2][2] = m.m[2][2];
+	mat.m[2][3] = m.m[2][3];
+
+	mat.m[3][0] = 0.0f;
+	mat.m[3][1] = 0.0f;
+	mat.m[3][2] = 0.0f;
+	mat.m[3][3] = 1.0f;
+	return VRMatrix44ToDirectXMatrix44(mat);
+}
+DirectX::XMMATRIX VRManager::VRMatrix44ToDirectXMatrix44(vr::HmdMatrix44_t m) {
+	DirectX::XMMATRIX outM;
+	outM = DirectX::XMMATRIX(
+		m.m[0][0], m.m[1][0], m.m[2][0] * -1.0f, m.m[3][0],
+		m.m[0][1], m.m[1][1], m.m[2][1] * -1.0f, m.m[3][1],
+		m.m[0][2] * -1.0f, m.m[1][2] * -1.0f, m.m[2][2], m.m[3][2] * -1.0f,
+		m.m[0][3], m.m[1][3], m.m[2][3] * -1.0f, m.m[3][3]
+	);
+
+	return outM;
+}
+
+void VRManager::WriteMatrix(DirectX::XMMATRIX m, int frame = 60) {
+	static int i = 0;
+	if (++i >= frame) {
+		DirectX::XMFLOAT4X4 mat;
+		DirectX::XMStoreFloat4x4(&mat, m);
+
+		Console::WriteLine("-----------------------------------------------------------------------------");
+		Console::Write(mat._11); Console::Write(" "); Console::Write(mat._12); Console::Write(" "); Console::Write(mat._13); Console::Write(" "); Console::WriteLine(mat._14);
+		Console::Write(mat._21); Console::Write(" "); Console::Write(mat._22); Console::Write(" "); Console::Write(mat._23); Console::Write(" "); Console::WriteLine(mat._24);
+		Console::Write(mat._31); Console::Write(" "); Console::Write(mat._32); Console::Write(" "); Console::Write(mat._33); Console::Write(" "); Console::WriteLine(mat._34);
+		Console::Write(mat._41); Console::Write(" "); Console::Write(mat._42); Console::Write(" "); Console::Write(mat._43); Console::Write(" "); Console::WriteLine(mat._44);
+		i = 0;
+	}
+}
+
 
 void VRManager::Shutdown() {
 	if (pVRHMD) {
@@ -65,229 +145,25 @@ void VRManager::Shutdown() {
 	}
 }
 
-vr::HmdMatrix44_t VRManager::Transpose(vr::HmdMatrix44_t m) {
-	vr::HmdMatrix44_t tran;
-	tran.m[0][0] = m.m[0][0];
-	tran.m[0][1] = m.m[1][0];
-	tran.m[0][2] = m.m[2][0];
-	tran.m[0][3] = m.m[3][0];
-
-	tran.m[1][0] = m.m[0][1];
-	tran.m[1][1] = m.m[1][1];
-	tran.m[1][2] = m.m[2][1];
-	tran.m[1][3] = m.m[3][1];
-
-	tran.m[2][0] = m.m[0][2];
-	tran.m[2][1] = m.m[1][2];
-	tran.m[2][2] = m.m[2][2];
-	tran.m[2][3] = m.m[3][2];
-
-	tran.m[3][0] = m.m[0][3];
-	tran.m[3][1] = m.m[1][3];
-	tran.m[3][2] = m.m[2][3];
-	tran.m[3][3] = m.m[3][3];
-	return tran;
-}
-void VRManager::MatToFloatArr(vr::HmdMatrix44_t m, float** outM) {
-	(*outM) = new float[16];
-	(*outM)[0] = m.m[0][0];
-	(*outM)[1] = m.m[0][1];
-	(*outM)[2] = m.m[0][2];
-	(*outM)[3] = m.m[0][3];
-	(*outM)[4] = m.m[1][0];
-	(*outM)[5] = m.m[1][1];
-	(*outM)[6] = m.m[1][2];
-	(*outM)[7] = m.m[1][3];
-	(*outM)[8] = m.m[2][0];
-	(*outM)[9] = m.m[2][1];
-	(*outM)[10] = m.m[2][2];
-	(*outM)[11] = m.m[2][3];
-	(*outM)[12] = m.m[3][0];
-	(*outM)[13] = m.m[3][1];
-	(*outM)[14] = m.m[3][2];
-	(*outM)[15] = m.m[3][3];
-}
-vr::HmdMatrix44_t VRManager::Mat34ToMat44(vr::HmdMatrix34_t m) {
-	vr::HmdMatrix44_t mat;
-	mat.m[0][0] = m.m[0][0];
-	mat.m[0][1] = m.m[0][1];
-	mat.m[0][2] = m.m[0][2];
-	mat.m[0][3] = m.m[0][3];
-				  
-	mat.m[1][0] = m.m[1][0];
-	mat.m[1][1] = m.m[1][1];
-	mat.m[1][2] = m.m[1][2];
-	mat.m[1][3] = m.m[1][3];
-				  
-	mat.m[2][0] = m.m[2][0];
-	mat.m[2][1] = m.m[2][1];
-	mat.m[2][2] = m.m[2][2];
-	mat.m[2][3] = m.m[2][3];
-				  
-	mat.m[3][0] = 0;
-	mat.m[3][1] = 0;
-	mat.m[3][2] = 0;
-	mat.m[3][3] = 1;
-	return mat;
-}
-void VRManager::FloatArrTimesFloatArr(float* m1, float* m2, float** outM) {
-	(*outM) = new float[16];
-	(*outM)[0] = m1[0] * m2[0] + m1[1] * m2[4] + m1[2] * m2[8] + m1[3] * m2[12];	
-	(*outM)[1] = m1[0] * m2[1] + m1[1] * m2[5] + m1[2] * m2[9] + m1[3] * m2[13];
-	(*outM)[2] = m1[0] * m2[2] + m1[1] * m2[6] + m1[2] * m2[10] + m1[3] * m2[14];
-	(*outM)[3] = m1[0] * m2[3] + m1[1] * m2[7] + m1[2] * m2[11] + m1[3] * m2[15];
-
-	(*outM)[4] = m1[4] * m2[0] + m1[5] * m2[4] + m1[6] * m2[8] + m1[7] * m2[12];
-	(*outM)[5] = m1[4] * m2[1] + m1[5] * m2[5] + m1[6] * m2[9] + m1[7] * m2[13];
-	(*outM)[6] = m1[4] * m2[2] + m1[5] * m2[6] + m1[6] * m2[10] + m1[7] * m2[14];
-	(*outM)[7] = m1[4] * m2[3] + m1[5] * m2[7] + m1[6] * m2[11] + m1[7] * m2[15];
-
-	(*outM)[8] = m1[8] * m2[0] + m1[9] * m2[4] + m1[10] * m2[8] + m1[11] * m2[12];
-	(*outM)[9] = m1[8] * m2[1] + m1[9] * m2[5] + m1[10] * m2[9] + m1[11] * m2[13];
-	(*outM)[10] = m1[8] * m2[2] + m1[9] * m2[6] + m1[10] * m2[10] + m1[11] * m2[14];
-	(*outM)[11] = m1[8] * m2[3] + m1[9] * m2[7] + m1[10] * m2[11] + m1[11] * m2[15];
-
-	(*outM)[12] = m1[12] * m2[0] + m1[13] * m2[4] + m1[14] * m2[8] + m1[15] * m2[12];
-	(*outM)[13] = m1[12] * m2[1] + m1[13] * m2[5] + m1[14] * m2[9] + m1[15] * m2[13];
-	(*outM)[14] = m1[12] * m2[2] + m1[13] * m2[6] + m1[14] * m2[10] + m1[15] * m2[14];
-	(*outM)[15] = m1[12] * m2[3] + m1[13] * m2[7] + m1[14] * m2[11] + m1[15] * m2[15];
-}
-
-void VRManager::FloatArrInverse44(float* m, float** invOut) {
-	float inv[16], det, result[16];
-
-	inv[0] = m[5] * m[10] * m[15] -
-		m[5] * m[11] * m[14] -
-		m[9] * m[6] * m[15] +
-		m[9] * m[7] * m[14] +
-		m[13] * m[6] * m[11] -
-		m[13] * m[7] * m[10];
-
-	inv[4] = -m[4] * m[10] * m[15] +
-		m[4] * m[11] * m[14] +
-		m[8] * m[6] * m[15] -
-		m[8] * m[7] * m[14] -
-		m[12] * m[6] * m[11] +
-		m[12] * m[7] * m[10];
-
-	inv[8] = m[4] * m[9] * m[15] -
-		m[4] * m[11] * m[13] -
-		m[8] * m[5] * m[15] +
-		m[8] * m[7] * m[13] +
-		m[12] * m[5] * m[11] -
-		m[12] * m[7] * m[9];
-
-	inv[12] = -m[4] * m[9] * m[14] +
-		m[4] * m[10] * m[13] +
-		m[8] * m[5] * m[14] -
-		m[8] * m[6] * m[13] -
-		m[12] * m[5] * m[10] +
-		m[12] * m[6] * m[9];
-
-	inv[1] = -m[1] * m[10] * m[15] +
-		m[1] * m[11] * m[14] +
-		m[9] * m[2] * m[15] -
-		m[9] * m[3] * m[14] -
-		m[13] * m[2] * m[11] +
-		m[13] * m[3] * m[10];
-
-	inv[5] = m[0] * m[10] * m[15] -
-		m[0] * m[11] * m[14] -
-		m[8] * m[2] * m[15] +
-		m[8] * m[3] * m[14] +
-		m[12] * m[2] * m[11] -
-		m[12] * m[3] * m[10];
-
-	inv[9] = -m[0] * m[9] * m[15] +
-		m[0] * m[11] * m[13] +
-		m[8] * m[1] * m[15] -
-		m[8] * m[3] * m[13] -
-		m[12] * m[1] * m[11] +
-		m[12] * m[3] * m[9];
-
-	inv[13] = m[0] * m[9] * m[14] -
-		m[0] * m[10] * m[13] -
-		m[8] * m[1] * m[14] +
-		m[8] * m[2] * m[13] +
-		m[12] * m[1] * m[10] -
-		m[12] * m[2] * m[9];
-
-	inv[2] = m[1] * m[6] * m[15] -
-		m[1] * m[7] * m[14] -
-		m[5] * m[2] * m[15] +
-		m[5] * m[3] * m[14] +
-		m[13] * m[2] * m[7] -
-		m[13] * m[3] * m[6];
-
-	inv[6] = -m[0] * m[6] * m[15] +
-		m[0] * m[7] * m[14] +
-		m[4] * m[2] * m[15] -
-		m[4] * m[3] * m[14] -
-		m[12] * m[2] * m[7] +
-		m[12] * m[3] * m[6];
-
-	inv[10] = m[0] * m[5] * m[15] -
-		m[0] * m[7] * m[13] -
-		m[4] * m[1] * m[15] +
-		m[4] * m[3] * m[13] +
-		m[12] * m[1] * m[7] -
-		m[12] * m[3] * m[5];
-
-	inv[14] = -m[0] * m[5] * m[14] +
-		m[0] * m[6] * m[13] +
-		m[4] * m[1] * m[14] -
-		m[4] * m[2] * m[13] -
-		m[12] * m[1] * m[6] +
-		m[12] * m[2] * m[5];
-
-	inv[3] = -m[1] * m[6] * m[11] +
-		m[1] * m[7] * m[10] +
-		m[5] * m[2] * m[11] -
-		m[5] * m[3] * m[10] -
-		m[9] * m[2] * m[7] +
-		m[9] * m[3] * m[6];
-
-	inv[7] = m[0] * m[6] * m[11] -
-		m[0] * m[7] * m[10] -
-		m[4] * m[2] * m[11] +
-		m[4] * m[3] * m[10] +
-		m[8] * m[2] * m[7] -
-		m[8] * m[3] * m[6];
-
-	inv[11] = -m[0] * m[5] * m[11] +
-		m[0] * m[7] * m[9] +
-		m[4] * m[1] * m[11] -
-		m[4] * m[3] * m[9] -
-		m[8] * m[1] * m[7] +
-		m[8] * m[3] * m[5];
-
-	inv[15] = m[0] * m[5] * m[10] -
-		m[0] * m[6] * m[9] -
-		m[4] * m[1] * m[10] +
-		m[4] * m[2] * m[9] +
-		m[8] * m[1] * m[6] -
-		m[8] * m[2] * m[5];
-
-	det = m[0] * inv[0] + m[1] * inv[4] + m[2] * inv[8] + m[3] * inv[12];
-
-	if (det == 0)
-		return;
-
-	det = 1.0f / det;
-
-	for (int i = 0; i < 16; i++)
-		result[i] = inv[i] * det;
-	*invOut = result;
-}
-
-void VRManager::GetVRMatricies(float** _leftProj, float** _rightProj, float** _leftView, float** _rightView) {
+void VRManager::GetVRMatricies(DirectX::XMFLOAT4X4* _leftProj, DirectX::XMFLOAT4X4* _rightProj, DirectX::XMFLOAT4X4* _leftView, DirectX::XMFLOAT4X4* _rightView) {
 	UpdateVRPoses();
 
-	*_leftProj = leftProj;
-	*_rightProj = rightProj;
-	FloatArrTimesFloatArr(leftEyeToHead, hmdPose, _leftView);
-	FloatArrTimesFloatArr(rightEyeToHead, hmdPose, _rightView);
+	DirectX::XMMATRIX finalLeftViewProj = hmdPose * leftEyeToHead * leftProj;
+	DirectX::XMMATRIX finalRightViewProj = hmdPose * rightEyeToHead * rightProj;
 
+	DirectX::XMMATRIX invHMD = DirectX::XMMatrixInverse(&DirectX::XMVectorSet(0, 0, 0, 0), hmdPose);
+	DirectX::XMMATRIX invLEFT = DirectX::XMMatrixInverse(&DirectX::XMVectorSet(0, 0, 0, 0), leftEyeToHead);
+	DirectX::XMMATRIX invRight = DirectX::XMMatrixInverse(&DirectX::XMVectorSet(0, 0, 0, 0), rightEyeToHead);
+
+	DirectX::XMMATRIX LeftViewProj = leftEyeToHead * invHMD;
+	DirectX::XMMATRIX RightViewProj = invRight * invHMD;// *hmdPose;
+	
+	WriteMatrix(hmdPose, 60);
+
+	DirectX::XMStoreFloat4x4(_leftProj, leftProj);
+	DirectX::XMStoreFloat4x4(_rightProj, rightProj);
+	DirectX::XMStoreFloat4x4(_leftView, hmdPose);
+	DirectX::XMStoreFloat4x4(_rightView, hmdPose);
 }
 
 void VRManager::UpdateVRPoses() {
@@ -301,34 +177,12 @@ void VRManager::UpdateVRPoses() {
 	{
 		if (trackedDevicePose[deviceIndex].bPoseIsValid)
 		{
-			MatToFloatArr(Transpose(Mat34ToMat44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking)), &(trackedDevicePoseMatrices[deviceIndex]));
+			trackedDevicePoseMatrices[deviceIndex] = VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking);
 		}
 	}
 	
 	if (trackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd].bPoseIsValid) {
-		FloatArrInverse44(trackedDevicePoseMatrices[vr::k_unTrackedDeviceIndex_Hmd], &hmdPose);
-		//Console::WriteLine(hmdPose[0]);
-		//Console::Write(hmdPose[1]);
-		//Console::Write(hmdPose[2]);
-		//Console::Write(hmdPose[3]);
-		//Console::WriteLine(hmdPose[4]);
-		//Console::Write(hmdPose[5]);
-		//Console::Write(hmdPose[6]);
-		//Console::Write(hmdPose[7]);
-		//Console::WriteLine(hmdPose[8]);
-		//Console::Write(hmdPose[9]);
-		//Console::Write(hmdPose[10]);
-		//Console::Write(hmdPose[11]);
-		//Console::WriteLine(hmdPose[12]);
-		//Console::Write(hmdPose[13]);
-		//Console::Write(hmdPose[14]);
-		//Console::Write(hmdPose[15]);
-		////Console::WriteLine("");
-		//hmdPose = trackedDevicePoseMatrices[vr::k_unTrackedDeviceIndex_Hmd];
-
-
-
-
+		hmdPose = trackedDevicePoseMatrices[vr::k_unTrackedDeviceIndex_Hmd];
 
 		int i = 0;
 	}

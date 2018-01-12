@@ -4,25 +4,22 @@
 class Game {
 
 public:
-	Game( ) { }
+	Game() { }
 
 	Object * test, *test2;
 
 	void ThreadTest(int test) {
 		Write(test);
-		WriteLine("     Fuck yes");
 	}
 
 	void Start() {
-		Object * test = ObjectFactory::CreatePrefab(&std::string("BaseClass"));
-		Object * test2 = ObjectFactory::CreatePrefab(&std::string("TestObject"));
+		ObjectFactory::CreatePrefab(&std::string("BaseClass"));
+		ObjectFactory::CreatePrefab(&std::string("TestObject"));
 
 		ObjectManager::Initialize();
 
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 0,0,0,0 }));
 
-		XMFLOAT4 test1newpos = XMFLOAT4(2.0f, 1.0f, 0.0f, 1.0f);
-		test->position.r[3] = XMLoadFloat4(&test1newpos);
 		//test->testing();
 		//((TestObject*)test2)->testing();
 
@@ -37,7 +34,7 @@ public:
 
 	void Clean() {
 		delete test;
-		delete test2; 
+		delete test2;
 	}
 
 };

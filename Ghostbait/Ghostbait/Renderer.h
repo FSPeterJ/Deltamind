@@ -68,8 +68,8 @@ private:
 
 	viewProjectionConstantBuffer defaultCamera;
 
-	eye leftEye;
-	eye rightEye;
+	//eye leftEye;
+	//eye rightEye;
 
 	std::vector<const Object*> renderedObjects;
 	
@@ -97,6 +97,10 @@ private:
 
 
 public:
+	//test
+	eye leftEye;
+	eye rightEye;
+
 	Renderer();
 	~Renderer();
 

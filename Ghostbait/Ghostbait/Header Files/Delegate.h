@@ -13,6 +13,7 @@ public:
 	}
 
 	inline void add(const std::function<void(T...)> execute) { delegates.push_back(execute); }
+	inline void insert(const std::function<void(T...)> execute, size_t index) { delegates.insert(delegates.begin() + index, execute); }
 
 	Delegate(void) {};
 	~Delegate(void) {};

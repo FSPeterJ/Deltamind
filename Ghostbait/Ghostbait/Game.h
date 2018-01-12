@@ -10,7 +10,6 @@ public:
 
 	void ThreadTest(int test) {
 		Write(test);
-		WriteLine("     Fuck yes");
 	}
 
 	void Start() {

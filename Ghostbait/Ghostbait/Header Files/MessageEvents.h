@@ -7,7 +7,8 @@ using namespace Console;
 
 enum EVENT_TYPES {
 	EVENT_Input,
-	EVENT_Instantiate,
+	EVENT_InstantiateRequest,
+	EVENT_Instantiated,
 	EVENT_Destroy,
 	EVENT_LENGTH,
 };

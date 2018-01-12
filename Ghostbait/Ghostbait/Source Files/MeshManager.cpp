@@ -106,7 +106,7 @@ int MeshManager::AddElement(const char* _meshFilePath, const unsigned int _id = 
 {
 	meshPositionColor* mesh = GetElement(_id);
 	smallMeshes.push_back(*mesh);
-	return smallMeshes.size();
+	return (int)smallMeshes.size();
 }
 
 

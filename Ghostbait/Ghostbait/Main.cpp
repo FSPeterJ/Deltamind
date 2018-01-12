@@ -36,7 +36,7 @@ Game* game;
 void ExecuteAsync() {
 
 	WriteLine("I am executed asyncly!");
-
+	throw std::invalid_argument("ERROR: This is a test showing we can know if a thread throws an exception on it's work.\n");
 }
 
 
@@ -52,7 +52,18 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//Minimize();
 
 	ThreadPool::Start();
-	ThreadPool::MakeJob(ExecuteAsync);
+	auto temp = ThreadPool::MakeJob(ExecuteAsync);
+;
+	// check future for errors
+	try {
+		temp.get();
+	}
+	catch(const std::exception& e) {
+		//std::rethrow_exception(e);
+		// handle it
+		
+		std::cout << e.what();
+	}
 
 
 	vrMan = new VRManager();
@@ -96,6 +107,7 @@ void CleanUp() {
 		delete rendInter;
 	}
 	ObjectFactory::Shutdown();
+	ThreadPool::Shutdown();
 	if(game) { game->Clean(); delete game; }
 }
 

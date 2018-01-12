@@ -68,7 +68,6 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 		std::cout << e.what();
 	}
 
-*/
 	vrMan = new VRManager();
 	rendInter = new Renderer();
 	if(vrMan->Init())

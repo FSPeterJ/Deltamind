@@ -1,28 +1,28 @@
 #pragma once
 #include "openvr.h"
+#include <DirectXMath.h>
 
 class VRManager
 {
 private:
-	float* leftProj;
-	float* rightProj;
-	float* leftEyeToHead;
-	float* rightEyeToHead;
-	float* hmdPose;
+	DirectX::XMMATRIX leftProj;
+	DirectX::XMMATRIX rightProj;
+	DirectX::XMMATRIX leftEyeToHead;
+	DirectX::XMMATRIX rightEyeToHead;
 
-	vr::HmdMatrix44_t Transpose(vr::HmdMatrix44_t m);
-	vr::HmdMatrix44_t Mat34ToMat44(vr::HmdMatrix34_t m);
+	DirectX::XMMATRIX VRProjectionToDirectXMatrix(vr::HmdMatrix44_t m);
+	DirectX::XMMATRIX VRMatrix34ToDirectXMatrix44(vr::HmdMatrix34_t m);
+	DirectX::XMMATRIX VRMatrix44ToDirectXMatrix44(vr::HmdMatrix44_t m);
 
-	void FloatArrInverse44(float* m, float** invOut);
-	void MatToFloatArr(vr::HmdMatrix44_t m, float** outM);
-	void FloatArrTimesFloatArr(float* m1, float* m2, float** outM);
+	void WriteMatrix(DirectX::XMMATRIX m, int frame);
 
 	void UpdateVRPoses();
 	vr::TrackedDevicePose_t trackedDevicePose[vr::k_unMaxTrackedDeviceCount];
-	float** trackedDevicePoseMatrices;
+	DirectX::XMMATRIX* trackedDevicePoseMatrices;
 	void Shutdown();
 
 public:
+	DirectX::XMMATRIX hmdPose;
 	vr::IVRSystem *pVRHMD;
 	vr::IVRRenderModels* pVRRenderModel;
 	vr::IVRCompositor* pVRCompositor;
@@ -33,7 +33,7 @@ public:
 
 	bool Init();
 
-	void GetVRMatricies(float** leftProj, float** rightProj, float** leftView, float** rightView);
+	void GetVRMatricies(DirectX::XMFLOAT4X4* leftProj, DirectX::XMFLOAT4X4* rightProj, DirectX::XMFLOAT4X4* leftView, DirectX::XMFLOAT4X4* rightView);
 	void SendToHMD(void* leftTexture, void* rightTexture);
 };
 

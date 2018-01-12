@@ -86,9 +86,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	Object * test = ObjectFactory::CreateObject("BaseClass");
 	Object * test2 = ObjectFactory::CreateObject("TestObject");
+	Object * test3 = ObjectFactory::CreateObject("TestObject");
+	Object * test4 = ObjectFactory::CreateObject("TestObject");
 
-	XMFLOAT4 test1newpos = XMFLOAT4(2.0f, 1.0f, 0.0f, 1.0f);
+
+	XMFLOAT4 test1newpos = XMFLOAT4(0.0f, 0.5f, 2.0f, 1.0f);
 	test->position.r[3] = XMLoadFloat4(&test1newpos);
+
 	//test->testing();
 	//((TestObject*)test2)->testing();
 
@@ -96,6 +100,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	rendInter->registerObject(test);
 	rendInter->registerObject(test2);
+	//rendInter->registerObject(test3);
+	//rendInter->registerObject(test4);
+
 	MSG msg;
 	while(true) {
 		if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -103,6 +110,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		} else {
+			test2->position = vrMan->hmdPose;
+			//test3->position = XMMatrixTranspose(XMLoadFloat4x4(&(rendInter->leftEye.camera.view)));
+			//test4->position = XMMatrixTranspose(XMLoadFloat4x4(&(rendInter->rightEye.camera.view)));
+
 			Loop();
 		}
 	}

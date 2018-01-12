@@ -68,16 +68,16 @@ bool Renderer::LoadShaderFromCSO(char ** szByteCode, size_t & szByteCodeSize, co
 void Renderer::setupVRTargets()
 {
 	leftEye.renderInfo.viewport = D3D11_VIEWPORT();
-	leftEye.renderInfo.viewport.Height = 1500;
-	leftEye.renderInfo.viewport.Width = 1500;
+	leftEye.renderInfo.viewport.Height = VRManagement->RecommendedRenderHeight;
+	leftEye.renderInfo.viewport.Width = VRManagement->RecommendedRenderWidth;
 	leftEye.renderInfo.viewport.MaxDepth = 1.0f;
 	leftEye.renderInfo.viewport.MinDepth = 0.0f;
 	leftEye.renderInfo.viewport.TopLeftX = 0.0f;
 	leftEye.renderInfo.viewport.TopLeftY = 0.0f;
 
 	rightEye.renderInfo.viewport = D3D11_VIEWPORT();
-	rightEye.renderInfo.viewport.Height = 1500;
-	rightEye.renderInfo.viewport.Width = 1500;
+	rightEye.renderInfo.viewport.Height = VRManagement->RecommendedRenderHeight;
+	rightEye.renderInfo.viewport.Width = VRManagement->RecommendedRenderWidth;
 	rightEye.renderInfo.viewport.MaxDepth = 1.0f;
 	rightEye.renderInfo.viewport.MinDepth = 0.0f;
 	rightEye.renderInfo.viewport.TopLeftX = 0.0f;
@@ -88,8 +88,8 @@ void Renderer::setupVRTargets()
 	sampleDesc.Quality = 0;
 
 	D3D11_TEXTURE2D_DESC texDesc;
-	texDesc.Height = 1500;
-	texDesc.Width = 1500;
+	texDesc.Height = VRManagement->RecommendedRenderHeight;
+	texDesc.Width = VRManagement->RecommendedRenderWidth;
 	texDesc.Usage = D3D11_USAGE_DEFAULT;
 	texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 	texDesc.MipLevels = 1;
@@ -201,6 +201,8 @@ Renderer::~Renderer()
 
 void Renderer::Initialize(Window window, VRManager * vr)
 {
+	VRManagement = vr;
+
 	createDeviceContextAndSwapchain(window);
 	RECT windRect;
 	GetWindowRect(window.GetOutputWindow(), &windRect);
@@ -226,7 +228,6 @@ void Renderer::Initialize(Window window, VRManager * vr)
 	XMStoreFloat4x4(&defaultCamera.projection, XMMatrixTranspose(XMMatrixPerspectiveFovLH(60.0f * XM_PI / 180.0f, defaultPipeline.viewport.Width / defaultPipeline.viewport.Height, 0.001f, 300.0f)));
 
 	setupVRTargets();
-	VRManagement = vr;
 }
 
 void Renderer::Destroy()
@@ -315,20 +316,15 @@ void Renderer::Render()
 {
 	if (VRManagement)
 	{
-		float* leftProj;
-		float* rightProj;
-		float* leftView;
-		float* rightView;
-		VRManagement->GetVRMatricies(&leftProj, &rightProj, &leftView, &rightView);
-		leftEye.camera.projection = FloatArrayToFloat4x4(leftProj);
-		leftEye.camera.view = FloatArrayToFloat4x4(leftView);
-		rightEye.camera.projection = FloatArrayToFloat4x4(rightProj);
-		rightEye.camera.view = FloatArrayToFloat4x4(rightView);
+		VRManagement->GetVRMatricies(&leftEye.camera.projection, &rightEye.camera.projection, &leftEye.camera.view, &rightEye.camera.view);
+
+		//XMStoreFloat4x4(&leftEye.camera.projection, (XMLoadFloat4x4(&defaultCamera.projection)));
+		//XMStoreFloat4x4(&rightEye.camera.projection, (XMLoadFloat4x4(&defaultCamera.projection)));
 
 		XMStoreFloat4x4(&leftEye.camera.projection, XMMatrixTranspose(XMLoadFloat4x4(&leftEye.camera.projection)));
 		XMStoreFloat4x4(&rightEye.camera.projection, XMMatrixTranspose(XMLoadFloat4x4(&rightEye.camera.projection)));
-		XMStoreFloat4x4(&leftEye.camera.view, XMMatrixTranspose(XMLoadFloat4x4(&leftEye.camera.view)));//XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat4x4(&leftEye.camera.view)), XMLoadFloat4x4(&leftEye.camera.view))));
-		XMStoreFloat4x4(&rightEye.camera.view, XMMatrixTranspose(XMLoadFloat4x4(&leftEye.camera.view)));//XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat4x4(&rightEye.camera.view)), XMLoadFloat4x4(&rightEye.camera.view))));
+		XMStoreFloat4x4(&leftEye.camera.view, XMMatrixTranspose(XMMatrixInverse(&XMVectorSet(0, 0, 0, 0), XMLoadFloat4x4(&leftEye.camera.view))));
+		XMStoreFloat4x4(&rightEye.camera.view, XMMatrixTranspose(XMMatrixInverse(&XMVectorSet(0, 0, 0, 0), XMLoadFloat4x4(&rightEye.camera.view))));
 
 		renderToEye(&leftEye);
 		renderToEye(&rightEye);
@@ -338,8 +334,9 @@ void Renderer::Render()
 	context->ClearRenderTargetView(defaultPipeline.render_target_view, color);
 	context->ClearDepthStencilView(defaultPipeline.depth_stencil_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	context->OMSetRenderTargets(1, &defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view);
-
-	context->UpdateSubresource(cameraBuffer, 0, NULL, &defaultCamera, 0, 0);
+	
+	//context->UpdateSubresource(cameraBuffer, 0, NULL, &defaultCamera, 0, 0);
+	context->UpdateSubresource(cameraBuffer, 0, NULL, &(leftEye.camera), 0, 0);
 
 
 	for (size_t i = 0; i < renderedObjects.size(); ++i)
@@ -434,8 +431,8 @@ void Renderer::initShaders()
 void Renderer::initViewport(RECT window, pipeline_state_t * pipelineTo)
 {
 	D3D11_VIEWPORT tempView;
-	tempView.Height = (float)window.bottom - (float)window.top;
-	tempView.Width = (float)window.right - (float)window.left;
+	tempView.Height = VRManagement->RecommendedRenderHeight;//(float)window.bottom - (float)window.top;
+	tempView.Width = VRManagement->RecommendedRenderWidth;//(float)window.right - (float)window.left;
 	tempView.MaxDepth = 1.0f;
 	tempView.MinDepth = 0.0f;
 	tempView.TopLeftX = 0.0f;

@@ -55,27 +55,27 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//Minimize();
 
 
-	EngineStructure engine;
+	//EngineStructure engine;
 
 
-	SomeCoolObject* testObj = new SomeCoolObject();
+	//SomeCoolObject* testObj = new SomeCoolObject();
 
-	engine.ExecuteAwake();
+	//engine.ExecuteAwake();
 
-	delete testObj;
+	//delete testObj;
 
-	Messagebox::ShowError(L"Exit", "Stopping");
-
-
-
+	//Messagebox::ShowError(L"Exit", "Stopping");
 
 
 
 
-	ThreadPool::Start();
+
+
+
+	/*ThreadPool::Start();
 	ThreadPool::MakeJob(ExecuteAsync);
 
-
+*/
 	vrMan = new VRManager();
 	rendInter = new Renderer();
 	if(vrMan->Init())
@@ -91,7 +91,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 
 
-	ObjectManager::Initialize();
+	
 
 	//Object Factory Testing
 	//====================================
@@ -140,22 +140,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	//Object Factory Testing
 	//====================================
 
-	Object * test = ObjectFactory::CreateObject("BaseClass");
-	Object * test2 = ObjectFactory::CreateObject("TestObject");
-	Object * test3 = ObjectFactory::CreateObject("TestObject");
-	Object * test4 = ObjectFactory::CreateObject("TestObject");
 
-
-	XMFLOAT4 test1newpos = XMFLOAT4(0.0f, 0.5f, 2.0f, 1.0f);
-	test->position.r[3] = XMLoadFloat4(&test1newpos);
 
 	//test->testing();
 	//((TestObject*)test2)->testing();
 
 	//====================================
 
-	rendInter->registerObject(test);
-	rendInter->registerObject(test2);
 	//rendInter->registerObject(test3);
 	//rendInter->registerObject(test4);
 
@@ -167,7 +158,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			DispatchMessage(&msg);
 		}
 		else {
-			test2->position = vrMan->hmdPose;
+			//test2->position = vrMan->hmdPose;
 			//test3->position = XMMatrixTranspose(XMLoadFloat4x4(&(rendInter->leftEye.camera.view)));
 			//test4->position = XMMatrixTranspose(XMLoadFloat4x4(&(rendInter->rightEye.camera.view)));
 

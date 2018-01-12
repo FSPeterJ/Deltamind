@@ -1,25 +1,25 @@
 #pragma once
 #include "Object.h"
 #include "Delegate.h"
+#include "EngineStructure.h"
 
-class EngineSystem {
+class GameObject: public Object {
+public:
 
-	Delegate<> Awake;
-
-	void i() {
-		//Awake( );
+	GameObject() {
+		EngineStructure::Awake.add([this]() {this->Awake(); });
 	}
 
-
+	virtual void Awake() {}
 };
 
 
+class SomeCoolObject: public GameObject {
 
-class GameObject: public Object {
-
-
-	virtual void Awake() {
-
+	void Awake() {
+		WriteLine("I am a cool object being awakened!");
 	}
 
+public:
+	SomeCoolObject() : GameObject() { }
 };

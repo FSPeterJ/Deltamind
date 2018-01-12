@@ -19,6 +19,9 @@ using namespace Console;
 #include "ObjectFactory.h"
 #include "TestObject.h"
 
+#include "GameObject.h"
+#include "EngineStructure.h"
+
 
 #include "VRManager.h"
 
@@ -51,6 +54,24 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	WriteLine("App has been initalized!");
 	//Minimize();
 
+
+	EngineStructure engine;
+
+
+	SomeCoolObject* testObj = new SomeCoolObject();
+
+	engine.ExecuteAwake();
+
+	delete testObj;
+
+	Messagebox::ShowError(L"Exit", "Stopping");
+
+
+
+
+
+
+
 	ThreadPool::Start();
 	ThreadPool::MakeJob(ExecuteAsync);
 
@@ -66,6 +87,9 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 		WriteLine("VR not initialized! Defaulting to 2D");
 		rendInter->Initialize(wnd, nullptr);
 	}
+
+
+
 
 	ObjectManager::Initialize();
 

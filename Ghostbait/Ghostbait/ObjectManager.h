@@ -28,7 +28,11 @@ private:
 			return &objects.back();
 		}
 	public:
-		//Returns a pointer to the activated or added object
+		/// <summary>
+		/// Activates the specified object.
+		/// </summary>
+		/// <param name="o">The object to activate.</param>
+		/// <returns>A pointer to the activated or added Object.</returns>
 		Object* Activate(const Object* o) {
 			if(inactiveList.size()) {
 				activeList.push_back(inactiveList[0]);
@@ -39,6 +43,10 @@ private:
 				return Add(o);
 			}
 		}
+		/// <summary>
+		/// Deactivates the specified object.
+		/// </summary>
+		/// <param name="o">The object to deactivate.</param>
 		void Deactivate(Object* o) {
 			RemoveObjectFromActive(o);
 			inactiveList.push_back(o);

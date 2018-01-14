@@ -68,16 +68,16 @@ bool Renderer::LoadShaderFromCSO(char ** szByteCode, size_t & szByteCodeSize, co
 void Renderer::setupVRTargets()
 {
 	leftEye.renderInfo.viewport = D3D11_VIEWPORT();
-	leftEye.renderInfo.viewport.Height = VRManagement->RecommendedRenderHeight;
-	leftEye.renderInfo.viewport.Width = VRManagement->RecommendedRenderWidth;
+	leftEye.renderInfo.viewport.Height = (float)VRManagement->RecommendedRenderHeight;
+	leftEye.renderInfo.viewport.Width = (float) VRManagement->RecommendedRenderWidth;
 	leftEye.renderInfo.viewport.MaxDepth = 1.0f;
 	leftEye.renderInfo.viewport.MinDepth = 0.0f;
 	leftEye.renderInfo.viewport.TopLeftX = 0.0f;
 	leftEye.renderInfo.viewport.TopLeftY = 0.0f;
 
 	rightEye.renderInfo.viewport = D3D11_VIEWPORT();
-	rightEye.renderInfo.viewport.Height = VRManagement->RecommendedRenderHeight;
-	rightEye.renderInfo.viewport.Width = VRManagement->RecommendedRenderWidth;
+	rightEye.renderInfo.viewport.Height = (float) VRManagement->RecommendedRenderHeight;
+	rightEye.renderInfo.viewport.Width = (float) VRManagement->RecommendedRenderWidth;
 	rightEye.renderInfo.viewport.MaxDepth = 1.0f;
 	rightEye.renderInfo.viewport.MinDepth = 0.0f;
 	rightEye.renderInfo.viewport.TopLeftX = 0.0f;
@@ -459,8 +459,8 @@ void Renderer::initShaders()
 void Renderer::initViewport(const RECT window, pipeline_state_t * pipelineTo)
 {
 	D3D11_VIEWPORT tempView;
-	tempView.Height = VRManagement->RecommendedRenderHeight;//(float)window.bottom - (float)window.top;
-	tempView.Width = VRManagement->RecommendedRenderWidth;//(float)window.right - (float)window.left;
+	tempView.Height = (float) VRManagement->RecommendedRenderHeight;//(float)window.bottom - (float)window.top;
+	tempView.Width = (float) VRManagement->RecommendedRenderWidth;//(float)window.right - (float)window.left;
 	tempView.MaxDepth = 1.0f;
 	tempView.MinDepth = 0.0f;
 	tempView.TopLeftX = 0.0f;

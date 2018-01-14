@@ -19,7 +19,7 @@ bool VRManager::Init() {
 		pVRHMD = nullptr;
 		Console::Write("Unable to initialize VR: ");
 		Console::WriteLine(vr::VR_GetVRInitErrorAsSymbol(error));
-		Messagebox::ShowError(L"Unable to initialize VR", vr::VR_GetVRInitErrorAsSymbol(error));
+		Messagebox::ShowError("Unable to initialize VR", vr::VR_GetVRInitErrorAsSymbol(error));
 
 		return false;
 	}

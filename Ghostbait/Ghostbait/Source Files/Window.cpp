@@ -81,12 +81,12 @@ ATOM Window::Register(HINSTANCE hInstance) {
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = 0;
 	wcex.hInstance = hInstance;
-	//wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ENGINEDEV));
+	wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_GHOSTBAIT));
+	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	wcex.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1);
-	wcex.lpszMenuName = NULL;// MAKEINTRESOURCEW(IDC_ENGINEDEV);
+	wcex.lpszMenuName = MAKEINTRESOURCEW(IDI_GHOSTBAIT);
 	wcex.lpszClassName = szWindowClass;
-	//wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
 	return RegisterClassExW(&wcex);
 }

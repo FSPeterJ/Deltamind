@@ -22,7 +22,6 @@ using namespace Console;
 #include "GameObject.h"
 #include "EngineStructure.h"
 
-
 #include "VRManager.h"
 
 #include "InputManager.h"
@@ -31,59 +30,63 @@ using namespace Console;
 #include "Game.h"
 #include "ThreadPool.h"
 
-
 Renderer* rendInter;
 VRManager* vrMan;
 Game* game;
 
 void ExecuteAsync() {
-
 	WriteLine("I am executed asyncly!");
 	throw std::invalid_argument("ERROR: This is a test showing we can know if a thread throws an exception on it's work.\n");
 }
 
+//void CleanUp();
 
 void Setup(HINSTANCE hInstance, int nCmdShow) {
 
+
 	Window wnd(900, 900);
 
-	if(!wnd.Initialize(hInstance, nCmdShow)) { Messagebox::ShowError(L"Error!!", L"Main window is not initialized!"); }
+	if(!wnd.Initialize(hInstance, nCmdShow)) { Messagebox::ShowError("Error!!", "Main window is not initialized!"); }
 	wnd.UpdateTitle(L"Ghostbait");
 
 	Allocate();
 	WriteLine("App has been initalized!");
 	//Minimize();
 
+#pragma region testing
+	//EngineStructure engine;
+	//SomeCoolObject* t = new SomeCoolObject();
+	//engine.ExecuteAwake();
+	//MessageEvents::SendMessage(EVENT_Input, InputMessage(teleport, 0.567f));
+	//engine.ExecuteUpdate();
+	//system("pause");
+	//delete t;
+	//CleanUp();
+	//Free();
+	//exit(0);
+#pragma endregion
+
 	ThreadPool::Start();
 	auto temp = ThreadPool::MakeJob(ExecuteAsync);
-;
+
 	// check future for errors
 	try {
 		temp.get();
-	}
-	catch(const std::exception& e) {
+	} catch(const std::exception& e) {
 		//std::rethrow_exception(e);
 		// handle it
-		
+
 		std::cout << e.what();
 	}
 
 	vrMan = new VRManager();
 	rendInter = new Renderer();
-	if(vrMan->Init())
-	{
+	if(vrMan->Init()) {
 		rendInter->Initialize(wnd, vrMan);
-	}
-	else
-	{
+	} else {
 		WriteLine("VR not initialized! Defaulting to 2D");
 		rendInter->Initialize(wnd, nullptr);
 	}
-
-
-
-
-	
 
 	//Object Factory Testing
 	//====================================
@@ -93,8 +96,6 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	game = new Game();
 	game->Start();
-
-
 }
 
 void Loop() {
@@ -136,8 +137,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			if(msg.message == WM_QUIT) { break; }
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-		}
-		else {
+		} else {
 			//test2->position = vrMan->hmdPose;
 			//test3->position = XMMatrixTranspose(XMLoadFloat4x4(&(rendInter->leftEye.camera.view)));
 			//test4->position = XMMatrixTranspose(XMLoadFloat4x4(&(rendInter->rightEye.camera.view)));
@@ -150,5 +150,5 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	Free();
 
-	return (int)msg.wParam;
+	return (int) msg.wParam;
 }

@@ -1,5 +1,9 @@
 #include "InputManager.h"
 
+#include <unordered_map>
+#include <assert.h>
+#include "Messagebox.h"
+
 InputType InputManager::inputType = VR;
 InputManager::InputBridge InputManager::bridge = VRInput();
 
@@ -78,6 +82,6 @@ void InputManager::SetInputType(InputType type) {
 		bridge = ControllerInput();
 		break;
 	default:
-		Messagebox::ShowError(L"Input Type Error", L"No InputType is defined!");
+		Messagebox::ShowError("Input Type Error", "No InputType is defined!");
 	}
 }

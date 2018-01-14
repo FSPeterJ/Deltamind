@@ -5,6 +5,7 @@ using namespace Console;
 
 class EngineStructure {
 	friend class GameObject;
+	friend class Controlable;
 
 	static Delegate<> Awake;
 	static Delegate<> OnEnable;
@@ -47,5 +48,13 @@ public:
 		Awake();
 	}
 
+	void ExecuteUpdate() {
+		Write("Update delegate contains ");
+		Write((int) Update.subscriber_count());
+		WriteLine(" subscribers.");
 
+		Update();
+	}
+
+	 
 };

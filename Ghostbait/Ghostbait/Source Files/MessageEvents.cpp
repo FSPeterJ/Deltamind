@@ -22,13 +22,13 @@ void MessageEvents::HandleMessage(EVENT_TYPES eventtype, EventMessageBase& m) {
 	}
 	case EVENT_Input:
 	{
-		InputMessage* input = (InputMessage*) &m;
-
-		if(input->GetControl() != none) {
-			Write(input->GetControl());
-			Write("\t");
-			WriteLine(input->GetAmount());
-		}
+		//InputMessage* input = (InputMessage*) &m;
+		//
+		//if(input->GetControl() != none) {
+		//	Write(input->GetControl());
+		//	Write("\t");
+		//	WriteLine(input->GetAmount());
+		//}
 
 		break;
 	}

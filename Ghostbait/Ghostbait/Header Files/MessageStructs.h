@@ -50,10 +50,17 @@ public:
 	/// <param name="_pid">The object's prefab id.</param>
 	/// <param name="_position">Where to instantiate</param>
 	/// <param name="_obj"> return pointer reference of the object (optional)</param>
-	InstantiateMessage(const PrefabId _pid, const DirectX::XMFLOAT4 _position, Object**  _obj = nullptr) : pid(_pid), position(_position), obj(_obj) {}
+	InstantiateMessage(const PrefabId _pid, const DirectX::XMFLOAT4 _position, Object**  _obj = nullptr): pid(_pid), position(_position), obj(_obj) {}
 
 	const PrefabId GetId() const { return pid; }
-	Object *& GetReturnObject() const { return *obj; }
+	Object ** GetReturnObject() const { return obj; }
+	void SetReturnObject(Object * _object) const
+	{
+		if(obj != nullptr)
+		{
+			*obj = _object;
+		}
+	}
 };
 
 
@@ -65,7 +72,7 @@ public:
 	/// Initializes a new instance of the <see cref="DestroyMessage"/> class.
 	/// </summary>
 	/// <param name="_obj">The object.</param>
-	DestroyMessage(Object* _obj) : obj(_obj) {}
+	DestroyMessage(Object* _obj): obj(_obj) {}
 
 	Object* GetObject() const { return obj; }
 };

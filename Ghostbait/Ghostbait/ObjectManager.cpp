@@ -41,7 +41,7 @@ void ObjectManager::Instantiate(EventMessageBase *e) {
 	if(instantiate->GetReturnObject() != nullptr)
 	{
 
-		instantiate->GetReturnObject() = newobject;
+		instantiate->SetReturnObject(newobject);
 	}
 
 	MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));

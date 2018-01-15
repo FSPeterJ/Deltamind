@@ -17,9 +17,10 @@ public:
 		ObjectFactory::CreatePrefab(&std::string("TestObject"));
 
 		ObjectManager::Initialize();
+		Object * temp;
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 0,0,0,0 }, &temp));
 
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 0,0,0,0 }));
-
+		temp->GetTypeId();
 		//test->testing();
 		//((TestObject*)test2)->testing();
 

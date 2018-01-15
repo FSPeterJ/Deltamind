@@ -34,6 +34,7 @@ private:
 		VRInput(VRManager* vrManager);
 		bool MapKey(Control control, int key) override;
 		InputPackage CheckForInput() override;
+
 	};
 
 	struct KeyboardInput: public InputBridge {

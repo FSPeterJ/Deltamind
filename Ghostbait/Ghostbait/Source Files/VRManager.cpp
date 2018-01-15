@@ -137,26 +137,21 @@ void VRManager::UpdateVRPoses() {
 	
 	pVRCompositor->WaitGetPoses(trackedDevicePose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
 	
-	
-	int controllerCount = 0;
-
 	for (int deviceIndex = 0; deviceIndex < vr::k_unMaxTrackedDeviceCount; ++deviceIndex)
 	{
 		if (trackedDevicePose[deviceIndex].bPoseIsValid)
 		{
 			switch (pVRHMD->GetTrackedDeviceClass(deviceIndex)) {
-			case vr::TrackedDeviceClass_Controller:  
-				if (!controllerCount) {
-					controller1Pose = VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking);
-					controller1Index = deviceIndex;
-					left_controller->position = DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f)* controller1Pose;// *DirectX::XMMatrixScaling(0.25f, 0.25f, 0.25f);
-					++controllerCount;
+			case vr::TrackedDeviceClass_Controller:
+				if(pVRHMD->GetControllerRoleForTrackedDeviceIndex(deviceIndex) == vr::ETrackedControllerRole::TrackedControllerRole_LeftHand){
+					leftController.pose = VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking);
+					leftController.index = deviceIndex;
+					leftController.obj->position = DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(55)) * leftController.pose;// *DirectX::XMMatrixScaling(0.25f, 0.25f, 0.25f);
 				}
-				else {
-					controller2Pose = VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking);
-					controller2Index = deviceIndex;
-					right_controller->position = DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * controller2Pose;// *DirectX::XMMatrixScaling(0.25f, 0.25f, 0.25f);
-					++controllerCount;
+				else if (pVRHMD->GetControllerRoleForTrackedDeviceIndex(deviceIndex) == vr::ETrackedControllerRole::TrackedControllerRole_RightHand) {
+					rightController.pose = VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking);
+					rightController.index = deviceIndex;
+					rightController.obj->position = DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(55)) * rightController.pose;// *DirectX::XMMatrixScaling(0.25f, 0.25f, 0.25f);
 				}
 				break;
 			case vr::TrackedDeviceClass_HMD:  

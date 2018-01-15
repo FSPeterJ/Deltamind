@@ -21,15 +21,17 @@ private:
 	vr::TrackedDevicePose_t trackedDevicePose[vr::k_unMaxTrackedDeviceCount];
 	void Shutdown();
 
-	Object* left_controller;
-	Object* right_controller;
-
 public:
+	struct VRController {
+		int index;
+		DirectX::XMMATRIX pose;
+		Object* obj;
+	};
+
 	DirectX::XMMATRIX hmdPose;
-	DirectX::XMMATRIX controller1Pose;
-	DirectX::XMMATRIX controller2Pose;
-	int controller1Index;
-	int controller2Index;
+	VRController leftController;
+	VRController rightController;
+
 	vr::IVRSystem *pVRHMD;
 	vr::IVRRenderModels* pVRRenderModel;
 	vr::IVRCompositor* pVRCompositor;
@@ -41,13 +43,13 @@ public:
 	bool Init();
 	void CreateControllers()
 	{
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 0,0,0,1 }, &left_controller));
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 1,0,100,1 }, &right_controller));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 0,0,0,1 }, &leftController.obj));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 1,0,100,1 }, &rightController.obj));
 	}
 	void RegisterController(Object* _left, Object* _right) {
 
-		left_controller = _left;
-		right_controller = _right;
+		leftController.obj = _left;
+		rightController.obj= _right;
 	}
 
 	void GetVRMatricies(DirectX::XMFLOAT4X4* leftProj, DirectX::XMFLOAT4X4* rightProj, DirectX::XMFLOAT4X4* leftView, DirectX::XMFLOAT4X4* rightView);

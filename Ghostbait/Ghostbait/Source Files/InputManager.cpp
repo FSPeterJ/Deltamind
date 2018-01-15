@@ -4,7 +4,7 @@
 #include <assert.h>
 #include "Messagebox.h"
 
-//Input Constructors
+//VR
 InputManager::VRInput::VRInput(VRManager* vrManager) {
 	vrMan = vrManager;
 	MapKey(none, 0);
@@ -16,13 +16,13 @@ InputManager::VRInput::VRInput(VRManager* vrManager) {
 	MapKey(attack, 6);
 	MapKey(menu, 7);
 }
-InputManager::KeyboardInput::KeyboardInput() {
+bool InputManager::VRInput::MapKey(Control control, int key) {
+	if (keyBind.find(control) != keyBind.end()) {
+		keyBind[control] = key;
+		return true;
+	}
+	else { return false; }
 }
-InputManager::ControllerInput::ControllerInput() {
-
-}
-static bool hit = false;
-//Input readers
 InputPackage InputManager::VRInput::CheckForInput() {
 
 	Control input = none;
@@ -34,29 +34,15 @@ InputPackage InputManager::VRInput::CheckForInput() {
 		switch (event.eventType){
 		case vr::VREvent_ButtonTouch:
 		{
-			switch (event.data.controller.button) {
-			case vr::k_EButton_ApplicationMenu:
-				break;
-			case vr::k_EButton_Grip:
-				break;
-			case vr::k_EButton_SteamVR_Touchpad:
-				break;
-			case vr::k_EButton_SteamVR_Trigger:
-				break;
+			if (event.data.controller.button == vr::k_EButton_SteamVR_Touchpad) {
+
 			}
 			break;
 		}
 		case vr::VREvent_ButtonUntouch:
 		{
-			switch (event.data.controller.button) {
-			case vr::k_EButton_ApplicationMenu:
-				break;
-			case vr::k_EButton_Grip:
-				break;
-			case vr::k_EButton_SteamVR_Touchpad:
-				break;
-			case vr::k_EButton_SteamVR_Trigger:
-				break;
+			if (event.data.controller.button == vr::k_EButton_SteamVR_Touchpad) {
+
 			}
 			break;
 		}
@@ -70,11 +56,20 @@ InputPackage InputManager::VRInput::CheckForInput() {
 			case vr::k_EButton_SteamVR_Touchpad:
 				break;
 			case vr::k_EButton_SteamVR_Trigger:
+				DirectX::XMMATRIX pose;
+				if (event.trackedDeviceIndex == vrMan->leftController.index) {
+					pose = vrMan->leftController.pose;
+				}
+				else {
+					pose = vrMan->rightController.pose;
+				}
+
 				DirectX::XMFLOAT4 temp;
-				DirectX::XMStoreFloat4(&temp, vrMan->controller1Pose.r[3]);
+				DirectX::XMStoreFloat4(&temp, pose.r[3]);
 				Object* obj;
 				MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, temp, &obj));
 				obj->position = DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * obj->position;
+
 
 				input = teleport;
 				amount = 0.5f;
@@ -100,11 +95,11 @@ InputPackage InputManager::VRInput::CheckForInput() {
 		}
 	}
 	
-	vr::VRControllerState_t state;
-	vrMan->pVRHMD->GetControllerState(vrMan->controller1Index, &state, sizeof(state));
-	Console::Write(state.rAxis[0].x);
-	Console::Write(", ");
-	Console::WriteLine(state.rAxis[0].y);
+	//vr::VRControllerState_t state;
+	//vrMan->pVRHMD->GetControllerState(vrMan->controller1Index, &state, sizeof(state));
+	//Console::Write(state.rAxis[0].x);
+	//Console::Write(", ");
+	//Console::WriteLine(state.rAxis[0].y);
 
 
 	
@@ -112,22 +107,13 @@ InputPackage InputManager::VRInput::CheckForInput() {
 
 	return message;
 }
+
+//Keyboard
+InputManager::KeyboardInput::KeyboardInput() {
+}
 InputPackage InputManager::KeyboardInput::CheckForInput() {
 	InputPackage message(none, 1);
 	return message;
-}
-InputPackage InputManager::ControllerInput::CheckForInput() {
-	InputPackage message(none, 1);
-	return message;
-}
-
-//Input remapping
-bool InputManager::VRInput::MapKey(Control control, int key) {
-	if (keyBind.find(control) != keyBind.end()) {
-		keyBind[control] = key;
-		return true;
-	}
-	else { return false; }
 }
 bool InputManager::KeyboardInput::MapKey(Control control, int key) {
 	if (keyBind.find(control) != keyBind.end()) {
@@ -136,6 +122,15 @@ bool InputManager::KeyboardInput::MapKey(Control control, int key) {
 	}
 	else { return false; }
 }
+
+//Controller
+InputManager::ControllerInput::ControllerInput() {
+
+}
+InputPackage InputManager::ControllerInput::CheckForInput() {
+	InputPackage message(none, 1);
+	return message;
+}
 bool InputManager::ControllerInput::MapKey(Control control, int key) {
 	if(keyBind.find(control) != keyBind.end()) {
 		keyBind[control] = key;
@@ -143,6 +138,7 @@ bool InputManager::ControllerInput::MapKey(Control control, int key) {
 	} else { return false; };
 }
 
+//Input Manager
 InputPackage InputManager::HandleInput() {
 	InputPackage input = bridge->CheckForInput();
 	
@@ -150,7 +146,6 @@ InputPackage InputManager::HandleInput() {
 
 	return input;
 }
-
 void InputManager::SetInputType(InputType type) {
 	inputType = type;
 	switch (type) {

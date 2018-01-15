@@ -79,20 +79,28 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 		std::cout << e.what();
 	}
 
-	vrMan = new VRManager();
-	rendInter = new Renderer();
-	if(vrMan->Init()) {
-		rendInter->Initialize(wnd, vrMan);
-	} else {
-		WriteLine("VR not initialized! Defaulting to 2D");
-		rendInter->Initialize(wnd, nullptr);
-	}
 
 	//Object Factory Testing
 	//====================================
 	ObjectFactory::Initialize(rendInter->getMeshManager());
 	ObjectFactory::Register<Object>(Object().GetTypeId());
 	ObjectFactory::Register<TestObject>(TestObject().GetTypeId());
+
+
+	auto c1 = ObjectFactory::CreatePrefab(&std::string("controller1"));
+	auto c2 = ObjectFactory::CreatePrefab(&std::string("controller2"));
+
+
+	vrMan = new VRManager();
+	rendInter = new Renderer();
+	if(vrMan->Init(c1,c2)) {
+		rendInter->Initialize(wnd, vrMan);
+	} else {
+		WriteLine("VR not initialized! Defaulting to 2D");
+		rendInter->Initialize(wnd, nullptr);
+	}
+
+
 
 	game = new Game();
 	game->Start();

@@ -11,7 +11,7 @@ VRManager::~VRManager() {
 	Shutdown();
 }
 
-bool VRManager::Init() {
+bool VRManager::Init(Object* _left, Object* _right) {
 	vr::EVRInitError error = vr::VRInitError_None;
 	pVRHMD = vr::VR_Init(&error, vr::VRApplication_Scene);
 
@@ -21,6 +21,9 @@ bool VRManager::Init() {
 		Console::WriteLine(vr::VR_GetVRInitErrorAsSymbol(error));
 		return false;
 	}
+
+	left_controller = _left;
+	right_controller = _right;
 
 	pVRHMD->GetRecommendedRenderTargetSize(&RecommendedRenderWidth, &RecommendedRenderHeight);
 
@@ -120,7 +123,7 @@ void VRManager::Shutdown() {
 
 void VRManager::GetVRMatricies(DirectX::XMFLOAT4X4* _leftProj, DirectX::XMFLOAT4X4* _rightProj, DirectX::XMFLOAT4X4* _leftView, DirectX::XMFLOAT4X4* _rightView) {
 	UpdateVRPoses();
-
+	
 	DirectX::XMMATRIX leftView = leftEyeToHead * hmdPose;
 	DirectX::XMMATRIX rightView = rightEyeToHead * hmdPose;
 	
@@ -148,10 +151,12 @@ void VRManager::UpdateVRPoses() {
 			case vr::TrackedDeviceClass_Controller:  
 				if (!controllerCount) {
 					controller1Pose = VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking);
+					left_controller->position = controller1Pose;
 					++controllerCount;
 				}
 				else {
 					controller2Pose = VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking);
+					right_controller->position = controller2Pose;
 					++controllerCount;
 				}
 				break;

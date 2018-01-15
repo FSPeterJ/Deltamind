@@ -37,11 +37,15 @@ public:
 	~VRManager();
 
 	bool Init();
+	void CreateControllers()
+	{
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 0,0,0,0 }, &left_controller));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 0,0,0,0 }, &right_controller));
+	}
 	void RegisterController(Object* _left, Object* _right) {
 
 		left_controller = _left;
 		right_controller = _right;
-
 	}
 
 	void GetVRMatricies(DirectX::XMFLOAT4X4* leftProj, DirectX::XMFLOAT4X4* rightProj, DirectX::XMFLOAT4X4* leftView, DirectX::XMFLOAT4X4* rightView);

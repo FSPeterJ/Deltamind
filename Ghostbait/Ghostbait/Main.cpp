@@ -79,25 +79,37 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 		std::cout << e.what();
 	}
 
-
-	//Object Factory Testing
-	//====================================
-	ObjectFactory::Initialize(rendInter->getMeshManager());
-	ObjectFactory::Register<Object>(Object().GetTypeId());
-	ObjectFactory::Register<TestObject>(TestObject().GetTypeId());
-
-
-	auto c1 = ObjectFactory::CreatePrefab(&std::string("controller1"));
-	auto c2 = ObjectFactory::CreatePrefab(&std::string("controller2"));
-
-
 	vrMan = new VRManager();
 	rendInter = new Renderer();
-	if(vrMan->Init(c1,c2)) {
+
+
+	if(vrMan->Init()) {
 		rendInter->Initialize(wnd, vrMan);
+		//Object Factory Testing
+		//====================================
+		ObjectFactory::Initialize(rendInter->getMeshManager());
+		ObjectFactory::Register<Object>(Object().GetTypeId());
+		ObjectFactory::Register<TestObject>(TestObject().GetTypeId());
+
+
+
+		auto c1 = ObjectFactory::CreatePrefab(&std::string("controller1"));
+		auto c2 = ObjectFactory::CreatePrefab(&std::string("controller2"));
+
+		rendInter->registerObject(c1);
+		rendInter->registerObject(c2);
+
+		vrMan->RegisterController(c1, c2);
 	} else {
 		WriteLine("VR not initialized! Defaulting to 2D");
 		rendInter->Initialize(wnd, nullptr);
+		//Object Factory Testing
+		//====================================
+		ObjectFactory::Initialize(rendInter->getMeshManager());
+		ObjectFactory::Register<Object>(Object().GetTypeId());
+		ObjectFactory::Register<TestObject>(TestObject().GetTypeId());
+
+
 	}
 
 

@@ -36,7 +36,13 @@ public:
 	VRManager();
 	~VRManager();
 
-	bool Init(Object* _left, Object* _right);
+	bool Init();
+	void RegisterController(Object* _left, Object* _right) {
+
+		left_controller = _left;
+		right_controller = _right;
+
+	}
 
 	void GetVRMatricies(DirectX::XMFLOAT4X4* leftProj, DirectX::XMFLOAT4X4* rightProj, DirectX::XMFLOAT4X4* leftView, DirectX::XMFLOAT4X4* rightView);
 	void SendToHMD(void* leftTexture, void* rightTexture);

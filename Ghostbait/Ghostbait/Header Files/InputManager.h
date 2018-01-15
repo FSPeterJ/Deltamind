@@ -1,5 +1,6 @@
 #pragma once
 #include "MessageEvents.h"
+#include "VRManager.h"
 
 enum InputType {
 	VR,
@@ -49,8 +50,11 @@ private:
 	static InputType inputType;
 	static InputBridge bridge;
 
+	VRManager* vrMan;
+
 public:
 	InputManager() {};
+	InputManager(VRManager* vrManager) { vrMan = vrManager; };
 	~InputManager() {};
 
 	/// <summary>

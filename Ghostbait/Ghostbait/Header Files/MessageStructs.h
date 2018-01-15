@@ -36,20 +36,34 @@ public:
 	const Control GetControl() const { return ctrl; }
 };
 
+
+class Object;
+
 class InstantiateMessage: public EventMessageBase {
-	PrefabId obj;
+	PrefabId pid;
+	Object** obj;
 	DirectX::XMFLOAT4 position;
 public:
 	/// <summary>
 	/// Initializes a new instance of the <see cref="InstantiateMessage"/> class.
 	/// </summary>
-	/// <param name="_obj">The object's prefab id.</param>
-	InstantiateMessage(PrefabId _obj, DirectX::XMFLOAT4 _position) : obj(_obj), position(_position) {}
+	/// <param name="_pid">The object's prefab id.</param>
+	/// <param name="_position">Where to instantiate</param>
+	/// <param name="_obj"> return pointer reference of the object (optional)</param>
+	InstantiateMessage(const PrefabId _pid, const DirectX::XMFLOAT4 _position, Object**  _obj = nullptr): pid(_pid), position(_position), obj(_obj) {}
 
-	const PrefabId GetId() const { return obj; }
+	const PrefabId GetId() const { return pid; }
+	Object ** GetReturnObject() const { return obj; }
+	DirectX::XMFLOAT4 GetPosition() const { return position; }
+	void SetReturnObject(Object * _object) const
+	{
+		if(obj != nullptr)
+		{
+			*obj = _object;
+		}
+	}
 };
 
-class Object;
 
 class DestroyMessage: public EventMessageBase {
 	Object* obj;
@@ -59,7 +73,7 @@ public:
 	/// Initializes a new instance of the <see cref="DestroyMessage"/> class.
 	/// </summary>
 	/// <param name="_obj">The object.</param>
-	DestroyMessage(Object* _obj) : obj(_obj) {}
+	DestroyMessage(Object* _obj): obj(_obj) {}
 
 	Object* GetObject() const { return obj; }
 };

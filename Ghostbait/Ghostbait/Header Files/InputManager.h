@@ -1,5 +1,6 @@
 #pragma once
 #include "MessageEvents.h"
+#include "VRManager.h"
 
 enum InputType {
 	VR,
@@ -27,30 +28,33 @@ private:
 	};
 
 	struct VRInput: public InputBridge {
-		VRInput();
+		VRManager* vrMan;
+		VRInput() {};
+		VRInput(VRManager* vrManager);
 		bool MapKey(Control control, int key);
 		InputPackage CheckForInput();
 	};
 
 	struct KeyboardInput: public InputBridge {
+		KeyboardInput();
 		bool MapKey(Control control, int key);
 		InputPackage CheckForInput();
-	public:
-		KeyboardInput();
 	};
 
 	struct ControllerInput: public InputBridge {
+		ControllerInput();
 		bool MapKey(Control control, int key);
 		InputPackage CheckForInput();
-	public:
-		ControllerInput();
 	};
 
 	static InputType inputType;
 	static InputBridge bridge;
 
+	VRManager* vrMan;
+
 public:
 	InputManager() {};
+	InputManager(VRManager* vrManager) { vrMan = vrManager; };
 	~InputManager() {};
 
 	/// <summary>

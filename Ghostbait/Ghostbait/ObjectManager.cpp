@@ -18,10 +18,7 @@ void ObjectManager::Initialize()
 	MessageEvents::Subscribe(EVENT_InstantiateRequest, Instantiate);
 	MessageEvents::Subscribe(EVENT_Destroy, Destroy);
 	objectPool.resize(ObjectFactory::GetPrefabCount());
-	//for(auto const &pool : objectPool)
-	//{
-
-	//}
+	
 }
 
 void ObjectManager::Instantiate(EventMessageBase *e) {
@@ -38,7 +35,13 @@ void ObjectManager::Instantiate(EventMessageBase *e) {
 	if(newobject) {
 		poolScope[o] = pool;
 	}
+	if(instantiate->GetReturnObject() != nullptr)
+	{
 
+		instantiate->SetReturnObject(newobject);
+	}
+
+	newobject->position.r[3] = XMLoadFloat4(&instantiate->GetPosition());
 	MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
 
 }

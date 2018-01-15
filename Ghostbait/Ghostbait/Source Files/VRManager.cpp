@@ -11,7 +11,7 @@ VRManager::~VRManager() {
 	Shutdown();
 }
 
-bool VRManager::Init(Object* _left, Object* _right) {
+bool VRManager::Init() {
 	vr::EVRInitError error = vr::VRInitError_None;
 	pVRHMD = vr::VR_Init(&error, vr::VRApplication_Scene);
 
@@ -21,9 +21,6 @@ bool VRManager::Init(Object* _left, Object* _right) {
 		Console::WriteLine(vr::VR_GetVRInitErrorAsSymbol(error));
 		return false;
 	}
-
-	left_controller = _left;
-	right_controller = _right;
 
 	pVRHMD->GetRecommendedRenderTargetSize(&RecommendedRenderWidth, &RecommendedRenderHeight);
 

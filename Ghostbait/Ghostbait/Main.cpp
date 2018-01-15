@@ -66,10 +66,13 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//exit(0);
 #pragma endregion
 
+	//Multithreading Test
+	//=============================
 	ThreadPool::Start();
 	auto temp = ThreadPool::MakeJob(ExecuteAsync);
 
-	// check future for errors
+	// check future for errors and / or completion
+	// This is a proof of concept, thread decoupling with .get is still uncertain.
 	try {
 		temp.get();
 	} catch(const std::exception& e) {
@@ -78,32 +81,26 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 		std::cout << e.what();
 	}
-
-
-	//Object Factory Testing
-	//====================================
-	ObjectFactory::Initialize(rendInter->getMeshManager());
-	ObjectFactory::Register<Object>(Object().GetTypeId());
-	ObjectFactory::Register<TestObject>(TestObject().GetTypeId());
-
-
-	auto c1 = ObjectFactory::CreatePrefab(&std::string("controller1"));
-	auto c2 = ObjectFactory::CreatePrefab(&std::string("controller2"));
-
+	//=============================
 
 	vrMan = new VRManager();
 	rendInter = new Renderer();
-	if(vrMan->Init(c1,c2)) {
+
+
+	if(vrMan->Init()) {
 		rendInter->Initialize(wnd, vrMan);
 	} else {
 		WriteLine("VR not initialized! Defaulting to 2D");
 		rendInter->Initialize(wnd, nullptr);
 	}
 
-
+	ObjectFactory::Initialize(rendInter->getMeshManager());
+	ObjectFactory::Register<Object>(Object().GetTypeId());
+	ObjectFactory::Register<TestObject>(TestObject().GetTypeId());
 
 	game = new Game();
 	game->Start();
+	vrMan->CreateControllers();
 }
 
 void Loop() {

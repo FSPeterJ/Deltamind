@@ -28,6 +28,10 @@ private:
 			return &objects.back();
 		}
 	public:
+		Pool()
+		{
+			objects.resize(10);
+		}
 		/// <summary>
 		/// Activates the specified object.
 		/// </summary>

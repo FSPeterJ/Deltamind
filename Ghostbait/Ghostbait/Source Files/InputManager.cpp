@@ -8,7 +8,8 @@ InputType InputManager::inputType = VR;
 InputManager::InputBridge InputManager::bridge = VRInput();
 
 //Input Constructors
-InputManager::VRInput::VRInput() {
+InputManager::VRInput::VRInput(VRManager* vrManager) {
+	vrMan = vrManager;
 	MapKey(none, 0);
 	MapKey(forward, 1);
 	MapKey(backward, 2);
@@ -19,7 +20,6 @@ InputManager::VRInput::VRInput() {
 	MapKey(menu, 7);
 }
 InputManager::KeyboardInput::KeyboardInput() {
-
 }
 InputManager::ControllerInput::ControllerInput() {
 
@@ -27,7 +27,19 @@ InputManager::ControllerInput::ControllerInput() {
 
 //Input readers
 InputPackage InputManager::VRInput::CheckForInput() {
+	for (vr::TrackedDeviceIndex_t deviceIndex = 0; deviceIndex < vr::k_unMaxTrackedDeviceCount; deviceIndex++)
+	{
+		vr::VRControllerState_t state;
+		
+		if (vrMan->pVRHMD->GetControllerState(deviceIndex, &state, sizeof(state)))
+		{
+			//m_rbShowTrackedDevice[unDevice] = state.ulButtonPressed == 0;
+		}
+	}
+	
+	
 	InputPackage message(none, 1);
+
 	return message;
 }
 InputPackage InputManager::KeyboardInput::CheckForInput() {

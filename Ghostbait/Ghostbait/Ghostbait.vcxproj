@@ -175,7 +175,6 @@
     <ClInclude Include="Header Files\MessageStructs.h" />
     <ClInclude Include="Header Files\Object.h" />
     <ClInclude Include="Header Files\ObjectFactory.h" />
-    <ClInclude Include="Header Files\ObjectFactoryInterface.h" />
     <ClInclude Include="Header Files\ObjectManager.h" />
     <ClInclude Include="Header Files\StdHeader.h" />
     <ClInclude Include="Header Files\targetver.h" />

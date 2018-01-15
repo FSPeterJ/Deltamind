@@ -30,7 +30,7 @@ void ObjectManager::Instantiate(EventMessageBase *e) {
 	const Object * o = ObjectFactory::RequestPrefab(pid);
 
 	Pool* pool = &objectPool[pid];
-
+	
 	Object* newobject = pool->Activate(o);
 	if(newobject) {
 		poolScope[o] = pool;

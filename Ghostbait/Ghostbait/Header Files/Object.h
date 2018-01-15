@@ -5,12 +5,11 @@
 #include "MessageEvents.h"
 #include "ComponentBase.h"
 #include <iostream>
-#include "ObjectFactoryInterface.h"
 
 #define ALIGN(w) __declspec(align(w))
 #define ALIGNMENT 16
 
-ALIGN(ALIGNMENT) class Object: public ObjectFactoryInterface
+ALIGN(ALIGNMENT) class Object
 {
 
 protected:

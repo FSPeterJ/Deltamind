@@ -4,17 +4,25 @@
 #include "Object.h"
 #include <unordered_map>
 #include "MessageEvents.h"
+#include <array>
 
 
 class ObjectManager: public ManagerInterface {
 private:
+
 	class Pool {
 	private:
-		std::vector< Object*> activeList;
-		std::vector< Object*> inactiveList; //Linked list with head/tail ptrs
-		std::vector<Object> objects;
+		std::vector<unsigned> activeList;
+		std::vector<unsigned> inactiveList; //Linked list with head/tail ptrs
+		//std::vector<Object> objects;
 
-		void RemoveObjectFromActive(const Object* o) {
+
+		void* objects;
+		int pool_count;
+		int max_size;
+
+		template<typename T>
+		void RemoveObjectFromActive(const T* o) {
 			auto it = std::find(activeList.begin(), activeList.end(), o);
 
 			if(it != activeList.end()) {
@@ -22,22 +30,26 @@ private:
 				activeList.pop_back();
 			}
 		}
-		Object* Add(const Object* o) {
-			objects.push_back(*o);
-			activeList.push_back(&objects[objects.size() - 1]);
-			return &objects.back();
+		template<typename T>
+		T* Add(const T* o) {
+			objects[pool_count] = *o;
+			pool_count++;
+			activeList.push_back(&objects[pool_count]);
+			return &objects[pool_count];
 		}
 	public:
+		template<typename T>
 		Pool()
 		{
-			objects.resize(10);
+			objects = new T[10];
 		}
 		/// <summary>
 		/// Activates the specified object.
 		/// </summary>
 		/// <param name="o">The object to activate.</param>
 		/// <returns>A pointer to the activated or added Object.</returns>
-		Object* Activate(const Object* o) {
+		template<typename T>
+		unsigned Activate(const T* o) {
 			if(inactiveList.size()) {
 				activeList.push_back(inactiveList[0]);
 				inactiveList.erase(inactiveList.begin());
@@ -51,7 +63,8 @@ private:
 		/// Deactivates the specified object.
 		/// </summary>
 		/// <param name="o">The object to deactivate.</param>
-		void Deactivate(Object* o) {
+		template<typename T>
+		void Deactivate(T* o) {
 			RemoveObjectFromActive(o);
 			inactiveList.push_back(o);
 		}

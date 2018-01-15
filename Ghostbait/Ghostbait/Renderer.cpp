@@ -146,6 +146,7 @@ void Renderer::renderToEye(eye * eyeTo)
 	context->ClearRenderTargetView(eyeTo->renderInfo.rtv, color);
 	context->ClearDepthStencilView(eyeTo->renderInfo.dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	context->OMSetRenderTargets(1, &eyeTo->renderInfo.rtv, eyeTo->renderInfo.dsv);
+	context->RSSetViewports(1, &eyeTo->renderInfo.viewport);
 	context->UpdateSubresource(cameraBuffer, 0, NULL, &eyeTo->camera, 0, 0);
 
 	for(size_t i = 0; i < renderedObjects.size(); ++i)
@@ -227,7 +228,8 @@ void Renderer::Initialize(Window window, VRManager * vr)
 	XMStoreFloat4x4(&defaultCamera.view, XMMatrixInverse(&XMMatrixDeterminant(camTemp), camTemp));
 	XMStoreFloat4x4(&defaultCamera.projection, XMMatrixTranspose(XMMatrixPerspectiveFovLH(60.0f * XM_PI / 180.0f, defaultPipeline.viewport.Width / defaultPipeline.viewport.Height, 0.001f, 300.0f)));
 
-	setupVRTargets();
+	if(VRManagement)
+		setupVRTargets();
 
 	MessageEvents::Subscribe(EVENT_Instantiated, [this](EventMessageBase * _e) {this->registerObject(_e); });
 	MessageEvents::Subscribe(EVENT_Destroy, [this](EventMessageBase * _e) {this->unregisterObject(_e); });
@@ -246,8 +248,11 @@ void Renderer::Destroy()
 	device->Release();
 	defaultPipeline.render_target_view->Release();
 	clearPipelineMemory(&defaultPipeline);
-	clearTextureMemory(&leftEye.renderInfo);
-	clearTextureMemory(&rightEye.renderInfo);
+	if (VRManagement)
+	{
+		clearTextureMemory(&leftEye.renderInfo);
+		clearTextureMemory(&rightEye.renderInfo);
+	}
 	meshManagement->Destroy();
 	delete meshManagement;
 }
@@ -362,9 +367,9 @@ void Renderer::Render()
 	context->ClearRenderTargetView(defaultPipeline.render_target_view, color);
 	context->ClearDepthStencilView(defaultPipeline.depth_stencil_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	context->OMSetRenderTargets(1, &defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view);
-	
-	//context->UpdateSubresource(cameraBuffer, 0, NULL, &defaultCamera, 0, 0);
-	context->UpdateSubresource(cameraBuffer, 0, NULL, &(leftEye.camera), 0, 0);
+	context->RSSetViewports(1, &defaultPipeline.viewport);
+	context->UpdateSubresource(cameraBuffer, 0, NULL, &defaultCamera, 0, 0);
+	//context->UpdateSubresource(cameraBuffer, 0, NULL, &(leftEye.camera), 0, 0);
 
 
 	for(size_t i = 0; i < renderedObjects.size(); ++i)
@@ -459,8 +464,8 @@ void Renderer::initShaders()
 void Renderer::initViewport(const RECT window, pipeline_state_t * pipelineTo)
 {
 	D3D11_VIEWPORT tempView;
-	tempView.Height = (float) VRManagement->RecommendedRenderHeight;//(float)window.bottom - (float)window.top;
-	tempView.Width = (float) VRManagement->RecommendedRenderWidth;//(float)window.right - (float)window.left;
+	tempView.Height = (float)window.bottom - (float)window.top;
+	tempView.Width = (float)window.right - (float)window.left;
 	tempView.MaxDepth = 1.0f;
 	tempView.MinDepth = 0.0f;
 	tempView.TopLeftX = 0.0f;

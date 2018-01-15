@@ -43,9 +43,6 @@ bool VRManager::Init() {
 	rightProj = VRProjectionToDirectXMatrix(vr::EVREye::Eye_Right, 0.01f, 100.0f);
 	leftEyeToHead = VRMatrix34ToDirectXMatrix44(pVRHMD->GetEyeToHeadTransform(vr::EVREye::Eye_Left));
 	rightEyeToHead = VRMatrix34ToDirectXMatrix44(pVRHMD->GetEyeToHeadTransform(vr::EVREye::Eye_Right));
-
-	trackedDevicePoseMatrices = new DirectX::XMMATRIX[vr::k_unMaxTrackedDeviceCount];
-
 	return true;
 }
 
@@ -112,7 +109,6 @@ void VRManager::WriteMatrix(DirectX::XMMATRIX m, int frame = 60) {
 	}
 }
 
-
 void VRManager::Shutdown() {
 	if (pVRHMD) {
 		pVRHMD = nullptr;
@@ -137,25 +133,35 @@ void VRManager::GetVRMatricies(DirectX::XMFLOAT4X4* _leftProj, DirectX::XMFLOAT4
 }
 
 void VRManager::UpdateVRPoses() {
-	if (!pVRHMD) {
-		return;
-	}
+	if (!pVRHMD) return;
 	
 	pVRCompositor->WaitGetPoses(trackedDevicePose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
+	
+	
+	int controllerCount = 0;
 
 	for (int deviceIndex = 0; deviceIndex < vr::k_unMaxTrackedDeviceCount; ++deviceIndex)
 	{
 		if (trackedDevicePose[deviceIndex].bPoseIsValid)
 		{
-			trackedDevicePoseMatrices[deviceIndex] = VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking);
+			switch (pVRHMD->GetTrackedDeviceClass(deviceIndex)) {
+			case vr::TrackedDeviceClass_Controller:  
+				if (!controllerCount) {
+					controller1Pose = VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking);
+					++controllerCount;
+				}
+				else {
+					controller2Pose = VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking);
+					++controllerCount;
+				}
+				break;
+			case vr::TrackedDeviceClass_HMD:  
+				hmdPose = VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking);
+				break;
+			default:
+				break;
+			}
 		}
-	}
-	
-	if (trackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd].bPoseIsValid) {
-		hmdPose = trackedDevicePoseMatrices[vr::k_unTrackedDeviceIndex_Hmd];
-		
-
-		int i = 0;
 	}
 }
 

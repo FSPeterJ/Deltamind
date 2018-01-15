@@ -1,5 +1,6 @@
 #pragma once
 #include "openvr.h"
+#include "ObjectManager.h"
 #include <DirectXMath.h>
 
 class VRManager
@@ -18,7 +19,6 @@ private:
 
 	void UpdateVRPoses();
 	vr::TrackedDevicePose_t trackedDevicePose[vr::k_unMaxTrackedDeviceCount];
-	DirectX::XMMATRIX* trackedDevicePoseMatrices;
 	void Shutdown();
 
 public:

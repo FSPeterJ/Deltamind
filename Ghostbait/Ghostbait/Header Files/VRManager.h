@@ -1,5 +1,6 @@
 #pragma once
 #include "openvr.h"
+#include "ObjectManager.h"
 #include <DirectXMath.h>
 
 class VRManager
@@ -10,7 +11,7 @@ private:
 	DirectX::XMMATRIX leftEyeToHead;
 	DirectX::XMMATRIX rightEyeToHead;
 
-	DirectX::XMMATRIX VRProjectionToDirectXMatrix(vr::HmdMatrix44_t m);
+	DirectX::XMMATRIX VRProjectionToDirectXMatrix(vr::EVREye eye, float nearPlane, float farPlane);
 	DirectX::XMMATRIX VRMatrix34ToDirectXMatrix44(vr::HmdMatrix34_t m);
 	DirectX::XMMATRIX VRMatrix44ToDirectXMatrix44(vr::HmdMatrix44_t m);
 
@@ -18,11 +19,15 @@ private:
 
 	void UpdateVRPoses();
 	vr::TrackedDevicePose_t trackedDevicePose[vr::k_unMaxTrackedDeviceCount];
-	DirectX::XMMATRIX* trackedDevicePoseMatrices;
 	void Shutdown();
+
+	Object* left_controller;
+	Object* right_controller;
 
 public:
 	DirectX::XMMATRIX hmdPose;
+	DirectX::XMMATRIX controller1Pose;
+	DirectX::XMMATRIX controller2Pose;
 	vr::IVRSystem *pVRHMD;
 	vr::IVRRenderModels* pVRRenderModel;
 	vr::IVRCompositor* pVRCompositor;
@@ -32,6 +37,12 @@ public:
 	~VRManager();
 
 	bool Init();
+	void RegisterController(Object* _left, Object* _right) {
+
+		left_controller = _left;
+		right_controller = _right;
+
+	}
 
 	void GetVRMatricies(DirectX::XMFLOAT4X4* leftProj, DirectX::XMFLOAT4X4* rightProj, DirectX::XMFLOAT4X4* leftView, DirectX::XMFLOAT4X4* rightView);
 	void SendToHMD(void* leftTexture, void* rightTexture);

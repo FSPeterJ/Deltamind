@@ -1,8 +1,5 @@
 #pragma once
-#include <unordered_map>
-#include <assert.h>
 #include "MessageEvents.h"
-#include "Messagebox.h"
 
 enum InputType {
 	VR,

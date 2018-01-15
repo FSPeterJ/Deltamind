@@ -38,6 +38,11 @@ void ObjectManager::Instantiate(EventMessageBase *e) {
 	if(newobject) {
 		poolScope[o] = pool;
 	}
+	if(instantiate->GetReturnObject() != nullptr)
+	{
+
+		instantiate->GetReturnObject() = newobject;
+	}
 
 	MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
 

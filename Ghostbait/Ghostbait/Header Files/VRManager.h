@@ -39,8 +39,8 @@ public:
 	bool Init();
 	void CreateControllers()
 	{
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 0,0,0,0 }, &left_controller));
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 0,0,0,0 }, &right_controller));
+		//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 0,0,0,1 }, &left_controller));
+		//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 1,0,100,1 }, &right_controller));
 	}
 	void RegisterController(Object* _left, Object* _right) {
 

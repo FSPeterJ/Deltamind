@@ -54,6 +54,7 @@ public:
 
 	const PrefabId GetId() const { return pid; }
 	Object ** GetReturnObject() const { return obj; }
+	DirectX::XMFLOAT4 GetPosition() const { return position; }
 	void SetReturnObject(Object * _object) const
 	{
 		if(obj != nullptr)

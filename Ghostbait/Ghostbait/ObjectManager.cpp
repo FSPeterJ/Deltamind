@@ -44,6 +44,7 @@ void ObjectManager::Instantiate(EventMessageBase *e) {
 		instantiate->SetReturnObject(newobject);
 	}
 
+	newobject->position.r[3] = XMLoadFloat4(&instantiate->GetPosition());
 	MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
 
 }

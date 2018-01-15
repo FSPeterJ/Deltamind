@@ -4,7 +4,7 @@
 #include "ManagerInterface.h"
 #include <d3d11.h>
 
-struct meshPositionColor : ComponentBase
+struct Mesh : ComponentBase
 {
 	unsigned int meshId;
 	ID3D11Buffer* vertexBuffer;
@@ -15,8 +15,7 @@ struct meshPositionColor : ComponentBase
 class MeshManager : virtual public ManagerInterface
 {
 private:
-	std::vector<meshPositionColor> smallMeshes;
-	std::vector<meshPositionColor> meshes;
+	std::vector<Mesh> trackedMeshes;
 	ID3D11Device* device = nullptr;
 	void generateCube();
 public:
@@ -25,8 +24,8 @@ public:
 
 	void Initialize(ID3D11Device* _deviceIn);
 	void Destroy();
-	meshPositionColor* ConstructMesh(const char* _meshFilePath);
-	int AddElement(const char* _meshFilePath, const unsigned int _id) override;
-	meshPositionColor* GetElement(const unsigned int _id) override;
+	Mesh* ConstructMesh(const char* _meshFilePath);
+	int AddElement(const char* _meshFilePath) override;
+	Mesh* GetElement(const unsigned int _id) override;
 };
 

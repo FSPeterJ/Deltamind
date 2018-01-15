@@ -18,10 +18,7 @@ void ObjectManager::Initialize()
 	MessageEvents::Subscribe(EVENT_InstantiateRequest, Instantiate);
 	MessageEvents::Subscribe(EVENT_Destroy, Destroy);
 	objectPool.resize(ObjectFactory::GetPrefabCount());
-	//for(auto const &pool : objectPool)
-	//{
-
-	//}
+	
 }
 
 void ObjectManager::Instantiate(EventMessageBase *e) {

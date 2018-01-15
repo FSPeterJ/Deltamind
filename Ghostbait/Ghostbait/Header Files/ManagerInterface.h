@@ -10,5 +10,5 @@ public:
 	virtual ~ManagerInterface() {}
 	// 
 	virtual ComponentBase* GetElement(const unsigned int _id) = 0;
-	virtual int AddElement(const char* _meshFilePath, const unsigned int _id) = 0;
+	virtual int AddElement(const char* _meshFilePath) = 0;
 };

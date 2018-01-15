@@ -4,9 +4,6 @@
 #include <assert.h>
 #include "Messagebox.h"
 
-InputType InputManager::inputType = VR;
-InputManager::InputBridge InputManager::bridge = VRInput();
-
 //Input Constructors
 InputManager::VRInput::VRInput(VRManager* vrManager) {
 	vrMan = vrManager;
@@ -24,21 +21,94 @@ InputManager::KeyboardInput::KeyboardInput() {
 InputManager::ControllerInput::ControllerInput() {
 
 }
-
+static bool hit = false;
 //Input readers
 InputPackage InputManager::VRInput::CheckForInput() {
-	for (vr::TrackedDeviceIndex_t deviceIndex = 0; deviceIndex < vr::k_unMaxTrackedDeviceCount; deviceIndex++)
+
+	Control input = none;
+	float amount = 0;
+
+	vr::VREvent_t event;
+	while (vrMan->pVRHMD->PollNextEvent(&event, sizeof(event)))
 	{
-		vr::VRControllerState_t state;
-		
-		if (vrMan->pVRHMD->GetControllerState(deviceIndex, &state, sizeof(state)))
+		switch (event.eventType){
+		case vr::VREvent_ButtonTouch:
 		{
-			//m_rbShowTrackedDevice[unDevice] = state.ulButtonPressed == 0;
+			switch (event.data.controller.button) {
+			case vr::k_EButton_ApplicationMenu:
+				break;
+			case vr::k_EButton_Grip:
+				break;
+			case vr::k_EButton_SteamVR_Touchpad:
+				break;
+			case vr::k_EButton_SteamVR_Trigger:
+				break;
+			}
+			break;
+		}
+		case vr::VREvent_ButtonUntouch:
+		{
+			switch (event.data.controller.button) {
+			case vr::k_EButton_ApplicationMenu:
+				break;
+			case vr::k_EButton_Grip:
+				break;
+			case vr::k_EButton_SteamVR_Touchpad:
+				break;
+			case vr::k_EButton_SteamVR_Trigger:
+				break;
+			}
+			break;
+		}
+		case vr::VREvent_ButtonPress:
+		{
+			switch (event.data.controller.button) {
+			case vr::k_EButton_ApplicationMenu:
+				break;
+			case vr::k_EButton_Grip:
+				break;
+			case vr::k_EButton_SteamVR_Touchpad:
+				break;
+			case vr::k_EButton_SteamVR_Trigger:
+				DirectX::XMFLOAT4 temp;
+				DirectX::XMStoreFloat4(&temp, vrMan->controller1Pose.r[3]);
+				Object* obj;
+				MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, temp, &obj));
+				obj->position = DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * obj->position;
+
+				input = teleport;
+				amount = 0.5f;
+				
+				break;
+			}
+			break;
+		}
+		case vr::VREvent_ButtonUnpress:
+		{
+			switch (event.data.controller.button) {
+			case vr::k_EButton_ApplicationMenu:
+				break;
+			case vr::k_EButton_Grip:
+				break;
+			case vr::k_EButton_SteamVR_Touchpad:
+				break;
+			case vr::k_EButton_SteamVR_Trigger:
+				break;
+			}
+			break;
+		}
 		}
 	}
 	
+	vr::VRControllerState_t state;
+	vrMan->pVRHMD->GetControllerState(vrMan->controller1Index, &state, sizeof(state));
+	Console::Write(state.rAxis[0].x);
+	Console::Write(", ");
+	Console::WriteLine(state.rAxis[0].y);
+
+
 	
-	InputPackage message(none, 1);
+	InputPackage message(input, amount);
 
 	return message;
 }
@@ -74,7 +144,7 @@ bool InputManager::ControllerInput::MapKey(Control control, int key) {
 }
 
 InputPackage InputManager::HandleInput() {
-	InputPackage input = bridge.CheckForInput();
+	InputPackage input = bridge->CheckForInput();
 	
 	MessageEvents::SendMessage(EVENT_Input, InputMessage(input.control, input.amount));
 
@@ -85,13 +155,13 @@ void InputManager::SetInputType(InputType type) {
 	inputType = type;
 	switch (type) {
 	case InputType::VR:
-		bridge = VRInput();
+		this->bridge = new VRInput(vrMan);
 		break;
 	case InputType::KEYBOARD:
-		bridge = KeyboardInput();
+		bridge = new KeyboardInput();
 		break;
 	case InputType::CONTROLLER:
-		bridge = ControllerInput();
+		bridge = new ControllerInput();
 		break;
 	default:
 		Messagebox::ShowError("Input Type Error", "No InputType is defined!");

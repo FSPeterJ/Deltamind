@@ -28,6 +28,8 @@ public:
 	DirectX::XMMATRIX hmdPose;
 	DirectX::XMMATRIX controller1Pose;
 	DirectX::XMMATRIX controller2Pose;
+	int controller1Index;
+	int controller2Index;
 	vr::IVRSystem *pVRHMD;
 	vr::IVRRenderModels* pVRRenderModel;
 	vr::IVRCompositor* pVRCompositor;
@@ -39,8 +41,8 @@ public:
 	bool Init();
 	void CreateControllers()
 	{
-		//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 0,0,0,1 }, &left_controller));
-		//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 1,0,100,1 }, &right_controller));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 0,0,0,1 }, &left_controller));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 1,0,100,1 }, &right_controller));
 	}
 	void RegisterController(Object* _left, Object* _right) {
 

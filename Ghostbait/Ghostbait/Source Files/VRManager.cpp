@@ -124,7 +124,7 @@ void VRManager::GetVRMatricies(DirectX::XMFLOAT4X4* _leftProj, DirectX::XMFLOAT4
 	DirectX::XMMATRIX leftView = leftEyeToHead * hmdPose;
 	DirectX::XMMATRIX rightView = rightEyeToHead * hmdPose;
 	
-	WriteMatrix(hmdPose, 60);
+	//WriteMatrix(hmdPose, 60);
 
 	DirectX::XMStoreFloat4x4(_leftProj, leftProj);
 	DirectX::XMStoreFloat4x4(_rightProj, rightProj);
@@ -148,12 +148,14 @@ void VRManager::UpdateVRPoses() {
 			case vr::TrackedDeviceClass_Controller:  
 				if (!controllerCount) {
 					controller1Pose = VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking);
-					left_controller->position = controller1Pose;
+					controller1Index = deviceIndex;
+					left_controller->position = DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f)* controller1Pose;// *DirectX::XMMatrixScaling(0.25f, 0.25f, 0.25f);
 					++controllerCount;
 				}
 				else {
 					controller2Pose = VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking);
-					right_controller->position = controller2Pose;
+					controller2Index = deviceIndex;
+					right_controller->position = DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * controller2Pose;// *DirectX::XMMatrixScaling(0.25f, 0.25f, 0.25f);
 					++controllerCount;
 				}
 				break;

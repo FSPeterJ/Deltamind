@@ -9,6 +9,7 @@ enum InputType {
 };
 
 struct InputPackage {
+	InputPackage() {};
 	InputPackage(Control _control, float _amount) : control(_control), amount(_amount) {}
 	Control control;
 	float amount;
@@ -21,18 +22,18 @@ private:
 		virtual InputPackage CheckForInput() = 0;
 	};
 
-	struct InputBridge : Input {
+	struct InputBridge {// : Input {
 		std::unordered_map<Control, int> keyBind;
-		bool MapKey(Control control, int key) { return false; }
-		InputPackage CheckForInput() { return InputPackage(none, 0.0f); }
+		virtual bool MapKey(Control control, int key) = 0;// { return false; };// { return false; }
+		virtual InputPackage CheckForInput() = 0;// { return InputPackage(none, 0); };// { return InputPackage(none, 0.0f); }
 	};
 
 	struct VRInput: public InputBridge {
 		VRManager* vrMan;
 		VRInput() {};
 		VRInput(VRManager* vrManager);
-		bool MapKey(Control control, int key);
-		InputPackage CheckForInput();
+		bool MapKey(Control control, int key) override;
+		InputPackage CheckForInput() override;
 	};
 
 	struct KeyboardInput: public InputBridge {
@@ -47,14 +48,14 @@ private:
 		InputPackage CheckForInput();
 	};
 
-	static InputType inputType;
-	static InputBridge bridge;
+	InputType inputType;
+	InputBridge* bridge = nullptr;
 
 	VRManager* vrMan;
 
 public:
-	InputManager() {};
-	InputManager(VRManager* vrManager) { vrMan = vrManager; };
+	InputManager() { SetInputType(InputType::VR); };
+	InputManager(VRManager* vrManager) { vrMan = vrManager; SetInputType(InputType::VR); };
 	~InputManager() {};
 
 	/// <summary>
@@ -63,17 +64,17 @@ public:
 	/// Results in a message sent with respective input.
 	/// </summary>
 	/// <returns>The control currently selected.</returns>
-	static InputPackage HandleInput();
+	InputPackage HandleInput();
 
 	/// <summary>
 	/// Retreive the current input method (Ex. VR, Keyboard, Controller, etc.)
 	/// </summary>
 	/// <returns>The current input method.</returns>
-	static inline InputType GetInputType() { return inputType; };
+	inline InputType GetInputType() { return inputType; };
 
 	/// <summary>
 	/// Sets the current input method (Ex. VR, Keyboard, Controller, etc.)
 	/// </summary>
 	/// <param name="type">The new input method to replace the current one.</param>
-	static void SetInputType(InputType type);
+	void SetInputType(InputType type);
 };

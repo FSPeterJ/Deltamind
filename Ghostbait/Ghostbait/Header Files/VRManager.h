@@ -21,6 +21,9 @@ private:
 	vr::TrackedDevicePose_t trackedDevicePose[vr::k_unMaxTrackedDeviceCount];
 	void Shutdown();
 
+	Object* left_controller;
+	Object* right_controller;
+
 public:
 	DirectX::XMMATRIX hmdPose;
 	DirectX::XMMATRIX controller1Pose;
@@ -33,7 +36,7 @@ public:
 	VRManager();
 	~VRManager();
 
-	bool Init();
+	bool Init(Object* _left, Object* _right);
 
 	void GetVRMatricies(DirectX::XMFLOAT4X4* leftProj, DirectX::XMFLOAT4X4* rightProj, DirectX::XMFLOAT4X4* leftView, DirectX::XMFLOAT4X4* rightView);
 	void SendToHMD(void* leftTexture, void* rightTexture);

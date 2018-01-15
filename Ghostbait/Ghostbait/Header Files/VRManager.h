@@ -10,7 +10,7 @@ private:
 	DirectX::XMMATRIX leftEyeToHead;
 	DirectX::XMMATRIX rightEyeToHead;
 
-	DirectX::XMMATRIX VRProjectionToDirectXMatrix(vr::HmdMatrix44_t m);
+	DirectX::XMMATRIX VRProjectionToDirectXMatrix(vr::EVREye eye, float nearPlane, float farPlane);
 	DirectX::XMMATRIX VRMatrix34ToDirectXMatrix44(vr::HmdMatrix34_t m);
 	DirectX::XMMATRIX VRMatrix44ToDirectXMatrix44(vr::HmdMatrix44_t m);
 

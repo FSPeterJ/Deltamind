@@ -41,10 +41,8 @@ bool VRManager::Init() {
 
 	leftProj = VRProjectionToDirectXMatrix(vr::EVREye::Eye_Left, 0.01f, 100.0f);
 	rightProj = VRProjectionToDirectXMatrix(vr::EVREye::Eye_Right, 0.01f, 100.0f);
-
-	DirectX::XMVECTOR det;
-	leftEyeToHead = DirectX::XMMatrixInverse(&det, VRMatrix34ToDirectXMatrix44(pVRHMD->GetEyeToHeadTransform(vr::EVREye::Eye_Left)));
-	rightEyeToHead = DirectX::XMMatrixInverse(&det, VRMatrix34ToDirectXMatrix44(pVRHMD->GetEyeToHeadTransform(vr::EVREye::Eye_Right)));
+	leftEyeToHead = VRMatrix34ToDirectXMatrix44(pVRHMD->GetEyeToHeadTransform(vr::EVREye::Eye_Left));
+	rightEyeToHead = VRMatrix34ToDirectXMatrix44(pVRHMD->GetEyeToHeadTransform(vr::EVREye::Eye_Right));
 
 	trackedDevicePoseMatrices = new DirectX::XMMATRIX[vr::k_unMaxTrackedDeviceCount];
 
@@ -155,6 +153,7 @@ void VRManager::UpdateVRPoses() {
 	
 	if (trackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd].bPoseIsValid) {
 		hmdPose = trackedDevicePoseMatrices[vr::k_unTrackedDeviceIndex_Hmd];
+		
 
 		int i = 0;
 	}

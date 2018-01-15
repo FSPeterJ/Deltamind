@@ -23,6 +23,8 @@ private:
 
 public:
 	DirectX::XMMATRIX hmdPose;
+	DirectX::XMMATRIX controller1Pose;
+	DirectX::XMMATRIX controller2Pose;
 	vr::IVRSystem *pVRHMD;
 	vr::IVRRenderModels* pVRRenderModel;
 	vr::IVRCompositor* pVRCompositor;

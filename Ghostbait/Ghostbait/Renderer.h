@@ -13,6 +13,12 @@ enum renderState
 	RENDER_STATE_DEFAULT, RENDER_STATE_TRANSPARENT
 };
 
+struct directionalLight
+{
+	DirectX::XMFLOAT4 lightColor;
+	DirectX::XMFLOAT3 lightDir;
+	float ambient;
+};
 class Renderer
 {
 private:
@@ -70,6 +76,8 @@ private:
 	ID3D11InputLayout* ILStandard;
 	ID3D11Buffer* cameraBuffer;
 	ID3D11Buffer* modelBuffer;
+	ID3D11Buffer* factorBuffer;
+	ID3D11Buffer* dirLightBuffer;
 	pipeline_state_t defaultPipeline;
 	int tempId;
 	int tempMatId;

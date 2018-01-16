@@ -6,13 +6,20 @@
 
 struct Material : ComponentBase
 {
-	unsigned int matID;
 	struct matComponent
 	{
 		float factor;
 		ID3D11Buffer * texture;
 		ID3D11ShaderResourceView * texView;
 	};
+	struct factorBufferStructure
+	{
+		float diffuseFactor;
+		float specularFactor;
+		float emissiveFactor;
+		float padding;
+	};
+	unsigned int matID;
 	matComponent diffuse;
 	matComponent specular;
 	matComponent emissive;
@@ -36,11 +43,17 @@ struct Material : ComponentBase
 		}
 	}
 
-	void bindToShader(ID3D11DeviceContext* context)
+	void bindToShader(ID3D11DeviceContext* context, ID3D11Buffer* factorBuffer)
 	{
 		context->PSSetShaderResources(0, 1, &diffuse.texView);
 		context->PSSetShaderResources(1, 1, &specular.texView);
 		context->PSSetShaderResources(2, 1, &emissive.texView);
+		factorBufferStructure toShader;
+		diffuse.texture ? toShader.diffuseFactor = diffuse.factor : toShader.diffuseFactor = 0.0f;
+		specular.texture ? toShader.specularFactor = specular.factor : toShader.specularFactor = 0.0f;
+		emissive.texture ? toShader.emissiveFactor = emissive.factor : toShader.emissiveFactor = 0.0f;
+		
+		context->UpdateSubresource(factorBuffer, NULL, NULL, &toShader, NULL, NULL);
 	}
 };
 

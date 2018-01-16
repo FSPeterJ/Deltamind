@@ -1,6 +1,7 @@
 #include "MaterialManager.h"
 #include <fstream>
 #include "WICTextureLoader.h"
+#include <string>
 
 MaterialManager::MaterialManager()
 {
@@ -39,10 +40,10 @@ Material * MaterialManager::ConstructMaterial(const char * _materialFilePath)
 		{
 			char buffer[256];
 			reader.read(&buffer[0], length);
-			size_t converted;
-			wchar_t path[256];
-			mbstowcs_s(&converted, path, &buffer[0], _TRUNCATE);
-			HRESULT didItBlend = DirectX::CreateWICTextureFromFile(device, context, path, (ID3D11Resource**)&ret.diffuse.texture, &ret.diffuse.texView);
+			std::string thePath(buffer);
+			thePath = "Assets\\" + thePath;
+			std::wstring path(thePath.begin(), thePath.end());
+			HRESULT didItBlend = DirectX::CreateWICTextureFromFile(device, context, path.c_str(), (ID3D11Resource**)&ret.diffuse.texture, &ret.diffuse.texView);
 		}
 		else
 		{
@@ -54,10 +55,10 @@ Material * MaterialManager::ConstructMaterial(const char * _materialFilePath)
 		{
 			char buffer[256];
 			reader.read(&buffer[0], length);
-			size_t converted;
-			wchar_t path[256];
-			mbstowcs_s(&converted, path, &buffer[0], _TRUNCATE);
-			HRESULT didItBlend = DirectX::CreateWICTextureFromFile(device, context, path, (ID3D11Resource**)&ret.specular.texture, &ret.specular.texView);
+			std::string thePath(buffer);
+			thePath = "Assets\\" + thePath;
+			std::wstring path(thePath.begin(), thePath.end());
+			HRESULT didItBlend = DirectX::CreateWICTextureFromFile(device, context, path.c_str(), (ID3D11Resource**)&ret.specular.texture, &ret.specular.texView);
 		}
 		else
 		{
@@ -69,10 +70,10 @@ Material * MaterialManager::ConstructMaterial(const char * _materialFilePath)
 		{
 			char buffer[256];
 			reader.read(&buffer[0], length);
-			size_t converted;
-			wchar_t path[256];
-			mbstowcs_s(&converted, path, &buffer[0], _TRUNCATE);
-			HRESULT didItBlend = DirectX::CreateWICTextureFromFile(device, context, path, (ID3D11Resource**)&ret.emissive.texture, &ret.emissive.texView);
+			std::string thePath(buffer);
+			thePath = "Assets\\" + thePath;
+			std::wstring path(thePath.begin(), thePath.end());
+			HRESULT didItBlend = DirectX::CreateWICTextureFromFile(device, context, path.c_str(), (ID3D11Resource**)&ret.emissive.texture, &ret.emissive.texView);
 		}
 		else
 		{

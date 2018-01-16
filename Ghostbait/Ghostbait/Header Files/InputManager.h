@@ -49,14 +49,14 @@ private:
 		InputPackage CheckForInput();
 	};
 
-	InputType inputType;
+	InputType inputType = KEYBOARD;
 	InputBridge* bridge = nullptr;
 
 	VRManager* vrMan;
 
 public:
-	InputManager() { SetInputType(InputType::VR); };
-	InputManager(VRManager* vrManager) { vrMan = vrManager; SetInputType(InputType::VR); };
+	InputManager() { };
+	InputManager(InputType type, VRManager* vrManager = nullptr) { SetInputType(type); vrMan = vrManager; };
 	~InputManager() {};
 
 	/// <summary>

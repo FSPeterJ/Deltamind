@@ -368,8 +368,8 @@ void Renderer::Render()
 	context->ClearDepthStencilView(defaultPipeline.depth_stencil_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	context->OMSetRenderTargets(1, &defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view);
 	context->RSSetViewports(1, &defaultPipeline.viewport);
-	context->UpdateSubresource(cameraBuffer, 0, NULL, &defaultCamera, 0, 0);
-	//context->UpdateSubresource(cameraBuffer, 0, NULL, &(leftEye.camera), 0, 0);
+	//context->UpdateSubresource(cameraBuffer, 0, NULL, &defaultCamera, 0, 0);
+	context->UpdateSubresource(cameraBuffer, 0, NULL, &(leftEye.camera), 0, 0);
 
 
 	for(size_t i = 0; i < renderedObjects.size(); ++i)

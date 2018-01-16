@@ -33,6 +33,7 @@ using namespace Console;
 Renderer* rendInter;
 VRManager* vrMan;
 Game* game;
+InputManager* inputMan;
 
 void ExecuteAsync() {
 	WriteLine("I am executed asyncly!");
@@ -57,10 +58,10 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//EngineStructure engine;
 	//SomeCoolObject* t = new SomeCoolObject();
 	//engine.ExecuteAwake();
-	//MessageEvents::SendMessage(EVENT_Input, InputMessage(teleport, 0.567f));
 	//engine.ExecuteUpdate();
-	//system("pause");
 	//delete t;
+	//MessageEvents::SendMessage(EVENT_Input, InputMessage(teleport, 0.567f));
+	//system("pause");
 	//CleanUp();
 	//Free();
 	//exit(0);
@@ -101,12 +102,14 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	game = new Game();
 	game->Start();
 	vrMan->CreateControllers();
+
+	inputMan = new InputManager(vrMan);
 }
 
 void Loop() {
-	InputManager::HandleInput();
 	rendInter->Render();
 	game->Update();
+	inputMan->HandleInput();
 }
 
 void CleanUp() {

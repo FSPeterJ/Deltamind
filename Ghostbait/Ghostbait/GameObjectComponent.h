@@ -4,10 +4,10 @@
 #include "EngineStructure.h"
 #include "Controlable.h"
 
-class GameObject: public Object {
+class GameObjectComponent: public ComponentBase {
 public:
 
-	GameObject() {
+	GameObjectComponent() {
 		EngineStructure::Awake.add([=]() {this->Awake(); });
 		EngineStructure::Update.add([=]() {this->Update(); });
 	}
@@ -19,7 +19,7 @@ public:
 
 
 
-class SomeCoolObject: public GameObject, public Controlable {
+class SomeCoolComponent: public GameObjectComponent, public Controlable {
 
 	void Awake() {
 		WriteLine("I am a cool object being awakened!");

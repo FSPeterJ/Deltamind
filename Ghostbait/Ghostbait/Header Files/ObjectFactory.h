@@ -50,7 +50,7 @@ public:
 	/// </summary>
 	/// <param name="_id">Class ID to register.</param>
 	template <typename T>
-	static void Register(const int _id) {
+	static void RegisterPrefabBase(const int _id = 0) {
 		registeredConstructors[_id] = &ConstructorFunc<T>;
 	}
 

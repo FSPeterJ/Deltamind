@@ -19,7 +19,7 @@ using namespace Console;
 #include "ObjectFactory.h"
 #include "TestObject.h"
 
-#include "GameObject.h"
+#include "GameObjectComponent.h"
 #include "EngineStructure.h"
 
 #include "VRManager.h"
@@ -95,8 +95,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	}
 
 	ObjectFactory::Initialize(rendInter->getMeshManager());
-	ObjectFactory::Register<Object>(Object().GetTypeId());
-	ObjectFactory::Register<TestObject>(TestObject().GetTypeId());
+	ObjectFactory::RegisterPrefabBase<Object>();
 
 	game = new Game();
 	game->Start();

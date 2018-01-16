@@ -1,13 +1,14 @@
 #pragma once
 #include "MessageEvents.h"
 #include "VRManager.h"
+#include <queue>
+
 
 enum InputType {
 	VR,
 	KEYBOARD,
 	CONTROLLER
 };
-
 struct InputPackage {
 	InputPackage() {};
 	InputPackage(Control _control, float _amount) : control(_control), amount(_amount) {}
@@ -15,19 +16,15 @@ struct InputPackage {
 	float amount;
 };
 
+
 class InputManager {
 private:
-	struct Input {
-		virtual bool MapKey(Control control, int key) = 0;
-		virtual InputPackage CheckForInput() = 0;
-	};
 
-	struct InputBridge {// : Input {
+	struct InputBridge {
 		std::unordered_map<Control, int> keyBind;
 		virtual bool MapKey(Control control, int key) = 0;// { return false; };// { return false; }
 		virtual InputPackage CheckForInput() = 0;// { return InputPackage(none, 0); };// { return InputPackage(none, 0.0f); }
 	};
-
 	struct VRInput: public InputBridge {
 		VRManager* vrMan;
 		VRInput() {};
@@ -36,28 +33,34 @@ private:
 		InputPackage CheckForInput() override;
 
 	};
-
 	struct KeyboardInput: public InputBridge {
 		KeyboardInput();
 		bool MapKey(Control control, int key);
 		InputPackage CheckForInput();
 	};
-
 	struct ControllerInput: public InputBridge {
 		ControllerInput();
 		bool MapKey(Control control, int key);
 		InputPackage CheckForInput();
 	};
 
+	static std::queue<uint64_t> inputQueue;
+
 	InputType inputType = KEYBOARD;
 	InputBridge* bridge = nullptr;
 
-	VRManager* vrMan;
+	VRManager* vrMan;	
 
 public:
 	InputManager() { };
-	InputManager(InputType type, VRManager* vrManager = nullptr) { SetInputType(type); vrMan = vrManager; };
+	InputManager(InputType type, VRManager* vrManager = nullptr) { 
+		vrMan = vrManager; 
+		SetInputType(type); 
+	};
 	~InputManager() {};
+
+	
+	static void AddToQueue(uint64_t key) { inputQueue.push(key); };
 
 	/// <summary>
 	/// Called to check input devices for new user input.

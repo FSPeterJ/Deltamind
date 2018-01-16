@@ -17,7 +17,6 @@ using namespace Console;
 
 #include "MessageEvents.h"
 #include "ObjectFactory.h"
-#include "TestObject.h"
 
 #include "GameObjectComponent.h"
 #include "EngineStructure.h"

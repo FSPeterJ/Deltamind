@@ -83,7 +83,9 @@ public:
 			prefabs.push_back(prefab);
 			//
 			prefabNames[*_name] = prefab;
-			prefab->SetComponent(MESH, meshManager->GetElement(UINT_MAX));
+			prefab->SetComponent<Mesh>(meshManager->GetElement(UINT_MAX));
+			Mesh* temp2 = prefab->GetComponent<Mesh>();
+			int x = 0;
 		}
 		return prefab;
 	}

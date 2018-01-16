@@ -1,13 +1,10 @@
 #include "ObjectManager.h"
 #include "ObjectFactory.h"
 
-#undef GetObject
-
-std::vector<ObjectManager::Pool> ObjectManager::objectPool;
-std::unordered_map<const Object *, ObjectManager::Pool*> ObjectManager::poolScope;
+std::vector<ObjectManager::PoolCluster> ObjectManager::objectPool;
+std::unordered_map<const Object *, ObjectManager::PoolCluster*> ObjectManager::poolScope;
 
 ObjectManager::ObjectManager() {
-
 
 }
 
@@ -29,11 +26,11 @@ void ObjectManager::Instantiate(EventMessageBase *e) {
 
 	const Object * o = ObjectFactory::RequestPrefab(pid);
 
-	Pool* pool = &objectPool[pid];
+	PoolCluster* poolcluster = &objectPool[pid];
 
-	Object* newobject = pool->Activate(o);
+	Object* newobject = poolcluster->ActivateObject(o);
 	if(newobject) {
-		poolScope[o] = pool;
+		poolScope[o] = poolcluster;
 	}
 	if(instantiate->GetReturnObject() != nullptr)
 	{
@@ -43,11 +40,10 @@ void ObjectManager::Instantiate(EventMessageBase *e) {
 
 	newobject->position.r[3] = XMLoadFloat4(&instantiate->GetPosition());
 	MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
-
 }
 
 void ObjectManager::Destroy(EventMessageBase *e) {
 	DestroyMessage* destroy = (DestroyMessage*)e;
 	Object* o = destroy->GetObject();
-	poolScope[o]->Deactivate(o);
+	poolScope[o]->DeactivateObject(o);
 }

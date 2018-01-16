@@ -1,64 +1,93 @@
 #pragma once
-#include "ManagerInterface.h"
 #include <vector>
 #include "Object.h"
 #include <unordered_map>
 #include "MessageEvents.h"
+#include <array>
 
+#define MAX_POOL_SIZE 128
 
-class ObjectManager: public ManagerInterface {
+class ObjectManager {
 private:
-	class Pool {
-	private:
-		std::vector< Object*> activeList;
-		std::vector< Object*> inactiveList; //Linked list with head/tail ptrs
-		std::vector<Object> objects;
+	class PoolCluster
+	{
 
-		void RemoveObjectFromActive(const Object* o) {
-			auto it = std::find(activeList.begin(), activeList.end(), o);
+		class Pool {
+			std::vector< Object*> activeList;
+			std::vector< Object*> inactiveList; //Linked list with head/tail ptrs
+			std::array<Object, MAX_POOL_SIZE> objects;
 
-			if(it != activeList.end()) {
-				std::swap(*it, activeList.back());
-				activeList.pop_back();
+			void RemoveObjectFromActive(const Object* o) {
+				const auto it = std::find(activeList.begin(), activeList.end(), o);
+
+				if(it != activeList.end()) {
+					std::swap(*it, activeList.back());
+					activeList.pop_back();
+				}
 			}
-		}
-		Object* Add(const Object* o) {
-			objects.push_back(*o);
-			activeList.push_back(&objects[objects.size() - 1]);
-			return &objects.back();
-		}
-	public:
-		Pool()
-		{
-			objects.resize(10);
-		}
-		/// <summary>
-		/// Activates the specified object.
-		/// </summary>
-		/// <param name="o">The object to activate.</param>
-		/// <returns>A pointer to the activated or added Object.</returns>
-		Object* Activate(const Object* o) {
-			if(inactiveList.size()) {
+		public:
+			Pool(int size = MAX_POOL_SIZE)
+			{
+				for(Object &element : objects)
+				{
+					element = Object();
+					inactiveList.push_back(&element);
+				}
+			}
+			bool hasSpace() const
+			{
+				return activeList.size() < MAX_POOL_SIZE;
+			}
+			/// <summary>
+			/// Activates the specified object.
+			/// </summary>
+			/// <param name="o">The object to activate.</param>
+			/// <returns>A pointer to the activated or added Object.</returns>
+			Object* Activate(const Object* o) {
 				activeList.push_back(inactiveList[0]);
 				inactiveList.erase(inactiveList.begin());
 				return activeList.back();
 			}
-			else {
-				return Add(o);
+			/// <summary>
+			/// Deactivates the specified object.
+			/// </summary>
+			/// <param name="o">The object to deactivate.</param>
+			void Deactivate(Object* o) {
+				RemoveObjectFromActive(o);
+				inactiveList.push_back(o);
 			}
+		};
+		std::vector<Pool*> objectsubpools;
+	public:
+		PoolCluster()
+		{
+			objectsubpools.push_back(new Pool);
 		}
-		/// <summary>
-		/// Deactivates the specified object.
-		/// </summary>
-		/// <param name="o">The object to deactivate.</param>
-		void Deactivate(Object* o) {
-			RemoveObjectFromActive(o);
-			inactiveList.push_back(o);
+		Object* ActivateObject(const Object* o)
+		{
+			for(Pool* pool : objectsubpools)
+			{
+				if(pool->hasSpace())
+				{
+					return pool->Activate(o);
+				}
+			}
+			//This is bad and should happen before a pool runs out of space
+			objectsubpools.push_back(new Pool);
+			return ActivateObject(o);
+		}
+		// This should happen on a seperate thread probably.
+		void DeactivateObject(Object* o)
+		{
+			for(Pool* pool : objectsubpools)
+			{
+				pool->Deactivate(o);
+			}
+
 		}
 	};
-
-	static std::vector<Pool> objectPool;
-	static std::unordered_map<const Object*, Pool*> poolScope;
+	static std::vector<PoolCluster> objectPool;
+	static std::unordered_map<const Object*, PoolCluster*> poolScope;
 
 	static void Instantiate(EventMessageBase* e);
 	static void Destroy(EventMessageBase* e);

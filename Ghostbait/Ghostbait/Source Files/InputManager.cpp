@@ -24,7 +24,6 @@ bool InputManager::VRInput::MapKey(Control control, int key) {
 	else { return false; }
 }
 InputPackage InputManager::VRInput::CheckForInput() {
-
 	Control input = none;
 	float amount = 0;
 
@@ -102,8 +101,6 @@ InputPackage InputManager::VRInput::CheckForInput() {
 	//Console::Write(state.rAxis[0].x);
 	//Console::Write(", ");
 	//Console::WriteLine(state.rAxis[0].y);
-
-
 	
 	InputPackage message(input, amount);
 
@@ -112,17 +109,29 @@ InputPackage InputManager::VRInput::CheckForInput() {
 
 //Keyboard
 InputManager::KeyboardInput::KeyboardInput() {
+	MapKey(forward, 'A');
 }
 InputPackage InputManager::KeyboardInput::CheckForInput() {
-	InputPackage message(none, 1);
+	Control input = none;
+	float amount = 0;
+	
+	while (inputQueue.size() > 0) {
+		int j = 0;
+		for (auto value : keyBind) {
+			if (value.second == inputQueue.front()) {
+				input = value.first;
+				amount = 1;
+			}
+		}
+		inputQueue.pop();
+	}
+
+	InputPackage message(input, amount);
 	return message;
 }
 bool InputManager::KeyboardInput::MapKey(Control control, int key) {
-	if (keyBind.find(control) != keyBind.end()) {
-		keyBind[control] = key;
-		return true;
-	}
-	else { return false; }
+	keyBind[control] = key;
+	return true;
 }
 
 //Controller
@@ -141,6 +150,8 @@ bool InputManager::ControllerInput::MapKey(Control control, int key) {
 }
 
 //Input Manager
+std::queue<uint64_t> InputManager::inputQueue;
+
 InputPackage InputManager::HandleInput() {
 	InputPackage input = bridge->CheckForInput();
 	

@@ -10,7 +10,7 @@ enum ComponentsListing
 };
 
 // Allows for covariant return types in Manager interface
-struct ComponentBase
+class ComponentBase
 {
 	//If you are creating this base, you are doing something wrong.
 };

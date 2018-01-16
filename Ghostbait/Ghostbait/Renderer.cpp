@@ -132,12 +132,12 @@ void Renderer::renderObjectDefaultState(const Object * obj)
 {
 	UINT stride = sizeof(VertexPositionColor);
 	UINT offset = 0;
-
-	context->IASetVertexBuffers(0, 1, &meshManagement->GetElement(UINT_MAX)->vertexBuffer, &stride, &offset);
-	context->IASetIndexBuffer(meshManagement->GetElement(UINT_MAX)->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	
+	context->IASetVertexBuffers(0, 1, &obj->Components.GetComponent<Mesh>()->vertexBuffer, &stride, &offset);
+	context->IASetIndexBuffer(obj->Components.GetComponent<Mesh>()->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(obj->position), 0, 0);
 
-	context->DrawIndexed(meshManagement->GetElement(UINT_MAX)->indexCount, 0, 0);
+	context->DrawIndexed(obj->Components.GetComponent<Mesh>()->indexCount, 0, 0);
 }
 
 void Renderer::renderToEye(eye * eyeTo)

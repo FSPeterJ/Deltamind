@@ -14,14 +14,27 @@ class TypeMap {
 
 	std::unordered_map<int, ValueType*> m_map;
 public:
+	typedef typename std::unordered_map<int, ValueType*>::const_iterator constIt;
+	typedef typename std::unordered_map<int, ValueType*>::iterator baseIt;
 	template <class ComponentType>
 	ComponentType* GetComponent()
 	{
-		return (ComponentType*)m_map[getTypeId<ComponentType>()];
+		baseIt loc = m_map.find(getTypeId<ComponentType>());
+		if(m_map.end() != loc) {
+			return (ComponentType*)loc->second;
+		}
+		return nullptr;
 	}
 
 	template <class ComponentType>
-	ComponentType* GetComponent() const { return m_map[getTypeId<ComponentType>()]; }
+	ComponentType* GetComponent() const
+	{
+		constIt loc = m_map.find(getTypeId<ComponentType>());
+		if(m_map.end() != loc) {
+			return (ComponentType*)loc->second;
+		}
+		return nullptr;
+	}
 
 	template <class ComponentType>
 	void AddComponent(ValueType* value) {

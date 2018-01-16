@@ -18,7 +18,6 @@ private:
 
 public:
 
-	//NOTE: Should these be moved to private with getter/setter?
 	DirectX::XMMATRIX position = DirectX::XMMatrixIdentity();
 	TypeMap<ComponentBase> Components;
 	//Endnote
@@ -33,6 +32,7 @@ public:
 	template<typename ComponentType>
 	ComponentType* GetComponent()
 	{
+		
 		return Components.GetComponent<ComponentType>();
 	};
 

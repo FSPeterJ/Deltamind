@@ -4,7 +4,9 @@
 #include <functional>
 #include <unordered_map>
 
-class Controlable : ComponentBase{
+
+//This becomes some sort of component add-on?
+class Controlable {
 #pragma region Handler
 	//dont touch dis
 	class InputReceivedEvent {

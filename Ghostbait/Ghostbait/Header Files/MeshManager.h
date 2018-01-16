@@ -4,7 +4,7 @@
 #include "ManagerInterface.h"
 #include <d3d11.h>
 
-struct Mesh : ComponentBase
+struct Mesh : public ComponentBase
 {
 	unsigned int meshId;
 	ID3D11Buffer* vertexBuffer;
@@ -18,6 +18,7 @@ private:
 	std::vector<Mesh> trackedMeshes;
 	ID3D11Device* device = nullptr;
 	void generateCube();
+	void generateOtherCube();
 public:
 	MeshManager();
 	~MeshManager();

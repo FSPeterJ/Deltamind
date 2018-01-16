@@ -53,12 +53,16 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//Minimize();
 
 #pragma region testing
-	//EngineStructure engine;
-	//SomeCoolObject* t = new SomeCoolObject();
-	//engine.ExecuteAwake();
-	//MessageEvents::SendMessage(EVENT_Input, InputMessage(teleport, 0.567f));
-	//engine.ExecuteUpdate();
-	//system("pause");
+	EngineStructure engine;
+	Object* t = new Object();
+	SomeCoolComponent* r = new SomeCoolComponent;
+	GameObjectComponent* x = new GameObjectComponent;
+
+	t->SetComponent<SomeCoolComponent>(r);
+	engine.ExecuteAwake();
+	MessageEvents::SendMessage(EVENT_Input, InputMessage(teleport, 0.567f));
+	engine.ExecuteUpdate();
+	system("pause");
 	//delete t;
 	//CleanUp();
 	//Free();
@@ -117,6 +121,7 @@ void CleanUp() {
 	}
 	ObjectFactory::Shutdown();
 	ThreadPool::Shutdown();
+	ObjectManager::Shutdown();
 	if(game) { game->Clean(); delete game; }
 }
 

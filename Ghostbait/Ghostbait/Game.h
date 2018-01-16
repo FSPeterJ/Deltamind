@@ -25,11 +25,6 @@ public:
 
 
 		temp->GetTypeId();
-		//test->testing();
-		//((TestObject*)test2)->testing();
-
-		//rendInter->registerObject(test);
-		//rendInter->registerObject(test2);
 	}
 
 	void Update() {

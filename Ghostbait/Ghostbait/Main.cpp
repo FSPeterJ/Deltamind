@@ -111,7 +111,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 void Loop() {
 	rendInter->Render();
 	game->Update();
-	//inputMan->HandleInput();
+	inputMan->HandleInput();
 }
 
 void CleanUp() {

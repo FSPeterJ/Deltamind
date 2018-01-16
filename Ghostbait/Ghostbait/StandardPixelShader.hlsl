@@ -34,7 +34,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
     //atten *= atten;
     float4 finalLight = lightColor * saturate(lightRatio + ambient);
     //finalLight *= atten;
-    float4 diffuseColor = diffuse.Sample(sample, input.uv) * diffuseFactor;
+    float4 diffuseColor = diffuse.Sample(sample, input.uv);// * diffuseFactor;
     float4 emissiveColor = emissive.Sample(sample, input.uv) * emissiveFactor;
 
     //float3 reflectionDir = reflect(lightDir, input.norm);
@@ -42,5 +42,6 @@ float4 main(PixelShaderInput input) : SV_TARGET
     //float specScale = 0.3f * pow(saturate(dot(reflectionDir, dirToCam)), 1.0f);
     //float specIntense = specular.Sample(sample, input.uv).x;
     //float4 specColor = specIntense * specScale * lightColor;
-    return (finalLight * diffuseColor) + emissiveColor;// + specColor;
+    //return (finalLight * diffuseColor) + emissiveColor;// + specColor;
+    return diffuseColor;
 }

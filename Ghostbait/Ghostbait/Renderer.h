@@ -6,6 +6,7 @@
 #include "VRManager.h"
 #include "Object.h"
 #include "MessageEvents.h"
+#include "MaterialManager.h"
 
 enum renderState
 {
@@ -71,6 +72,7 @@ private:
 	ID3D11Buffer* modelBuffer;
 	pipeline_state_t defaultPipeline;
 	int tempId;
+	int tempMatId;
 	viewProjectionConstantBuffer defaultCamera;
 
 	//eye leftEye;
@@ -80,6 +82,7 @@ private:
 	
 	MeshManager* meshManagement = nullptr;
 	VRManager* VRManagement = nullptr;
+	MaterialManager* materialManagement = nullptr;
 
 	void initDepthStencilBuffer(pipeline_state_t* pipelineTo);
 	void initDepthStencilState(pipeline_state_t* pipelineTo);
@@ -169,6 +172,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////
 	bool unregisterObject(const Object* toRemove, renderState specialInstructions = RENDER_STATE_DEFAULT);
 	MeshManager* getMeshManager() { return meshManagement; }
+	MaterialManager* getMaterialManager() { return materialManagement; }
 
 	void Render();
 };

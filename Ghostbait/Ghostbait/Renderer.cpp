@@ -221,6 +221,9 @@ void Renderer::Initialize(Window window, VRManager * vr)
 	meshManagement = new MeshManager();
 	meshManagement->Initialize(device);
 	tempId = meshManagement->AddElement("ViveController_mesh.bin");
+	materialManagement = new MaterialManager();
+	materialManagement->Initialize(device, context);
+	tempMatId = materialManagement->AddElement("ViveController_mat.bin");
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	context->VSSetConstantBuffers(0, 1, &cameraBuffer);
 	context->VSSetConstantBuffers(1, 1, &modelBuffer);
@@ -274,6 +277,8 @@ void Renderer::Destroy()
 	}
 	meshManagement->Destroy();
 	delete meshManagement;
+	materialManagement->Destroy();
+	delete materialManagement;
 }
 
 void Renderer::registerObject(const Object * toRegister, renderState specialInstructions)
@@ -394,7 +399,7 @@ void Renderer::Render()
 
 	for(size_t i = 0; i < renderedObjects.size(); ++i)
 	{
-		renderObjectDefaultState(renderedObjects[i]);
+		//renderObjectDefaultState(renderedObjects[i]);
 	}
 
 	UINT stride = sizeof(VertexPositionTextureNormalAnim);
@@ -405,7 +410,7 @@ void Renderer::Render()
 	context->IASetVertexBuffers(0, 1, &meshManagement->GetElement(tempId)->vertexBuffer, &stride, &offset);
 	context->IASetIndexBuffer(meshManagement->GetElement(tempId)->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	context->PSSetShader(StandardPixelShader, NULL, NULL);
-
+	materialManagement->GetElement(tempMatId)->bindToShader(context);
 	context->DrawIndexed(meshManagement->GetElement(tempId)->indexCount, 0, 0);
 	swapchain->Present(0, 0);
 }

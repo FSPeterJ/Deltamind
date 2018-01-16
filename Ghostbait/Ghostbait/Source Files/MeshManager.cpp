@@ -124,7 +124,6 @@ Mesh* MeshManager::ConstructMesh(const char* _meshFilePath)
 			reader.read((char*)&temp.normal.z, sizeof(temp.normal.z));
 			reader.read((char*)&temp.UV.x, sizeof(temp.UV.x));
 			reader.read((char*)&temp.UV.y, sizeof(temp.UV.y));
-			temp.UV.y = 1.0f - temp.UV.y;
 
 			for (int infIndex = 0; infIndex < 4; ++infIndex)
 			{

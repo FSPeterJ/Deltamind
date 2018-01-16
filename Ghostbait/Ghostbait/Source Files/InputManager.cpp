@@ -56,6 +56,7 @@ InputPackage InputManager::VRInput::CheckForInput() {
 			case vr::k_EButton_SteamVR_Touchpad:
 				break;
 			case vr::k_EButton_SteamVR_Trigger:
+			{
 				DirectX::XMMATRIX pose;
 				if (event.trackedDeviceIndex == vrMan->leftController.index) {
 					pose = vrMan->leftController.pose;
@@ -73,10 +74,11 @@ InputPackage InputManager::VRInput::CheckForInput() {
 
 				input = teleport;
 				amount = 0.5f;
-				
+
 				break;
 			}
 			break;
+			}
 		}
 		case vr::VREvent_ButtonUnpress:
 		{

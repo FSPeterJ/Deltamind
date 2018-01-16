@@ -90,9 +90,11 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	if(vrMan->Init()) {
 		rendInter->Initialize(wnd, vrMan);
+		inputMan = new InputManager(VR, vrMan);
 	} else {
 		WriteLine("VR not initialized! Defaulting to 2D");
 		rendInter->Initialize(wnd, nullptr);
+		inputMan = new InputManager(KEYBOARD);
 	}
 
 	ObjectFactory::Initialize(rendInter->getMeshManager());
@@ -103,7 +105,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	game->Start();
 	vrMan->CreateControllers();
 
-	inputMan = new InputManager(vrMan);
+
 }
 
 void Loop() {

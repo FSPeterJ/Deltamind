@@ -27,6 +27,7 @@ struct outputstruct
 {
     float4 pos : SV_POSITION;
     float2 uv : TEXCOORD0;
+    float3 norm : TEXCOORD1;
 };
 
 outputstruct main(vertexShaderInput input)
@@ -48,6 +49,6 @@ outputstruct main(vertexShaderInput input)
 	
     norm = mul(norm, model);
     norm = normalize(norm);
-
+    output.norm = norm.xyz;
     return output;
 }

@@ -220,11 +220,25 @@ void Renderer::Initialize(Window window, VRManager * vr)
 	loadPipelineState(&defaultPipeline);
 	meshManagement = new MeshManager();
 	meshManagement->Initialize(device);
-	tempId = meshManagement->AddElement("BattleMage_mesh.bin");
+	tempId = meshManagement->AddElement("ViveController_mesh.bin");
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	context->VSSetConstantBuffers(0, 1, &cameraBuffer);
 	context->VSSetConstantBuffers(1, 1, &modelBuffer);
 
+#pragma region SamplerState
+	D3D11_SAMPLER_DESC sampleDesc;
+	sampleDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampleDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampleDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampleDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sampleDesc.MipLODBias = 0.0f;
+	sampleDesc.MaxAnisotropy = 1;
+	sampleDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	sampleDesc.MinLOD = -3.402823466e+38F;
+	sampleDesc.MaxLOD = 3.402823466e+38F;
+	device->CreateSamplerState(&sampleDesc, &OnlySamplerState);
+	context->PSSetSamplers(0, 1, &OnlySamplerState);
+#pragma endregion
 	XMMATRIX camTemp = XMMatrixTranspose(XMLoadFloat4x4(&lookAt(XMFLOAT3(0.0f, 2.0f, -5.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f))));
 	XMStoreFloat4x4(&defaultCamera.view, XMMatrixInverse(&XMMatrixDeterminant(camTemp), camTemp));
 	XMStoreFloat4x4(&defaultCamera.projection, XMMatrixTranspose(XMMatrixPerspectiveFovLH(60.0f * XM_PI / 180.0f, defaultPipeline.viewport.Width / defaultPipeline.viewport.Height, 0.001f, 300.0f)));
@@ -238,6 +252,7 @@ void Renderer::Initialize(Window window, VRManager * vr)
 
 void Renderer::Destroy()
 {
+	OnlySamplerState->Release();
 	cameraBuffer->Release();
 	modelBuffer->Release();
 	ILPositionColor->Release();

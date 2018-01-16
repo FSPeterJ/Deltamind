@@ -220,6 +220,7 @@ void Renderer::Initialize(Window window, VRManager * vr)
 	loadPipelineState(&defaultPipeline);
 	meshManagement = new MeshManager();
 	meshManagement->Initialize(device);
+	tempId = meshManagement->AddElement("BattleMage_mesh.bin");
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	context->VSSetConstantBuffers(0, 1, &cameraBuffer);
 	context->VSSetConstantBuffers(1, 1, &modelBuffer);
@@ -240,8 +241,11 @@ void Renderer::Destroy()
 	cameraBuffer->Release();
 	modelBuffer->Release();
 	ILPositionColor->Release();
+	ILStandard->Release();
 	PassThroughPositionColorVS->Release();
 	PassThroughPS->Release();
+	StandardVertexShader->Release();
+	StandardPixelShader->Release();
 	backBuffer->Release();
 	swapchain->Release();
 	context->Release();
@@ -347,6 +351,7 @@ XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 
 void Renderer::Render()
 {
+	loadPipelineState(&defaultPipeline);
 	if(VRManagement)
 	{
 		VRManagement->GetVRMatricies(&leftEye.camera.projection, &rightEye.camera.projection, &leftEye.camera.view, &rightEye.camera.view);
@@ -368,8 +373,8 @@ void Renderer::Render()
 	context->ClearDepthStencilView(defaultPipeline.depth_stencil_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	context->OMSetRenderTargets(1, &defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view);
 	context->RSSetViewports(1, &defaultPipeline.viewport);
-	//context->UpdateSubresource(cameraBuffer, 0, NULL, &defaultCamera, 0, 0);
-	context->UpdateSubresource(cameraBuffer, 0, NULL, &(leftEye.camera), 0, 0);
+	context->UpdateSubresource(cameraBuffer, 0, NULL, &defaultCamera, 0, 0);
+	//context->UpdateSubresource(cameraBuffer, 0, NULL, &(leftEye.camera), 0, 0);
 
 
 	for(size_t i = 0; i < renderedObjects.size(); ++i)
@@ -377,6 +382,16 @@ void Renderer::Render()
 		renderObjectDefaultState(renderedObjects[i]);
 	}
 
+	UINT stride = sizeof(VertexPositionTextureNormalAnim);
+	UINT offset = 0;
+	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixIdentity(), 0, 0);
+	context->VSSetShader(StandardVertexShader, NULL, NULL);
+	context->IASetInputLayout(ILStandard);
+	context->IASetVertexBuffers(0, 1, &meshManagement->GetElement(tempId)->vertexBuffer, &stride, &offset);
+	context->IASetIndexBuffer(meshManagement->GetElement(tempId)->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	context->PSSetShader(StandardPixelShader, NULL, NULL);
+
+	context->DrawIndexed(meshManagement->GetElement(tempId)->indexCount, 0, 0);
 	swapchain->Present(0, 0);
 }
 
@@ -453,6 +468,29 @@ void Renderer::initShaders()
 	device->CreatePixelShader(byteCode, byteCodeSize, NULL, &PassThroughPS);
 	delete[] byteCode;
 	byteCode = nullptr;
+
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "StandardVertexShader.cso");
+	device->CreateVertexShader(byteCode, byteCodeSize, NULL, &StandardVertexShader);
+
+	D3D11_INPUT_ELEMENT_DESC standardVSDesc[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "TEXCOORD", 1, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "TEXCOORD", 2, DXGI_FORMAT_R32G32B32A32_UINT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "BLENDWEIGHTS", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+	device->CreateInputLayout(standardVSDesc, ARRAYSIZE(standardVSDesc), byteCode, byteCodeSize, &ILStandard);
+	delete[] byteCode;
+	byteCode = nullptr;
+
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "StandardPixelShader.cso");
+	device->CreatePixelShader(byteCode, byteCodeSize, NULL, &StandardPixelShader);
+	delete[] byteCode;
+	byteCode = nullptr;
+
+	
 
 	CD3D11_BUFFER_DESC constantBufferDesc(sizeof(viewProjectionConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
 	device->CreateBuffer(&constantBufferDesc, nullptr, &cameraBuffer);

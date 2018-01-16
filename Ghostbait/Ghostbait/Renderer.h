@@ -60,12 +60,15 @@ private:
 
 	ID3D11VertexShader* PassThroughPositionColorVS;
 	ID3D11PixelShader* PassThroughPS;
+	ID3D11VertexShader* StandardVertexShader;
+	ID3D11PixelShader* StandardPixelShader;
 
 	ID3D11InputLayout* ILPositionColor;
+	ID3D11InputLayout* ILStandard;
 	ID3D11Buffer* cameraBuffer;
 	ID3D11Buffer* modelBuffer;
 	pipeline_state_t defaultPipeline;
-
+	int tempId;
 	viewProjectionConstantBuffer defaultCamera;
 
 	//eye leftEye;

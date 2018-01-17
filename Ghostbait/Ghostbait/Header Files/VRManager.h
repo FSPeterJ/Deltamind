@@ -21,6 +21,8 @@ private:
 	vr::TrackedDevicePose_t trackedDevicePose[vr::k_unMaxTrackedDeviceCount];
 	void Shutdown();
 
+
+
 public:
 	struct VRController {
 		int index;
@@ -41,6 +43,9 @@ public:
 	~VRManager();
 
 	bool Init();
+
+	static DirectX::XMMATRIX world;
+
 	void CreateControllers()
 	{
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 0,0,0,1 }, &leftController.obj));

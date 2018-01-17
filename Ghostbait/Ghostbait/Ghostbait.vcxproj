@@ -229,6 +229,7 @@
     <ClInclude Include="Header Files\ObjectFactoryInterface.h" />
     <ClInclude Include="Header Files\ObjectManager.h" />
     <ClInclude Include="Header Files\PhysicsComponent.h" />
+    <ClInclude Include="Header Files\PhysicsManager.h" />
     <ClInclude Include="Header Files\Renderer.h" />
     <ClInclude Include="Header Files\RigidBody.h" />
     <ClInclude Include="Header Files\StdHeader.h" />
@@ -251,6 +252,7 @@
     <ClCompile Include="Source Files\MessageEvents.cpp" />
     <ClCompile Include="Source Files\ObjectFactory.cpp" />
     <ClCompile Include="Source Files\ObjectManager.cpp" />
+    <ClCompile Include="Source Files\PhysicsManager.cpp" />
     <ClCompile Include="Source Files\Renderer.cpp" />
     <ClCompile Include="Source Files\TestObject.cpp" />
     <ClCompile Include="Source Files\ThreadPool.cpp" />

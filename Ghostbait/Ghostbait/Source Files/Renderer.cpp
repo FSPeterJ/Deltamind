@@ -154,6 +154,16 @@ void Renderer::renderToEye(eye * eyeTo)
 	{
 		renderObjectDefaultState((Object*)renderedObjects[i]);
 	}
+	UINT stride = sizeof(VertexPositionTextureNormalAnim);
+	UINT offset = 0;
+	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(XMMatrixScaling(0.3f, 0.3f, 0.3f)), 0, 0);
+	context->VSSetShader(StandardVertexShader, NULL, NULL);
+	context->IASetInputLayout(ILStandard);
+	context->IASetVertexBuffers(0, 1, &meshManagement->GetElement(tempId)->vertexBuffer, &stride, &offset);
+	context->IASetIndexBuffer(meshManagement->GetElement(tempId)->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	context->PSSetShader(StandardPixelShader, NULL, NULL);
+	materialManagement->GetElement(tempMatId)->bindToShader(context, factorBuffer);
+	context->DrawIndexed(meshManagement->GetElement(tempId)->indexCount, 0, 0);
 }
 
 void Renderer::loadPipelineState(pipeline_state_t * pipeline)
@@ -250,7 +260,7 @@ void Renderer::Initialize(Window window, VRManager * vr)
 	willDie.lightDir = XMFLOAT3(0.5f, -0.5f, 0.5f);
 	willDie.ambient = 0.5f;
 	context->UpdateSubresource(dirLightBuffer, NULL, NULL, &willDie, NULL, NULL);
-	XMMATRIX camTemp = XMMatrixTranspose(XMLoadFloat4x4(&lookAt(XMFLOAT3(0.0f, 2.0f, -5.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f))));
+	XMMATRIX camTemp = XMMatrixTranspose(XMLoadFloat4x4(&lookAt(XMFLOAT3(0.0f, 2.0f, -15.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f))));
 	XMStoreFloat4x4(&defaultCamera.view, XMMatrixInverse(&XMMatrixDeterminant(camTemp), camTemp));
 	XMStoreFloat4x4(&defaultCamera.projection, XMMatrixTranspose(XMMatrixPerspectiveFovLH(60.0f * XM_PI / 180.0f, defaultPipeline.viewport.Width / defaultPipeline.viewport.Height, 0.001f, 300.0f)));
 
@@ -395,7 +405,13 @@ void Renderer::Render()
 		XMStoreFloat4x4(&rightEye.camera.view, XMMatrixTranspose(XMMatrixInverse(&XMVectorSet(0, 0, 0, 0), XMLoadFloat4x4(&rightEye.camera.view))));
 
 		renderToEye(&leftEye);
+		context->VSSetShader(PassThroughPositionColorVS, NULL, NULL);
+		context->IASetInputLayout(defaultPipeline.input_layout);
+		context->PSSetShader(PassThroughPS, NULL, NULL);
 		renderToEye(&rightEye);
+		context->VSSetShader(PassThroughPositionColorVS, NULL, NULL);
+		context->IASetInputLayout(defaultPipeline.input_layout);
+		context->PSSetShader(PassThroughPS, NULL, NULL);
 		VRManagement->SendToHMD((void*)leftEye.renderInfo.texture, (void*)rightEye.renderInfo.texture);
 	}
 	float color[] = { 0.5f, 0.5f, 1.0f, 1.0f };

@@ -2,11 +2,22 @@
 #include "Object.h"
 #include <unordered_map>
 #include "MeshManager.h"
+#include "ObjectManager.h"
 
 /// <summary>
 /// Creates and manages prefabs loaded from the disk.
 /// </summary>
 class ObjectFactory {
+
+
+	struct Prefab
+	{
+		std::function<Object*(void)> prefabBaseconstructor;
+		std::function<Object*(void)> genericComponents;
+		std::vector<ComponentBase*> instantiatedComponents;
+		Object* object;
+	};
+
 	/// <summary>
 	/// Translates a typename's constructor for Objects
 	/// </summary>
@@ -19,12 +30,11 @@ class ObjectFactory {
 	static std::unordered_map<int, std::function<Object*(void)>> registeredConstructors;
 
 	//map Names to prefabs
-	static std::unordered_map<std::string, Object*> prefabNames;
+	static std::unordered_map<std::string, Prefab*> prefabNames;
 
 	//static std::unordered_map<int, Object*> prefabs;
-
-	//pointer storage for prefabs, access by prefab ID
-	static std::vector<Object*> prefabs;
+	//pointer storage for prefabs, access by Prefab ID
+	static std::vector<Prefab*> prefabs;
 
 	// Managers
 	static MeshManager * meshManager;
@@ -40,6 +50,8 @@ public:
 	/// Initializes the Object Factory and hands off the managers it needs to access
 	/// </summary>
 	static void Initialize(MeshManager * _meshManager) {
+		int r = TypeMap<ComponentBase>::getTypeId<std::result_of<decltype(&MeshManager::GetElement)(int&)>>();
+		MessageEvents::Subscribe(EVENT_InstantiateRequest, Instantiate);
 		meshManager = _meshManager;
 	}
 
@@ -54,19 +66,22 @@ public:
 		registeredConstructors[_id] = &ConstructorFunc<T>;
 	}
 
+	
+
 	/// <summary>
-	/// Creates a prefab in the prefab pool from a file if it doesn't exist already
+	/// Creates a Prefab in the Prefab pool from a file if it doesn't exist already
 	/// </summary>
-	/// <param name="_name">name of the file to load.</param>
-	static Object* CreatePrefab(std::string *_name) {
-		Object * prefab = prefabNames[*_name];
-		if(prefabNames[*_name]) {
-			//This object prefab already exists.
-		} else {
+	/// <param name="_filename">name of the file to load.</param>
+	static void CreatePrefab(std::string *_filename) {
+		Prefab * prefab = prefabNames[*_filename];
+		if(prefabNames[*_filename]) {
+			//This Prefab already exists.
+		}
+		else {
 			int ObjectType = 0;
 			FILE* file = nullptr;
 			//int reads;
-			fopen_s(&file, _name->c_str(), "rb");
+			fopen_s(&file, _filename->c_str(), "rb");
 			if(file) {
 				// Filetype, ObjectType, [Components]
 				// Components are not dynamic at this time.
@@ -79,23 +94,46 @@ public:
 				ObjectType = 0;
 				fclose(file);
 			}
-			prefab = registeredConstructors[ObjectType]();
+			prefab->object = registeredConstructors[ObjectType]();
 			prefabs.push_back(prefab);
 			//
-			prefabNames[*_name] = prefab;
-			prefab->SetComponent<Mesh>(meshManager->GetElement(UINT_MAX));
-			Mesh* temp1 = prefab->GetComponent<Mesh>();
+			prefabNames[*_filename] = prefab;
+			prefab->object->SetComponent<Mesh>(meshManager->GetElement(UINT_MAX));
 			int x = 0;
 		}
-		return prefab;
 	}
 
+
+	static void Instantiate(EventMessageBase *e) {
+		InstantiateMessage* instantiate = (InstantiateMessage*)e;
+
+		PrefabId pid = instantiate->GetId();
+		const Object * o = prefabs[pid]->object;
+
+
+		Object* newobject = ObjectManager::Instantiate(o);
+		//for (auto element : prefabs[pid]->genericComponents)
+		//{
+		//	
+		//}
+
+		if(instantiate->GetReturnObject() != nullptr)
+		{
+
+			instantiate->SetReturnObject(newobject);
+		}
+
+		newobject->position.r[3] = XMLoadFloat4(&instantiate->GetPosition());
+		MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
+	}
+
+
 	/// <summary>
-	/// gives an immutable pointer to the requested prefab
+	/// gives an immutable pointer to the requested Prefab
 	/// </summary>
 	/// <param name="_pid">Prefab id</param>
 	static const Object *  RequestPrefab(const PrefabId _pid) {
-		return prefabs[_pid];
+		return prefabs[_pid]->object;
 	}
 
 	/// <summary>
@@ -107,7 +145,7 @@ public:
 
 	static void Shutdown()
 	{
-		for (auto prefab : prefabs)
+		for(auto prefab : prefabs)
 		{
 			delete prefab;
 		}

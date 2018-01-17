@@ -1,7 +1,5 @@
 #pragma once
-#include <d3d11_1.h>
 #include <directxmath.h>
-#include <d3dcompiler.h>
 #include "MessageEvents.h"
 #include "ComponentBase.h"
 #include "TypeMapping.h"
@@ -32,15 +30,22 @@ public:
 	template<typename ComponentType>
 	ComponentType* GetComponent()
 	{
-		
 		return Components.GetComponent<ComponentType>();
 	};
+	
+	//ComponentBase* GetComponent(const std::string &componentname)
+	//{
+	//	return Components.GetComponent<>(componentname);
+	//};
 
 	template<typename ComponentType>
-	void SetComponent(ComponentType * _component)
+	int SetComponent(ComponentType * _component)
 	{
-		Components.AddComponent<ComponentType>(_component);
+		return Components.AddComponent<ComponentType>(_component);
 	};
+
+
+
 
 	static int GetTypeId() {	return 0;};
 };

@@ -62,7 +62,10 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	engine.ExecuteAwake();
 	MessageEvents::SendMessage(EVENT_Input, InputMessage(teleport, 0.567f));
 	engine.ExecuteUpdate();
-	system("pause");
+	//system("pause");
+
+	
+
 	//delete t;
 	//CleanUp();
 	//Free();
@@ -96,9 +99,19 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 		WriteLine("VR not initialized! Defaulting to 2D");
 		rendInter->Initialize(wnd, nullptr);
 	}
+	Object* test = new Object();
+	test->SetComponent<Mesh>(rendInter->getMeshManager()->GetElement(UINT_MAX));
+	Object* test2 = new Object();
+	int rr = test2->SetComponent<SomeCoolComponent>(r);
+
+	int dd = test2->SetComponent<Mesh>(rendInter->getMeshManager()->GetElement(UINT_MAX));
+	Mesh* temp1 = test->GetComponent<Mesh>();
+	Mesh* temp2 = test2->GetComponent<Mesh>();
 
 	ObjectFactory::Initialize(rendInter->getMeshManager());
-	ObjectFactory::RegisterPrefabBase<Object>();
+	ObjectFactory::RegisterPrefabBase<Object>(0);
+
+	TypeMap<ComponentBase>::RegisterComponent<Mesh>("Mesh");
 
 	game = new Game();
 	game->Start();

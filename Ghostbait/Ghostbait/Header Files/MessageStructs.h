@@ -47,7 +47,7 @@ public:
 	/// <summary>
 	/// Initializes a new instance of the <see cref="InstantiateMessage"/> class.
 	/// </summary>
-	/// <param name="_pid">The object's prefab id.</param>
+	/// <param name="_pid">The object's Prefab id.</param>
 	/// <param name="_position">Where to instantiate</param>
 	/// <param name="_obj"> return pointer reference of the object (optional)</param>
 	InstantiateMessage(const PrefabId _pid, const DirectX::XMFLOAT4 _position, Object**  _obj = nullptr): pid(_pid), position(_position), obj(_obj) {}
@@ -75,7 +75,7 @@ public:
 	/// <param name="_obj">The object.</param>
 	DestroyMessage(Object* _obj): obj(_obj) {}
 
-	Object* GetObject() const { return obj; }
+	Object* RetrieveObject() const { return obj; }
 };
 
 class NewObjectMessage: public EventMessageBase {
@@ -88,5 +88,5 @@ public:
 	/// <param name="_obj">The object.</param>
 	NewObjectMessage(Object* _obj): obj(_obj) {}
 
-	Object* GetObject() const { return obj; }
+	Object* RetrieveObject() const { return obj; }
 };

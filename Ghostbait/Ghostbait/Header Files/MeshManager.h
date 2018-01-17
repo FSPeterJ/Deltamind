@@ -12,7 +12,7 @@ struct Mesh : public ComponentBase
 	unsigned int indexCount;
 };
 
-class MeshManager : virtual public ManagerInterface
+class MeshManager : public ManagerInterface
 {
 private:
 	std::vector<Mesh> trackedMeshes;
@@ -26,7 +26,7 @@ public:
 	void Initialize(ID3D11Device* _deviceIn);
 	void Destroy();
 	Mesh* ConstructMesh(const char* _meshFilePath);
-	int AddElement(const char* _meshFilePath) override;
-	Mesh* GetElement(const unsigned int _id) override;
+	int AddElement(const char* _meshFilePath);
+	Mesh* GetElement(const unsigned int _id);
 };
 

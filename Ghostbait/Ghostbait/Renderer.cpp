@@ -279,7 +279,7 @@ void Renderer::registerObject(EventMessageBase* e)
 	//TODO: Need logic to determine which objects group to push to 
 	//based off of what the object has - may include instructions in the future
 	NewObjectMessage* instantiate = (NewObjectMessage*)e;
-	renderedObjects.push_back(instantiate->GetObject());
+	renderedObjects.push_back(instantiate->RetrieveObject());
 }
 
 void Renderer::unregisterObject(EventMessageBase* e)
@@ -288,7 +288,7 @@ void Renderer::unregisterObject(EventMessageBase* e)
 	//TODO: Need logic for which register it is under
 	for(std::vector<const Object*>::iterator iter = renderedObjects.begin(); iter != renderedObjects.end(); ++iter)
 	{
-		if(*iter == removeobjMessage->GetObject())
+		if(*iter == removeobjMessage->RetrieveObject())
 		{
 			renderedObjects.erase(iter);
 			return;

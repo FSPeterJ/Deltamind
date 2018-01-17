@@ -9,12 +9,12 @@ class ObjectManager: public ManagerInterface
 {
 	static Pool<Object> *objectpool;
 
-	static void Instantiate(EventMessageBase* e);
 	static void Destroy(EventMessageBase* e);
 
 	ObjectManager();
 public:
 	~ObjectManager();
+	static Object* Instantiate(const Object* e);
 	static void Initialize();
 	static void Shutdown();
 	static void CreatePool(int _size, Object* poolType) {}

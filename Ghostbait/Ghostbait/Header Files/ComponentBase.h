@@ -12,5 +12,6 @@ enum ComponentsListing
 // Allows for covariant return types in Manager interface
 class ComponentBase
 {
+	bool unique = false;
 	//If you are creating this base, you are doing something wrong.
 };

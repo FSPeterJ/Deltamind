@@ -128,16 +128,17 @@ void Renderer::setupVRTargets()
 	device->CreateDepthStencilView(rightEye.renderInfo.depthBuffer, &depthStencilDesc, &rightEye.renderInfo.dsv);
 }
 
-void Renderer::renderObjectDefaultState(const Object * obj)
+void Renderer::renderObjectDefaultState(Object * obj)
 {
 	UINT stride = sizeof(VertexPositionTextureNormalAnim);
 	UINT offset = 0;
 
-	context->IASetVertexBuffers(0, 1, &meshManagement->GetElement(UINT_MAX)->vertexBuffer, &stride, &offset);
-	context->IASetIndexBuffer(meshManagement->GetElement(UINT_MAX)->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	const Mesh* objectsmesh = (Mesh*)obj->GetComponent(MESH);
+	context->IASetVertexBuffers(0, 1, &objectsmesh->vertexBuffer, &stride, &offset);
+	context->IASetIndexBuffer(objectsmesh->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(obj->position), 0, 0);
 	materialManagement->GetElement(UINT_MAX)->bindToShader(context, factorBuffer);
-	context->DrawIndexed(meshManagement->GetElement(UINT_MAX)->indexCount, 0, 0);
+	context->DrawIndexed(objectsmesh->indexCount, 0, 0);
 }
 
 void Renderer::renderToEye(eye * eyeTo)
@@ -151,7 +152,7 @@ void Renderer::renderToEye(eye * eyeTo)
 
 	for(size_t i = 0; i < renderedObjects.size(); ++i)
 	{
-		renderObjectDefaultState(renderedObjects[i]);
+		renderObjectDefaultState((Object*)renderedObjects[i]);
 	}
 }
 
@@ -408,7 +409,7 @@ void Renderer::Render()
 
 	for(size_t i = 0; i < renderedObjects.size(); ++i)
 	{
-		renderObjectDefaultState(renderedObjects[i]);
+		renderObjectDefaultState((Object*)renderedObjects[i]);
 	}
 
 	UINT stride = sizeof(VertexPositionTextureNormalAnim);

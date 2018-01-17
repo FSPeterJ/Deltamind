@@ -208,6 +208,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AnimationManager.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="Header Files\AABB.h" />
     <ClInclude Include="Header Files\ComponentBase.h" />
     <ClInclude Include="Header Files\Console.h" />
@@ -241,6 +242,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AnimationManager.cpp" />
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Source Files\EngineStructure.cpp" />
     <ClCompile Include="Source Files\InputManager.cpp" />
     <ClCompile Include="Source Files\Main.cpp" />

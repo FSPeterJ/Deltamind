@@ -1,6 +1,7 @@
 #pragma once
 #include <DirectXMath.h>
 #include <vector>
+#include "RigidBody.h"
 #include "Object.h"
 
 enum ColliderType {
@@ -14,16 +15,16 @@ struct ColliderData {
 	ColliderType colliderType;
 };
 
-struct SphereCollider : public ColliderData {
+struct SphereCollider : ColliderData {
 	float radius;
 };
 
-struct CapsuleCollider : public ColliderData {
+struct CapsuleCollider : ColliderData {
 	float radius;
 	float height;
 };
 
-struct BoxCollider : public ColliderData {
+struct BoxCollider : ColliderData {
 	DirectX::XMFLOAT3 topLeftFrontCorner;
 	DirectX::XMFLOAT3 bottRightBackCorner;
 };
@@ -34,8 +35,8 @@ struct Collider {
 	bool isTrigger = false;
 };
 
-struct PhysicsComponent : public ComponentBase {
+class PhysicsComponent : public ComponentBase {
 	Object* srcObj = nullptr;
-	//RidgidBody ridgidBody;
+	RigidBody rigidBody;
 	std::vector<Collider> colliders;
 };

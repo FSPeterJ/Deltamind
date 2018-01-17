@@ -1,12 +1,9 @@
 #pragma once
 #include <DirectXMath.h>
 #include <vector>
+#include "PhysicsComponent.h"
 
 using namespace DirectX;
-
-class PhysicsComponent;
-class Collider;
-class ColliderData;
 
 enum ColliderDataType{
 	Sphere,
@@ -18,14 +15,14 @@ class PhysicsManager {
 	std::vector<PhysicsComponent> components;
 	std::vector<ColliderData> dataPrefabs;
 
-	bool Collision(PhysicsComponent component1, PhysicsComponent component2);
+	void Collision(PhysicsComponent component1, PhysicsComponent component2);
 
-	bool SphereToSphereCollision(Collider col1, XMMATRIX& pos1, Collider col2, XMMATRIX& pos2);
-	bool BoxToSphereCollision();
-	bool CapsuleToSphereCollision();
+	bool SphereToSphereCollision(Collider col1, XMVECTOR& pos1, Collider col2, XMVECTOR& pos2);
+	//bool BoxToSphereCollision();
+	//bool CapsuleToSphereCollision();
 	bool BoxToBoxCollision();
-	bool BoxToCapsuleCollision();
-	bool CapsuleToCapsuleCollision();
+	//bool BoxToCapsuleCollision();
+	bool CapsuleToCapsuleCollision(Collider col1, XMMATRIX& pos1, Collider col2, XMMATRIX& pos2);
 
 public:
 	PhysicsManager();

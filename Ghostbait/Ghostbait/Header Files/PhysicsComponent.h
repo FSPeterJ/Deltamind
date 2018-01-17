@@ -14,16 +14,16 @@ struct ColliderData {
 	ColliderType colliderType;
 };
 
-struct SphereCollider : ColliderData {
+struct SphereCollider : public ColliderData {
 	float radius;
 };
 
-struct CapsuleCollider : ColliderData {
+struct CapsuleCollider : public ColliderData {
 	float radius;
 	float height;
 };
 
-struct BoxCollider : ColliderData {
+struct BoxCollider : public ColliderData {
 	DirectX::XMFLOAT3 topLeftFrontCorner;
 	DirectX::XMFLOAT3 bottRightBackCorner;
 };
@@ -34,8 +34,8 @@ struct Collider {
 	bool isTrigger = false;
 };
 
-class PhysicsComponent : public ComponentBase {
+struct PhysicsComponent : public ComponentBase {
 	Object* srcObj = nullptr;
-	RidgidBody ridgidBody;
+	//RidgidBody ridgidBody;
 	std::vector<Collider> colliders;
 };

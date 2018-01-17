@@ -130,13 +130,13 @@ void Renderer::setupVRTargets()
 
 void Renderer::renderObjectDefaultState(const Object * obj)
 {
-	UINT stride = sizeof(VertexPositionColor);
+	UINT stride = sizeof(VertexPositionTextureNormalAnim);
 	UINT offset = 0;
 
 	context->IASetVertexBuffers(0, 1, &meshManagement->GetElement(UINT_MAX)->vertexBuffer, &stride, &offset);
 	context->IASetIndexBuffer(meshManagement->GetElement(UINT_MAX)->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(obj->position), 0, 0);
-
+	materialManagement->GetElement(UINT_MAX)->bindToShader(context, factorBuffer);
 	context->DrawIndexed(meshManagement->GetElement(UINT_MAX)->indexCount, 0, 0);
 }
 
@@ -213,9 +213,9 @@ void Renderer::Initialize(Window window, VRManager * vr)
 	initDepthStencilView(&defaultPipeline);
 	initRasterState(&defaultPipeline);
 	initShaders();
-	defaultPipeline.vertex_shader = PassThroughPositionColorVS;
-	defaultPipeline.pixel_shader = PassThroughPS;
-	defaultPipeline.input_layout = ILPositionColor;
+	defaultPipeline.vertex_shader = StandardVertexShader;
+	defaultPipeline.pixel_shader = StandardPixelShader;
+	defaultPipeline.input_layout = ILStandard;
 	device->CreateRenderTargetView(backBuffer, NULL, &defaultPipeline.render_target_view);
 	loadPipelineState(&defaultPipeline);
 	meshManagement = new MeshManager();
@@ -413,12 +413,9 @@ void Renderer::Render()
 
 	UINT stride = sizeof(VertexPositionTextureNormalAnim);
 	UINT offset = 0;
-	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(XMMatrixTranslation(0.0f, 10.0f, 0.0f)), 0, 0);
-	context->VSSetShader(StandardVertexShader, NULL, NULL);
-	context->IASetInputLayout(ILStandard);
+	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(XMMatrixTranslation(1.5f, 0.0f, 0.0f)), 0, 0);
 	context->IASetVertexBuffers(0, 1, &meshManagement->GetElement(tempId)->vertexBuffer, &stride, &offset);
 	context->IASetIndexBuffer(meshManagement->GetElement(tempId)->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-	context->PSSetShader(StandardPixelShader, NULL, NULL);
 	materialManagement->GetElement(tempMatId)->bindToShader(context, factorBuffer);
 	context->DrawIndexed(meshManagement->GetElement(tempId)->indexCount, 0, 0);
 	swapchain->Present(0, 0);

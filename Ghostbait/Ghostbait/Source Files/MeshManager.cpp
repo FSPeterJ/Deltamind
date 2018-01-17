@@ -84,8 +84,9 @@ MeshManager::~MeshManager()
 void MeshManager::Initialize(ID3D11Device* deviceIn)
 {
 	device = deviceIn;
-	generateCube();
-	//ConstructMesh("BattleMage_mesh.bin");
+	//generateCube();
+	Mesh* toEdit = ConstructMesh("Assets/TestCube_mesh.bin");
+	toEdit->meshId = UINT_MAX;
 }
 
 void MeshManager::Destroy()

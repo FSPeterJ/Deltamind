@@ -1,6 +1,7 @@
 #pragma once
 #include <DirectXMath.h>
 #include <vector>
+#include "RigidBody.h"
 #include "Object.h"
 
 enum ColliderType {
@@ -36,6 +37,6 @@ struct Collider {
 
 class PhysicsComponent : public ComponentBase {
 	Object* srcObj = nullptr;
-	RidgidBody ridgidBody;
+	RigidBody rigidBody;
 	std::vector<Collider> colliders;
 };

@@ -59,20 +59,23 @@ InputPackage InputManager::VRInput::CheckForInput() {
 				DirectX::XMMATRIX pose;
 				if (event.trackedDeviceIndex == vrMan->leftController.index) {
 					pose = vrMan->leftController.pose;
+					DirectX::XMFLOAT4 temp;
+					DirectX::XMStoreFloat4(&temp, pose.r[3]);
+					Object* obj;
+					MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, temp, &obj));
+					obj->position = DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * obj->position;
+					input = none;
+					amount = 0.0f;
 				}
 				else {
 					pose = vrMan->rightController.pose;
+
+					input = teleport;
+					amount = 0.5f;
 				}
 
-				DirectX::XMFLOAT4 temp;
-				DirectX::XMStoreFloat4(&temp, pose.r[3]);
-				Object* obj;
-				MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, temp, &obj));
-				obj->position = DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * obj->position;
 
 
-				input = teleport;
-				amount = 0.5f;
 
 				break;
 			}

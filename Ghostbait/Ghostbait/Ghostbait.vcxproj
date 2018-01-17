@@ -228,7 +228,7 @@
     <ClInclude Include="Header Files\ObjectManager.h" />
     <ClInclude Include="Header Files\PhysicsComponent.h" />
     <ClInclude Include="Header Files\Renderer.h" />
-    <ClInclude Include="Header Files\RidgidBody.h" />
+    <ClInclude Include="Header Files\RigidBody.h" />
     <ClInclude Include="Header Files\StdHeader.h" />
     <ClInclude Include="Header Files\targetver.h" />
     <ClInclude Include="Header Files\TestObject.h" />

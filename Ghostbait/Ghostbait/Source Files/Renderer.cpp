@@ -220,10 +220,10 @@ void Renderer::Initialize(Window window, VRManager * vr)
 	loadPipelineState(&defaultPipeline);
 	meshManagement = new MeshManager();
 	meshManagement->Initialize(device);
-	tempId = meshManagement->AddElement("Assets/BattleMage_mesh.bin");
+	tempId = meshManagement->AddElement("Assets/ScifiRoom_mesh.bin");
 	materialManagement = new MaterialManager();
 	materialManagement->Initialize(device, context);
-	tempMatId = materialManagement->AddElement("Assets/BattleMage_mat.bin");
+	tempMatId = materialManagement->AddElement("Assets/ScifiRoom_mat.bin");
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	context->VSSetConstantBuffers(0, 1, &cameraBuffer);
 	context->VSSetConstantBuffers(1, 1, &modelBuffer);
@@ -413,7 +413,7 @@ void Renderer::Render()
 
 	UINT stride = sizeof(VertexPositionTextureNormalAnim);
 	UINT offset = 0;
-	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(XMMatrixTranslation(0.0f, -5.0f, 0.0f)), 0, 0);
+	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(XMMatrixTranslation(0.0f, 10.0f, 0.0f)), 0, 0);
 	context->VSSetShader(StandardVertexShader, NULL, NULL);
 	context->IASetInputLayout(ILStandard);
 	context->IASetVertexBuffers(0, 1, &meshManagement->GetElement(tempId)->vertexBuffer, &stride, &offset);

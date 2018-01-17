@@ -207,6 +207,7 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AnimationManager.h" />
     <ClInclude Include="Header Files\AABB.h" />
     <ClInclude Include="Header Files\ComponentBase.h" />
     <ClInclude Include="Header Files\Console.h" />
@@ -239,6 +240,7 @@
     <ClInclude Include="Header Files\Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AnimationManager.cpp" />
     <ClCompile Include="Source Files\EngineStructure.cpp" />
     <ClCompile Include="Source Files\InputManager.cpp" />
     <ClCompile Include="Source Files\Main.cpp" />

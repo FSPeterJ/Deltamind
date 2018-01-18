@@ -32,6 +32,7 @@ using namespace Console;
 Renderer* rendInter;
 VRManager* vrMan;
 Game* game;
+InputManager* inputMan;
 
 void ExecuteAsync() {
 	WriteLine("I am executed asyncly!");
@@ -53,20 +54,13 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//Minimize();
 
 #pragma region testing
-	EngineStructure engine;
-	Object* t = new Object();
-	SomeCoolComponent* r = new SomeCoolComponent;
-	GameObjectComponent* x = new GameObjectComponent;
-
-	t->SetComponent<SomeCoolComponent>(r);
-	engine.ExecuteAwake();
-	MessageEvents::SendMessage(EVENT_Input, InputMessage(teleport, 0.567f));
-	engine.ExecuteUpdate();
-	//system("pause");
-
-	
-
+	//EngineStructure engine;
+	//SomeCoolObject* t = new SomeCoolObject();
+	//engine.ExecuteAwake();
+	//engine.ExecuteUpdate();
 	//delete t;
+	//MessageEvents::SendMessage(EVENT_Input, InputMessage(teleport, 0.567f));
+	//system("pause");
 	//CleanUp();
 	//Free();
 	//exit(0);
@@ -95,9 +89,11 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	if(vrMan->Init()) {
 		rendInter->Initialize(wnd, vrMan);
+		inputMan = new InputManager(VR, vrMan);
 	} else {
 		WriteLine("VR not initialized! Defaulting to 2D");
 		rendInter->Initialize(wnd, nullptr);
+		inputMan = new InputManager(KEYBOARD);
 	}
 	Object* test = new Object();
 	test->SetComponent<Mesh>(rendInter->getMeshManager()->GetElement(UINT_MAX));
@@ -117,12 +113,14 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	game = new Game();
 	game->Start();
 	vrMan->CreateControllers();
+
+
 }
 
 void Loop() {
-	InputManager::HandleInput();
 	rendInter->Render();
 	game->Update();
+	inputMan->HandleInput();
 }
 
 void CleanUp() {

@@ -6,12 +6,19 @@
 #include "VRManager.h"
 #include "Object.h"
 #include "MessageEvents.h"
+#include "MaterialManager.h"
 
 enum renderState
 {
 	RENDER_STATE_DEFAULT, RENDER_STATE_TRANSPARENT
 };
 
+struct directionalLight
+{
+	DirectX::XMFLOAT4 lightColor;
+	DirectX::XMFLOAT3 lightDir;
+	float ambient;
+};
 class Renderer
 {
 private:
@@ -53,6 +60,8 @@ private:
 
 #pragma endregion
 
+	ID3D11SamplerState* OnlySamplerState; //DirectX is a hoot
+
 	ID3D11Device* device;
 	ID3D11DeviceContext* context;
 	IDXGISwapChain* swapchain;
@@ -60,12 +69,18 @@ private:
 
 	ID3D11VertexShader* PassThroughPositionColorVS;
 	ID3D11PixelShader* PassThroughPS;
+	ID3D11VertexShader* StandardVertexShader;
+	ID3D11PixelShader* StandardPixelShader;
 
 	ID3D11InputLayout* ILPositionColor;
+	ID3D11InputLayout* ILStandard;
 	ID3D11Buffer* cameraBuffer;
 	ID3D11Buffer* modelBuffer;
+	ID3D11Buffer* factorBuffer;
+	ID3D11Buffer* dirLightBuffer;
 	pipeline_state_t defaultPipeline;
-
+	int tempId;
+	int tempMatId;
 	viewProjectionConstantBuffer defaultCamera;
 
 	//eye leftEye;
@@ -75,6 +90,7 @@ private:
 	
 	MeshManager* meshManagement = nullptr;
 	VRManager* VRManagement = nullptr;
+	MaterialManager* materialManagement = nullptr;
 
 	void initDepthStencilBuffer(pipeline_state_t* pipelineTo);
 	void initDepthStencilState(pipeline_state_t* pipelineTo);
@@ -88,7 +104,7 @@ private:
 	bool LoadShaderFromCSO(char ** szByteCode, size_t& szByteCodeSize, const char* szFileName);
 	void setupVRTargets();
 
-	void renderObjectDefaultState(const Object* obj);
+	void renderObjectDefaultState(Object* obj);
 	void renderToEye(eye* eyeTo);
 
 	void loadPipelineState(pipeline_state_t* pipeline);
@@ -164,6 +180,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////
 	bool unregisterObject(const Object* toRemove, renderState specialInstructions = RENDER_STATE_DEFAULT);
 	MeshManager* getMeshManager() { return meshManagement; }
+	MaterialManager* getMaterialManager() { return materialManagement; }
 
 	void Render();
 };

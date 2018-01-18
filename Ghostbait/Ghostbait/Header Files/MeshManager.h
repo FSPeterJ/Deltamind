@@ -18,15 +18,14 @@ private:
 	std::vector<Mesh> trackedMeshes;
 	ID3D11Device* device = nullptr;
 	void generateCube();
-	void generateOtherCube();
+	Mesh* ConstructMesh(const char* _meshFilePath);
 public:
 	MeshManager();
 	~MeshManager();
 
 	void Initialize(ID3D11Device* _deviceIn);
 	void Destroy();
-	Mesh* ConstructMesh(const char* _meshFilePath);
-	int AddElement(const char* _meshFilePath);
+	int AddElement(const char* _meshFilePath) override;
 	Mesh* GetElement(const unsigned int _id) override;
 };
 

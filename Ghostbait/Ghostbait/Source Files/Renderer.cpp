@@ -128,9 +128,9 @@ void Renderer::setupVRTargets()
 	device->CreateDepthStencilView(rightEye.renderInfo.depthBuffer, &depthStencilDesc, &rightEye.renderInfo.dsv);
 }
 
-void Renderer::renderObjectDefaultState(const Object * obj)
+void Renderer::renderObjectDefaultState(Object * obj)
 {
-	UINT stride = sizeof(VertexPositionColor);
+	UINT stride = sizeof(VertexPositionTextureNormalAnim);
 	UINT offset = 0;
 	
 	context->IASetVertexBuffers(0, 1, &obj->GetComponent<Mesh>()->vertexBuffer, &stride, &offset);
@@ -151,8 +151,18 @@ void Renderer::renderToEye(eye * eyeTo)
 
 	for(size_t i = 0; i < renderedObjects.size(); ++i)
 	{
-		renderObjectDefaultState(renderedObjects[i]);
+		renderObjectDefaultState((Object*)renderedObjects[i]);
 	}
+	UINT stride = sizeof(VertexPositionTextureNormalAnim);
+	UINT offset = 0;
+	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(XMMatrixScaling(0.3f, 0.3f, 0.3f)), 0, 0);
+	context->VSSetShader(StandardVertexShader, NULL, NULL);
+	context->IASetInputLayout(ILStandard);
+	context->IASetVertexBuffers(0, 1, &meshManagement->GetElement(tempId)->vertexBuffer, &stride, &offset);
+	context->IASetIndexBuffer(meshManagement->GetElement(tempId)->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	context->PSSetShader(StandardPixelShader, NULL, NULL);
+	materialManagement->GetElement(tempMatId)->bindToShader(context, factorBuffer);
+	context->DrawIndexed(meshManagement->GetElement(tempId)->indexCount, 0, 0);
 }
 
 void Renderer::loadPipelineState(pipeline_state_t * pipeline)
@@ -213,18 +223,43 @@ void Renderer::Initialize(Window window, VRManager * vr)
 	initDepthStencilView(&defaultPipeline);
 	initRasterState(&defaultPipeline);
 	initShaders();
-	defaultPipeline.vertex_shader = PassThroughPositionColorVS;
-	defaultPipeline.pixel_shader = PassThroughPS;
-	defaultPipeline.input_layout = ILPositionColor;
+	defaultPipeline.vertex_shader = StandardVertexShader;
+	defaultPipeline.pixel_shader = StandardPixelShader;
+	defaultPipeline.input_layout = ILStandard;
 	device->CreateRenderTargetView(backBuffer, NULL, &defaultPipeline.render_target_view);
 	loadPipelineState(&defaultPipeline);
 	meshManagement = new MeshManager();
 	meshManagement->Initialize(device);
+	tempId = meshManagement->AddElement("Assets/ScifiRoom_mesh.bin");
+	materialManagement = new MaterialManager();
+	materialManagement->Initialize(device, context);
+	tempMatId = materialManagement->AddElement("Assets/ScifiRoom_mat.bin");
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	context->VSSetConstantBuffers(0, 1, &cameraBuffer);
 	context->VSSetConstantBuffers(1, 1, &modelBuffer);
+	context->PSSetConstantBuffers(0, 1, &dirLightBuffer);
+	context->PSSetConstantBuffers(1, 1, &factorBuffer);
+#pragma region SamplerState
+	D3D11_SAMPLER_DESC sampleDesc;
+	sampleDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampleDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampleDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampleDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sampleDesc.MipLODBias = 0.0f;
+	sampleDesc.MaxAnisotropy = 1;
+	sampleDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	sampleDesc.MinLOD = -3.402823466e+38F;
+	sampleDesc.MaxLOD = 3.402823466e+38F;
+	device->CreateSamplerState(&sampleDesc, &OnlySamplerState);
+	context->PSSetSamplers(0, 1, &OnlySamplerState);
+#pragma endregion
 
-	XMMATRIX camTemp = XMMatrixTranspose(XMLoadFloat4x4(&lookAt(XMFLOAT3(0.0f, 2.0f, -5.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f))));
+	directionalLight willDie;
+	willDie.lightColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	willDie.lightDir = XMFLOAT3(0.5f, -0.5f, 0.5f);
+	willDie.ambient = 0.5f;
+	context->UpdateSubresource(dirLightBuffer, NULL, NULL, &willDie, NULL, NULL);
+	XMMATRIX camTemp = XMMatrixTranspose(XMLoadFloat4x4(&lookAt(XMFLOAT3(0.0f, 2.0f, -15.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f))));
 	XMStoreFloat4x4(&defaultCamera.view, XMMatrixInverse(&XMMatrixDeterminant(camTemp), camTemp));
 	XMStoreFloat4x4(&defaultCamera.projection, XMMatrixTranspose(XMMatrixPerspectiveFovLH(60.0f * XM_PI / 180.0f, defaultPipeline.viewport.Width / defaultPipeline.viewport.Height, 0.001f, 300.0f)));
 
@@ -237,11 +272,17 @@ void Renderer::Initialize(Window window, VRManager * vr)
 
 void Renderer::Destroy()
 {
+	OnlySamplerState->Release();
 	cameraBuffer->Release();
 	modelBuffer->Release();
+	factorBuffer->Release();
+	dirLightBuffer->Release();
 	ILPositionColor->Release();
+	ILStandard->Release();
 	PassThroughPositionColorVS->Release();
 	PassThroughPS->Release();
+	StandardVertexShader->Release();
+	StandardPixelShader->Release();
 	backBuffer->Release();
 	swapchain->Release();
 	context->Release();
@@ -255,6 +296,8 @@ void Renderer::Destroy()
 	}
 	meshManagement->Destroy();
 	delete meshManagement;
+	materialManagement->Destroy();
+	delete materialManagement;
 }
 
 void Renderer::registerObject(const Object * toRegister, renderState specialInstructions)
@@ -347,6 +390,7 @@ XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 
 void Renderer::Render()
 {
+	loadPipelineState(&defaultPipeline);
 	if(VRManagement)
 	{
 		VRManagement->GetVRMatricies(&leftEye.camera.projection, &rightEye.camera.projection, &leftEye.camera.view, &rightEye.camera.view);
@@ -360,7 +404,13 @@ void Renderer::Render()
 		XMStoreFloat4x4(&rightEye.camera.view, XMMatrixTranspose(XMMatrixInverse(&XMVectorSet(0, 0, 0, 0), XMLoadFloat4x4(&rightEye.camera.view))));
 
 		renderToEye(&leftEye);
+		context->VSSetShader(PassThroughPositionColorVS, NULL, NULL);
+		context->IASetInputLayout(defaultPipeline.input_layout);
+		context->PSSetShader(PassThroughPS, NULL, NULL);
 		renderToEye(&rightEye);
+		context->VSSetShader(PassThroughPositionColorVS, NULL, NULL);
+		context->IASetInputLayout(defaultPipeline.input_layout);
+		context->PSSetShader(PassThroughPS, NULL, NULL);
 		VRManagement->SendToHMD((void*)leftEye.renderInfo.texture, (void*)rightEye.renderInfo.texture);
 	}
 	float color[] = { 0.5f, 0.5f, 1.0f, 1.0f };
@@ -374,9 +424,16 @@ void Renderer::Render()
 
 	for(size_t i = 0; i < renderedObjects.size(); ++i)
 	{
-		renderObjectDefaultState(renderedObjects[i]);
+		renderObjectDefaultState((Object*)renderedObjects[i]);
 	}
 
+	UINT stride = sizeof(VertexPositionTextureNormalAnim);
+	UINT offset = 0;
+	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(XMMatrixTranslation(1.5f, 0.0f, 0.0f)), 0, 0);
+	context->IASetVertexBuffers(0, 1, &meshManagement->GetElement(tempId)->vertexBuffer, &stride, &offset);
+	context->IASetIndexBuffer(meshManagement->GetElement(tempId)->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	materialManagement->GetElement(tempMatId)->bindToShader(context, factorBuffer);
+	context->DrawIndexed(meshManagement->GetElement(tempId)->indexCount, 0, 0);
 	swapchain->Present(0, 0);
 }
 
@@ -454,11 +511,40 @@ void Renderer::initShaders()
 	delete[] byteCode;
 	byteCode = nullptr;
 
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "StandardVertexShader.cso");
+	device->CreateVertexShader(byteCode, byteCodeSize, NULL, &StandardVertexShader);
+
+	D3D11_INPUT_ELEMENT_DESC standardVSDesc[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "TEXCOORD", 1, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "TEXCOORD", 2, DXGI_FORMAT_R32G32B32A32_UINT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "BLENDWEIGHTS", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+	device->CreateInputLayout(standardVSDesc, ARRAYSIZE(standardVSDesc), byteCode, byteCodeSize, &ILStandard);
+	delete[] byteCode;
+	byteCode = nullptr;
+
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "StandardPixelShader.cso");
+	device->CreatePixelShader(byteCode, byteCodeSize, NULL, &StandardPixelShader);
+	delete[] byteCode;
+	byteCode = nullptr;
+
+	
+
 	CD3D11_BUFFER_DESC constantBufferDesc(sizeof(viewProjectionConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
 	device->CreateBuffer(&constantBufferDesc, nullptr, &cameraBuffer);
 
 	CD3D11_BUFFER_DESC modelBufferDesc(sizeof(DirectX::XMFLOAT4X4), D3D11_BIND_CONSTANT_BUFFER);
 	device->CreateBuffer(&modelBufferDesc, nullptr, &modelBuffer);
+
+	CD3D11_BUFFER_DESC factorBufferDesc(sizeof(Material::factorBufferStructure), D3D11_BIND_CONSTANT_BUFFER);
+	device->CreateBuffer(&factorBufferDesc, nullptr, &factorBuffer);
+
+	CD3D11_BUFFER_DESC dirBufferDesc(sizeof(directionalLight), D3D11_BIND_CONSTANT_BUFFER);
+	device->CreateBuffer(&dirBufferDesc, nullptr, &dirLightBuffer);
 }
 
 void Renderer::initViewport(const RECT window, pipeline_state_t * pipelineTo)

@@ -41,7 +41,9 @@ public:
 
 	virtual void CloneTo(void* location) const  = 0;
 
+	//This should be private and friended with Factory
 	template< typename T> static T* CreateObject();
+
 
 	/// <summary>
 	/// Do not call this directly. Use MakePrototype macro instead.
@@ -94,5 +96,6 @@ T* Object::CreateObject() {
 	Messagebox::ShowError("Invalid prototype.", "Type \"" + name + "\" not found.");
 	return 0;
 }
+
 
 

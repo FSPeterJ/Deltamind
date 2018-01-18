@@ -129,6 +129,9 @@ public:
 			prefab = new Prefab;
 			prefab->object = registeredConstructors[ObjectType]();
 			int componentCount = 1;
+
+			//TEST CODE ONLY
+
 			char* types[2] = {
 				"Mesh",
 				""
@@ -136,7 +139,6 @@ public:
 			int names[1] = {
 				UINT_MAX
 			};
-			//TEST CODE ONLY
 			for(int i = 0; i < 1; i++)
 			{
 				int typeID = TypeMap::getNameId(std::string(types[i]));
@@ -145,13 +147,7 @@ public:
 				prefab->managers[typeID] = 0;
 				prefab->fastclone[typeID] = component->singleInstance;
 				Mesh* testing = (Mesh*)managers[typeID]->GetElement(UINT_MAX);
-				//int test = prefab->object->SetComponent<Mesh>(testing);
-				//int test2 = prefab->object->SetComponent<Mesh>(testing);
-				//int test3 = prefab->object->SetComponent<Mesh>(testing);
-				//int test4 = prefab->object->SetComponent<Mesh>(testing);
-				//int test5 = TypeMap::getNameId(std::string(types[i]));
-				//int test6 = TypeMap::getNameId(std::string(types[i]));
-				//int test7 = TypeMap::getNameId(std::string(types[i]));
+
 
 			}
 

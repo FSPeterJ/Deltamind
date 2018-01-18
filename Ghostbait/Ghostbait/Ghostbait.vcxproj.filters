@@ -141,6 +141,9 @@
     <ClInclude Include="Header Files\WICTextureLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="trash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source Files\Window.cpp">

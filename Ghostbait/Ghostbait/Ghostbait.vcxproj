@@ -197,6 +197,7 @@
     <ClInclude Include="Header Files\Window.h" />
     <ClInclude Include="Header Files\MessageEvents.h" />
     <ClInclude Include="Resource Files\Resource.h" />
+    <ClInclude Include="trash.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source Files\AnimationManager.cpp" />

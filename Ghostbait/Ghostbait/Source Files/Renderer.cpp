@@ -136,6 +136,7 @@ void Renderer::renderObjectDefaultState(Object * obj)
 	context->IASetVertexBuffers(0, 1, &obj->GetComponent<Mesh>()->vertexBuffer, &stride, &offset);
 	context->IASetIndexBuffer(obj->GetComponent<Mesh>()->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(obj->position), 0, 0);
+	materialManagement->GetElement(UINT_MAX)->bindToShader(context, factorBuffer);
 
 	context->DrawIndexed(obj->GetComponent<Mesh>()->indexCount, 0, 0);
 }

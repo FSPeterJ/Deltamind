@@ -177,7 +177,7 @@ public:
 
 		Object* newobject = ObjectManager::Instantiate(o);
 
-		for(size_t i = 0; i < 64; i++)
+		for(int i = 0; i < 64; i++)
 		{
 			if(prefabs[pid].fastclone[i])
 			{

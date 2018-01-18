@@ -1,6 +1,8 @@
 #include "Renderer.h"
 #include <math.h>
 #include <fstream>
+#include <VertexTypes.h>
+
 
 void Renderer::createDeviceContextAndSwapchain(Window window)
 {

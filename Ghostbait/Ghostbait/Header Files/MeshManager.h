@@ -1,10 +1,13 @@
 #pragma once
-#include <vector>
-#include "VertexTypes.h"
 #include "ManagerInterface.h"
 #include <d3d11.h>
+#include <unordered_map>
+#include <Pool.h>
 
-struct Mesh : public ComponentBase
+// Highly doubt we will hit this
+#define MAX_MESHES 512
+
+struct Mesh : ComponentBase
 {
 	unsigned int meshId;
 	ID3D11Buffer* vertexBuffer;
@@ -14,18 +17,19 @@ struct Mesh : public ComponentBase
 
 class MeshManager : public ManagerInterface
 {
-private:
-	std::vector<Mesh> trackedMeshes;
+	unsigned idCounter = 0;
+	Pool<Mesh> trackedMeshes = Pool<Mesh>(MAX_MESHES);
+	std::unordered_map<std::string, Mesh*> meshNames;
 	ID3D11Device* device = nullptr;
 	void generateCube();
 	Mesh* ConstructMesh(const char* _meshFilePath);
 public:
 	MeshManager();
 	~MeshManager();
-
 	void Initialize(ID3D11Device* _deviceIn);
 	void Destroy();
 	int AddElement(const char* _meshFilePath);
+	Mesh* GetComponent(const char* _meshFilePath) override;
 	Mesh* GetElement(const unsigned int _id) override;
 };
 

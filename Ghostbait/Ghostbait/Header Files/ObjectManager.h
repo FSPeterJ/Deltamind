@@ -14,7 +14,7 @@ class ObjectManager: public ManagerInterface
 	ObjectManager();
 public:
 	~ObjectManager();
-	static Object* Instantiate(const Object* e);
+	static Object* Instantiate();
 	static void Initialize();
 	static void Shutdown();
 	static void CreatePool(int _size, Object* poolType) {}

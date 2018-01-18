@@ -131,30 +131,25 @@ public:
 			int componentCount = 1;
 
 			//TEST CODE ONLY
-
 			char* types[2] = {
 				"Mesh",
-				""
+				"Material"
 			};
-			int names[1] = {
-				UINT_MAX
+			char* names[1] = {
+				
+				"Assets/TestCube_mesh.bin"
 			};
 			for(int i = 0; i < 1; i++)
 			{
-				int typeID = TypeMap::getNameId(std::string(types[i]));
-				ComponentBase * component = managers[typeID]->GetElement(names[0]);
+				const int typeID = TypeMap::getNameId(std::string(types[i]));
+				ComponentBase * component = managers[typeID]->GetComponent(names[0]);
 				prefab->instantiatedComponents[typeID] = component;
 				prefab->managers[typeID] = 0;
 				prefab->fastclone[typeID] = component->singleInstance;
 				Mesh* testing = (Mesh*)managers[typeID]->GetElement(UINT_MAX);
-
-
 			}
-
 			//=================================
-
 			//prefab->m[0] = mesh;
-
 			//prefab->object->SetComponent<Mesh>(mesh);
 			prefabs.push_back(*prefab);
 			//
@@ -171,7 +166,7 @@ public:
 		const Object * o = prefabs[pid].object;
 
 
-		Object* newobject = ObjectManager::Instantiate(o);
+		Object* newobject = ObjectManager::Instantiate();
 
 		for(int i = 0; i < 64; i++)
 		{

@@ -25,8 +25,8 @@ void ObjectManager::Shutdown()
 }
 
 
-Object* ObjectManager::Instantiate(const Object* obj) {
-	Object* newobject = objectpool->Activate(obj);
+Object* ObjectManager::Instantiate() {
+	Object* newobject = objectpool->Activate();
 	return newobject;
 }
 

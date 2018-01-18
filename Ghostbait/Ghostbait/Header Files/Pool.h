@@ -33,12 +33,17 @@ public:
 	{
 		delete[] elements;
 	}
+
+	std::vector< T*>* GetActiveList()
+	{
+		return &activeList;
+	}
 	/// <summary>
 	/// Activates the specified object.
 	/// </summary>
 	/// <param name="o">The object to activate.</param>
 	/// <returns>A pointer to the activated or added Object.</returns>
-	T* Activate(const T* o) {
+	T* Activate() {
 		if(inactiveList.size()) {
 			activeList.push_back(inactiveList[0]);
 			inactiveList.erase(inactiveList.begin());

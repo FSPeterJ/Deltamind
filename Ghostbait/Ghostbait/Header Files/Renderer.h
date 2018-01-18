@@ -39,8 +39,8 @@ private:
 
 	struct viewProjectionConstantBuffer
 	{
-		XMFLOAT4X4 view;
-		XMFLOAT4X4 projection;
+		DirectX::XMFLOAT4X4 view;
+		DirectX::XMFLOAT4X4 projection;
 	};
 
 	struct renderTargetInfo

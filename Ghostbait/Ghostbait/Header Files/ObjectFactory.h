@@ -75,7 +75,7 @@ public:
 	static void RegisterManager(ManagerInterface * manager) {
 		//Mess
 		const int tid = TypeMap::getTypeId<ComponentType>();
-		if(managers.size() < tid)
+		if(managers.size() <= tid)
 		{
 			managers.resize(tid + 1);
 		}

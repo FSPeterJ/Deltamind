@@ -25,7 +25,7 @@ public:
 
 	void Initialize(ID3D11Device* _deviceIn);
 	void Destroy();
-	int AddElement(const char* _meshFilePath) override;
+	int AddElement(const char* _meshFilePath);
 	Mesh* GetElement(const unsigned int _id) override;
 };
 

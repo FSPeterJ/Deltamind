@@ -3,6 +3,7 @@
 #include "MessageEvents.h"
 #include "ComponentBase.h"
 #include "TypeMapping.h"
+#include "TypeContainer.h"
 
 #define ALIGN(w) __declspec(align(w))
 #define ALIGNMENT 16
@@ -17,7 +18,7 @@ private:
 public:
 
 	DirectX::XMMATRIX position = DirectX::XMMatrixIdentity();
-	TypeMap<ComponentBase> Components;
+	TypeContainer<ComponentBase*> Components;
 	//Endnote
 
 	Object() {};
@@ -32,6 +33,12 @@ public:
 	{
 		return Components.GetComponent<ComponentType>();
 	};
+
+	template<typename ComponentType>
+	ComponentType* GetComponent() const
+	{
+		return Components.GetComponent<ComponentType>();
+	};
 	
 	//ComponentBase* GetComponent(const std::string &componentname)
 	//{
@@ -42,6 +49,12 @@ public:
 	int SetComponent(ComponentType * _component)
 	{
 		return Components.AddComponent<ComponentType>(_component);
+	};
+
+
+	int SetComponent(ComponentBase* _component, const int _id)
+	{
+		return Components.AddComponent(_component, _id);
 	};
 
 

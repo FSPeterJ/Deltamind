@@ -3,6 +3,9 @@
 #include <unordered_map>
 #include "MeshManager.h"
 #include "ObjectManager.h"
+#include "TypeMapping.h"
+#include <vector>
+#include <bitset>
 
 /// <summary>
 /// Creates and manages prefabs loaded from the disk.
@@ -12,10 +15,10 @@ class ObjectFactory {
 
 	struct Prefab
 	{
-		std::function<Object*(void)> prefabBaseconstructor;
-		std::function<Object*(void)> genericComponents;
-		std::vector<ComponentBase*> instantiatedComponents;
+		ComponentBase* instantiatedComponents[64];
+		int managers[64];
 		Object* object;
+		std::bitset<64> fastclone;
 	};
 
 	/// <summary>
@@ -29,15 +32,18 @@ class ObjectFactory {
 
 	static std::unordered_map<int, std::function<Object*(void)>> registeredConstructors;
 
+	static std::vector<ManagerInterface*> managers;
+
+	//static std::unordered_map<std::string, ManagerInterface*> managerNames;
+
 	//map Names to prefabs
 	static std::unordered_map<std::string, Prefab*> prefabNames;
 
 	//static std::unordered_map<int, Object*> prefabs;
 	//pointer storage for prefabs, access by Prefab ID
-	static std::vector<Prefab*> prefabs;
+	static std::vector<Prefab> prefabs;
 
-	// Managers
-	static MeshManager * meshManager;
+	// managers
 public:
 	// Singleton?
 	//static ObjectFactory * ObjectFactory::Instance()
@@ -49,10 +55,9 @@ public:
 	/// <summary>
 	/// Initializes the Object Factory and hands off the managers it needs to access
 	/// </summary>
-	static void Initialize(MeshManager * _meshManager) {
-		int r = TypeMap<ComponentBase>::getTypeId<std::result_of<decltype(&MeshManager::GetElement)(int&)>>();
+	static void Initialize() {
+		int r = TypeMap::getTypeId<std::result_of<decltype(&MeshManager::GetElement)(int&)>>();
 		MessageEvents::Subscribe(EVENT_InstantiateRequest, Instantiate);
-		meshManager = _meshManager;
 	}
 
 	~ObjectFactory() {};
@@ -66,7 +71,18 @@ public:
 		registeredConstructors[_id] = &ConstructorFunc<T>;
 	}
 
-	
+	template <typename ComponentType, typename ManagerType>
+	static void RegisterManager(ManagerInterface * manager) {
+		//Mess
+		const int tid = TypeMap::getTypeId<ComponentType>();
+		if(managers.size() < tid)
+		{
+			managers.resize(tid + 1);
+		}
+		managers[tid] = manager;
+
+	}
+
 
 	/// <summary>
 	/// Creates a Prefab in the Prefab pool from a file if it doesn't exist already
@@ -91,14 +107,62 @@ public:
 				//	//Debug("A non-object filetype cannot be loaded as an object");
 				//	return nullptr;
 				//}
+
 				ObjectType = 0;
 				fclose(file);
+
 			}
+
+			//Test file data
+			//=================================
+			/*
+				filetype
+				componentcount
+				componentMesh  : filename
+
+
+			*/
+			//=================================
+
+			//Test prefab assembly
+			//=================================
+			prefab = new Prefab;
 			prefab->object = registeredConstructors[ObjectType]();
-			prefabs.push_back(prefab);
+			int componentCount = 1;
+			char* types[2] = {
+				"Mesh",
+				""
+			};
+			int names[1] = {
+				UINT_MAX
+			};
+			//TEST CODE ONLY
+			for(int i = 0; i < 1; i++)
+			{
+				int typeID = TypeMap::getNameId(std::string(types[i]));
+				ComponentBase * component = managers[typeID]->GetElement(names[0]);
+				prefab->instantiatedComponents[typeID] = component;
+				prefab->managers[typeID] = 0;
+				prefab->fastclone[typeID] = component->singleInstance;
+				Mesh* testing = (Mesh*)managers[typeID]->GetElement(UINT_MAX);
+				//int test = prefab->object->SetComponent<Mesh>(testing);
+				//int test2 = prefab->object->SetComponent<Mesh>(testing);
+				//int test3 = prefab->object->SetComponent<Mesh>(testing);
+				//int test4 = prefab->object->SetComponent<Mesh>(testing);
+				//int test5 = TypeMap::getNameId(std::string(types[i]));
+				//int test6 = TypeMap::getNameId(std::string(types[i]));
+				//int test7 = TypeMap::getNameId(std::string(types[i]));
+
+			}
+
+			//=================================
+
+			//prefab->m[0] = mesh;
+
+			//prefab->object->SetComponent<Mesh>(mesh);
+			prefabs.push_back(*prefab);
 			//
 			prefabNames[*_filename] = prefab;
-			prefab->object->SetComponent<Mesh>(meshManager->GetElement(UINT_MAX));
 			int x = 0;
 		}
 	}
@@ -108,22 +172,27 @@ public:
 		InstantiateMessage* instantiate = (InstantiateMessage*)e;
 
 		PrefabId pid = instantiate->GetId();
-		const Object * o = prefabs[pid]->object;
+		const Object * o = prefabs[pid].object;
 
 
 		Object* newobject = ObjectManager::Instantiate(o);
-		//for (auto element : prefabs[pid]->genericComponents)
-		//{
-		//	
-		//}
+
+		for(size_t i = 0; i < 64; i++)
+		{
+			if(prefabs[pid].fastclone[i])
+			{
+				;
+				newobject->SetComponent(prefabs[pid].instantiatedComponents[i], i);
+			};
+		}
 
 		if(instantiate->GetReturnObject() != nullptr)
 		{
-
 			instantiate->SetReturnObject(newobject);
 		}
 
 		newobject->position.r[3] = XMLoadFloat4(&instantiate->GetPosition());
+		Mesh * test = newobject->GetComponent<Mesh>();
 		MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
 	}
 
@@ -133,7 +202,7 @@ public:
 	/// </summary>
 	/// <param name="_pid">Prefab id</param>
 	static const Object *  RequestPrefab(const PrefabId _pid) {
-		return prefabs[_pid]->object;
+		return prefabs[_pid].object;
 	}
 
 	/// <summary>
@@ -147,7 +216,9 @@ public:
 	{
 		for(auto prefab : prefabs)
 		{
-			delete prefab;
+			delete prefab.object;
 		}
 	}
 };
+
+

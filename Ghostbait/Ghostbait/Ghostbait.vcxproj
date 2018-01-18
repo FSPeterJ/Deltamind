@@ -167,7 +167,6 @@
     <ClInclude Include="Header Files\Console.h" />
     <ClInclude Include="Header Files\Controlable.h" />
     <ClInclude Include="Header Files\Delegate.h" />
-    <ClInclude Include="Header Files\Header.h" />
     <ClInclude Include="Header Files\InputManager.h" />
     <ClInclude Include="Header Files\ManagerInterface.h" />
     <ClInclude Include="Header Files\MeshManager.h" />
@@ -180,6 +179,7 @@
     <ClInclude Include="Header Files\StdHeader.h" />
     <ClInclude Include="Header Files\targetver.h" />
     <ClInclude Include="Header Files\ThreadPool.h" />
+    <ClInclude Include="Header Files\TypeContainer.h" />
     <ClInclude Include="Header Files\TypeMapping.h" />
     <ClInclude Include="Header Files\VertexTypes.h" />
     <ClInclude Include="Header Files\VRManager.h" />
@@ -200,6 +200,7 @@
     <ClCompile Include="Source Files\VRManager.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Source Files\Window.cpp" />
+    <ClCompile Include="TypeMapping.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resource Files\Ghostbait.ico" />

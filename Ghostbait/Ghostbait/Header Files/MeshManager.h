@@ -27,6 +27,6 @@ public:
 	void Destroy();
 	Mesh* ConstructMesh(const char* _meshFilePath);
 	int AddElement(const char* _meshFilePath);
-	Mesh* GetElement(const unsigned int _id);
+	Mesh* GetElement(const unsigned int _id) override;
 };
 

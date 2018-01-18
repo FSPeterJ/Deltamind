@@ -108,10 +108,11 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	Mesh* temp1 = test->GetComponent<Mesh>();
 	Mesh* temp2 = test2->GetComponent<Mesh>();
 
-	ObjectFactory::Initialize(rendInter->getMeshManager());
+	ObjectFactory::Initialize();
 	ObjectFactory::RegisterPrefabBase<Object>(0);
+	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
 
-	TypeMap<ComponentBase>::RegisterComponent<Mesh>("Mesh");
+	TypeMap::RegisterComponent<Mesh>("Mesh");
 
 	game = new Game();
 	game->Start();

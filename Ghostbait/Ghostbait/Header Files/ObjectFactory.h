@@ -2,6 +2,7 @@
 #include "Object.h"
 #include <unordered_map>
 #include "MeshManager.h"
+typedef unsigned long long ClassSize;
 
 /// <summary>
 /// Creates and manages prefabs loaded from the disk.
@@ -46,11 +47,14 @@ public:
 	~ObjectFactory() {};
 
 	/// <summary>
-	/// Registeres the constructor of a given object and it's object type ID (class) in the factory
+	/// Registers the constructor of a given object and it's object type ID (class) in the factory
 	/// </summary>
 	/// <param name="_id">Class ID to register.</param>
 	template <typename T>
-	static void Register(const int _id) {
+	static void Register(const int _id, ClassSize _size) {
+
+		 
+
 		registeredConstructors[_id] = &ConstructorFunc<T>;
 	}
 

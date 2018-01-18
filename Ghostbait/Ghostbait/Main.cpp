@@ -34,12 +34,14 @@ Renderer* rendInter;
 VRManager* vrMan;
 Game* game;
 
+typedef unsigned long long ClassSize;
+
 void ExecuteAsync() {
 	WriteLine("I am executed asyncly!");
 	throw std::invalid_argument("ERROR: This is a test showing we can know if a thread throws an exception on it's work.\n");
 }
 
-//void CleanUp();
+void CleanUp();
 
 void Setup(HINSTANCE hInstance, int nCmdShow) {
 
@@ -94,9 +96,40 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 		rendInter->Initialize(wnd, nullptr);
 	}
 
+	int size = sizeof(Object);
+	Console::Write("Object is size: ");
+	Console::WriteLine(size);
+
+	size = sizeof(TestObject);
+	Console::Write("TestObject is size: ");
+	Console::WriteLine(size);
+
+
+	MakePrototype(TestObject)
+	
+	Object* o = Object::CreateObject<TestObject>();
+	
+	Console::Write("I just made a #");
+	Console::Write(Object::GetObjectTypeName(o));
+	Console::WriteLine("#");
+
+
+	//size = sizeof(*((TestObject*)o));
+	//Console::Write("Size of it is: ");
+	//Console::WriteLine(size);
+
+	delete o;
+
+
+	system("pause");
+	CleanUp();
+	exit(0);
+
+
+
 	ObjectFactory::Initialize(rendInter->getMeshManager());
-	ObjectFactory::Register<Object>(Object().GetTypeId());
-	ObjectFactory::Register<TestObject>(TestObject().GetTypeId());
+	//ObjectFactory::Register<Object>(Object().GetTypeId(), sizeof(Object));
+	//ObjectFactory::Register<TestObject>(TestObject(), TestObject().GetTypeId(), sizeof(TestObject));
 
 	game = new Game();
 	game->Start();

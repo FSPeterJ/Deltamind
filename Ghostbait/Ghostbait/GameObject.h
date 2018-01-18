@@ -6,11 +6,13 @@
 
 class GameObject: public Object {
 public:
+	//CloneFunction(GameObject)
 
 	GameObject() {
 		EngineStructure::Awake.add([=]() {this->Awake(); });
 		EngineStructure::Update.add([=]() {this->Update(); });
 	}
+
 
 	virtual void Awake() {}
 	virtual void Update() {}
@@ -20,6 +22,7 @@ public:
 
 
 class SomeCoolObject: public GameObject, public Controlable {
+
 
 	void Awake() {
 		WriteLine("I am a cool object being awakened!");

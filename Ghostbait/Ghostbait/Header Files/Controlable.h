@@ -22,7 +22,9 @@ class Controlable {
 		InputReceiver *const GetState() const { return this->receiver; }
 		ReceiveEvent const ReceiveInputEvent() const { return ReceiveInput; }
 		InputReceivedEvent() : receiver(new InputReceiver()), ReceiveInput([receiver = receiver](EventMessageBase* e) mutable { receiver->OnInputReceived(e); }) {}
-		~InputReceivedEvent() { delete receiver; }
+		virtual ~InputReceivedEvent() {
+			delete receiver; 
+		}
 	}inputReceivedEvent;
 #pragma endregion
 protected:
@@ -44,4 +46,5 @@ public:
 	/// Subscribes children to receive message input events.
 	/// </summary>
 	Controlable() { MessageEvents::Subscribe(EVENT_Input, inputReceivedEvent.ReceiveInputEvent()); }
+	virtual ~Controlable() {}
 };

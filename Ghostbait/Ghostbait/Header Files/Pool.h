@@ -5,7 +5,9 @@
 #include "Console.h"
 using namespace Console;
 #include "Delegate.h"
+#include <array>
 
+//#define BUCKET_SIZE 1
 class Pool {
 	Delegate<> Delete;
 
@@ -13,7 +15,11 @@ class Pool {
 	class Bucket {
 		std::vector<BucketType*> activeList;
 		std::vector<BucketType*> inactiveList; //Linked list with head/tail ptrs
+
+
+
 		BucketType* items;
+		//std::array<BucketType, BUCKET_SIZE> items_array;
 
 		size_t item_count = 0;
 
@@ -31,10 +37,21 @@ class Pool {
 
 		//void CLEAN() {
 		//	delete[] items;
-		
 		//}
 		//
-		~Bucket() { delete[] items; }
+		~Bucket() {
+			
+		//	BucketType t = items[0];
+			
+		//	t.clean();
+				
+			//for(size_t i = 0; i < item_count; ++i) {
+			//	::operator delete((BucketType)&items[i]);
+				//((BucketType) items[i]).clean();
+			//	((BucketType) items[i]).~BucketType();
+		//	}
+			delete[] items;
+		}
 
 		BucketType* GetItems() const { return items; }
 

@@ -10,7 +10,9 @@ class Delegate: std::function<void(T...)> {
 	std::vector<std::function<void(T...)>> delegates;
 public:
 	void operator( )(const T&... e) const {
-		for(const std::function<void(T...)> element : delegates) { element(e...); }
+		for(const std::function<void(T...)> element : delegates) {
+			element(e...);
+		}
 	}
 
 	const inline size_t subscriber_count() const { return delegates.size(); }

@@ -7,12 +7,13 @@
 class GameObject: public Object {
 public:
 	//CloneFunction(GameObject)
+	CloneFunction(GameObject)
 
 	GameObject() {
 		EngineStructure::Awake.add([=]() {this->Awake(); });
 		EngineStructure::Update.add([=]() {this->Update(); });
 	}
-
+	virtual ~GameObject() {}
 
 	virtual void Awake() {}
 	virtual void Update() {}
@@ -22,6 +23,7 @@ public:
 
 
 class SomeCoolObject: public GameObject, public Controlable {
+	CloneFunction(SomeCoolObject)
 
 
 	void Awake() {

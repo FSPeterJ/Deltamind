@@ -3,7 +3,7 @@
 
 #ifndef NDEBUG
 #define _CRTDBG_MAP_ALLOC
-//#define BREAK_AT -1
+//#define BREAK_AT 762
 #include <stdlib.h>
 #include <crtdbg.h>
 #endif
@@ -97,15 +97,24 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	}
 
 
+
 	Debug("sizeof(Object) = " << sizeof(Object));
 
-	MakePrototype(TestObject)
+	//MakePrototype(TestObject)
+	MakePrototype(AnotherTestObject)
 		
-	Object* o = Object::CreateObject<TestObject>();
-	
-	Debug("I just made a " << Object::GetObjectTypeName(o).c_str() << " : " << o);
+	//TestObject* o = Object::CreateObject<TestObject>();
+	//Debug("I just made a " << Object::GetObjectTypeName(o).c_str() << " : " << o);
+	//
+	AnotherTestObject* oo = Object::CreateObject<AnotherTestObject>();
+	Debug("I just made a " << Object::GetObjectTypeName(oo).c_str() << " : " << oo);
 
+	//AnotherTestObject* oo2 = Object::CreateObject<AnotherTestObject>();
+	//Debug("I just made a " << Object::GetObjectTypeName(oo2).c_str() << " : " << oo2);
 	Object::CleanUp();
+
+//	oo->~AnotherTestObject();
+	//delete oo;
 
 
 	//auto bucket = Object::objectPool.GetBucket<decltype(*o)>();

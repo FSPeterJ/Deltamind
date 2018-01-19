@@ -17,6 +17,8 @@
 //#define CloneFunction(type) void CloneTo(Object* location) const { new(location) type; }
 
 //#define CloneFunction(type) void CloneTo(void* location) const { memcpy(location, &type(), sizeof(type)); }
+
+
 #define CloneFunction(type) void CloneTo(void* location) const { new(location) type(); }
 
 
@@ -57,15 +59,9 @@ public:
 
 
 
-
+	//private
 	static void CleanUp() {
 		for(auto e : protoTable) {
-		//	auto bucket = Object::objectPool.GetBucket<decltype(*e.second)>();
-		//	auto items = bucket->GetItems();
-		//
-		//	delete[] items;
-		//	delete bucket;
-		//
 			delete e.second;
 		}
 	}
@@ -107,11 +103,11 @@ T* Object::CreateObject() {
 		Debug("Cloning prefab (" << prefab);
 		Debug(") to " << createdObjectSpot);
 		 
+
 		prefab->CloneTo((void*) createdObjectSpot);
 		Debug("Cloned prefab (" << prefab);
 		Debug(") to " << createdObjectSpot);
-
-
+		
 		return createdObjectSpot;
 	}
 

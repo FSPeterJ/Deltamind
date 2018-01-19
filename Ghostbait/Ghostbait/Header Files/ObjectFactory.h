@@ -37,7 +37,7 @@ class ObjectFactory {
 	//static std::unordered_map<std::string, ManagerInterface*> managerNames;
 
 	//map Names to prefabs
-	static std::unordered_map<std::string, Prefab*> prefabNames;
+	static std::unordered_map<std::string, int> prefabNames;
 
 	//static std::unordered_map<int, Object*> prefabs;
 	//pointer storage for prefabs, access by Prefab ID
@@ -56,7 +56,7 @@ public:
 	/// Initializes the Object Factory and hands off the managers it needs to access
 	/// </summary>
 	static void Initialize() {
-		int r = TypeMap::getTypeId<std::result_of<decltype(&MeshManager::GetElement)(int&)>>();
+		//int r = TypeMap::getTypeId<std::result_of<decltype(&MeshManager::GetElement)(int&)>>();
 		MessageEvents::Subscribe(EVENT_InstantiateRequest, Instantiate);
 	}
 
@@ -89,11 +89,15 @@ public:
 	/// </summary>
 	/// <param name="_filename">name of the file to load.</param>
 	static void CreatePrefab(std::string *_filename) {
-		Prefab * prefab = prefabNames[*_filename];
-		if(prefabNames[*_filename]) {
+
+		int prefabID = prefabNames[*_filename];
+		if(prefabID) {
 			//This Prefab already exists.
 		}
 		else {
+			prefabID = prefabs.size();
+			prefabs.push_back(Prefab());
+			Prefab* prefab = &prefabs[prefabID];
 			int ObjectType = 0;
 			FILE* file = nullptr;
 			//int reads;
@@ -126,7 +130,6 @@ public:
 
 			//Test prefab assembly
 			//=================================
-			prefab = new Prefab;
 			prefab->object = registeredConstructors[ObjectType]();
 			int componentCount = 1;
 
@@ -136,7 +139,7 @@ public:
 				"Material"
 			};
 			char* names[1] = {
-				
+
 				"Assets/TestCube_mesh.bin"
 			};
 			for(int i = 0; i < 1; i++)
@@ -146,14 +149,13 @@ public:
 				prefab->instantiatedComponents[typeID] = component;
 				prefab->managers[typeID] = 0;
 				prefab->fastclone[typeID] = component->singleInstance;
-				Mesh* testing = (Mesh*)managers[typeID]->GetElement(UINT_MAX);
+				//Mesh* testing = (Mesh*)managers[typeID]->GetElement(UINT_MAX);
 			}
 			//=================================
 			//prefab->m[0] = mesh;
 			//prefab->object->SetComponent<Mesh>(mesh);
-			prefabs.push_back(*prefab);
 			//
-			prefabNames[*_filename] = prefab;
+			prefabNames[*_filename] = prefabID;
 			int x = 0;
 		}
 	}

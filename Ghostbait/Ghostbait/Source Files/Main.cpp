@@ -3,7 +3,7 @@
 
 #ifndef NDEBUG
 #define _CRTDBG_MAP_ALLOC
-//#define BREAK_AT -1
+#define BREAK_AT 605
 #include <stdlib.h>
 #include <crtdbg.h>
 #endif
@@ -97,14 +97,14 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 		rendInter->Initialize(wnd, nullptr);
 		inputMan = new InputManager(KEYBOARD);
 	}
-	Object* test = new Object();
-	test->SetComponent<Mesh>(rendInter->getMeshManager()->GetElement(UINT_MAX));
-	Object* test2 = new Object();
-	//	int rr = test2->SetComponent<SomeCoolComponent>(r);
+	//Object* test = new Object();
+	//test->SetComponent<Mesh>(rendInter->getMeshManager()->GetElement(UINT_MAX));
+	//Object* test2 = new Object();
+	////	int rr = test2->SetComponent<SomeCoolComponent>(r);
 
-	int dd = test2->SetComponent<Mesh>(rendInter->getMeshManager()->GetElement(UINT_MAX));
-	Mesh* temp1 = test->GetComponent<Mesh>();
-	Mesh* temp2 = test2->GetComponent<Mesh>();
+	//int dd = test2->SetComponent<Mesh>(rendInter->getMeshManager()->GetElement(UINT_MAX));
+	//Mesh* temp1 = test->GetComponent<Mesh>();
+	//Mesh* temp2 = test2->GetComponent<Mesh>();
 
 	ObjectFactory::Initialize();
 	ObjectFactory::RegisterPrefabBase<Object>(0);

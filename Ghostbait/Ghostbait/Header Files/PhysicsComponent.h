@@ -25,8 +25,8 @@ struct CapsuleCollider : ColliderData {
 };
 
 struct BoxCollider : ColliderData {
-	DirectX::XMFLOAT3 topLeftFrontCorner;
-	DirectX::XMFLOAT3 bottRightBackCorner;
+	DirectX::XMFLOAT3 topRightFrontCorner;
+	DirectX::XMFLOAT3 bottLeftBackCorner;
 };
 
 struct Collider {

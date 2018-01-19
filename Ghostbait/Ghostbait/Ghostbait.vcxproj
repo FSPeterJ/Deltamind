@@ -166,6 +166,7 @@
     <ClInclude Include="Examples.h" />
     <ClInclude Include="Header Files\Console.h" />
     <ClInclude Include="Header Files\Controlable.h" />
+    <ClInclude Include="Header Files\DebugRenderer.h" />
     <ClInclude Include="Header Files\Delegate.h" />
     <ClInclude Include="Header Files\EngineStructure.h" />
     <ClInclude Include="Header Files\Examples.h" />
@@ -202,6 +203,8 @@
   <ItemGroup>
     <ClCompile Include="RigidBody.cpp" />
     <ClCompile Include="Source Files\AnimationManager.cpp" />
+    <ClCompile Include="Source Files\Camera.cpp" />
+    <ClCompile Include="Source Files\DebugRenderer.cpp" />
     <ClCompile Include="Source Files\EngineStructure.cpp" />
     <ClCompile Include="Source Files\InputManager.cpp" />
     <ClCompile Include="Source Files\Main.cpp" />

@@ -29,10 +29,13 @@ using namespace Console;
 #include "Game.h"
 #include "ThreadPool.h"
 
+#include "PhysicsManager.h"
+
 Renderer* rendInter;
 VRManager* vrMan;
 Game* game;
 InputManager* inputMan;
+PhysicsManager* phyMan;
 
 void ExecuteAsync() {
 	WriteLine("I am executed asyncly!");
@@ -97,14 +100,14 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 		rendInter->Initialize(wnd, nullptr);
 		inputMan = new InputManager(KEYBOARD);
 	}
-	Object* test = new Object();
-	test->SetComponent<Mesh>(rendInter->getMeshManager()->GetElement(UINT_MAX));
-	Object* test2 = new Object();
-	//	int rr = test2->SetComponent<SomeCoolComponent>(r);
+	//Object* test = new Object();
+	//test->SetComponent<Mesh>(rendInter->getMeshManager()->GetElement(UINT_MAX));
+	//Object* test2 = new Object();
+	////	int rr = test2->SetComponent<SomeCoolComponent>(r);
 
-	int dd = test2->SetComponent<Mesh>(rendInter->getMeshManager()->GetElement(UINT_MAX));
-	Mesh* temp1 = test->GetComponent<Mesh>();
-	Mesh* temp2 = test2->GetComponent<Mesh>();
+	//int dd = test2->SetComponent<Mesh>(rendInter->getMeshManager()->GetElement(UINT_MAX));
+	//Mesh* temp1 = test->GetComponent<Mesh>();
+	//Mesh* temp2 = test2->GetComponent<Mesh>();
 
 	ObjectFactory::Initialize();
 	ObjectFactory::RegisterPrefabBase<Object>(0);
@@ -116,6 +119,13 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	game->Start();
 	vrMan->CreateControllers();
 
+	phyMan = new PhysicsManager();
+	Object* cube1, *cube2;
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 0,0,0,1 }, &cube1));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 0,-2,0,1 }, &cube2));
+	phyMan->AddComponent(cube1);
+	phyMan->AddComponent(cube2);
+
 
 }
 
@@ -123,6 +133,7 @@ void Loop() {
 	rendInter->Render();
 	game->Update();
 	inputMan->HandleInput();
+	phyMan->Update(0.0002f);
 }
 
 void CleanUp() {

@@ -2,7 +2,7 @@
 #include <math.h>
 #include <fstream>
 #include <VertexTypes.h>
-
+#include "DebugRenderer.h"
 
 void Renderer::createDeviceContextAndSwapchain(Window window)
 {
@@ -166,6 +166,12 @@ void Renderer::renderToEye(eye * eyeTo)
 	context->PSSetShader(StandardPixelShader, NULL, NULL);
 	materialManagement->GetElement(tempMatId)->bindToShader(context, factorBuffer);
 	context->DrawIndexed(meshManagement->GetElement(tempId)->indexCount, 0, 0);
+#if _DEBUG
+	DebugRenderer::drawTo(eyeTo->renderInfo.rtv, eyeTo->renderInfo.dsv, eyeTo->renderInfo.viewport);
+	context->VSSetShader(StandardVertexShader, NULL, NULL);
+	context->PSSetShader(StandardPixelShader, NULL, NULL);
+	context->IASetInputLayout(ILStandard);
+#endif
 }
 
 void Renderer::loadPipelineState(pipeline_state_t * pipeline)
@@ -229,6 +235,7 @@ void Renderer::Initialize(Window window, VRManager * vr)
 	defaultPipeline.vertex_shader = StandardVertexShader;
 	defaultPipeline.pixel_shader = StandardPixelShader;
 	defaultPipeline.input_layout = ILStandard;
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	device->CreateRenderTargetView(backBuffer, NULL, &defaultPipeline.render_target_view);
 	loadPipelineState(&defaultPipeline);
 	meshManagement = new MeshManager();
@@ -237,7 +244,6 @@ void Renderer::Initialize(Window window, VRManager * vr)
 	materialManagement = new MaterialManager();
 	materialManagement->Initialize(device, context);
 	tempMatId = materialManagement->AddElement("Assets/ScifiRoom_mat.bin");
-	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	context->VSSetConstantBuffers(0, 1, &cameraBuffer);
 	context->VSSetConstantBuffers(1, 1, &modelBuffer);
 	context->PSSetConstantBuffers(0, 1, &dirLightBuffer);
@@ -271,6 +277,7 @@ void Renderer::Initialize(Window window, VRManager * vr)
 
 	MessageEvents::Subscribe(EVENT_Instantiated, [this](EventMessageBase * _e) {this->registerObject(_e); });
 	MessageEvents::Subscribe(EVENT_Destroy, [this](EventMessageBase * _e) {this->unregisterObject(_e); });
+	DebugRenderer::Initialize(device, context, modelBuffer, PassThroughPositionColorVS, PassThroughPS, ILPositionColor);
 }
 
 void Renderer::Destroy()
@@ -301,6 +308,7 @@ void Renderer::Destroy()
 	delete meshManagement;
 	materialManagement->Destroy();
 	delete materialManagement;
+	DebugRenderer::Destroy();
 }
 
 void Renderer::registerObject(const Object * toRegister, renderState specialInstructions)
@@ -394,9 +402,10 @@ XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 void Renderer::Render()
 {
 	loadPipelineState(&defaultPipeline);
+	DebugRenderer::AddLine(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f), DirectX::XMFLOAT3(3.0f, 3.0f, 3.0f), DirectX::XMFLOAT3(1.0f, 0.0f, 1.0f));
 	if(VRManagement)
 	{
-		VRManagement->GetVRMatricies(&leftEye.camera.projection, &rightEye.camera.projection, &leftEye.camera.view, &rightEye.camera.view);
+		VRManagement->GetVRMatrices(&leftEye.camera.projection, &rightEye.camera.projection, &leftEye.camera.view, &rightEye.camera.view);
 
 		//XMStoreFloat4x4(&leftEye.camera.projection, (XMLoadFloat4x4(&defaultCamera.projection)));
 		//XMStoreFloat4x4(&rightEye.camera.projection, (XMLoadFloat4x4(&defaultCamera.projection)));
@@ -407,13 +416,7 @@ void Renderer::Render()
 		XMStoreFloat4x4(&rightEye.camera.view, XMMatrixTranspose(XMMatrixInverse(&XMVectorSet(0, 0, 0, 0), XMLoadFloat4x4(&rightEye.camera.view))));
 
 		renderToEye(&leftEye);
-		context->VSSetShader(PassThroughPositionColorVS, NULL, NULL);
-		context->IASetInputLayout(defaultPipeline.input_layout);
-		context->PSSetShader(PassThroughPS, NULL, NULL);
 		renderToEye(&rightEye);
-		context->VSSetShader(PassThroughPositionColorVS, NULL, NULL);
-		context->IASetInputLayout(defaultPipeline.input_layout);
-		context->PSSetShader(PassThroughPS, NULL, NULL);
 		VRManagement->SendToHMD((void*)leftEye.renderInfo.texture, (void*)rightEye.renderInfo.texture);
 	}
 	float color[] = { 0.5f, 0.5f, 1.0f, 1.0f };
@@ -437,6 +440,7 @@ void Renderer::Render()
 	context->IASetIndexBuffer(meshManagement->GetElement(tempId)->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	materialManagement->GetElement(tempMatId)->bindToShader(context, factorBuffer);
 	context->DrawIndexed(meshManagement->GetElement(tempId)->indexCount, 0, 0);
+	DebugRenderer::flushTo(defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport);
 	swapchain->Present(0, 0);
 }
 

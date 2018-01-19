@@ -1,11 +1,24 @@
 #include "PhysicsManager.h"
 
-PhysicsManager::PhysicsManager() {
+Collider PhysicsManager::defaultColider;
+SphereCollider PhysicsManager::defaultSphereColider;
 
+
+PhysicsManager::PhysicsManager() {
+	defaultSphereColider.radius = 0.5f;
+	defaultSphereColider.colliderType = SPHERE;
+
+	defaultColider.centerOffset = { 0, 0, 0 };
+	defaultColider.isTrigger = true;
+	defaultColider.colliderData = &defaultSphereColider;
 }
 
 PhysicsManager::~PhysicsManager() {
 
+}
+
+void PhysicsManager::SendCollision(Object* obj1, Object* obj2) {
+	Console::WriteLine("Cube Collision");
 }
 
 void PhysicsManager::TestAllComponentsCollision() {
@@ -24,21 +37,21 @@ void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponen
 			if (component1.colliders[com1].colliderData->colliderType == SPHERE &&
 				component2.colliders[com2].colliderData->colliderType == SPHERE) {
 				if (SphereToSphereCollision(component1.colliders[com1], component1.srcObj->position.r[3], component2.colliders[com2], component2.srcObj->position.r[3])) {
-					//REACT
+					SendCollision(component1.srcObj, component2.srcObj);
 				}
 			}
 
 			else if (component1.colliders[com1].colliderData->colliderType == CAPSULE &&
 				component2.colliders[com2].colliderData->colliderType == CAPSULE) {
 				if (CapsuleToCapsuleCollision(component1.colliders[com1], component1.srcObj->position, component2.colliders[com2], component2.srcObj->position)) {
-					//REACT
+					SendCollision(component1.srcObj, component2.srcObj);
 				}
 			}
 
 			else if (component1.colliders[com1].colliderData->colliderType == BOX &&
 				component2.colliders[com2].colliderData->colliderType == BOX) {
 				if (BoxToBoxCollision()) {
-					//REACT
+					SendCollision(component1.srcObj, component2.srcObj);
 				}
 			}
 		}
@@ -84,4 +97,20 @@ bool PhysicsManager::CapsuleToCapsuleCollision(Collider col1, XMMATRIX& pos1, Co
 
 
 	return false;
+}
+
+
+void PhysicsManager::Update(float dt) {
+	for (int i = 0; i < components.size(); ++i) {
+		//components[i].rigidBody.Update(dt);
+	}
+
+	components[0].srcObj->position.r[3] -= XMVectorSet(0, dt, 0, 0);
+	TestAllComponentsCollision();
+}
+void PhysicsManager::AddComponent(Object* obj) {
+	PhysicsComponent pc;
+	pc.colliders.push_back(defaultColider);
+	pc.srcObj = obj;
+	components.push_back(pc);
 }

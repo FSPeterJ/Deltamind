@@ -17,9 +17,8 @@ using namespace Console;
 
 #include "MessageEvents.h"
 #include "ObjectFactory.h"
-#include "TestObject.h"
 
-#include "GameObject.h"
+#include "GameObjectComponent.h"
 #include "EngineStructure.h"
 
 #include "VRManager.h"
@@ -76,7 +75,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	// This is a proof of concept, thread decoupling with .get is still uncertain.
 	try {
 		temp.get();
-	} catch(const std::exception& e) {
+	}
+	catch(const std::exception& e) {
 		//std::rethrow_exception(e);
 		// handle it
 
@@ -91,15 +91,26 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	if(vrMan->Init()) {
 		rendInter->Initialize(wnd, vrMan);
 		inputMan = new InputManager(VR, vrMan);
-	} else {
+	}
+	else {
 		WriteLine("VR not initialized! Defaulting to 2D");
 		rendInter->Initialize(wnd, nullptr);
 		inputMan = new InputManager(KEYBOARD);
 	}
+	Object* test = new Object();
+	test->SetComponent<Mesh>(rendInter->getMeshManager()->GetElement(UINT_MAX));
+	Object* test2 = new Object();
+	//	int rr = test2->SetComponent<SomeCoolComponent>(r);
 
-	ObjectFactory::Initialize(rendInter->getMeshManager());
-	ObjectFactory::Register<Object>(Object().GetTypeId());
-	ObjectFactory::Register<TestObject>(TestObject().GetTypeId());
+	int dd = test2->SetComponent<Mesh>(rendInter->getMeshManager()->GetElement(UINT_MAX));
+	Mesh* temp1 = test->GetComponent<Mesh>();
+	Mesh* temp2 = test2->GetComponent<Mesh>();
+
+	ObjectFactory::Initialize();
+	ObjectFactory::RegisterPrefabBase<Object>(0);
+	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
+
+	TypeMap::RegisterComponent<Mesh>("Mesh");
 
 	game = new Game();
 	game->Start();
@@ -124,6 +135,7 @@ void CleanUp() {
 	}
 	ObjectFactory::Shutdown();
 	ThreadPool::Shutdown();
+	ObjectManager::Shutdown();
 	if(game) { game->Clean(); delete game; }
 }
 
@@ -147,7 +159,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			if(msg.message == WM_QUIT) { break; }
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-		} else {
+		}
+		else {
 			//test2->position = vrMan->hmdPose;
 			//test3->position = XMMatrixTranspose(XMLoadFloat4x4(&(rendInter->leftEye.camera.view)));
 			//test4->position = XMMatrixTranspose(XMLoadFloat4x4(&(rendInter->rightEye.camera.view)));
@@ -160,5 +173,5 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	Free();
 
-	return (int) msg.wParam;
+	return (int)msg.wParam;
 }

@@ -322,4 +322,7 @@ ASALocalRun/
 *.binlog
 
 *.cso
+*.filters
 /Ghostbait/Ghostbait/*.filters
+/Ghostbait/*.filters
+Ghostbait.vcxproj.filters

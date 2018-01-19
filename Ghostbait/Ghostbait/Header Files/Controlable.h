@@ -4,6 +4,8 @@
 #include <functional>
 #include <unordered_map>
 
+
+//This becomes some sort of component add-on?
 class Controlable {
 #pragma region Handler
 	//dont touch dis

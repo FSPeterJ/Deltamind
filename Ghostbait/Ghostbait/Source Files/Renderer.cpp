@@ -1,6 +1,8 @@
 #include "Renderer.h"
 #include <math.h>
 #include <fstream>
+#include <VertexTypes.h>
+
 
 void Renderer::createDeviceContextAndSwapchain(Window window)
 {
@@ -128,16 +130,17 @@ void Renderer::setupVRTargets()
 	device->CreateDepthStencilView(rightEye.renderInfo.depthBuffer, &depthStencilDesc, &rightEye.renderInfo.dsv);
 }
 
-void Renderer::renderObjectDefaultState(const Object * obj)
+void Renderer::renderObjectDefaultState(Object * obj)
 {
-	UINT stride = sizeof(VertexPositionColor);
+	UINT stride = sizeof(VertexPositionTextureNormalAnim);
 	UINT offset = 0;
-
-	context->IASetVertexBuffers(0, 1, &meshManagement->GetElement(UINT_MAX)->vertexBuffer, &stride, &offset);
-	context->IASetIndexBuffer(meshManagement->GetElement(UINT_MAX)->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	
+	context->IASetVertexBuffers(0, 1, &obj->GetComponent<Mesh>()->vertexBuffer, &stride, &offset);
+	context->IASetIndexBuffer(obj->GetComponent<Mesh>()->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(obj->position), 0, 0);
+	materialManagement->GetElement(UINT_MAX)->bindToShader(context, factorBuffer);
 
-	context->DrawIndexed(meshManagement->GetElement(UINT_MAX)->indexCount, 0, 0);
+	context->DrawIndexed(obj->GetComponent<Mesh>()->indexCount, 0, 0);
 }
 
 void Renderer::renderToEye(eye * eyeTo)
@@ -151,7 +154,7 @@ void Renderer::renderToEye(eye * eyeTo)
 
 	for(size_t i = 0; i < renderedObjects.size(); ++i)
 	{
-		renderObjectDefaultState(renderedObjects[i]);
+		renderObjectDefaultState((Object*)renderedObjects[i]);
 	}
 	UINT stride = sizeof(VertexPositionTextureNormalAnim);
 	UINT offset = 0;
@@ -223,17 +226,17 @@ void Renderer::Initialize(Window window, VRManager * vr)
 	initDepthStencilView(&defaultPipeline);
 	initRasterState(&defaultPipeline);
 	initShaders();
-	defaultPipeline.vertex_shader = PassThroughPositionColorVS;
-	defaultPipeline.pixel_shader = PassThroughPS;
-	defaultPipeline.input_layout = ILPositionColor;
+	defaultPipeline.vertex_shader = StandardVertexShader;
+	defaultPipeline.pixel_shader = StandardPixelShader;
+	defaultPipeline.input_layout = ILStandard;
 	device->CreateRenderTargetView(backBuffer, NULL, &defaultPipeline.render_target_view);
 	loadPipelineState(&defaultPipeline);
 	meshManagement = new MeshManager();
 	meshManagement->Initialize(device);
-	tempId = meshManagement->AddElement("Assets/BattleMage_mesh.bin");
+	tempId = meshManagement->AddElement("Assets/ScifiRoom_mesh.bin");
 	materialManagement = new MaterialManager();
 	materialManagement->Initialize(device, context);
-	tempMatId = materialManagement->AddElement("Assets/BattleMage_mat.bin");
+	tempMatId = materialManagement->AddElement("Assets/ScifiRoom_mat.bin");
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	context->VSSetConstantBuffers(0, 1, &cameraBuffer);
 	context->VSSetConstantBuffers(1, 1, &modelBuffer);
@@ -322,7 +325,7 @@ void Renderer::registerObject(EventMessageBase* e)
 	//TODO: Need logic to determine which objects group to push to 
 	//based off of what the object has - may include instructions in the future
 	NewObjectMessage* instantiate = (NewObjectMessage*)e;
-	renderedObjects.push_back(instantiate->GetObject());
+	renderedObjects.push_back(instantiate->RetrieveObject());
 }
 
 void Renderer::unregisterObject(EventMessageBase* e)
@@ -331,7 +334,7 @@ void Renderer::unregisterObject(EventMessageBase* e)
 	//TODO: Need logic for which register it is under
 	for(std::vector<const Object*>::iterator iter = renderedObjects.begin(); iter != renderedObjects.end(); ++iter)
 	{
-		if(*iter == removeobjMessage->GetObject())
+		if(*iter == removeobjMessage->RetrieveObject())
 		{
 			renderedObjects.erase(iter);
 			return;
@@ -424,19 +427,14 @@ void Renderer::Render()
 
 	for(size_t i = 0; i < renderedObjects.size(); ++i)
 	{
-		renderObjectDefaultState(renderedObjects[i]);
+		renderObjectDefaultState((Object*)renderedObjects[i]);
 	}
 
 	UINT stride = sizeof(VertexPositionTextureNormalAnim);
 	UINT offset = 0;
-	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(XMMatrixScaling(0.3f, 0.3f, 0.3f)), 0, 0);
-
-	//context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(XMMatrixTranslation(0.0f, -5.0f, 0.0f)), 0, 0);
-	context->VSSetShader(StandardVertexShader, NULL, NULL);
-	context->IASetInputLayout(ILStandard);
+	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(XMMatrixTranslation(1.5f, 0.0f, 0.0f)), 0, 0);
 	context->IASetVertexBuffers(0, 1, &meshManagement->GetElement(tempId)->vertexBuffer, &stride, &offset);
 	context->IASetIndexBuffer(meshManagement->GetElement(tempId)->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-	context->PSSetShader(StandardPixelShader, NULL, NULL);
 	materialManagement->GetElement(tempMatId)->bindToShader(context, factorBuffer);
 	context->DrawIndexed(meshManagement->GetElement(tempId)->indexCount, 0, 0);
 	swapchain->Present(0, 0);

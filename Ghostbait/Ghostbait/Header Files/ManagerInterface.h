@@ -2,13 +2,17 @@
 #include "ComponentBase.h"
 
 
-//Interface for systems to access Managers
+class Object;
+
+//Interface for systems to access managers
 class ManagerInterface
 {
 public:
 	ManagerInterface() {}
 	virtual ~ManagerInterface() {}
-	// 
+	//
 	virtual ComponentBase* GetElement(const unsigned int _id) = 0;
-	virtual int AddElement(const char* _meshFilePath) = 0;
+
+	virtual ComponentBase* GetComponent(const char* filename) = 0;
+	//virtual void CloneComponent(Object* source, Object* destination) = 0;
 };

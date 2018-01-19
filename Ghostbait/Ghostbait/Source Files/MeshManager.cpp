@@ -1,4 +1,5 @@
 #include "MeshManager.h"
+#include "VertexTypes.h"
 #include <fstream>
 
 
@@ -55,9 +56,9 @@ void MeshManager::generateCube()
 	10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
 	25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 };
 #pragma endregion
-	Mesh tempMesh;
-	tempMesh.meshId = UINT_MAX;
-	tempMesh.indexCount = 36;
+	Mesh* newMesh = trackedMeshes.Activate();
+	newMesh->meshId = UINT_MAX;
+	newMesh->indexCount = 36;
 
 	D3D11_SUBRESOURCE_DATA vertexBufferData = { 0 };
 	vertexBufferData.pSysMem = cubeVertices;
@@ -65,11 +66,11 @@ void MeshManager::generateCube()
 	vertexBufferData.SysMemSlicePitch = 0;
 	CD3D11_BUFFER_DESC vertexBufferDesc(sizeof(cubeVertices), D3D11_BIND_VERTEX_BUFFER);
 
-	device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, &tempMesh.vertexBuffer);
+	device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, &newMesh->vertexBuffer);
 	vertexBufferData.pSysMem = &cubeIndices[0];
-	CD3D11_BUFFER_DESC indexBufferDesc(sizeof(unsigned int)*tempMesh.indexCount, D3D11_BIND_INDEX_BUFFER);
-	device->CreateBuffer(&indexBufferDesc, &vertexBufferData, &tempMesh.indexBuffer);
-	trackedMeshes.push_back(tempMesh);
+	CD3D11_BUFFER_DESC indexBufferDesc(sizeof(unsigned int)*newMesh->indexCount, D3D11_BIND_INDEX_BUFFER);
+	device->CreateBuffer(&indexBufferDesc, &vertexBufferData, &newMesh->indexBuffer);
+	meshNames["ManualTestCube"] = newMesh;
 }
 
 MeshManager::MeshManager()
@@ -84,32 +85,32 @@ MeshManager::~MeshManager()
 void MeshManager::Initialize(ID3D11Device* deviceIn)
 {
 	device = deviceIn;
-	generateCube();
-	//ConstructMesh("BattleMage_mesh.bin");
+	//generateCube();
+	Mesh* toEdit = ConstructMesh("Assets/TestCube_mesh.bin");
+	toEdit->meshId = UINT_MAX;
 }
 
 void MeshManager::Destroy()
 {
-	for (size_t i = 0; i < trackedMeshes.size(); ++i)
+	for (Mesh* m : *trackedMeshes.GetActiveList())
 	{
-		trackedMeshes[i].vertexBuffer->Release();
-		trackedMeshes[i].indexBuffer->Release();
+		m->vertexBuffer->Release();
+		m->indexBuffer->Release();
 	}
 }
 
 Mesh* MeshManager::ConstructMesh(const char* _meshFilePath)
 {
-	Mesh loadingIn;
 	std::vector<VertexPositionTextureNormalAnim> verts;
 	std::vector<int> indices;
 	std::ifstream reader;
 	reader.open(_meshFilePath, std::ios_base::binary);
 	int vCount;
 	int iCount;
-	if (reader.is_open())
+	if(reader.is_open())
 	{
 		reader.read((char*)&vCount, sizeof(vCount));
-		for (int i = 0; i < vCount; ++i)
+		for(int i = 0; i < vCount; ++i)
 		{
 			DirectX::XMFLOAT4 pos;
 			//float throwitallaway; //Used when the incoming data is unused
@@ -125,7 +126,7 @@ Mesh* MeshManager::ConstructMesh(const char* _meshFilePath)
 			reader.read((char*)&temp.UV.x, sizeof(temp.UV.x));
 			reader.read((char*)&temp.UV.y, sizeof(temp.UV.y));
 
-			for (int infIndex = 0; infIndex < 4; ++infIndex)
+			for(int infIndex = 0; infIndex < 4; ++infIndex)
 			{
 				reader.read((char*)&temp.indices[infIndex], sizeof(int));
 				reader.read((char*)&temp.weights[infIndex], sizeof(float));
@@ -133,7 +134,7 @@ Mesh* MeshManager::ConstructMesh(const char* _meshFilePath)
 			verts.push_back(temp);
 		}
 		reader.read((char*)&iCount, sizeof(iCount));
-		for (int i = 0; i < iCount; ++i)
+		for(int i = 0; i < iCount; ++i)
 		{
 			int index;
 			reader.read((char*)&index, sizeof(index));
@@ -142,37 +143,46 @@ Mesh* MeshManager::ConstructMesh(const char* _meshFilePath)
 	}
 	reader.close();
 
+	Mesh * loadingIn = trackedMeshes.Activate();
 	D3D11_SUBRESOURCE_DATA vertexBufferData = { 0 };
 	vertexBufferData.pSysMem = &verts[0];
 	vertexBufferData.SysMemPitch = 0;
 	vertexBufferData.SysMemSlicePitch = 0;
 	CD3D11_BUFFER_DESC vertexBufferDesc(sizeof(VertexPositionTextureNormalAnim) * (UINT)verts.size(), D3D11_BIND_VERTEX_BUFFER);
-	device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, &loadingIn.vertexBuffer);
+	device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, &loadingIn->vertexBuffer);
 	vertexBufferData.pSysMem = &indices[0];
 	CD3D11_BUFFER_DESC indexBufferDesc(sizeof(int)*(UINT)indices.size(), D3D11_BIND_INDEX_BUFFER);
-	device->CreateBuffer(&indexBufferDesc, &vertexBufferData, &loadingIn.indexBuffer);
-	loadingIn.indexCount = (unsigned int)indices.size();
-	trackedMeshes.push_back(loadingIn);
-	loadingIn.meshId = (unsigned int)trackedMeshes.size();
-	return &trackedMeshes[trackedMeshes.size()-1];
+	device->CreateBuffer(&indexBufferDesc, &vertexBufferData, &loadingIn->indexBuffer);
+	loadingIn->indexCount = (unsigned int)indices.size();
+	loadingIn->meshId = ++idCounter;
+	meshNames[std::string(_meshFilePath)] = loadingIn;
+	return loadingIn;
 }
 
 
 int MeshManager::AddElement(const char* _meshFilePath)
 {
 	Mesh* mesh = ConstructMesh(_meshFilePath);
-	
 	return mesh->meshId;
 }
 
+Mesh* MeshManager::GetComponent(const char* _meshFilePath)
+{
+	Mesh* mesh = meshNames[std::string(_meshFilePath)];
+	if(!mesh)
+	{
+		mesh = ConstructMesh(_meshFilePath);
+	}
+	return mesh;
+}
 
 Mesh*  MeshManager::GetElement(const unsigned int _id)
 {
-	//
-	for (size_t i = 0; i < trackedMeshes.size(); ++i)
+	//TODO: Better ID tracking?
+	for(Mesh* m : *trackedMeshes.GetActiveList())
 	{
-		if (trackedMeshes[i].meshId == _id)
-			return &trackedMeshes[i];
+		if(m->meshId == _id)
+			return m;
 	}
 	return nullptr;
 }

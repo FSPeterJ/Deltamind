@@ -1,5 +1,6 @@
 #pragma once
 
+// Delete Later
 enum ComponentsListing
 {
 	MESH,
@@ -9,7 +10,9 @@ enum ComponentsListing
 };
 
 // Allows for covariant return types in Manager interface
-struct ComponentBase
+class ComponentBase
 {
-	
+public:
+	bool singleInstance = true;
+	//If you are creating this base, you are doing something wrong.
 };

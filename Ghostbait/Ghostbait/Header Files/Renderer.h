@@ -39,8 +39,8 @@ private:
 
 	struct viewProjectionConstantBuffer
 	{
-		XMFLOAT4X4 view;
-		XMFLOAT4X4 projection;
+		DirectX::XMFLOAT4X4 view;
+		DirectX::XMFLOAT4X4 projection;
 	};
 
 	struct renderTargetInfo
@@ -104,7 +104,7 @@ private:
 	bool LoadShaderFromCSO(char ** szByteCode, size_t& szByteCodeSize, const char* szFileName);
 	void setupVRTargets();
 
-	void renderObjectDefaultState(const Object* obj);
+	void renderObjectDefaultState(Object* obj);
 	void renderToEye(eye* eyeTo);
 
 	void loadPipelineState(pipeline_state_t* pipeline);

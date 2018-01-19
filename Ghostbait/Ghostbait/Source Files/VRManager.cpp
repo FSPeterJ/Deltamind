@@ -3,6 +3,8 @@
 #include "Messagebox.h"
 #include <string>
 
+DirectX::XMFLOAT4X4 VRManager::world = FLOAT4X4Identity;
+
 VRManager::VRManager()
 {
 }
@@ -46,8 +48,8 @@ bool VRManager::Init() {
 	return true;
 }
 
-DirectX::XMMATRIX VRManager::VRProjectionToDirectXMatrix(vr::EVREye eye, float nearPlane, float farPlane) {
-	DirectX::XMMATRIX proj;
+DirectX::XMFLOAT4X4 VRManager::VRProjectionToDirectXMatrix(vr::EVREye eye, float nearPlane, float farPlane) {
+	DirectX::XMFLOAT4X4 proj;
 	
 	float top, bott, left, right;
 	pVRHMD->GetProjectionRaw(eye, &left, &right, &top, &bott);
@@ -55,11 +57,11 @@ DirectX::XMMATRIX VRManager::VRProjectionToDirectXMatrix(vr::EVREye eye, float n
 	right *= nearPlane;
 	top *= -1.0f * nearPlane;
 	bott *= -1.0f * nearPlane;
-	proj = DirectX::XMMatrixPerspectiveOffCenterLH(left, right, bott, top, nearPlane, farPlane);
+	DirectX::XMStoreFloat4x4(&proj, DirectX::XMMatrixPerspectiveOffCenterLH(left, right, bott, top, nearPlane, farPlane));
 
 	return proj;
 }
-DirectX::XMMATRIX VRManager::VRMatrix34ToDirectXMatrix44(vr::HmdMatrix34_t m) {
+DirectX::XMFLOAT4X4 VRManager::VRMatrix34ToDirectXMatrix44(vr::HmdMatrix34_t m) {
 	vr::HmdMatrix44_t mat;
 	mat.m[0][0] = m.m[0][0];
 	mat.m[0][1] = m.m[0][1];
@@ -82,9 +84,9 @@ DirectX::XMMATRIX VRManager::VRMatrix34ToDirectXMatrix44(vr::HmdMatrix34_t m) {
 	mat.m[3][3] = 1.0f;
 	return VRMatrix44ToDirectXMatrix44(mat);
 }
-DirectX::XMMATRIX VRManager::VRMatrix44ToDirectXMatrix44(vr::HmdMatrix44_t m) {
-	DirectX::XMMATRIX outM;
-	outM = DirectX::XMMATRIX(
+DirectX::XMFLOAT4X4 VRManager::VRMatrix44ToDirectXMatrix44(vr::HmdMatrix44_t m) {
+	DirectX::XMFLOAT4X4 outM;
+	outM = DirectX::XMFLOAT4X4(
 		m.m[0][0], m.m[1][0], m.m[2][0] * -1.0f, m.m[3][0],
 		m.m[0][1], m.m[1][1], m.m[2][1] * -1.0f, m.m[3][1],
 		m.m[0][2] * -1.0f, m.m[1][2] * -1.0f, m.m[2][2], m.m[3][2] * -1.0f,
@@ -94,17 +96,15 @@ DirectX::XMMATRIX VRManager::VRMatrix44ToDirectXMatrix44(vr::HmdMatrix44_t m) {
 	return outM;
 }
 
-void VRManager::WriteMatrix(DirectX::XMMATRIX m, int frame = 60) {
+void VRManager::WriteMatrix(DirectX::XMFLOAT4X4 m, int frame = 60) {
 	static int i = 0;
 	if (++i >= frame) {
-		DirectX::XMFLOAT4X4 mat;
-		DirectX::XMStoreFloat4x4(&mat, m);
 
 		Console::WriteLine("-----------------------------------------------------------------------------");
-		Console::Write(mat._11); Console::Write(" "); Console::Write(mat._12); Console::Write(" "); Console::Write(mat._13); Console::Write(" "); Console::WriteLine(mat._14);
-		Console::Write(mat._21); Console::Write(" "); Console::Write(mat._22); Console::Write(" "); Console::Write(mat._23); Console::Write(" "); Console::WriteLine(mat._24);
-		Console::Write(mat._31); Console::Write(" "); Console::Write(mat._32); Console::Write(" "); Console::Write(mat._33); Console::Write(" "); Console::WriteLine(mat._34);
-		Console::Write(mat._41); Console::Write(" "); Console::Write(mat._42); Console::Write(" "); Console::Write(mat._43); Console::Write(" "); Console::WriteLine(mat._44);
+		Console::Write(m._11); Console::Write(" "); Console::Write(m._12); Console::Write(" "); Console::Write(m._13); Console::Write(" "); Console::WriteLine(m._14);
+		Console::Write(m._21); Console::Write(" "); Console::Write(m._22); Console::Write(" "); Console::Write(m._23); Console::Write(" "); Console::WriteLine(m._24);
+		Console::Write(m._31); Console::Write(" "); Console::Write(m._32); Console::Write(" "); Console::Write(m._33); Console::Write(" "); Console::WriteLine(m._34);
+		Console::Write(m._41); Console::Write(" "); Console::Write(m._42); Console::Write(" "); Console::Write(m._43); Console::Write(" "); Console::WriteLine(m._44);
 		i = 0;
 	}
 }
@@ -117,25 +117,22 @@ void VRManager::Shutdown() {
 		vr::VR_Shutdown();
 	}
 }
-DirectX::XMMATRIX VRManager::world = DirectX::XMMatrixIdentity();
-void VRManager::GetVRMatricies(DirectX::XMFLOAT4X4* _leftProj, DirectX::XMFLOAT4X4* _rightProj, DirectX::XMFLOAT4X4* _leftView, DirectX::XMFLOAT4X4* _rightView) {
-	
+void VRManager::GetVRMatrices(DirectX::XMFLOAT4X4* _leftProj, DirectX::XMFLOAT4X4* _rightProj, DirectX::XMFLOAT4X4* _leftView, DirectX::XMFLOAT4X4* _rightView) {
 	UpdateVRPoses();
-	hmdPose *= world;
-	
-	DirectX::XMMATRIX leftView = leftEyeToHead * hmdPose;
-	DirectX::XMMATRIX rightView = rightEyeToHead * hmdPose;
 
-	DirectX::XMFLOAT3 leftPos, rightPos;
-	DirectX::XMStoreFloat3(&leftPos, leftController.pose.r[3]);
-	DirectX::XMStoreFloat3(&rightPos, rightController.pose.r[3]);
-	
-	//WriteMatrix(, 60);
+	DirectX::XMMATRIX mHMDPose;
+	mHMDPose = DirectX::XMLoadFloat4x4(&hmdPose);
 
-	DirectX::XMStoreFloat4x4(_leftProj, leftProj);
-	DirectX::XMStoreFloat4x4(_rightProj, rightProj);
+	mHMDPose *= DirectX::XMLoadFloat4x4(&world);
+	DirectX::XMMATRIX leftView = DirectX::XMLoadFloat4x4(&leftEyeToHead) * mHMDPose;
+	DirectX::XMMATRIX rightView = DirectX::XMLoadFloat4x4(&rightEyeToHead) * mHMDPose;
+	DirectX::XMStoreFloat4x4(&hmdPose, mHMDPose);
+
+	*_leftProj = leftProj;
+	*_rightProj = rightProj;
 	DirectX::XMStoreFloat4x4(_leftView, leftView);
 	DirectX::XMStoreFloat4x4(_rightView, rightView);
+
 }
 
 void VRManager::UpdateVRPoses() {
@@ -150,14 +147,14 @@ void VRManager::UpdateVRPoses() {
 			switch (pVRHMD->GetTrackedDeviceClass(deviceIndex)) {
 			case vr::TrackedDeviceClass_Controller:
 				if(pVRHMD->GetControllerRoleForTrackedDeviceIndex(deviceIndex) == vr::ETrackedControllerRole::TrackedControllerRole_LeftHand){
-					leftController.pose = VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking) *world;
+					DirectX::XMStoreFloat4x4(&leftController.pose, DirectX::XMLoadFloat4x4(&VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking)) * DirectX::XMLoadFloat4x4(&world));
 					leftController.index = deviceIndex;
-					leftController.obj->position = DirectX::XMMatrixScaling(0.3f, 0.3f, 0.3f) * DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(55)) * leftController.pose;// *DirectX::XMMatrixScaling(0.25f, 0.25f, 0.25f);
+					leftController.obj->position = DirectX::XMMatrixScaling(0.3f, 0.3f, 0.3f) * DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(55)) * DirectX::XMLoadFloat4x4(&leftController.pose);// *DirectX::XMMatrixScaling(0.25f, 0.25f, 0.25f);
 				}
 				else if (pVRHMD->GetControllerRoleForTrackedDeviceIndex(deviceIndex) == vr::ETrackedControllerRole::TrackedControllerRole_RightHand) {
-					rightController.pose = VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking) *world;
+					DirectX::XMStoreFloat4x4(&rightController.pose, DirectX::XMLoadFloat4x4(&VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking)) * DirectX::XMLoadFloat4x4(&world));
 					rightController.index = deviceIndex;
-					rightController.obj->position = DirectX::XMMatrixScaling(0.3f, 0.3f, 0.3f) * DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(55)) * rightController.pose;// *DirectX::XMMatrixScaling(0.25f, 0.25f, 0.25f);
+					rightController.obj->position = DirectX::XMMatrixScaling(0.3f, 0.3f, 0.3f) * DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(55)) * DirectX::XMLoadFloat4x4(&rightController.pose);// *DirectX::XMMatrixScaling(0.25f, 0.25f, 0.25f);
 				}
 				break;
 			case vr::TrackedDeviceClass_HMD:  

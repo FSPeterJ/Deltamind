@@ -166,6 +166,7 @@ void Renderer::renderToEye(eye * eyeTo)
 	context->PSSetShader(StandardPixelShader, NULL, NULL);
 	materialManagement->GetElement(tempMatId)->bindToShader(context, factorBuffer);
 	context->DrawIndexed(meshManagement->GetElement(tempId)->indexCount, 0, 0);
+	DebugRenderer::drawTo(eyeTo->renderInfo.rtv, eyeTo->renderInfo.dsv, eyeTo->renderInfo.viewport);
 }
 
 void Renderer::loadPipelineState(pipeline_state_t * pipeline)
@@ -229,6 +230,7 @@ void Renderer::Initialize(Window window, VRManager * vr)
 	defaultPipeline.vertex_shader = StandardVertexShader;
 	defaultPipeline.pixel_shader = StandardPixelShader;
 	defaultPipeline.input_layout = ILStandard;
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	device->CreateRenderTargetView(backBuffer, NULL, &defaultPipeline.render_target_view);
 	loadPipelineState(&defaultPipeline);
 	meshManagement = new MeshManager();
@@ -395,7 +397,7 @@ XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 void Renderer::Render()
 {
 	loadPipelineState(&defaultPipeline);
-	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	DebugRenderer::AddLine(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f), DirectX::XMFLOAT3(3.0f, 3.0f, 3.0f), DirectX::XMFLOAT3(1.0f, 0.0f, 1.0f));
 	if(VRManagement)
 	{
 		VRManagement->GetVRMatricies(&leftEye.camera.projection, &rightEye.camera.projection, &leftEye.camera.view, &rightEye.camera.view);
@@ -409,13 +411,7 @@ void Renderer::Render()
 		XMStoreFloat4x4(&rightEye.camera.view, XMMatrixTranspose(XMMatrixInverse(&XMVectorSet(0, 0, 0, 0), XMLoadFloat4x4(&rightEye.camera.view))));
 
 		renderToEye(&leftEye);
-		context->VSSetShader(PassThroughPositionColorVS, NULL, NULL);
-		context->IASetInputLayout(defaultPipeline.input_layout);
-		context->PSSetShader(PassThroughPS, NULL, NULL);
 		renderToEye(&rightEye);
-		context->VSSetShader(PassThroughPositionColorVS, NULL, NULL);
-		context->IASetInputLayout(defaultPipeline.input_layout);
-		context->PSSetShader(PassThroughPS, NULL, NULL);
 		VRManagement->SendToHMD((void*)leftEye.renderInfo.texture, (void*)rightEye.renderInfo.texture);
 	}
 	float color[] = { 0.5f, 0.5f, 1.0f, 1.0f };

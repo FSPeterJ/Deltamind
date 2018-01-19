@@ -3,7 +3,7 @@
 
 #ifndef NDEBUG
 #define _CRTDBG_MAP_ALLOC
-#define BREAK_AT 605
+//#define BREAK_AT -1
 #include <stdlib.h>
 #include <crtdbg.h>
 #endif

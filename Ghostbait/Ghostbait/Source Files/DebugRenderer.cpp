@@ -54,6 +54,32 @@ void DebugRenderer::AddLine(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2, DirectX:
 	v_count += 2;
 }
 
+void DebugRenderer::AddBox(BoxCollider cIn, DirectX::XMFLOAT3 color)
+{
+	DirectX::XMFLOAT3 cubeCorners[8];
+	cubeCorners[0] = DirectX::XMFLOAT3(cIn.bottLeftBackCorner.x, cIn.bottLeftBackCorner.y, cIn.bottLeftBackCorner.z);
+	cubeCorners[1] = DirectX::XMFLOAT3(cIn.topRightFrontCorner.x, cIn.bottLeftBackCorner.y, cIn.bottLeftBackCorner.z);
+	cubeCorners[2] = DirectX::XMFLOAT3(cIn.bottLeftBackCorner.x, cIn.topRightFrontCorner.y, cIn.bottLeftBackCorner.z);
+	cubeCorners[3] = DirectX::XMFLOAT3(cIn.topRightFrontCorner.x, cIn.topRightFrontCorner.y, cIn.bottLeftBackCorner.z);
+	cubeCorners[4] = DirectX::XMFLOAT3(cIn.bottLeftBackCorner.x, cIn.bottLeftBackCorner.y, cIn.topRightFrontCorner.z);
+	cubeCorners[5] = DirectX::XMFLOAT3(cIn.topRightFrontCorner.x, cIn.bottLeftBackCorner.y, cIn.topRightFrontCorner.z);
+	cubeCorners[6] = DirectX::XMFLOAT3(cIn.bottLeftBackCorner.x, cIn.topRightFrontCorner.y, cIn.topRightFrontCorner.z);
+	cubeCorners[7] = DirectX::XMFLOAT3(cIn.topRightFrontCorner.x, cIn.topRightFrontCorner.y, cIn.topRightFrontCorner.z);
+
+	AddLine(cubeCorners[0], cubeCorners[1], color);
+	AddLine(cubeCorners[0], cubeCorners[2], color);
+	AddLine(cubeCorners[0], cubeCorners[4], color);
+	AddLine(cubeCorners[1], cubeCorners[3], color);
+	AddLine(cubeCorners[1], cubeCorners[5], color);
+	AddLine(cubeCorners[2], cubeCorners[3], color);
+	AddLine(cubeCorners[4], cubeCorners[5], color);
+	AddLine(cubeCorners[4], cubeCorners[6], color);
+	AddLine(cubeCorners[5], cubeCorners[7], color);
+	AddLine(cubeCorners[3], cubeCorners[7], color);
+	AddLine(cubeCorners[2], cubeCorners[6], color);
+	AddLine(cubeCorners[6], cubeCorners[7], color);
+}
+
 void DebugRenderer::drawTo(ID3D11RenderTargetView * rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport)
 {
 	context->OMSetRenderTargets(1, &rtv, dsv);
@@ -74,6 +100,7 @@ void DebugRenderer::drawTo(ID3D11RenderTargetView * rtv, ID3D11DepthStencilView 
 	UINT offset = 0;
 	context->IASetVertexBuffers(0, 1, &vertBuff, &stride, &offset);
 	context->Draw(v_count, 0);
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void DebugRenderer::flushTo(ID3D11RenderTargetView * rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport)

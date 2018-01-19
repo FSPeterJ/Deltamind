@@ -13,7 +13,7 @@ class RigidBody {
 		AppliedForce() {};
 		AppliedForce(float _magnitude, float x, float y, float z, float _time = 1.0f, bool _isConstant = false) :
 			isConstant(_isConstant), timeInAction(_time), magnitude(_magnitude) {
-			XMStoreFloat3(&direction, XMVector3Normalize(XMVectorSet(x, y, z, 0.0f)));
+			DirectX::XMStoreFloat3(&direction, DirectX::XMVector3Normalize(DirectX::XMVectorSet(x, y, z, 0.0f)));
 		};
 	};
 
@@ -33,4 +33,5 @@ public:
 	bool AddForce(float _magnitude);
 	bool AddForce(float _magnitude, float x, float y, float z, float _time = 0.01f, bool _isConstant = false);
 	void Update(float _delta);
+	DirectX::XMVECTOR GetVelocity();
 };

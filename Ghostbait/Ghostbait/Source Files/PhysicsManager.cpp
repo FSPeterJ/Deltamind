@@ -102,15 +102,18 @@ bool PhysicsManager::CapsuleToCapsuleCollision(Collider col1, XMMATRIX& pos1, Co
 
 void PhysicsManager::Update(float dt) {
 	for (int i = 0; i < components.size(); ++i) {
-		//components[i].rigidBody.Update(dt);
+		components[i].rigidBody.Update(dt);
+		components[i].srcObj->position.r[3] += components[i].rigidBody.GetVelocity() * dt;
 	}
 
-	components[0].srcObj->position.r[3] -= XMVectorSet(0, dt, 0, 0);
+	//components[0].srcObj->position.r[3] -= XMVectorSet(0, dt, 0, 0);
 	TestAllComponentsCollision();
 }
-void PhysicsManager::AddComponent(Object* obj) {
+void PhysicsManager::AddComponent(Object* obj, float veloX, float veloY, float veloZ) {
 	PhysicsComponent pc;
 	pc.colliders.push_back(defaultColider);
 	pc.srcObj = obj;
+	pc.rigidBody = RigidBody();
+	pc.rigidBody.SetVelocity(veloX, veloY, veloZ);
 	components.push_back(pc);
 }

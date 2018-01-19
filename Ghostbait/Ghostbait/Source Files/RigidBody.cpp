@@ -25,7 +25,7 @@ void RigidBody::SetMass(float _mass) {
 }
 void RigidBody::CalculateNetAccelaration() {
 	XMVECTOR net = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-	for (unsigned int i = 0; i < MAX_APPLIED_FORCE; ++i) {
+	for (unsigned int i = 0; i < actingForces.size(); ++i) {
 		if (i == 0 && !hasGavity)
 			continue;
 		//Need to take mass into consideration
@@ -40,7 +40,7 @@ bool RigidBody::AddForce(float _magnitude) {
 	}
 	return false;
 }
-bool RigidBody::AddForce(float _magnitude, float x, float y, float z, float _time = 1.0f, bool _isConstant = false) {
+bool RigidBody::AddForce(float _magnitude, float x, float y, float z, float _time, bool _isConstant) {
 	if (actingForces.size() < MAX_APPLIED_FORCE) {
 		actingForces.push_back(AppliedForce(_magnitude, x, y, z, _time, _isConstant));
 		return true;
@@ -59,7 +59,7 @@ void RigidBody::Update(float _delta) {
 		else
 			++i;
 	}
-	for (unsigned int i = 0; i < actingForces.size(); ++i) {
+	for (i = 0; i < actingForces.size(); ++i) {
 		if (!actingForces[i].isConstant) {
 			actingForces[i].timeInAction -= _delta;
 		}
@@ -68,4 +68,7 @@ void RigidBody::Update(float _delta) {
 	CalculateNetAccelaration();
 
 	XMStoreFloat3(&velocity, XMLoadFloat3(&velocity) + (XMLoadFloat3(&netAcceleration) * _delta));
+}
+XMVECTOR RigidBody::GetVelocity() {
+	return XMLoadFloat3(&velocity);
 }

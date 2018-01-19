@@ -38,7 +38,7 @@ public:
 	//bool CreateCapsuleCollider(float radius, float height);
 	//bool CreateBoxCollider(XMFLOAT3 p1, XMFLOAT3 p2);
 
-	void AddComponent(Object* obj);
+	void AddComponent(Object* obj, float veloX = 0.0f, float veloY = 0.0f, float veloZ = 0.0f);
 	void Update(float dt);
 
 };

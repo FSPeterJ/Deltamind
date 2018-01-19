@@ -201,7 +201,6 @@
     <ClInclude Include="trash.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="RigidBody.cpp" />
     <ClCompile Include="Source Files\AnimationManager.cpp" />
     <ClCompile Include="Source Files\Camera.cpp" />
     <ClCompile Include="Source Files\DebugRenderer.cpp" />
@@ -215,6 +214,7 @@
     <ClCompile Include="Source Files\ObjectManager.cpp" />
     <ClCompile Include="Source Files\PhysicsManager.cpp" />
     <ClCompile Include="Source Files\Renderer.cpp" />
+    <ClCompile Include="Source Files\RigidBody.cpp" />
     <ClCompile Include="Source Files\ThreadPool.cpp" />
     <ClCompile Include="Source Files\TypeMapping.cpp" />
     <ClCompile Include="Source Files\VRManager.cpp" />

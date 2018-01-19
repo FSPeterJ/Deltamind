@@ -2,7 +2,7 @@
 #include <math.h>
 #include <fstream>
 #include <VertexTypes.h>
-
+#include "DebugRenderer.h"
 
 void Renderer::createDeviceContextAndSwapchain(Window window)
 {
@@ -237,7 +237,6 @@ void Renderer::Initialize(Window window, VRManager * vr)
 	materialManagement = new MaterialManager();
 	materialManagement->Initialize(device, context);
 	tempMatId = materialManagement->AddElement("Assets/ScifiRoom_mat.bin");
-	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	context->VSSetConstantBuffers(0, 1, &cameraBuffer);
 	context->VSSetConstantBuffers(1, 1, &modelBuffer);
 	context->PSSetConstantBuffers(0, 1, &dirLightBuffer);
@@ -271,6 +270,7 @@ void Renderer::Initialize(Window window, VRManager * vr)
 
 	MessageEvents::Subscribe(EVENT_Instantiated, [this](EventMessageBase * _e) {this->registerObject(_e); });
 	MessageEvents::Subscribe(EVENT_Destroy, [this](EventMessageBase * _e) {this->unregisterObject(_e); });
+	DebugRenderer::Initialize(device, context, modelBuffer, PassThroughPositionColorVS, PassThroughPS, ILPositionColor);
 }
 
 void Renderer::Destroy()
@@ -301,6 +301,7 @@ void Renderer::Destroy()
 	delete meshManagement;
 	materialManagement->Destroy();
 	delete materialManagement;
+	DebugRenderer::Destroy();
 }
 
 void Renderer::registerObject(const Object * toRegister, renderState specialInstructions)
@@ -394,6 +395,7 @@ XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 void Renderer::Render()
 {
 	loadPipelineState(&defaultPipeline);
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	if(VRManagement)
 	{
 		VRManagement->GetVRMatricies(&leftEye.camera.projection, &rightEye.camera.projection, &leftEye.camera.view, &rightEye.camera.view);
@@ -437,6 +439,7 @@ void Renderer::Render()
 	context->IASetIndexBuffer(meshManagement->GetElement(tempId)->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	materialManagement->GetElement(tempMatId)->bindToShader(context, factorBuffer);
 	context->DrawIndexed(meshManagement->GetElement(tempId)->indexCount, 0, 0);
+	DebugRenderer::flushTo(defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport);
 	swapchain->Present(0, 0);
 }
 

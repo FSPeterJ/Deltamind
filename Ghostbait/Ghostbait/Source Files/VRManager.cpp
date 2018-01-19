@@ -148,12 +148,12 @@ void VRManager::UpdateVRPoses() {
 			case vr::TrackedDeviceClass_Controller:  
 				if (!controllerCount) {
 					controller1Pose = VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking);
-					left_controller->position = controller1Pose;
+//					left_controller->position = controller1Pose;
 					++controllerCount;
 				}
 				else {
 					controller2Pose = VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking);
-					right_controller->position = controller2Pose;
+			//		right_controller->position = controller2Pose;
 					++controllerCount;
 				}
 				break;

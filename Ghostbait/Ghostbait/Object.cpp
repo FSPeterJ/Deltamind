@@ -2,13 +2,17 @@
 
 std::unordered_map<std::string, Object*> Object::protoTable;
 
-Pool Object::objectPool = Pool(100,100);
+Pool Object::objectPool = Pool(3,1);
 
 
 
 Object* Object::AddPrototype(std::string type, Object* obj) {
-	Console::WriteLine("Adding prototype for " + type);
+	Debug("Adding prototype for " << type.c_str() << " : " << obj);
+
 	protoTable[type] = obj;
+
+	Debug("I just made a prototype : " << obj);
+
 	return obj;
 }
 

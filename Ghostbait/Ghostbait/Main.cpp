@@ -96,32 +96,32 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 		rendInter->Initialize(wnd, nullptr);
 	}
 
-	int size = sizeof(Object);
-	Console::Write("Object is size: ");
-	Console::WriteLine(size);
 
-	size = sizeof(TestObject);
-	Console::Write("TestObject is size: ");
-	Console::WriteLine(size);
-
+	Debug("sizeof(Object) = " << sizeof(Object));
 
 	MakePrototype(TestObject)
-	
+		
 	Object* o = Object::CreateObject<TestObject>();
 	
-	Console::Write("I just made a #");
-	Console::Write(Object::GetObjectTypeName(o));
-	Console::WriteLine("#");
+	Debug("I just made a " << Object::GetObjectTypeName(o).c_str() << " : " << o);
+
+	Object::CleanUp();
+
+
+	//auto bucket = Object::objectPool.GetBucket<decltype(*o)>();
+//	TestObject* items = bucket->GetItems();
+	
+	//delete[] items;
+	//delete bucket;
 
 
 	//size = sizeof(*((TestObject*)o));
 	//Console::Write("Size of it is: ");
 	//Console::WriteLine(size);
 
-	delete o;
+	//delete o;
 
-
-	system("pause");
+//	system("pause");
 	CleanUp();
 	exit(0);
 
@@ -143,13 +143,8 @@ void Loop() {
 }
 
 void CleanUp() {
-	if(vrMan) {
-		delete vrMan;
-	}
-	if(rendInter) {
-		rendInter->Destroy();
-		delete rendInter;
-	}
+	if(vrMan) { delete vrMan; }
+	if(rendInter) { rendInter->Destroy(); delete rendInter; }
 	ObjectFactory::Shutdown();
 	ThreadPool::Shutdown();
 	if(game) { game->Clean(); delete game; }

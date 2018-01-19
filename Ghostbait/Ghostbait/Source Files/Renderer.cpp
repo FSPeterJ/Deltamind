@@ -396,7 +396,7 @@ void Renderer::Render()
 	loadPipelineState(&defaultPipeline);
 	if(VRManagement)
 	{
-		VRManagement->GetVRMatricies(&leftEye.camera.projection, &rightEye.camera.projection, &leftEye.camera.view, &rightEye.camera.view);
+		VRManagement->GetVRMatrices(&leftEye.camera.projection, &rightEye.camera.projection, &leftEye.camera.view, &rightEye.camera.view);
 
 		//XMStoreFloat4x4(&leftEye.camera.projection, (XMLoadFloat4x4(&defaultCamera.projection)));
 		//XMStoreFloat4x4(&rightEye.camera.projection, (XMLoadFloat4x4(&defaultCamera.projection)));
@@ -407,13 +407,7 @@ void Renderer::Render()
 		XMStoreFloat4x4(&rightEye.camera.view, XMMatrixTranspose(XMMatrixInverse(&XMVectorSet(0, 0, 0, 0), XMLoadFloat4x4(&rightEye.camera.view))));
 
 		renderToEye(&leftEye);
-		context->VSSetShader(PassThroughPositionColorVS, NULL, NULL);
-		context->IASetInputLayout(defaultPipeline.input_layout);
-		context->PSSetShader(PassThroughPS, NULL, NULL);
 		renderToEye(&rightEye);
-		context->VSSetShader(PassThroughPositionColorVS, NULL, NULL);
-		context->IASetInputLayout(defaultPipeline.input_layout);
-		context->PSSetShader(PassThroughPS, NULL, NULL);
 		VRManagement->SendToHMD((void*)leftEye.renderInfo.texture, (void*)rightEye.renderInfo.texture);
 	}
 	float color[] = { 0.5f, 0.5f, 1.0f, 1.0f };

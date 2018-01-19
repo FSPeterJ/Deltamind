@@ -8,6 +8,9 @@ PhysicsManager::~PhysicsManager() {
 
 }
 
+void PhysicsManager::SendCollision(Object* obj1, Object* obj2) {
+}
+
 void PhysicsManager::TestAllComponentsCollision() {
 	for (int comp1 = 0; comp1 < components.size(); ++comp1) {
 		for (int comp2 = 0; comp2 < components.size(); ++comp2) {
@@ -24,21 +27,21 @@ void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponen
 			if (component1.colliders[com1].colliderData->colliderType == SPHERE &&
 				component2.colliders[com2].colliderData->colliderType == SPHERE) {
 				if (SphereToSphereCollision(component1.colliders[com1], component1.srcObj->position.r[3], component2.colliders[com2], component2.srcObj->position.r[3])) {
-					//REACT
+					SendCollision(component1.srcObj, component2.srcObj);
 				}
 			}
 
 			else if (component1.colliders[com1].colliderData->colliderType == CAPSULE &&
 				component2.colliders[com2].colliderData->colliderType == CAPSULE) {
 				if (CapsuleToCapsuleCollision(component1.colliders[com1], component1.srcObj->position, component2.colliders[com2], component2.srcObj->position)) {
-					//REACT
+					SendCollision(component1.srcObj, component2.srcObj);
 				}
 			}
 
 			else if (component1.colliders[com1].colliderData->colliderType == BOX &&
 				component2.colliders[com2].colliderData->colliderType == BOX) {
 				if (BoxToBoxCollision()) {
-					//REACT
+					SendCollision(component1.srcObj, component2.srcObj);
 				}
 			}
 		}

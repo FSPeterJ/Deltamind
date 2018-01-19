@@ -20,6 +20,7 @@ class PhysicsManager {
 	bool SphereToSphereCollision(Collider col1, XMVECTOR& pos1, Collider col2, XMVECTOR& pos2);
 	bool CapsuleToCapsuleCollision(Collider col1, XMMATRIX& pos1, Collider col2, XMMATRIX& pos2);
 	bool BoxToBoxCollision();
+	void SendCollision(Object* obj1, Object* obj2);
 	//bool BoxToCapsuleCollision();
 	//bool CapsuleToSphereCollision();
 	//bool BoxToSphereCollision();

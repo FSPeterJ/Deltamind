@@ -2,20 +2,21 @@
 #include "openvr.h"
 #include "ObjectManager.h"
 #include <DirectXMath.h>
+#define FLOAT4X4Identity DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
 class VRManager
 {
 private:
-	DirectX::XMMATRIX leftProj;
-	DirectX::XMMATRIX rightProj;
-	DirectX::XMMATRIX leftEyeToHead;
-	DirectX::XMMATRIX rightEyeToHead;
+	DirectX::XMFLOAT4X4 leftProj;
+	DirectX::XMFLOAT4X4 rightProj;
+	DirectX::XMFLOAT4X4 leftEyeToHead;
+	DirectX::XMFLOAT4X4 rightEyeToHead;
 
-	DirectX::XMMATRIX VRProjectionToDirectXMatrix(vr::EVREye eye, float nearPlane, float farPlane);
-	DirectX::XMMATRIX VRMatrix34ToDirectXMatrix44(vr::HmdMatrix34_t m);
-	DirectX::XMMATRIX VRMatrix44ToDirectXMatrix44(vr::HmdMatrix44_t m);
+	DirectX::XMFLOAT4X4 VRProjectionToDirectXMatrix(vr::EVREye eye, float nearPlane, float farPlane);
+	DirectX::XMFLOAT4X4 VRMatrix34ToDirectXMatrix44(vr::HmdMatrix34_t m);
+	DirectX::XMFLOAT4X4 VRMatrix44ToDirectXMatrix44(vr::HmdMatrix44_t m);
 
-	void WriteMatrix(DirectX::XMMATRIX m, int frame);
+	void WriteMatrix(DirectX::XMFLOAT4X4 m, int frame);
 
 	void UpdateVRPoses();
 	vr::TrackedDevicePose_t trackedDevicePose[vr::k_unMaxTrackedDeviceCount];
@@ -26,11 +27,12 @@ private:
 public:
 	struct VRController {
 		int index;
-		DirectX::XMMATRIX pose;
+		DirectX::XMFLOAT4X4 pose = FLOAT4X4Identity;
 		Object* obj;
 	};
 
-	DirectX::XMMATRIX hmdPose;
+	static DirectX::XMFLOAT4X4 world;
+	DirectX::XMFLOAT4X4 hmdPose = FLOAT4X4Identity;
 	VRController leftController;
 	VRController rightController;
 
@@ -44,8 +46,6 @@ public:
 
 	bool Init();
 
-	static DirectX::XMMATRIX world;
-
 	void CreateControllers()
 	{
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 0,0,0,1 }, &leftController.obj));
@@ -57,7 +57,7 @@ public:
 		rightController.obj= _right;
 	}
 
-	void GetVRMatricies(DirectX::XMFLOAT4X4* leftProj, DirectX::XMFLOAT4X4* rightProj, DirectX::XMFLOAT4X4* leftView, DirectX::XMFLOAT4X4* rightView);
+	void GetVRMatrices(DirectX::XMFLOAT4X4* leftProj, DirectX::XMFLOAT4X4* rightProj, DirectX::XMFLOAT4X4* leftView, DirectX::XMFLOAT4X4* rightView);
 	void SendToHMD(void* leftTexture, void* rightTexture);
 };
 

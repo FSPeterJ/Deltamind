@@ -16,7 +16,7 @@ protected:
 private:
 
 public:
-
+	//TODO: convert to XMFLAOT4x4
 	DirectX::XMMATRIX position = DirectX::XMMatrixIdentity();
 	TypeContainer<ComponentBase*> Components;
 	//Endnote

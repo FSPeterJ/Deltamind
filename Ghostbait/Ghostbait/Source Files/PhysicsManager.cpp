@@ -88,3 +88,7 @@ bool PhysicsManager::CapsuleToCapsuleCollision(Collider col1, XMMATRIX& pos1, Co
 
 	return false;
 }
+
+void Update(float dt) {
+
+}

@@ -29,10 +29,13 @@ using namespace Console;
 #include "Game.h"
 #include "ThreadPool.h"
 
+#include "PhysicsManager.h"
+
 Renderer* rendInter;
 VRManager* vrMan;
 Game* game;
 InputManager* inputMan;
+PhysicsManager* phyMan;
 
 void ExecuteAsync() {
 	WriteLine("I am executed asyncly!");
@@ -116,6 +119,13 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	game->Start();
 	vrMan->CreateControllers();
 
+	phyMan = new PhysicsManager();
+	Object* cube1, *cube2;
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 0,0,0,1 }, &cube1));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 0,-2,0,1 }, &cube2));
+	phyMan->AddComponent(cube1);
+	phyMan->AddComponent(cube2);
+
 
 }
 
@@ -123,6 +133,7 @@ void Loop() {
 	rendInter->Render();
 	game->Update();
 	inputMan->HandleInput();
+	phyMan->Update(0.0002f);
 }
 
 void CleanUp() {

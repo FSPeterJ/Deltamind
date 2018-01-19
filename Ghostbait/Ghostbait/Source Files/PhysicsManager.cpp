@@ -1,7 +1,16 @@
 #include "PhysicsManager.h"
 
-PhysicsManager::PhysicsManager() {
+Collider PhysicsManager::defaultColider;
+SphereCollider PhysicsManager::defaultSphereColider;
 
+
+PhysicsManager::PhysicsManager() {
+	defaultSphereColider.radius = 0.5f;
+	defaultSphereColider.colliderType = SPHERE;
+
+	defaultColider.centerOffset = { 0, 0, 0 };
+	defaultColider.isTrigger = true;
+	defaultColider.colliderData = &defaultSphereColider;
 }
 
 PhysicsManager::~PhysicsManager() {
@@ -9,6 +18,7 @@ PhysicsManager::~PhysicsManager() {
 }
 
 void PhysicsManager::SendCollision(Object* obj1, Object* obj2) {
+	Console::WriteLine("Cube Collision");
 }
 
 void PhysicsManager::TestAllComponentsCollision() {
@@ -89,6 +99,18 @@ bool PhysicsManager::CapsuleToCapsuleCollision(Collider col1, XMMATRIX& pos1, Co
 	return false;
 }
 
-void Update(float dt) {
 
+void PhysicsManager::Update(float dt) {
+	for (int i = 0; i < components.size(); ++i) {
+		//components[i].rigidBody.Update(dt);
+	}
+
+	components[0].srcObj->position.r[3] -= XMVectorSet(0, dt, 0, 0);
+	TestAllComponentsCollision();
+}
+void PhysicsManager::AddComponent(Object* obj) {
+	PhysicsComponent pc;
+	pc.colliders.push_back(defaultColider);
+	pc.srcObj = obj;
+	components.push_back(pc);
 }

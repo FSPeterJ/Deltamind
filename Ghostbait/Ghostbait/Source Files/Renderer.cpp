@@ -166,7 +166,12 @@ void Renderer::renderToEye(eye * eyeTo)
 	context->PSSetShader(StandardPixelShader, NULL, NULL);
 	materialManagement->GetElement(tempMatId)->bindToShader(context, factorBuffer);
 	context->DrawIndexed(meshManagement->GetElement(tempId)->indexCount, 0, 0);
+#if _DEBUG
 	DebugRenderer::drawTo(eyeTo->renderInfo.rtv, eyeTo->renderInfo.dsv, eyeTo->renderInfo.viewport);
+	context->VSSetShader(StandardVertexShader, NULL, NULL);
+	context->PSSetShader(StandardPixelShader, NULL, NULL);
+	context->IASetInputLayout(ILStandard);
+#endif
 }
 
 void Renderer::loadPipelineState(pipeline_state_t * pipeline)

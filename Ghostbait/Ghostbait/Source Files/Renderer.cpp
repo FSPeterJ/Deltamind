@@ -400,7 +400,7 @@ void Renderer::Render()
 	DebugRenderer::AddLine(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f), DirectX::XMFLOAT3(3.0f, 3.0f, 3.0f), DirectX::XMFLOAT3(1.0f, 0.0f, 1.0f));
 	if(VRManagement)
 	{
-		VRManagement->GetVRMatricies(&leftEye.camera.projection, &rightEye.camera.projection, &leftEye.camera.view, &rightEye.camera.view);
+		VRManagement->GetVRMatrices(&leftEye.camera.projection, &rightEye.camera.projection, &leftEye.camera.view, &rightEye.camera.view);
 
 		//XMStoreFloat4x4(&leftEye.camera.projection, (XMLoadFloat4x4(&defaultCamera.projection)));
 		//XMStoreFloat4x4(&rightEye.camera.projection, (XMLoadFloat4x4(&defaultCamera.projection)));

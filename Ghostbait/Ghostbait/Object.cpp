@@ -2,7 +2,7 @@
 
 std::unordered_map<std::string, Object*> Object::protoTable;
 
-Pool Object::objectPool = Pool(2,1);
+Pool Object::objectPool = Pool(1,1);
 
 
 

@@ -5,7 +5,7 @@
 #include "Console.h"
 using namespace Console;
 #include "Delegate.h"
-#include <array>
+#include <vector>
 
 //#define BUCKET_SIZE 1
 class Pool {
@@ -16,9 +16,9 @@ class Pool {
 		std::vector<BucketType*> activeList;
 		std::vector<BucketType*> inactiveList; //Linked list with head/tail ptrs
 
+		//BucketType* items;
+		std::vector<BucketType> itemList;
 
-
-		BucketType* items;
 		//std::array<BucketType, BUCKET_SIZE> items_array;
 
 		size_t item_count = 0;
@@ -34,33 +34,38 @@ class Pool {
 		}
 
 	public:
-		Bucket(size_t containmentSize) : size(containmentSize), items(new BucketType[containmentSize]) {}
+		Bucket(size_t containmentSize) : size(containmentSize)/*, items(new BucketType[containmentSize])*/ {
+			itemList = std::vector<BucketType>(containmentSize);
+		}
 
 		//void CLEAN() {
 		//	delete[] items;
 		//}
 		//
 		~Bucket() {
-			
 			for(size_t i = 0; i < size; ++i) {
-
-				((BucketType) items[i]).~BucketType();
-			//	::operator delete((BucketType)&items[i]);
-				//((BucketType) items[i]).clean();
+				itemList[i].~BucketType();
 			//	((BucketType) items[i]).~BucketType();
 			}
-			delete[] items;
+
+
+			//delete[] items;
 		}
 
 		BucketType* GetItems() const { return items; }
 
-		BucketType* CreateFreeSpot() { return &items[item_count++]; }
+		
+		BucketType* CreateFreeSpot() { 
+			
+			itemList[item_count].~BucketType();
+			return &itemList[item_count++];
+		
+		}
 
 		BucketType* Activate() {
 			if(inactiveList.size()) {
 
 				//Debug("Activating some " << GetTypeName<BucketType>());
-
 
 				activeList.push_back(inactiveList[0]);
 				inactiveList.erase(inactiveList.begin());

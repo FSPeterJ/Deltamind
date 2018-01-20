@@ -80,6 +80,33 @@ void DebugRenderer::AddBox(BoxCollider cIn, DirectX::XMFLOAT3 color)
 	AddLine(cubeCorners[6], cubeCorners[7], color);
 }
 
+void DebugRenderer::DrawAxes(DirectX::XMFLOAT4X4 toDraw, float length)
+{
+	XMFLOAT3 xAxis;
+	xAxis.x = toDraw._11;
+	xAxis.y = toDraw._12;
+	xAxis.z = toDraw._13;
+	XMFLOAT3 pos;
+	pos.x = toDraw._41;
+	pos.y = toDraw._42;
+	pos.z = toDraw._43;
+	XMFLOAT3 p1temp;
+	p1temp = pos;
+	XMFLOAT3 p2temp;
+	XMStoreFloat3(&p2temp, XMLoadFloat3(&pos) + (length * XMLoadFloat3(&xAxis)));
+	AddLine(p1temp, p2temp, DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f));
+	xAxis.x = toDraw._21;
+	xAxis.y = toDraw._22;
+	xAxis.z = toDraw._23;
+	XMStoreFloat3(&p2temp, XMLoadFloat3(&pos) + (length * XMLoadFloat3(&xAxis)));
+	AddLine(p1temp, p2temp, DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f));
+	xAxis.x = toDraw._31;
+	xAxis.y = toDraw._32;
+	xAxis.z = toDraw._33;
+	XMStoreFloat3(&p2temp, XMLoadFloat3(&pos) + (length * XMLoadFloat3(&xAxis)));
+	AddLine(p1temp, p2temp, DirectX::XMFLOAT3(0.0f, 0.0f, 1.0f));
+}
+
 void DebugRenderer::drawTo(ID3D11RenderTargetView * rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport)
 {
 	context->OMSetRenderTargets(1, &rtv, dsv);

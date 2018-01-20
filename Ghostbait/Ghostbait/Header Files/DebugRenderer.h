@@ -22,6 +22,7 @@ public:
 
 	static void AddLine(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2, DirectX::XMFLOAT3 color);
 	static void AddBox(BoxCollider cIn, DirectX::XMFLOAT3 color);
+	static void DrawAxes(DirectX::XMFLOAT4X4 toDraw, float length);
 	static void drawTo(ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT& viewport);
 	static void flushTo(ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT& viewport);
 };

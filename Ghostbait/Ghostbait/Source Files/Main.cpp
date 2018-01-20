@@ -13,6 +13,7 @@
 #include "Console.h"
 #include "Renderer.h"
 #include "ObjectManager.h"
+#include "MemoryManager.h"
 using namespace Console;
 
 #include "MessageEvents.h"
@@ -68,6 +69,22 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//Free();
 	//exit(0);
 #pragma endregion
+
+
+
+
+
+
+	//Memory Test
+	//=============================
+	MemoryManager memorysys = MemoryManager(600);
+
+
+
+
+
+	//=============================
+
 
 	//Multithreading Test
 	//=============================

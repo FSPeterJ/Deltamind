@@ -176,6 +176,7 @@
     <ClInclude Include="Header Files\InputManager.h" />
     <ClInclude Include="Header Files\ManagerInterface.h" />
     <ClInclude Include="Header Files\MaterialManager.h" />
+    <ClInclude Include="Header Files\MemoryManager.h" />
     <ClInclude Include="Header Files\MeshManager.h" />
     <ClInclude Include="Header Files\Messagebox.h" />
     <ClInclude Include="Header Files\MessageStructs.h" />
@@ -197,6 +198,7 @@
     <ClInclude Include="Header Files\WICTextureLoader.h" />
     <ClInclude Include="Header Files\Window.h" />
     <ClInclude Include="Header Files\MessageEvents.h" />
+    <ClInclude Include="MemoryManager.h" />
     <ClInclude Include="Resource Files\Resource.h" />
     <ClInclude Include="trash.h" />
   </ItemGroup>

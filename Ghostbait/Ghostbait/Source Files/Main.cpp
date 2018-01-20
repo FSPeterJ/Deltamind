@@ -3,7 +3,7 @@
 
 #ifndef NDEBUG
 #define _CRTDBG_MAP_ALLOC
-//#define BREAK_AT -1
+//#define BREAK_AT 762
 #include <stdlib.h>
 #include <crtdbg.h>
 #endif
@@ -154,8 +154,49 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
 	ObjectFactory::RegisterManager<PhysicsComponent, PhysicsManager>(phyMan);
 
-	TypeMap::RegisterComponent<Mesh>("Mesh");
-	TypeMap::RegisterComponent<PhysicsComponent>("Physical");
+
+
+	Debug("sizeof(Object) = " << sizeof(Object));
+
+	MakePrototype(TestObject)
+	MakePrototype(AnotherTestObject)
+		
+	TestObject* o = Object::CreateObject<TestObject>();
+	Debug("I just made a " << Object::GetObjectTypeName(o).c_str() << " : " << o);
+	//
+	AnotherTestObject* oo = Object::CreateObject<AnotherTestObject>();
+	Debug("I just made a " << Object::GetObjectTypeName(oo).c_str() << " : " << oo);
+
+	AnotherTestObject* oo2 = Object::CreateObject<AnotherTestObject>();
+	Debug("I just made a " << Object::GetObjectTypeName(oo2).c_str() << " : " << oo2);
+	Object::CleanUp();
+
+//	oo->~AnotherTestObject();
+	//delete oo;
+
+
+	//auto bucket = Object::objectPool.GetBucket<decltype(*o)>();
+//	TestObject* items = bucket->GetItems();
+	
+	//delete[] items;
+	//delete bucket;
+
+
+	//size = sizeof(*((TestObject*)o));
+	//Console::Write("Size of it is: ");
+	//Console::WriteLine(size);
+
+	//delete o;
+
+//	system("pause");
+	CleanUp();
+	exit(0);
+
+
+
+	ObjectFactory::Initialize(rendInter->getMeshManager());
+	//ObjectFactory::Register<Object>(Object().GetTypeId(), sizeof(Object));
+	//ObjectFactory::Register<TestObject>(TestObject(), TestObject().GetTypeId(), sizeof(TestObject));
 
 	game = new Game();
 	game->Start();
@@ -177,13 +218,8 @@ void Loop() {
 }
 
 void CleanUp() {
-	if(vrMan) {
-		delete vrMan;
-	}
-	if(rendInter) {
-		rendInter->Destroy();
-		delete rendInter;
-	}
+	if(vrMan) { delete vrMan; }
+	if(rendInter) { rendInter->Destroy(); delete rendInter; }
 	ObjectFactory::Shutdown();
 	ThreadPool::Shutdown();
 	ObjectManager::Shutdown();

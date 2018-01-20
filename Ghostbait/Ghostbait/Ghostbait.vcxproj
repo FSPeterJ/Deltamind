@@ -198,7 +198,6 @@
     <ClInclude Include="Header Files\WICTextureLoader.h" />
     <ClInclude Include="Header Files\Window.h" />
     <ClInclude Include="Header Files\MessageEvents.h" />
-    <ClInclude Include="MemoryManager.h" />
     <ClInclude Include="Resource Files\Resource.h" />
     <ClInclude Include="trash.h" />
   </ItemGroup>
@@ -210,11 +209,13 @@
     <ClCompile Include="Source Files\InputManager.cpp" />
     <ClCompile Include="Source Files\Main.cpp" />
     <ClCompile Include="Source Files\MaterialManager.cpp" />
+    <ClCompile Include="Source Files\MemoryManager.cpp" />
     <ClCompile Include="Source Files\MeshManager.cpp" />
     <ClCompile Include="Source Files\MessageEvents.cpp" />
     <ClCompile Include="Source Files\ObjectFactory.cpp" />
     <ClCompile Include="Source Files\ObjectManager.cpp" />
     <ClCompile Include="Source Files\PhysicsManager.cpp" />
+    <ClCompile Include="Source Files\Pool.cpp" />
     <ClCompile Include="Source Files\Renderer.cpp" />
     <ClCompile Include="Source Files\RigidBody.cpp" />
     <ClCompile Include="Source Files\ThreadPool.cpp" />

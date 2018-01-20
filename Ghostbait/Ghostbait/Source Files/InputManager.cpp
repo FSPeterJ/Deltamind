@@ -61,7 +61,9 @@ InputPackage InputManager::VRInput::CheckForInput() {
 					DirectX::XMFLOAT4 temp(vrMan->leftController.pose._41, vrMan->leftController.pose._42, vrMan->leftController.pose._43, vrMan->leftController.pose._44);
 					Object* obj;
 					MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, temp, &obj));
-					obj->position = DirectX::XMMatrixScaling(0.30f, 0.30f, 0.30f) * obj->position;
+					DirectX::XMMATRIX scaled = DirectX::XMLoadFloat4x4(&obj->position);
+
+					XMStoreFloat4x4(&obj->position, DirectX::XMMatrixScaling(0.30f, 0.30f, 0.30f) *scaled);
 					input = none;
 					amount = 0.0f;
 				}

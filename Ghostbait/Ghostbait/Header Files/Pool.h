@@ -1,8 +1,25 @@
 #pragma once
 #include <vector>
+#include "MemoryManager.h"
+#include <new>
+
+
+class _Pool_Base
+{
+protected:
+	static MemoryManager* memManage;
+public:
+	static void RegisterMemory(MemoryManager* mem)
+	{
+		memManage = mem;
+	}
+};
+
 
 template<typename T>
-class Pool {
+class Pool: _Pool_Base {
+
+
 	std::vector< T*> activeList;
 	std::vector< T*> inactiveList; //Linked list with head/tail ptrs
 	T* elements;
@@ -21,10 +38,9 @@ public:
 	Pool(int size = 128)
 	{
 		pool_size = size;
-		elements = new T[pool_size]();
+		elements = new ((void*)(memManage->RequestMemory(pool_size, sizeof(T)))) T;
 		for(int i = 0; i < pool_size; ++i)
 		{
-			elements[i] = T();
 			inactiveList.push_back(&elements[i]);
 		}
 	}
@@ -34,12 +50,12 @@ public:
 		delete[] elements;
 	}
 
-	T &operator[](const int index) 
+	T &operator[](const int index)
 	{
 		return *activeList[index];
 	}
 
-	int GetActiveCount() 
+	int GetActiveCount()
 	{
 		return activeList.size();
 	}

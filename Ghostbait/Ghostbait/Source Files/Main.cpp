@@ -37,6 +37,8 @@ VRManager* vrMan;
 Game* game;
 InputManager* inputMan;
 PhysicsManager* phyMan;
+MemoryManager memorysys;
+
 
 void ExecuteAsync() {
 	WriteLine("I am executed asyncly!");
@@ -77,8 +79,9 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	//Memory Test
 	//=============================
-	MemoryManager memorysys = MemoryManager(600);
 
+	memorysys = MemoryManager();
+	_Pool_Base::RegisterMemory(&memorysys);
 
 
 

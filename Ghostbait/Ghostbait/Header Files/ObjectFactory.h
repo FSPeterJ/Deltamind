@@ -197,8 +197,7 @@ public:
 		{
 			instantiate->SetReturnObject(newobject);
 		}
-
-		newobject->position.r[3] = XMLoadFloat4(&instantiate->GetPosition());
+		memcpy(&newobject->position.m[3], &instantiate->GetPosition(),sizeof(DirectX::XMFLOAT4));
 		Mesh * test = newobject->GetComponent<Mesh>();
 		MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
 	}

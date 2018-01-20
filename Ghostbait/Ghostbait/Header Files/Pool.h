@@ -38,9 +38,11 @@ public:
 	Pool(int size = 128)
 	{
 		pool_size = size;
-		elements = new ((void*)(memManage->RequestMemory(pool_size, sizeof(T)))) T;
+		elements = (T*)memManage->RequestMemory(pool_size, sizeof(T));
+		//elements = new ((void*)(memManage->RequestMemory(pool_size, sizeof(T)))) T;
 		for(int i = 0; i < pool_size; ++i)
 		{
+			new (&elements[i]) T;
 			inactiveList.push_back(&elements[i]);
 		}
 	}

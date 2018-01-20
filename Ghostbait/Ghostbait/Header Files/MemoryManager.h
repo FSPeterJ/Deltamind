@@ -3,15 +3,15 @@
 
 class MemoryManager
 {
-	char* raw_data = nullptr;
-	char* bookmark = nullptr;
-	char* maxMemory = nullptr;
 public:
+	char* maxMemory = nullptr;
+	char* bookmark = nullptr;
+	char* raw_data = nullptr;
 	//Roughly half a gig by default
 	//The alignment is to hopefully not hit a cache page boundary
 	MemoryManager(int bytes = 536870912, int alignment = 8)
 	{
-		raw_data = (char*)_aligned_malloc(bytes, alignment);
+		raw_data = (char*)malloc(bytes);
 		bookmark = raw_data;
 		maxMemory = bytes + raw_data;
 	};
@@ -25,8 +25,10 @@ public:
 		//!!!			YOU MUST CALL THEM YOURSELF BEFORE THIS RUNS			!!!
 		//!!!								WARNING								!!!  
 		//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		_aligned_free(raw_data);
+		free(raw_data);
 	};
 
-	void* RequestMemory(const int count, const int size);
+	char* ReturnBuffer();
+
+	char* RequestMemory(const int count, const int size);
 };

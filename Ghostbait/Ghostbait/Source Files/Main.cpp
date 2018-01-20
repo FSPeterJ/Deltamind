@@ -80,12 +80,31 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//Memory Test
 	//=============================
 
-	memorysys = MemoryManager();
+
+	//char * my_array = (char *)malloc(536870912);
+	//if(my_array == nullptr) throw std::exception("Memory Error");
+
+	//for(int i = 0; i < 2; ++i) {
+	//	new (my_array + i * sizeof(Object)) Object();
+	//}
+	//Object * testing = (Object*) my_array;
+
+	//my_array = memorysys.ReturnBuffer();
 	_Pool_Base::RegisterMemory(&memorysys);
 
+	Pool<Object> yaypool(128);
+
+	//Object* address = (Object*)memorysys.RequestMemory(1, sizeof(Object));
+	//for(int i = 0; i < 2; ++i) {
+	//	new (my_array + i * sizeof(Object)) Object();
+	//}
+
+
+	//Object* supertemp = new (address) Object();
 
 
 
+	exit(0);
 	//=============================
 
 

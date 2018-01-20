@@ -324,3 +324,4 @@ ASALocalRun/
 *.cso
 /Ghostbait/Ghostbait/*.filters
 /Ghostbait/Ghostbait/Ghostbait.vcxproj.filters
+/Ghostbait/Ghostbait_Server/Ghostbait_Server.vcxproj.filters

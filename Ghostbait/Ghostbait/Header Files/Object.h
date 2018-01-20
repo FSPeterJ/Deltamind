@@ -57,7 +57,9 @@ public:
 	static Object* AddPrototype(std::string type, Object* o);
 
 
+	virtual void CleanObject() {
 
+	}
 
 	//private
 	static void CleanUp() {
@@ -90,28 +92,28 @@ template<typename T>
 T* Object::CreateObject() {
 	Object* prefab = 0;
 	std::string name = GetTypeName<T>();
-	Debug("Creating an object " << name.c_str());
+//	Debug("Creating an object " << name.c_str());
 
 	auto element = protoTable.find(name);
 
 	if(element != protoTable.end()) {
-		Debug("Prototype for " << name.c_str() << " exists.");
+	//	Debug("Prototype for " << name.c_str() << " exists.");
 
 		prefab = element->second;
 
 		T* createdObjectSpot = objectPool.GetSpot<T>(name);
-		Debug("Cloning prefab (" << prefab);
-		Debug(") to " << createdObjectSpot);
+	//	Debug("Cloning prefab (" << prefab);
+	//	Debug(") to " << createdObjectSpot);
 		 
 
 		prefab->CloneTo((void*) createdObjectSpot);
-		Debug("Cloned prefab (" << prefab);
-		Debug(") to " << createdObjectSpot);
+		//Debug("Cloned prefab (" << prefab);
+		//Debug(") to " << createdObjectSpot);
 		
 		return createdObjectSpot;
 	}
 
-	Debug("Prototype for " << name.c_str() << " does not exist.");
+	//Debug("Prototype for " << name.c_str() << " does not exist.");
 
 	Messagebox::ShowError("Invalid prototype.", "Type \"" + name + "\" not found.");
 	return 0;

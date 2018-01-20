@@ -22,6 +22,7 @@ class Pool {
 		//std::array<BucketType, BUCKET_SIZE> items_array;
 
 		size_t item_count = 0;
+		size_t size  = 0;
 
 		void RemoveObjectFromActive(const BucketType* o) {
 			auto it = std::find(activeList.begin(), activeList.end(), o);
@@ -33,7 +34,7 @@ class Pool {
 		}
 
 	public:
-		Bucket(size_t containmentSize) : items(new BucketType[containmentSize]) {}
+		Bucket(size_t containmentSize) : size(containmentSize), items(new BucketType[containmentSize]) {}
 
 		//void CLEAN() {
 		//	delete[] items;
@@ -41,26 +42,24 @@ class Pool {
 		//
 		~Bucket() {
 			
-		//	BucketType t = items[0];
-			
-		//	t.clean();
-				
-			//for(size_t i = 0; i < item_count; ++i) {
+			for(size_t i = 0; i < size; ++i) {
+
+				((BucketType) items[i]).~BucketType();
 			//	::operator delete((BucketType)&items[i]);
 				//((BucketType) items[i]).clean();
 			//	((BucketType) items[i]).~BucketType();
-		//	}
+			}
 			delete[] items;
 		}
 
 		BucketType* GetItems() const { return items; }
 
-		BucketType* CreateFreeSpot() { ++item_count; return &items[activeList.size()]; }
+		BucketType* CreateFreeSpot() { return &items[item_count++]; }
 
 		BucketType* Activate() {
 			if(inactiveList.size()) {
 
-				Debug("Activating some " << GetTypeName<BucketType>());
+				//Debug("Activating some " << GetTypeName<BucketType>());
 
 
 				activeList.push_back(inactiveList[0]);
@@ -71,7 +70,7 @@ class Pool {
 
 		void Deactivate(const BucketType* o) {
 
-			Debug("Deactivating a " << GetTypeName<BucketType>() << " : " << o);
+			//Debug("Deactivating a " << GetTypeName<BucketType>() << " : " << o);
 
 
 			RemoveObjectFromActive(o);
@@ -84,12 +83,12 @@ class Pool {
 
 	template<typename BucketType2>
 	void CreateBucket() {
-		Debug("Creating new bucket of type " << GetTypeName<BucketType2>().c_str());
+		//Debug("Creating new bucket of type " << GetTypeName<BucketType2>().c_str());
 
 		Bucket<BucketType2>* theBucket = new Bucket<BucketType2>(bucketSize);
 		bucketList[GetTypeName<BucketType2>()] = theBucket;
 
-		Debug("Made bucket at " << bucketList[GetTypeName<BucketType2>()]);
+		//Debug("Made bucket at " << bucketList[GetTypeName<BucketType2>()]);
 
 		Delete.add([=]() {
 			delete theBucket;
@@ -125,18 +124,18 @@ public:
 	/// <returns>BucketType2 *.</returns>
 	template<typename BucketType2>
 	BucketType2* GetSpot(std::string itemId) {
-		Debug("Getting a new spot from a bucket of type " << GetTypeName<BucketType2>().c_str());
+		//Debug("Getting a new spot from a bucket of type " << GetTypeName<BucketType2>().c_str());
 
 
 		auto element = bucketList.find(itemId);
 
 		if(element != bucketList.end()) {
 			//bucket exists
-			Debug("Bucket exists");
+		//	Debug("Bucket exists");
 
 		} else {
 			//create bucket
-			Debug("Bucket does not exist");
+			//Debug("Bucket does not exist");
 
 			CreateBucket<BucketType2>();
 		}
@@ -145,7 +144,7 @@ public:
 		Bucket<BucketType2>* ourBucket = (Bucket<BucketType2>*)raw_bucket;
 
 		BucketType2* free_spot = ourBucket->CreateFreeSpot();
-		Debug("Made a free spot in bucket : " << free_spot);
+	//	Debug("Made a free spot in bucket : " << free_spot);
 
 		return free_spot;
 	}

@@ -10,41 +10,62 @@ public:
 
 };
 
+static int leakCtor = 0;
+static int leakDtor = 0;
+static int leakClean = 0;
 class Leak : public Object {
 	int* l = nullptr;
 public:
 	Leak() {
+		leakCtor++;
+		Debug("CREATE Leak()" << leakCtor);
+
 		l = new int[1];
 	}
 
 	virtual ~Leak() {
+		leakDtor++;
+		Debug("DELETE ~Leak()" << leakDtor);
 		if(l) {
 			delete[] l;
 			l = 0;
 		}
 	}
-	//virtual void clean() {
-	//	if(l) {
-	//		delete[] l;
-	//		l = 0;
-	//	}
-	//}
+	virtual void CleanObject() {
+		//leakClean++;
+		//Debug("Leak clean()" << leakClean);
+		//if(l) {
+//		/	delete[] l;
+		//	l = 0;
+		//}
+	}
 
 };
 
+static int anotherCtor = 0;
+static int anotherDtor = 0;
+static int anotherClean = 0;
 struct AnotherTestObject: public Leak {
 	int x = 95;
 public:
 	AnotherTestObject(){
 	
-		Debug("Creating a AnotherTestObject : Leak... " << __LINE__ << "  " << __FILE__);
-	
+		anotherCtor++;
+		Debug("CREATE AnotherTestObject() " << anotherCtor << "   " << __LINE__ << "  " << __FILE__);
 	
 	}
-	//virtual void clean() {
-	//	Leak::clean();
-	//}
-	virtual ~AnotherTestObject(){}
+	virtual void CleanObject() {
+		//anotherClean++;
+		//Debug("AnotherTestObject clean()" << anotherClean);
+		//Leak::CleanObject();
+
+	}
+
+	virtual ~AnotherTestObject(){
+		anotherDtor++;
+		Debug("DELETE ~AnotherTestObject()" << anotherDtor);
+		//Leak::CleanObject();
+	}
 
 
 	CloneFunction(AnotherTestObject)

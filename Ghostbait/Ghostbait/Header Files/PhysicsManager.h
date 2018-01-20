@@ -2,8 +2,11 @@
 #include <DirectXMath.h>
 #include <vector>
 #include "PhysicsComponent.h"
+#include "ManagerInterface.h"
+#include "Pool.h"
 
-using namespace DirectX;
+#define MAX_PHYSICALS 1024
+
 
 enum ColliderDataType{
 	Sphere,
@@ -11,14 +14,14 @@ enum ColliderDataType{
 	Box
 };
 
-class PhysicsManager {
-	std::vector<PhysicsComponent> components;
-
+class PhysicsManager : public ManagerInterface {
+	//std::vector<PhysicsComponent> components;
+	Pool<PhysicsComponent> components = Pool<PhysicsComponent>(MAX_PHYSICALS);
 	void CollisionCheck(PhysicsComponent component1, PhysicsComponent component2);
 
 	void TestAllComponentsCollision();
-	bool SphereToSphereCollision(Collider col1, XMVECTOR& pos1, Collider col2, XMVECTOR& pos2);
-	bool CapsuleToCapsuleCollision(Collider col1, XMMATRIX& pos1, Collider col2, XMMATRIX& pos2);
+	bool SphereToSphereCollision(Collider col1, DirectX::XMVECTOR& pos1, Collider col2, DirectX::XMVECTOR& pos2);
+	bool CapsuleToCapsuleCollision(Collider col1, DirectX::XMMATRIX& pos1, Collider col2, DirectX::XMMATRIX& pos2);
 	bool BoxToBoxCollision();
 	void SendCollision(Object* obj1, Object* obj2);
 	//bool BoxToCapsuleCollision();
@@ -39,6 +42,8 @@ public:
 	//bool CreateBoxCollider(XMFLOAT3 p1, XMFLOAT3 p2);
 
 	void AddComponent(Object* obj, float veloX = 0.0f, float veloY = 0.0f, float veloZ = 0.0f);
+	PhysicsComponent* GetComponent(const char * _meshFilePath = nullptr) override;
+	PhysicsComponent* GetElement(const unsigned int _id) override;
 	void Update(float dt);
 
 };

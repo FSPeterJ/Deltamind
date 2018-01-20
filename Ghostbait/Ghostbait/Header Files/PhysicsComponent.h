@@ -35,8 +35,9 @@ struct Collider {
 	bool isTrigger = false;
 };
 
-struct PhysicsComponent : public ComponentBase {
-	Object* srcObj = nullptr;
+struct PhysicsComponent : public InstantiatedCompBase {
 	RigidBody rigidBody;
 	std::vector<Collider> colliders;
+
+
 };

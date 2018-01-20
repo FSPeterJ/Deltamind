@@ -16,8 +16,7 @@ class Pool {
 		std::vector<BucketType*> activeList;
 		std::vector<BucketType*> inactiveList; //Linked list with head/tail ptrs
 
-		//BucketType* items;
-		std::vector<BucketType> itemList;
+		BucketType* items;
 
 		//std::array<BucketType, BUCKET_SIZE> items_array;
 
@@ -34,33 +33,20 @@ class Pool {
 		}
 
 	public:
-		Bucket(size_t containmentSize) : size(containmentSize)/*, items(new BucketType[containmentSize])*/ {
-			itemList = std::vector<BucketType>(containmentSize);
+		Bucket(size_t containmentSize) : size(containmentSize), items(new BucketType[containmentSize]) {
+			for(size_t i = 0; i < size; ++i) { items[i].~BucketType(); }
 		}
 
-		//void CLEAN() {
-		//	delete[] items;
-		//}
-		//
 		~Bucket() {
-			for(size_t i = 0; i < size; ++i) {
-				itemList[i].~BucketType();
-			//	((BucketType) items[i]).~BucketType();
-			}
-
-
-			//delete[] items;
+			//for(size_t i = 0; i < size; ++i) {
+		//		items[i].~BucketType();
+			//}
+			delete[] items;
 		}
 
 		BucketType* GetItems() const { return items; }
 
-		
-		BucketType* CreateFreeSpot() { 
-			
-			itemList[item_count].~BucketType();
-			return &itemList[item_count++];
-		
-		}
+		BucketType* CreateFreeSpot() { return &items[item_count++]; }
 
 		BucketType* Activate() {
 			if(inactiveList.size()) {
@@ -76,7 +62,6 @@ class Pool {
 		void Deactivate(const BucketType* o) {
 
 			//Debug("Deactivating a " << GetTypeName<BucketType>() << " : " << o);
-
 
 			RemoveObjectFromActive(o);
 			inactiveList.push_back(o);
@@ -95,9 +80,7 @@ class Pool {
 
 		//Debug("Made bucket at " << bucketList[GetTypeName<BucketType2>()]);
 
-		Delete.add([=]() {
-			delete theBucket;
-		});
+		Delete.add([=]() { delete theBucket; });
 	}
 public:
 	Pool(size_t _bucketSize, size_t prefabCount) : bucketSize(_bucketSize) {

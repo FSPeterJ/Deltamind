@@ -57,10 +57,6 @@ public:
 	static Object* AddPrototype(std::string type, Object* o);
 
 
-	virtual void CleanObject() {
-
-	}
-
 	//private
 	static void CleanUp() {
 		for(auto e : protoTable) {

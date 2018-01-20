@@ -54,17 +54,11 @@ public:
 		Debug("CREATE AnotherTestObject() " << anotherCtor << "   " << __LINE__ << "  " << __FILE__);
 	
 	}
-	virtual void CleanObject() {
-		//anotherClean++;
-		//Debug("AnotherTestObject clean()" << anotherClean);
-		//Leak::CleanObject();
 
-	}
 
 	virtual ~AnotherTestObject(){
 		anotherDtor++;
 		Debug("DELETE ~AnotherTestObject()" << anotherDtor);
-		//Leak::CleanObject();
 	}
 
 

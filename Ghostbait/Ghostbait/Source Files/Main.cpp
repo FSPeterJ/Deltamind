@@ -154,7 +154,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
 	ObjectFactory::RegisterManager<PhysicsComponent, PhysicsManager>(phyMan);
 
-
+	TypeMap::RegisterComponent<Mesh>("Mesh");
+	TypeMap::RegisterComponent<PhysicsComponent>("Physical");
 
 	Debug("sizeof(Object) = " << sizeof(Object));
 
@@ -218,8 +219,13 @@ void Loop() {
 }
 
 void CleanUp() {
-	if(vrMan) { delete vrMan; }
-	if(rendInter) { rendInter->Destroy(); delete rendInter; }
+	if(vrMan) {
+		delete vrMan;
+	}
+	if(rendInter) {
+		rendInter->Destroy();
+		delete rendInter;
+	}
 	ObjectFactory::Shutdown();
 	ThreadPool::Shutdown();
 	ObjectManager::Shutdown();

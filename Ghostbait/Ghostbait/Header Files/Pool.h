@@ -38,15 +38,16 @@ class Pool {
 		}
 
 		~Bucket() {
-			//for(size_t i = 0; i < size; ++i) {
-		//		items[i].~BucketType();
-			//}
 			delete[] items;
 		}
 
 		BucketType* GetItems() const { return items; }
 
-		BucketType* CreateFreeSpot() { return &items[item_count++]; }
+		BucketType* CreateFreeSpot() { 
+			if(item_count + 1 > size) 
+				throw std::out_of_range("Pool size not sufficient."); 
+			
+			return &items[item_count++]; }
 
 		BucketType* Activate() {
 			if(inactiveList.size()) {
@@ -83,7 +84,7 @@ class Pool {
 		Delete.add([=]() { delete theBucket; });
 	}
 public:
-	Pool(size_t _bucketSize, size_t prefabCount) : bucketSize(_bucketSize) {
+	Pool(size_t _items_per_bucket, size_t prefabCount) : bucketSize(_items_per_bucket) {
 	//	Debug("Creating new Pool");
 
 		bucketList.reserve(prefabCount);

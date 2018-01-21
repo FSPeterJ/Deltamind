@@ -12,6 +12,7 @@
 /// </summary>
 class ObjectFactory {
 
+	static ObjectManager* objMan;
 
 	struct Prefab
 	{
@@ -19,6 +20,7 @@ class ObjectFactory {
 		int managers[64] = {};
 		Object* object = nullptr;
 		std::bitset<64> fastclone;
+		int typeID = INT_MAX;
 	};
 
 	/// <summary>
@@ -32,9 +34,9 @@ class ObjectFactory {
 
 	static std::unordered_map<int, std::function<Object*(void)>> registeredConstructors;
 
-	static std::vector<ManagerInterface*> managers;
+	static std::vector<IComponentManager*> managers;
 
-	//static std::unordered_map<std::string, ManagerInterface*> managerNames;
+	//static std::unordered_map<std::string, IComponentManager*> managerNames;
 
 	//map Names to prefabs
 	static std::unordered_map<std::string, int> prefabNames;
@@ -55,7 +57,9 @@ public:
 	/// <summary>
 	/// Initializes the Object Factory and hands off the managers it needs to access
 	/// </summary>
-	static void Initialize() {
+	static void Initialize(ObjectManager* _objMan)
+	{
+		objMan = _objMan;
 		//int r = TypeMap::getTypeId<std::result_of<decltype(&MeshManager::GetElement)(int&)>>();
 		MessageEvents::Subscribe(EVENT_InstantiateRequest, Instantiate);
 	}
@@ -66,13 +70,14 @@ public:
 	/// Registeres the constructor of a given object and it's object type ID (class) in the factory
 	/// </summary>
 	/// <param name="_id">Class ID to register.</param>
-	template <typename T>
-	static void RegisterPrefabBase(const int _id = 0) {
-		registeredConstructors[_id] = &ConstructorFunc<T>;
+	template <typename ObjectType>
+	static void RegisterPrefabBase() {
+		registeredConstructors[TypeMap::getTypeId<ObjectType>()] = &ConstructorFunc<ObjectType>;
+		objMan->CreatePool<ObjectType>();
 	}
 
 	template <typename ComponentType, typename ManagerType>
-	static void RegisterManager(ManagerInterface * manager) {
+	static void RegisterManager(IComponentManager * manager) {
 		//Mess
 		const int tid = TypeMap::getTypeId<ComponentType>();
 		if(managers.size() <= tid)
@@ -134,6 +139,12 @@ public:
 			int componentCount = 1;
 
 			//TEST CODE ONLY
+
+			char* classes[3] = {
+				"Object",
+				"TestObject",
+				"GameObject"
+			};
 			char* types[3] = {
 				"Mesh",
 				"Material",
@@ -149,7 +160,9 @@ public:
 				prefab->instantiatedComponents[typeID] = component;
 				prefab->fastclone[typeID] = component->singleInstance;
 				//Mesh* testing = (Mesh*)managers[typeID]->GetElement(UINT_MAX);
+
 			}
+			prefab->typeID = TypeMap::getNameId(std::string(classes[0]));
 			if(prefabID == 1)
 			{
 				const int typeIDTEMP = TypeMap::getNameId(std::string(types[2]));
@@ -175,8 +188,8 @@ public:
 		PrefabId pid = instantiate->GetId();
 		const Object * o = prefabs[pid].object;
 
-
-		Object* newobject = ObjectManager::Instantiate();
+		//TODO: ID should be whatever
+		Object* newobject = objMan->Instantiate(prefabs[pid].typeID);
 
 		for(int i = 0; i < 64; i++)
 		{
@@ -197,8 +210,7 @@ public:
 		{
 			instantiate->SetReturnObject(newobject);
 		}
-
-		newobject->position.r[3] = XMLoadFloat4(&instantiate->GetPosition());
+		memcpy(&newobject->position.m[3], &instantiate->GetPosition(),sizeof(DirectX::XMFLOAT4));
 		Mesh * test = newobject->GetComponent<Mesh>();
 		MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
 	}

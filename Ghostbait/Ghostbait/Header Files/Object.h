@@ -5,10 +5,7 @@
 #include "TypeMapping.h"
 #include "TypeContainer.h"
 
-#define ALIGN(w) __declspec(align(w))
-#define ALIGNMENT 16
-
-ALIGN(ALIGNMENT) class Object
+class Object
 {
 
 protected:
@@ -17,16 +14,19 @@ private:
 
 public:
 	//TODO: convert to XMFLAOT4x4
-	DirectX::XMMATRIX position = DirectX::XMMatrixIdentity();
+	DirectX::XMFLOAT4X4 position;
 	TypeContainer<ComponentBase*> Components;
 	//Endnote
 
-	Object() {};
-	virtual ~Object() {};
+	Object()
+	{
+		DirectX::XMStoreFloat4x4(&position, DirectX::XMMatrixIdentity());
 
-	void* operator new(size_t _i) { return _mm_malloc(_i, ALIGNMENT); }
-
-	void operator delete(void* _p) { _mm_free(_p); }
+	};
+	virtual ~Object()
+	{
+		int x = 111;
+	};
 
 	template<typename ComponentType>
 	ComponentType* GetComponent()

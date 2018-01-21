@@ -1,37 +1,46 @@
 #include "ObjectManager.h"
 #include "ObjectFactory.h"
 
-Pool<Object>* ObjectManager::objectpool;
+ObjectManager::ObjectManager(MemoryManager* _memMan, size_t prefabCount): memMan(_memMan)
+{
 
-ObjectManager::ObjectManager() {
-
+	poolList = (_Pool_Base* )memMan->RequestMemory(prefabCount, sizeof(Pool<size_t>));
+	poolListCount = prefabCount;
+	//objectpool.reserve(prefabCount);
 }
 
-ObjectManager::~ObjectManager() {}
+ObjectManager::~ObjectManager()
+{
+	Delete();
+
+}
 
 void ObjectManager::Initialize()
 {
-	MessageEvents::Subscribe(EVENT_Destroy, Destroy);	
-	objectpool = new Pool<Object>(MAX_ENTITY_COUNT);
+
+	MessageEvents::Subscribe(EVENT_Destroy, [this](EventMessageBase * _e) {this->Destroy(_e); });
+	//objectpool = new Pool<Object>(MAX_ENTITY_COUNT);
 	int x = 0;
 }
 
-void ObjectManager::Shutdown()
+void ObjectManager::Shutdown() const
 {
 	//MessageEvents::Unsubscribe(EVENT_InstantiateRequest, Instantiate);
 	//MessageEvents::Unsubscribe(EVENT_Destroy, Destroy);
-	delete objectpool;
-	int x = 0;
+	//Delete();
+	//int x = 0;
 }
 
 
-Object* ObjectManager::Instantiate() {
-	Object* newobject = objectpool->Activate();
+
+
+Object* ObjectManager::Instantiate(int typeID) {
+	Object* newobject = (Object*)poolList[typeID].Activate();
 	return newobject;
 }
 
 void ObjectManager::Destroy(EventMessageBase *e) {
 	DestroyMessage* destroy = (DestroyMessage*)e;
 	Object* o = destroy->RetrieveObject();
-	objectpool->Deactivate(o);
+	pointers2Bucket.find(o)->second->Deactivate(o);
 }

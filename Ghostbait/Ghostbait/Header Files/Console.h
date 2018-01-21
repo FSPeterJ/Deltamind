@@ -28,7 +28,7 @@ namespace Console {
 	inline static void Write(const std::string s) { std::cout << s; }
 	
 	inline static void Write(const int i) { std::cout << std::to_string(i); }
-
+	
 	inline static void Write(const float i) { std::cout << std::to_string(i); }
 
 	inline static void WriteLine(const std::string s) { std::cout << s << std::endl; }
@@ -36,6 +36,11 @@ namespace Console {
 	inline static void WriteLine(const int i) { std::cout << std::to_string(i) << std::endl; }
 
 	inline static void WriteLine(const float i) { std::cout << std::to_string(i) << std::endl; }
+
+#define WriteT( s )   std::cout << s;
+
+#define Debug( s ) do{  std::wostringstream os_; os_ << s << std::endl;  OutputDebugStringW( os_.str().c_str() ); }while(0)
+
 #else
 	static void Allocate() {}
 	static void Free() {}

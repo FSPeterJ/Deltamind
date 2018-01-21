@@ -105,7 +105,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>openvr\headers;Shaders;Resource Files;Source Files;Header Files</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>openvr\headers;Shaders;Resource Files;Source Files;Header Files;E:\Program Files (x86)\Visual Leak Detector\include</AdditionalIncludeDirectories>
       <AdditionalUsingDirectories>d3dcompiler.h;directxmath.h;d3d11_1.h;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
     </ClCompile>
     <Link>
@@ -174,8 +174,9 @@
     <ClInclude Include="Header Files\GameObject.h" />
     <ClInclude Include="Header Files\GameObjectComponent.h" />
     <ClInclude Include="Header Files\InputManager.h" />
-    <ClInclude Include="Header Files\ManagerInterface.h" />
+    <ClInclude Include="Header Files\IComponentManager.h" />
     <ClInclude Include="Header Files\MaterialManager.h" />
+    <ClInclude Include="Header Files\MemoryManager.h" />
     <ClInclude Include="Header Files\MeshManager.h" />
     <ClInclude Include="Header Files\Messagebox.h" />
     <ClInclude Include="Header Files\MessageStructs.h" />
@@ -208,11 +209,14 @@
     <ClCompile Include="Source Files\InputManager.cpp" />
     <ClCompile Include="Source Files\Main.cpp" />
     <ClCompile Include="Source Files\MaterialManager.cpp" />
+    <ClCompile Include="Source Files\MemoryManager.cpp" />
     <ClCompile Include="Source Files\MeshManager.cpp" />
     <ClCompile Include="Source Files\MessageEvents.cpp" />
+    <ClCompile Include="Source Files\Object.cpp" />
     <ClCompile Include="Source Files\ObjectFactory.cpp" />
     <ClCompile Include="Source Files\ObjectManager.cpp" />
     <ClCompile Include="Source Files\PhysicsManager.cpp" />
+    <ClCompile Include="Source Files\Pool.cpp" />
     <ClCompile Include="Source Files\Renderer.cpp" />
     <ClCompile Include="Source Files\RigidBody.cpp" />
     <ClCompile Include="Source Files\ThreadPool.cpp" />

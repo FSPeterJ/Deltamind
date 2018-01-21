@@ -35,16 +35,19 @@ void PhysicsManager::TestAllComponentsCollision() {
 void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponent component2) {
 	for(int com1 = 0; com1 < component1.colliders.size(); ++com1) {
 		for(int com2 = 0; com2 < component2.colliders.size(); ++com2) {
+			XMMATRIX tempA = XMLoadFloat4x4(&component1.parentObject->position);
+			XMMATRIX tempB = XMLoadFloat4x4(&component2.parentObject->position);
 			if(component1.colliders[com1].colliderData->colliderType == SPHERE &&
 				component2.colliders[com2].colliderData->colliderType == SPHERE) {
-				if(SphereToSphereCollision(component1.colliders[com1], component1.parentObject->position.r[3], component2.colliders[com2], component2.parentObject->position.r[3])) {
+				
+				if(SphereToSphereCollision(component1.colliders[com1], tempA.r[3], component2.colliders[com2], tempB.r[3])) {
 					SendCollision(component1.parentObject, component2.parentObject);
 				}
 			}
 
 			else if(component1.colliders[com1].colliderData->colliderType == CAPSULE &&
 				component2.colliders[com2].colliderData->colliderType == CAPSULE) {
-				if(CapsuleToCapsuleCollision(component1.colliders[com1], component1.parentObject->position, component2.colliders[com2], component2.parentObject->position)) {
+				if(CapsuleToCapsuleCollision(component1.colliders[com1], tempA, component2.colliders[com2], tempB)) {
 					SendCollision(component1.parentObject, component2.parentObject);
 				}
 			}
@@ -63,7 +66,8 @@ bool PhysicsManager::SphereToSphereCollision(Collider col1, XMVECTOR& pos1, Coll
 	XMVECTOR offset2 = XMLoadFloat3(&col2.centerOffset);
 	XMVECTOR position1 = offset1 + pos1;
 	XMVECTOR position2 = offset2 + pos2;
-	XMFLOAT3 between; XMStoreFloat3(&between, position1 - position2);
+	XMFLOAT3 between; 
+	XMStoreFloat3(&between, position1 - position2);
 	float sqrDist = between.x*between.x + between.y*between.y + between.z*between.z;
 	float combinedRad = (((SphereCollider*)(col1.colliderData))->radius + ((SphereCollider*)(col2.colliderData))->radius);
 	if(sqrDist < (combinedRad*combinedRad)) return true;
@@ -101,9 +105,14 @@ bool PhysicsManager::CapsuleToCapsuleCollision(Collider col1, XMMATRIX& pos1, Co
 
 void PhysicsManager::Update(const float dt) {
 	std::vector<PhysicsComponent*>* temp = components.GetActiveList();
-	for(int i = 0; i < components.GetActiveCount(); ++i) {
-		components[i].rigidBody.Update(dt);
-		components[i].parentObject->position.r[3] += components[i].rigidBody.GetVelocity() * dt;
+	int activeCount = components.GetActiveCount();
+	for(int i = 0; i < activeCount; ++i) {
+		//This seems absurd, are we sure we can't use XMVECTOR and XMMATRIX in a more manageable manner?
+		XMFLOAT4* objectPosition = (XMFLOAT4*)&components[i].parentObject->position.m[3];
+		XMVECTOR newposition = XMLoadFloat4(objectPosition);
+		newposition += components[i].rigidBody.GetVelocity() * dt;
+		XMStoreFloat4(objectPosition, newposition);
+		//components[i].parentObject->position.r[3] += components[i].rigidBody.GetVelocity() * dt;
 	}
 	//components[0].srcObj->position.r[3] -= XMVectorSet(0, dt, 0, 0);
 	TestAllComponentsCollision();

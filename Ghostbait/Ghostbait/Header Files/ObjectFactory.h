@@ -136,6 +136,12 @@ public:
 			int componentCount = 1;
 
 			//TEST CODE ONLY
+
+			char* classes[3] = {
+				"Object",
+				"TestObject",
+				"GameObject"
+			};
 			char* types[3] = {
 				"Mesh",
 				"Material",
@@ -151,7 +157,9 @@ public:
 				prefab->instantiatedComponents[typeID] = component;
 				prefab->fastclone[typeID] = component->singleInstance;
 				//Mesh* testing = (Mesh*)managers[typeID]->GetElement(UINT_MAX);
+
 			}
+			prefab->typeID = TypeMap::getNameId(std::string(classes[0]));
 			if(prefabID == 1)
 			{
 				const int typeIDTEMP = TypeMap::getNameId(std::string(types[2]));

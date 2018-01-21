@@ -1,6 +1,6 @@
-﻿namespace GhostbaitModelCreator
+namespace GhostbaitModelCreator
 {
-    partial class Form1
+    partial class ModelCreatorForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ModelCreatorForm));
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.className = new System.Windows.Forms.TextBox();
             this.meshFileRemove = new System.Windows.Forms.Button();
@@ -38,6 +39,14 @@
             this.animationListBox = new System.Windows.Forms.ListBox();
             this.animationRemove = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.groupBox7 = new System.Windows.Forms.GroupBox();
+            this.colliderAdd = new System.Windows.Forms.Button();
+            this.colliderListBox = new System.Windows.Forms.ListBox();
+            this.colliderRemove = new System.Windows.Forms.Button();
+            this.groupBox6 = new System.Windows.Forms.GroupBox();
+            this.audioAdd = new System.Windows.Forms.Button();
+            this.audioListBox = new System.Windows.Forms.ListBox();
+            this.audioRemove = new System.Windows.Forms.Button();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.bindPoseFileRemove = new System.Windows.Forms.Button();
             this.bindPoseFileName = new System.Windows.Forms.TextBox();
@@ -54,23 +63,17 @@
             this.fromFBXToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.groupBox6 = new System.Windows.Forms.GroupBox();
-            this.audioAdd = new System.Windows.Forms.Button();
-            this.audioListBox = new System.Windows.Forms.ListBox();
-            this.audioRemove = new System.Windows.Forms.Button();
-            this.groupBox7 = new System.Windows.Forms.GroupBox();
-            this.colliderAdd = new System.Windows.Forms.Button();
-            this.colliderListBox = new System.Windows.Forms.ListBox();
-            this.colliderRemove = new System.Windows.Forms.Button();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.panel1.SuspendLayout();
+            this.groupBox7.SuspendLayout();
+            this.groupBox6.SuspendLayout();
             this.groupBox5.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
-            this.groupBox6.SuspendLayout();
-            this.groupBox7.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox2
@@ -175,6 +178,91 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(200, 637);
             this.panel1.TabIndex = 5;
+            // 
+            // groupBox7
+            // 
+            this.groupBox7.Controls.Add(this.colliderAdd);
+            this.groupBox7.Controls.Add(this.colliderListBox);
+            this.groupBox7.Controls.Add(this.colliderRemove);
+            this.groupBox7.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.groupBox7.Location = new System.Drawing.Point(0, 199);
+            this.groupBox7.Name = "groupBox7";
+            this.groupBox7.Size = new System.Drawing.Size(200, 146);
+            this.groupBox7.TabIndex = 8;
+            this.groupBox7.TabStop = false;
+            this.groupBox7.Text = "Colliders";
+            // 
+            // colliderAdd
+            // 
+            this.colliderAdd.Location = new System.Drawing.Point(3, 118);
+            this.colliderAdd.Name = "colliderAdd";
+            this.colliderAdd.Size = new System.Drawing.Size(84, 22);
+            this.colliderAdd.TabIndex = 4;
+            this.colliderAdd.Text = "Add";
+            this.colliderAdd.UseVisualStyleBackColor = true;
+            this.colliderAdd.Click += new System.EventHandler(this.colliderAdd_Click);
+            // 
+            // colliderListBox
+            // 
+            this.colliderListBox.Dock = System.Windows.Forms.DockStyle.Top;
+            this.colliderListBox.FormattingEnabled = true;
+            this.colliderListBox.Location = new System.Drawing.Point(3, 16);
+            this.colliderListBox.Name = "colliderListBox";
+            this.colliderListBox.Size = new System.Drawing.Size(194, 95);
+            this.colliderListBox.TabIndex = 3;
+            this.colliderListBox.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.colliderListBox_MouseDoubleClick);
+            // 
+            // colliderRemove
+            // 
+            this.colliderRemove.Location = new System.Drawing.Point(113, 118);
+            this.colliderRemove.Name = "colliderRemove";
+            this.colliderRemove.Size = new System.Drawing.Size(84, 22);
+            this.colliderRemove.TabIndex = 2;
+            this.colliderRemove.Text = "Remove";
+            this.colliderRemove.UseVisualStyleBackColor = true;
+            this.colliderRemove.Click += new System.EventHandler(this.colliderRemove_Click);
+            // 
+            // groupBox6
+            // 
+            this.groupBox6.Controls.Add(this.audioAdd);
+            this.groupBox6.Controls.Add(this.audioListBox);
+            this.groupBox6.Controls.Add(this.audioRemove);
+            this.groupBox6.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.groupBox6.Location = new System.Drawing.Point(0, 345);
+            this.groupBox6.Name = "groupBox6";
+            this.groupBox6.Size = new System.Drawing.Size(200, 146);
+            this.groupBox6.TabIndex = 7;
+            this.groupBox6.TabStop = false;
+            this.groupBox6.Text = "Audio";
+            // 
+            // audioAdd
+            // 
+            this.audioAdd.Location = new System.Drawing.Point(3, 118);
+            this.audioAdd.Name = "audioAdd";
+            this.audioAdd.Size = new System.Drawing.Size(84, 22);
+            this.audioAdd.TabIndex = 4;
+            this.audioAdd.Text = "Add";
+            this.audioAdd.UseVisualStyleBackColor = true;
+            this.audioAdd.Click += new System.EventHandler(this.audioAdd_Click);
+            // 
+            // audioListBox
+            // 
+            this.audioListBox.Dock = System.Windows.Forms.DockStyle.Top;
+            this.audioListBox.FormattingEnabled = true;
+            this.audioListBox.Location = new System.Drawing.Point(3, 16);
+            this.audioListBox.Name = "audioListBox";
+            this.audioListBox.Size = new System.Drawing.Size(194, 95);
+            this.audioListBox.TabIndex = 3;
+            // 
+            // audioRemove
+            // 
+            this.audioRemove.Location = new System.Drawing.Point(113, 118);
+            this.audioRemove.Name = "audioRemove";
+            this.audioRemove.Size = new System.Drawing.Size(84, 22);
+            this.audioRemove.TabIndex = 2;
+            this.audioRemove.Text = "Remove";
+            this.audioRemove.UseVisualStyleBackColor = true;
+            this.audioRemove.Click += new System.EventHandler(this.audioRemove_Click);
             // 
             // groupBox5
             // 
@@ -328,104 +416,34 @@
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
-            // groupBox6
+            // pictureBox1
             // 
-            this.groupBox6.Controls.Add(this.audioAdd);
-            this.groupBox6.Controls.Add(this.audioListBox);
-            this.groupBox6.Controls.Add(this.audioRemove);
-            this.groupBox6.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.groupBox6.Location = new System.Drawing.Point(0, 345);
-            this.groupBox6.Name = "groupBox6";
-            this.groupBox6.Size = new System.Drawing.Size(200, 146);
-            this.groupBox6.TabIndex = 7;
-            this.groupBox6.TabStop = false;
-            this.groupBox6.Text = "Audio";
+            this.pictureBox1.Image = global::GhostbaitModelCreator.Properties.Resources.Ghostbait;
+            this.pictureBox1.Location = new System.Drawing.Point(646, 27);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(32, 32);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.pictureBox1.TabIndex = 7;
+            this.pictureBox1.TabStop = false;
             // 
-            // audioAdd
-            // 
-            this.audioAdd.Location = new System.Drawing.Point(3, 118);
-            this.audioAdd.Name = "audioAdd";
-            this.audioAdd.Size = new System.Drawing.Size(84, 22);
-            this.audioAdd.TabIndex = 4;
-            this.audioAdd.Text = "Add";
-            this.audioAdd.UseVisualStyleBackColor = true;
-            this.audioAdd.Click += new System.EventHandler(this.audioAdd_Click);
-            // 
-            // audioListBox
-            // 
-            this.audioListBox.Dock = System.Windows.Forms.DockStyle.Top;
-            this.audioListBox.FormattingEnabled = true;
-            this.audioListBox.Location = new System.Drawing.Point(3, 16);
-            this.audioListBox.Name = "audioListBox";
-            this.audioListBox.Size = new System.Drawing.Size(194, 95);
-            this.audioListBox.TabIndex = 3;
-            // 
-            // audioRemove
-            // 
-            this.audioRemove.Location = new System.Drawing.Point(113, 118);
-            this.audioRemove.Name = "audioRemove";
-            this.audioRemove.Size = new System.Drawing.Size(84, 22);
-            this.audioRemove.TabIndex = 2;
-            this.audioRemove.Text = "Remove";
-            this.audioRemove.UseVisualStyleBackColor = true;
-            this.audioRemove.Click += new System.EventHandler(this.audioRemove_Click);
-            // 
-            // groupBox7
-            // 
-            this.groupBox7.Controls.Add(this.colliderAdd);
-            this.groupBox7.Controls.Add(this.colliderListBox);
-            this.groupBox7.Controls.Add(this.colliderRemove);
-            this.groupBox7.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.groupBox7.Location = new System.Drawing.Point(0, 199);
-            this.groupBox7.Name = "groupBox7";
-            this.groupBox7.Size = new System.Drawing.Size(200, 146);
-            this.groupBox7.TabIndex = 8;
-            this.groupBox7.TabStop = false;
-            this.groupBox7.Text = "Colliders";
-            // 
-            // colliderAdd
-            // 
-            this.colliderAdd.Location = new System.Drawing.Point(3, 118);
-            this.colliderAdd.Name = "colliderAdd";
-            this.colliderAdd.Size = new System.Drawing.Size(84, 22);
-            this.colliderAdd.TabIndex = 4;
-            this.colliderAdd.Text = "Add";
-            this.colliderAdd.UseVisualStyleBackColor = true;
-            this.colliderAdd.Click += new System.EventHandler(this.colliderAdd_Click);
-            // 
-            // colliderListBox
-            // 
-            this.colliderListBox.Dock = System.Windows.Forms.DockStyle.Top;
-            this.colliderListBox.FormattingEnabled = true;
-            this.colliderListBox.Location = new System.Drawing.Point(3, 16);
-            this.colliderListBox.Name = "colliderListBox";
-            this.colliderListBox.Size = new System.Drawing.Size(194, 95);
-            this.colliderListBox.TabIndex = 3;
-            // 
-            // colliderRemove
-            // 
-            this.colliderRemove.Location = new System.Drawing.Point(113, 118);
-            this.colliderRemove.Name = "colliderRemove";
-            this.colliderRemove.Size = new System.Drawing.Size(84, 22);
-            this.colliderRemove.TabIndex = 2;
-            this.colliderRemove.Text = "Remove";
-            this.colliderRemove.UseVisualStyleBackColor = true;
-            this.colliderRemove.Click += new System.EventHandler(this.colliderRemove_Click);
-            // 
-            // Form1
+            // ModelCreatorForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(884, 661);
+            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.menuStrip1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
-            this.Name = "Form1";
+            this.Name = "ModelCreatorForm";
             this.Text = "Ghostbait Model Editor";
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.groupBox3.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
+            this.groupBox7.ResumeLayout(false);
+            this.groupBox6.ResumeLayout(false);
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
             this.groupBox4.ResumeLayout(false);
@@ -434,8 +452,7 @@
             this.groupBox1.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            this.groupBox6.ResumeLayout(false);
-            this.groupBox7.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -477,6 +494,7 @@
         private System.Windows.Forms.Button audioAdd;
         private System.Windows.Forms.ListBox audioListBox;
         private System.Windows.Forms.Button audioRemove;
+        private System.Windows.Forms.PictureBox pictureBox1;
     }
 }
 

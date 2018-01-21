@@ -68,7 +68,7 @@ public:
 			return activeList.back();
 		}
 		else {
-			throw std::out_of_range("Pool size not sufficient.");
+			throw std::out_of_range("Pool is not of sufficient size.");
 			//GET READY TO CRASH :D
 			return nullptr;
 		}

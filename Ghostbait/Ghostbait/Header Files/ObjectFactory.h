@@ -15,9 +15,9 @@ class ObjectFactory {
 
 	struct Prefab
 	{
-		ComponentBase* instantiatedComponents[64];
-		int managers[64];
-		Object* object;
+		ComponentBase* instantiatedComponents[64] = {};
+		int managers[64] = {};
+		Object* object = nullptr;
 		std::bitset<64> fastclone;
 	};
 
@@ -134,12 +134,12 @@ public:
 			int componentCount = 1;
 
 			//TEST CODE ONLY
-			char* types[2] = {
+			char* types[3] = {
 				"Mesh",
-				"Material"
+				"Material",
+				"Physical"
 			};
 			char* names[1] = {
-
 				"Assets/TestCube_mesh.bin"
 			};
 			for(int i = 0; i < 1; i++)
@@ -147,10 +147,18 @@ public:
 				const int typeID = TypeMap::getNameId(std::string(types[i]));
 				ComponentBase * component = managers[typeID]->GetComponent(names[0]);
 				prefab->instantiatedComponents[typeID] = component;
-				prefab->managers[typeID] = 0;
 				prefab->fastclone[typeID] = component->singleInstance;
 				//Mesh* testing = (Mesh*)managers[typeID]->GetElement(UINT_MAX);
 			}
+			if(prefabID == 1)
+			{
+				const int typeIDTEMP = TypeMap::getNameId(std::string(types[2]));
+				ComponentBase * componentTEMP = managers[typeIDTEMP]->GetComponent("");
+				prefab->instantiatedComponents[typeIDTEMP] = componentTEMP;
+				((InstantiatedCompBase *)prefab->instantiatedComponents[typeIDTEMP])->parentObject = prefab->object;
+				prefab->object->SetComponent(prefab->instantiatedComponents[typeIDTEMP], typeIDTEMP);
+			}
+
 			//=================================
 			//prefab->m[0] = mesh;
 			//prefab->object->SetComponent<Mesh>(mesh);
@@ -176,7 +184,13 @@ public:
 			{
 				;
 				newobject->SetComponent(prefabs[pid].instantiatedComponents[i], i);
-			};
+			}
+			else if(prefabs[pid].instantiatedComponents[i] != nullptr) {
+				InstantiatedCompBase* comptemp = (InstantiatedCompBase *)managers[i]->GetComponent("");
+				comptemp->parentObject = newobject; // This will crash if this is not an InstantiatedCompBase
+				newobject->SetComponent(comptemp, i);
+
+			}
 		}
 
 		if(instantiate->GetReturnObject() != nullptr)

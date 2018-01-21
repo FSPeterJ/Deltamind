@@ -22,7 +22,7 @@ public:
 	{
 		pool_size = size;
 		elements = new T[pool_size]();
-		for (int i = 0; i < pool_size; ++i)
+		for(int i = 0; i < pool_size; ++i)
 		{
 			elements[i] = T();
 			inactiveList.push_back(&elements[i]);
@@ -32,6 +32,16 @@ public:
 	~Pool()
 	{
 		delete[] elements;
+	}
+
+	T &operator[](const int index) 
+	{
+		return *activeList[index];
+	}
+
+	int GetActiveCount() 
+	{
+		return activeList.size();
 	}
 
 	std::vector< T*>* GetActiveList()

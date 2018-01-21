@@ -108,24 +108,25 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//int dd = test2->SetComponent<Mesh>(rendInter->getMeshManager()->GetElement(UINT_MAX));
 	//Mesh* temp1 = test->GetComponent<Mesh>();
 	//Mesh* temp2 = test2->GetComponent<Mesh>();
+	phyMan = new PhysicsManager();
 
 	ObjectFactory::Initialize();
 	ObjectFactory::RegisterPrefabBase<Object>(0);
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
+	ObjectFactory::RegisterManager<PhysicsComponent, PhysicsManager>(phyMan);
 
 	TypeMap::RegisterComponent<Mesh>("Mesh");
+	TypeMap::RegisterComponent<PhysicsComponent>("Physical");
 
 	game = new Game();
 	game->Start();
 	vrMan->CreateControllers();
 
-	phyMan = new PhysicsManager();
-	Object* cube1, *cube2;
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 0,0,0,1 }, &cube1));
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 0,-2,0,1 }, &cube2));
-	phyMan->AddComponent(cube1);
-	phyMan->AddComponent(cube2);
 
+	Object* cube1, *cube2;
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, { 0,-1,0,1 }, &cube1));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, { 0,-3,0,1 }, &cube2));
+	cube1->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(0.5f, -1.0f, 0.0f);
 
 }
 

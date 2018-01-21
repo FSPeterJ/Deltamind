@@ -4,12 +4,21 @@
 
 class Object;
 
-//Interface for systems to access managers
-class ManagerInterface
+
+
+
+class IManager
 {
 public:
-	ManagerInterface() {}
-	virtual ~ManagerInterface() {}
+	IManager() {}
+	virtual ~IManager() {}
+};
+
+
+//Interface for systems to access managers
+class IComponentManager : IManager
+{
+public:
 	//
 	virtual ComponentBase* GetElement(const unsigned int _id) = 0;
 

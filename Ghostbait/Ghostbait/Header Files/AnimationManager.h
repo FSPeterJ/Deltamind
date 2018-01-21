@@ -1,7 +1,7 @@
 #pragma once
 #include <DirectXMath.h>
 #include <vector>
-#include <ManagerInterface.h>
+#include <IComponentManager.h>
 
 struct animJoint
 {

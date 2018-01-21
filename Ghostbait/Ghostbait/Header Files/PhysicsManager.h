@@ -2,7 +2,7 @@
 #include <DirectXMath.h>
 #include <vector>
 #include "PhysicsComponent.h"
-#include "ManagerInterface.h"
+#include "IComponentManager.h"
 #include "Pool.h"
 
 #define MAX_PHYSICALS 1024
@@ -14,7 +14,7 @@ enum ColliderDataType{
 	Box
 };
 
-class PhysicsManager : public ManagerInterface {
+class PhysicsManager : public IComponentManager {
 	//std::vector<PhysicsComponent> components;
 	Pool<PhysicsComponent> components = Pool<PhysicsComponent>(MAX_PHYSICALS);
 	void CollisionCheck(PhysicsComponent component1, PhysicsComponent component2);

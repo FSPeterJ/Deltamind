@@ -174,7 +174,7 @@
     <ClInclude Include="Header Files\GameObject.h" />
     <ClInclude Include="Header Files\GameObjectComponent.h" />
     <ClInclude Include="Header Files\InputManager.h" />
-    <ClInclude Include="Header Files\ManagerInterface.h" />
+    <ClInclude Include="Header Files\IComponentManager.h" />
     <ClInclude Include="Header Files\MaterialManager.h" />
     <ClInclude Include="Header Files\MemoryManager.h" />
     <ClInclude Include="Header Files\MeshManager.h" />

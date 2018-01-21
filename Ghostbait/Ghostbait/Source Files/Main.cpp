@@ -14,6 +14,7 @@
 #include "Renderer.h"
 #include "ObjectManager.h"
 #include "MemoryManager.h"
+#include "GameObject.h"
 using namespace Console;
 
 #include "MessageEvents.h"
@@ -37,7 +38,8 @@ VRManager* vrMan;
 Game* game;
 InputManager* inputMan;
 PhysicsManager* phyMan;
-MemoryManager memorysys;
+MemoryManager MemMan;
+ObjectManager* objMan;
 
 
 void ExecuteAsync() {
@@ -89,12 +91,15 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//}
 	//Object * testing = (Object*) my_array;
 
-	//my_array = memorysys.ReturnBuffer();
-	_Pool_Base::RegisterMemory(&memorysys);
+	//my_array = MemMan.ReturnBuffer();
+	_Pool_Base::RegisterMemory(&MemMan);
 
 	Pool<Object> yaypool(128);
 
-	//Object* address = (Object*)memorysys.RequestMemory(1, sizeof(Object));
+
+	sizeof(Pool<GameObject>);
+	sizeof(Pool<Object>);
+	//Object* address = (Object*)MemMan.RequestMemory(1, sizeof(Object));
 	//for(int i = 0; i < 2; ++i) {
 	//	new (my_array + i * sizeof(Object)) Object();
 	//}
@@ -104,7 +109,6 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 
 
-	exit(0);
 	//=============================
 
 
@@ -157,20 +161,20 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterComponent<Mesh>("Mesh");
 	TypeMap::RegisterComponent<PhysicsComponent>("Physical");
 
-	Debug("sizeof(Object) = " << sizeof(Object));
+	//Debug("sizeof(Object) = " << sizeof(Object));
 
-	MakePrototype(TestObject)
-	MakePrototype(AnotherTestObject)
-		
-	TestObject* o = Object::CreateObject<TestObject>();
-	Debug("I just made a " << Object::GetObjectTypeName(o).c_str() << " : " << o);
-	//
-	AnotherTestObject* oo = Object::CreateObject<AnotherTestObject>();
-	Debug("I just made a " << Object::GetObjectTypeName(oo).c_str() << " : " << oo);
+	//MakePrototype(TestObject)
+	//MakePrototype(AnotherTestObject)
+	//	
+	//TestObject* o = Object::CreateObject<TestObject>();
+	//Debug("I just made a " << Object::GetObjectTypeName(o).c_str() << " : " << o);
+	////
+	//AnotherTestObject* oo = Object::CreateObject<AnotherTestObject>();
+	//Debug("I just made a " << Object::GetObjectTypeName(oo).c_str() << " : " << oo);
 
-	AnotherTestObject* oo2 = Object::CreateObject<AnotherTestObject>();
-	Debug("I just made a " << Object::GetObjectTypeName(oo2).c_str() << " : " << oo2);
-	Object::CleanUp();
+	//AnotherTestObject* oo2 = Object::CreateObject<AnotherTestObject>();
+	//Debug("I just made a " << Object::GetObjectTypeName(oo2).c_str() << " : " << oo2);
+	//Object::CleanUp();
 
 //	oo->~AnotherTestObject();
 	//delete oo;
@@ -190,12 +194,16 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//delete o;
 
 //	system("pause");
-	CleanUp();
-	exit(0);
+//	CleanUp();
 
 
 
-	ObjectFactory::Initialize(rendInter->getMeshManager());
+	ObjectFactory::Initialize();
+
+	ObjectFactory::CreatePrefab(&std::string("BaseClass"));
+	ObjectFactory::CreatePrefab(&std::string("TestObject"));
+	objMan = new ObjectManager(&MemMan, ObjectFactory::GetPrefabCount());
+	objMan->Initialize();
 	//ObjectFactory::Register<Object>(Object().GetTypeId(), sizeof(Object));
 	//ObjectFactory::Register<TestObject>(TestObject(), TestObject().GetTypeId(), sizeof(TestObject));
 
@@ -228,7 +236,7 @@ void CleanUp() {
 	}
 	ObjectFactory::Shutdown();
 	ThreadPool::Shutdown();
-	ObjectManager::Shutdown();
+	objMan->Shutdown();
 	if(game) { game->Clean(); delete game; }
 }
 

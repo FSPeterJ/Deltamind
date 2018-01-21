@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <d3d11.h>
-#include "ManagerInterface.h"
+#include "IComponentManager.h"
 
 struct Material : ComponentBase
 {

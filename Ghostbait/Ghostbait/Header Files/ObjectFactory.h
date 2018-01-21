@@ -12,6 +12,7 @@
 /// </summary>
 class ObjectFactory {
 
+	static ObjectManager* objMan;
 
 	struct Prefab
 	{
@@ -19,6 +20,7 @@ class ObjectFactory {
 		int managers[64] = {};
 		Object* object = nullptr;
 		std::bitset<64> fastclone;
+		int typeID = INT_MAX;
 	};
 
 	/// <summary>
@@ -32,9 +34,9 @@ class ObjectFactory {
 
 	static std::unordered_map<int, std::function<Object*(void)>> registeredConstructors;
 
-	static std::vector<ManagerInterface*> managers;
+	static std::vector<IComponentManager*> managers;
 
-	//static std::unordered_map<std::string, ManagerInterface*> managerNames;
+	//static std::unordered_map<std::string, IComponentManager*> managerNames;
 
 	//map Names to prefabs
 	static std::unordered_map<std::string, int> prefabNames;
@@ -72,7 +74,7 @@ public:
 	}
 
 	template <typename ComponentType, typename ManagerType>
-	static void RegisterManager(ManagerInterface * manager) {
+	static void RegisterManager(IComponentManager * manager) {
 		//Mess
 		const int tid = TypeMap::getTypeId<ComponentType>();
 		if(managers.size() <= tid)
@@ -175,8 +177,8 @@ public:
 		PrefabId pid = instantiate->GetId();
 		const Object * o = prefabs[pid].object;
 
-
-		Object* newobject = ObjectManager::Instantiate();
+		//TODO: ID should be whatever
+		Object* newobject = objMan->Instantiate(prefabs[pid].typeID);
 
 		for(int i = 0; i < 64; i++)
 		{

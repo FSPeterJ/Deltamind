@@ -196,7 +196,6 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterComponent<PhysicsComponent>("Physical");
 
 
-	ObjectFactory::Initialize(objMan);
 
 	ObjectFactory::CreatePrefab(&std::string("BaseClass"));
 	ObjectFactory::CreatePrefab(&std::string("TestObject"));
@@ -210,7 +209,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, { 0,-1,0,1 }, &cube1));
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, { 0,-3,0,1 }, &cube2));
 	cube1->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(0.5f, -1.0f, 0.0f);
-
+	cube2->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(1.0f, 0.0f, 0.0f);
+	int x = 113;
 }
 
 void Loop() {

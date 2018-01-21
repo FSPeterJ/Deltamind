@@ -66,7 +66,8 @@ bool PhysicsManager::SphereToSphereCollision(Collider col1, XMVECTOR& pos1, Coll
 	XMVECTOR offset2 = XMLoadFloat3(&col2.centerOffset);
 	XMVECTOR position1 = offset1 + pos1;
 	XMVECTOR position2 = offset2 + pos2;
-	XMFLOAT3 between; XMStoreFloat3(&between, position1 - position2);
+	XMFLOAT3 between; 
+	XMStoreFloat3(&between, position1 - position2);
 	float sqrDist = between.x*between.x + between.y*between.y + between.z*between.z;
 	float combinedRad = (((SphereCollider*)(col1.colliderData))->radius + ((SphereCollider*)(col2.colliderData))->radius);
 	if(sqrDist < (combinedRad*combinedRad)) return true;
@@ -104,9 +105,13 @@ bool PhysicsManager::CapsuleToCapsuleCollision(Collider col1, XMMATRIX& pos1, Co
 
 void PhysicsManager::Update(const float dt) {
 	std::vector<PhysicsComponent*>* temp = components.GetActiveList();
-	for(int i = 0; i < components.GetActiveCount(); ++i) {
-		components[i].rigidBody.Update(dt);
-		memcpy(&components[i].parentObject->position.m[3], &(components[i].rigidBody.GetVelocity() * dt), sizeof(DirectX::XMFLOAT4));
+	int activeCount = components.GetActiveCount();
+	for(int i = 0; i < activeCount; ++i) {
+		//This seems absurd, are we sure we can't use XMVECTOR and XMMATRIX in a more manageable manner?
+		XMFLOAT4* objectPosition = (XMFLOAT4*)&components[i].parentObject->position.m[3];
+		XMVECTOR newposition = XMLoadFloat4(objectPosition);
+		newposition += components[i].rigidBody.GetVelocity() * dt;
+		XMStoreFloat4(objectPosition, newposition);
 		//components[i].parentObject->position.r[3] += components[i].rigidBody.GetVelocity() * dt;
 	}
 	//components[0].srcObj->position.r[3] -= XMVectorSet(0, dt, 0, 0);

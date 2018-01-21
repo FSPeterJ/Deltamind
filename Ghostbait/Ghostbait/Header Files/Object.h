@@ -23,7 +23,10 @@ public:
 		DirectX::XMStoreFloat4x4(&position, DirectX::XMMatrixIdentity());
 
 	};
-	virtual ~Object() {};
+	virtual ~Object()
+	{
+		int x = 111;
+	};
 
 	template<typename ComponentType>
 	ComponentType* GetComponent()

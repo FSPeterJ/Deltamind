@@ -48,9 +48,6 @@
     <ClInclude Include="Header Files\VRManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\ManagerInterface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Header Files\ComponentBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -150,6 +147,9 @@
     <ClInclude Include="Header Files\MemoryManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Header Files\IComponentManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source Files\Window.cpp">
@@ -235,6 +235,12 @@
     </FxCompile>
     <FxCompile Include="PassThroughPS.hlsl">
       <Filter>Shaders\Pixel Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="StandardPixelShader.hlsl">
+      <Filter>Shaders\Pixel Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="StandardVertexShader.hlsl">
+      <Filter>Shaders\Vertex Shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

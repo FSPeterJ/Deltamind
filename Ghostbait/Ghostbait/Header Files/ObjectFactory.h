@@ -57,7 +57,9 @@ public:
 	/// <summary>
 	/// Initializes the Object Factory and hands off the managers it needs to access
 	/// </summary>
-	static void Initialize() {
+	static void Initialize(ObjectManager* _objMan)
+	{
+		objMan = _objMan;
 		//int r = TypeMap::getTypeId<std::result_of<decltype(&MeshManager::GetElement)(int&)>>();
 		MessageEvents::Subscribe(EVENT_InstantiateRequest, Instantiate);
 	}
@@ -68,9 +70,10 @@ public:
 	/// Registeres the constructor of a given object and it's object type ID (class) in the factory
 	/// </summary>
 	/// <param name="_id">Class ID to register.</param>
-	template <typename T>
-	static void RegisterPrefabBase(const int _id = 0) {
-		registeredConstructors[_id] = &ConstructorFunc<T>;
+	template <typename ObjectType>
+	static void RegisterPrefabBase() {
+		registeredConstructors[TypeMap::getTypeId<ObjectType>()] = &ConstructorFunc<ObjectType>;
+		objMan->CreatePool<ObjectType>();
 	}
 
 	template <typename ComponentType, typename ManagerType>

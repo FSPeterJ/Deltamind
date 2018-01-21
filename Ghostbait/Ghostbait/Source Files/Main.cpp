@@ -94,11 +94,6 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//my_array = MemMan.ReturnBuffer();
 	_Pool_Base::RegisterMemory(&MemMan);
 
-	Pool<Object> yaypool(128);
-
-
-	sizeof(Pool<GameObject>);
-	sizeof(Pool<Object>);
 	//Object* address = (Object*)MemMan.RequestMemory(1, sizeof(Object));
 	//for(int i = 0; i < 2; ++i) {
 	//	new (my_array + i * sizeof(Object)) Object();
@@ -151,15 +146,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//int dd = test2->SetComponent<Mesh>(rendInter->getMeshManager()->GetElement(UINT_MAX));
 	//Mesh* temp1 = test->GetComponent<Mesh>();
 	//Mesh* temp2 = test2->GetComponent<Mesh>();
-	phyMan = new PhysicsManager();
 
-	ObjectFactory::Initialize();
-	ObjectFactory::RegisterPrefabBase<Object>(0);
-	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
-	ObjectFactory::RegisterManager<PhysicsComponent, PhysicsManager>(phyMan);
-
-	TypeMap::RegisterComponent<Mesh>("Mesh");
-	TypeMap::RegisterComponent<PhysicsComponent>("Physical");
 
 	//Debug("sizeof(Object) = " << sizeof(Object));
 
@@ -196,16 +183,23 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 //	system("pause");
 //	CleanUp();
 
+	phyMan = new PhysicsManager();
+	objMan = new ObjectManager(&MemMan, 20);
+	objMan->Initialize();
+
+	ObjectFactory::Initialize(objMan);
+	ObjectFactory::RegisterPrefabBase<Object>();
+	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
+	ObjectFactory::RegisterManager<PhysicsComponent, PhysicsManager>(phyMan);
+
+	TypeMap::RegisterComponent<Mesh>("Mesh");
+	TypeMap::RegisterComponent<PhysicsComponent>("Physical");
 
 
-	ObjectFactory::Initialize();
+	ObjectFactory::Initialize(objMan);
 
 	ObjectFactory::CreatePrefab(&std::string("BaseClass"));
 	ObjectFactory::CreatePrefab(&std::string("TestObject"));
-	objMan = new ObjectManager(&MemMan, ObjectFactory::GetPrefabCount());
-	objMan->Initialize();
-	//ObjectFactory::Register<Object>(Object().GetTypeId(), sizeof(Object));
-	//ObjectFactory::Register<TestObject>(TestObject(), TestObject().GetTypeId(), sizeof(TestObject));
 
 	game = new Game();
 	game->Start();

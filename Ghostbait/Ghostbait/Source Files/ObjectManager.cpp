@@ -3,7 +3,9 @@
 
 ObjectManager::ObjectManager(MemoryManager* _memMan, size_t prefabCount): memMan(_memMan)
 {
+
 	poolList = (_Pool_Base* )memMan->RequestMemory(prefabCount, sizeof(Pool<size_t>));
+	poolListCount = prefabCount;
 	//objectpool.reserve(prefabCount);
 }
 
@@ -28,6 +30,8 @@ void ObjectManager::Shutdown() const
 	Delete();
 	int x = 0;
 }
+
+
 
 
 Object* ObjectManager::Instantiate(int typeID) {

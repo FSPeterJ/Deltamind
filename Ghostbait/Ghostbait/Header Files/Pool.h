@@ -77,7 +77,7 @@ public:
 
 
 template<typename T>
-class Pool: _Pool_Base {
+class Pool: public _Pool_Base {
 	T* elements;
 	size_t pool_size;
 
@@ -96,7 +96,10 @@ public:
 
 	~Pool()
 	{
-		delete[] elements;
+		for (int i = 0; i < pool_size; ++i)
+		{
+			elements[i].~T();
+		}
 	}
 
 	T &operator[](const size_t index)

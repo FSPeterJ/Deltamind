@@ -19,18 +19,27 @@ class ObjectManager: public IManager
 
 	void Destroy(EventMessageBase* e);
 
+	
+public:
 	template<typename PoolType>
-	void CreateBucket()
+	void CreatePool()
 	{
-		_Pool_Base** address = &poolList[TypeMap::getTypeId<PoolType>()];
-		if(address == nullptr)
+		int typeID = TypeMap::getTypeId<PoolType>();
+		if(typeID < poolListCount)
 		{
-			Pool<PoolType>* pool = new Pool<PoolType>(bucketSize);
-			*address = pool;
-			Delete.add([=]() { delete pool; });
+			
+			Pool<PoolType>* data = new (&poolList[typeID]) Pool<PoolType>();
+			Delete.add([data]()
+			{
+				data->~Pool<PoolType>();
+
+			});
+		}
+		else
+		{
+			throw std::exception("Attempted to allocate a pool at an index larger than the max objectpool collection size");
 		}
 	}
-public:
 	ObjectManager(MemoryManager* _memMan, size_t prefabCount);
 	~ObjectManager();
 	Object* Instantiate(int typeID);
@@ -60,7 +69,7 @@ public:
 	//		//create bucket
 	//		//Debug("Bucket does not exist");
 
-	//		CreateBucket<BucketType2>();
+	//		CreatePool<BucketType2>();
 	//	}
 
 	//	void* raw_bucket = bucketList[itemId];

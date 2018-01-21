@@ -76,7 +76,7 @@ ObjectManager* objMan;
 		+ Mutliple types of object children can be initialized
 		+ Test recycling of an object
 		+ Verify that the memory block we get (roughly 500MB) is passing out memory address correcty (no stepping on toes or re-righting our neighbors)
-	- Clean up Object Manager constructor (how do we get a base class count if object classes/typenames are registered one at a time by the factory, and then generate the pools in objman?)
+	- Clean up Object Manager constructor.  Maybe Create the Pools using std::vector, then when Initialize is called, check the number of registerd classes and std::move() the pools into managed heap space in an array.
 	- Seperate template instance counting of Objects from Components (See TypeMapping.h for functionality).  MAybe just have two differently named functions and incrementors
 	- Replace factory manual dummy loading with actual loading of a ghostbait object file
 

@@ -1,17 +1,9 @@
-//#pragma once
-//#include <unordered_map>
-//#include <array>
-//#include "StdHeader.h"
-//#include "Console.h"
-//
-//#include <vector>
-//
-////#define BUCKET_SIZE 1
 
 #pragma once
 #include <vector>
 #include "MemoryManager.h"
 #include <new>
+#include "Console.h"
 
 
 //template<typename BucketType>
@@ -80,10 +72,12 @@ template<typename T>
 class Pool: public _Pool_Base {
 	T* elements;
 	size_t pool_size;
-
 public:
 	Pool(size_t size = 128)
 	{
+
+	
+		OutputDebugString(L"start");
 		pool_size = size;
 		elements = (T*)memManage->RequestMemory(pool_size, sizeof(T));
 		//elements = new ((void*)(memManage->RequestMemory(pool_size, sizeof(T)))) T;
@@ -96,6 +90,7 @@ public:
 
 	~Pool()
 	{
+		OutputDebugString(L"end");
 		for (int i = 0; i < pool_size; ++i)
 		{
 			elements[i].~T();

@@ -27,8 +27,8 @@ void ObjectManager::Shutdown() const
 {
 	//MessageEvents::Unsubscribe(EVENT_InstantiateRequest, Instantiate);
 	//MessageEvents::Unsubscribe(EVENT_Destroy, Destroy);
-	Delete();
-	int x = 0;
+	//Delete();
+	//int x = 0;
 }
 
 

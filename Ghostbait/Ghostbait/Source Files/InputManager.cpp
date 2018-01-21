@@ -128,7 +128,7 @@ InputPackage InputManager::KeyboardInput::CheckForInput() {
 	return message;
 }
 bool InputManager::KeyboardInput::MapKey(Control control, int key) {
-	keyBind[control] = key;
+	//keyBind[control] = key;
 	return true;
 }
 

@@ -385,34 +385,34 @@ namespace GhostbaitModelCreator
             this.blankToolStripMenuItem,
             this.fromFBXToolStripMenuItem});
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.newToolStripMenuItem.Text = "New";
             // 
             // blankToolStripMenuItem
             // 
             this.blankToolStripMenuItem.Name = "blankToolStripMenuItem";
-            this.blankToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
+            this.blankToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.blankToolStripMenuItem.Text = "Blank";
             this.blankToolStripMenuItem.Click += new System.EventHandler(this.blankToolStripMenuItem_Click);
             // 
             // fromFBXToolStripMenuItem
             // 
-            this.fromFBXToolStripMenuItem.Enabled = false;
             this.fromFBXToolStripMenuItem.Name = "fromFBXToolStripMenuItem";
-            this.fromFBXToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
+            this.fromFBXToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.fromFBXToolStripMenuItem.Text = "From .FBX";
+            this.fromFBXToolStripMenuItem.Click += new System.EventHandler(this.fromFBXToolStripMenuItem_Click);
             // 
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.openToolStripMenuItem.Text = "Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 

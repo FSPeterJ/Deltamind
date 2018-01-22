@@ -2,11 +2,52 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
+using System.Runtime.InteropServices;
 using static GhostbaitModelCreator.ModelCreatorForm.ComponentType;
 
 namespace GhostbaitModelCreator {
 
     public partial class ModelCreatorForm : Form {
+
+        [DllImport("FBXInterface.dll")]
+        public static extern int get_mesh_from_scene(string fbx_file_path, string output_file_path, string name = null);
+        [DllImport("FBXInterface.dll")]
+        public static extern int get_material_from_scene(string fbx_file_path, string output_file_path, string name = null);
+        [DllImport("FBXInterface.dll")]
+        public static extern int get_animdata_from_scene(string fbx_file_path, string output_file_path);
+        [DllImport("FBXInterface.dll")]
+        public static extern int get_bindpose_from_scene(string fbx_file_path, string output_file_path);
+
+
+        private string GenerateRelativeComponentFilePath(string path, ComponentType type)
+        {
+            int dotIndex = path.LastIndexOf('.');
+            int nameStartIndex = path.LastIndexOf('\\') + 1;
+            string relativePath = path.Substring(nameStartIndex, dotIndex - nameStartIndex);
+            switch (type)
+            {
+                case MESH:
+                    //relativePath = relativePath.Insert(0, "Output\\");
+                    relativePath = relativePath.Insert(relativePath.Length, ".mesh");
+
+                    break;
+                case MATERIAL:
+                    //relativePath = relativePath.Insert(0, "Output\\");
+                    relativePath = relativePath.Insert(relativePath.Length, ".mat");
+                    break;
+                case BINDPOSE:
+                    //relativePath = relativePath.Insert(0, "Output\\");
+                    relativePath = relativePath.Insert(relativePath.Length, ".bind");
+                    break;
+                case ANIMATION:
+                    //relativePath = relativePath.Insert(0, "Output\\");
+                    relativePath = relativePath.Insert(relativePath.Length, ".anim");
+                    break;
+                default:
+                    break;
+            }
+            return relativePath;
+        }
 
         [Flags]
         internal enum ComponentType {
@@ -107,6 +148,7 @@ namespace GhostbaitModelCreator {
         private SingleFileData mat;
         private SingleFileData mesh;
 
+
         public ModelCreatorForm() {
             InitializeComponent();
 
@@ -125,12 +167,20 @@ namespace GhostbaitModelCreator {
         //Animation
         private void animationAdd_Click(object sender, EventArgs e) {
             OpenFileDialog open = new OpenFileDialog {
-                Filter = "Animations (*.anim)| *.anim;",
+                Filter = "Animations (*.anim), (*.fbx)| *.anim; *.fbx;",
                 InitialDirectory = @"C:\",
                 Title = "An animation file for this Ghostbait object."
             };
             if (open.ShowDialog() == DialogResult.OK) {
-                anim.AddFile(open.FileName);
+                if (open.FileName.Substring(open.FileName.Length - 4) == ".fbx")
+                {
+                    string animFile = GenerateRelativeComponentFilePath(open.FileName, ANIMATION);
+                    if (get_animdata_from_scene(open.FileName, animFile) != -1) anim.AddFile(animFile);
+                }
+                else
+                {
+                    anim.AddFile(open.FileName);
+                }
             }
         }
 
@@ -175,6 +225,36 @@ namespace GhostbaitModelCreator {
             className.Text = string.Empty;
         }
 
+        private void fromFBXToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog open = new OpenFileDialog
+            {
+                Filter = "FBX files (*.fbx) | *.fbx;",
+                InitialDirectory = @"C:\",
+                Title = "FBX file"
+            };
+            if (open.ShowDialog() == DialogResult.OK)
+            {
+                mesh.Reset();
+                mat.Reset();
+                bindPose.Reset();
+                colliders.Reset();
+                audio.Reset();
+                anim.Reset();
+
+                string meshFile = GenerateRelativeComponentFilePath(open.FileName, MESH);
+                string matFile = GenerateRelativeComponentFilePath(open.FileName, MATERIAL);
+                string bindPoseFile = GenerateRelativeComponentFilePath(open.FileName, BINDPOSE);
+                string animFile = GenerateRelativeComponentFilePath(open.FileName, ANIMATION);
+
+                if (get_mesh_from_scene(open.FileName, meshFile) != -1) mesh.FilePath = meshFile;
+                if (get_material_from_scene(open.FileName, matFile) != -1) mat.FilePath = matFile;
+                if (get_bindpose_from_scene(open.FileName, bindPoseFile) != -1) bindPose.FilePath = bindPoseFile;
+                if (get_animdata_from_scene(open.FileName, animFile) != -1) anim.AddFile(animFile);
+            }
+        }
+
+        //Collider
         private void colliderAdd_Click(object sender, EventArgs e) => new ColliderCreatorForm(this).Show(this);
 
         private void colliderListBox_MouseDoubleClick(object sender, MouseEventArgs e) {

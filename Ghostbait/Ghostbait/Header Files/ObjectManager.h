@@ -28,8 +28,8 @@ public:
 		int typeID = TypeMap::getTypeId<PoolType>();
 		if(typeID < poolListCount)
 		{
-			
-			Pool<PoolType>* data = new (&poolList[typeID]) Pool<PoolType>();
+			// HATE HATE HATE
+			Pool<PoolType>* data = new (&poolList[0] + sizeof(Pool<PoolType>) * typeID) Pool<PoolType>(4);
 			Delete.add([data]()
 			{
 				data->~Pool<PoolType>();

@@ -139,7 +139,7 @@ void Renderer::renderObjectDefaultState(Object * obj)
 	context->IASetIndexBuffer(obj->GetComponent<Mesh>()->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(XMLoadFloat4x4(&obj->position)), 0, 0);
 	materialManagement->GetElement(UINT_MAX)->bindToShader(context, factorBuffer);
-
+	
 	context->DrawIndexed(obj->GetComponent<Mesh>()->indexCount, 0, 0);
 }
 
@@ -277,7 +277,10 @@ void Renderer::Initialize(Window window, VRManager * vr)
 
 	MessageEvents::Subscribe(EVENT_Instantiated, [this](EventMessageBase * _e) {this->registerObject(_e); });
 	MessageEvents::Subscribe(EVENT_Destroy, [this](EventMessageBase * _e) {this->unregisterObject(_e); });
-	DebugRenderer::Initialize(device, context, modelBuffer, PassThroughPositionColorVS, PassThroughPS, ILPositionColor);
+
+#if _DEBUG
+	DebugRenderer::Initialize(device, context, modelBuffer, PassThroughPositionColorVS, PassThroughPS, ILPositionColor, defaultPipeline.rasterizer_state);
+#endif
 }
 
 void Renderer::Destroy()
@@ -308,7 +311,10 @@ void Renderer::Destroy()
 	delete meshManagement;
 	materialManagement->Destroy();
 	delete materialManagement;
+
+#if _DEBUG
 	DebugRenderer::Destroy();
+#endif
 }
 
 void Renderer::registerObject(const Object * toRegister, renderState specialInstructions)
@@ -402,7 +408,6 @@ XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 void Renderer::Render()
 {
 	loadPipelineState(&defaultPipeline);
-	DebugRenderer::AddLine(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f), DirectX::XMFLOAT3(3.0f, 3.0f, 3.0f), DirectX::XMFLOAT3(1.0f, 0.0f, 1.0f));
 	if(VRManagement)
 	{
 		VRManagement->GetVRMatrices(&leftEye.camera.projection, &rightEye.camera.projection, &leftEye.camera.view, &rightEye.camera.view);
@@ -440,7 +445,9 @@ void Renderer::Render()
 	context->IASetIndexBuffer(meshManagement->GetElement(tempId)->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	materialManagement->GetElement(tempMatId)->bindToShader(context, factorBuffer);
 	context->DrawIndexed(meshManagement->GetElement(tempId)->indexCount, 0, 0);
+#if _DEBUG
 	DebugRenderer::flushTo(defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport);
+#endif
 	swapchain->Present(0, 0);
 }
 

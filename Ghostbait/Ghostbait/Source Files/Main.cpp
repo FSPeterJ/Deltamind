@@ -33,6 +33,8 @@ using namespace Console;
 
 #include "PhysicsManager.h"
 
+#include "XTime.h"
+
 Renderer* rendInter;
 VRManager* vrMan;
 Game* game;
@@ -40,6 +42,7 @@ InputManager* inputMan;
 PhysicsManager* phyMan;
 MemoryManager MemMan;
 ObjectManager* objMan;
+XTime timer;
 
 //
 /*
@@ -92,7 +95,7 @@ ObjectManager* objMan;
 		It's very not cool loading and storing or memcpying just to do one or two lines of math.
 
 	== Memory && Input ==
-	- Solve this problem:
+
 
 End of TODO
 =====================================================================================================================================
@@ -245,13 +248,17 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, { 0,-3,0,1 }, &cube2));
 	cube1->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(0.5f, -1.0f, 0.0f);
 	cube2->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(1.0f, 0.0f, 0.0f);
+
+	//Initialize XTime
+	timer.Restart();
 }
 
 void Loop() {
+	timer.Signal();
 	rendInter->Render();
 	game->Update();
 	inputMan->HandleInput();
-	phyMan->Update(0.0002f);
+	phyMan->Update((float)timer.SmoothDelta());
 }
 
 void CleanUp() {

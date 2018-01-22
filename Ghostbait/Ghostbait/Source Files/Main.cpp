@@ -2,7 +2,7 @@
 #include "vld.h" //Before commenting this out, please see TODO below and then don't comment this out...
 #include "Resource.h"
 #ifndef NDEBUG
-#define _CRTDBG_MAP_ALLOC
+//#define _CRTDBG_MAP_ALLOC
 //#define BREAK_AT 610
 #include <stdlib.h>
 #include <crtdbg.h>
@@ -80,7 +80,6 @@ ObjectManager* objMan;
 	- Seperate template instance counting of Objects from Components (See TypeMapping.h for functionality).  MAybe just have two differently named functions and incrementors
 	- Replace factory manual dummy loading with actual loading of a ghostbait object file
 
-
 	== Engine ==
 	- Add delta time
 	- fix ALL warnings
@@ -96,165 +95,6 @@ ObjectManager* objMan;
 
 	== Memory && Input ==
 	- Solve this problem:
-
-			 WARNING: Visual Leak Detector detected memory leaks!
-			 ----------Block 236 at 0x00000000011843C0 : 16 bytes----------
-			 Leak Hash : 0xE1477244, Count : 1, Total 16 bytes
-			 Call Stack(TID 39024) :
-			 ucrtbased.dll!malloc()
-			 f : \dd\vctools\crt\vcstartup\src\heap\new_scalar.cpp(34): Ghostbait.exe!operator new() + 0xA bytes
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\xmemory0(67): Ghostbait.exe!std::_Default_allocate_traits<1>::_Get_bytes() + 0xC bytes
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\xmemory0(139): Ghostbait.exe!std::_Allocate<std::_Default_allocate_traits<1> >()
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\xmemory0(1056): Ghostbait.exe!std::allocator<std::_Container_proxy>::allocate()
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\list(574): Ghostbait.exe!std::_List_alloc<std::_List_base_types<std::pair<enum Control const, int>, std::allocator<std::pair<enum Control const, int> > > >::_Alloc_proxy() + 0xE bytes
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\list(558): Ghostbait.exe!std::_List_alloc<std::_List_base_types<std::pair<enum Control const, int>, std::allocator<std::pair<enum Control const, int> > > >::_List_alloc<std::_List_base_types<std::pair<enum Control const, int>, std::allocator<std::pair<enum Control const, int> > > >() + 0xC bytes
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\list(753): Ghostbait.exe!std::_List_buy<std::pair<enum Control const, int>, std::allocator<std::pair<enum Control const, int> > >::_List_buy<std::pair<enum Control const, int>, std::allocator<std::pair<enum Control const, int> > ><std::allocator<std::pair<enum Control const, int> >()
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\list(822): Ghostbait.exe!std::list<std::pair<enum Control const, int>, std::allocator<std::pair<enum Control const, int> > >::list<std::pair<enum Control const, int>, std::allocator<std::pair<enum Control const, int> > >()
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\xhash(201): Ghostbait.exe!std::_Hash<std::_Umap_traits<enum Control, int, std::_Uhash_compare<enum Control, std::hash<enum Control>, std::equal_to<enum Control> >, std::allocator<std::pair<enum Control const, int> >, 0> >::_Hash<std::_Umap_traits<enum Control, int, std::_Uhash_compare<enu() + 0x1A bytes
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\unordered_map(130): Ghostbait.exe!std::unordered_map<enum Control, int, std::hash<enum Control>, std::equal_to<enum Control>, std::allocator<std::pair<enum Control const, int> > >::unordered_map<enum Control, int, std::hash<enum Control>, std::equal_to<enum Control>, std::allocator<std::pair<enum()
-	->		 Ghostbait.exe!InputManager::InputBridge::InputBridge() + 0x4E bytes
-			 e : \projects\final project\smoking - sandwich\ghostbait\ghostbait\source files\inputmanager.cpp(109): Ghostbait.exe!InputManager::KeyboardInput::KeyboardInput() + 0x41 bytes
-			 e : \projects\final project\smoking - sandwich\ghostbait\ghostbait\source files\inputmanager.cpp(167): Ghostbait.exe!InputManager::SetInputType() + 0x27 bytes
-			 e : \projects\final project\smoking - sandwich\ghostbait\ghostbait\header files\inputmanager.h(59): Ghostbait.exe!InputManager::InputManager()
-			 e : \projects\final project\smoking - sandwich\ghostbait\ghostbait\source files\main.cpp(139): Ghostbait.exe!Setup() + 0x40 bytes
-			 e : \projects\final project\smoking - sandwich\ghostbait\ghostbait\source files\main.cpp(259): Ghostbait.exe!wWinMain()
-			 f : \dd\vctools\crt\vcstartup\src\startup\exe_common.inl(123): Ghostbait.exe!invoke_main()
-			 f : \dd\vctools\crt\vcstartup\src\startup\exe_common.inl(283): Ghostbait.exe!__scrt_common_main_seh() + 0x5 bytes
-			 f : \dd\vctools\crt\vcstartup\src\startup\exe_common.inl(326): Ghostbait.exe!__scrt_common_main()
-			 f : \dd\vctools\crt\vcstartup\src\startup\exe_wwinmain.cpp(17): Ghostbait.exe!wWinMainCRTStartup()
-			 KERNEL32.DLL!BaseThreadInitThunk() + 0x14 bytes
-			 ntdll.dll!RtlUserThreadStart() + 0x21 bytes
-			 Data :
-			 F0 07 30 05    8A 01 00 00    00 00 00 00    00 00 00 00     ..0..... ........
-
-
-			 ----------Block 237 at 0x0000000001184A00 : 16 bytes----------
-			 Leak Hash : 0xA5209977, Count : 1, Total 16 bytes
-			 Call Stack(TID 39024) :
-			 ucrtbased.dll!malloc()
-			 f : \dd\vctools\crt\vcstartup\src\heap\new_scalar.cpp(34): Ghostbait.exe!operator new() + 0xA bytes
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\xmemory0(67): Ghostbait.exe!std::_Default_allocate_traits<1>::_Get_bytes() + 0xC bytes
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\xmemory0(139): Ghostbait.exe!std::_Allocate<std::_Default_allocate_traits<1> >()
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\xmemory0(1056): Ghostbait.exe!std::allocator<std::_Container_proxy>::allocate()
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\vector(547): Ghostbait.exe!std::_Vector_alloc<std::_Vec_base_types<std::_List_unchecked_iterator<std::_List_val<std::_List_simple_types<std::pair<enum Control const, int> > > >, std::allocator<std::_List_unchecked_iterator<std::_List_val<std::_List_simple_types<std::pair<enum Contro() + 0xE bytes
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\vector(500): Ghostbait.exe!std::_Vector_alloc<std::_Vec_base_types<std::_List_unchecked_iterator<std::_List_val<std::_List_simple_types<std::pair<enum Control const, int> > > >, std::allocator<std::_List_unchecked_iterator<std::_List_val<std::_List_simple_types<std::pair<enum Contro() + 0xC bytes
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\vector(688): Ghostbait.exe!std::vector<std::_List_unchecked_iterator<std::_List_val<std::_List_simple_types<std::pair<enum Control const, int> > > >, std::allocator<std::_List_unchecked_iterator<std::_List_val<std::_List_simple_types<std::pair<enum Control const, int> > > > > >::vec() + 0x13 bytes
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\xhash(202): Ghostbait.exe!std::_Hash<std::_Umap_traits<enum Control, int, std::_Uhash_compare<enum Control, std::hash<enum Control>, std::equal_to<enum Control> >, std::allocator<std::pair<enum Control const, int> >, 0> >::_Hash<std::_Umap_traits<enum Control, int, std::_Uhash_compare<enu() + 0x26 bytes
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\unordered_map(130): Ghostbait.exe!std::unordered_map<enum Control, int, std::hash<enum Control>, std::equal_to<enum Control>, std::allocator<std::pair<enum Control const, int> > >::unordered_map<enum Control, int, std::hash<enum Control>, std::equal_to<enum Control>, std::allocator<std::pair<enum()
-	->		 Ghostbait.exe!InputManager::InputBridge::InputBridge() + 0x4E bytes
-			 e : \projects\final project\smoking - sandwich\ghostbait\ghostbait\source files\inputmanager.cpp(109): Ghostbait.exe!InputManager::KeyboardInput::KeyboardInput() + 0x41 bytes
-			 e : \projects\final project\smoking - sandwich\ghostbait\ghostbait\source files\inputmanager.cpp(167): Ghostbait.exe!InputManager::SetInputType() + 0x27 bytes
-			 e : \projects\final project\smoking - sandwich\ghostbait\ghostbait\header files\inputmanager.h(59): Ghostbait.exe!InputManager::InputManager()
-			 e : \projects\final project\smoking - sandwich\ghostbait\ghostbait\source files\main.cpp(139): Ghostbait.exe!Setup() + 0x40 bytes
-			 e : \projects\final project\smoking - sandwich\ghostbait\ghostbait\source files\main.cpp(259): Ghostbait.exe!wWinMain()
-			 f : \dd\vctools\crt\vcstartup\src\startup\exe_common.inl(123): Ghostbait.exe!invoke_main()
-			 f : \dd\vctools\crt\vcstartup\src\startup\exe_common.inl(283): Ghostbait.exe!__scrt_common_main_seh() + 0x5 bytes
-			 f : \dd\vctools\crt\vcstartup\src\startup\exe_common.inl(326): Ghostbait.exe!__scrt_common_main()
-			 f : \dd\vctools\crt\vcstartup\src\startup\exe_wwinmain.cpp(17): Ghostbait.exe!wWinMainCRTStartup()
-			 KERNEL32.DLL!BaseThreadInitThunk() + 0x14 bytes
-			 ntdll.dll!RtlUserThreadStart() + 0x21 bytes
-			 Data :
-			 08 08 30 05    8A 01 00 00    00 00 00 00    00 00 00 00     ..0..... ........
-
-
-			 ----------Block 234 at 0x00000000053007E0: 88 bytes----------
-			 Leak Hash : 0x15136660, Count : 1, Total 88 bytes
-			 Call Stack(TID 39024) :
-			 ucrtbased.dll!malloc()
-			 f : \dd\vctools\crt\vcstartup\src\heap\new_scalar.cpp(34): Ghostbait.exe!operator new() + 0xA bytes
-	->		 e : \projects\final project\smoking - sandwich\ghostbait\ghostbait\source files\inputmanager.cpp(167): Ghostbait.exe!InputManager::SetInputType() + 0xA bytes
-			 e : \projects\final project\smoking - sandwich\ghostbait\ghostbait\header files\inputmanager.h(59): Ghostbait.exe!InputManager::InputManager()
-			 e : \projects\final project\smoking - sandwich\ghostbait\ghostbait\source files\main.cpp(139): Ghostbait.exe!Setup() + 0x40 bytes
-			 e : \projects\final project\smoking - sandwich\ghostbait\ghostbait\source files\main.cpp(259): Ghostbait.exe!wWinMain()
-			 f : \dd\vctools\crt\vcstartup\src\startup\exe_common.inl(123): Ghostbait.exe!invoke_main()
-			 f : \dd\vctools\crt\vcstartup\src\startup\exe_common.inl(283): Ghostbait.exe!__scrt_common_main_seh() + 0x5 bytes
-			 f : \dd\vctools\crt\vcstartup\src\startup\exe_common.inl(326): Ghostbait.exe!__scrt_common_main()
-			 f : \dd\vctools\crt\vcstartup\src\startup\exe_wwinmain.cpp(17): Ghostbait.exe!wWinMainCRTStartup()
-			 KERNEL32.DLL!BaseThreadInitThunk() + 0x14 bytes
-			 ntdll.dll!RtlUserThreadStart() + 0x21 bytes
-			 Data :
-			 30 4C C7 3A    F6 7F 00 00    00 00 80 3F    CD CD CD CD     0L. : .... ... ? ....
-			 C0 43 18 01    8A 01 00 00    70 E0 0B 5F    8A 01 00 00.C...... p.._....
-			 00 00 00 00    00 00 00 00    00 4A 18 01    8A 01 00 00     .........J......
-			 C0 67 09 5F    8A 01 00 00    40 68 09 5F    8A 01 00 00.g._.... @h._....
-			 40 68 09 5F    8A 01 00 00    07 00 00 00    00 00 00 00     @h._.... ........
-			 08 00 00 00    00 00 00 00                                   ........ ........
-
-
-			 ----------Block 238 at 0x000000005F0967C0: 128 bytes----------
-			 Leak Hash : 0x9992D04E, Count : 1, Total 128 bytes
-			 Call Stack(TID 39024) :
-			 ucrtbased.dll!malloc()
-			 f : \dd\vctools\crt\vcstartup\src\heap\new_scalar.cpp(34): Ghostbait.exe!operator new() + 0xA bytes
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\xmemory0(67): Ghostbait.exe!std::_Default_allocate_traits<1>::_Get_bytes() + 0xC bytes
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\xmemory0(139): Ghostbait.exe!std::_Allocate<std::_Default_allocate_traits<1> >()
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\xmemory0(1056): Ghostbait.exe!std::allocator<std::_List_unchecked_iterator<std::_List_val<std::_List_simple_types<std::pair<enum Control const, int> > > > >::allocate()
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\vector(1549): Ghostbait.exe!std::vector<std::_List_unchecked_iterator<std::_List_val<std::_List_simple_types<std::pair<enum Control const, int> > > >, std::allocator<std::_List_unchecked_iterator<std::_List_val<std::_List_simple_types<std::pair<enum Control const, int> > > > > >::_Re() + 0x1B bytes
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\vector(1573): Ghostbait.exe!std::vector<std::_List_unchecked_iterator<std::_List_val<std::_List_simple_types<std::pair<enum Control const, int> > > >, std::allocator<std::_List_unchecked_iterator<std::_List_val<std::_List_simple_types<std::pair<enum Control const, int> > > > > >::res()
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\xhash(1127): Ghostbait.exe!std::_Hash<std::_Umap_traits<enum Control, int, std::_Uhash_compare<enum Control, std::hash<enum Control>, std::equal_to<enum Control> >, std::allocator<std::pair<enum Control const, int> >, 0> >::_Init()
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\xhash(205): Ghostbait.exe!std::_Hash<std::_Umap_traits<enum Control, int, std::_Uhash_compare<enum Control, std::hash<enum Control>, std::equal_to<enum Control> >, std::allocator<std::pair<enum Control const, int> >, 0> >::_Hash<std::_Umap_traits<enum Control, int, std::_Uhash_compare<enu() + 0x11 bytes
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\unordered_map(130): Ghostbait.exe!std::unordered_map<enum Control, int, std::hash<enum Control>, std::equal_to<enum Control>, std::allocator<std::pair<enum Control const, int> > >::unordered_map<enum Control, int, std::hash<enum Control>, std::equal_to<enum Control>, std::allocator<std::pair<enum()
-	->		 Ghostbait.exe!InputManager::InputBridge::InputBridge() + 0x4E bytes
-			 e : \projects\final project\smoking - sandwich\ghostbait\ghostbait\source files\inputmanager.cpp(109): Ghostbait.exe!InputManager::KeyboardInput::KeyboardInput() + 0x41 bytes
-			 e : \projects\final project\smoking - sandwich\ghostbait\ghostbait\source files\inputmanager.cpp(167): Ghostbait.exe!InputManager::SetInputType() + 0x27 bytes
-			 e : \projects\final project\smoking - sandwich\ghostbait\ghostbait\header files\inputmanager.h(59): Ghostbait.exe!InputManager::InputManager()
-			 e : \projects\final project\smoking - sandwich\ghostbait\ghostbait\source files\main.cpp(139): Ghostbait.exe!Setup() + 0x40 bytes
-			 e : \projects\final project\smoking - sandwich\ghostbait\ghostbait\source files\main.cpp(259): Ghostbait.exe!wWinMain()
-			 f : \dd\vctools\crt\vcstartup\src\startup\exe_common.inl(123): Ghostbait.exe!invoke_main()
-			 f : \dd\vctools\crt\vcstartup\src\startup\exe_common.inl(283): Ghostbait.exe!__scrt_common_main_seh() + 0x5 bytes
-			 f : \dd\vctools\crt\vcstartup\src\startup\exe_common.inl(326): Ghostbait.exe!__scrt_common_main()
-			 f : \dd\vctools\crt\vcstartup\src\startup\exe_wwinmain.cpp(17): Ghostbait.exe!wWinMainCRTStartup()
-			 KERNEL32.DLL!BaseThreadInitThunk() + 0x14 bytes
-			 ntdll.dll!RtlUserThreadStart() + 0x21 bytes
-			 Data :
-			 70 E0 0B 5F    8A 01 00 00    70 E0 0B 5F    8A 01 00 00     p.._....p.._....
-			 70 E0 0B 5F    8A 01 00 00    70 E0 0B 5F    8A 01 00 00     p.._....p.._....
-			 70 E0 0B 5F    8A 01 00 00    70 E0 0B 5F    8A 01 00 00     p.._....p.._....
-			 70 E0 0B 5F    8A 01 00 00    70 E0 0B 5F    8A 01 00 00     p.._....p.._....
-			 70 E0 0B 5F    8A 01 00 00    70 E0 0B 5F    8A 01 00 00     p.._....p.._....
-			 70 E0 0B 5F    8A 01 00 00    70 E0 0B 5F    8A 01 00 00     p.._....p.._....
-			 70 E0 0B 5F    8A 01 00 00    70 E0 0B 5F    8A 01 00 00     p.._....p.._....
-			 70 E0 0B 5F    8A 01 00 00    70 E0 0B 5F    8A 01 00 00     p.._....p.._....
-
-
-			 ----------Block 235 at 0x000000005F0BE070: 24 bytes----------
-			 Leak Hash : 0xA70EA6A4, Count : 1, Total 24 bytes
-			 Call Stack(TID 39024) :
-			 ucrtbased.dll!malloc()
-			 f : \dd\vctools\crt\vcstartup\src\heap\new_scalar.cpp(34): Ghostbait.exe!operator new() + 0xA bytes
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\xmemory0(67): Ghostbait.exe!std::_Default_allocate_traits<1>::_Get_bytes() + 0xC bytes
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\xmemory0(139): Ghostbait.exe!std::_Allocate<std::_Default_allocate_traits<1> >()
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\xmemory0(1056): Ghostbait.exe!std::allocator<std::_List_node<std::pair<enum Control const, int>, void * __ptr64> >::allocate()
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\list(656): Ghostbait.exe!std::_List_alloc<std::_List_base_types<std::pair<enum Control const, int>, std::allocator<std::pair<enum Control const, int> > > >::_Buynode0() + 0x19 bytes
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\list(647): Ghostbait.exe!std::_List_alloc<std::_List_base_types<std::pair<enum Control const, int>, std::allocator<std::pair<enum Control const, int> > > >::_Buyheadnode()
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\list(556): Ghostbait.exe!std::_List_alloc<std::_List_base_types<std::pair<enum Control const, int>, std::allocator<std::pair<enum Control const, int> > > >::_List_alloc<std::_List_base_types<std::pair<enum Control const, int>, std::allocator<std::pair<enum Control const, int> > > >() + 0xC bytes
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\list(753): Ghostbait.exe!std::_List_buy<std::pair<enum Control const, int>, std::allocator<std::pair<enum Control const, int> > >::_List_buy<std::pair<enum Control const, int>, std::allocator<std::pair<enum Control const, int> > ><std::allocator<std::pair<enum Control const, int> >()
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\list(822): Ghostbait.exe!std::list<std::pair<enum Control const, int>, std::allocator<std::pair<enum Control const, int> > >::list<std::pair<enum Control const, int>, std::allocator<std::pair<enum Control const, int> > >()
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\xhash(201): Ghostbait.exe!std::_Hash<std::_Umap_traits<enum Control, int, std::_Uhash_compare<enum Control, std::hash<enum Control>, std::equal_to<enum Control> >, std::allocator<std::pair<enum Control const, int> >, 0> >::_Hash<std::_Umap_traits<enum Control, int, std::_Uhash_compare<enu() + 0x1A bytes
-			 e : \program files(x86)\microsoft visual studio\2017\enterprise\vc\tools\msvc\14.12.25827\include\unordered_map(130): Ghostbait.exe!std::unordered_map<enum Control, int, std::hash<enum Control>, std::equal_to<enum Control>, std::allocator<std::pair<enum Control const, int> > >::unordered_map<enum Control, int, std::hash<enum Control>, std::equal_to<enum Control>, std::allocator<std::pair<enum()
-	->		 Ghostbait.exe!InputManager::InputBridge::InputBridge() + 0x4E bytes
-			 e : \projects\final project\smoking - sandwich\ghostbait\ghostbait\source files\inputmanager.cpp(109): Ghostbait.exe!InputManager::KeyboardInput::KeyboardInput() + 0x41 bytes
-			 e : \projects\final project\smoking - sandwich\ghostbait\ghostbait\source files\inputmanager.cpp(167): Ghostbait.exe!InputManager::SetInputType() + 0x27 bytes
-			 e : \projects\final project\smoking - sandwich\ghostbait\ghostbait\header files\inputmanager.h(59): Ghostbait.exe!InputManager::InputManager()
-			 e : \projects\final project\smoking - sandwich\ghostbait\ghostbait\source files\main.cpp(139): Ghostbait.exe!Setup() + 0x40 bytes
-			 e : \projects\final project\smoking - sandwich\ghostbait\ghostbait\source files\main.cpp(259): Ghostbait.exe!wWinMain()
-			 f : \dd\vctools\crt\vcstartup\src\startup\exe_common.inl(123): Ghostbait.exe!invoke_main()
-			 f : \dd\vctools\crt\vcstartup\src\startup\exe_common.inl(283): Ghostbait.exe!__scrt_common_main_seh() + 0x5 bytes
-			 f : \dd\vctools\crt\vcstartup\src\startup\exe_common.inl(326): Ghostbait.exe!__scrt_common_main()
-			 f : \dd\vctools\crt\vcstartup\src\startup\exe_wwinmain.cpp(17): Ghostbait.exe!wWinMainCRTStartup()
-			 KERNEL32.DLL!BaseThreadInitThunk() + 0x14 bytes
-			 ntdll.dll!RtlUserThreadStart() + 0x21 bytes
-			 Data :
-			 70 E0 0B 5F    8A 01 00 00    70 E0 0B 5F    8A 01 00 00     p.._....p.._....
-			 CD CD CD CD    CD CD CD CD                                   ........ ........
-
-
-			 Visual Leak Detector detected 5 memory leaks(532 bytes).
-			 Largest number used : 553663559 bytes.
-			 Total allocations : 574620524 bytes.
-			 Visual Leak Detector is now exiting.
-
-
 
 End of TODO
 =====================================================================================================================================
@@ -278,8 +118,22 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	if(!wnd.Initialize(hInstance, nCmdShow)) { Messagebox::ShowError("Error!!", "Main window is not initialized!"); }
 	wnd.UpdateTitle(L"Ghostbait");
 
-	Allocate();
+	ConsoleAllocate();
+	_Pool_Base::RegisterMemory(&MemMan);
 	WriteLine("App has been initalized!");
+
+	Pool<Object> testingPool(2);
+	Pool<SomeLeakyObject> testingPool2(2);
+
+	Object* test1 = testingPool.Activate();
+	Object* test11 = testingPool.Activate();
+	SomeLeakyObject* test2 = testingPool2.Activate();
+	SomeLeakyObject* test22 = testingPool2.Activate();
+
+	testingPool.~Pool();
+	testingPool2.~Pool();
+	exit(0);
+
 	//Minimize();
 
 #pragma region testing
@@ -295,35 +149,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//exit(0);
 #pragma endregion
 
-
-
-
-
-
 	//Memory Test
 	//=============================
-
-
-	//char * my_array = (char *)malloc(536870912);
-	//if(my_array == nullptr) throw std::exception("Memory Error");
-
-	//for(int i = 0; i < 2; ++i) {
-	//	new (my_array + i * sizeof(Object)) Object();
-	//}
-	//Object * testing = (Object*) my_array;
-
-	//my_array = MemMan.ReturnBuffer();
-	_Pool_Base::RegisterMemory(&MemMan);
-
-	//Object* address = (Object*)MemMan.RequestMemory(1, sizeof(Object));
-	//for(int i = 0; i < 2; ++i) {
-	//	new (my_array + i * sizeof(Object)) Object();
-	//}
-
-
-	//Object* supertemp = new (address) Object();
-
-
 
 	//=============================
 
@@ -405,8 +232,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 //	CleanUp();
 
 	phyMan = new PhysicsManager();
-	objMan = new ObjectManager(&MemMan, 20);
-	objMan->Initialize();
+	objMan = new ObjectManager(&MemMan);
+	objMan->Initialize(80);
 
 	ObjectFactory::Initialize(objMan);
 	ObjectFactory::RegisterPrefabBase<Object>();
@@ -431,7 +258,6 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, { 0,-3,0,1 }, &cube2));
 	cube1->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(0.5f, -1.0f, 0.0f);
 	cube2->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(1.0f, 0.0f, 0.0f);
-	int x = 113;
 }
 
 void Loop() {

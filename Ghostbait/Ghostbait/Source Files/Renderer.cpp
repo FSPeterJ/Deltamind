@@ -139,7 +139,7 @@ void Renderer::renderObjectDefaultState(Object * obj)
 	context->IASetIndexBuffer(obj->GetComponent<Mesh>()->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(XMLoadFloat4x4(&obj->position)), 0, 0);
 	materialManagement->GetElement(UINT_MAX)->bindToShader(context, factorBuffer);
-
+	
 	context->DrawIndexed(obj->GetComponent<Mesh>()->indexCount, 0, 0);
 }
 
@@ -279,7 +279,7 @@ void Renderer::Initialize(Window window, VRManager * vr)
 	MessageEvents::Subscribe(EVENT_Destroy, [this](EventMessageBase * _e) {this->unregisterObject(_e); });
 
 #if _DEBUG
-	DebugRenderer::Initialize(device, context, modelBuffer, PassThroughPositionColorVS, PassThroughPS, ILPositionColor);
+	DebugRenderer::Initialize(device, context, modelBuffer, PassThroughPositionColorVS, PassThroughPS, ILPositionColor, defaultPipeline.rasterizer_state);
 #endif
 }
 

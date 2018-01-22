@@ -8,6 +8,7 @@
 *.user
 *.userosscache
 *.sln.docstates
+*.filters
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -322,7 +323,3 @@ ASALocalRun/
 *.binlog
 
 *.cso
-*.filters
-/Ghostbait/Ghostbait/*.filters
-/Ghostbait/*.filters
-Ghostbait.vcxproj.filters

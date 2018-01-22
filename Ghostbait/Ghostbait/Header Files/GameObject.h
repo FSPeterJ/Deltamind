@@ -8,8 +8,9 @@ class GameObject: public Object {
 public:
 
 	GameObject() {
-		EngineStructure::Awake.add([=]() {this->Awake(); });
-		EngineStructure::Update.add([=]() {this->Update(); });
+		//TODO: FIX
+		//EngineStructure::Awake.add([=]() {this->Awake(); });
+		//EngineStructure::Update.add([=]() {this->Update(); });
 	}
 
 	virtual void Awake() {}
@@ -21,11 +22,13 @@ public:
 
 class SomeCoolObject: public GameObject, public Controlable {
 
-	void Awake() {
+	void Awake() override
+	{
 		WriteLine("I am a cool object being awakened!");
 	}
 
-	void Update() {
+	void Update() override
+	{
 		if(KeyIsDown(teleport)) {
 			Write("teleport down: ");
 			WriteLine(Amount(teleport));

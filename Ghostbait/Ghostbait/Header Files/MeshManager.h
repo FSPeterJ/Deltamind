@@ -1,5 +1,5 @@
 #pragma once
-#include "ManagerInterface.h"
+#include "IComponentManager.h"
 #include <d3d11.h>
 #include <unordered_map>
 #include <Pool.h>
@@ -15,7 +15,7 @@ struct Mesh : ComponentBase
 	unsigned int indexCount;
 };
 
-class MeshManager : public ManagerInterface
+class MeshManager : public IComponentManager
 {
 	unsigned idCounter = 0;
 	Pool<Mesh> trackedMeshes = Pool<Mesh>(MAX_MESHES);

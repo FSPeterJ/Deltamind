@@ -17,7 +17,7 @@ bool VRManager::Init() {
 	vr::EVRInitError error = vr::VRInitError_None;
 	pVRHMD = vr::VR_Init(&error, vr::VRApplication_Scene);
 
-	if (error != vr::VRInitError_None) {
+	if(error != vr::VRInitError_None) {
 		pVRHMD = nullptr;
 		Console::Write("Unable to initialize VR: ");
 		Console::WriteLine(vr::VR_GetVRInitErrorAsSymbol(error));
@@ -27,7 +27,7 @@ bool VRManager::Init() {
 	pVRHMD->GetRecommendedRenderTargetSize(&RecommendedRenderWidth, &RecommendedRenderHeight);
 
 	pVRRenderModel = (vr::IVRRenderModels*) vr::VR_GetGenericInterface(vr::IVRRenderModels_Version, &error);
-	if (!pVRRenderModel) {
+	if(!pVRRenderModel) {
 		Shutdown();
 		Console::Write("Unable to get render model: ");
 		Console::WriteLine(vr::VR_GetVRInitErrorAsSymbol(error));
@@ -35,7 +35,7 @@ bool VRManager::Init() {
 	}
 
 	pVRCompositor = vr::VRCompositor();
-	if (!pVRCompositor) {
+	if(!pVRCompositor) {
 		Shutdown();
 		Console::WriteLine("Compositor initialization failed! ");
 		return false;
@@ -50,7 +50,7 @@ bool VRManager::Init() {
 
 DirectX::XMFLOAT4X4 VRManager::VRProjectionToDirectXMatrix(vr::EVREye eye, float nearPlane, float farPlane) {
 	DirectX::XMFLOAT4X4 proj;
-	
+
 	float top, bott, left, right;
 	pVRHMD->GetProjectionRaw(eye, &left, &right, &top, &bott);
 	left *= nearPlane;
@@ -98,7 +98,7 @@ DirectX::XMFLOAT4X4 VRManager::VRMatrix44ToDirectXMatrix44(vr::HmdMatrix44_t m) 
 
 void VRManager::WriteMatrix(DirectX::XMFLOAT4X4 m, int frame = 60) {
 	static int i = 0;
-	if (++i >= frame) {
+	if(++i >= frame) {
 
 		Console::WriteLine("-----------------------------------------------------------------------------");
 		Console::Write(m._11); Console::Write(" "); Console::Write(m._12); Console::Write(" "); Console::Write(m._13); Console::Write(" "); Console::WriteLine(m._14);
@@ -110,7 +110,7 @@ void VRManager::WriteMatrix(DirectX::XMFLOAT4X4 m, int frame = 60) {
 }
 
 void VRManager::Shutdown() {
-	if (pVRHMD) {
+	if(pVRHMD) {
 		pVRHMD = nullptr;
 		pVRRenderModel = nullptr;
 		pVRCompositor = nullptr;
@@ -136,32 +136,32 @@ void VRManager::GetVRMatrices(DirectX::XMFLOAT4X4* _leftProj, DirectX::XMFLOAT4X
 }
 
 void VRManager::UpdateVRPoses() {
-	if (!pVRHMD) return;
-	
+	if(!pVRHMD) return;
+
 	pVRCompositor->WaitGetPoses(trackedDevicePose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
-	
-	for (int deviceIndex = 0; deviceIndex < vr::k_unMaxTrackedDeviceCount; ++deviceIndex)
+
+	for(int deviceIndex = 0; deviceIndex < vr::k_unMaxTrackedDeviceCount; ++deviceIndex)
 	{
-		if (trackedDevicePose[deviceIndex].bPoseIsValid)
+		if(trackedDevicePose[deviceIndex].bPoseIsValid)
 		{
-			switch (pVRHMD->GetTrackedDeviceClass(deviceIndex)) {
-			case vr::TrackedDeviceClass_Controller:
-				if(pVRHMD->GetControllerRoleForTrackedDeviceIndex(deviceIndex) == vr::ETrackedControllerRole::TrackedControllerRole_LeftHand){
-					DirectX::XMStoreFloat4x4(&leftController.pose, DirectX::XMLoadFloat4x4(&VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking)) * DirectX::XMLoadFloat4x4(&world));
-					leftController.index = deviceIndex;
-					leftController.obj->position = DirectX::XMMatrixScaling(0.3f, 0.3f, 0.3f) * DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(55)) * DirectX::XMLoadFloat4x4(&leftController.pose);// *DirectX::XMMatrixScaling(0.25f, 0.25f, 0.25f);
-				}
-				else if (pVRHMD->GetControllerRoleForTrackedDeviceIndex(deviceIndex) == vr::ETrackedControllerRole::TrackedControllerRole_RightHand) {
-					DirectX::XMStoreFloat4x4(&rightController.pose, DirectX::XMLoadFloat4x4(&VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking)) * DirectX::XMLoadFloat4x4(&world));
-					rightController.index = deviceIndex;
-					rightController.obj->position = DirectX::XMMatrixScaling(0.3f, 0.3f, 0.3f) * DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(55)) * DirectX::XMLoadFloat4x4(&rightController.pose);// *DirectX::XMMatrixScaling(0.25f, 0.25f, 0.25f);
-				}
-				break;
-			case vr::TrackedDeviceClass_HMD:  
-				hmdPose = VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking);
-				break;
-			default:
-				break;
+			switch(pVRHMD->GetTrackedDeviceClass(deviceIndex)) {
+				case vr::TrackedDeviceClass_Controller:
+					if(pVRHMD->GetControllerRoleForTrackedDeviceIndex(deviceIndex) == vr::ETrackedControllerRole::TrackedControllerRole_LeftHand) {
+						DirectX::XMStoreFloat4x4(&leftController.pose, DirectX::XMLoadFloat4x4(&VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking)) * DirectX::XMLoadFloat4x4(&world));
+						leftController.index = deviceIndex;
+						XMStoreFloat4x4(&leftController.obj->position, DirectX::XMMatrixScaling(0.3f, 0.3f, 0.3f) * DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(55)) * DirectX::XMLoadFloat4x4(&leftController.pose));// *DirectX::XMMatrixScaling(0.25f, 0.25f, 0.25f);
+					}
+					else if(pVRHMD->GetControllerRoleForTrackedDeviceIndex(deviceIndex) == vr::ETrackedControllerRole::TrackedControllerRole_RightHand) {
+						DirectX::XMStoreFloat4x4(&rightController.pose, DirectX::XMLoadFloat4x4(&VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking)) * DirectX::XMLoadFloat4x4(&world));
+						rightController.index = deviceIndex;
+						XMStoreFloat4x4(&rightController.obj->position, DirectX::XMMatrixScaling(0.3f, 0.3f, 0.3f) * DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(55)) * DirectX::XMLoadFloat4x4(&rightController.pose));// *DirectX::XMMatrixScaling(0.25f, 0.25f, 0.25f);
+					}
+					break;
+				case vr::TrackedDeviceClass_HMD:
+					hmdPose = VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking);
+					break;
+				default:
+					break;
 			}
 		}
 	}

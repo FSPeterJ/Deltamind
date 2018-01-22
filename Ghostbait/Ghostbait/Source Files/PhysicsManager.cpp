@@ -3,6 +3,7 @@
 Collider PhysicsManager::defaultColider;
 SphereCollider PhysicsManager::defaultSphereColider;
 
+using namespace DirectX;
 
 PhysicsManager::PhysicsManager() {
 	defaultSphereColider.radius = 0.5f;
@@ -22,9 +23,9 @@ void PhysicsManager::SendCollision(Object* obj1, Object* obj2) {
 }
 
 void PhysicsManager::TestAllComponentsCollision() {
-	for (int comp1 = 0; comp1 < components.size(); ++comp1) {
-		for (int comp2 = 0; comp2 < components.size(); ++comp2) {
-			if (comp1 != comp2) {
+	for(int comp1 = 0; comp1 < components.GetActiveCount(); ++comp1) {
+		for(int comp2 = 0; comp2 < components.GetActiveCount(); ++comp2) {
+			if(comp1 != comp2) {
 				CollisionCheck(components[comp1], components[comp2]);
 			}
 		}
@@ -32,26 +33,29 @@ void PhysicsManager::TestAllComponentsCollision() {
 }
 
 void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponent component2) {
-	for (int com1 = 0; com1 < component1.colliders.size(); ++com1) {
-		for (int com2 = 0; com2 < component2.colliders.size(); ++com2) {
-			if (component1.colliders[com1].colliderData->colliderType == SPHERE &&
+	for(int com1 = 0; com1 < component1.colliders.size(); ++com1) {
+		for(int com2 = 0; com2 < component2.colliders.size(); ++com2) {
+			XMMATRIX tempA = XMLoadFloat4x4(&component1.parentObject->position);
+			XMMATRIX tempB = XMLoadFloat4x4(&component2.parentObject->position);
+			if(component1.colliders[com1].colliderData->colliderType == SPHERE &&
 				component2.colliders[com2].colliderData->colliderType == SPHERE) {
-				if (SphereToSphereCollision(component1.colliders[com1], component1.srcObj->position.r[3], component2.colliders[com2], component2.srcObj->position.r[3])) {
-					SendCollision(component1.srcObj, component2.srcObj);
+				
+				if(SphereToSphereCollision(component1.colliders[com1], tempA.r[3], component2.colliders[com2], tempB.r[3])) {
+					SendCollision(component1.parentObject, component2.parentObject);
 				}
 			}
 
-			else if (component1.colliders[com1].colliderData->colliderType == CAPSULE &&
+			else if(component1.colliders[com1].colliderData->colliderType == CAPSULE &&
 				component2.colliders[com2].colliderData->colliderType == CAPSULE) {
-				if (CapsuleToCapsuleCollision(component1.colliders[com1], component1.srcObj->position, component2.colliders[com2], component2.srcObj->position)) {
-					SendCollision(component1.srcObj, component2.srcObj);
+				if(CapsuleToCapsuleCollision(component1.colliders[com1], tempA, component2.colliders[com2], tempB)) {
+					SendCollision(component1.parentObject, component2.parentObject);
 				}
 			}
 
-			else if (component1.colliders[com1].colliderData->colliderType == BOX &&
+			else if(component1.colliders[com1].colliderData->colliderType == BOX &&
 				component2.colliders[com2].colliderData->colliderType == BOX) {
-				if (BoxToBoxCollision()) {
-					SendCollision(component1.srcObj, component2.srcObj);
+				if(BoxToBoxCollision()) {
+					SendCollision(component1.parentObject, component2.parentObject);
 				}
 			}
 		}
@@ -62,10 +66,11 @@ bool PhysicsManager::SphereToSphereCollision(Collider col1, XMVECTOR& pos1, Coll
 	XMVECTOR offset2 = XMLoadFloat3(&col2.centerOffset);
 	XMVECTOR position1 = offset1 + pos1;
 	XMVECTOR position2 = offset2 + pos2;
-	XMFLOAT3 between; XMStoreFloat3(&between, position1 - position2);
+	XMFLOAT3 between; 
+	XMStoreFloat3(&between, position1 - position2);
 	float sqrDist = between.x*between.x + between.y*between.y + between.z*between.z;
 	float combinedRad = (((SphereCollider*)(col1.colliderData))->radius + ((SphereCollider*)(col2.colliderData))->radius);
-	if (sqrDist < (combinedRad*combinedRad)) return true;
+	if(sqrDist < (combinedRad*combinedRad)) return true;
 	return false;
 }
 bool PhysicsManager::BoxToBoxCollision() {
@@ -94,26 +99,42 @@ bool PhysicsManager::CapsuleToCapsuleCollision(Collider col1, XMMATRIX& pos1, Co
 	//If lines intersecting (Collision)
 	//Else find closest points on the line segments
 
-
-
 	return false;
 }
 
 
-void PhysicsManager::Update(float dt) {
-	for (int i = 0; i < components.size(); ++i) {
-		components[i].rigidBody.Update(dt);
-		components[i].srcObj->position.r[3] += components[i].rigidBody.GetVelocity() * dt;
+void PhysicsManager::Update(const float dt) {
+	std::vector<PhysicsComponent*>* temp = components.GetActiveList();
+	int activeCount = components.GetActiveCount();
+	for(int i = 0; i < activeCount; ++i) {
+		//This seems absurd, are we sure we can't use XMVECTOR and XMMATRIX in a more manageable manner?
+		XMFLOAT4* objectPosition = (XMFLOAT4*)&components[i].parentObject->position.m[3];
+		XMVECTOR newposition = XMLoadFloat4(objectPosition);
+		newposition += components[i].rigidBody.GetVelocity() * dt;
+		XMStoreFloat4(objectPosition, newposition);
+		//components[i].parentObject->position.r[3] += components[i].rigidBody.GetVelocity() * dt;
 	}
-
 	//components[0].srcObj->position.r[3] -= XMVectorSet(0, dt, 0, 0);
 	TestAllComponentsCollision();
 }
 void PhysicsManager::AddComponent(Object* obj, float veloX, float veloY, float veloZ) {
-	PhysicsComponent pc;
-	pc.colliders.push_back(defaultColider);
-	pc.srcObj = obj;
-	pc.rigidBody = RigidBody();
-	pc.rigidBody.SetVelocity(veloX, veloY, veloZ);
-	components.push_back(pc);
+	PhysicsComponent* physComponent = components.Activate();
+	physComponent->colliders.push_back(defaultColider);
+	physComponent->parentObject = obj;
+	physComponent->rigidBody = RigidBody();
+	physComponent->rigidBody.SetVelocity(veloX, veloY, veloZ);
+}
+
+PhysicsComponent* PhysicsManager::GetComponent(const char* _meshFilePath)
+{
+	PhysicsComponent* physComponent = components.Activate();
+	physComponent->colliders.push_back(defaultColider);
+	physComponent->rigidBody = RigidBody();
+	return physComponent;
+}
+
+PhysicsComponent*  PhysicsManager::GetElement(const unsigned int _id)
+{
+	//Hmmm
+	return nullptr;
 }

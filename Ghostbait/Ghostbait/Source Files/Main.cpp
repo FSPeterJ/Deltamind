@@ -4,8 +4,8 @@
 #ifndef NDEBUG
 //#define _CRTDBG_MAP_ALLOC
 //#define BREAK_AT 610
-#include <stdlib.h>
-#include <crtdbg.h>
+//#include <stdlib.h>
+//#include <crtdbg.h>
 #endif
 
 #include "Window.h"
@@ -121,18 +121,6 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ConsoleAllocate();
 	_Pool_Base::RegisterMemory(&MemMan);
 	WriteLine("App has been initalized!");
-
-	Pool<Object> testingPool(2);
-	Pool<SomeLeakyObject> testingPool2(2);
-
-	Object* test1 = testingPool.Activate();
-	Object* test11 = testingPool.Activate();
-	SomeLeakyObject* test2 = testingPool2.Activate();
-	SomeLeakyObject* test22 = testingPool2.Activate();
-
-	testingPool.~Pool();
-	testingPool2.~Pool();
-	exit(0);
 
 	//Minimize();
 

@@ -198,6 +198,7 @@
     <ClInclude Include="Header Files\WICTextureLoader.h" />
     <ClInclude Include="Header Files\Window.h" />
     <ClInclude Include="Header Files\MessageEvents.h" />
+    <ClInclude Include="Header Files\XTime.h" />
     <ClInclude Include="Resource Files\Resource.h" />
     <ClInclude Include="trash.h" />
   </ItemGroup>
@@ -224,6 +225,7 @@
     <ClCompile Include="Source Files\VRManager.cpp" />
     <ClCompile Include="Source Files\WICTextureLoader.cpp" />
     <ClCompile Include="Source Files\Window.cpp" />
+    <ClCompile Include="Source Files\XTime.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resource Files\Ghostbait.ico" />

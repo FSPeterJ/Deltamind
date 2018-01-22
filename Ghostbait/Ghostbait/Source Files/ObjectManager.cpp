@@ -36,6 +36,7 @@ void ObjectManager::Shutdown() const
 
 Object* ObjectManager::Instantiate(int typeID) {
 	Object* newobject = (Object*)poolList[typeID].Activate();
+	pointers2Bucket[newobject] = &poolList[typeID];
 	return newobject;
 }
 

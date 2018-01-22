@@ -209,7 +209,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	cube1->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(0.5f, -1.0f, 0.0f);
 	cube2->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(1.0f, 0.0f, 0.0f);
 
-	MessageEvents::SendMessage(EVENT_Destroy, DestroyMessage(cube1));
+	//MessageEvents::SendMessage(EVENT_Destroy, DestroyMessage(cube1));
 
 
 	//Initialize XTime

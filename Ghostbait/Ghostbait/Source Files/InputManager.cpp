@@ -50,6 +50,9 @@ InputPackage InputManager::VRInput::CheckForInput() {
 		{
 			switch (event.data.controller.button) {
 			case vr::k_EButton_ApplicationMenu:
+				input = teleport;
+				amount = 1;
+				DirectX::XMStoreFloat4x4(&vrMan->world, DirectX::XMLoadFloat4x4(&vrMan->world) * DirectX::XMMatrixTranslation(vrMan->hmdPose._31, vrMan->hmdPose._32, vrMan->hmdPose._33));
 				break;
 			case vr::k_EButton_Grip:
 				break;
@@ -66,14 +69,21 @@ InputPackage InputManager::VRInput::CheckForInput() {
 					//DirectX::XMMATRIX scaled = DirectX::XMLoadFloat4x4(&obj->position);
 
 					XMStoreFloat4x4(&obj->position, /*DirectX::XMMatrixScaling(0.30f, 0.30f, 0.30f)*/ scaled);
-					obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(obj->position._31 * 10.0f, obj->position._32 * 10.0f, obj->position._33 * 10.0f);
+					obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(obj->position._31 * 1.5f, obj->position._32 * 1.5f, obj->position._33 * 1.5f);
 					input = none;
 					amount = 0.0f;
 				}
 				else {
-					input = teleport;
-					amount = 1;
-					DirectX::XMStoreFloat4x4(&vrMan->world, DirectX::XMLoadFloat4x4(&vrMan->world) * DirectX::XMMatrixTranslation(vrMan->hmdPose._31, vrMan->hmdPose._32, vrMan->hmdPose._33));
+					DirectX::XMFLOAT4 temp(vrMan->rightController.pose._41, vrMan->rightController.pose._42, vrMan->rightController.pose._43, vrMan->rightController.pose._44);
+					Object* obj;
+					MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, temp, &obj));
+					DirectX::XMMATRIX scaled = DirectX::XMLoadFloat4x4(&(vrMan->rightController.obj->position));
+					//DirectX::XMMATRIX scaled = DirectX::XMLoadFloat4x4(&obj->position);
+
+					XMStoreFloat4x4(&obj->position, /*DirectX::XMMatrixScaling(0.30f, 0.30f, 0.30f)*/ scaled);
+					obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(obj->position._31 * 1.5f, obj->position._32 * 1.5f, obj->position._33 * 1.5f);
+					input = none;
+					amount = 0.0f;
 				}
 				break;
 			}

@@ -151,7 +151,7 @@ public:
 				"Physical"
 			};
 			char* names[1] = {
-				"Assets/TestCube_mesh.bin"
+				"Assets/ViveController_mesh.bin"
 			};
 			for(int i = 0; i < 1; i++)
 			{

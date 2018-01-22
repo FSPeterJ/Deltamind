@@ -27,10 +27,10 @@ class PhysicsManager : public IComponentManager {
 	//bool BoxToCapsuleCollision();
 	//bool CapsuleToSphereCollision();
 	//bool BoxToSphereCollision();
+	DirectX::XMVECTOR FindClosestPointOnLine(DirectX::XMVECTOR _lineSegStart, DirectX::XMVECTOR _lineSegEnd, DirectX::XMVECTOR _testPoint);
 
 	static Collider defaultColider;
 	static SphereCollider defaultSphereColider;
-
 
 public:
 	PhysicsManager();

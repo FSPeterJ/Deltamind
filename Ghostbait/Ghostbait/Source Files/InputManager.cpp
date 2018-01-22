@@ -57,7 +57,7 @@ InputPackage InputManager::VRInput::CheckForInput() {
 				break;
 			case vr::k_EButton_SteamVR_Trigger:
 			{
-				DirectX::XMMATRIX pose;
+				//DirectX::XMMATRIX pose;
 				if (event.trackedDeviceIndex == vrMan->leftController.index) {
 					DirectX::XMFLOAT4 temp(vrMan->leftController.pose._41, vrMan->leftController.pose._42, vrMan->leftController.pose._43, vrMan->leftController.pose._44);
 					Object* obj;

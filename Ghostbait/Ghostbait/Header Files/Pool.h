@@ -55,7 +55,7 @@ public:
 	{
 		OutputDebugString(L"start");
 		pool_size = size;
-		elements = (T*)memManage->RequestMemory(pool_size, sizeof(T));
+		elements = (T*)memManage->RequestMemory((int)pool_size, sizeof(T));
 		//elements = new ((void*)(memManage->RequestMemory(pool_size, sizeof(T)))) T;
 		for(size_t i = 0; i < pool_size; ++i)
 		{

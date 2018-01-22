@@ -30,7 +30,7 @@ public:
 		{
 			
 			Pool<PoolType>* data = new (&poolList[typeID]) Pool<PoolType>();
-			Delete.add([&data]()
+			Delete.add([data]()
 			{
 				data->~Pool<PoolType>();
 

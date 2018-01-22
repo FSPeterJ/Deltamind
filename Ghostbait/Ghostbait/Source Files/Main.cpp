@@ -72,8 +72,6 @@ ObjectManager* objMan;
 
 	== Objects ==
 	- Re-test to be sure that new object manager works as expected after merging back into main with Pool_Test && Memory_Management (Large Malloc)
-		+ Objects have their destructors called and do not leak any data
-		+ Mutliple types of object children can be initialized
 		+ Test recycling of an object
 		+ Verify that the memory block we get (roughly 500MB) is passing out memory address correcty (no stepping on toes or re-righting our neighbors)
 	- Clean up Object Manager constructor.  Maybe Create the Pools using std::vector, then when Initialize is called, check the number of registerd classes and std::move() the pools into managed heap space in an array.
@@ -225,6 +223,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	ObjectFactory::Initialize(objMan);
 	ObjectFactory::RegisterPrefabBase<Object>();
+	ObjectFactory::RegisterPrefabBase<SomeLeakyObject>();
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
 	ObjectFactory::RegisterManager<PhysicsComponent, PhysicsManager>(phyMan);
 

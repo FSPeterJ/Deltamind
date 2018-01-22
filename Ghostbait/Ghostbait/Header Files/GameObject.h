@@ -8,9 +8,8 @@ class GameObject: public Object {
 public:
 
 	GameObject() {
-		//TODO: FIX
-		//EngineStructure::Awake.add([=]() {this->Awake(); });
-		//EngineStructure::Update.add([=]() {this->Update(); });
+		EngineStructure::Awake.add([=]() {this->Awake(); });
+		EngineStructure::Update.add([=]() {this->Update(); });
 	}
 
 	virtual void Awake() {}
@@ -33,6 +32,33 @@ class SomeCoolObject: public GameObject, public Controlable {
 			Write("teleport down: ");
 			WriteLine(Amount(teleport));
 		}
+
+	}
+};
+
+
+
+class SomeLeakyObject: public GameObject {
+	
+	int* testing;
+public:
+	SomeLeakyObject()
+	{
+		testing = new int(66);
+	}
+
+	~SomeLeakyObject()
+	{
+		delete testing;
+	}
+
+	void Awake() override
+	{
+		WriteLine("I am a cool object being awakened!");
+	}
+
+	void Update() override
+	{
 
 	}
 };

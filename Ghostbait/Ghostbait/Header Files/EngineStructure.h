@@ -5,6 +5,7 @@ using namespace Console;
 
 class EngineStructure {
 	friend class GameObjectComponent;
+	friend class GameObject;
 	friend class Controlable;
 
 	static Delegate<> Awake;

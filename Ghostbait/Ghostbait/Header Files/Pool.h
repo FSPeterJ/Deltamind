@@ -5,28 +5,6 @@
 #include <new>
 #include "Console.h"
 
-
-//template<typename BucketType>
-//class Bucket {
-//	std::vector<BucketType*> activeList;
-//	std::vector<BucketType*> inactiveList; //Linked list with head/tail ptrs
-//
-//	BucketType* items;
-//
-//	//std::array<BucketType, BUCKET_SIZE> items_array;
-//
-//	size_t item_count = 0;
-//	size_t size = 0;
-//public:
-//	Bucket(size_t containmentSize): size(containmentSize), items(new BucketType[containmentSize]) {
-//		for(size_t i = 0; i < size; ++i)
-//		{
-//			items[i].~BucketType();
-//		}
-//	}
-//};
-
-
 class _Pool_Base
 {
 protected:
@@ -75,8 +53,6 @@ class Pool: public _Pool_Base {
 public:
 	Pool(size_t size = 128)
 	{
-
-	
 		OutputDebugString(L"start");
 		pool_size = size;
 		elements = (T*)memManage->RequestMemory(pool_size, sizeof(T));

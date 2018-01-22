@@ -2,10 +2,10 @@
 #include "vld.h" //Before commenting this out, please see TODO below and then don't comment this out...
 #include "Resource.h"
 #ifndef NDEBUG
-#define _CRTDBG_MAP_ALLOC
+//#define _CRTDBG_MAP_ALLOC
 //#define BREAK_AT 610
-#include <stdlib.h>
-#include <crtdbg.h>
+//#include <stdlib.h>
+//#include <crtdbg.h>
 #endif
 
 #include "Window.h"
@@ -75,14 +75,11 @@ XTime timer;
 
 	== Objects ==
 	- Re-test to be sure that new object manager works as expected after merging back into main with Pool_Test && Memory_Management (Large Malloc)
-		+ Objects have their destructors called and do not leak any data
-		+ Mutliple types of object children can be initialized
 		+ Test recycling of an object
 		+ Verify that the memory block we get (roughly 500MB) is passing out memory address correcty (no stepping on toes or re-righting our neighbors)
 	- Clean up Object Manager constructor.  Maybe Create the Pools using std::vector, then when Initialize is called, check the number of registerd classes and std::move() the pools into managed heap space in an array.
 	- Seperate template instance counting of Objects from Components (See TypeMapping.h for functionality).  MAybe just have two differently named functions and incrementors
 	- Replace factory manual dummy loading with actual loading of a ghostbait object file
-
 
 	== Engine ==
 	- Add delta time
@@ -122,8 +119,10 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	if(!wnd.Initialize(hInstance, nCmdShow)) { Messagebox::ShowError("Error!!", "Main window is not initialized!"); }
 	wnd.UpdateTitle(L"Ghostbait");
 
-	Allocate();
+	ConsoleAllocate();
+	_Pool_Base::RegisterMemory(&MemMan);
 	WriteLine("App has been initalized!");
+
 	//Minimize();
 
 #pragma region testing
@@ -139,35 +138,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//exit(0);
 #pragma endregion
 
-
-
-
-
-
 	//Memory Test
 	//=============================
-
-
-	//char * my_array = (char *)malloc(536870912);
-	//if(my_array == nullptr) throw std::exception("Memory Error");
-
-	//for(int i = 0; i < 2; ++i) {
-	//	new (my_array + i * sizeof(Object)) Object();
-	//}
-	//Object * testing = (Object*) my_array;
-
-	//my_array = MemMan.ReturnBuffer();
-	_Pool_Base::RegisterMemory(&MemMan);
-
-	//Object* address = (Object*)MemMan.RequestMemory(1, sizeof(Object));
-	//for(int i = 0; i < 2; ++i) {
-	//	new (my_array + i * sizeof(Object)) Object();
-	//}
-
-
-	//Object* supertemp = new (address) Object();
-
-
 
 	//=============================
 
@@ -249,11 +221,12 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 //	CleanUp();
 
 	phyMan = new PhysicsManager();
-	objMan = new ObjectManager(&MemMan, 20);
-	objMan->Initialize();
+	objMan = new ObjectManager(&MemMan);
+	objMan->Initialize(80);
 
 	ObjectFactory::Initialize(objMan);
 	ObjectFactory::RegisterPrefabBase<Object>();
+	ObjectFactory::RegisterPrefabBase<SomeLeakyObject>();
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
 	ObjectFactory::RegisterManager<PhysicsComponent, PhysicsManager>(phyMan);
 
@@ -275,7 +248,6 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, { 0,-3,0,1 }, &cube2));
 	cube1->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(0.5f, -1.0f, 0.0f);
 	cube2->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(1.0f, 0.0f, 0.0f);
-	int x = 113;
 
 	//Initialize XTime
 	timer.Restart();

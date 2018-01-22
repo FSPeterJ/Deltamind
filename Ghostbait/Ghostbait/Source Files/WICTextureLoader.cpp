@@ -495,7 +495,7 @@ namespace
             bpp = 32;
         }
 
-        // Allocate temporary memory for image
+        // ConsoleAllocate temporary memory for image
         size_t rowPitch = (twidth * bpp + 7) / 8;
         size_t imageSize = rowPitch * theight;
 

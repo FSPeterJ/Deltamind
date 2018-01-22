@@ -16,6 +16,7 @@ class ObjectManager: public IManager
 	_Pool_Base* poolList;
 
 	size_t poolListCount;
+	size_t poolListNewIndex = 0;
 
 	void Destroy(EventMessageBase* e);
 
@@ -40,10 +41,10 @@ public:
 			throw std::exception("Attempted to allocate a pool at an index larger than the max objectpool collection size");
 		}
 	}
-	ObjectManager(MemoryManager* _memMan, size_t prefabCount);
+	ObjectManager(MemoryManager* _memMan);
 	~ObjectManager();
 	Object* Instantiate(int typeID);
-	void Initialize();
+	void Initialize(size_t prefabCount);
 	void Shutdown() const;
 	void CreatePool(int _size, Object* poolType) {}
 

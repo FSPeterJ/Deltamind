@@ -104,7 +104,7 @@ bool PhysicsManager::CapsuleToCapsuleCollision(Collider col1, XMMATRIX& pos1, Co
 
 
 void PhysicsManager::Update(const float dt) {
-	std::vector<PhysicsComponent*>* temp = components.GetActiveList();
+	std::vector<PhysicsComponent*>*temp = components.GetActiveList();
 	int activeCount = components.GetActiveCount();
 	for(int i = 0; i < activeCount; ++i) {
 		//This seems absurd, are we sure we can't use XMVECTOR and XMMATRIX in a more manageable manner?
@@ -133,7 +133,7 @@ PhysicsComponent* PhysicsManager::GetComponent(const char* _meshFilePath)
 	return physComponent;
 }
 
-PhysicsComponent*  PhysicsManager::GetElement(const unsigned int _id)
+PhysicsComponent* PhysicsManager::GetElement(const unsigned int _id)
 {
 	//Hmmm
 	return nullptr;

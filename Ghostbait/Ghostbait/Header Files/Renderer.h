@@ -7,6 +7,7 @@
 #include "Object.h"
 #include "MessageEvents.h"
 #include "MaterialManager.h"
+#include "Camera.h"
 
 enum renderState
 {
@@ -81,6 +82,7 @@ private:
 	pipeline_state_t defaultPipeline;
 	int tempId;
 	int tempMatId;
+	Camera* keyboardCamera;
 	viewProjectionConstantBuffer defaultCamera;
 
 	//eye leftEye;
@@ -181,7 +183,7 @@ public:
 	bool unregisterObject(const Object* toRemove, renderState specialInstructions = RENDER_STATE_DEFAULT);
 	MeshManager* getMeshManager() { return meshManagement; }
 	MaterialManager* getMaterialManager() { return materialManagement; }
-
+	Camera* getCamera() { return keyboardCamera; }
 	void Render();
 };
 

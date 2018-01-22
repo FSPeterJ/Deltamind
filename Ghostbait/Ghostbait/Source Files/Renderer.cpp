@@ -263,9 +263,9 @@ void Renderer::Initialize(Window window, VRManager * vr)
 #pragma endregion
 
 	directionalLight willDie;
-	willDie.lightColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	willDie.lightDir = XMFLOAT3(0.5f, -0.5f, 0.5f);
-	willDie.ambient = 0.5f;
+	willDie.color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	willDie.dir = XMFLOAT3(0.5f, -0.5f, 0.5f);
+	willDie.padding = 0.5f;
 	context->UpdateSubresource(dirLightBuffer, NULL, NULL, &willDie, NULL, NULL);
 	XMMATRIX camTemp = XMMatrixTranspose(XMLoadFloat4x4(&lookAt(XMFLOAT3(0.0f, 2.0f, -15.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f))));
 	keyboardCamera = new Camera();
@@ -380,9 +380,6 @@ bool Renderer::unregisterObject(const Object * toRemove, renderState specialInst
 	}
 	return false;
 }
-
-
-
 
 XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 	XMFLOAT4X4 mat;

@@ -77,6 +77,7 @@ XTime timer;
 	- Re-test to be sure that new object manager works as expected after merging back into main with Pool_Test && Memory_Management (Large Malloc)
 		+ Test recycling of an object
 		+ Verify that the memory block we get (roughly 500MB) is passing out memory address correcty (no stepping on toes or re-righting our neighbors)
+	- Objects need to have a destroy delegate that 
 	- Clean up Object Manager constructor.  Maybe Create the Pools using std::vector, then when Initialize is called, check the number of registerd classes and std::move() the pools into managed heap space in an array.
 	- Seperate template instance counting of Objects from Components (See TypeMapping.h for functionality).  MAybe just have two differently named functions and incrementors
 	- Replace factory manual dummy loading with actual loading of a ghostbait object file
@@ -141,11 +142,14 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//Memory Test
 	//=============================
 
-	//=============================
+	//WriteLine((int)sizeof(Pool<Object>(15)));
+	//WriteLine((int)sizeof(Pool<SomeLeakyObject>(15)));
 
+	//=============================
 
 	//Multithreading Test
 	//=============================
+
 	ThreadPool::Start();
 	auto temp = ThreadPool::MakeJob(ExecuteAsync);
 
@@ -175,50 +179,6 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 		rendInter->Initialize(wnd, nullptr);
 		inputMan = new InputManager(KEYBOARD);
 	}
-	//Object* test = new Object();
-	//test->SetComponent<Mesh>(rendInter->getMeshManager()->GetElement(UINT_MAX));
-	//Object* test2 = new Object();
-	////	int rr = test2->SetComponent<SomeCoolComponent>(r);
-
-	//int dd = test2->SetComponent<Mesh>(rendInter->getMeshManager()->GetElement(UINT_MAX));
-	//Mesh* temp1 = test->GetComponent<Mesh>();
-	//Mesh* temp2 = test2->GetComponent<Mesh>();
-
-
-	//Debug("sizeof(Object) = " << sizeof(Object));
-
-	//MakePrototype(TestObject)
-	//MakePrototype(AnotherTestObject)
-	//	
-	//TestObject* o = Object::CreateObject<TestObject>();
-	//Debug("I just made a " << Object::GetObjectTypeName(o).c_str() << " : " << o);
-	////
-	//AnotherTestObject* oo = Object::CreateObject<AnotherTestObject>();
-	//Debug("I just made a " << Object::GetObjectTypeName(oo).c_str() << " : " << oo);
-
-	//AnotherTestObject* oo2 = Object::CreateObject<AnotherTestObject>();
-	//Debug("I just made a " << Object::GetObjectTypeName(oo2).c_str() << " : " << oo2);
-	//Object::CleanUp();
-
-//	oo->~AnotherTestObject();
-	//delete oo;
-
-
-	//auto bucket = Object::objectPool.GetBucket<decltype(*o)>();
-//	TestObject* items = bucket->GetItems();
-	
-	//delete[] items;
-	//delete bucket;
-
-
-	//size = sizeof(*((TestObject*)o));
-	//Console::Write("Size of it is: ");
-	//Console::WriteLine(size);
-
-	//delete o;
-
-//	system("pause");
-//	CleanUp();
 
 	phyMan = new PhysicsManager();
 	objMan = new ObjectManager(&MemMan);
@@ -248,6 +208,9 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, { 0,-3,0,1 }, &cube2));
 	cube1->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(0.5f, -1.0f, 0.0f);
 	cube2->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(1.0f, 0.0f, 0.0f);
+
+	MessageEvents::SendMessage(EVENT_Destroy, DestroyMessage(cube1));
+
 
 	//Initialize XTime
 	timer.Restart();
@@ -285,12 +248,12 @@ void CleanUp() {
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow) {
 	UNREFERENCED_PARAMETER(hPrevInstance); UNREFERENCED_PARAMETER(lpCmdLine);
 
-#ifndef NDEBUG
-	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-#ifdef BREAK_AT
-	_CrtSetBreakAlloc(BREAK_AT);
-#endif
-#endif
+//#ifndef NDEBUG
+//	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+//#ifdef BREAK_AT
+//	_CrtSetBreakAlloc(BREAK_AT);
+//#endif
+//#endif
 
 	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_GHOSTBAIT));
 

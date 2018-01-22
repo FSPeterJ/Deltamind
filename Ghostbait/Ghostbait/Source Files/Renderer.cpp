@@ -139,7 +139,6 @@ void Renderer::renderObjectDefaultState(Object * obj)
 	context->IASetIndexBuffer(obj->GetComponent<Mesh>()->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(XMLoadFloat4x4(&obj->position)), 0, 0);
 	materialManagement->GetElement(UINT_MAX)->bindToShader(context, factorBuffer);
-	
 	context->DrawIndexed(obj->GetComponent<Mesh>()->indexCount, 0, 0);
 }
 
@@ -264,12 +263,13 @@ void Renderer::Initialize(Window window, VRManager * vr)
 #pragma endregion
 
 	directionalLight willDie;
-	willDie.lightColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	willDie.lightDir = XMFLOAT3(0.5f, -0.5f, 0.5f);
-	willDie.ambient = 0.5f;
+	willDie.color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	willDie.dir = XMFLOAT3(0.5f, -0.5f, 0.5f);
+	willDie.padding = 0.5f;
 	context->UpdateSubresource(dirLightBuffer, NULL, NULL, &willDie, NULL, NULL);
 	XMMATRIX camTemp = XMMatrixTranspose(XMLoadFloat4x4(&lookAt(XMFLOAT3(0.0f, 2.0f, -15.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f))));
-	XMStoreFloat4x4(&defaultCamera.view, XMMatrixInverse(&XMMatrixDeterminant(camTemp), camTemp));
+	keyboardCamera = new Camera();
+	keyboardCamera->pointCameraAt(DirectX::XMFLOAT3(0.0f, 2.0f, -5.0f), DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
 	XMStoreFloat4x4(&defaultCamera.projection, XMMatrixTranspose(XMMatrixPerspectiveFovLH(60.0f * XM_PI / 180.0f, defaultPipeline.viewport.Width / defaultPipeline.viewport.Height, 0.001f, 300.0f)));
 
 	if(VRManagement)
@@ -311,7 +311,7 @@ void Renderer::Destroy()
 	delete meshManagement;
 	materialManagement->Destroy();
 	delete materialManagement;
-
+	delete keyboardCamera;
 #if _DEBUG
 	DebugRenderer::Destroy();
 #endif
@@ -381,9 +381,6 @@ bool Renderer::unregisterObject(const Object * toRemove, renderState specialInst
 	return false;
 }
 
-
-
-
 XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 	XMFLOAT4X4 mat;
 	mat._11 = arr[0];
@@ -408,6 +405,8 @@ XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 void Renderer::Render()
 {
 	loadPipelineState(&defaultPipeline);
+	XMMATRIX cameraObj = XMMatrixTranspose(XMLoadFloat4x4(&keyboardCamera->getCamera()));
+	XMStoreFloat4x4(&defaultCamera.view, XMMatrixInverse(&XMMatrixDeterminant(cameraObj), cameraObj));
 	if(VRManagement)
 	{
 		VRManagement->GetVRMatrices(&leftEye.camera.projection, &rightEye.camera.projection, &leftEye.camera.view, &rightEye.camera.view);

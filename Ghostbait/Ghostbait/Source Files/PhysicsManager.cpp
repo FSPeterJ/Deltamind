@@ -93,7 +93,7 @@ bool PhysicsManager::CapsuleToCapsuleCollision(Collider col1, XMMATRIX& pos1, Co
 	cap2B = XMVector3TransformCoord(cap2B, pos2);
 	XMVECTOR seg2 = cap2A - cap2B;
 
-	float dot, segmentDistance;
+	float dot;// , segmentDistance;
 	XMStoreFloat(&dot, XMVector3Dot(seg1, seg2));
 
 	//If lines intersecting (Collision)
@@ -104,8 +104,8 @@ bool PhysicsManager::CapsuleToCapsuleCollision(Collider col1, XMMATRIX& pos1, Co
 
 
 void PhysicsManager::Update(const float dt) {
-	std::vector<PhysicsComponent*>* temp = components.GetActiveList();
-	int activeCount = components.GetActiveCount();
+	std::vector<PhysicsComponent*>*temp = components.GetActiveList();
+	int activeCount = (int)components.GetActiveCount();
 	for(int i = 0; i < activeCount; ++i) {
 		//This seems absurd, are we sure we can't use XMVECTOR and XMMATRIX in a more manageable manner?
 		XMFLOAT4* objectPosition = (XMFLOAT4*)&components[i].parentObject->position.m[3];
@@ -133,7 +133,7 @@ PhysicsComponent* PhysicsManager::GetComponent(const char* _meshFilePath)
 	return physComponent;
 }
 
-PhysicsComponent*  PhysicsManager::GetElement(const unsigned int _id)
+PhysicsComponent* PhysicsManager::GetElement(const unsigned int _id)
 {
 	//Hmmm
 	return nullptr;

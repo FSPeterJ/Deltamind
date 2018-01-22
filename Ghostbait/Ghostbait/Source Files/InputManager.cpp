@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <assert.h>
 #include "Messagebox.h"
+#include "PhysicsComponent.h"
 
 //VR
 InputManager::VRInput::VRInput(VRManager* vrManager) {
@@ -56,14 +57,16 @@ InputPackage InputManager::VRInput::CheckForInput() {
 				break;
 			case vr::k_EButton_SteamVR_Trigger:
 			{
-				DirectX::XMMATRIX pose;
+				//DirectX::XMMATRIX pose;
 				if (event.trackedDeviceIndex == vrMan->leftController.index) {
 					DirectX::XMFLOAT4 temp(vrMan->leftController.pose._41, vrMan->leftController.pose._42, vrMan->leftController.pose._43, vrMan->leftController.pose._44);
 					Object* obj;
-					MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, temp, &obj));
-					DirectX::XMMATRIX scaled = DirectX::XMLoadFloat4x4(&obj->position);
+					MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, temp, &obj));
+					DirectX::XMMATRIX scaled = DirectX::XMLoadFloat4x4(&(vrMan->leftController.obj->position));
+					//DirectX::XMMATRIX scaled = DirectX::XMLoadFloat4x4(&obj->position);
 
-					XMStoreFloat4x4(&obj->position, DirectX::XMMatrixScaling(0.30f, 0.30f, 0.30f) *scaled);
+					XMStoreFloat4x4(&obj->position, /*DirectX::XMMatrixScaling(0.30f, 0.30f, 0.30f)*/ scaled);
+					obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(obj->position._31 * 10.0f, obj->position._32 * 10.0f, obj->position._33 * 10.0f);
 					input = none;
 					amount = 0.0f;
 				}
@@ -107,7 +110,11 @@ InputPackage InputManager::VRInput::CheckForInput() {
 
 //Keyboard
 InputManager::KeyboardInput::KeyboardInput() {
-	MapKey(forward, 'A');
+	MapKey(forward, 'W');
+	MapKey(backward, 'S');
+	MapKey(left, 'A');
+	MapKey(right, 'D');
+	MapKey(teleport, 'T');
 }
 InputPackage InputManager::KeyboardInput::CheckForInput() {
 	Control input = none;
@@ -128,8 +135,11 @@ InputPackage InputManager::KeyboardInput::CheckForInput() {
 	return message;
 }
 bool InputManager::KeyboardInput::MapKey(Control control, int key) {
-	//keyBind[control] = key;
-	return true;
+	if (keyBind.find(control) != keyBind.end()) {
+		keyBind[control] = key;
+		return true;
+	}
+	else { return false; }
 }
 
 //Controller

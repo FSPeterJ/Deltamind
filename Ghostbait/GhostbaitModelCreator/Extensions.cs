@@ -13,7 +13,15 @@ namespace GhostbaitModelCreator {
             dynamic value = Convert.ChangeType(enumValue, underlyingType);
             dynamic flag = Convert.ChangeType(enumFlag, underlyingType);
      
-            value = on ? value | flag : value & ~flag;
+            //value = on ? (value | flag) : (value & ~flag);
+
+            if(on)
+            {
+                value |= flag;
+            } else
+            {
+                value &= ~flag;
+            }
          
             return (T)value;
         }

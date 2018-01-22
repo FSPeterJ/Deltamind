@@ -1,11 +1,11 @@
 #include "ObjectManager.h"
 #include "ObjectFactory.h"
 
-ObjectManager::ObjectManager(MemoryManager* _memMan, size_t prefabCount): memMan(_memMan)
+ObjectManager::ObjectManager(MemoryManager* _memMan): memMan(_memMan)
 {
-
-	poolList = (_Pool_Base* )memMan->RequestMemory(prefabCount, sizeof(Pool<size_t>));
-	poolListCount = prefabCount;
+	//TODO: Fix this into Initialize
+	poolListCount = 80;
+	poolList = (_Pool_Base* )memMan->RequestMemory(poolListCount, sizeof(Pool<size_t>));
 	//objectpool.reserve(prefabCount);
 }
 
@@ -15,7 +15,7 @@ ObjectManager::~ObjectManager()
 
 }
 
-void ObjectManager::Initialize()
+void ObjectManager::Initialize(size_t prefabCount)
 {
 
 	MessageEvents::Subscribe(EVENT_Destroy, [this](EventMessageBase * _e) {this->Destroy(_e); });

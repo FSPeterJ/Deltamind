@@ -8,7 +8,7 @@ namespace Console {
 	/// <summary>
 	/// Allocates memory for the Console.
 	/// </summary>
-	static void Allocate() {
+	static void ConsoleAllocate() {
 		AllocConsole();
 		FILE* new_std_in_out;
 		freopen_s(&new_std_in_out, "CONOUT$", "w", stdout);
@@ -42,7 +42,7 @@ namespace Console {
 #define Debug( s ) do{  std::wostringstream os_; os_ << s << std::endl;  OutputDebugStringW( os_.str().c_str() ); }while(0)
 
 #else
-	static void Allocate() {}
+	static void ConsoleAllocate() {}
 	static void Free() {}
 	static void Write(const std::string s) {}
 	static void Write(const int i) {}

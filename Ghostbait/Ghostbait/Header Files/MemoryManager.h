@@ -9,9 +9,9 @@ public:
 	char* raw_data = nullptr;
 	//Roughly half a gig by default
 	//The alignment is to hopefully not hit a cache page boundary
-	MemoryManager(int bytes = 536870912, int alignment = 8)
+	MemoryManager(int bytes = 536870912, int alignment = 64)
 	{
-		raw_data = (char*)malloc(bytes);
+		raw_data = (char*)_aligned_malloc(bytes, alignment);
 		bookmark = raw_data;
 		maxMemory = bytes + raw_data;
 	};
@@ -25,7 +25,7 @@ public:
 		//!!!			YOU MUST CALL THEM YOURSELF BEFORE THIS RUNS			!!!
 		//!!!								WARNING								!!!  
 		//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		free(raw_data);
+		_aligned_free(raw_data);
 	};
 
 	char* ReturnBuffer();

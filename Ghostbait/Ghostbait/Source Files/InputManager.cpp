@@ -158,6 +158,8 @@ InputPackage InputManager::HandleInput() {
 	return input;
 }
 void InputManager::SetInputType(InputType type) {
+	if (bridge)
+		delete bridge;
 	inputType = type;
 	switch (type) {
 	case InputType::VR:

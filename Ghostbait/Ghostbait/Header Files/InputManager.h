@@ -57,7 +57,7 @@ public:
 		vrMan = vrManager; 
 		SetInputType(type); 
 	};
-	~InputManager() {};
+	~InputManager() { delete bridge; };
 
 	
 	static void AddToQueue(uint64_t key) { inputQueue.push(key); };

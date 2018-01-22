@@ -24,6 +24,8 @@ namespace GhostbaitModelCreator {
             int dotIndex = path.LastIndexOf('.');
             int nameStartIndex = path.LastIndexOf('\\') + 1;
             string relativePath = path.Substring(nameStartIndex, dotIndex - nameStartIndex);
+            //relativePath = relativePath.Insert(0, "");
+
             switch (type)
             {
                 case MESH:
@@ -47,6 +49,10 @@ namespace GhostbaitModelCreator {
                     break;
             }
             return relativePath;
+        }
+        private string GetExtension(string file)
+        {
+            return file.Substring(file.LastIndexOf('.'));
         }
 
         [Flags]
@@ -314,73 +320,70 @@ namespace GhostbaitModelCreator {
                 //Read .ghost file to fill in data
                 BinaryReader reader = new BinaryReader(open.OpenFile());
 
-                ComponentType flags = (ComponentType)reader.ReadInt32();
-
+                //Class
                 className.Text = new string(reader.ReadChars(reader.ReadInt32()));
 
-                if (flags.HasFlag(COLLIDERS)) {
-                    int colCount = reader.ReadInt32();
-                    ColliderCreatorForm.ColliderData colData = new ColliderCreatorForm.ColliderData();
-                    for (int i = 0; i < colCount; ++i) {
-                        var stringCol = new string(reader.ReadChars(reader.ReadInt32()));
-                        if (!Enum.TryParse(stringCol, out colData.type)) {
-                            MessageBox.Show("Invalid Collider Type!", $@"The Collider string.Empty{stringCol}string.Empty is not a valid collider.", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            //return;
+                while (reader.BaseStream.Position != reader.BaseStream.Length)
+                {
+                    int size = reader.ReadInt32();
+                    if (size > 0) //if normal string
+                    {
+                        string data = new string(reader.ReadChars(size));
+                        if (GetExtension(data).ToLower() == ".mesh") mesh.FilePath = data;
+                        else if (GetExtension(data).ToLower() == ".mat") mat.FilePath = data;
+                        else if (GetExtension(data).ToLower() == ".bind") bindPose.FilePath = data;
+                        else if (GetExtension(data).ToLower() == ".mp3" || GetExtension(data).ToLower() == ".wav") audio.AddFile(data);
+                        else if (GetExtension(data).ToLower() == ".anim") anim.AddFile(data);
+                        continue;
+                    }
+                    else
+                    {
+                        string componentName = new string(reader.ReadChars(reader.ReadInt32()));
+
+                        if (componentName == "Physical")
+                        {
+                            int colCount = reader.ReadInt32();
+                            ColliderCreatorForm.ColliderData colData = new ColliderCreatorForm.ColliderData();
+                            for (int i = 0; i < colCount; ++i)
+                            {
+                                var stringCol = new string(reader.ReadChars(reader.ReadInt32()));
+                                if (!Enum.TryParse(stringCol, out colData.type))
+                                {
+                                    MessageBox.Show("Invalid Collider Type!", $@"The Collider string.Empty{stringCol}string.Empty is not a valid collider.", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    //return;
+                                }
+                                colData.offsetX = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
+                                colData.offsetY = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
+                                colData.offsetZ = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
+
+                                switch (colData.type)
+                                {
+                                    case ColliderCreatorForm.ColliderType.SPHERE:
+                                        colData.radius = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
+                                        break;
+
+                                    case ColliderCreatorForm.ColliderType.CAPSULE:
+                                        colData.radius = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
+                                        colData.height = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
+                                        break;
+
+                                    case ColliderCreatorForm.ColliderType.BOX:
+                                        colData.point1X = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
+                                        colData.point1Y = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
+                                        colData.point1Z = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
+                                        colData.point2X = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
+                                        colData.point2Y = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
+                                        colData.point2Z = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
+                                        break;
+
+                                    default: break;
+                                }
+
+                                colliders.AddCollider(colData);
+                            }
                         }
-                        colData.offsetX = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
-                        colData.offsetY = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
-                        colData.offsetZ = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
-
-                        switch (colData.type) {
-                            case ColliderCreatorForm.ColliderType.SPHERE:
-                                colData.radius = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
-                                break;
-
-                            case ColliderCreatorForm.ColliderType.CAPSULE:
-                                colData.radius = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
-                                colData.height = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
-                                break;
-
-                            case ColliderCreatorForm.ColliderType.BOX:
-                                colData.point1X = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
-                                colData.point1Y = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
-                                colData.point1Z = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
-                                colData.point2X = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
-                                colData.point2Y = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
-                                colData.point2Z = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
-                                break;
-
-                            default: break;
-                        }
-
-                        colliders.AddCollider(colData);
                     }
                 }
-
-                if (flags.HasFlag(MESH)) {
-                    mesh.FilePath = new string(reader.ReadChars(reader.ReadInt32()));
-                }
-
-                if (flags.HasFlag(MATERIAL)) {
-                    mat.FilePath = new string(reader.ReadChars(reader.ReadInt32()));
-                }
-
-                if (flags.HasFlag(BINDPOSE)) {
-                    bindPose.FilePath = new string(reader.ReadChars(reader.ReadInt32()));
-                }
-
-                if (flags.HasFlag(AUDIO)) {
-                    for (int i = 0; i < reader.ReadInt32(); ++i) {
-                        audio.AddFile(new string(reader.ReadChars(reader.ReadInt32())));
-                    }
-                }
-
-                if (flags.HasFlag(ANIMATION)) {
-                    for (int i = 0; i < reader.ReadInt32(); ++i) {
-                        anim.AddFile(new string(reader.ReadChars(reader.ReadInt32())));
-                    }
-                }
-                reader.Close();
             }
         }
 
@@ -396,22 +399,55 @@ namespace GhostbaitModelCreator {
             };
             if (save.ShowDialog() == DialogResult.OK) {
                 using (BinaryWriter writer = new BinaryWriter(save.OpenFile())) {
-                    //Set Flags
-                    ComponentType flags = 0;
-                    if (mesh.FilePath != string.Empty) flags.SetFlag(MESH);
-                    if (mat.FilePath != string.Empty) flags.SetFlag(MATERIAL);
-                    if (bindPose.FilePath != string.Empty) flags.SetFlag(BINDPOSE);
-                    if (colliders.ColliderCount > 0) flags.SetFlag(COLLIDERS);
-                    if (audio.filePaths.Count > 0) flags.SetFlag(AUDIO);
-                    if (anim.filePaths.Count > 0) flags.SetFlag(ANIMATION);
-
-                    //Flags
-                    writer.Write((int)flags);
                     //Class
                     writer.Write(className.Text.Length);
                     writer.Write(className.Text.ToCharArray());
+                    //Mesh
+                    if (mesh.FilePath != string.Empty) {
+                        writer.Write(mesh.FilePath.Length);
+                        writer.Write(mesh.FilePath.ToCharArray());
+                    }
+                    //Material
+                    if (mat.FilePath != string.Empty) {
+                        writer.Write(mat.FilePath.Length);
+                        writer.Write(mat.FilePath.ToCharArray());
+                    }
+                    //BindPose
+                    if (bindPose.FilePath != string.Empty) {
+                        writer.Write(bindPose.FilePath.Length);
+                        writer.Write(bindPose.FilePath.ToCharArray());
+                    }
                     //Colliders
-                    if (flags.HasFlag(COLLIDERS)) {
+                    if (colliders.ColliderCount > 0) {
+                        //Find ColliderDataSize
+                        int colliderDataSize = sizeof(Int32);
+                        string physicsName = "Physical";
+                        for(int i = 0; i < colliders.ColliderCount; ++i)
+                        {
+                            //Type
+                            colliderDataSize += sizeof(Int32) + colliders.GetCollider(i).type.ToString().Length;
+                            //Offset
+                            colliderDataSize += sizeof(float) * 3;
+                            //Custom Data
+                            switch (colliders.GetCollider(i).type)
+                            {
+                                case ColliderCreatorForm.ColliderType.SPHERE:
+                                    colliderDataSize += sizeof(float);
+                                    break;
+                                case ColliderCreatorForm.ColliderType.CAPSULE:
+                                    colliderDataSize += sizeof(float) * 2;
+                                    break;
+                                case ColliderCreatorForm.ColliderType.BOX:
+                                    colliderDataSize += sizeof(float) * 6;
+                                    break;
+                                default: break;
+                            }
+                        }
+                        //Writer Collider Header
+                        writer.Write(-colliderDataSize);
+                        writer.Write(physicsName.Length);
+                        writer.Write(physicsName.ToCharArray());
+                        //Write ColliderData
                         writer.Write(colliders.ColliderCount);
                         for (int i = 0; i < colliders.ColliderCount; ++i) {
                             //Type
@@ -446,36 +482,15 @@ namespace GhostbaitModelCreator {
                             }
                         }
                     }
-                    //Mesh
-                    if (flags.HasFlag(MESH)) {
-                        writer.Write(mesh.FilePath.Length);
-                        writer.Write(mesh.FilePath.ToCharArray());
-                    }
-                    //Material
-                    if (flags.HasFlag(MATERIAL)) {
-                        writer.Write(mat.FilePath.Length);
-                        writer.Write(mat.FilePath.ToCharArray());
-                    }
-                    //BindPose
-                    if (flags.HasFlag(BINDPOSE)) {
-                        writer.Write(bindPose.FilePath.Length);
-                        writer.Write(bindPose.FilePath.ToCharArray());
-                    }
                     //Audio
-                    if (flags.HasFlag(AUDIO)) {
-                        writer.Write(audio.filePaths.Count);
-                        for (int i = 0; i < audio.filePaths.Count; ++i) {
-                            writer.Write(audio.filePaths[i].Length);
-                            writer.Write(audio.filePaths[i].ToCharArray());
-                        }
+                    for (int i = 0; i < audio.filePaths.Count; ++i) {
+                        writer.Write(audio.filePaths[i].Length);
+                        writer.Write(audio.filePaths[i].ToCharArray());
                     }
                     //Animations
-                    if (flags.HasFlag(ANIMATION)) {
-                        writer.Write(anim.filePaths.Count);
-                        for (int i = 0; i < anim.filePaths.Count; ++i) {
-                            writer.Write(anim.filePaths[i].Length);
-                            writer.Write(anim.filePaths[i].ToCharArray());
-                        }
+                    for (int i = 0; i < anim.filePaths.Count; ++i) {
+                        writer.Write(anim.filePaths[i].Length);
+                        writer.Write(anim.filePaths[i].ToCharArray());
                     }
                 }
             }

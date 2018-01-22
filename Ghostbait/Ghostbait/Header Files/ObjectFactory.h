@@ -100,7 +100,7 @@ public:
 			//This Prefab already exists.
 		}
 		else {
-			prefabID = prefabs.size();
+			prefabID = (int)prefabs.size();
 			prefabs.push_back(Prefab());
 			Prefab* prefab = &prefabs[prefabID];
 			int ObjectType = 0;

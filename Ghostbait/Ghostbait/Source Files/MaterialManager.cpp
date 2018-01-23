@@ -17,7 +17,7 @@ void MaterialManager::Initialize(ID3D11Device * deviceIn, ID3D11DeviceContext* c
 {
 	device = deviceIn;
 	context = contextIn;
-	Material* toEdit = ConstructMaterial("Assets/TestCube_mat.bin");
+	Material* toEdit = ConstructMaterial("Assets/ViveController_mat.bin");
 	toEdit->matID = UINT_MAX;
 }
 

@@ -50,9 +50,9 @@ public:
 	}
 
 	void ExecuteUpdate() {
-		Write("Update delegate contains ");
-		Write((int) Update.subscriber_count());
-		WriteLine(" subscribers.");
+		//Write("Update delegate contains ");
+		//Write((int) Update.subscriber_count());
+		//WriteLine(" subscribers.");
 
 		Update();
 	}

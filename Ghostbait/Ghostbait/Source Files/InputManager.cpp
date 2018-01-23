@@ -14,8 +14,9 @@ InputManager::VRInput::VRInput(VRManager* vrManager) {
 	MapKey(left, 3);
 	MapKey(right, 4);
 	MapKey(teleport, 5);
-	MapKey(attack, 6);
-	MapKey(menu, 7);
+	MapKey(leftAttack, 6);
+	MapKey(rightAttack, 7);
+	MapKey(menu, 8);
 }
 bool InputManager::VRInput::MapKey(Control control, int key) {
 	if (keyBind.find(control) != keyBind.end()) {
@@ -50,25 +51,7 @@ InputPackage InputManager::VRInput::CheckForInput() {
 		{
 			switch (event.data.controller.button) {
 			case vr::k_EButton_ApplicationMenu:
-				break;
-			case vr::k_EButton_Grip:
-				break;
-			case vr::k_EButton_SteamVR_Touchpad:
-				break;
-			case vr::k_EButton_SteamVR_Trigger:
-			{
-				DirectX::XMMATRIX pose;
 				if (event.trackedDeviceIndex == vrMan->leftController.index) {
-					DirectX::XMFLOAT4 temp(vrMan->leftController.pose._41, vrMan->leftController.pose._42, vrMan->leftController.pose._43, vrMan->leftController.pose._44);
-					Object* obj;
-					MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, temp, &obj));
-					DirectX::XMMATRIX scaled = DirectX::XMLoadFloat4x4(&(vrMan->leftController.obj->position));
-					//DirectX::XMMATRIX scaled = DirectX::XMLoadFloat4x4(&obj->position);
-
-					XMStoreFloat4x4(&obj->position, /*DirectX::XMMatrixScaling(0.30f, 0.30f, 0.30f)*/ scaled);
-					obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(obj->position._31 * 10.0f, obj->position._32 * 10.0f, obj->position._33 * 10.0f);
-					input = none;
-					amount = 0.0f;
 				}
 				else {
 					input = teleport;
@@ -76,12 +59,40 @@ InputPackage InputManager::VRInput::CheckForInput() {
 					DirectX::XMStoreFloat4x4(&vrMan->world, DirectX::XMLoadFloat4x4(&vrMan->world) * DirectX::XMMatrixTranslation(vrMan->hmdPose._31, vrMan->hmdPose._32, vrMan->hmdPose._33));
 				}
 				break;
+			case vr::k_EButton_Grip:
+				break;
+			case vr::k_EButton_SteamVR_Touchpad:
+				break;
+			case vr::k_EButton_SteamVR_Trigger:
+				if (event.trackedDeviceIndex == VRManager::leftController.index) {
+					//DirectX::XMFLOAT4 temp(vrMan->leftController.pose._41, vrMan->leftController.pose._42, vrMan->leftController.pose._43, vrMan->leftController.pose._44);
+					//Object* obj;
+					//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, { 0, 0, 0, 0 }, &obj));
+					//DirectX::XMMATRIX scaled = DirectX::XMLoadFloat4x4(&(vrMan->leftController.obj->position));
+					////DirectX::XMMATRIX scaled = DirectX::XMLoadFloat4x4(&obj->position);
+					//
+					//obj->position = VRManager::leftController.obj->position;
+					//obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(obj->position._31 * 3.0f, obj->position._32 * 3.0f, obj->position._33 * 3.0f);
+					input = leftAttack;
+					amount = 1.0f;
+				}
+				else {
+					//DirectX::XMFLOAT4 temp(vrMan->rightController.pose._41, vrMan->rightController.pose._42, vrMan->rightController.pose._43, vrMan->rightController.pose._44);
+					//Object* obj;
+					//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, temp, &obj));
+					//DirectX::XMMATRIX scaled = DirectX::XMLoadFloat4x4(&(vrMan->rightController.obj->position));
+					////DirectX::XMMATRIX scaled = DirectX::XMLoadFloat4x4(&obj->position);
+					//
+					//XMStoreFloat4x4(&obj->position, /*DirectX::XMMatrixScaling(0.30f, 0.30f, 0.30f)*/ scaled);
+					//obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(obj->position._31 * 3.0f, obj->position._32 * 3.0f, obj->position._33 * 3.0f);
+					input = rightAttack;
+					amount = 1.0f;
+				}
+				break;
 			}
 			break;
-			}
 		}
-		case vr::VREvent_ButtonUnpress:
-		{
+		case vr::VREvent_ButtonUnpress: {
 			switch (event.data.controller.button) {
 			case vr::k_EButton_ApplicationMenu:
 				break;
@@ -90,19 +101,20 @@ InputPackage InputManager::VRInput::CheckForInput() {
 			case vr::k_EButton_SteamVR_Touchpad:
 				break;
 			case vr::k_EButton_SteamVR_Trigger:
+				if (event.trackedDeviceIndex == vrMan->leftController.index) {
+					input = leftAttack;
+					amount = 0.0f;
+				}
+				else if (event.trackedDeviceIndex == vrMan->rightController.index) {
+					input = rightAttack;
+					amount = 0.0f;
+				}
 				break;
 			}
 			break;
 		}
 		}
 	}
-	
-	//vr::VRControllerState_t state;
-	//vrMan->pVRHMD->GetControllerState(vrMan->controller1Index, &state, sizeof(state));
-	//Console::Write(state.rAxis[0].x);
-	//Console::Write(", ");
-	//Console::WriteLine(state.rAxis[0].y);
-	
 	InputPackage message(input, amount);
 
 	return message;
@@ -115,6 +127,9 @@ InputManager::KeyboardInput::KeyboardInput() {
 	MapKey(left, 'A');
 	MapKey(right, 'D');
 	MapKey(teleport, 'T');
+	MapKey(leftAttack, 'B');
+	MapKey(rightAttack, 'N');
+
 }
 InputPackage InputManager::KeyboardInput::CheckForInput() {
 	Control input = none;
@@ -135,11 +150,8 @@ InputPackage InputManager::KeyboardInput::CheckForInput() {
 	return message;
 }
 bool InputManager::KeyboardInput::MapKey(Control control, int key) {
-	if (keyBind.find(control) != keyBind.end()) {
-		keyBind[control] = key;
-		return true;
-	}
-	else { return false; }
+	keyBind[control] = key;
+	return true;
 }
 
 //Controller
@@ -163,7 +175,8 @@ std::queue<uint64_t> InputManager::inputQueue;
 InputPackage InputManager::HandleInput() {
 	InputPackage input = bridge->CheckForInput();
 	
-	MessageEvents::SendMessage(EVENT_Input, InputMessage(input.control, input.amount));
+	if(input.control != Control::none) 
+		MessageEvents::SendMessage(EVENT_Input, InputMessage(input.control, input.amount));
 
 	return input;
 }

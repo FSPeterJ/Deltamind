@@ -1,43 +1,30 @@
 #pragma once
 #include "Object.h"
-#include "Delegate.h"
-#include "EngineStructure.h"
 #include "Controlable.h"
 
 class GameObject: public Object {
 public:
-
-	GameObject() {
-		EngineStructure::Awake.add([=]() {this->Awake(); });
-		EngineStructure::Update.add([=]() {this->Update(); });
-	}
-
+	GameObject();
 	virtual void Awake() {}
 	virtual void Update() {}
 };
 
+class ControllerObject : public GameObject, public Controlable {
 
-
+};
+class LeftControllerObject : public ControllerObject {
+	int order = 66;
+	void Update();
+};
+class RightControllerObject : public ControllerObject {
+	int order = 77;
+	void Update();
+};
 
 class SomeCoolObject: public GameObject, public Controlable {
 
-	void Awake() override
-	{
-		WriteLine("I am a cool object being awakened!");
-	}
-
-	void Update() override
-	{
-		if(KeyIsDown(teleport)) {
-			Write("teleport down: ");
-			WriteLine(Amount(teleport));
-		}
-
-	}
+	void Update() {};
 };
-
-
-
 class SomeLeakyObject: public GameObject {
 	
 	int* testing;

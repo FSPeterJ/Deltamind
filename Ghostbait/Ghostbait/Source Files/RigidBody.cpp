@@ -2,12 +2,12 @@
 using namespace DirectX;
 
 RigidBody::RigidBody() {
-	hasGavity = false;
+	hasGavity = true;
 	mass = 1.0f;
 	velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	netAcceleration = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	actingForces.reserve(MAX_APPLIED_FORCE);
-	actingForces.push_back(AppliedForce(9.8f, 0.0f, -1.0f, 0.0f, 1.0f, true));
+	actingForces.push_back(AppliedForce(2.8f, 0.0f, -1.0f, 0.0f, 1.0f, true));
 }
 RigidBody::RigidBody(bool _hasGravity, float _mass, float veloX, float veloY, float veloZ) {
 	hasGavity = _hasGravity;

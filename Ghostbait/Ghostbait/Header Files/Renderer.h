@@ -7,18 +7,13 @@
 #include "Object.h"
 #include "MessageEvents.h"
 #include "MaterialManager.h"
+#include "Camera.h"
 
 enum renderState
 {
 	RENDER_STATE_DEFAULT, RENDER_STATE_TRANSPARENT
 };
 
-struct directionalLight
-{
-	DirectX::XMFLOAT4 lightColor;
-	DirectX::XMFLOAT3 lightDir;
-	float ambient;
-};
 class Renderer
 {
 private:
@@ -58,6 +53,29 @@ private:
 		viewProjectionConstantBuffer camera;
 	};
 
+	struct directionalLight
+	{
+		DirectX::XMFLOAT4 color;
+		DirectX::XMFLOAT3 dir;
+		float padding;
+	};
+
+	struct pointLight
+	{
+		DirectX::XMFLOAT4 color;
+		DirectX::XMFLOAT3 pos;
+		float radius;
+	};
+
+	struct spotLight
+	{
+		DirectX::XMFLOAT4 color;
+		DirectX::XMFLOAT3 pos;
+		float radius;
+		DirectX::XMFLOAT3 dir;
+		float outerRadius;
+	};
+
 #pragma endregion
 
 	ID3D11SamplerState* OnlySamplerState; //DirectX is a hoot
@@ -81,6 +99,7 @@ private:
 	pipeline_state_t defaultPipeline;
 	int tempId;
 	int tempMatId;
+	Camera* keyboardCamera;
 	viewProjectionConstantBuffer defaultCamera;
 
 	//eye leftEye;
@@ -179,9 +198,12 @@ public:
 	//Used to indicate if the position was found.
 	//////////////////////////////////////////////////////////////////////////////////
 	bool unregisterObject(const Object* toRemove, renderState specialInstructions = RENDER_STATE_DEFAULT);
+	//////////////////////////////////////////////////////////////////////////////////
+	void addDirectionalLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 dir);
+
 	MeshManager* getMeshManager() { return meshManagement; }
 	MaterialManager* getMaterialManager() { return materialManagement; }
-
+	Camera* getCamera() { return keyboardCamera; }
 	void Render();
 };
 

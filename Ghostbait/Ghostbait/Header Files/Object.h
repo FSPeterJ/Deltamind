@@ -2,7 +2,6 @@
 #include <directxmath.h>
 #include "MessageEvents.h"
 #include "ComponentBase.h"
-#include "TypeMapping.h"
 #include "TypeContainer.h"
 
 class Object

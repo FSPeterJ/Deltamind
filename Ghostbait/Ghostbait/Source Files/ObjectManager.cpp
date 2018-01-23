@@ -5,7 +5,7 @@ ObjectManager::ObjectManager(MemoryManager* _memMan): memMan(_memMan)
 {
 	//TODO: Fix this into Initialize
 	poolListCount = 80;
-	poolList = (_Pool_Base* )memMan->RequestMemory((int)poolListCount, sizeof(Pool<size_t>));
+	poolList = (_Pool_Base* )memMan->RequestMemory(poolListCount, sizeof(Pool<size_t>));
 	//objectpool.reserve(prefabCount);
 }
 
@@ -32,16 +32,16 @@ void ObjectManager::Shutdown() const
 }
 
 
-
-
 Object* ObjectManager::Instantiate(int typeID) {
-	Object* newobject = (Object*)poolList[typeID].Activate();
-	pointers2Bucket[newobject] = &poolList[typeID];
+	Write(typeID);
+	_Pool_Base* poolBase = (_Pool_Base*)((char*)poolList + sizeof(Pool<size_t>) * typeID);
+	Object* newobject = (Object*)poolBase->Activate();
+	pointers2Bucket[newobject] = poolBase;
 	return newobject;
 }
 
 void ObjectManager::Destroy(EventMessageBase *e) {
 	DestroyMessage* destroy = (DestroyMessage*)e;
 	Object* o = destroy->RetrieveObject();
-	pointers2Bucket.find(o)->second->Deactivate(o);
+	pointers2Bucket.find(o)->second->Deactivate((char*)o);
 }

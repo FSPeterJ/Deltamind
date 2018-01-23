@@ -29,7 +29,7 @@ public:
 		if(typeID < poolListCount)
 		{
 			// HATE HATE HATE
-			Pool<PoolType>* data = new (&poolList[0] + sizeof(Pool<PoolType>) * typeID) Pool<PoolType>(4);
+			Pool<PoolType>* data = new ((char*)poolList + (sizeof(Pool<size_t>) * typeID)) Pool<PoolType>(128);
 			Delete.add([data]()
 			{
 				data->~Pool<PoolType>();

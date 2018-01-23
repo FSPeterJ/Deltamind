@@ -2,7 +2,6 @@
 #pragma once
 #include <vector>
 #include "MemoryManager.h"
-#include <new>
 #include "Console.h"
 
 class _Pool_Base
@@ -53,21 +52,22 @@ class Pool: public _Pool_Base {
 public:
 	Pool(size_t size = 128)
 	{
-		OutputDebugString(L"start");
-		pool_size = size;
-		elements = (T*)memManage->RequestMemory((int)pool_size, sizeof(T));
+		pool_size = 2000;
+		elements = (T*)memManage->RequestMemory(pool_size, sizeof(T));
+		//elements = new T[pool_size];
+		inactiveList.resize(pool_size);
 		//elements = new ((void*)(memManage->RequestMemory(pool_size, sizeof(T)))) T;
 		for(size_t i = 0; i < pool_size; ++i)
 		{
-			new (&elements[i]) T;
-			inactiveList.push_back(&elements[i]);
+			//WTF WHY DOES THIS WORK BUT NOT &elements ????????
+			//inactiveList[i] = (char*)new ((char*)elements + sizeof(T) * i) T();
+			inactiveList[i] = (char*)new (&elements[i]) T();
 		}
 	}
 
 	~Pool()
 	{
-		OutputDebugString(L"end");
-		for (int i = 0; i < pool_size; ++i)
+		for(size_t i = 0; i < pool_size; ++i)
 		{
 			elements[i].~T();
 		}

@@ -162,7 +162,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="GameObjectComponent.h" />
     <ClInclude Include="Header Files\AABB.h" />
     <ClInclude Include="Header Files\AnimationManager.h" />
     <ClInclude Include="Header Files\Camera.h" />

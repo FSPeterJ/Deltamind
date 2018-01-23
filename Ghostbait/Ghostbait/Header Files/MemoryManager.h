@@ -1,6 +1,7 @@
 #pragma once
 #include <stdlib.h>
 
+//Really dumb / simple memory allocator
 class MemoryManager
 {
 public:
@@ -11,6 +12,8 @@ public:
 	//The alignment is to hopefully not hit a cache page boundary
 	MemoryManager(int bytes = 536870912, int alignment = 64)
 	{
+
+		//raw_data = new char[bytes];
 		raw_data = (char*)_aligned_malloc(bytes, alignment);
 		bookmark = raw_data;
 		maxMemory = bytes + raw_data;
@@ -26,9 +29,10 @@ public:
 		//!!!								WARNING								!!!  
 		//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		_aligned_free(raw_data);
+		//delete[] raw_data;
 	};
 
-	char* ReturnBuffer();
+	//char* ReturnBuffer();
 
-	char* RequestMemory(const int count, const int size);
+	char * RequestMemory(unsigned count, size_t size);
 };

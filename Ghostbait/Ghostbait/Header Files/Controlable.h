@@ -1,5 +1,4 @@
 #pragma once
-#include "InputManager.h"
 #include "MessageStructs.h"
 #include <functional>
 #include <unordered_map>
@@ -22,6 +21,7 @@ class Controlable {
 		ReceiveEvent ReceiveInput;
 	public:
 		InputReceiver *const GetState() const { return this->receiver; }
+		void SetState(Control key, float amount) { this->receiver->operator[](key) = amount; }
 		ReceiveEvent const ReceiveInputEvent() const { return ReceiveInput; }
 		InputReceivedEvent() : receiver(new InputReceiver()), ReceiveInput([receiver = receiver](EventMessageBase* e) mutable { receiver->OnInputReceived(e); }) {}
 		virtual ~InputReceivedEvent() {
@@ -43,6 +43,8 @@ protected:
 	/// <param name="key">The key.</param>
 	/// <returns>true if the key is down, false otherwise</returns>
 	inline bool KeyIsDown(Control key) { return Amount(key) > 0; }
+
+	inline void ResetKey(Control key) { inputReceivedEvent.SetState(key, 0); }
 public:
 	/// <summary>
 	/// Subscribes children to receive message input events.

@@ -43,6 +43,7 @@ PhysicsManager* phyMan;
 MemoryManager MemMan;
 ObjectManager* objMan;
 XTime timer;
+EngineStructure engine;
 
 //
 /*
@@ -187,16 +188,27 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::Initialize(objMan);
 	ObjectFactory::RegisterPrefabBase<Object>();
 	ObjectFactory::RegisterPrefabBase<SomeLeakyObject>();
+	ObjectFactory::RegisterPrefabBase<LeftControllerObject>();
+	ObjectFactory::RegisterPrefabBase<RightControllerObject>();
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
 	ObjectFactory::RegisterManager<PhysicsComponent, PhysicsManager>(phyMan);
 
 	TypeMap::RegisterComponent<Mesh>("Mesh");
 	TypeMap::RegisterComponent<PhysicsComponent>("Physical");
 
+	TypeMap::RegisterComponent<Object>("Object");
+	TypeMap::RegisterComponent<SomeLeakyObject>("SomeLeakyObject");
+	TypeMap::RegisterComponent<LeftControllerObject>("LeftControllerObject");
+	TypeMap::RegisterComponent<RightControllerObject>("RightControllerObject");
 
 
-	ObjectFactory::CreatePrefab(&std::string("BaseClass"));
-	ObjectFactory::CreatePrefab(&std::string("TestObject"));
+	ObjectFactory::CreatePrefab(&std::string("Object"));
+	ObjectFactory::CreatePrefab(&std::string("SomeLeakyObject"));
+	ObjectFactory::CreatePrefab(&std::string("LeftControllerObject"));
+	ObjectFactory::CreatePrefab(&std::string("RightControllerObject"));
+	
+
+
 
 	game = new Game();
 	game->Start();
@@ -206,6 +218,9 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	Object* cube1, *cube2;
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, { 0,-1,0,1 }, &cube1));
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, { 0,-3,0,1 }, &cube2));
+
+
+
 	cube1->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(0.5f, -1.0f, 0.0f);
 	cube2->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(1.0f, 0.0f, 0.0f);
 
@@ -222,6 +237,7 @@ void Loop() {
 	game->Update();
 	inputMan->HandleInput();
 	phyMan->Update((float)timer.SmoothDelta());
+	engine.ExecuteUpdate();
 }
 
 void CleanUp() {

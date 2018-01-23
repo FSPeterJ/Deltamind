@@ -110,7 +110,8 @@ void PhysicsManager::Update(const float dt) {
 		//This seems absurd, are we sure we can't use XMVECTOR and XMMATRIX in a more manageable manner?
 		XMFLOAT4* objectPosition = (XMFLOAT4*)&components[i].parentObject->position.m[3];
 		XMVECTOR newposition = XMLoadFloat4(objectPosition);
-		newposition += components[i].rigidBody.GetVelocity() * dt;
+		components[i].rigidBody.Update(dt);
+		newposition += components[i].rigidBody.GetVelocity();
 		XMStoreFloat4(objectPosition, newposition);
 		//components[i].parentObject->position.r[3] += components[i].rigidBody.GetVelocity() * dt;
 	}
@@ -137,4 +138,12 @@ PhysicsComponent* PhysicsManager::GetElement(const unsigned int _id)
 {
 	//Hmmm
 	return nullptr;
+}
+
+XMVECTOR PhysicsManager::FindClosestPointOnLine(XMVECTOR _lineSegStart, XMVECTOR _lineSegEnd, XMVECTOR _testPoint) {
+	XMVECTOR lineSegment, lineToPoint;
+	lineSegment = _lineSegEnd - _lineSegStart;
+	lineToPoint = _testPoint - _lineSegStart;
+	float ratio = XMVectorGetX(XMVector3Dot(lineToPoint, lineSegment)) / XMVectorGetX(XMVector3Dot(lineSegment, lineSegment));
+	return _lineSegStart + (lineSegment * ratio);
 }

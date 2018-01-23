@@ -10,7 +10,8 @@ enum Control {
 	backward,
 	left,
 	right,
-	attack,
+	leftAttack,
+	rightAttack,
 	teleport,
 	menu
 };

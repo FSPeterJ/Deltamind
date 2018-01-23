@@ -9,13 +9,13 @@ namespace GhostbaitModelCreator {
 
     public partial class ModelCreatorForm : Form {
 
-        [DllImport("FBXInterface.dll")]
+        [DllImport("..\\..\\FBXInterface.dll")]
         public static extern int get_mesh_from_scene(string fbx_file_path, string output_file_path, string name = null);
-        [DllImport("FBXInterface.dll")]
+        [DllImport("..\\..\\FBXInterface.dll")]
         public static extern int get_material_from_scene(string fbx_file_path, string output_file_path, string name = null);
-        [DllImport("FBXInterface.dll")]
+        [DllImport("..\\..\\FBXInterface.dll")]
         public static extern int get_animdata_from_scene(string fbx_file_path, string output_file_path);
-        [DllImport("FBXInterface.dll")]
+        [DllImport("..\\..\\FBXInterface.dll")]
         public static extern int get_bindpose_from_scene(string fbx_file_path, string output_file_path);
 
 

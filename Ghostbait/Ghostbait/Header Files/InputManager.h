@@ -3,6 +3,8 @@
 #include "VRManager.h"
 #include <queue>
 
+//class VRManager;
+
 
 enum InputType {
 	VR,

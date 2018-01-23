@@ -80,7 +80,7 @@ public:
 	static void RegisterManager(IComponentManager * manager) {
 		//Mess
 		const int tid = TypeMap::getTypeId<ComponentType>();
-		if(managers.size() <= tid)
+		if (managers.size() <= tid)
 		{
 			managers.resize(tid + 1);
 		}
@@ -96,7 +96,7 @@ public:
 	static void CreatePrefab(std::string *_filename) {
 
 		int prefabID = prefabNames[*_filename];
-		if(prefabID) {
+		if (prefabID) {
 			//This Prefab already exists.
 		}
 		else {
@@ -107,7 +107,7 @@ public:
 			FILE* file = nullptr;
 			//int reads;
 			fopen_s(&file, _filename->c_str(), "rb");
-			if(file) {
+			if (file) {
 				// Filetype, ObjectType, [Components]
 				// Components are not dynamic at this time.
 				//reads = fread(&address, sizeof(item), instances, file);
@@ -135,7 +135,6 @@ public:
 
 			//Test prefab assembly
 			//=================================
-			prefab->object = registeredConstructors[ObjectType]();
 			int componentCount = 1;
 
 			//TEST CODE ONLY
@@ -151,9 +150,11 @@ public:
 				"Physical"
 			};
 			char* names[1] = {
-				"Assets/TestCube_mesh.bin"
+				"Assets/ViveController_mesh.bin"
 			};
-			for(int i = 0; i < 1; i++)
+			prefab->typeID = TypeMap::getNameId(std::string(_filename->c_str()));
+			prefab->object = registeredConstructors[prefab->typeID]();
+			for (int i = 0; i < 1; i++)
 			{
 				const int typeID = TypeMap::getNameId(std::string(types[i]));
 				ComponentBase * component = managers[typeID]->GetComponent(names[0]);
@@ -162,8 +163,7 @@ public:
 				//Mesh* testing = (Mesh*)managers[typeID]->GetElement(UINT_MAX);
 
 			}
-			prefab->typeID = TypeMap::getNameId(std::string(classes[0]));
-			if(prefabID == 1)
+			if (prefabID == 1)
 			{
 				const int typeIDTEMP = TypeMap::getNameId(std::string(types[2]));
 				ComponentBase * componentTEMP = managers[typeIDTEMP]->GetComponent("");
@@ -191,14 +191,14 @@ public:
 		//TODO: ID should be whatever
 		Object* newobject = objMan->Instantiate(prefabs[pid].typeID);
 
-		for(int i = 0; i < 64; i++)
+		for (int i = 0; i < 64; i++)
 		{
-			if(prefabs[pid].fastclone[i])
+			if (prefabs[pid].fastclone[i])
 			{
 				;
 				newobject->SetComponent(prefabs[pid].instantiatedComponents[i], i);
 			}
-			else if(prefabs[pid].instantiatedComponents[i] != nullptr) {
+			else if (prefabs[pid].instantiatedComponents[i] != nullptr) {
 				InstantiatedCompBase* comptemp = (InstantiatedCompBase *)managers[i]->GetComponent("");
 				comptemp->parentObject = newobject; // This will crash if this is not an InstantiatedCompBase
 				newobject->SetComponent(comptemp, i);
@@ -206,11 +206,11 @@ public:
 			}
 		}
 
-		if(instantiate->GetReturnObject() != nullptr)
+		if (instantiate->GetReturnObject() != nullptr)
 		{
 			instantiate->SetReturnObject(newobject);
 		}
-		memcpy(&newobject->position.m[3], &instantiate->GetPosition(),sizeof(DirectX::XMFLOAT4));
+		memcpy(&newobject->position.m[3], &instantiate->GetPosition(), sizeof(DirectX::XMFLOAT4));
 		Mesh * test = newobject->GetComponent<Mesh>();
 		MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
 	}
@@ -233,7 +233,7 @@ public:
 
 	static void Shutdown()
 	{
-		for(auto prefab : prefabs)
+		for (auto prefab : prefabs)
 		{
 			delete prefab.object;
 		}

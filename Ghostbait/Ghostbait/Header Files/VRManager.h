@@ -2,6 +2,8 @@
 #include "openvr.h"
 #include "ObjectManager.h"
 #include <DirectXMath.h>
+#include "GameObject.h"
+
 #define FLOAT4X4Identity DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
 class VRManager
@@ -25,16 +27,21 @@ private:
 
 
 public:
-	struct VRController {
+	struct LeftVRController {
 		int index;
 		DirectX::XMFLOAT4X4 pose = FLOAT4X4Identity;
-		Object* obj;
+		LeftControllerObject* obj;
+	};
+	struct RightVRController {
+		int index;
+		DirectX::XMFLOAT4X4 pose = FLOAT4X4Identity;
+		RightControllerObject* obj;
 	};
 
 	static DirectX::XMFLOAT4X4 world;
 	DirectX::XMFLOAT4X4 hmdPose = FLOAT4X4Identity;
-	VRController leftController;
-	VRController rightController;
+	static LeftVRController leftController;
+	static RightVRController rightController;
 
 	vr::IVRSystem *pVRHMD;
 	vr::IVRRenderModels* pVRRenderModel;
@@ -48,14 +55,14 @@ public:
 
 	void CreateControllers()
 	{
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 0,0,0,1 }, &leftController.obj));
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 1,0,100,1 }, &rightController.obj));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(TypeMap::getTypeId<LeftControllerObject>(), { 0,0,0,1 }, (Object**)&leftController.obj));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(TypeMap::getTypeId<RightControllerObject>(), { 1,0,100,1 }, (Object**)&rightController.obj));
 	}
-	void RegisterController(Object* _left, Object* _right) {
-
-		leftController.obj = _left;
-		rightController.obj= _right;
-	}
+	//void RegisterController(ControllerObject* _left, ControllerObject* _right) {
+	//
+	//	leftController.obj = _left;
+	//	rightController.obj= _right;
+	//}
 
 	void GetVRMatrices(DirectX::XMFLOAT4X4* leftProj, DirectX::XMFLOAT4X4* rightProj, DirectX::XMFLOAT4X4* leftView, DirectX::XMFLOAT4X4* rightView);
 	void SendToHMD(void* leftTexture, void* rightTexture);

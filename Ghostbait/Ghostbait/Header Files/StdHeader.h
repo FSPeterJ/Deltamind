@@ -22,3 +22,4 @@ typedef short GhostShort;
 typedef unsigned short GhostUShort;
 typedef unsigned long GhostULong;
 typedef bool GhostBool;
+typedef decltype(nullptr) Ghost_nullptr;

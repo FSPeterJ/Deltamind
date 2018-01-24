@@ -54,6 +54,7 @@ public:
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(TypeMap::getTypeId<LeftControllerObject>(), {0,0,0,1}, (Object**) &leftController.obj));
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(TypeMap::getTypeId<RightControllerObject>(), {1,0,100,1}, (Object**) &rightController.obj));
 	}
+
 	//void RegisterController(ControllerObject* _left, ControllerObject* _right) {
 	//
 	//	leftController.obj = _left;

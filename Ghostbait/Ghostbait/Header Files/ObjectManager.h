@@ -5,13 +5,14 @@
 #include "Pool.h"
 #define MAX_ENTITY_COUNT 16384
 
+
 class ObjectManager: public IManager {
 	Delegate<> Delete;
 	MemoryManager* memMan;
 
 	std::unordered_map<std::string, _Pool_Base*> objectpool;
 
-	std::unordered_map<Object*, _Pool_Base*> pointers2Bucket;
+	std::unordered_map<Object*,_Pool_Base*> pointers2Bucket;
 	_Pool_Base* poolList;
 
 	size_t poolListCount;
@@ -20,6 +21,8 @@ class ObjectManager: public IManager {
 	void Destroy(EventMessageBase* e);
 
 public:
+	void Update();
+
 	template<typename PoolType>
 	void CreatePool() {
 		int typeID = TypeMap::getTypeId<PoolType>();

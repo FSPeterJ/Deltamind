@@ -240,7 +240,6 @@ public:
 
 		for(int i = 0; i < 64; i++) {
 			if(prefabs[pid].fastclone[i]) {
-				;
 				newobject->SetComponent(prefabs[pid].instantiatedComponents[i], i);
 			} else if(prefabs[pid].instantiatedComponents[i] != nullptr) {
 				InstantiatedCompBase* comptemp = (InstantiatedCompBase *) managers[i]->GetComponent("");

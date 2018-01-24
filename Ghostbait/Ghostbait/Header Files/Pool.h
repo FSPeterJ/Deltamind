@@ -17,6 +17,7 @@ protected:
 	std::vector<void*> activeList;
 	std::vector<void*> inactiveList; //Linked list with head/tail ptrs
 public:
+
 	static void RegisterMemory(MemoryManager* mem) {
 		memManage = mem;
 	}
@@ -58,7 +59,7 @@ public:
 
 	~Pool() {
 		//We want to destruct in reverse order so the first created is the first destructed
-		for(size_t i = pool_size; i-- > 0;) //goes to 'operator' ;D
+		for(size_t i = pool_size; i --> 0;) //goes to 'operator' ;D
 		{
 			elements[i].~T();
 		}
@@ -97,7 +98,7 @@ public:
 	/// Gets the active list.
 	/// </summary>
 	/// <returns>std.vector&lt;T*&gt;*.</returns>
-	std::vector< T*>* GetActiveList() const {
+	std::vector< T*>* GetActiveList() const{
 		return (std::vector<T*>*)&activeList;
 	}
 };

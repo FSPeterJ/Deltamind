@@ -7,9 +7,13 @@
 #include "GameObject.h"
 
 GameObject::GameObject() {
-	EngineStructure::Awake += [=]() {this->Awake(); };
-	EngineStructure::Update += [=]() {this->Update(); };
+	
 }
+
+void GameObject::Activate() {
+	EngineStructure::Awake += [=]() {this->Awake(); };
+}
+
 static int i = 0;
 void LeftControllerObject::Update() {
 	Object* something = this;

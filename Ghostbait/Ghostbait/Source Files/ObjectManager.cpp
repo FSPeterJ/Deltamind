@@ -30,11 +30,7 @@ void ObjectManager::Shutdown() const {
 }
 
 void ObjectManager::Update() {
-	for(auto& bucket : objectpool) {
-		for(size_t i = 0; i < ((Pool<Object>*)bucket.second)->GetActiveCount(); ++i) {
-			((GameObject*) ((Pool<Object>*)bucket.second)->GetActiveList()->operator[](i))->Update();
-		}
-	}
+	Update_Delegate();
 }
 
 Object* ObjectManager::Instantiate(int typeID) {

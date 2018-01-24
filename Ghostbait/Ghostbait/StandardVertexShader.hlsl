@@ -23,6 +23,7 @@ struct outputstruct {
 	float4 pos : SV_POSITION;
 	float2 uv : TEXCOORD0;
 	float3 norm : TEXCOORD1;
+    float3 worldPos : TEXCOORD2;
 };
 
 outputstruct main(vertexShaderInput input) {
@@ -35,6 +36,7 @@ outputstruct main(vertexShaderInput input) {
 	float4 outputpos = pos;
 	float4 norm = float4(input.normal, 0.0f);
 	outputpos = mul(outputpos, model);
+    output.worldPos = outputpos;
 	outputpos = mul(outputpos, view);
 	outputpos = mul(outputpos, projection);
 	output.pos = outputpos;

@@ -9,6 +9,9 @@ namespace GhostbaitModelCreator {
 
     public partial class ModelCreatorForm : Form {
 
+        const string appendedPath = "../../../GhostBait/";
+        const string toAppend = appendedPath + "Assets/";
+
         [DllImport("..\\..\\FBXInterface.dll")]
         public static extern int get_mesh_from_scene(string fbx_file_path, string output_file_path, string name = null);
 
@@ -25,7 +28,7 @@ namespace GhostbaitModelCreator {
             int dotIndex = path.LastIndexOf('.');
             int nameStartIndex = path.LastIndexOf('\\') + 1;
             string relativePath = path.Substring(nameStartIndex, dotIndex - nameStartIndex);
-            //relativePath = relativePath.Insert(0, "");
+            relativePath = toAppend + relativePath;
 
             switch (type) {
                 case MESH:
@@ -183,7 +186,10 @@ namespace GhostbaitModelCreator {
             if (open.ShowDialog() == DialogResult.OK) {
                 if (open.FileName.Substring(open.FileName.Length - 4) == ".fbx") {
                     string animFile = GenerateRelativeComponentFilePath(open.FileName, ANIMATION);
-                    if (get_animdata_from_scene(open.FileName, animFile) != -1) anim.AddFile(animFile);
+                    if (get_animdata_from_scene(open.FileName, animFile) != -1) {
+                        animFile = animFile.Substring(/*Make const*/19);
+                        anim.AddFile(animFile);
+                    }
                 } else {
                     anim.AddFile(open.FileName);
                 }
@@ -250,10 +256,22 @@ namespace GhostbaitModelCreator {
                 string bindPoseFile = GenerateRelativeComponentFilePath(open.FileName, BINDPOSE);
                 string animFile = GenerateRelativeComponentFilePath(open.FileName, ANIMATION);
 
-                if (get_mesh_from_scene(open.FileName, meshFile) != -1) mesh.FilePath = meshFile;
-                if (get_material_from_scene(open.FileName, matFile) != -1) mat.FilePath = matFile;
-                if (get_bindpose_from_scene(open.FileName, bindPoseFile) != -1) bindPose.FilePath = bindPoseFile;
-                if (get_animdata_from_scene(open.FileName, animFile) != -1) anim.AddFile(animFile);
+                if (get_mesh_from_scene(open.FileName, meshFile) != -1) {
+                    meshFile = meshFile.Substring(appendedPath.Length);
+                    mesh.FilePath = meshFile;
+                }
+                if (get_material_from_scene(open.FileName, matFile) != -1) {
+                    matFile = matFile.Substring(appendedPath.Length);
+                    mat.FilePath = matFile;
+                }
+                if (get_bindpose_from_scene(open.FileName, bindPoseFile) != -1) {
+                    bindPoseFile = bindPoseFile.Substring(appendedPath.Length);
+                    bindPose.FilePath = bindPoseFile;
+                }
+                if (get_animdata_from_scene(open.FileName, animFile) != -1) {
+                    animFile = animFile.Substring(appendedPath.Length);
+                    anim.AddFile(animFile);
+                }
             }
         }
 

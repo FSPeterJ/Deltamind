@@ -230,7 +230,7 @@ void Renderer::Initialize(Window window, VRManager * vr) {
 	tempMatId = materialManagement->AddElement("Assets/ScifiRoom_mat.bin");
 	context->VSSetConstantBuffers(0, 1, &cameraBuffer);
 	context->VSSetConstantBuffers(1, 1, &modelBuffer);
-	context->PSSetConstantBuffers(0, 1, &dirLightBuffer);
+	context->PSSetConstantBuffers(0, 1, &lightBuffer);
 	context->PSSetConstantBuffers(1, 1, &factorBuffer);
 #pragma region SamplerState
 	D3D11_SAMPLER_DESC sampleDesc;
@@ -247,12 +247,23 @@ void Renderer::Initialize(Window window, VRManager * vr) {
 	context->PSSetSamplers(0, 1, &OnlySamplerState);
 #pragma endregion
 
-	directionalLight willDie;
+	genericLight willDie;
 	willDie.color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	willDie.dir = XMFLOAT3(0.5f, -0.5f, 0.5f);
-	willDie.padding = 0.5f;
-	context->UpdateSubresource(dirLightBuffer, NULL, NULL, &willDie, NULL, NULL);
-	XMMATRIX camTemp = XMMatrixTranspose(XMLoadFloat4x4(&lookAt(XMFLOAT3(0.0f, 2.0f, -15.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f))));
+	//cpu_light_info.cpu_side_lights[0] = willDie;
+	genericLight pointTest;
+	pointTest.color = DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+	pointTest.pos = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	pointTest.radius = 15.0f;
+	//cpu_light_info.cpu_side_lights[1] = pointTest;
+	genericLight spotTest;
+	spotTest.color = DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
+	spotTest.pos = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	spotTest.radius = 1.0f;
+	spotTest.outerRadius = 0.9f;
+	spotTest.dir = DirectX::XMFLOAT3(0.0f, -0.5f, 0.5f);
+	//cpu_light_info.cpu_side_lights[2] = spotTest;
+	XMMATRIX camTemp = XMMatrixTranspose(XMLoadFloat4x4(&lookAt(XMFLOAT3(0.0f, 2.0f, -15.0f), pointTest.pos, XMFLOAT3(0.0f, 1.0f, 0.0f))));
 	keyboardCamera = new Camera();
 	keyboardCamera->pointCameraAt(DirectX::XMFLOAT3(0.0f, 2.0f, -5.0f), DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
 	XMStoreFloat4x4(&defaultCamera.projection, XMMatrixTranspose(XMMatrixPerspectiveFovLH(60.0f * XM_PI / 180.0f, defaultPipeline.viewport.Width / defaultPipeline.viewport.Height, 0.001f, 300.0f)));
@@ -273,7 +284,7 @@ void Renderer::Destroy() {
 	cameraBuffer->Release();
 	modelBuffer->Release();
 	factorBuffer->Release();
-	dirLightBuffer->Release();
+	lightBuffer->Release();
 	ILPositionColor->Release();
 	ILStandard->Release();
 	PassThroughPositionColorVS->Release();
@@ -377,6 +388,7 @@ XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 
 void Renderer::Render() {
 	loadPipelineState(&defaultPipeline);
+	context->UpdateSubresource(lightBuffer, NULL, NULL, &cpu_light_info, 0, 0);
 	XMMATRIX cameraObj = XMMatrixTranspose(XMLoadFloat4x4(&keyboardCamera->getCamera()));
 	XMStoreFloat4x4(&defaultCamera.view, XMMatrixInverse(&XMMatrixDeterminant(cameraObj), cameraObj));
 	if(VRManagement) {
@@ -518,8 +530,8 @@ void Renderer::initShaders() {
 	CD3D11_BUFFER_DESC factorBufferDesc(sizeof(Material::factorBufferStructure), D3D11_BIND_CONSTANT_BUFFER);
 	device->CreateBuffer(&factorBufferDesc, nullptr, &factorBuffer);
 
-	CD3D11_BUFFER_DESC dirBufferDesc(sizeof(directionalLight), D3D11_BIND_CONSTANT_BUFFER);
-	device->CreateBuffer(&dirBufferDesc, nullptr, &dirLightBuffer);
+	CD3D11_BUFFER_DESC dirBufferDesc(sizeof(lightBufferStruct), D3D11_BIND_CONSTANT_BUFFER);
+	device->CreateBuffer(&dirBufferDesc, nullptr, &lightBuffer);
 }
 
 void Renderer::initViewport(const RECT window, pipeline_state_t * pipelineTo) {

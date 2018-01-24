@@ -9,9 +9,12 @@
 #include "MaterialManager.h"
 #include "Camera.h"
 
+
 enum renderState {
 	RENDER_STATE_DEFAULT, RENDER_STATE_TRANSPARENT
 };
+
+#define MAX_LIGHTS 83
 
 class Renderer {
 private:
@@ -68,11 +71,18 @@ private:
 	};
 
 	struct genericLight {
-		DirectX::XMFLOAT4 color;
+		DirectX::XMFLOAT4 color = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 		DirectX::XMFLOAT3 dir;
+		float radius = 0.0f;
 		DirectX::XMFLOAT3 pos;
-		float radius;
-		float outerRadius;
+		float outerRadius = 0.0f;
+	};
+
+	struct lightBufferStruct
+	{
+		genericLight cpu_side_lights[MAX_LIGHTS];
+		DirectX::XMFLOAT3 ambientColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
+		float ambientIntensity = 0.5f;
 	};
 #pragma endregion
 
@@ -93,13 +103,14 @@ private:
 	ID3D11Buffer* cameraBuffer;
 	ID3D11Buffer* modelBuffer;
 	ID3D11Buffer* factorBuffer;
-	ID3D11Buffer* dirLightBuffer;
+	ID3D11Buffer* lightBuffer;
 	pipeline_state_t defaultPipeline;
 	int tempId;
 	int tempMatId;
 	Camera* keyboardCamera;
 	viewProjectionConstantBuffer defaultCamera;
 
+	lightBufferStruct cpu_light_info;
 	//eye leftEye;
 	//eye rightEye;
 

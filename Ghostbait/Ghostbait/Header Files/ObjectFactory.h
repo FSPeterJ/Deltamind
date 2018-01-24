@@ -117,6 +117,7 @@ public:
 			FILE* file = nullptr;
 			fopen_s(&file, _filename->c_str(), "rb");
 			if(file) {
+				//------------Leaking memory temporarily. Will be fixed when we actually store that char*'s-------------//
 				//Read ClassName
 				int nameLength;
 				fread(&nameLength, sizeof(int), 1, file);

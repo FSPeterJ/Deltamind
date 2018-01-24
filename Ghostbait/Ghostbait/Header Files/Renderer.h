@@ -76,6 +76,14 @@ private:
 		float outerRadius;
 	};
 
+	struct genericLight
+	{
+		DirectX::XMFLOAT4 color;
+		DirectX::XMFLOAT3 dir;
+		DirectX::XMFLOAT3 pos;
+		float radius;
+		float outerRadius;
+	};
 #pragma endregion
 
 	ID3D11SamplerState* OnlySamplerState; //DirectX is a hoot

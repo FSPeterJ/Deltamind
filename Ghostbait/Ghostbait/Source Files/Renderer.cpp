@@ -381,6 +381,10 @@ bool Renderer::unregisterObject(const Object * toRemove, renderState specialInst
 	return false;
 }
 
+void Renderer::addDirectionalLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 dir)
+{
+}
+
 XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 	XMFLOAT4X4 mat;
 	mat._11 = arr[0];

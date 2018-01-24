@@ -35,7 +35,7 @@ public:
 	/// <param name="priority">The optional priority. Leaving it as -1 means no priority. Zero is highest priority.</param>
 	inline static void Subscribe(const EVENT_TYPES eventtype, std::function<void(EventMessageBase *)> execute, const int priority = -1) {
 		//if(priority < 0) {
-			eventmap[eventtype].add(execute);
+			eventmap[eventtype] += execute;
 			//return;
 		//}
 

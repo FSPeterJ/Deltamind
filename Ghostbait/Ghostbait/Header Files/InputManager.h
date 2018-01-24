@@ -3,19 +3,17 @@
 #include "VRManager.h"
 #include <queue>
 
-//class VRManager;
-
-
 enum InputType {
 	VR,
 	KEYBOARD,
 	CONTROLLER
 };
+
 struct InputPackage {
-	InputPackage() {};
-	InputPackage(Control _control, float _amount) : control(_control), amount(_amount) {}
 	Control control;
 	float amount;
+	InputPackage() {};
+	InputPackage(const Control _control, const float _amount) : control(_control), amount(_amount) {}
 };
 
 
@@ -24,8 +22,8 @@ private:
 
 	struct InputBridge {
 		std::unordered_map<Control, int> keyBind;
-		virtual bool MapKey(Control control, int key) = 0;// { return false; };// { return false; }
-		virtual InputPackage CheckForInput() = 0;// { return InputPackage(none, 0); };// { return InputPackage(none, 0.0f); }
+		virtual bool MapKey(Control control, int key) = 0;
+		virtual InputPackage CheckForInput() = 0;
 	};
 	struct VRInput: public InputBridge {
 		VRManager* vrMan;

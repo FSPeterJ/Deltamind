@@ -23,10 +23,10 @@ public:
 	{
 		//Dump ALL of the allocated memory
 		//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		//!!!								WARNING								!!!  
-		//!!!	NO DESTRUCTORS WILL BE AUTO-CALLED THAT HAVE NOT BEEN CALLED	!!!  
-		//!!!			YOU MUST CALL THEM YOURSELF BEFORE THIS RUNS			!!!
-		//!!!								WARNING								!!!  
+		//!!!								WARNING							 !!!  
+		//!!!	NO DESTRUCTORS WILL BE AUTO-CALLED THAT HAVE NOT BEEN CALLED	 !!!  
+		//!!!			YOU MUST CALL THEM YOURSELF BEFORE THIS RUNS			 !!!
+		//!!!								WARNING							 !!!  
 		//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		_aligned_free(raw_data);
 		//delete[] raw_data;

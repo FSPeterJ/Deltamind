@@ -14,7 +14,7 @@ public:
 	void setCameraPosition(const float x, const float y, const float z);
 	void setCameraRotationDegrees(const float x, const float y, const float z);
 	void setCameraRotationRadians(const float x, const float y, const float z);
-	void setCameraScale(const float x, const float y, const float z);//why would you call this
+	void setCameraScale(const float x, const float y, const float z);//why would you call this -- to adjust perspective (fov, aspect ratio) ?
 	void pointCameraAt(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 up);
 	void turnCameraTowards(DirectX::XMFLOAT3 target, float speed);
 };

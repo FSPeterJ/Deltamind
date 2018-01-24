@@ -6,17 +6,18 @@ class Object;
 
 
 
-
+//IManager shouldn't exist on its own so make its ctor protected
 class IManager
 {
-public:
+protected:
 	IManager() {}
+public:
 	virtual ~IManager() {}
 };
 
 
 //Interface for systems to access managers
-class IComponentManager : IManager
+class IComponentManager : public IManager
 {
 public:
 	//

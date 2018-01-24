@@ -24,7 +24,7 @@ public:
 	};
 	virtual ~Object()
 	{
-		int x = 111;
+		//int x = 111;
 	};
 
 	template<typename ComponentType>
@@ -58,6 +58,6 @@ public:
 
 
 
-
+	//always return 0?
 	static int GetTypeId() {	return 0;};
 };

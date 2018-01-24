@@ -5,9 +5,10 @@
 template <class ValueType>
 class TypeContainer : TypeMap{
 	std::unordered_map<int, ValueType> typeMapID;
-	typedef typename std::unordered_map<int, ValueType>::const_iterator constIt;
-	typedef typename std::unordered_map<int, ValueType>::iterator baseIt;
+	using constIt = typename std::unordered_map<int, ValueType>::const_iterator;
+	using baseIt = typename std::unordered_map<int, ValueType>::iterator;
 public:
+	//candidate for operator[]
 
 	template <class ComponentType>
 	ComponentType* GetComponent(const std::string &componentname)
@@ -49,6 +50,7 @@ public:
 		return nullptr;
 	}
 
+	//operator +=
 	template <class ComponentType>
 	int AddComponent(ValueType value) {
 		//m_mapname[std::string(typeid(ComponentType).name())] = value;

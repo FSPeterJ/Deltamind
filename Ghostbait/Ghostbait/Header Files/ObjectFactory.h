@@ -16,10 +16,13 @@ class ObjectFactory {
 
 	struct Prefab
 	{
-		ComponentBase* instantiatedComponents[64] = {};
-		int managers[64] = {};
+	private:
+		const static int MAX_DATA = 64;
+	public:
+		ComponentBase* instantiatedComponents[MAX_DATA] = {};
+		int managers[MAX_DATA] = {};
 		Object* object = nullptr;
-		std::bitset<64> fastclone;
+		std::bitset<MAX_DATA> fastclone;
 		int typeID = INT_MAX;
 	};
 

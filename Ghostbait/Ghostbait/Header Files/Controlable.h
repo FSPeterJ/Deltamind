@@ -21,7 +21,7 @@ class Controlable {
 		ReceiveEvent ReceiveInput;
 	public:
 		InputReceiver *const GetState() const { return this->receiver; }
-		void SetState(Control key, float amount) { this->receiver->operator[](key) = amount; }
+		void SetState(const Control key, const float amount) { this->receiver->operator[](key) = amount; }
 		ReceiveEvent const ReceiveInputEvent() const { return ReceiveInput; }
 		InputReceivedEvent() : receiver(new InputReceiver()), ReceiveInput([receiver = receiver](EventMessageBase* e) mutable { receiver->OnInputReceived(e); }) {}
 		virtual ~InputReceivedEvent() {

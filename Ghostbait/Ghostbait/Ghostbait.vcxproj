@@ -166,7 +166,6 @@
     <ClInclude Include="Header Files\AnimationManager.h" />
     <ClInclude Include="Header Files\Camera.h" />
     <ClInclude Include="Header Files\ComponentBase.h" />
-    <ClInclude Include="Examples.h" />
     <ClInclude Include="Header Files\Console.h" />
     <ClInclude Include="Header Files\Controlable.h" />
     <ClInclude Include="Header Files\DebugRenderer.h" />
@@ -203,7 +202,6 @@
     <ClInclude Include="Header Files\MessageEvents.h" />
     <ClInclude Include="Header Files\XTime.h" />
     <ClInclude Include="Resource Files\Resource.h" />
-    <ClInclude Include="trash.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameObject.cpp" />

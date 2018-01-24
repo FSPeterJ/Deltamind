@@ -12,7 +12,7 @@ char* MemoryManager::RequestMemory(unsigned count, size_t size)
 	char* returnAddress = bookmark;
 	if(addressOffset > maxMemory)
 	{
-		throw std::exception("There is not enough memory allocated to initilize this resource!");
+		throw std::exception("There is not enough memory allocated to initialize this resource!");
 		return nullptr;
 	}
 	bookmark = bookmark + count * size;

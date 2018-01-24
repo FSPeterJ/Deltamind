@@ -15,6 +15,8 @@ struct ColliderData {
 	ColliderType colliderType;
 };
 
+
+//union candidate
 struct SphereCollider : ColliderData {
 	float radius;
 };

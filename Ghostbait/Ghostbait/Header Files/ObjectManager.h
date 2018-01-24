@@ -30,15 +30,11 @@ public:
 		{
 			// HATE HATE HATE
 			Pool<PoolType>* data = new ((char*)poolList + (sizeof(Pool<size_t>) * typeID)) Pool<PoolType>(128);
-			Delete.add([data]()
-			{
-				data->~Pool<PoolType>();
-
-			});
+			Delete += [data]() { data->~Pool<PoolType>(); };
 		}
 		else
 		{
-			throw std::exception("Attempted to allocate a pool at an index larger than the max objectpool collection size");
+			throw std::exception("Attempted to allocate a pool at an index larger than the maximum ObjectPool collection size.");
 		}
 	}
 	ObjectManager(MemoryManager* _memMan);

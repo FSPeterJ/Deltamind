@@ -7,8 +7,8 @@
 #include "GameObject.h"
 
 GameObject::GameObject() {
-	EngineStructure::Awake.add([=]() {this->Awake(); });
-	EngineStructure::Update.add([=]() {this->Update(); });
+	EngineStructure::Awake += [=]() {this->Awake(); };
+	EngineStructure::Update += [=]() {this->Update(); };
 }
 static int i = 0;
 void LeftControllerObject::Update() {

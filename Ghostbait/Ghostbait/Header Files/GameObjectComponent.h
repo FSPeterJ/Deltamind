@@ -8,8 +8,8 @@ class GameObjectComponent: public ComponentBase {
 public:
 
 	GameObjectComponent() {
-		EngineStructure::Awake.add([=]() {this->Awake(); });
-		EngineStructure::Update.add([=]() {this->Update(); });
+		EngineStructure::Awake += [=]() {this->Awake(); };
+		EngineStructure::Update += [=]() {this->Update(); };
 	}
 
 	virtual void Awake() {}

@@ -1,6 +1,5 @@
 #include "ThreadPool.h"
 
-
 int ThreadPool::maxThreads = std::thread::hardware_concurrency();
 //int ThreadPool::maxThreads = 1;
 

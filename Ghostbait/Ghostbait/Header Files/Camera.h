@@ -1,7 +1,6 @@
 #pragma once
 #include <DirectXMath.h>
-class Camera
-{
+class Camera {
 	//Note: This is not inversed.  Renderer still handles inverse and transpose operations.
 	DirectX::XMFLOAT4X4 transform;
 public:
@@ -18,4 +17,3 @@ public:
 	void pointCameraAt(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 up);
 	void turnCameraTowards(DirectX::XMFLOAT3 target, float speed);
 };
-

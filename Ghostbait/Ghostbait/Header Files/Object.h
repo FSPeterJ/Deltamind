@@ -4,9 +4,7 @@
 #include "ComponentBase.h"
 #include "TypeContainer.h"
 
-class Object
-{
-
+class Object {
 protected:
 
 private:
@@ -17,47 +15,37 @@ public:
 	TypeContainer<ComponentBase*> Components;
 	//Endnote
 
-	Object()
-	{
+	Object() {
 		DirectX::XMStoreFloat4x4(&position, DirectX::XMMatrixIdentity());
-
 	};
-	virtual ~Object()
-	{
+	virtual ~Object() {
 		//int x = 111;
 	};
 
 	template<typename ComponentType>
-	ComponentType* GetComponent()
-	{
+	ComponentType* GetComponent() {
 		return Components.GetComponent<ComponentType>();
 	};
 
 	template<typename ComponentType>
-	ComponentType* GetComponent() const
-	{
+	ComponentType* GetComponent() const {
 		return Components.GetComponent<ComponentType>();
 	};
-	
+
 	//ComponentBase* GetComponent(const std::string &componentname)
 	//{
 	//	return Components.GetComponent<>(componentname);
 	//};
 
 	template<typename ComponentType>
-	int SetComponent(ComponentType * _component)
-	{
+	int SetComponent(ComponentType * _component) {
 		return Components.AddComponent<ComponentType>(_component);
 	};
 
-
-	int SetComponent(ComponentBase* _component, const int _id)
-	{
+	int SetComponent(ComponentBase* _component, const int _id) {
 		return Components.AddComponent(_component, _id);
 	};
 
-
-
 	//always return 0?
-	static int GetTypeId() {	return 0;};
+	static int GetTypeId() { return 0; };
 };

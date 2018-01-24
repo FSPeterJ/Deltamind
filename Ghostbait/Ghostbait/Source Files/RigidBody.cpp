@@ -25,8 +25,8 @@ void RigidBody::SetMass(float _mass) {
 }
 void RigidBody::CalculateNetAccelaration() {
 	XMVECTOR net = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-	for (unsigned int i = 0; i < actingForces.size(); ++i) {
-		if (i == 0 && !hasGavity)
+	for(unsigned int i = 0; i < actingForces.size(); ++i) {
+		if(i == 0 && !hasGavity)
 			continue;
 		//Need to take mass into consideration
 		net += XMVectorScale(XMLoadFloat3(&actingForces[i].direction), actingForces[i].magnitude);
@@ -34,14 +34,14 @@ void RigidBody::CalculateNetAccelaration() {
 	XMStoreFloat3(&netAcceleration, net);
 }
 bool RigidBody::AddForce(float _magnitude) {
-	if (actingForces.size() < MAX_APPLIED_FORCE) {
+	if(actingForces.size() < MAX_APPLIED_FORCE) {
 		actingForces.push_back(AppliedForce(_magnitude, velocity.x, velocity.y, velocity.z));
 		return true;
 	}
 	return false;
 }
 bool RigidBody::AddForce(float _magnitude, float x, float y, float z, float _time, bool _isConstant) {
-	if (actingForces.size() < MAX_APPLIED_FORCE) {
+	if(actingForces.size() < MAX_APPLIED_FORCE) {
 		actingForces.push_back(AppliedForce(_magnitude, x, y, z, _time, _isConstant));
 		return true;
 	}
@@ -52,15 +52,14 @@ void RigidBody::AdjustGravityMagnitude(float magnitude) {
 }
 void RigidBody::Update(float _delta) {
 	unsigned int i = 0;
-	while (i < actingForces.size()) {
-		if (actingForces[i].timeInAction <= 0.0f) {
+	while(i < actingForces.size()) {
+		if(actingForces[i].timeInAction <= 0.0f) {
 			actingForces.erase(actingForces.begin() + i);
-		}
-		else
+		} else
 			++i;
 	}
-	for (i = 0; i < actingForces.size(); ++i) {
-		if (!actingForces[i].isConstant) {
+	for(i = 0; i < actingForces.size(); ++i) {
+		if(!actingForces[i].isConstant) {
 			actingForces[i].timeInAction -= _delta;
 		}
 	}

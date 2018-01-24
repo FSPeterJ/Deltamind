@@ -26,9 +26,9 @@ namespace Console {
 	inline static void Free() { FreeConsole(); }
 
 	inline static void Write(const std::string s) { std::cout << s; }
-	
+
 	inline static void Write(const int i) { std::cout << std::to_string(i); }
-	
+
 	inline static void Write(const float i) { std::cout << std::to_string(i); }
 
 	inline static void WriteLine(const std::string s) { std::cout << s << std::endl; }

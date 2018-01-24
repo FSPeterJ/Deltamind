@@ -9,13 +9,12 @@ PhysicsManager::PhysicsManager() {
 	defaultSphereColider.radius = 0.5f;
 	defaultSphereColider.colliderType = SPHERE;
 
-	defaultColider.centerOffset = { 0, 0, 0 };
+	defaultColider.centerOffset = {0, 0, 0};
 	defaultColider.isTrigger = true;
 	defaultColider.colliderData = &defaultSphereColider;
 }
 
 PhysicsManager::~PhysicsManager() {
-
 }
 
 void PhysicsManager::SendCollision(Object* obj1, Object* obj2) {
@@ -39,7 +38,6 @@ void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponen
 			XMMATRIX tempB = XMLoadFloat4x4(&component2.parentObject->position);
 			if(component1.colliders[com1].colliderData->colliderType == SPHERE &&
 				component2.colliders[com2].colliderData->colliderType == SPHERE) {
-				
 				if(SphereToSphereCollision(component1.colliders[com1], tempA.r[3], component2.colliders[com2], tempB.r[3])) {
 					SendCollision(component1.parentObject, component2.parentObject);
 				}
@@ -66,10 +64,10 @@ bool PhysicsManager::SphereToSphereCollision(Collider col1, XMVECTOR& pos1, Coll
 	XMVECTOR offset2 = XMLoadFloat3(&col2.centerOffset);
 	XMVECTOR position1 = offset1 + pos1;
 	XMVECTOR position2 = offset2 + pos2;
-	XMFLOAT3 between; 
+	XMFLOAT3 between;
 	XMStoreFloat3(&between, position1 - position2);
 	float sqrDist = between.x*between.x + between.y*between.y + between.z*between.z;
-	float combinedRad = (((SphereCollider*)(col1.colliderData))->radius + ((SphereCollider*)(col2.colliderData))->radius);
+	float combinedRad = (((SphereCollider*) (col1.colliderData))->radius + ((SphereCollider*) (col2.colliderData))->radius);
 	if(sqrDist < (combinedRad*combinedRad)) return true;
 	return false;
 }
@@ -79,16 +77,16 @@ bool PhysicsManager::BoxToBoxCollision() {
 bool PhysicsManager::CapsuleToCapsuleCollision(Collider col1, XMMATRIX& pos1, Collider col2, XMMATRIX& pos2) {
 	//Create Capsule 1
 	XMVECTOR cap1Offset = XMLoadFloat3(&col1.centerOffset);
-	XMVECTOR cap1A = cap1Offset + XMVectorSet(0, ((CapsuleCollider*)col1.colliderData)->height * 0.5f, 0, 0);
-	XMVECTOR cap1B = cap1Offset - XMVectorSet(0, ((CapsuleCollider*)col1.colliderData)->height * 0.5f, 0, 0);
+	XMVECTOR cap1A = cap1Offset + XMVectorSet(0, ((CapsuleCollider*) col1.colliderData)->height * 0.5f, 0, 0);
+	XMVECTOR cap1B = cap1Offset - XMVectorSet(0, ((CapsuleCollider*) col1.colliderData)->height * 0.5f, 0, 0);
 	cap1A = XMVector3TransformCoord(cap1A, pos1);
 	cap1B = XMVector3TransformCoord(cap1B, pos1);
 	XMVECTOR seg1 = cap1A - cap1B;
 
 	//Create Capsule 2
 	XMVECTOR cap2Offset = XMLoadFloat3(&col2.centerOffset);
-	XMVECTOR cap2A = cap2Offset + XMVectorSet(0, ((CapsuleCollider*)col2.colliderData)->height * 0.5f, 0, 0);
-	XMVECTOR cap2B = cap2Offset - XMVectorSet(0, ((CapsuleCollider*)col2.colliderData)->height * 0.5f, 0, 0);
+	XMVECTOR cap2A = cap2Offset + XMVectorSet(0, ((CapsuleCollider*) col2.colliderData)->height * 0.5f, 0, 0);
+	XMVECTOR cap2B = cap2Offset - XMVectorSet(0, ((CapsuleCollider*) col2.colliderData)->height * 0.5f, 0, 0);
 	cap2A = XMVector3TransformCoord(cap2A, pos2);
 	cap2B = XMVector3TransformCoord(cap2B, pos2);
 	XMVECTOR seg2 = cap2A - cap2B;
@@ -102,13 +100,12 @@ bool PhysicsManager::CapsuleToCapsuleCollision(Collider col1, XMMATRIX& pos1, Co
 	return false;
 }
 
-
 void PhysicsManager::Update(const float dt) {
 	std::vector<PhysicsComponent*>*temp = components.GetActiveList();
-	int activeCount = (int)components.GetActiveCount();
+	int activeCount = (int) components.GetActiveCount();
 	for(int i = 0; i < activeCount; ++i) {
 		//This seems absurd, are we sure we can't use XMVECTOR and XMMATRIX in a more manageable manner?
-		XMFLOAT4* objectPosition = (XMFLOAT4*)&components[i].parentObject->position.m[3];
+		XMFLOAT4* objectPosition = (XMFLOAT4*) &components[i].parentObject->position.m[3];
 		XMVECTOR newposition = XMLoadFloat4(objectPosition);
 		components[i].rigidBody.Update(dt);
 		newposition += components[i].rigidBody.GetVelocity();
@@ -126,16 +123,14 @@ void PhysicsManager::AddComponent(Object* obj, float veloX, float veloY, float v
 	physComponent->rigidBody.SetVelocity(veloX, veloY, veloZ);
 }
 
-PhysicsComponent* PhysicsManager::GetComponent(const char* _meshFilePath)
-{
+PhysicsComponent* PhysicsManager::GetComponent(const char* _meshFilePath) {
 	PhysicsComponent* physComponent = components.Activate();
 	physComponent->colliders.push_back(defaultColider);
 	physComponent->rigidBody = RigidBody();
 	return physComponent;
 }
 
-PhysicsComponent* PhysicsManager::GetElement(const unsigned int _id)
-{
+PhysicsComponent* PhysicsManager::GetElement(const unsigned int _id) {
 	//Hmmm
 	return nullptr;
 }

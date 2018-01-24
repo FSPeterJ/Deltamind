@@ -1,6 +1,5 @@
 // Per-pixel color data passed through the pixel shader.
-struct PixelShaderInput
-{
+struct PixelShaderInput {
 	float4 pos : SV_POSITION;
 	float3 color : COLOR0;
 };

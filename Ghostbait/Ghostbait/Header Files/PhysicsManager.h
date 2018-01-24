@@ -7,14 +7,13 @@
 
 #define MAX_PHYSICALS 1024
 
-
-enum ColliderDataType{
+enum ColliderDataType {
 	Sphere,
 	Capsule,
 	Box
 };
 
-class PhysicsManager : public IComponentManager {
+class PhysicsManager: public IComponentManager {
 	//std::vector<PhysicsComponent> components;
 	Pool<PhysicsComponent> components = Pool<PhysicsComponent>(MAX_PHYSICALS);
 	void CollisionCheck(PhysicsComponent component1, PhysicsComponent component2);
@@ -36,7 +35,6 @@ public:
 	PhysicsManager();
 	~PhysicsManager();
 
-
 	//bool CreateSphereCollider(float radius);
 	//bool CreateCapsuleCollider(float radius, float height);
 	//bool CreateBoxCollider(XMFLOAT3 p1, XMFLOAT3 p2);
@@ -45,5 +43,4 @@ public:
 	PhysicsComponent* GetComponent(const char * _meshFilePath = nullptr) override;
 	PhysicsComponent* GetElement(const unsigned int _id) override;
 	void Update(float dt);
-
 };

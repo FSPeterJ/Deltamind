@@ -2,24 +2,17 @@
 
 using namespace DirectX;
 
-Camera::Camera()
-{
-}
+Camera::Camera() {}
 
+Camera::~Camera() {}
 
-Camera::~Camera()
-{
-}
-
-void Camera::setCameraPosition(const float x, const float y, const float z)
-{
+void Camera::setCameraPosition(const float x, const float y, const float z) {
 	transform._41 = x;
 	transform._42 = y;
 	transform._43 = z;
 }
 
-void Camera::setCameraRotationDegrees(const float x, const float y, const float z)
-{
+void Camera::setCameraRotationDegrees(const float x, const float y, const float z) {
 	XMFLOAT4X4 rotatedBy;
 	XMStoreFloat4x4(&rotatedBy, DirectX::XMMatrixRotationRollPitchYaw(x * XM_PI / 180.0f, y * XM_PI / 180.0f, z * XM_PI / 180.0f));
 	transform._11 = rotatedBy._11;
@@ -33,8 +26,7 @@ void Camera::setCameraRotationDegrees(const float x, const float y, const float 
 	transform._33 = rotatedBy._33;
 }
 
-void Camera::setCameraRotationRadians(const float x, const float y, const float z)
-{
+void Camera::setCameraRotationRadians(const float x, const float y, const float z) {
 	XMFLOAT4X4 rotatedBy;
 	XMStoreFloat4x4(&rotatedBy, XMMatrixRotationRollPitchYaw(x, y, z));
 	transform._11 = rotatedBy._11;
@@ -48,15 +40,13 @@ void Camera::setCameraRotationRadians(const float x, const float y, const float 
 	transform._33 = rotatedBy._33;
 }
 
-void Camera::setCameraScale(const float x, const float y, const float z)
-{
+void Camera::setCameraScale(const float x, const float y, const float z) {
 	transform._14 = x;
 	transform._24 = y;
 	transform._34 = z;
 }
 
-void Camera::pointCameraAt(XMFLOAT3 pos, XMFLOAT3 target, XMFLOAT3 up)
-{
+void Camera::pointCameraAt(XMFLOAT3 pos, XMFLOAT3 target, XMFLOAT3 up) {
 	XMStoreFloat4x4(&transform, XMMatrixIdentity());
 	XMFLOAT3 x;
 	XMFLOAT3 y;
@@ -78,8 +68,7 @@ void Camera::pointCameraAt(XMFLOAT3 pos, XMFLOAT3 target, XMFLOAT3 up)
 	transform._43 = pos.z;
 }
 
-void Camera::turnCameraTowards(XMFLOAT3 target, float speed)
-{
+void Camera::turnCameraTowards(XMFLOAT3 target, float speed) {
 	XMFLOAT3 toTarget;
 	XMFLOAT3 camPos;
 	camPos.x = transform._41;

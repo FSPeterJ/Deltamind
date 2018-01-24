@@ -5,8 +5,7 @@
 #include "Pool.h"
 #define MAX_ENTITY_COUNT 16384
 
-class ObjectManager: public IManager
-{
+class ObjectManager: public IManager {
 	Delegate<> Delete;
 	MemoryManager* memMan;
 
@@ -20,20 +19,15 @@ class ObjectManager: public IManager
 
 	void Destroy(EventMessageBase* e);
 
-	
 public:
 	template<typename PoolType>
-	void CreatePool()
-	{
+	void CreatePool() {
 		int typeID = TypeMap::getTypeId<PoolType>();
-		if(typeID < poolListCount)
-		{
+		if(typeID < poolListCount) {
 			// HATE HATE HATE
-			Pool<PoolType>* data = new ((char*)poolList + (sizeof(Pool<size_t>) * typeID)) Pool<PoolType>(128);
+			Pool<PoolType>* data = new ((char*) poolList + (sizeof(Pool<size_t>) * typeID)) Pool<PoolType>(128);
 			Delete += [data]() { data->~Pool<PoolType>(); };
-		}
-		else
-		{
+		} else {
 			throw std::exception("Attempted to allocate a pool at an index larger than the maximum ObjectPool collection size.");
 		}
 	}
@@ -44,7 +38,6 @@ public:
 	void Shutdown() const;
 	void CreatePool(int _size, Object* poolType) {}
 
-
 	/// <summary>
 	/// Used to get a free spot in a bucket.
 	/// </summary>
@@ -53,7 +46,6 @@ public:
 	//template<typename BucketType2>
 	//BucketType2* GetSpot(std::string itemId) {
 	//	//Debug("Getting a new spot from a bucket of type " << GetTypeName<BucketType2>().c_str());
-
 
 	//	auto element = bucketList.find(itemId);
 
@@ -86,5 +78,4 @@ public:
 	}*/
 
 	const size_t BucketCount() const { return poolListCount; }
-
 };

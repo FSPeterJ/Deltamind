@@ -11,11 +11,9 @@
 /// Creates and manages prefabs loaded from the disk.
 /// </summary>
 class ObjectFactory {
-
 	static ObjectManager* objMan;
 
-	struct Prefab
-	{
+	struct Prefab {
 	private:
 		const static int MAX_DATA = 64;
 	public:
@@ -60,8 +58,7 @@ public:
 	/// <summary>
 	/// Initializes the Object Factory and hands off the managers it needs to access
 	/// </summary>
-	static void Initialize(ObjectManager* _objMan)
-	{
+	static void Initialize(ObjectManager* _objMan) {
 		objMan = _objMan;
 		//int r = TypeMap::getTypeId<std::result_of<decltype(&MeshManager::GetElement)(int&)>>();
 		MessageEvents::Subscribe(EVENT_InstantiateRequest, Instantiate);
@@ -83,27 +80,22 @@ public:
 	static void RegisterManager(IComponentManager * manager) {
 		//Mess
 		const int tid = TypeMap::getTypeId<ComponentType>();
-		if(managers.size() <= tid)
-		{
+		if(managers.size() <= tid) {
 			managers.resize(tid + 1);
 		}
 		managers[tid] = manager;
-
 	}
-
 
 	/// <summary>
 	/// Creates a Prefab in the Prefab pool from a file if it doesn't exist already
 	/// </summary>
 	/// <param name="_filename">name of the file to load.</param>
 	static void CreatePrefab(std::string *_filename) {
-
 		int prefabID = prefabNames[*_filename];
 		if(prefabID) {
 			//This Prefab already exists.
-		}
-		else {
-			prefabID = (int)prefabs.size();
+		} else {
+			prefabID = (int) prefabs.size();
 			prefabs.push_back(Prefab());
 			Prefab* prefab = &prefabs[prefabID];
 			int ObjectType = 0;
@@ -122,7 +114,6 @@ public:
 
 				ObjectType = 0;
 				fclose(file);
-
 			}
 
 			//Test file data
@@ -131,8 +122,6 @@ public:
 				filetype
 				componentcount
 				componentMesh  : filename
-
-
 			*/
 			//=================================
 
@@ -157,21 +146,18 @@ public:
 			};
 			prefab->typeID = TypeMap::getNameId(std::string(_filename->c_str()));
 			prefab->object = registeredConstructors[prefab->typeID]();
-			for(int i = 0; i < 1; i++)
-			{
+			for(int i = 0; i < 1; i++) {
 				const int typeID = TypeMap::getNameId(std::string(types[i]));
 				ComponentBase * component = managers[typeID]->GetComponent(names[0]);
 				prefab->instantiatedComponents[typeID] = component;
 				prefab->fastclone[typeID] = component->singleInstance;
 				//Mesh* testing = (Mesh*)managers[typeID]->GetElement(UINT_MAX);
-
 			}
-			if(prefabID == 1)
-			{
+			if(prefabID == 1) {
 				const int typeIDTEMP = TypeMap::getNameId(std::string(types[2]));
 				ComponentBase * componentTEMP = managers[typeIDTEMP]->GetComponent("");
 				prefab->instantiatedComponents[typeIDTEMP] = componentTEMP;
-				((InstantiatedCompBase *)prefab->instantiatedComponents[typeIDTEMP])->parentObject = prefab->object;
+				((InstantiatedCompBase *) prefab->instantiatedComponents[typeIDTEMP])->parentObject = prefab->object;
 				prefab->object->SetComponent(prefab->instantiatedComponents[typeIDTEMP], typeIDTEMP);
 			}
 
@@ -184,9 +170,8 @@ public:
 		}
 	}
 
-
 	static void Instantiate(EventMessageBase *e) {
-		InstantiateMessage* instantiate = (InstantiateMessage*)e;
+		InstantiateMessage* instantiate = (InstantiateMessage*) e;
 
 		PrefabId pid = instantiate->GetId();
 		const Object * o = prefabs[pid].object;
@@ -194,30 +179,24 @@ public:
 		//TODO: ID should be whatever
 		Object* newobject = objMan->Instantiate(prefabs[pid].typeID);
 
-		for(int i = 0; i < 64; i++)
-		{
-			if(prefabs[pid].fastclone[i])
-			{
+		for(int i = 0; i < 64; i++) {
+			if(prefabs[pid].fastclone[i]) {
 				;
 				newobject->SetComponent(prefabs[pid].instantiatedComponents[i], i);
-			}
-			else if(prefabs[pid].instantiatedComponents[i] != nullptr) {
-				InstantiatedCompBase* comptemp = (InstantiatedCompBase *)managers[i]->GetComponent("");
+			} else if(prefabs[pid].instantiatedComponents[i] != nullptr) {
+				InstantiatedCompBase* comptemp = (InstantiatedCompBase *) managers[i]->GetComponent("");
 				comptemp->parentObject = newobject; // This will crash if this is not an InstantiatedCompBase
 				newobject->SetComponent(comptemp, i);
-
 			}
 		}
 
-		if(instantiate->GetReturnObject() != nullptr)
-		{
+		if(instantiate->GetReturnObject() != nullptr) {
 			instantiate->SetReturnObject(newobject);
 		}
 		memcpy(&newobject->position.m[3], &instantiate->GetPosition(), sizeof(DirectX::XMFLOAT4));
 		Mesh * test = newobject->GetComponent<Mesh>();
 		MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
 	}
-
 
 	/// <summary>
 	/// gives an immutable pointer to the requested Prefab
@@ -234,13 +213,9 @@ public:
 		return prefabs.size();
 	}
 
-	static void Shutdown()
-	{
-		for(auto &prefab : prefabs)
-		{
+	static void Shutdown() {
+		for(auto &prefab : prefabs) {
 			delete prefab.object;
 		}
 	}
 };
-
-

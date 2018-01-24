@@ -39,11 +39,11 @@ class EngineStructure {
 	static Delegate<> OnDisable;
 	static Delegate<> OnDestroy;
 
-public: 
+public:
 
 	void ExecuteAwake() {
 		Write("Awake delegate contains ");
-		Write((int)Awake.subscriber_count());
+		Write((int) Awake.subscriber_count());
 		WriteLine(" subscribers.");
 
 		Awake();
@@ -56,6 +56,4 @@ public:
 
 		Update();
 	}
-
-	 
 };

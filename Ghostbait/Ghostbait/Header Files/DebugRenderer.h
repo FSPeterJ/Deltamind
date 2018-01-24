@@ -4,8 +4,7 @@
 #include <PhysicsComponent.h>
 
 #define MAX_VERTS 2048
-class DebugRenderer
-{
+class DebugRenderer {
 	static ID3D11Device* device;
 	static ID3D11DeviceContext* context;
 	static ID3D11Buffer * vertBuff;
@@ -33,4 +32,3 @@ public:
 	static void drawTo(ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT& viewport);
 	static void flushTo(ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT& viewport);
 };
-

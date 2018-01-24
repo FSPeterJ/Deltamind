@@ -3,7 +3,6 @@
 #include <functional>
 #include <unordered_map>
 
-
 //This becomes some sort of component add-on?
 class Controlable {
 #pragma region Handler
@@ -25,7 +24,7 @@ class Controlable {
 		ReceiveEvent const ReceiveInputEvent() const { return ReceiveInput; }
 		InputReceivedEvent() : receiver(new InputReceiver()), ReceiveInput([receiver = receiver](EventMessageBase* e) mutable { receiver->OnInputReceived(e); }) {}
 		virtual ~InputReceivedEvent() {
-			delete receiver; 
+			delete receiver;
 		}
 	}inputReceivedEvent;
 #pragma endregion

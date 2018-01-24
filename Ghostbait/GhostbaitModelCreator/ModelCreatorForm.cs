@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Windows.Forms;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 using static GhostbaitModelCreator.ModelCreatorForm.ComponentType;
 
 namespace GhostbaitModelCreator {
@@ -11,47 +11,51 @@ namespace GhostbaitModelCreator {
 
         [DllImport("..\\..\\FBXInterface.dll")]
         public static extern int get_mesh_from_scene(string fbx_file_path, string output_file_path, string name = null);
+
         [DllImport("..\\..\\FBXInterface.dll")]
         public static extern int get_material_from_scene(string fbx_file_path, string output_file_path, string name = null);
+
         [DllImport("..\\..\\FBXInterface.dll")]
         public static extern int get_animdata_from_scene(string fbx_file_path, string output_file_path);
+
         [DllImport("..\\..\\FBXInterface.dll")]
         public static extern int get_bindpose_from_scene(string fbx_file_path, string output_file_path);
 
-
-        private string GenerateRelativeComponentFilePath(string path, ComponentType type)
-        {
+        private string GenerateRelativeComponentFilePath(string path, ComponentType type) {
             int dotIndex = path.LastIndexOf('.');
             int nameStartIndex = path.LastIndexOf('\\') + 1;
             string relativePath = path.Substring(nameStartIndex, dotIndex - nameStartIndex);
             //relativePath = relativePath.Insert(0, "");
 
-            switch (type)
-            {
+            switch (type) {
                 case MESH:
                     //relativePath = relativePath.Insert(0, "Output\\");
                     relativePath = relativePath.Insert(relativePath.Length, ".mesh");
 
                     break;
+
                 case MATERIAL:
                     //relativePath = relativePath.Insert(0, "Output\\");
                     relativePath = relativePath.Insert(relativePath.Length, ".mat");
                     break;
+
                 case BINDPOSE:
                     //relativePath = relativePath.Insert(0, "Output\\");
                     relativePath = relativePath.Insert(relativePath.Length, ".bind");
                     break;
+
                 case ANIMATION:
                     //relativePath = relativePath.Insert(0, "Output\\");
                     relativePath = relativePath.Insert(relativePath.Length, ".anim");
                     break;
+
                 default:
                     break;
             }
             return relativePath;
         }
-        private string GetExtension(string file)
-        {
+
+        private string GetExtension(string file) {
             return file.Substring(file.LastIndexOf('.'));
         }
 
@@ -154,7 +158,6 @@ namespace GhostbaitModelCreator {
         private SingleFileData mat;
         private SingleFileData mesh;
 
-
         public ModelCreatorForm() {
             InitializeComponent();
 
@@ -178,13 +181,10 @@ namespace GhostbaitModelCreator {
                 Title = "An animation file for this Ghostbait object."
             };
             if (open.ShowDialog() == DialogResult.OK) {
-                if (open.FileName.Substring(open.FileName.Length - 4) == ".fbx")
-                {
+                if (open.FileName.Substring(open.FileName.Length - 4) == ".fbx") {
                     string animFile = GenerateRelativeComponentFilePath(open.FileName, ANIMATION);
                     if (get_animdata_from_scene(open.FileName, animFile) != -1) anim.AddFile(animFile);
-                }
-                else
-                {
+                } else {
                     anim.AddFile(open.FileName);
                 }
             }
@@ -231,16 +231,13 @@ namespace GhostbaitModelCreator {
             className.Text = string.Empty;
         }
 
-        private void fromFBXToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog open = new OpenFileDialog
-            {
+        private void fromFBXToolStripMenuItem_Click(object sender, EventArgs e) {
+            OpenFileDialog open = new OpenFileDialog {
                 Filter = "FBX files (*.fbx) | *.fbx;",
                 InitialDirectory = @"C:\",
                 Title = "FBX file"
             };
-            if (open.ShowDialog() == DialogResult.OK)
-            {
+            if (open.ShowDialog() == DialogResult.OK) {
                 mesh.Reset();
                 mat.Reset();
                 bindPose.Reset();
@@ -323,8 +320,7 @@ namespace GhostbaitModelCreator {
                 //Class
                 className.Text = new string(reader.ReadChars(reader.ReadInt32()));
 
-                while (reader.BaseStream.Position != reader.BaseStream.Length)
-                {
+                while (reader.BaseStream.Position != reader.BaseStream.Length) {
                     int size = reader.ReadInt32();
                     if (size > 0) //if normal string
                     {
@@ -335,20 +331,15 @@ namespace GhostbaitModelCreator {
                         else if (GetExtension(data).ToLower() == ".mp3" || GetExtension(data).ToLower() == ".wav") audio.AddFile(data);
                         else if (GetExtension(data).ToLower() == ".anim") anim.AddFile(data);
                         continue;
-                    }
-                    else
-                    {
+                    } else {
                         string componentName = new string(reader.ReadChars(reader.ReadInt32()));
 
-                        if (componentName == "Physical")
-                        {
+                        if (componentName == "Physical") {
                             int colCount = reader.ReadInt32();
                             ColliderCreatorForm.ColliderData colData = new ColliderCreatorForm.ColliderData();
-                            for (int i = 0; i < colCount; ++i)
-                            {
+                            for (int i = 0; i < colCount; ++i) {
                                 var stringCol = new string(reader.ReadChars(reader.ReadInt32()));
-                                if (!Enum.TryParse(stringCol, out colData.type))
-                                {
+                                if (!Enum.TryParse(stringCol, out colData.type)) {
                                     MessageBox.Show("Invalid Collider Type!", $@"The Collider string.Empty{stringCol}string.Empty is not a valid collider.", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                     //return;
                                 }
@@ -356,8 +347,7 @@ namespace GhostbaitModelCreator {
                                 colData.offsetY = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
                                 colData.offsetZ = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
 
-                                switch (colData.type)
-                                {
+                                switch (colData.type) {
                                     case ColliderCreatorForm.ColliderType.SPHERE:
                                         colData.radius = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
                                         break;
@@ -422,24 +412,25 @@ namespace GhostbaitModelCreator {
                         //Find ColliderDataSize
                         int colliderDataSize = sizeof(Int32);
                         string physicsName = "Physical";
-                        for(int i = 0; i < colliders.ColliderCount; ++i)
-                        {
+                        for (int i = 0; i < colliders.ColliderCount; ++i) {
                             //Type
                             colliderDataSize += sizeof(Int32) + colliders.GetCollider(i).type.ToString().Length;
                             //Offset
                             colliderDataSize += sizeof(float) * 3;
                             //Custom Data
-                            switch (colliders.GetCollider(i).type)
-                            {
+                            switch (colliders.GetCollider(i).type) {
                                 case ColliderCreatorForm.ColliderType.SPHERE:
                                     colliderDataSize += sizeof(float);
                                     break;
+
                                 case ColliderCreatorForm.ColliderType.CAPSULE:
                                     colliderDataSize += sizeof(float) * 2;
                                     break;
+
                                 case ColliderCreatorForm.ColliderType.BOX:
                                     colliderDataSize += sizeof(float) * 6;
                                     break;
+
                                 default: break;
                             }
                         }

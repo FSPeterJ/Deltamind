@@ -7,7 +7,6 @@
 #define MAX_LOADSTRING 100
 
 class Window {
-
 	HINSTANCE hInstance = nullptr;
 	HWND mainWindow = nullptr;
 

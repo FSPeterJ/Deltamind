@@ -6,16 +6,13 @@
 //	return bookmark;
 //}
 
-char* MemoryManager::RequestMemory(unsigned count, size_t size)
-{
-	char* addressOffset = bookmark+ count * size;
+char* MemoryManager::RequestMemory(unsigned count, size_t size) {
+	char* addressOffset = bookmark + count * size;
 	char* returnAddress = bookmark;
-	if(addressOffset > maxMemory)
-	{
+	if(addressOffset > maxMemory) {
 		throw std::exception("There is not enough memory allocated to initialize this resource!");
 		return nullptr;
 	}
 	bookmark = bookmark + count * size;
 	return returnAddress;
 }
-

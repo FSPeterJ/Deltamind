@@ -6,8 +6,7 @@
 
 #define FLOAT4X4Identity DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
-class VRManager
-{
+class VRManager {
 private:
 	DirectX::XMFLOAT4X4 leftProj;
 	DirectX::XMFLOAT4X4 rightProj;
@@ -23,8 +22,6 @@ private:
 	void UpdateVRPoses();
 	vr::TrackedDevicePose_t trackedDevicePose[vr::k_unMaxTrackedDeviceCount];
 	void Shutdown();
-
-
 
 public:
 	struct LeftVRController {
@@ -53,10 +50,9 @@ public:
 
 	bool Init();
 
-	void CreateControllers()
-	{
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(TypeMap::getTypeId<LeftControllerObject>(), { 0,0,0,1 }, (Object**)&leftController.obj));
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(TypeMap::getTypeId<RightControllerObject>(), { 1,0,100,1 }, (Object**)&rightController.obj));
+	void CreateControllers() {
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(TypeMap::getTypeId<LeftControllerObject>(), {0,0,0,1}, (Object**) &leftController.obj));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(TypeMap::getTypeId<RightControllerObject>(), {1,0,100,1}, (Object**) &rightController.obj));
 	}
 	//void RegisterController(ControllerObject* _left, ControllerObject* _right) {
 	//
@@ -67,4 +63,3 @@ public:
 	void GetVRMatrices(DirectX::XMFLOAT4X4* leftProj, DirectX::XMFLOAT4X4* rightProj, DirectX::XMFLOAT4X4* leftView, DirectX::XMFLOAT4X4* rightView);
 	void SendToHMD(void* leftTexture, void* rightTexture);
 };
-

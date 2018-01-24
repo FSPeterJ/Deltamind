@@ -4,8 +4,7 @@
 #include <VertexTypes.h>
 #include "DebugRenderer.h"
 
-void Renderer::createDeviceContextAndSwapchain(Window window)
-{
+void Renderer::createDeviceContextAndSwapchain(Window window) {
 	RECT rect;
 	GetWindowRect(window.GetOutputWindow(), &rect);
 	DXGI_SWAP_CHAIN_DESC desc = DXGI_SWAP_CHAIN_DESC();
@@ -32,29 +31,26 @@ void Renderer::createDeviceContextAndSwapchain(Window window)
 #else
 	D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, feature, 1, D3D11_SDK_VERSION, &desc, &swapchain, &device, outputFeature, &context);
 #endif
-	swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
+	swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**) &backBuffer);
 
 	delete feature;
 }
 
-void Renderer::clearPipelineMemory(pipeline_state_t * pipeline)
-{
+void Renderer::clearPipelineMemory(pipeline_state_t * pipeline) {
 	pipeline->depth_stencil_buffer->Release();
 	pipeline->depth_stencil_state->Release();
 	pipeline->depth_stencil_view->Release();
 	pipeline->rasterizer_state->Release();
 }
 
-void Renderer::clearTextureMemory(renderTargetInfo * info)
-{
+void Renderer::clearTextureMemory(renderTargetInfo * info) {
 	info->depthBuffer->Release();
 	info->dsv->Release();
 	info->rtv->Release();
 	info->texture->Release();
 }
 
-bool Renderer::LoadShaderFromCSO(char ** szByteCode, size_t & szByteCodeSize, const char * szFileName)
-{
+bool Renderer::LoadShaderFromCSO(char ** szByteCode, size_t & szByteCodeSize, const char * szFileName) {
 	std::ifstream load;
 	load.open(szFileName, std::ios_base::binary);
 	if(!load.is_open()) return false;
@@ -67,10 +63,9 @@ bool Renderer::LoadShaderFromCSO(char ** szByteCode, size_t & szByteCodeSize, co
 	return true;
 }
 
-void Renderer::setupVRTargets()
-{
+void Renderer::setupVRTargets() {
 	leftEye.renderInfo.viewport = D3D11_VIEWPORT();
-	leftEye.renderInfo.viewport.Height = (float)VRManagement->RecommendedRenderHeight;
+	leftEye.renderInfo.viewport.Height = (float) VRManagement->RecommendedRenderHeight;
 	leftEye.renderInfo.viewport.Width = (float) VRManagement->RecommendedRenderWidth;
 	leftEye.renderInfo.viewport.MaxDepth = 1.0f;
 	leftEye.renderInfo.viewport.MinDepth = 0.0f;
@@ -130,11 +125,10 @@ void Renderer::setupVRTargets()
 	device->CreateDepthStencilView(rightEye.renderInfo.depthBuffer, &depthStencilDesc, &rightEye.renderInfo.dsv);
 }
 
-void Renderer::renderObjectDefaultState(Object * obj)
-{
+void Renderer::renderObjectDefaultState(Object * obj) {
 	UINT stride = sizeof(VertexPositionTextureNormalAnim);
 	UINT offset = 0;
-	
+
 	context->IASetVertexBuffers(0, 1, &obj->GetComponent<Mesh>()->vertexBuffer, &stride, &offset);
 	context->IASetIndexBuffer(obj->GetComponent<Mesh>()->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(XMLoadFloat4x4(&obj->position)), 0, 0);
@@ -142,18 +136,16 @@ void Renderer::renderObjectDefaultState(Object * obj)
 	context->DrawIndexed(obj->GetComponent<Mesh>()->indexCount, 0, 0);
 }
 
-void Renderer::renderToEye(eye * eyeTo)
-{
-	float color[] = { 0.5f, 0.5f, 1.0f, 1.0f };
+void Renderer::renderToEye(eye * eyeTo) {
+	float color[] = {0.5f, 0.5f, 1.0f, 1.0f};
 	context->ClearRenderTargetView(eyeTo->renderInfo.rtv, color);
 	context->ClearDepthStencilView(eyeTo->renderInfo.dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	context->OMSetRenderTargets(1, &eyeTo->renderInfo.rtv, eyeTo->renderInfo.dsv);
 	context->RSSetViewports(1, &eyeTo->renderInfo.viewport);
 	context->UpdateSubresource(cameraBuffer, 0, NULL, &eyeTo->camera, 0, 0);
 
-	for(size_t i = 0; i < renderedObjects.size(); ++i)
-	{
-		renderObjectDefaultState((Object*)renderedObjects[i]);
+	for(size_t i = 0; i < renderedObjects.size(); ++i) {
+		renderObjectDefaultState((Object*) renderedObjects[i]);
 	}
 	UINT stride = sizeof(VertexPositionTextureNormalAnim);
 	UINT offset = 0;
@@ -173,8 +165,7 @@ void Renderer::renderToEye(eye * eyeTo)
 #endif
 }
 
-void Renderer::loadPipelineState(pipeline_state_t * pipeline)
-{
+void Renderer::loadPipelineState(pipeline_state_t * pipeline) {
 	context->RSSetState(pipeline->rasterizer_state);
 	context->OMSetRenderTargets(1, &pipeline->render_target_view, pipeline->depth_stencil_view);
 	context->OMSetDepthStencilState(pipeline->depth_stencil_state, NULL);
@@ -184,8 +175,7 @@ void Renderer::loadPipelineState(pipeline_state_t * pipeline)
 	context->PSSetShader(pipeline->pixel_shader, NULL, NULL);
 }
 
-DirectX::XMFLOAT4X4 Renderer::lookAt(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 up)
-{
+DirectX::XMFLOAT4X4 Renderer::lookAt(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 up) {
 	DirectX::XMFLOAT4X4 ret;
 	DirectX::XMStoreFloat4x4(&ret, XMMatrixIdentity());
 	DirectX::XMFLOAT3 x;
@@ -210,16 +200,11 @@ DirectX::XMFLOAT4X4 Renderer::lookAt(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 ta
 	return ret;
 }
 
-Renderer::Renderer()
-{
-}
+Renderer::Renderer() {}
 
-Renderer::~Renderer()
-{
-}
+Renderer::~Renderer() {}
 
-void Renderer::Initialize(Window window, VRManager * vr)
-{
+void Renderer::Initialize(Window window, VRManager * vr) {
 	VRManagement = vr;
 
 	createDeviceContextAndSwapchain(window);
@@ -283,8 +268,7 @@ void Renderer::Initialize(Window window, VRManager * vr)
 #endif
 }
 
-void Renderer::Destroy()
-{
+void Renderer::Destroy() {
 	OnlySamplerState->Release();
 	cameraBuffer->Release();
 	modelBuffer->Release();
@@ -302,8 +286,7 @@ void Renderer::Destroy()
 	device->Release();
 	defaultPipeline.render_target_view->Release();
 	clearPipelineMemory(&defaultPipeline);
-	if (VRManagement)
-	{
+	if(VRManagement) {
 		clearTextureMemory(&leftEye.renderInfo);
 		clearTextureMemory(&rightEye.renderInfo);
 	}
@@ -317,73 +300,59 @@ void Renderer::Destroy()
 #endif
 }
 
-void Renderer::registerObject(const Object * toRegister, renderState specialInstructions)
-{
-	switch(specialInstructions)
+void Renderer::registerObject(const Object * toRegister, renderState specialInstructions) {
+	switch(specialInstructions) {
+	case RENDER_STATE_DEFAULT:
 	{
-		case RENDER_STATE_DEFAULT:
-		{
-			renderedObjects.push_back(toRegister);
-		}
-		break;
-		case RENDER_STATE_TRANSPARENT:
-		{
-
-		}
-		break;
+		renderedObjects.push_back(toRegister);
+	}
+	break;
+	case RENDER_STATE_TRANSPARENT:
+	{
+	}
+	break;
 	}
 }
 
-void Renderer::registerObject(EventMessageBase* e)
-{
-	//TODO: Need logic to determine which objects group to push to 
+void Renderer::registerObject(EventMessageBase* e) {
+	//TODO: Need logic to determine which objects group to push to
 	//based off of what the object has - may include instructions in the future
-	NewObjectMessage* instantiate = (NewObjectMessage*)e;
+	NewObjectMessage* instantiate = (NewObjectMessage*) e;
 	renderedObjects.push_back(instantiate->RetrieveObject());
 }
 
-void Renderer::unregisterObject(EventMessageBase* e)
-{
-	DestroyMessage* removeobjMessage = (DestroyMessage*)e;
+void Renderer::unregisterObject(EventMessageBase* e) {
+	DestroyMessage* removeobjMessage = (DestroyMessage*) e;
 	//TODO: Need logic for which register it is under
-	for(std::vector<const Object*>::iterator iter = renderedObjects.begin(); iter != renderedObjects.end(); ++iter)
-	{
-		if(*iter == removeobjMessage->RetrieveObject())
-		{
+	for(std::vector<const Object*>::iterator iter = renderedObjects.begin(); iter != renderedObjects.end(); ++iter) {
+		if(*iter == removeobjMessage->RetrieveObject()) {
 			renderedObjects.erase(iter);
 			return;
 		}
 	}
 }
 
-bool Renderer::unregisterObject(const Object * toRemove, renderState specialInstructions)
-{
-	switch(specialInstructions)
+bool Renderer::unregisterObject(const Object * toRemove, renderState specialInstructions) {
+	switch(specialInstructions) {
+	case RENDER_STATE_DEFAULT:
 	{
-		case RENDER_STATE_DEFAULT:
-		{
-			for(std::vector<const Object*>::iterator iter = renderedObjects.begin(); iter != renderedObjects.end(); ++iter)
-			{
-				if(*iter == toRemove)
-				{
-					renderedObjects.erase(iter);
-					return true;
-				}
+		for(std::vector<const Object*>::iterator iter = renderedObjects.begin(); iter != renderedObjects.end(); ++iter) {
+			if(*iter == toRemove) {
+				renderedObjects.erase(iter);
+				return true;
 			}
 		}
-		break;
-		case RENDER_STATE_TRANSPARENT:
-		{
-
-		}
-		break;
+	}
+	break;
+	case RENDER_STATE_TRANSPARENT:
+	{
+	}
+	break;
 	}
 	return false;
 }
 
-void Renderer::addDirectionalLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 dir)
-{
-}
+void Renderer::addDirectionalLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 dir) {}
 
 XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 	XMFLOAT4X4 mat;
@@ -406,13 +375,11 @@ XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 	return mat;
 }
 
-void Renderer::Render()
-{
+void Renderer::Render() {
 	loadPipelineState(&defaultPipeline);
 	XMMATRIX cameraObj = XMMatrixTranspose(XMLoadFloat4x4(&keyboardCamera->getCamera()));
 	XMStoreFloat4x4(&defaultCamera.view, XMMatrixInverse(&XMMatrixDeterminant(cameraObj), cameraObj));
-	if(VRManagement)
-	{
+	if(VRManagement) {
 		VRManagement->GetVRMatrices(&leftEye.camera.projection, &rightEye.camera.projection, &leftEye.camera.view, &rightEye.camera.view);
 
 		//XMStoreFloat4x4(&leftEye.camera.projection, (XMLoadFloat4x4(&defaultCamera.projection)));
@@ -425,9 +392,9 @@ void Renderer::Render()
 
 		renderToEye(&leftEye);
 		renderToEye(&rightEye);
-		VRManagement->SendToHMD((void*)leftEye.renderInfo.texture, (void*)rightEye.renderInfo.texture);
+		VRManagement->SendToHMD((void*) leftEye.renderInfo.texture, (void*) rightEye.renderInfo.texture);
 	}
-	float color[] = { 0.5f, 0.5f, 1.0f, 1.0f };
+	float color[] = {0.5f, 0.5f, 1.0f, 1.0f};
 	context->ClearRenderTargetView(defaultPipeline.render_target_view, color);
 	context->ClearDepthStencilView(defaultPipeline.depth_stencil_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	context->OMSetRenderTargets(1, &defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view);
@@ -435,10 +402,8 @@ void Renderer::Render()
 	context->UpdateSubresource(cameraBuffer, 0, NULL, &defaultCamera, 0, 0);
 	//context->UpdateSubresource(cameraBuffer, 0, NULL, &(leftEye.camera), 0, 0);
 
-
-	for(size_t i = 0; i < renderedObjects.size(); ++i)
-	{
-		renderObjectDefaultState((Object*)renderedObjects[i]);
+	for(size_t i = 0; i < renderedObjects.size(); ++i) {
+		renderObjectDefaultState((Object*) renderedObjects[i]);
 	}
 
 	UINT stride = sizeof(VertexPositionTextureNormalAnim);
@@ -454,14 +419,12 @@ void Renderer::Render()
 	swapchain->Present(0, 0);
 }
 
-void Renderer::initDepthStencilBuffer(pipeline_state_t* pipelineTo)
-{
+void Renderer::initDepthStencilBuffer(pipeline_state_t* pipelineTo) {
 	CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_D24_UNORM_S8_UINT, lround(pipelineTo->viewport.Width), lround(pipelineTo->viewport.Height), 1, 1, D3D11_BIND_DEPTH_STENCIL);
 	device->CreateTexture2D(&depthStencilDesc, NULL, &pipelineTo->depth_stencil_buffer);
 }
 
-void Renderer::initDepthStencilState(pipeline_state_t * pipelineTo)
-{
+void Renderer::initDepthStencilState(pipeline_state_t * pipelineTo) {
 	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
 	depthStencilDesc.DepthEnable = true;
 	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
@@ -481,14 +444,12 @@ void Renderer::initDepthStencilState(pipeline_state_t * pipelineTo)
 	device->CreateDepthStencilState(&depthStencilDesc, &pipelineTo->depth_stencil_state);
 }
 
-void Renderer::initDepthStencilView(pipeline_state_t * pipelineTo)
-{
+void Renderer::initDepthStencilView(pipeline_state_t * pipelineTo) {
 	CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc(D3D11_DSV_DIMENSION_TEXTURE2D);
-	device->CreateDepthStencilView((ID3D11Resource*)pipelineTo->depth_stencil_buffer, &depthStencilViewDesc, &pipelineTo->depth_stencil_view);
+	device->CreateDepthStencilView((ID3D11Resource*) pipelineTo->depth_stencil_buffer, &depthStencilViewDesc, &pipelineTo->depth_stencil_view);
 }
 
-void Renderer::initRasterState(pipeline_state_t * pipelineTo, bool wireFrame)
-{
+void Renderer::initRasterState(pipeline_state_t * pipelineTo, bool wireFrame) {
 	D3D11_RASTERIZER_DESC rasterDesc;
 	if(wireFrame)
 		rasterDesc.FillMode = D3D11_FILL_WIREFRAME;
@@ -506,8 +467,7 @@ void Renderer::initRasterState(pipeline_state_t * pipelineTo, bool wireFrame)
 	device->CreateRasterizerState(&rasterDesc, &pipelineTo->rasterizer_state);
 }
 
-void Renderer::initShaders()
-{
+void Renderer::initShaders() {
 	char* byteCode = nullptr;
 	size_t byteCodeSize;
 	LoadShaderFromCSO(&byteCode, byteCodeSize, "PassThroughPositionColorVS.cso");
@@ -549,8 +509,6 @@ void Renderer::initShaders()
 	delete[] byteCode;
 	byteCode = nullptr;
 
-	
-
 	CD3D11_BUFFER_DESC constantBufferDesc(sizeof(viewProjectionConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
 	device->CreateBuffer(&constantBufferDesc, nullptr, &cameraBuffer);
 
@@ -564,11 +522,10 @@ void Renderer::initShaders()
 	device->CreateBuffer(&dirBufferDesc, nullptr, &dirLightBuffer);
 }
 
-void Renderer::initViewport(const RECT window, pipeline_state_t * pipelineTo)
-{
+void Renderer::initViewport(const RECT window, pipeline_state_t * pipelineTo) {
 	D3D11_VIEWPORT tempView;
-	tempView.Height = (float)window.bottom - (float)window.top;
-	tempView.Width = (float)window.right - (float)window.left;
+	tempView.Height = (float) window.bottom - (float) window.top;
+	tempView.Width = (float) window.right - (float) window.left;
 	tempView.MaxDepth = 1.0f;
 	tempView.MinDepth = 0.0f;
 	tempView.TopLeftX = 0.0f;
@@ -576,5 +533,3 @@ void Renderer::initViewport(const RECT window, pipeline_state_t * pipelineTo)
 
 	pipelineTo->viewport = tempView;
 }
-
-

@@ -26,8 +26,7 @@ class ThreadPool {
 			// See comments below on which is better
 			std::unique_lock<std::mutex> lock(queueMutex);
 			condition.wait(lock, [] { return !queue.empty() || quit; });
-			if(quit)
-			{
+			if(quit) {
 				lock.unlock();
 				break;
 			}
@@ -60,17 +59,13 @@ public:
 		condition.notify_one();
 		return fut;
 	}
-	static void Shutdown()
-	{
+	static void Shutdown() {
 		quit = true;
 		condition.notify_all();
-		for(auto& thread : pool)
-		{
-			if(thread.joinable())
-			{
+		for(auto& thread : pool) {
+			if(thread.joinable()) {
 				thread.join();
 			}
 		}
 	}
-
 };

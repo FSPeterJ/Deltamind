@@ -1,6 +1,5 @@
 #include "MessageEvents.h"
 
-
 std::unordered_map<EVENT_TYPES, Delegate<EventMessageBase*>> MessageEvents::eventmap;
 
 MessageEvents::MessageEvents() {}

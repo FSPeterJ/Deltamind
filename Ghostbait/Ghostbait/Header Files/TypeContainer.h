@@ -1,9 +1,8 @@
 #pragma once
 #include "TypeMapping.h"
 
-
 template <class ValueType>
-class TypeContainer : TypeMap{
+class TypeContainer: TypeMap {
 	std::unordered_map<int, ValueType> typeMapID;
 	using constIt = typename std::unordered_map<int, ValueType>::const_iterator;
 	using baseIt = typename std::unordered_map<int, ValueType>::iterator;
@@ -11,41 +10,37 @@ public:
 	//candidate for operator[]
 
 	template <class ComponentType>
-	ComponentType* GetComponent(const std::string &componentname)
-	{
+	ComponentType* GetComponent(const std::string &componentname) {
 		baseIt loc = typeMapID.find(componentname);
 		if(typeMapID.end() != loc) {
-			return (ComponentType*)loc->second;
+			return (ComponentType*) loc->second;
 		}
 		return nullptr;
 	}
 
 	template <class ComponentType>
-	ComponentType* GetComponent()
-	{
+	ComponentType* GetComponent() {
 		baseIt loc = typeMapID.find(getTypeId<ComponentType>());
 		if(typeMapID.end() != loc) {
-			return (ComponentType*)loc->second;
+			return (ComponentType*) loc->second;
 		}
 		return nullptr;
 	}
 
 	template <class ComponentType>
-	ComponentType* GetComponent() const
-	{
+	ComponentType* GetComponent() const {
 		constIt loc = typeMapID.find(getTypeId<ComponentType>());
 		if(typeMapID.end() != loc) {
-			return (ComponentType*)loc->second;
+			return (ComponentType*) loc->second;
 		}
 		return nullptr;
 	}
 
 	template <class ComponentType>
-	ComponentType* GetComponent(const std::string &componentname) const
-	{
+	ComponentType* GetComponent(const std::string &componentname) const {
 		constIt loc = typeMapID.find(componentname);
 		if(typeMapID.end() != loc) {
-			return (ComponentType*)loc->second;
+			return (ComponentType*) loc->second;
 		}
 		return nullptr;
 	}
@@ -67,7 +62,4 @@ public:
 		typeMapID[id] = value;
 		return id;
 	}
-
-
 };
-

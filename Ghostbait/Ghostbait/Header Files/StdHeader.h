@@ -3,7 +3,6 @@ typedef unsigned PrefabId;
 
 template<typename T> static std::string GetTypeName();
 
-
 template<typename T>
 std::string GetTypeName() {
 	std::stringstream ss(typeid(T).name());
@@ -23,4 +22,3 @@ typedef short GhostShort;
 typedef unsigned short GhostUShort;
 typedef unsigned long GhostULong;
 typedef bool GhostBool;
-

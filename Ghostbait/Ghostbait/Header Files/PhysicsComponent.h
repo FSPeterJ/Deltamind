@@ -15,18 +15,17 @@ struct ColliderData {
 	ColliderType colliderType;
 };
 
-
 //union candidate
-struct SphereCollider : ColliderData {
+struct SphereCollider: ColliderData {
 	float radius;
 };
 
-struct CapsuleCollider : ColliderData {
+struct CapsuleCollider: ColliderData {
 	float radius;
 	float height;
 };
 
-struct BoxCollider : ColliderData {
+struct BoxCollider: ColliderData {
 	DirectX::XMFLOAT3 topRightFrontCorner;
 	DirectX::XMFLOAT3 bottLeftBackCorner;
 };
@@ -37,9 +36,7 @@ struct Collider {
 	bool isTrigger = false;
 };
 
-struct PhysicsComponent : public InstantiatedCompBase {
+struct PhysicsComponent: public InstantiatedCompBase {
 	RigidBody rigidBody;
 	std::vector<Collider> colliders;
-
-
 };

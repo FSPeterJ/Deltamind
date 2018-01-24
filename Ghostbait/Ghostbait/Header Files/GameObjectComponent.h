@@ -16,9 +16,6 @@ public:
 	virtual void Update() {}
 };
 
-
-
-
 class SomeCoolComponent: public GameObjectComponent, public Controlable {
 	void Awake() {
 		WriteLine("I am a cool object being awakened!");
@@ -29,6 +26,5 @@ class SomeCoolComponent: public GameObjectComponent, public Controlable {
 			Write("teleport down: ");
 			WriteLine(Amount(teleport));
 		}
-
 	}
 };

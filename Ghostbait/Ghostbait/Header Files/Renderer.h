@@ -9,18 +9,15 @@
 #include "MaterialManager.h"
 #include "Camera.h"
 
-enum renderState
-{
+enum renderState {
 	RENDER_STATE_DEFAULT, RENDER_STATE_TRANSPARENT
 };
 
-class Renderer
-{
+class Renderer {
 private:
 
 #pragma region structures
-	struct pipeline_state_t
-	{
+	struct pipeline_state_t {
 		ID3D11InputLayout* 	input_layout;
 		ID3D11VertexShader* vertex_shader;
 		ID3D11PixelShader* pixel_shader;
@@ -32,14 +29,12 @@ private:
 		D3D11_VIEWPORT viewport;
 	};
 
-	struct viewProjectionConstantBuffer
-	{
+	struct viewProjectionConstantBuffer {
 		DirectX::XMFLOAT4X4 view;
 		DirectX::XMFLOAT4X4 projection;
 	};
 
-	struct renderTargetInfo
-	{
+	struct renderTargetInfo {
 		ID3D11RenderTargetView* rtv;
 		ID3D11Texture2D* texture;
 		ID3D11DepthStencilView* dsv;
@@ -47,28 +42,24 @@ private:
 		D3D11_VIEWPORT viewport;
 	};
 
-	struct eye
-	{
+	struct eye {
 		renderTargetInfo renderInfo;
 		viewProjectionConstantBuffer camera;
 	};
 
-	struct directionalLight
-	{
+	struct directionalLight {
 		DirectX::XMFLOAT4 color;
 		DirectX::XMFLOAT3 dir;
 		float padding;
 	};
 
-	struct pointLight
-	{
+	struct pointLight {
 		DirectX::XMFLOAT4 color;
 		DirectX::XMFLOAT3 pos;
 		float radius;
 	};
 
-	struct spotLight
-	{
+	struct spotLight {
 		DirectX::XMFLOAT4 color;
 		DirectX::XMFLOAT3 pos;
 		float radius;
@@ -76,8 +67,7 @@ private:
 		float outerRadius;
 	};
 
-	struct genericLight
-	{
+	struct genericLight {
 		DirectX::XMFLOAT4 color;
 		DirectX::XMFLOAT3 dir;
 		DirectX::XMFLOAT3 pos;
@@ -114,7 +104,7 @@ private:
 	//eye rightEye;
 
 	std::vector<const Object*> renderedObjects;
-	
+
 	MeshManager* meshManagement = nullptr;
 	VRManager* VRManagement = nullptr;
 	MaterialManager* materialManagement = nullptr;
@@ -137,7 +127,6 @@ private:
 	void loadPipelineState(pipeline_state_t* pipeline);
 
 	DirectX::XMFLOAT4X4 lookAt(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 up);
-
 
 public:
 	//test
@@ -173,24 +162,24 @@ public:
 	//[specialInstructions] Used to specify any special rendering instructions, such as transparent items.
 	//////////////////////////////////////////////////////////////////////////////////
 	void registerObject(const Object* toRegister, renderState specialInstructions = RENDER_STATE_DEFAULT);
-	
+
 	//////////////////////////////////////////////////////////////////////////////////
 	//registerObject
-	//Used to have the rendering system start rendering the object. 
+	//Used to have the rendering system start rendering the object.
 	//
-	//Parameters: 
-	//[toRegister] 
-	//[specialInstructions] 
+	//Parameters:
+	//[toRegister]
+	//[specialInstructions]
 	//////////////////////////////////////////////////////////////////////////////////
 	void registerObject(EventMessageBase* e);
 
 	//////////////////////////////////////////////////////////////////////////////////
 	//unregisterObject
-	//Used to have the rendering system stop rendering the object. 
+	//Used to have the rendering system stop rendering the object.
 	//
-	//Parameters: 
-	//[toRegister] 
-	//[specialInstructions] 
+	//Parameters:
+	//[toRegister]
+	//[specialInstructions]
 	//////////////////////////////////////////////////////////////////////////////////
 	void unregisterObject(EventMessageBase* e);
 
@@ -214,4 +203,3 @@ public:
 	Camera* getCamera() { return keyboardCamera; }
 	void Render();
 };
-

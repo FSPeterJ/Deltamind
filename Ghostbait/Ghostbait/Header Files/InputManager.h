@@ -16,7 +16,6 @@ struct InputPackage {
 	InputPackage(const Control _control, const float _amount) : control(_control), amount(_amount) {}
 };
 
-
 class InputManager {
 private:
 
@@ -31,7 +30,6 @@ private:
 		VRInput(VRManager* vrManager);
 		bool MapKey(Control control, int key) override;
 		InputPackage CheckForInput() override;
-
 	};
 	struct KeyboardInput: public InputBridge {
 		KeyboardInput();
@@ -49,17 +47,16 @@ private:
 	InputType inputType = KEYBOARD;
 	InputBridge* bridge = nullptr;
 
-	VRManager* vrMan;	
+	VRManager* vrMan;
 
 public:
-	InputManager() { };
-	InputManager(InputType type, VRManager* vrManager = nullptr) { 
-		vrMan = vrManager; 
-		SetInputType(type); 
+	InputManager() {};
+	InputManager(InputType type, VRManager* vrManager = nullptr) {
+		vrMan = vrManager;
+		SetInputType(type);
 	};
 	~InputManager() { delete bridge; };
 
-	
 	static void AddToQueue(uint64_t key) { inputQueue.push(key); };
 
 	/// <summary>

@@ -20,7 +20,6 @@ void SendMessge(void) {
 }
 #pragma endregion
 
-
 #pragma region Object Instantiation
 
 void CreateObject(void) {

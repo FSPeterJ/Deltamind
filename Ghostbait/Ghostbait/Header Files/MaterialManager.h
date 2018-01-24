@@ -4,16 +4,13 @@
 #include <d3d11.h>
 #include "IComponentManager.h"
 
-struct Material : ComponentBase
-{
-	struct matComponent
-	{
+struct Material: ComponentBase {
+	struct matComponent {
 		float factor;
 		ID3D11Buffer * texture;
 		ID3D11ShaderResourceView * texView;
 	};
-	struct factorBufferStructure
-	{
+	struct factorBufferStructure {
 		float diffuseFactor;
 		float specularFactor;
 		float emissiveFactor;
@@ -24,27 +21,22 @@ struct Material : ComponentBase
 	matComponent specular;
 	matComponent emissive;
 
-	void release()
-	{
-		if (diffuse.texture)
-		{
+	void release() {
+		if(diffuse.texture) {
 			diffuse.texture->Release();
 			diffuse.texView->Release();
 		}
-		if (specular.texture)
-		{
+		if(specular.texture) {
 			specular.texture->Release();
 			specular.texView->Release();
 		}
-		if (emissive.texture)
-		{
+		if(emissive.texture) {
 			emissive.texture->Release();
 			emissive.texView->Release();
 		}
 	}
 
-	void bindToShader(ID3D11DeviceContext* context, ID3D11Buffer* factorBuffer)
-	{
+	void bindToShader(ID3D11DeviceContext* context, ID3D11Buffer* factorBuffer) {
 		context->PSSetShaderResources(0, 1, &diffuse.texView);
 		context->PSSetShaderResources(1, 1, &specular.texView);
 		context->PSSetShaderResources(2, 1, &emissive.texView);
@@ -59,13 +51,12 @@ struct Material : ComponentBase
 		toShader.diffuseFactor = diffuse.texture ? diffuse.factor : 0.0f;
 		toShader.specularFactor = specular.texture ? specular.factor : 0.0f;
 		toShader.emissiveFactor = emissive.texture ? emissive.factor : 0.0f;
-		
+
 		context->UpdateSubresource(factorBuffer, NULL, NULL, &toShader, NULL, NULL);
 	}
 };
 
-class MaterialManager
-{
+class MaterialManager {
 	ID3D11Device* device;
 	ID3D11DeviceContext* context;
 	std::vector<Material> trackedMaterials;
@@ -81,4 +72,3 @@ public:
 
 	Material* GetElement(const unsigned int _id);
 };
-

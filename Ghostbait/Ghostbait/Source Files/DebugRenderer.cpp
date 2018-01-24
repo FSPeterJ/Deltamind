@@ -14,15 +14,13 @@ ID3D11InputLayout* DebugRenderer::iLayout;
 ID3D11RasterizerState* DebugRenderer::wireframeState;
 ID3D11RasterizerState* DebugRenderer::defaultState;
 
-void DebugRenderer::AddTri(VertexPositionColor * toMessWith, VertexPositionColor v1, VertexPositionColor v2, VertexPositionColor v3, int triIndex)
-{
+void DebugRenderer::AddTri(VertexPositionColor * toMessWith, VertexPositionColor v1, VertexPositionColor v2, VertexPositionColor v3, int triIndex) {
 	toMessWith[triIndex * 3] = v1;
 	toMessWith[(triIndex * 3) + 1] = v2;
 	toMessWith[(triIndex * 3) + 2] = v3;
 }
 
-void DebugRenderer::Initialize(ID3D11Device * deviceIn, ID3D11DeviceContext * contextIn, ID3D11Buffer * modelBufferIn, ID3D11VertexShader* vIn, ID3D11PixelShader* pIn, ID3D11InputLayout* layoutIn, ID3D11RasterizerState* stateIn)
-{
+void DebugRenderer::Initialize(ID3D11Device * deviceIn, ID3D11DeviceContext * contextIn, ID3D11Buffer * modelBufferIn, ID3D11VertexShader* vIn, ID3D11PixelShader* pIn, ID3D11InputLayout* layoutIn, ID3D11RasterizerState* stateIn) {
 	device = deviceIn;
 	context = contextIn;
 	modelBuffer = modelBufferIn;
@@ -31,7 +29,7 @@ void DebugRenderer::Initialize(ID3D11Device * deviceIn, ID3D11DeviceContext * co
 	iLayout = layoutIn;
 	v_count = 0;
 
-	D3D11_SUBRESOURCE_DATA vertexBufferData = { 0 };
+	D3D11_SUBRESOURCE_DATA vertexBufferData = {0};
 	vertexBufferData.pSysMem = cpu_side_buffer;
 	vertexBufferData.SysMemPitch = 0;
 	vertexBufferData.SysMemSlicePitch = 0;
@@ -58,15 +56,13 @@ void DebugRenderer::Initialize(ID3D11Device * deviceIn, ID3D11DeviceContext * co
 	device->CreateRasterizerState(&rasterDesc, &wireframeState);
 }
 
-void DebugRenderer::Destroy()
-{
+void DebugRenderer::Destroy() {
 	vertBuff->Release();
 	wireframeState->Release();
 }
 
-void DebugRenderer::AddLine(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2, DirectX::XMFLOAT3 color)
-{
-	if (v_count >= MAX_VERTS)
+void DebugRenderer::AddLine(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2, DirectX::XMFLOAT3 color) {
+	if(v_count >= MAX_VERTS)
 		return;
 	VertexPositionColor t1;
 	t1.pos = p1;
@@ -79,8 +75,7 @@ void DebugRenderer::AddLine(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2, DirectX:
 	v_count += 2;
 }
 
-void DebugRenderer::AddBox(BoxCollider cIn, DirectX::XMFLOAT3 color)
-{
+void DebugRenderer::AddBox(BoxCollider cIn, DirectX::XMFLOAT3 color) {
 	DirectX::XMFLOAT3 cubeCorners[8];
 	cubeCorners[0] = DirectX::XMFLOAT3(cIn.bottLeftBackCorner.x, cIn.bottLeftBackCorner.y, cIn.bottLeftBackCorner.z);
 	cubeCorners[1] = DirectX::XMFLOAT3(cIn.topRightFrontCorner.x, cIn.bottLeftBackCorner.y, cIn.bottLeftBackCorner.z);
@@ -105,9 +100,8 @@ void DebugRenderer::AddBox(BoxCollider cIn, DirectX::XMFLOAT3 color)
 	AddLine(cubeCorners[6], cubeCorners[7], color);
 }
 
-void DebugRenderer::AddSphere(DirectX::XMFLOAT3 pos, float radius, DirectX::XMFLOAT3 color)
-{
-	if (tri_count + 60 > MAX_VERTS)
+void DebugRenderer::AddSphere(DirectX::XMFLOAT3 pos, float radius, DirectX::XMFLOAT3 color) {
+	if(tri_count + 60 > MAX_VERTS)
 		return;
 	const float t = (1.0f + sqrt(5.0f))*0.5f;
 	float correctedR = radius / sqrt(t*t + 1.0f);
@@ -122,7 +116,7 @@ void DebugRenderer::AddSphere(DirectX::XMFLOAT3 pos, float radius, DirectX::XMFL
 
 	XMStoreFloat3(&verts[4].pos, XMLoadFloat3(&pos) + (radius * XMLoadFloat3(&XMFLOAT3(0.0f, -1.0f, t))));
 	XMStoreFloat3(&verts[5].pos, XMLoadFloat3(&pos) + (radius * XMLoadFloat3(&XMFLOAT3(0.0f, 1.0f, t))));
-	XMStoreFloat3(&verts[6].pos, XMLoadFloat3(&pos) + (radius * XMLoadFloat3(&XMFLOAT3(0.0f,- 1.0f, -t))));
+	XMStoreFloat3(&verts[6].pos, XMLoadFloat3(&pos) + (radius * XMLoadFloat3(&XMFLOAT3(0.0f, -1.0f, -t))));
 	XMStoreFloat3(&verts[7].pos, XMLoadFloat3(&pos) + (radius * XMLoadFloat3(&XMFLOAT3(0.0f, 1.0f, -t))));
 
 	XMStoreFloat3(&verts[8].pos, XMLoadFloat3(&pos) + (radius * XMLoadFloat3(&XMFLOAT3(t, 0.0f, -1.0f))));
@@ -130,7 +124,7 @@ void DebugRenderer::AddSphere(DirectX::XMFLOAT3 pos, float radius, DirectX::XMFL
 	XMStoreFloat3(&verts[10].pos, XMLoadFloat3(&pos) + (radius * XMLoadFloat3(&XMFLOAT3(-t, 0.0f, -1.0f))));
 	XMStoreFloat3(&verts[11].pos, XMLoadFloat3(&pos) + (radius * XMLoadFloat3(&XMFLOAT3(-t, 0.0f, 1.0f))));
 
-	for (int i = 0; i < 12; ++i)
+	for(int i = 0; i < 12; ++i)
 		verts[i].color = color;
 
 	AddTri(toBuffer, verts[0], verts[11], verts[5], 0);
@@ -157,13 +151,12 @@ void DebugRenderer::AddSphere(DirectX::XMFLOAT3 pos, float radius, DirectX::XMFL
 	AddTri(toBuffer, verts[8], verts[6], verts[7], 18);
 	AddTri(toBuffer, verts[9], verts[8], verts[1], 19);
 
-	for (int i = 0; i < 60; ++i)
+	for(int i = 0; i < 60; ++i)
 		cpu_side_triangles[i + tri_count] = toBuffer[i];
 	tri_count += 60;
 }
 
-void DebugRenderer::DrawAxes(DirectX::XMFLOAT4X4 toDraw, float length)
-{
+void DebugRenderer::DrawAxes(DirectX::XMFLOAT4X4 toDraw, float length) {
 	XMFLOAT3 xAxis;
 	xAxis.x = toDraw._11;
 	xAxis.y = toDraw._12;
@@ -189,8 +182,7 @@ void DebugRenderer::DrawAxes(DirectX::XMFLOAT4X4 toDraw, float length)
 	AddLine(p1temp, p2temp, DirectX::XMFLOAT3(0.0f, 0.0f, 1.0f));
 }
 
-void DebugRenderer::drawTo(ID3D11RenderTargetView * rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport)
-{
+void DebugRenderer::drawTo(ID3D11RenderTargetView * rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport) {
 	context->OMSetRenderTargets(1, &rtv, dsv);
 	context->RSSetViewports(1, &viewport);
 	context->VSSetShader(vShader, NULL, NULL);
@@ -199,9 +191,9 @@ void DebugRenderer::drawTo(ID3D11RenderTargetView * rtv, ID3D11DepthStencilView 
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
 	D3D11_MAPPED_SUBRESOURCE mapped;
-	context->Map((ID3D11Resource *)vertBuff, 0, D3D11_MAP_WRITE_DISCARD, NULL, &mapped);
+	context->Map((ID3D11Resource *) vertBuff, 0, D3D11_MAP_WRITE_DISCARD, NULL, &mapped);
 	memcpy(mapped.pData, cpu_side_buffer, sizeof(VertexPositionColor) * v_count);
-	context->Unmap((ID3D11Resource *)vertBuff, 0);
+	context->Unmap((ID3D11Resource *) vertBuff, 0);
 	//context->UpdateSubresource(vertBuff, 0, NULL, &cpu_side_buffer, 0, 0);
 	context->UpdateSubresource(modelBuffer, 0, NULL, &DirectX::XMMatrixIdentity(), 0, 0);
 
@@ -210,16 +202,15 @@ void DebugRenderer::drawTo(ID3D11RenderTargetView * rtv, ID3D11DepthStencilView 
 	context->IASetVertexBuffers(0, 1, &vertBuff, &stride, &offset);
 	context->Draw(v_count, 0);
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	context->Map((ID3D11Resource *)vertBuff, 0, D3D11_MAP_WRITE_DISCARD, NULL, &mapped);
+	context->Map((ID3D11Resource *) vertBuff, 0, D3D11_MAP_WRITE_DISCARD, NULL, &mapped);
 	memcpy(mapped.pData, cpu_side_triangles, sizeof(VertexPositionColor) * tri_count);
-	context->Unmap((ID3D11Resource *)vertBuff, 0);
+	context->Unmap((ID3D11Resource *) vertBuff, 0);
 	context->RSSetState(wireframeState);
 	context->Draw(tri_count, 0);
 	context->RSSetState(defaultState);
 }
 
-void DebugRenderer::flushTo(ID3D11RenderTargetView * rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport)
-{
+void DebugRenderer::flushTo(ID3D11RenderTargetView * rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport) {
 	drawTo(rtv, dsv, viewport);
 	v_count = 0;
 	tri_count = 0;

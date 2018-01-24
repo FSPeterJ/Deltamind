@@ -9,6 +9,8 @@
 #include "MaterialManager.h"
 #include "Camera.h"
 
+#include <DirectXMath.h>
+
 enum renderState {
 	RENDER_STATE_DEFAULT, RENDER_STATE_TRANSPARENT
 };

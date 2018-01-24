@@ -175,7 +175,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterComponent<LeftControllerObject>("LeftControllerObject");
 	TypeMap::RegisterComponent<RightControllerObject>("RightControllerObject");
 
-	ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
+	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Object"));
 	ObjectFactory::CreatePrefab(&std::string("SomeCoolObject"));
 	ObjectFactory::CreatePrefab(&std::string("LeftControllerObject"));

@@ -135,7 +135,7 @@ PhysicsComponent* PhysicsManager::GetElement(const unsigned int _id) {
 	return nullptr;
 }
 
-XMVECTOR PhysicsManager::FindClosestPointOnLine(XMVECTOR _lineSegStart, XMVECTOR _lineSegEnd, XMVECTOR _testPoint) {
+XMVECTOR PhysicsManager::FindClosestPointOnLine(XMVECTOR& _lineSegStart, XMVECTOR& _lineSegEnd, XMVECTOR& _testPoint) {
 	XMVECTOR lineSegment, lineToPoint;
 	lineSegment = _lineSegEnd - _lineSegStart;
 	lineToPoint = _testPoint - _lineSegStart;

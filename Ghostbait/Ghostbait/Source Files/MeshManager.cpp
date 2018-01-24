@@ -1,6 +1,7 @@
 #include "MeshManager.h"
 #include "VertexTypes.h"
 #include <fstream>
+using namespace DirectX;
 
 void MeshManager::generateCube() {
 #pragma region pleasedontopenthis

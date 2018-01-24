@@ -1,7 +1,10 @@
 #pragma once
-#include "MessageStructs.h"
 #include <functional>
 #include <unordered_map>
+
+class EventMessageBase;
+class InputMessage;
+
 
 //This becomes some sort of component add-on?
 class Controlable {
@@ -12,6 +15,7 @@ class Controlable {
 		using ReceiveEvent = std::function<void(EventMessageBase*)>;
 		struct InputReceiver: std::unordered_map<Control, float> {
 			//its for your own good
+			#include "MessageStructs.h"
 			void OnInputReceived(EventMessageBase* e) {
 				InputMessage* inputMsg = (InputMessage*) e;
 				this->operator[](inputMsg->GetControl()) = inputMsg->GetAmount();

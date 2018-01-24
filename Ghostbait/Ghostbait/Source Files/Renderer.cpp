@@ -4,6 +4,8 @@
 #include <VertexTypes.h>
 #include "DebugRenderer.h"
 
+using namespace DirectX;
+
 void Renderer::createDeviceContextAndSwapchain(Window window) {
 	RECT rect;
 	GetWindowRect(window.GetOutputWindow(), &rect);

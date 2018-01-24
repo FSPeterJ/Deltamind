@@ -3,7 +3,6 @@
 #include "MessageStructs.h"
 #include "Console.h"
 #include "Delegate.h"
-using namespace Console;
 
 #undef SendMessage
 
@@ -19,7 +18,6 @@ class EventMessageBase;
 
 class MessageEvents {
 private:
-
 	static std::unordered_map<EVENT_TYPES, Delegate<EventMessageBase*>> eventmap;
 
 	static void HandleMessage(const EVENT_TYPES t, EventMessageBase* m) { HandleMessage(t, *m); }

@@ -2,7 +2,6 @@
 #include <DirectXMath.h>
 #include <vector>
 #include "PhysicsComponent.h"
-#include "IComponentManager.h"
 #include "Pool.h"
 
 #define MAX_PHYSICALS 1024
@@ -13,6 +12,7 @@ enum ColliderDataType {
 	Box
 };
 
+#include "IComponentManager.h"
 class PhysicsManager: public IComponentManager {
 	//std::vector<PhysicsComponent> components;
 	Pool<PhysicsComponent> components = Pool<PhysicsComponent>(MAX_PHYSICALS);
@@ -26,7 +26,7 @@ class PhysicsManager: public IComponentManager {
 	//bool BoxToCapsuleCollision();
 	//bool CapsuleToSphereCollision();
 	//bool BoxToSphereCollision();
-	DirectX::XMVECTOR FindClosestPointOnLine(DirectX::XMVECTOR _lineSegStart, DirectX::XMVECTOR _lineSegEnd, DirectX::XMVECTOR _testPoint);
+	DirectX::XMVECTOR FindClosestPointOnLine(DirectX::XMVECTOR& _lineSegStart, DirectX::XMVECTOR& _lineSegEnd, DirectX::XMVECTOR& _testPoint);
 
 	static Collider defaultColider;
 	static SphereCollider defaultSphereColider;

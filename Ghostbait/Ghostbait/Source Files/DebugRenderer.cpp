@@ -14,6 +14,8 @@ ID3D11InputLayout* DebugRenderer::iLayout;
 ID3D11RasterizerState* DebugRenderer::wireframeState;
 ID3D11RasterizerState* DebugRenderer::defaultState;
 
+using namespace DirectX;
+
 void DebugRenderer::AddTri(VertexPositionColor * toMessWith, VertexPositionColor v1, VertexPositionColor v2, VertexPositionColor v3, int triIndex) {
 	toMessWith[triIndex * 3] = v1;
 	toMessWith[(triIndex * 3) + 1] = v2;

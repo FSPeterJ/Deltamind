@@ -7,6 +7,7 @@
 // Highly doubt we will hit this
 #define MAX_MESHES 512
 
+#include "ComponentBase.h"
 struct Mesh: ComponentBase {
 	unsigned int meshId;
 	ID3D11Buffer* vertexBuffer;

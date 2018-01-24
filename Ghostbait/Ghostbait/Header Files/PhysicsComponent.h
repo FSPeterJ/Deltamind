@@ -1,7 +1,5 @@
 #pragma once
-#include <DirectXMath.h>
-#include <vector>
-#include "RigidBody.h"
+#include "RigidBody.h" // DirectXMath, vector
 #include "Object.h"
 
 enum ColliderType {
@@ -36,6 +34,7 @@ struct Collider {
 	bool isTrigger = false;
 };
 
+#include "ComponentBase.h"
 struct PhysicsComponent: public InstantiatedCompBase {
 	RigidBody rigidBody;
 	std::vector<Collider> colliders;

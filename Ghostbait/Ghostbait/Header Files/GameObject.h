@@ -29,7 +29,7 @@ public:
 class SomeCoolObject: public GameObject, public Controlable {
 public:
 	void Awake() {
-		WriteLine("Hey im being awakened.");
+		Console::WriteLine("Hey im being awakened.");
 	}
 	void Update() {};
 };
@@ -45,7 +45,7 @@ public:
 	}
 
 	void Awake() override {
-		WriteLine("I am a cool object being awakened!");
+		Console::WriteLine("I am a cool object being awakened!");
 	}
 
 	void Update() override {

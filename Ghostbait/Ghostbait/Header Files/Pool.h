@@ -65,6 +65,8 @@ public:
 		}
 	}
 
+	
+
 	T &operator[](const size_t index) {
 		return *(T*) activeList[index];
 	}

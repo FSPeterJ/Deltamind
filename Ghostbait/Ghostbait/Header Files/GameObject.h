@@ -14,15 +14,20 @@ public:
 class ControllerObject: public GameObject, public Controlable {
 };
 class LeftControllerObject: public ControllerObject {
+public:
+
 	int order = 66;
 	void Update();
 };
 class RightControllerObject: public ControllerObject {
+public:
+
 	int order = 77;
 	void Update();
 };
 
 class SomeCoolObject: public GameObject, public Controlable {
+public:
 	void Awake() {
 		WriteLine("Hey im being awakened.");
 	}

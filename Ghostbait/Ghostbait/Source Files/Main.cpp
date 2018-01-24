@@ -160,7 +160,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	objMan->Initialize(80);
 
 	ObjectFactory::Initialize(objMan);
-	ObjectFactory::RegisterPrefabBase<Object>();
+	ObjectFactory::RegisterPrefabBase<GameObject>();
 	ObjectFactory::RegisterPrefabBase<SomeCoolObject>();
 	ObjectFactory::RegisterPrefabBase<LeftControllerObject>();
 	ObjectFactory::RegisterPrefabBase<RightControllerObject>();
@@ -170,7 +170,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterComponent<Mesh>("Mesh");
 	TypeMap::RegisterComponent<PhysicsComponent>("Physical");
 
-	TypeMap::RegisterComponent<Object>("Object");
+	TypeMap::RegisterComponent<GameObject>("GameObject");
 	TypeMap::RegisterComponent<SomeCoolObject>("SomeCoolObject");
 	TypeMap::RegisterComponent<LeftControllerObject>("LeftControllerObject");
 	TypeMap::RegisterComponent<RightControllerObject>("RightControllerObject");

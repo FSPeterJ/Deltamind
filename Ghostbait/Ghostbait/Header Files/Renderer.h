@@ -86,6 +86,21 @@ private:
 	};
 #pragma endregion
 
+	class LightPool
+	{
+		int numLights;
+		lightBufferStruct cpu_light_info;
+	public:
+		void addLight(genericLight toAdd)
+		{
+			if (numLights < MAX_LIGHTS)
+			{
+				cpu_light_info.cpu_side_lights[numLights] = toAdd;
+				numLights++;
+			}
+		};
+		lightBufferStruct* getLightBuffer() { return &cpu_light_info; };
+	};
 	ID3D11SamplerState* OnlySamplerState; //DirectX is a hoot
 
 	ID3D11Device* device;
@@ -110,7 +125,7 @@ private:
 	Camera* keyboardCamera;
 	viewProjectionConstantBuffer defaultCamera;
 
-	lightBufferStruct cpu_light_info;
+	LightPool lightManager;
 	//eye leftEye;
 	//eye rightEye;
 
@@ -208,6 +223,8 @@ public:
 	bool unregisterObject(const Object* toRemove, renderState specialInstructions = RENDER_STATE_DEFAULT);
 	//////////////////////////////////////////////////////////////////////////////////
 	void addDirectionalLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 dir);
+	void addPointLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, float radius);
+	void addSpotLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir, float radius, float outerRadius);
 
 	MeshManager* getMeshManager() { return meshManagement; }
 	MaterialManager* getMaterialManager() { return materialManagement; }

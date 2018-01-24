@@ -49,6 +49,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
                 float spotFactor = (surfaceRatio > lights[i].outerRadius) ? 1.0f : 0.0f;
                 float lightRatio = saturate(dot(dir, input.norm) * spotFactor);
                 float atten = 1.0f - saturate((lights[i].radius - surfaceRatio) / (lights[i].radius - lights[i].outerRadius));
+                atten *= atten;
                 finalLight += (lights[i].color * lightRatio) * atten;
             }
             else

@@ -247,25 +247,11 @@ void Renderer::Initialize(Window window, VRManager * vr) {
 	context->PSSetSamplers(0, 1, &OnlySamplerState);
 #pragma endregion
 
-	genericLight willDie;
-	willDie.color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	willDie.dir = XMFLOAT3(0.5f, -0.5f, 0.5f);
-	//cpu_light_info.cpu_side_lights[0] = willDie;
-	genericLight pointTest;
-	pointTest.color = DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
-	pointTest.pos = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	pointTest.radius = 15.0f;
-	//cpu_light_info.cpu_side_lights[1] = pointTest;
-	genericLight spotTest;
-	spotTest.color = DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
-	spotTest.pos = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	spotTest.radius = 1.0f;
-	spotTest.outerRadius = 0.9f;
-	spotTest.dir = DirectX::XMFLOAT3(0.0f, -0.5f, 0.5f);
-	//cpu_light_info.cpu_side_lights[2] = spotTest;
-	XMMATRIX camTemp = XMMatrixTranspose(XMLoadFloat4x4(&lookAt(XMFLOAT3(0.0f, 2.0f, -15.0f), pointTest.pos, XMFLOAT3(0.0f, 1.0f, 0.0f))));
+	addDirectionalLight(DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), DirectX::XMFLOAT3(0.0f, -0.5f, 0.5f));
+	addPointLight(DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f), DirectX::XMFLOAT3(0.0f, 0.0f, 15.0f), 15.0f);
+	addSpotLight(DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f), DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f), DirectX::XMFLOAT3(0.0f, -0.5f, 0.5f), 1.0f, 0.9f);
 	keyboardCamera = new Camera();
-	keyboardCamera->pointCameraAt(DirectX::XMFLOAT3(0.0f, 2.0f, -5.0f), DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
+	keyboardCamera->pointCameraAt(DirectX::XMFLOAT3(0.0f, 2.0f, -15.0f), DirectX::XMFLOAT3(0.0f, -2.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
 	XMStoreFloat4x4(&defaultCamera.projection, XMMatrixTranspose(XMMatrixPerspectiveFovLH(60.0f * XM_PI / 180.0f, defaultPipeline.viewport.Width / defaultPipeline.viewport.Height, 0.001f, 300.0f)));
 
 	if(VRManagement)
@@ -363,7 +349,33 @@ bool Renderer::unregisterObject(const Object * toRemove, renderState specialInst
 	return false;
 }
 
-void Renderer::addDirectionalLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 dir) {}
+void Renderer::addDirectionalLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 dir) 
+{
+	genericLight toManager;
+	toManager.color = DirectX::XMFLOAT4(color.x, color.y, color.z, 1.0f);
+	toManager.dir = dir;
+	lightManager.addLight(toManager);
+}
+
+void Renderer::addPointLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, float radius)
+{
+	genericLight toManager;
+	toManager.color = DirectX::XMFLOAT4(color.x, color.y, color.z, 1.0f);
+	toManager.pos = pos;
+	toManager.radius = radius;
+	lightManager.addLight(toManager);
+}
+
+void Renderer::addSpotLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir, float radius, float outerRadius)
+{
+	genericLight toManager;
+	toManager.color = DirectX::XMFLOAT4(color.x, color.y, color.z, 1.0f);
+	toManager.pos = pos;
+	toManager.dir = dir;
+	toManager.radius = radius;
+	toManager.outerRadius = outerRadius;
+	lightManager.addLight(toManager);
+}
 
 XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 	XMFLOAT4X4 mat;
@@ -388,7 +400,7 @@ XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 
 void Renderer::Render() {
 	loadPipelineState(&defaultPipeline);
-	context->UpdateSubresource(lightBuffer, NULL, NULL, &cpu_light_info, 0, 0);
+	context->UpdateSubresource(lightBuffer, NULL, NULL, lightManager.getLightBuffer(), 0, 0);
 	XMMATRIX cameraObj = XMMatrixTranspose(XMLoadFloat4x4(&keyboardCamera->getCamera()));
 	XMStoreFloat4x4(&defaultCamera.view, XMMatrixInverse(&XMMatrixDeterminant(cameraObj), cameraObj));
 	if(VRManagement) {

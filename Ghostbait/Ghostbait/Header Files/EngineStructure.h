@@ -7,6 +7,7 @@ class EngineStructure {
 	friend class GameObjectComponent;
 	friend class GameObject;
 	friend class Controlable;
+	friend class ObjectManager;
 
 	static Delegate<> Awake;
 	static Delegate<> OnEnable;

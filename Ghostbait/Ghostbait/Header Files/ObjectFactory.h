@@ -127,11 +127,10 @@ public:
 				int dataLen; fread(&dataLen, sizeof(int), 1, file);
 				while (!feof(file)) {
 					if (dataLen > 0) {
-						char* str = new char[dataLen];
+						char* str = new char[dataLen]; 
 						fread(str, dataLen, 1, file);
-						//Handle specific file extension
-						char* ext;
-						GetFileExtension(str, dataLen, &ext);
+						//TODO: Handle specific file extension
+						char* ext; GetFileExtension(str, dataLen, &ext);
 						if (ext == "mesh") {
 
 						}
@@ -156,7 +155,7 @@ public:
 						//Get data to send
 						char* compData = new char[-dataLen];
 						fread(compData, -dataLen, 1, file);
-						//Send data
+						//TODO: Send data
 
 					}
 					fread(&dataLen, sizeof(int), 1, file);

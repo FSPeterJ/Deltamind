@@ -17,7 +17,6 @@ void GameObject::Activate() {
 static int i = 0;
 void LeftControllerObject::Update() {
 	Object* something = this;
-	i++;
 	if(KeyIsDown(leftAttack)) {
 		WriteLine("Got left attack as left controller");
 		ResetKey(leftAttack);
@@ -30,7 +29,7 @@ void LeftControllerObject::Update() {
 void RightControllerObject::Update() {
 	if(KeyIsDown(rightAttack)) {
 		WriteLine("Got right attack as right controller");
-		ResetKey(leftAttack);
+		ResetKey(rightAttack);
 		//ResetKey(rightAttack);
 		//DirectX::XMFLOAT4 temp(VRManager::leftController.pose._41, VRManager::leftController.pose._42, VRManager::leftController.pose._43, VRManager::leftController.pose._44);
 		//Object* obj;

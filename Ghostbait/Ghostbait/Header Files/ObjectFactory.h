@@ -90,6 +90,21 @@ public:
 	/// Creates a Prefab in the Prefab pool from a file if it doesn't exist already
 	/// </summary>
 	/// <param name="_filename">name of the file to load.</param>
+
+	static void GetFileExtension(char* path, int len, char** ext) {
+		*ext = nullptr;
+		int extSize = 0;
+		for (int i = len - 1; i >= 0; --i) {
+			if (path[i] == '.') {
+				if (!extSize) return;
+				*ext = new char[extSize];
+				memcpy(*ext, &path[i + 1], extSize);
+			}
+			++extSize;
+		}
+		return;
+	}
+
 	static void CreatePrefab(std::string *_filename) {
 		int prefabID = prefabNames[*_filename];
 		if(prefabID) {
@@ -100,9 +115,52 @@ public:
 			Prefab* prefab = &prefabs[prefabID];
 			int ObjectType = 0;
 			FILE* file = nullptr;
-			//int reads;
 			fopen_s(&file, _filename->c_str(), "rb");
 			if(file) {
+				//Read ClassName
+				int nameLength;
+				fread(&nameLength, sizeof(int), 1, file);
+				char* className = new char[nameLength];
+				fread(className, nameLength, 1, file);
+
+				int dataLen; fread(&dataLen, sizeof(int), 1, file);
+				while (!feof(file)) {
+					if (dataLen > 0) {
+						char* str = new char[dataLen];
+						fread(str, dataLen, 1, file);
+						//Handle specific file extension
+						char* ext;
+						GetFileExtension(str, dataLen, &ext);
+						if (ext == "mesh") {
+
+						}
+						else if (ext == "mat") {
+
+						}
+						else if (ext == "bind") {
+						
+						}
+						else if (ext == "anim") {
+						
+						}
+						else if (ext == "mp3" || ext == "wav") {
+							
+						}
+					}
+					else {
+						int compLen; fread(&compLen, sizeof(int), 1, file);
+						//Get component to send data to
+						char* str = new char[compLen];
+						fread(str, compLen, 1, file);
+						//Get data to send
+						char* compData = new char[-dataLen];
+						fread(compData, -dataLen, 1, file);
+						//Send data
+
+					}
+					fread(&dataLen, sizeof(int), 1, file);
+				}
+
 				// Filetype, ObjectType, [Components]
 				// Components are not dynamic at this time.
 				//reads = fread(&address, sizeof(item), instances, file);
@@ -181,7 +239,6 @@ public:
 
 		for(int i = 0; i < 64; i++) {
 			if(prefabs[pid].fastclone[i]) {
-				;
 				newobject->SetComponent(prefabs[pid].instantiatedComponents[i], i);
 			} else if(prefabs[pid].instantiatedComponents[i] != nullptr) {
 				InstantiatedCompBase* comptemp = (InstantiatedCompBase *) managers[i]->GetComponent("");

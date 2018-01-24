@@ -5,21 +5,26 @@
 #include "Pool.h"
 #define MAX_ENTITY_COUNT 16384
 
+
 class ObjectManager: public IManager {
 	Delegate<> Delete;
+	Delegate<> Update_Delegate;
 	MemoryManager* memMan;
 
 	std::unordered_map<std::string, _Pool_Base*> objectpool;
 
-	std::unordered_map<Object*, _Pool_Base*> pointers2Bucket;
+	std::unordered_map<Object*,_Pool_Base*> pointers2Bucket;
 	_Pool_Base* poolList;
 
 	size_t poolListCount;
 	size_t poolListNewIndex = 0;
 
+
 	void Destroy(EventMessageBase* e);
 
 public:
+	void Update();
+
 	template<typename PoolType>
 	void CreatePool() {
 		int typeID = TypeMap::getTypeId<PoolType>();
@@ -27,6 +32,13 @@ public:
 			// HATE HATE HATE
 			Pool<PoolType>* data = new ((char*) poolList + (sizeof(Pool<size_t>) * typeID)) Pool<PoolType>(128);
 			Delete += [data]() { data->~Pool<PoolType>(); };
+			Update_Delegate += [data]() {
+				std::vector<PoolType*>* lst = data->GetActiveList();
+				for(size_t i = 0; i < data->GetActiveCount(); ++i) {
+					((PoolType*)lst->operator[](i))->Update();
+				}
+			};
+
 		} else {
 			throw std::exception("Attempted to allocate a pool at an index larger than the maximum ObjectPool collection size.");
 		}
@@ -37,6 +49,7 @@ public:
 	void Initialize(size_t prefabCount);
 	void Shutdown() const;
 	void CreatePool(int _size, Object* poolType) {}
+	
 
 	/// <summary>
 	/// Used to get a free spot in a bucket.

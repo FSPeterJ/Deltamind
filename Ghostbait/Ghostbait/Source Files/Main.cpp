@@ -160,8 +160,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	objMan->Initialize(80);
 
 	ObjectFactory::Initialize(objMan);
-	ObjectFactory::RegisterPrefabBase<Object>();
-	ObjectFactory::RegisterPrefabBase<SomeLeakyObject>();
+	ObjectFactory::RegisterPrefabBase<GameObject>();
+	ObjectFactory::RegisterPrefabBase<SomeCoolObject>();
 	ObjectFactory::RegisterPrefabBase<LeftControllerObject>();
 	ObjectFactory::RegisterPrefabBase<RightControllerObject>();
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
@@ -170,13 +170,14 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterComponent<Mesh>("Mesh");
 	TypeMap::RegisterComponent<PhysicsComponent>("Physical");
 
-	TypeMap::RegisterComponent<Object>("Object");
-	TypeMap::RegisterComponent<SomeLeakyObject>("SomeLeakyObject");
+	TypeMap::RegisterComponent<GameObject>("GameObject");
+	TypeMap::RegisterComponent<SomeCoolObject>("SomeCoolObject");
 	TypeMap::RegisterComponent<LeftControllerObject>("LeftControllerObject");
 	TypeMap::RegisterComponent<RightControllerObject>("RightControllerObject");
 
+	ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Object"));
-	ObjectFactory::CreatePrefab(&std::string("SomeLeakyObject"));
+	ObjectFactory::CreatePrefab(&std::string("SomeCoolObject"));
 	ObjectFactory::CreatePrefab(&std::string("LeftControllerObject"));
 	ObjectFactory::CreatePrefab(&std::string("RightControllerObject"));
 
@@ -184,9 +185,17 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	game->Start();
 	vrMan->CreateControllers();
 
+
 	Object* cube1, *cube2;
+
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, {0,-1,0,1}, &cube1));
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, {0,-3,0,1}, &cube2));
+
+	//Object* cube1 = Object::Create<Object>({0,-1,0,1}, 1);
+	//SomeCoolObject* cube2 = Object::Create<SomeCoolObject>({0,-3,0,1}, 2);
+
+
+
 
 	cube1->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(0.5f, -1.0f, 0.0f);
 	cube2->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(1.0f, 0.0f, 0.0f);

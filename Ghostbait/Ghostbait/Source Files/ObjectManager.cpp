@@ -1,11 +1,15 @@
 #include "ObjectManager.h"
 #include "ObjectFactory.h"
+#include "EngineStructure.h"
+#include "GameObject.h"
 
 ObjectManager::ObjectManager(MemoryManager* _memMan) : memMan(_memMan) {
 	//TODO: Fix this into Initialize
 	poolListCount = 80;
 	poolList = (_Pool_Base*) memMan->RequestMemory(poolListCount, sizeof(Pool<size_t>));
 	//objectpool.reserve(prefabCount);
+
+	EngineStructure::Update += [=]() {this->Update(); };
 }
 
 ObjectManager::~ObjectManager() {
@@ -23,6 +27,10 @@ void ObjectManager::Shutdown() const {
 	//MessageEvents::Unsubscribe(EVENT_Destroy, Destroy);
 	//Delete();
 	//int x = 0;
+}
+
+void ObjectManager::Update() {
+	Update_Delegate();
 }
 
 Object* ObjectManager::Instantiate(int typeID) {

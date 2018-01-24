@@ -1,10 +1,12 @@
 #pragma once
 #include "Object.h"
 #include "Controlable.h"
+#include "Console.h"
 
 class GameObject: public Object {
 public:
 	GameObject();
+	void Activate();
 	virtual void Awake() {}
 	virtual void Update() {}
 };
@@ -21,6 +23,9 @@ class RightControllerObject: public ControllerObject {
 };
 
 class SomeCoolObject: public GameObject, public Controlable {
+	void Awake() {
+		WriteLine("Hey im being awakened.");
+	}
 	void Update() {};
 };
 class SomeLeakyObject: public GameObject {

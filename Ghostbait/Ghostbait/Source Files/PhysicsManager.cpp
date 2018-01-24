@@ -181,7 +181,7 @@ XMVECTOR PhysicsManager::FindClosestPointOnLine(XMVECTOR _lineSegStart, XMVECTOR
 	return _lineSegStart + (lineSegment * ratio);
 }
 
-PhysicsComponent* PhysicsManager::SomePrefabFunction(const char* _dataBlock) {
+PhysicsComponent* PhysicsManager::CreatePrefabComponent(const char* _dataBlock) {
 	PhysicsComponent compHolder;
 	XMFLOAT3 offsetHolder;
 	ColliderData* colDataHolder = nullptr;

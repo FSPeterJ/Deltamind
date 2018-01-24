@@ -46,7 +46,7 @@ struct PhysicsComponent: public InstantiatedCompBase {
 		if (_colData) {
 			Collider temp;
 			temp.colliderData = _colData;
-			temp.centerOffset = XMFLOAT3(_offsetX, _offsetY, _offsetZ);
+			temp.centerOffset = DirectX::XMFLOAT3(_offsetX, _offsetY, _offsetZ);
 			temp.isTrigger = _isTrigger;
 			colliders.push_back(temp);
 			return true;

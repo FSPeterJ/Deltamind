@@ -45,10 +45,10 @@ bool Gun::Shoot() {
 		if (timeSinceLastShot > (1 / fireRate) && !energyOverheatDelayTimeLeft) {
 			//Fire
 			Object* obj;
-			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, { 0, 0, 0, 0 }, &obj));
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(2, { 0, 0, 0}, &obj));
 			obj->position = position;
-			//obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
-			//obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 0.1f, position._32 * 0.1f, position._33 * 0.1f);
+			obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
+			obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 0.1f, position._32 * 0.1f, position._33 * 0.1f);
 			if (!AddEnergy(energyBulletCost)) {
 				energyOverheatDelayTimeLeft = energyOverheatDelay;
 			}
@@ -59,10 +59,10 @@ bool Gun::Shoot() {
 		if (timeSinceLastShot > (1 / fireRate) && !energyOverheatDelayTimeLeft) {
 			//Fire
 			Object* obj;
-			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, { 0, 0, 0, 0 }, &obj));
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(2, { 0, 0, 0}, &obj));
 			obj->position = position;
-			//obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
-			//obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 0.1f, position._32 * 0.1f, position._33 * 0.1f);
+			obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
+			obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 0.1f, position._32 * 0.1f, position._33 * 0.1f);
 			if (!AddEnergy(energyBulletCost)) {
 				energyOverheatDelayTimeLeft = energyOverheatDelay;
 			}

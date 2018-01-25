@@ -60,6 +60,7 @@ private:
 public:
 	Gun() { state = GUN; };
 	Gun(FireType _type, float _fireRate, float _damage) : type(_type), fireRate(_fireRate), damage(_damage) { state = GUN; };
+	void SetStats(FireType _type, float _fireRate, float _damage) { type = _type; fireRate = _fireRate; damage = _damage; };
 	bool Shoot();
 	void Update();
 };
@@ -94,10 +95,11 @@ public:
 		hand = INVALID;
 	}
 	void AddGun(int itemSlot, int prefabID, Gun::FireType _fireType, float _fireRate, float _damage) {
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0,1 }, (Object**)&items[itemSlot]));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0}, (Object**)&items[itemSlot]));
+		((Gun*)items[itemSlot])->SetStats(_fireType, _fireRate, _damage);
 	};
 	void AddController(int itemSlot, int prefabID) {
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0,1 }, (Object**)&items[itemSlot]));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0}, (Object**)&items[itemSlot]));
 	};
 	inline void SetControllerHand(ControllerHand _hand) {hand = _hand;};
 	void Update() override;

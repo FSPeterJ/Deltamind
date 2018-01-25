@@ -191,7 +191,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	vrMan->CreateControllers();
 	DirectX::XMFLOAT4X4 roomMatrix;
 	DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.33f, 0.33f, 0.33f));
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, roomMatrix));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(3, roomMatrix));
 //	Object* cube1, *cube2;
 
 	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {0,-1,0,1}, &cube1));

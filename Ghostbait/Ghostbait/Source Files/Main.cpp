@@ -173,7 +173,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	// Scenemanager would make this
 	//=========================================================
 
-	ObjectFactory::CreatePrefab(&std::string("ViveController.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object"));
 	//ObjectFactory::CreatePrefab(&std::string("SomeCoolObject"));

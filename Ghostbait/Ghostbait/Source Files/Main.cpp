@@ -163,7 +163,6 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<Gun>();
 	ObjectFactory::RegisterPrefabBase<ViveController>();
 	ObjectFactory::RegisterPrefabBase<GameObject>();
-	ObjectFactory::RegisterPrefabBase<SomeCoolObject>();
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
 	ObjectFactory::RegisterManager<PhysicsComponent, PhysicsManager>(phyMan);
 	ObjectFactory::RegisterManager<Material, MaterialManager>(rendInter->getMaterialManager());

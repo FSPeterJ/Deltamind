@@ -5,6 +5,7 @@
 #include "Controlable.h"
 #include "PhysicsManager.h"
 #include "GameObject.h"
+#include "GhostTime.h"
 
 GameObject::GameObject() {
 	
@@ -14,8 +15,8 @@ void GameObject::Activate() {
 	EngineStructure::Awake += [=]() {this->Awake(); };
 }
 
-void Gun::Update(float _dt) {
-	dt = _dt; 
+void Gun::Update() {
+	dt = (float)GhostTime::SmoothDeltaTime(); 
 	timeSinceLastShot += dt;
 
 	if (energyOverheatDelayTimeLeft > 0) {
@@ -29,13 +30,13 @@ void Gun::Update(float _dt) {
 		currentEnergy = 0;
 	}
 
-	//Console::Write(currentEnergy);
-	//Console::Write("__");
-	//Console::Write(energyLimit);
-	//Console::Write(" : ");
-	//Console::Write(energyOverheatDelayTimeLeft);
-	//Console::Write(" : ");
-	//Console::WriteLine(timeSinceLastShot);
+	Console::Write(currentEnergy);
+	Console::Write("__");
+	Console::Write(energyLimit);
+	Console::Write(" : ");
+	Console::Write(energyOverheatDelayTimeLeft);
+	Console::Write(" : ");
+	Console::WriteLine(timeSinceLastShot);
 }
 
 bool Gun::Shoot() {
@@ -43,11 +44,11 @@ bool Gun::Shoot() {
 	case AUTO:
 		if (timeSinceLastShot > (1 / fireRate) && !energyOverheatDelayTimeLeft) {
 			//Fire
-			Object* obj;
-			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, { 0, 0, 0, 0 }, &obj));
-			obj->position = position;
-			obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
-			obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 0.1f, position._32 * 0.1f, position._33 * 0.1f);
+			///Object* obj;
+			///MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 0, 0, 0, 0 }, &obj));
+			///obj->position = position;
+			//obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
+			//obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 0.1f, position._32 * 0.1f, position._33 * 0.1f);
 			if (!AddEnergy(energyBulletCost)) {
 				energyOverheatDelayTimeLeft = energyOverheatDelay;
 			}
@@ -57,11 +58,11 @@ bool Gun::Shoot() {
 	case SEMI:
 		if (timeSinceLastShot > (1 / fireRate) && !energyOverheatDelayTimeLeft) {
 			//Fire
-			Object* obj;
-			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, { 0, 0, 0, 0 }, &obj));
-			obj->position = position;
-			obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
-			obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 0.1f, position._32 * 0.1f, position._33 * 0.1f);
+			///Object* obj;
+			///MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 0, 0, 0, 0 }, &obj));
+			///obj->position = position;
+			//obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
+			//obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 0.1f, position._32 * 0.1f, position._33 * 0.1f);
 			if (!AddEnergy(energyBulletCost)) {
 				energyOverheatDelayTimeLeft = energyOverheatDelay;
 			}
@@ -73,7 +74,12 @@ bool Gun::Shoot() {
 	return true;
 }
 
-void LeftControllerObject::Update() {
+void ControllerObject::Update() {
+	if (hand == INVALID) return;
+	else if (hand == LEFT) LeftUpdate();
+	else RightUpdate();
+}
+void ControllerObject::LeftUpdate() {
 	#pragma region Switch Controller Item
 		if (KeyIsDown(leftItem1)) {
 		state = GUN;
@@ -91,30 +97,29 @@ void LeftControllerObject::Update() {
 
 	}
 	#pragma endregion
-	gun.Update();
-
 	switch (state) {
 	case GUN:
+		gun.Update();
 		if (KeyIsDown(leftAttack)) {
-			if (!gun.Shoot()) ResetKey(leftAttack);
 			gun.position = position;
+			if (!gun.Shoot()) ResetKey(leftAttack);
 		}
 		break;
 	case CONTROLLER:
 		if (KeyIsDown(leftAttack)) {
-			WriteLine("Left controller select");
+			WriteLine("Right controller select");
 			ResetKey(leftAttack);
 		}
 		break;
 	case HAND:
 		if (KeyIsDown(leftAttack)) {
-			WriteLine("Left hand pickup");
+			WriteLine("Right hand pickup");
 			ResetKey(leftAttack);
 		}
 		break;
 	}
 }
-void RightControllerObject::Update() {
+void ControllerObject::RightUpdate() {
 	#pragma region Switch Controller Item
 		if (KeyIsDown(rightItem1)) {
 		state = GUN;
@@ -132,13 +137,13 @@ void RightControllerObject::Update() {
 
 	}
 	#pragma endregion
-	gun.Update();
 
 	switch (state) {
 	case GUN:
+		gun.Update();
 		if (KeyIsDown(rightAttack)) {
-			gun.Shoot();
 			gun.position = position;
+			if(!gun.Shoot()) ResetKey(rightAttack);
 		}
 		break;
 	case CONTROLLER:

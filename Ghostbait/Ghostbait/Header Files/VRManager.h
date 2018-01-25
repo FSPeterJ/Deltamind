@@ -24,21 +24,15 @@ private:
 	void Shutdown();
 
 public:
-	struct LeftVRController {
+	struct VRController {
 		int index;
 		DirectX::XMFLOAT4X4 pose = FLOAT4X4Identity;
-		LeftControllerObject* obj;
-	};
-	struct RightVRController {
-		int index;
-		DirectX::XMFLOAT4X4 pose = FLOAT4X4Identity;
-		RightControllerObject* obj;
+		ControllerObject* obj;
 	};
 
 	static DirectX::XMFLOAT4X4 world;
 	DirectX::XMFLOAT4X4 hmdPose = FLOAT4X4Identity;
-	static LeftVRController leftController;
-	static RightVRController rightController;
+	static VRController leftController, rightController;
 
 	vr::IVRSystem *pVRHMD;
 	vr::IVRRenderModels* pVRRenderModel;
@@ -52,7 +46,9 @@ public:
 
 	void CreateControllers() {
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {0,0,0,1}, (Object**) &leftController.obj));
+		leftController.obj->SetControllerHand(ControllerObject::ControllerHand::LEFT);
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {1,0,1,1}, (Object**) &rightController.obj));
+		rightController.obj->SetControllerHand(ControllerObject::ControllerHand::RIGHT);
 	}
 
 	void GetVRMatrices(DirectX::XMFLOAT4X4* leftProj, DirectX::XMFLOAT4X4* rightProj, DirectX::XMFLOAT4X4* leftView, DirectX::XMFLOAT4X4* rightView);

@@ -8,6 +8,7 @@ class EngineStructure {
 	friend class GameObject;
 	friend class Controlable;
 	friend class ObjectManager;
+	friend class Camera;
 
 	static Delegate<> Awake;
 	static Delegate<> OnEnable;

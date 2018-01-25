@@ -53,7 +53,7 @@ public:
 		for(size_t i = 0; i < pool_size; ++i) {
 			//WTF WHY DOES THIS WORK BUT NOT &elements ????????
 			//inactiveList[i] = (char*)new ((char*)elements + sizeof(T) * i) T();
-			inactiveList[i] = (char*)new (&elements[(unsigned int)i]) T();
+			inactiveList[i] = (char*)new (&elements[i]) T();
 		}
 	}
 

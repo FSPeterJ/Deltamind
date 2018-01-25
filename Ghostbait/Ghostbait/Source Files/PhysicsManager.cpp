@@ -233,7 +233,7 @@ XMVECTOR PhysicsManager::FindClosestPointOnLine(XMVECTOR& _lineSegStart, XMVECTO
 }
 
 void PhysicsManager::SendCollision(Object* obj1, Object* obj2) {
-	Console::WriteLine("Cube Collision");
+	//Console::WriteLine("Cube Collision");
 }
 
 void PhysicsManager::TestAllComponentsCollision() {

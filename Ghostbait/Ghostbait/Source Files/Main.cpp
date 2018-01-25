@@ -162,8 +162,6 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<ControllerObject>();
 	ObjectFactory::RegisterPrefabBase<GameObject>();
 	ObjectFactory::RegisterPrefabBase<SomeCoolObject>();
-	ObjectFactory::RegisterPrefabBase<LeftControllerObject>();
-	ObjectFactory::RegisterPrefabBase<RightControllerObject>();
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
 	ObjectFactory::RegisterManager<PhysicsComponent, PhysicsManager>(phyMan);
 	ObjectFactory::RegisterManager<Material, MaterialManager>(rendInter->getMaterialManager());

@@ -4,8 +4,8 @@
 #include <string>
 
 DirectX::XMFLOAT4X4 VRManager::world = FLOAT4X4Identity;
-VRManager::LeftVRController VRManager::leftController;
-VRManager::RightVRController VRManager::rightController;
+VRManager::VRController VRManager::leftController;
+VRManager::VRController VRManager::rightController;
 
 VRManager::VRManager() {}
 

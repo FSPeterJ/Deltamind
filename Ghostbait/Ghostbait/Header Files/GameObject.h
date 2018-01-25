@@ -49,37 +49,57 @@ public:
 	Gun() {};
 	Gun(FireType _type, float _fireRate, float _damage) : type(_type), fireRate(_fireRate), damage(_damage) {};
 	bool Shoot();
-	void Update(float _dt = 0.02f);
+	void Update();
 };
 
 class ControllerObject: public GameObject, public Controlable {
 public:
-	ControllerObject()
-	{
-		TypeMap::RegisterObjectAlias<ControllerObject>("ViveController");
-	}
-public:
+	enum ControllerHand {
+		INVALID,
+		LEFT,
+		RIGHT,
+	};
+private:
 	enum State {
 		GUN,
 		CONTROLLER,
 		HAND,
 	};
+	ControllerHand hand = LEFT;
 	State state;
 	Gun gun;
-};
-
-class LeftControllerObject: public ControllerObject {
-
+	void LeftUpdate();
+	void RightUpdate();
 public:
-	LeftControllerObject() { state = GUN; gun = Gun(Gun::FireType::SEMI, 60, 1); };
-	void Update();
+	
+	ControllerObject()
+	{
+		TypeMap::RegisterObjectAlias<ControllerObject>("ViveController");
+		state = GUN;
+		hand = INVALID;
+		gun = Gun(Gun::FireType::AUTO, 60, 1);
+	}
+	inline void SetControllerHand(ControllerHand _hand) {hand = _hand;};
+	void Update() override;
 };
 
-class RightControllerObject: public ControllerObject {
-public:
-	RightControllerObject() { state = GUN; gun = Gun(Gun::FireType::AUTO, 4, 1); };
-	void Update();
-};
+//class LeftControllerObject: public ControllerObject {
+//
+//public:
+//	LeftControllerObject() { 
+//		state = GUN; gun = Gun(Gun::FireType::SEMI, 60, 1); 
+//	};
+//	void Update() override;
+//};
+
+//class RightControllerObject: public ControllerObject {
+//public:
+//	RightControllerObject() { 
+//		TypeMap::RegisterObjectAlias<RightControllerObject>("RightViveController");
+//		state = GUN; gun = Gun(Gun::FireType::AUTO, 4, 1); 
+//	};
+//	void Update() override;
+//};
 
 class SomeCoolObject: public GameObject, public Controlable {
 public:

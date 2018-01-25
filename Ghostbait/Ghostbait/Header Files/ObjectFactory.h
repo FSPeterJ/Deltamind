@@ -212,7 +212,7 @@ public:
 		if(instantiate->GetReturnObject() != nullptr) {
 			instantiate->SetReturnObject(newobject);
 		}
-		memcpy(&newobject->position.m[3], &instantiate->GetPosition(), sizeof(DirectX::XMFLOAT4));
+		memcpy(&newobject->position, &instantiate->GetPosition(), sizeof(DirectX::XMFLOAT4X4));
 		MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
 	}
 

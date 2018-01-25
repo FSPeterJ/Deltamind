@@ -184,9 +184,9 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	game = new Game();
 	game->Start();
 	vrMan->CreateControllers();
-	Object* IwantToEdit;
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f), &IwantToEdit));
-	DirectX::XMStoreFloat4x4(&IwantToEdit->position, DirectX::XMMatrixScaling(0.33f, 0.33f, 0.33f));
+	DirectX::XMFLOAT4X4 roomMatrix;
+	DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.33f, 0.33f, 0.33f));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, roomMatrix));
 //	Object* cube1, *cube2;
 
 	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {0,-1,0,1}, &cube1));

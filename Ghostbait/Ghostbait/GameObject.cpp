@@ -30,13 +30,13 @@ void Gun::Update() {
 		currentEnergy = 0;
 	}
 
-	Console::Write(currentEnergy);
-	Console::Write("__");
-	Console::Write(energyLimit);
-	Console::Write(" : ");
-	Console::Write(energyOverheatDelayTimeLeft);
-	Console::Write(" : ");
-	Console::WriteLine(timeSinceLastShot);
+	//Console::Write(currentEnergy);
+	//Console::Write("__");
+	//Console::Write(energyLimit);
+	//Console::Write(" : ");
+	//Console::Write(energyOverheatDelayTimeLeft);
+	//Console::Write(" : ");
+	//Console::WriteLine(timeSinceLastShot);
 }
 
 bool Gun::Shoot() {
@@ -44,9 +44,9 @@ bool Gun::Shoot() {
 	case AUTO:
 		if (timeSinceLastShot > (1 / fireRate) && !energyOverheatDelayTimeLeft) {
 			//Fire
-			///Object* obj;
-			///MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 0, 0, 0, 0 }, &obj));
-			///obj->position = position;
+			Object* obj;
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, { 0, 0, 0, 0 }, &obj));
+			obj->position = position;
 			//obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
 			//obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 0.1f, position._32 * 0.1f, position._33 * 0.1f);
 			if (!AddEnergy(energyBulletCost)) {
@@ -58,9 +58,9 @@ bool Gun::Shoot() {
 	case SEMI:
 		if (timeSinceLastShot > (1 / fireRate) && !energyOverheatDelayTimeLeft) {
 			//Fire
-			///Object* obj;
-			///MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 0, 0, 0, 0 }, &obj));
-			///obj->position = position;
+			Object* obj;
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, { 0, 0, 0, 0 }, &obj));
+			obj->position = position;
 			//obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
 			//obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 0.1f, position._32 * 0.1f, position._33 * 0.1f);
 			if (!AddEnergy(energyBulletCost)) {
@@ -82,81 +82,86 @@ void ControllerObject::Update() {
 void ControllerObject::LeftUpdate() {
 	#pragma region Switch Controller Item
 		if (KeyIsDown(leftItem1)) {
-		state = GUN;
-		ResetKey(leftItem1);
-	}
+			if (items[0]) currentItem = items[0];
+			ResetKey(leftItem1);
+		}
 		else if (KeyIsDown(leftItem2)) {
-		state = CONTROLLER;
-		ResetKey(leftItem2);
-	}
+			if (items[1]) currentItem = items[1];
+			ResetKey(leftItem2);
+		}
 		else if (KeyIsDown(leftItem3)) {
-		state = HAND;
-		ResetKey(leftItem3);
-	}
-		else {
-
-	}
+			if (items[2]) currentItem = items[2];
+			ResetKey(leftItem3);
+		}
+		else if (KeyIsDown(leftItem4)) {
+			if (items[3]) currentItem = items[3];
+			ResetKey(leftItem4);
+		}
 	#pragma endregion
-	switch (state) {
-	case GUN:
-		gun.Update();
-		if (KeyIsDown(leftAttack)) {
-			gun.position = position;
-			if (!gun.Shoot()) ResetKey(leftAttack);
+		if (currentItem) {
+			currentItem->position = position;
+			currentItem->Update();
+			switch (currentItem->state) {
+			case Item::State::GUN:
+				if (KeyIsDown(leftAttack)) {
+					if (!((Gun*)currentItem)->Shoot()) ResetKey(leftAttack);
+				}
+				break;
+			case Item::State::CONTROLLER:
+				if (KeyIsDown(leftAttack)) {
+					WriteLine("Right controller select");
+					ResetKey(leftAttack);
+				}
+				break;
+			case Item::State::INVALID:
+				if (KeyIsDown(leftAttack)) {
+					WriteLine("Right hand pickup");
+					ResetKey(leftAttack);
+				}
+				break;
+			}
 		}
-		break;
-	case CONTROLLER:
-		if (KeyIsDown(leftAttack)) {
-			WriteLine("Right controller select");
-			ResetKey(leftAttack);
-		}
-		break;
-	case HAND:
-		if (KeyIsDown(leftAttack)) {
-			WriteLine("Right hand pickup");
-			ResetKey(leftAttack);
-		}
-		break;
-	}
 }
 void ControllerObject::RightUpdate() {
 	#pragma region Switch Controller Item
-		if (KeyIsDown(rightItem1)) {
-		state = GUN;
+	if (KeyIsDown(rightItem1)) {
+		if (items[0]) currentItem = items[0];
 		ResetKey(rightItem1);
 	}
-		else if (KeyIsDown(rightItem2)) {
-		state = CONTROLLER;
+	else if (KeyIsDown(rightItem2)) {
+		if (items[1]) currentItem = items[1];
 		ResetKey(rightItem2);
 	}
-		else if (KeyIsDown(rightItem3)) {
-		state = HAND;
+	else if (KeyIsDown(rightItem3)) {
+		if (items[2]) currentItem = items[2];
 		ResetKey(rightItem3);
 	}
-		else {
-
+	else if (KeyIsDown(rightItem4)){
+		if (items[3]) currentItem = items[3];
+		ResetKey(rightItem4);
 	}
-	#pragma endregion
-
-	switch (state) {
-	case GUN:
-		gun.Update();
-		if (KeyIsDown(rightAttack)) {
-			gun.position = position;
-			if(!gun.Shoot()) ResetKey(rightAttack);
+#pragma endregion
+	if (currentItem) {
+		currentItem->position = position;
+		currentItem->Update();
+		switch (currentItem->state) {
+		case Item::State::GUN:
+			if (KeyIsDown(rightAttack)) {
+				if (!((Gun*)currentItem)->Shoot()) ResetKey(rightAttack);
+			}
+			break;
+		case Item::State::CONTROLLER:
+			if (KeyIsDown(rightAttack)) {
+				WriteLine("Right controller select");
+				ResetKey(leftAttack);
+			}
+			break;
+		case Item::State::INVALID:
+			if (KeyIsDown(rightAttack)) {
+				WriteLine("Right hand pickup");
+				ResetKey(rightAttack);
+			}
+			break;
 		}
-		break;
-	case CONTROLLER:
-		if (KeyIsDown(rightAttack)) {
-			WriteLine("Right controller select");
-			ResetKey(rightAttack);
-		}
-		break;
-	case HAND:
-		if (KeyIsDown(rightAttack)) {
-			WriteLine("Right hand pickup");
-			ResetKey(rightAttack);
-		}
-		break;
 	}
 }

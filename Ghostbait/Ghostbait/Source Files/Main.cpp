@@ -160,6 +160,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	ObjectFactory::Initialize(objMan);
 	ObjectFactory::RegisterPrefabBase<ControllerObject>();
+	ObjectFactory::RegisterPrefabBase<Gun>();
+	ObjectFactory::RegisterPrefabBase<ViveController>();
 	ObjectFactory::RegisterPrefabBase<GameObject>();
 	ObjectFactory::RegisterPrefabBase<SomeCoolObject>();
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
@@ -169,9 +171,14 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//------
 	// Scenemanager would make this
 	//=========================================================
+	TypeMap::RegisterObjectAlias<ViveController>("ViveController");
+	TypeMap::RegisterObjectAlias<Gun>("Gun");
+	TypeMap::RegisterObjectAlias<ControllerObject>("ControllerObject");
 
-	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController.ghost"));
-	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/basicSphere.ghost"));
+
 	//ObjectFactory::CreatePrefab(&std::string("Object"));
 	//ObjectFactory::CreatePrefab(&std::string("SomeCoolObject"));
 	//ObjectFactory::CreatePrefab(&std::string("LeftControllerObject"));

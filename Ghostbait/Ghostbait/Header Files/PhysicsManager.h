@@ -24,6 +24,7 @@ class PhysicsManager: public IComponentManager {
 	void TestAllComponentsCollision();
 	bool SphereToSphereCollision(Collider col1, DirectX::XMVECTOR& pos1, Collider col2, DirectX::XMVECTOR& pos2);
 	bool CapsuleToCapsuleCollision(Collider col1, DirectX::XMMATRIX& pos1, Collider col2, DirectX::XMMATRIX& pos2);
+	bool CapsuleToSphereCollision(Collider capCol, DirectX::XMMATRIX& capPos, Collider sphCol, DirectX::XMMATRIX& sphPos);
 	bool BoxToBoxCollision();
 	void SendCollision(Object* obj1, Object* obj2);
 	//bool BoxToCapsuleCollision();

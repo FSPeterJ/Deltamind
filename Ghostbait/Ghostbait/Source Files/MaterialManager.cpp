@@ -11,8 +11,6 @@ MaterialManager::~MaterialManager() {}
 void MaterialManager::Initialize(ID3D11Device * deviceIn, ID3D11DeviceContext* contextIn) {
 	device = deviceIn;
 	context = contextIn;
-	Material* toEdit = ConstructMaterial("Assets/ViveController_mat.bin");
-	toEdit->matID = UINT_MAX;
 	TypeMap::RegisterComponentAlias<Material>("mat");
 	TypeMap::RegisterComponentAlias<Material>("Mat");
 	TypeMap::RegisterComponentAlias<Material>("MAT");

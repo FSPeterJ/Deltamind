@@ -50,7 +50,7 @@ class Object;
 class InstantiateMessage: public EventMessageBase {
 	PrefabId pid;
 	Object** obj;
-	DirectX::XMFLOAT4 position;
+	DirectX::XMFLOAT4X4 position;
 public:
 	/// <summary>
 	/// Initializes a new instance of the <see cref="InstantiateMessage"/> class.
@@ -58,11 +58,12 @@ public:
 	/// <param name="_pid">The object's Prefab id.</param>
 	/// <param name="_position">Where to instantiate</param>
 	/// <param name="_obj"> return pointer reference of the object (optional)</param>
-	InstantiateMessage(const PrefabId _pid, const DirectX::XMFLOAT4 _position, Object**  _obj = nullptr) : pid(_pid), position(_position), obj(_obj) {}
+	InstantiateMessage(const PrefabId _pid, const DirectX::XMFLOAT3 _position, Object**  _obj = nullptr) : pid(_pid), obj(_obj) { DirectX::XMStoreFloat4x4(&position, DirectX::XMMatrixTranslation(_position.x, _position.y, _position.z)); }
+	InstantiateMessage(const PrefabId _pid, const DirectX::XMFLOAT4X4 _position, Object**  _obj = nullptr) : pid(_pid), position(_position), obj(_obj) {}
 
 	const PrefabId GetId() const { return pid; }
 	Object ** GetReturnObject() const { return obj; }
-	DirectX::XMFLOAT4 GetPosition() const { return position; }
+	DirectX::XMFLOAT4X4 GetPosition() const { return position; }
 	void SetReturnObject(Object * _object) const {
 		if(obj != nullptr) {
 			*obj = _object;

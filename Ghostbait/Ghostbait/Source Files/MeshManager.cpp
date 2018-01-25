@@ -81,9 +81,6 @@ MeshManager::~MeshManager() {}
 
 void MeshManager::Initialize(ID3D11Device* deviceIn) {
 	device = deviceIn;
-	//generateCube();
-	Mesh* toEdit = ConstructMesh("Assets/ViveController_mesh.bin");
-	toEdit->meshId = UINT_MAX;
 	TypeMap::RegisterComponentAlias<Mesh>("mesh");
 	//ComponentTypeMap::RegisterComponent<Mesh>("someotherfileextension");
 }

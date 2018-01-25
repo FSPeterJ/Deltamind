@@ -115,26 +115,52 @@ void Camera::turnCameraTowards(XMFLOAT3 target, float speed) {
 	position._23 = y.z;
 }
 
+void Camera::moveCameraAlongForward(float speed) {
+	float dt = (float)GhostTime::SmoothDeltaTime();
+	position._41 += position._31 * speed * dt;
+	position._42 += position._32 * speed * dt;
+	position._43 += position._33 * speed * dt;
+}
+
 void Camera::Update()
 {
+	static float rotationY = 0.0f;
+	float dt = (float)GhostTime::SmoothDeltaTime();
+	if (rotationY < -XM_2PI || rotationY > XM_2PI)
+		rotationY = 0.0f;
+
 	if (KeyIsDown(Control::left))
 	{
-		position._41 -= 0.1f;
+		//position._41 -= 50.0f * dt;
+		rotationY -= 5.0f * dt;
 		ResetKey(Control::left);
 	}
 	if (KeyIsDown(Control::right))
 	{
-		position._41 += 0.1f;
+		//position._41 += 50.0f * dt;
+		rotationY += 5.0f * dt;
 		ResetKey(Control::right);
 	}
 	if (KeyIsDown(Control::forward))
 	{
-		position._43 += 0.1f;
+		moveCameraAlongForward(100.0f);
 		ResetKey(Control::forward);
 	}
 	if (KeyIsDown(Control::backward))
 	{
-		position._43 -= 0.1f;
+		moveCameraAlongForward(-100.0f);
 		ResetKey(Control::backward);
 	}
+	if (KeyIsDown(Control::leftAttack))
+	{
+		position._42 += 100.0f * dt;
+		ResetKey(Control::leftAttack);
+	}
+	if (KeyIsDown(Control::rightAttack))
+	{
+		position._42 -= 100.0f * dt;
+		ResetKey(Control::rightAttack);
+	}
+
+	setCameraRotationRadians(0.0f, rotationY, 0.0f);
 }

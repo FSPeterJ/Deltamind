@@ -178,7 +178,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/basicSphere.ghost"));
-
+	ObjectFactory::CreatePrefab(&std::string("Assets/ScifiRoom.ghost"));
+	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object"));
 	//ObjectFactory::CreatePrefab(&std::string("SomeCoolObject"));
 	//ObjectFactory::CreatePrefab(&std::string("LeftControllerObject"));
@@ -188,7 +189,9 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	game = new Game();
 	game->Start();
 	vrMan->CreateControllers();
-
+	DirectX::XMFLOAT4X4 roomMatrix;
+	DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.33f, 0.33f, 0.33f));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, roomMatrix));
 //	Object* cube1, *cube2;
 
 	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {0,-1,0,1}, &cube1));

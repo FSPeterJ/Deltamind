@@ -1,10 +1,16 @@
 #pragma once
-
 #include <vector>
 #include <d3d11.h>
+#include <unordered_map>
+#include <Pool.h>
 #include "ComponentBase.h"
+#include "IComponentManager.h"
+#define MAX_MATS 1024
+
 
 struct Material: ComponentBase {
+
+
 	struct matComponent {
 		float factor;
 		ID3D11Buffer * texture;
@@ -56,10 +62,13 @@ struct Material: ComponentBase {
 	}
 };
 
-class MaterialManager {
+class MaterialManager: public IComponentManager {
+
 	ID3D11Device* device;
 	ID3D11DeviceContext* context;
-	std::vector<Material> trackedMaterials;
+	std::unordered_map<std::string, Material*> materialNames; //Checking for duplicates
+	Pool<Material> trackedMaterials = Pool<Material>(MAX_MATS);
+	//std::vector<Material> trackedMaterials;
 	Material* ConstructMaterial(const char* _materialFilePath);
 public:
 	MaterialManager();
@@ -71,4 +80,6 @@ public:
 	unsigned int AddElement(const char* _materialFilePath);
 
 	Material* GetElement(const unsigned int _id);
+	Material* CloneComponent(ComponentBase* reference) override;
+	Material* GetReferenceComponent(const char * _FilePath, const char * _data) override;
 };

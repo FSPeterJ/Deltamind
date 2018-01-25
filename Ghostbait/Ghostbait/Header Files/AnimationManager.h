@@ -1,6 +1,8 @@
 #pragma once
-#include <DirectXMath.h>
 #include <vector>
+#include <IComponentManager.h>
+#include <directxmath.h>
+#include "ComponentBase.h"
 
 struct animJoint {
 	DirectX::XMFLOAT4X4 transform;
@@ -24,14 +26,12 @@ struct Animation {
 	bindpose* bPose;
 };
 
-#include "ComponentBase.h"
 struct AnimComponent: ComponentBase {
 	double timePos;
 	Animation * anim;
 	std::vector<animJoint> tweens;
 };
 
-#include <IComponentManager.h>
 class AnimationManager : public IComponentManager {
 	std::vector<bindpose> bindPoses;
 	std::vector<Animation> animations;

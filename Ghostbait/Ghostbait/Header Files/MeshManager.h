@@ -1,8 +1,11 @@
 #pragma once
-#include "IComponentManager.h"
-#include <d3d11.h>
-#include <unordered_map>
 #include <Pool.h>
+#include <unordered_map>
+#include "IComponentManager.h"	// For Interface
+#include "ComponentBase.h"		// For Interface
+
+struct ID3D11Device;
+struct ID3D11Buffer;
 
 // Highly doubt we will hit this
 #define MAX_MESHES 512
@@ -28,6 +31,7 @@ public:
 	void Initialize(ID3D11Device* _deviceIn);
 	void Destroy();
 	int AddElement(const char* _meshFilePath);
-	Mesh* GetComponent(const char* _meshFilePath) override;
-	Mesh* GetElement(const unsigned int _id) override;
+	Mesh* GetElement(const unsigned _id);
+	Mesh* GetReferenceComponent(const char * _FilePath, const char * _data) override;
+	Mesh* CloneComponent(ComponentBase* meshReference) override;
 };

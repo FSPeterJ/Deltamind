@@ -1,7 +1,10 @@
+#include <fstream>
+#include <d3d11.h>
 #include "MeshManager.h"
 #include "VertexTypes.h"
-#include <fstream>
+#include "TypeMapping.h"
 using namespace DirectX;
+
 
 void MeshManager::generateCube() {
 #pragma region pleasedontopenthis
@@ -81,6 +84,8 @@ void MeshManager::Initialize(ID3D11Device* deviceIn) {
 	//generateCube();
 	Mesh* toEdit = ConstructMesh("Assets/ViveController_mesh.bin");
 	toEdit->meshId = UINT_MAX;
+	TypeMap::RegisterComponentAlias<Mesh>("mesh");
+	//ComponentTypeMap::RegisterComponent<Mesh>("someotherfileextension");
 }
 
 void MeshManager::Destroy() {
@@ -150,10 +155,10 @@ int MeshManager::AddElement(const char* _meshFilePath) {
 	return mesh->meshId;
 }
 
-Mesh* MeshManager::GetComponent(const char* _meshFilePath) {
-	Mesh* mesh = meshNames[std::string(_meshFilePath)];
+Mesh* MeshManager::GetReferenceComponent(const char * _FilePath, const char* _data) {
+	Mesh* mesh = meshNames[std::string(_FilePath)];
 	if(!mesh) {
-		mesh = ConstructMesh(_meshFilePath);
+		mesh = ConstructMesh(_FilePath);
 	}
 	return mesh;
 }
@@ -164,5 +169,12 @@ Mesh*  MeshManager::GetElement(const unsigned int _id) {
 		if(m->meshId == _id)
 			return m;
 	}
+	return nullptr;
+}
+
+Mesh* MeshManager::CloneComponent(ComponentBase* meshReference)
+{
+
+	//If you are here there is probably something wrong
 	return nullptr;
 }

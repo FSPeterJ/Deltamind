@@ -14,6 +14,8 @@ PhysicsManager::PhysicsManager() {
 	defaultColider.centerOffset = { 0, 0, 0 };
 	defaultColider.isTrigger = true;
 	defaultColider.colliderData = &defaultSphereColider;
+	TypeMap::RegisterComponentAlias<PhysicsComponent>("Physical");
+	TypeMap::RegisterComponentAlias<PhysicsComponent>("Phys");
 
 	colliderDataList.reserve(MAX_COLLIDER_DATA);
 	prefabComponents.reserve(MAX_PREFABS);
@@ -27,13 +29,15 @@ void PhysicsManager::AddComponent(Object* obj, float veloX, float veloY, float v
 	physComponent->rigidBody = RigidBody();
 	physComponent->rigidBody.SetVelocity(veloX, veloY, veloZ);
 }
-PhysicsComponent* PhysicsManager::GetComponent(const char* _meshFilePath) {
+
+PhysicsComponent* PhysicsManager::CloneComponent(ComponentBase* reference){
 	PhysicsComponent* physComponent = components.Activate();
-	physComponent->colliders.push_back(defaultColider);
+	// SHALLOW COPY - this only copies the std::vector head.
+	physComponent->colliders = ((PhysicsComponent*)reference)->colliders;
 	physComponent->rigidBody = RigidBody();
 	return physComponent;
 }
-PhysicsComponent* PhysicsManager::GetReferenceComponent(const char* _dataBlock) {
+PhysicsComponent* PhysicsManager::GetReferenceComponent(const char * _FilePath, const char * _dataBlock){
 	PhysicsComponent compHolder;
 	XMFLOAT3 offsetHolder;
 	ColliderData* colDataHolder = nullptr;
@@ -94,10 +98,7 @@ PhysicsComponent* PhysicsManager::GetReferenceComponent(const char* _dataBlock) 
 		return nullptr;
 	}
 }
-PhysicsComponent* PhysicsManager::GetElement(const unsigned int _id) {
-	//Hmmm
-	return nullptr;
-}
+
 void PhysicsManager::Update() {
 	std::vector<PhysicsComponent*>*temp = components.GetActiveList();
 	int activeCount = (int)components.GetActiveCount();
@@ -233,7 +234,7 @@ XMVECTOR PhysicsManager::FindClosestPointOnLine(XMVECTOR& _lineSegStart, XMVECTO
 }
 
 void PhysicsManager::SendCollision(Object* obj1, Object* obj2) {
-	Console::WriteLine("Cube Collision");
+	//Console::WriteLine("Cube Collision");
 }
 
 void PhysicsManager::TestAllComponentsCollision() {

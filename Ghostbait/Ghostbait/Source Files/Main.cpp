@@ -173,6 +173,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//=========================================================
 
 	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/ScifiRoom.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object"));
 	//ObjectFactory::CreatePrefab(&std::string("SomeCoolObject"));
@@ -183,7 +184,9 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	game = new Game();
 	game->Start();
 	vrMan->CreateControllers();
-
+	Object* IwantToEdit;
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f), &IwantToEdit));
+	DirectX::XMStoreFloat4x4(&IwantToEdit->position, DirectX::XMMatrixScaling(0.33f, 0.33f, 0.33f));
 //	Object* cube1, *cube2;
 
 	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {0,-1,0,1}, &cube1));

@@ -121,8 +121,6 @@ private:
 	ID3D11Buffer* factorBuffer;
 	ID3D11Buffer* lightBuffer;
 	pipeline_state_t defaultPipeline;
-	int tempId;
-	int tempMatId;
 	Camera* keyboardCamera;
 	viewProjectionConstantBuffer defaultCamera;
 

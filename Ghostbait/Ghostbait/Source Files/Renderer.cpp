@@ -150,16 +150,7 @@ void Renderer::renderToEye(eye * eyeTo) {
 	for(size_t i = 0; i < renderedObjects.size(); ++i) {
 		renderObjectDefaultState((Object*) renderedObjects[i]);
 	}
-	UINT stride = sizeof(VertexPositionTextureNormalAnim);
-	UINT offset = 0;
-	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(XMMatrixScaling(0.3f, 0.3f, 0.3f)), 0, 0);
-	context->VSSetShader(StandardVertexShader, NULL, NULL);
-	context->IASetInputLayout(ILStandard);
-	context->IASetVertexBuffers(0, 1, &meshManagement->GetElement(tempId)->vertexBuffer, &stride, &offset);
-	context->IASetIndexBuffer(meshManagement->GetElement(tempId)->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-	context->PSSetShader(StandardPixelShader, NULL, NULL);
-	materialManagement->GetElement(tempMatId)->bindToShader(context, factorBuffer);
-	context->DrawIndexed(meshManagement->GetElement(tempId)->indexCount, 0, 0);
+	
 #if _DEBUG
 	DebugRenderer::drawTo(eyeTo->renderInfo.rtv, eyeTo->renderInfo.dsv, eyeTo->renderInfo.viewport);
 	context->VSSetShader(StandardVertexShader, NULL, NULL);
@@ -227,10 +218,8 @@ void Renderer::Initialize(Window window, VRManager * vr) {
 	loadPipelineState(&defaultPipeline);
 	meshManagement = new MeshManager();
 	meshManagement->Initialize(device);
-	tempId = meshManagement->AddElement("Assets/ScifiRoom_mesh.bin");
 	materialManagement = new MaterialManager();
 	materialManagement->Initialize(device, context);
-	tempMatId = materialManagement->AddElement("Assets/ScifiRoom_mat.bin");
 	context->VSSetConstantBuffers(0, 1, &cameraBuffer);
 	context->VSSetConstantBuffers(1, 1, &modelBuffer);
 	context->PSSetConstantBuffers(0, 1, &lightBuffer);
@@ -433,13 +422,6 @@ void Renderer::Render() {
 		renderObjectDefaultState((Object*) renderedObjects[i]);
 	}
 
-	UINT stride = sizeof(VertexPositionTextureNormalAnim);
-	UINT offset = 0;
-	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(XMMatrixTranslation(1.5f, 0.0f, 0.0f)), 0, 0);
-	context->IASetVertexBuffers(0, 1, &meshManagement->GetElement(tempId)->vertexBuffer, &stride, &offset);
-	context->IASetIndexBuffer(meshManagement->GetElement(tempId)->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-	materialManagement->GetElement(tempMatId)->bindToShader(context, factorBuffer);
-	context->DrawIndexed(meshManagement->GetElement(tempId)->indexCount, 0, 0);
 #if _DEBUG
 	DebugRenderer::flushTo(defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport);
 #endif

@@ -36,7 +36,7 @@ outputstruct main(vertexShaderInput input) {
 	float4 outputpos = pos;
 	float4 norm = float4(input.normal, 0.0f);
 	outputpos = mul(outputpos, model);
-    output.worldPos = outputpos; //TODO: implicit truncation is happening here
+    output.worldPos = outputpos.xyz;
 	outputpos = mul(outputpos, view);
 	outputpos = mul(outputpos, projection);
 	output.pos = outputpos;

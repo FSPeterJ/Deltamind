@@ -162,16 +162,16 @@ public:
 
 						char* ext;
 						GetFileExtension(componentName, compNameLen, (char**)&ext);
+						int componentTypeID;// = TypeMap::GetComponentNameID(std::string(ext)); //TODO: above, ext is used as a null in/out variable, so it is possible for it to become null when passed into std::string
 						if(ext == nullptr)
-						{
-							strcpy_s(ext, 64, componentName); //TODO: you shouldn't use strcpy_s when ext can be 0. ext is an in/out argument to strcpy_s. therefore ext shouldnt be null because it goes agaist SAL annotation
-						}
-						int componentTypeID = TypeMap::GetComponentNameID(std::string(ext)); //TODO: above, ext is used as a null in/out variable, so it is possible for it to become null when passed into std::string
+							componentTypeID = TypeMap::GetComponentNameID(std::string(componentName));
+						else
+							componentTypeID = TypeMap::GetComponentNameID(std::string(ext));
 
 
 						//Get data to send
-						char* compData = new char[-dataNameLen - compNameLen];
-						fread(compData, -dataNameLen - compNameLen, 1, file);
+						char* compData = new char[-dataNameLen];
+						fread(compData, -dataNameLen, 1, file);
 						ComponentBase * component = managers[componentTypeID]->GetReferenceComponent(componentName, compData);
 
 						prefab->instantiatedComponents[componentTypeID] = component;

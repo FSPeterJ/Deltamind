@@ -11,7 +11,19 @@ public:
 	virtual void Update() {}
 };
 
-class Gun : public GameObject {
+class Item : public GameObject {
+public:
+	enum State {
+		INVALID,
+		GUN,
+		CONTROLLER,
+		HAND,
+	};
+	State state;
+
+	void Update() {};
+};
+class Gun : public Item {
 public:
 	enum FireType {
 		AUTO,
@@ -46,10 +58,19 @@ private:
 	}
 
 public:
-	Gun() {};
-	Gun(FireType _type, float _fireRate, float _damage) : type(_type), fireRate(_fireRate), damage(_damage) {};
+	Gun() { state = GUN; };
+	Gun(FireType _type, float _fireRate, float _damage) : type(_type), fireRate(_fireRate), damage(_damage) { state = GUN; };
+	void SetStats(FireType _type, float _fireRate, float _damage) { type = _type; fireRate = _fireRate; damage = _damage; };
 	bool Shoot();
 	void Update();
+};
+class ViveController : public Item {
+public:
+	ViveController() { 
+		state = CONTROLLER;
+		//TypeMap::RegisterObjectAlias<ViveController>("ViveController");
+	}
+	void update() {};
 };
 
 class ControllerObject: public GameObject, public Controlable {
@@ -60,25 +81,26 @@ public:
 		RIGHT,
 	};
 private:
-	enum State {
-		GUN,
-		CONTROLLER,
-		HAND,
-	};
+
 	ControllerHand hand = LEFT;
-	State state;
-	Gun gun;
+	std::vector<Item*> items;
+	Item* currentItem = nullptr;
 	void LeftUpdate();
 	void RightUpdate();
 public:
 	
 	ControllerObject()
 	{
-		TypeMap::RegisterObjectAlias<ControllerObject>("ViveController");
-		state = GUN;
+		items.resize(4);
 		hand = INVALID;
-		gun = Gun(Gun::FireType::AUTO, 60, 1);
 	}
+	void AddGun(int itemSlot, int prefabID, Gun::FireType _fireType, float _fireRate, float _damage) {
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0}, (Object**)&items[itemSlot]));
+		((Gun*)items[itemSlot])->SetStats(_fireType, _fireRate, _damage);
+	};
+	void AddController(int itemSlot, int prefabID) {
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0}, (Object**)&items[itemSlot]));
+	};
 	inline void SetControllerHand(ControllerHand _hand) {hand = _hand;};
 	void Update() override;
 };

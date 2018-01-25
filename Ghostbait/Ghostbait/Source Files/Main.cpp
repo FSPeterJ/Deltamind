@@ -160,6 +160,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	ObjectFactory::Initialize(objMan);
 	ObjectFactory::RegisterPrefabBase<ControllerObject>();
+	ObjectFactory::RegisterPrefabBase<Gun>();
+	ObjectFactory::RegisterPrefabBase<ViveController>();
 	ObjectFactory::RegisterPrefabBase<GameObject>();
 	ObjectFactory::RegisterPrefabBase<SomeCoolObject>();
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
@@ -169,8 +171,13 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//------
 	// Scenemanager would make this
 	//=========================================================
+	TypeMap::RegisterObjectAlias<ViveController>("ViveController");
+	TypeMap::RegisterObjectAlias<Gun>("Gun");
+	TypeMap::RegisterObjectAlias<ControllerObject>("ControllerObject");
 
-	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController.ghost"), true);
+	ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"), true);
+	ObjectFactory::CreatePrefab(&std::string("Assets/basicSphere.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ScifiRoom.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object"));
@@ -184,7 +191,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	vrMan->CreateControllers();
 	DirectX::XMFLOAT4X4 roomMatrix;
 	DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.33f, 0.33f, 0.33f));
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, roomMatrix));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(3, roomMatrix));
 //	Object* cube1, *cube2;
 
 	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {0,-1,0,1}, &cube1));

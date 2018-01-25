@@ -16,5 +16,6 @@ public:
 	void setCameraScale(const float x, const float y, const float z);//why would you call this -- to adjust perspective (fov, aspect ratio) ?  This is a view matrix, the perspective is in renderer
 	void pointCameraAt(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 up);
 	void turnCameraTowards(DirectX::XMFLOAT3 target, float speed);
+	void moveCameraAlongForward(float speed);
 	void Update();
 };

@@ -155,30 +155,59 @@ ColliderData* PhysicsManager::AddColliderData(float trfX, float trfY, float trfZ
 }
 
 void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponent component2) {
+	bool collisionResult = false;
+	ColliderType colliderType1, colliderType2;
+
+	XMMATRIX matrixComA = XMLoadFloat4x4(&component1.parentObject->position);
+	XMMATRIX matrixComB = XMLoadFloat4x4(&component2.parentObject->position);
+
 	for (int com1 = 0; com1 < component1.colliders.size(); ++com1) {
+		colliderType1 = component1.colliders[com1].colliderData->colliderType;
+
 		for (int com2 = 0; com2 < component2.colliders.size(); ++com2) {
-			XMMATRIX tempA = XMLoadFloat4x4(&component1.parentObject->position);
-			XMMATRIX tempB = XMLoadFloat4x4(&component2.parentObject->position);
-			if (component1.colliders[com1].colliderData->colliderType == SPHERE &&
-				component2.colliders[com2].colliderData->colliderType == SPHERE) {
-				if (SphereToSphereCollision(component1.colliders[com1], tempA.r[3], component2.colliders[com2], tempB.r[3])) {
-					SendCollision(component1.parentObject, component2.parentObject);
+			collisionResult = false;
+			colliderType2 = component2.colliders[com2].colliderData->colliderType;
+
+			switch (colliderType1)
+			{
+			case SPHERE: 
+			{
+				switch (colliderType2)
+				{
+				case SPHERE:
+					collisionResult = SphereToSphereCollision(component1.colliders[com1], matrixComA.r[3], component2.colliders[com2], matrixComB.r[3]);
+					break;
+				case CAPSULE:
+					collisionResult = CapsuleToSphereCollision(component2.colliders[com2], matrixComB, component1.colliders[com1], matrixComA);
+					break;
+				default:
+					break;
 				}
+			} break;
+
+			case CAPSULE: 
+			{
+				switch (colliderType2)
+				{
+				case SPHERE:
+					collisionResult = CapsuleToSphereCollision(component1.colliders[com1], matrixComA, component2.colliders[com2], matrixComB);
+					break;
+				case CAPSULE:
+					collisionResult = CapsuleToCapsuleCollision(component1.colliders[com1], matrixComA, component2.colliders[com2], matrixComB);
+					break;
+				default:
+					break;
+				}
+			} break;
+
+			case BOX:
+				break;
+			default:
+				break;
 			}
 
-			else if (component1.colliders[com1].colliderData->colliderType == CAPSULE &&
-				component2.colliders[com2].colliderData->colliderType == CAPSULE) {
-				if (CapsuleToCapsuleCollision(component1.colliders[com1], tempA, component2.colliders[com2], tempB)) {
-					SendCollision(component1.parentObject, component2.parentObject);
-				}
-			}
-
-			else if (component1.colliders[com1].colliderData->colliderType == BOX &&
-				component2.colliders[com2].colliderData->colliderType == BOX) {
-				if (BoxToBoxCollision()) {
-					SendCollision(component1.parentObject, component2.parentObject);
-				}
-			}
+			if(collisionResult)
+				SendCollision(component1.parentObject, component2.parentObject);
 		}
 	}
 }
@@ -225,6 +254,24 @@ bool PhysicsManager::CapsuleToCapsuleCollision(Collider col1, XMMATRIX& pos1, Co
 	return false;
 }
 
+bool PhysicsManager::CapsuleToSphereCollision(Collider capCol, DirectX::XMMATRIX& capPos, Collider sphCol, DirectX::XMMATRIX& sphPos) {
+	XMVECTOR sphereCenter, closestOnCap, capStart, capEnd;
+
+	XMVECTOR capOffset = XMLoadFloat3(&capCol.centerOffset);
+	capStart = capOffset + XMVectorSet(0, capCol.colliderData->colliderInfo.capsuleCollider.height * 0.5f, 0, 0);
+	capEnd = capOffset - XMVectorSet(0, capCol.colliderData->colliderInfo.capsuleCollider.height * 0.5f, 0, 0);
+	capStart = XMVector3TransformCoord(capStart, capPos);
+	capEnd = XMVector3TransformCoord(capEnd, capPos);
+
+	sphereCenter = XMLoadFloat3(&sphCol.centerOffset);
+	closestOnCap = FindClosestPointOnLine(capStart, capEnd, sphereCenter);
+
+	float radii = capCol.colliderData->colliderInfo.capsuleCollider.radius + sphCol.colliderData->colliderInfo.sphereCollider.radius;
+	XMVECTOR sphCenterToClosest = closestOnCap - sphereCenter;
+
+	return !(XMVectorGetX(XMVector3Dot(sphCenterToClosest, sphCenterToClosest)) > (radii * radii));
+}
+
 XMVECTOR PhysicsManager::FindClosestPointOnLine(XMVECTOR& _lineSegStart, XMVECTOR& _lineSegEnd, XMVECTOR& _testPoint) {
 	XMVECTOR lineSegment, lineToPoint;
 	lineSegment = _lineSegEnd - _lineSegStart;
@@ -234,7 +281,7 @@ XMVECTOR PhysicsManager::FindClosestPointOnLine(XMVECTOR& _lineSegStart, XMVECTO
 }
 
 void PhysicsManager::SendCollision(Object* obj1, Object* obj2) {
-	//Console::WriteLine("Cube Collision");
+	Console::WriteLine("Cube Collision");
 }
 
 void PhysicsManager::TestAllComponentsCollision() {

@@ -3,7 +3,7 @@
 #include "GhostTime.h" //To use deltatime use GhostTime::DeltaTime()
 using namespace DirectX;
 
-Camera::Camera() {}
+Camera::Camera() {EngineStructure::Update += [=]() {this->Update();};}
 
 Camera::~Camera() {}
 
@@ -113,4 +113,28 @@ void Camera::turnCameraTowards(XMFLOAT3 target, float speed) {
 	position._21 = y.x;
 	position._22 = y.y;
 	position._23 = y.z;
+}
+
+void Camera::Update()
+{
+	if (KeyIsDown(Control::left))
+	{
+		position._41 -= 0.1f;
+		ResetKey(Control::left);
+	}
+	if (KeyIsDown(Control::right))
+	{
+		position._41 += 0.1f;
+		ResetKey(Control::right);
+	}
+	if (KeyIsDown(Control::forward))
+	{
+		position._43 += 0.1f;
+		ResetKey(Control::forward);
+	}
+	if (KeyIsDown(Control::backward))
+	{
+		position._43 -= 0.1f;
+		ResetKey(Control::backward);
+	}
 }

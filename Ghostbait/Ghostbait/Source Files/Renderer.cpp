@@ -105,10 +105,10 @@ void Renderer::setupVRTargets() {
 	viewDesc.Texture2D.MostDetailedMip = 0;
 
 	device->CreateTexture2D(&texDesc, nullptr, &leftEye.renderInfo.texture);
-	device->CreateRenderTargetView(leftEye.renderInfo.texture, nullptr, &leftEye.renderInfo.rtv);
+	device->CreateRenderTargetView(leftEye.renderInfo.texture, nullptr, &leftEye.renderInfo.rtv); //TODO: leftEye.renderInfo.texture can be null, this goes against SAL annotation
 
 	device->CreateTexture2D(&texDesc, nullptr, &rightEye.renderInfo.texture);
-	device->CreateRenderTargetView(rightEye.renderInfo.texture, nullptr, &rightEye.renderInfo.rtv);
+	device->CreateRenderTargetView(rightEye.renderInfo.texture, nullptr, &rightEye.renderInfo.rtv); //TODO: rightEye.renderInfo.texture can be null, this goes against SAL annotation
 
 	texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	texDesc.MiscFlags = NULL;
@@ -121,10 +121,10 @@ void Renderer::setupVRTargets() {
 	depthStencilDesc.Flags = 0;
 
 	device->CreateTexture2D(&texDesc, nullptr, &leftEye.renderInfo.depthBuffer);
-	device->CreateDepthStencilView(leftEye.renderInfo.depthBuffer, &depthStencilDesc, &leftEye.renderInfo.dsv);
+	device->CreateDepthStencilView(leftEye.renderInfo.depthBuffer, &depthStencilDesc, &leftEye.renderInfo.dsv); //TODO: leftEye.renderInfo.depthBuffer could be null, this goes against SAL annotation
 
 	device->CreateTexture2D(&texDesc, nullptr, &rightEye.renderInfo.depthBuffer);
-	device->CreateDepthStencilView(rightEye.renderInfo.depthBuffer, &depthStencilDesc, &rightEye.renderInfo.dsv);
+	device->CreateDepthStencilView(rightEye.renderInfo.depthBuffer, &depthStencilDesc, &rightEye.renderInfo.dsv); //TODO: rightEye.renderInfo.depthBuffer could be null, this goes against SAL annotation
 }
 
 void Renderer::renderObjectDefaultState(Object * obj) {

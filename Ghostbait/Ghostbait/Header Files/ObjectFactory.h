@@ -126,7 +126,7 @@ public:
 				int nameLength;
 				fread(&nameLength, sizeof(int), 1, file);
 				char className[512];
-				fgets(className, nameLength + 1, file);
+				fgets(className, nameLength + 1, file); //TODO: possible buffer overrun with fgets, nameLength is used without being checked
 				prefab->typeID = TypeMap::GetObjectNameID(std::string(className));
 				prefab->object = registeredConstructors[prefab->typeID]();
 				int dataNameLen;
@@ -156,15 +156,15 @@ public:
 						fread(&compNameLen, sizeof(int), 1, file);
 						//Get component to send data to
 						char componentName[512];
-						fgets(componentName, compNameLen + 1, file);
+						fgets(componentName, compNameLen + 1, file); //TODO: possible buffer overrun with fgets, compNameLen is used without being checked
 
 						char* ext;
 						GetFileExtension(componentName, compNameLen, (char**)&ext);
 						if(ext == nullptr)
 						{
-							strcpy_s(ext, 64, componentName);
+							strcpy_s(ext, 64, componentName); //TODO: you shouldn't use strcpy_s when ext can be 0. ext is an in/out argument to strcpy_s. therefore ext shouldnt be null because it goes agaist SAL annotation
 						}
-						int componentTypeID = TypeMap::GetComponentNameID(std::string(ext));
+						int componentTypeID = TypeMap::GetComponentNameID(std::string(ext)); //TODO: above, ext is used as a null in/out variable, so it is possible for it to become null when passed into std::string
 
 
 						//Get data to send

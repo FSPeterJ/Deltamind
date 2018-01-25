@@ -184,7 +184,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	game->Start();
 	vrMan->CreateControllers();
 
-	Object* cube1, *cube2;
+//	Object* cube1, *cube2;
 
 	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {0,-1,0,1}, &cube1));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {0,-3,0,1}, &cube2));

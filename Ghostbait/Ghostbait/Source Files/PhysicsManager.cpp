@@ -86,7 +86,7 @@ PhysicsComponent* PhysicsManager::GetReferenceComponent(const char * _FilePath, 
 
 		compHolder.AddCollider(colDataHolder, offsetHolder.x, offsetHolder.y, offsetHolder.z);
 		colDataHolder = nullptr;
-		delete typeName;
+		delete typeName; //TODO: typeName is allocated with new[] but is only being deleted with delete (not delete[])
 	}
 
 	if (prefabComponents.size() < MAX_PREFABS) {
@@ -216,7 +216,7 @@ bool PhysicsManager::CapsuleToCapsuleCollision(Collider col1, XMMATRIX& pos1, Co
 
 	
 
-	float dot;// , segmentDistance;
+	//float dot;// , segmentDistance;
 	//XMStoreFloat(&dot, XMVector3Dot(seg1, seg2));
 
 	//If lines intersecting (Collision)

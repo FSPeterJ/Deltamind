@@ -88,7 +88,7 @@ InputPackage InputManager::VRInput::CheckForInput() {
 				if (x == 0 && y == 0) break;
 
 				rads = atan2(x, y);
-				if (rads < 0) rads += 2 * RAD_PI;
+				if (rads < 0) rads += (float)(2 * RAD_PI);
 				if (rads >= RAD_PI_4 && rads < RAD_3PI_4) {
 					input = event.trackedDeviceIndex == vrMan->leftController.index ? leftItem3 : rightItem3;
 					amount = 1;

@@ -154,8 +154,8 @@ InputManager::KeyboardInput::KeyboardInput() {
 	MapKey(left, 'A');
 	MapKey(right, 'D');
 	MapKey(teleport, 'T');
-	MapKey(leftAttack, 'B');
-	MapKey(rightAttack, 'N');
+	MapKey(leftAttack, 'Q');
+	MapKey(rightAttack, 'E');
 }
 InputPackage InputManager::KeyboardInput::CheckForInput() {
 	Control input = none;

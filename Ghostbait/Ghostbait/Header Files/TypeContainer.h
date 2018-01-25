@@ -3,9 +3,9 @@
 
 template <class ValueType>
 class TypeContainer: TypeMap {
-	std::unordered_map<int, ValueType> typeMapID;
-	using constIt = typename std::unordered_map<int, ValueType>::const_iterator;
-	using baseIt = typename std::unordered_map<int, ValueType>::iterator;
+	std::unordered_map<unsigned, ValueType> typeMapID;
+	using constIt = typename std::unordered_map<unsigned, ValueType>::const_iterator;
+	using baseIt = typename std::unordered_map<unsigned, ValueType>::iterator;
 public:
 	//candidate for operator[]
 
@@ -47,18 +47,18 @@ public:
 
 	//operator +=
 	template <class ComponentType>
-	int AddComponent(ValueType value) {
+	unsigned AddComponent(ValueType value) {
 		//m_mapname[std::string(typeid(ComponentType).name())] = value;
 		typeMapID[GetTypeId<ComponentType>()] = value;
 		return typeMapID.find(GetTypeId<ComponentType>())->first;
 	}
 
-	int AddComponent(ValueType value, const std::string &name) {
+	unsigned AddComponent(ValueType value, const std::string &name) {
 		typeMapID[mapname[name]] = value;
 		return typeMapID.find(typeMapID[mapname[name]])->first;
 	}
 
-	int AddComponent(ValueType value, int id) {
+	unsigned AddComponent(ValueType value, unsigned id) {
 		typeMapID[id] = value;
 		return id;
 	}
@@ -67,9 +67,9 @@ public:
 
 template <class ValueType>
 class ComponentTypeContainer: TypeMap {
-	std::unordered_map<int, ValueType> typeMapID;
-	using constIt = typename std::unordered_map<int, ValueType>::const_iterator;
-	using baseIt = typename std::unordered_map<int, ValueType>::iterator;
+	std::unordered_map<unsigned, ValueType> typeMapID;
+	using constIt = typename std::unordered_map<unsigned, ValueType>::const_iterator;
+	using baseIt = typename std::unordered_map<unsigned, ValueType>::iterator;
 public:
 	//candidate for operator[]
 
@@ -109,20 +109,27 @@ public:
 		return nullptr;
 	}
 
+	void Clear()
+	{
+		typeMapID.clear();
+	}
+
+
+
 	//operator +=
 	template <class ComponentType>
-	int AddComponent(ValueType value) {
+	unsigned AddComponent(ValueType value) {
 		//m_mapname[std::string(typeid(ComponentType).name())] = value;
 		typeMapID[GetTypeId<ComponentType>()] = value;
 		return typeMapID.find(GetComponentTypeID<ComponentType>())->first;
 	}
 
-	int AddComponent(ValueType value, const std::string &name) {
+	unsigned AddComponent(ValueType value, const std::string &name) {
 		typeMapID[mapname[name]] = value;
 		return typeMapID.find(typeMapID[mapname[name]])->first;
 	}
 
-	int AddComponent(ValueType value, int id) {
+	unsigned AddComponent(ValueType value, unsigned id) {
 		typeMapID[id] = value;
 		return id;
 	}

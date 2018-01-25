@@ -12,6 +12,8 @@ PhysicsManager::PhysicsManager() {
 	defaultColider.centerOffset = {0, 0, 0};
 	defaultColider.isTrigger = true;
 	defaultColider.colliderData = &defaultSphereColider;
+	TypeMap::RegisterComponentAlias<PhysicsComponent>("Physical");
+	TypeMap::RegisterComponentAlias<PhysicsComponent>("Phys");
 }
 
 PhysicsManager::~PhysicsManager() {
@@ -100,6 +102,8 @@ bool PhysicsManager::CapsuleToCapsuleCollision(Collider col1, XMMATRIX& pos1, Co
 	return false;
 }
 
+
+
 void PhysicsManager::Update(const float dt) {
 	std::vector<PhysicsComponent*>*temp = components.GetActiveList();
 	int activeCount = (int) components.GetActiveCount();
@@ -123,17 +127,20 @@ void PhysicsManager::AddComponent(Object* obj, float veloX, float veloY, float v
 	physComponent->rigidBody.SetVelocity(veloX, veloY, veloZ);
 }
 
-PhysicsComponent* PhysicsManager::GetComponent(const char* _meshFilePath) {
+PhysicsComponent* PhysicsManager::GetReferenceComponent(const char * _FilePath, const char* _data){
+	//TODO: Get Data into the Phys
 	PhysicsComponent* physComponent = components.Activate();
 	physComponent->colliders.push_back(defaultColider);
 	physComponent->rigidBody = RigidBody();
 	return physComponent;
 }
 
-PhysicsComponent* PhysicsManager::GetElement(const unsigned int _id) {
-	//Hmmm
+PhysicsComponent* PhysicsManager::CloneComponent(ComponentBase* Reference)
+{
+	//TODO: When give a PhysicsComponent to clone, activate a new one, copy the data, and return the new one
 	return nullptr;
 }
+
 
 XMVECTOR PhysicsManager::FindClosestPointOnLine(XMVECTOR _lineSegStart, XMVECTOR _lineSegEnd, XMVECTOR _testPoint) {
 	XMVECTOR lineSegment, lineToPoint;

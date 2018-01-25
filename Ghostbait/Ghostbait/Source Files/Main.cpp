@@ -166,39 +166,34 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<RightControllerObject>();
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
 	ObjectFactory::RegisterManager<PhysicsComponent, PhysicsManager>(phyMan);
+	ObjectFactory::RegisterManager<Material, MaterialManager>(rendInter->getMaterialManager());
 
-	TypeMap::RegisterComponent<Mesh>("Mesh");
-	TypeMap::RegisterComponent<PhysicsComponent>("Physical");
+	//------
+	// Scenemanager would make this
+	//=========================================================
 
-	TypeMap::RegisterComponent<GameObject>("GameObject");
-	TypeMap::RegisterComponent<SomeCoolObject>("SomeCoolObject");
-	TypeMap::RegisterComponent<LeftControllerObject>("LeftControllerObject");
-	TypeMap::RegisterComponent<RightControllerObject>("RightControllerObject");
-
-	ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Object"));
-	ObjectFactory::CreatePrefab(&std::string("SomeCoolObject"));
-	ObjectFactory::CreatePrefab(&std::string("LeftControllerObject"));
-	ObjectFactory::CreatePrefab(&std::string("RightControllerObject"));
+	ObjectFactory::CreatePrefab(&std::string("ViveController.ghost"));
+	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
+	//ObjectFactory::CreatePrefab(&std::string("Object"));
+	//ObjectFactory::CreatePrefab(&std::string("SomeCoolObject"));
+	//ObjectFactory::CreatePrefab(&std::string("LeftControllerObject"));
+	//ObjectFactory::CreatePrefab(&std::string("RightControllerObject"));
+	//=============================
 
 	game = new Game();
 	game->Start();
 	vrMan->CreateControllers();
 
-
 	Object* cube1, *cube2;
 
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, {0,-1,0,1}, &cube1));
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, {0,-3,0,1}, &cube2));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {0,-1,0,1}, &cube1));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {0,-3,0,1}, &cube2));
 
 	//Object* cube1 = Object::Create<Object>({0,-1,0,1}, 1);
 	//SomeCoolObject* cube2 = Object::Create<SomeCoolObject>({0,-3,0,1}, 2);
 
-
-
-
-	cube1->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(0.5f, -1.0f, 0.0f);
-	cube2->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(1.0f, 0.0f, 0.0f);
+	//cube1->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(0.5f, -1.0f, 0.0f);
+	//cube2->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(1.0f, 0.0f, 0.0f);
 
 	//MessageEvents::SendMessage(EVENT_Destroy, DestroyMessage(cube1));
 

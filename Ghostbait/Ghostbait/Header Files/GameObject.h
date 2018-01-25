@@ -12,17 +12,22 @@ public:
 };
 
 class ControllerObject: public GameObject, public Controlable {
-};
-class LeftControllerObject: public ControllerObject {
 public:
+	ControllerObject()
+	{
+		TypeMap::RegisterObjectAlias<ControllerObject>("ViveController");
+	}
+};
 
-	int order = 66;
+class LeftControllerObject: public ControllerObject {
+
+public:
 	void Update();
 };
+
 class RightControllerObject: public ControllerObject {
 public:
 
-	int order = 77;
 	void Update();
 };
 
@@ -37,6 +42,9 @@ class SomeLeakyObject: public GameObject {
 	int* testing;
 public:
 	SomeLeakyObject() {
+		TypeMap::RegisterObjectAlias<SomeLeakyObject>("SomeLeakyObject");
+		TypeMap::RegisterObjectAlias<SomeLeakyObject>("SomeLeaks");
+		TypeMap::RegisterObjectAlias<SomeLeakyObject>("LeakyThing");
 		testing = new int(66);
 	}
 

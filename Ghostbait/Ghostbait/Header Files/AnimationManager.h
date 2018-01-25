@@ -1,7 +1,7 @@
 #pragma once
-#include <DirectXMath.h>
+#include "ComponentBase.h"
 #include <vector>
-#include <IComponentManager.h>
+#include <directxmath.h>
 
 struct animJoint {
 	DirectX::XMFLOAT4X4 transform;

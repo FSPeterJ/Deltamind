@@ -4,19 +4,29 @@
 #include "ComponentBase.h"
 #include "TypeContainer.h"
 
+
+
 class Object {
 protected:
 
 private:
 
 public:
+	
 	//TODO: convert to XMFLAOT4x4
 	DirectX::XMFLOAT4X4 position;
-	TypeContainer<ComponentBase*> Components;
+	ComponentTypeContainer<ComponentBase*> Components;
 	//Endnote
 
 	Object() {
-		DirectX::XMStoreFloat4x4(&position, DirectX::XMMatrixIdentity());
+		XMStoreFloat4x4(&position, DirectX::XMMatrixIdentity());
+		//Example of string registration
+		//Use this to associate strings to same typeid
+		//This MUST be called SOMEWHERE in order for Factory to know what object to grab
+		//ObjectTypeMap::RegisterObject<Object>("Object");
+		//ObjectTypeMap::RegisterObject<Object>("object");
+		//ObjectTypeMap::RegisterObject<Object>("obj");
+
 	};
 	virtual ~Object() {
 		//int x = 111;

@@ -64,10 +64,10 @@ unsigned int AnimationManager::AddElement(const char * _animationFilePath, const
 	return LoadAnimation(_animationFilePath, _bindposeFilePath)->animID;
 }
 
-Animation * AnimationManager::GetElement(const unsigned int _id) {
+AnimComponent * AnimationManager::GetElement(const unsigned int _id) {
 	for(size_t i = 0; i < animations.size(); ++i) {
 		if(animations[i].animID == _id)
-			return &animations[i];
+			return nullptr;// &animations[i];
 	}
 	return nullptr;
 }

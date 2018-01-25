@@ -2,7 +2,9 @@
 
 class Object;
 
-// Allows for covariant return types in Manager interface
+/// <summary>
+/// Allows for covariant return types in Manager interface
+/// </summary>
 class ComponentBase {
 public:
 	bool singleInstance = true;

@@ -3,6 +3,7 @@
 #include "MeshManager.h"
 #include "VertexTypes.h"
 #include "TypeMapping.h"
+using namespace DirectX;
 
 
 void MeshManager::generateCube() {

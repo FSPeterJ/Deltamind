@@ -14,6 +14,8 @@ ID3D11InputLayout* DebugRenderer::iLayout;
 ID3D11RasterizerState* DebugRenderer::wireframeState;
 ID3D11RasterizerState* DebugRenderer::defaultState;
 
+using namespace DirectX;
+
 void DebugRenderer::AddTri(VertexPositionColor * toMessWith, VertexPositionColor v1, VertexPositionColor v2, VertexPositionColor v3, int triIndex) {
 	toMessWith[triIndex * 3] = v1;
 	toMessWith[(triIndex * 3) + 1] = v2;
@@ -75,16 +77,19 @@ void DebugRenderer::AddLine(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2, DirectX:
 	v_count += 2;
 }
 
-void DebugRenderer::AddBox(BoxCollider cIn, DirectX::XMFLOAT3 color) {
-	DirectX::XMFLOAT3 cubeCorners[8];
-	cubeCorners[0] = DirectX::XMFLOAT3(cIn.bottLeftBackCorner.x, cIn.bottLeftBackCorner.y, cIn.bottLeftBackCorner.z);
-	cubeCorners[1] = DirectX::XMFLOAT3(cIn.topRightFrontCorner.x, cIn.bottLeftBackCorner.y, cIn.bottLeftBackCorner.z);
-	cubeCorners[2] = DirectX::XMFLOAT3(cIn.bottLeftBackCorner.x, cIn.topRightFrontCorner.y, cIn.bottLeftBackCorner.z);
-	cubeCorners[3] = DirectX::XMFLOAT3(cIn.topRightFrontCorner.x, cIn.topRightFrontCorner.y, cIn.bottLeftBackCorner.z);
-	cubeCorners[4] = DirectX::XMFLOAT3(cIn.bottLeftBackCorner.x, cIn.bottLeftBackCorner.y, cIn.topRightFrontCorner.z);
-	cubeCorners[5] = DirectX::XMFLOAT3(cIn.topRightFrontCorner.x, cIn.bottLeftBackCorner.y, cIn.topRightFrontCorner.z);
-	cubeCorners[6] = DirectX::XMFLOAT3(cIn.bottLeftBackCorner.x, cIn.topRightFrontCorner.y, cIn.topRightFrontCorner.z);
-	cubeCorners[7] = DirectX::XMFLOAT3(cIn.topRightFrontCorner.x, cIn.topRightFrontCorner.y, cIn.topRightFrontCorner.z);
+void DebugRenderer::AddBox(ColliderData* cIn, DirectX::XMFLOAT3 color) {
+	DirectX::XMFLOAT3 cubeCorners[8], min, max;
+	max = cIn->colliderInfo.boxCollider.topRightFrontCorner;
+	min = cIn->colliderInfo.boxCollider.bottLeftBackCorner;
+
+	cubeCorners[0] = DirectX::XMFLOAT3(min.x, min.y, min.z);
+	cubeCorners[1] = DirectX::XMFLOAT3(min.x, max.y, min.z);
+	cubeCorners[2] = DirectX::XMFLOAT3(max.x, min.y, min.z);
+	cubeCorners[3] = DirectX::XMFLOAT3(max.x, max.y, min.z);
+	cubeCorners[4] = DirectX::XMFLOAT3(min.x, min.y, max.z);
+	cubeCorners[5] = DirectX::XMFLOAT3(min.x, max.y, max.z);
+	cubeCorners[6] = DirectX::XMFLOAT3(max.x, min.y, max.z);
+	cubeCorners[7] = DirectX::XMFLOAT3(max.x, max.y, max.z);
 
 	AddLine(cubeCorners[0], cubeCorners[1], color);
 	AddLine(cubeCorners[0], cubeCorners[2], color);

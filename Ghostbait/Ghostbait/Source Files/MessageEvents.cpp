@@ -12,7 +12,7 @@ void MessageEvents::HandleMessage(EVENT_TYPES eventtype, EventMessageBase& m) {
 	case EVENT_InstantiateRequest:
 	{
 		InstantiateMessage* instantiate = (InstantiateMessage*) &m;
-		WriteLine("An object was instantiated with a prefab ID of " + std::to_string(instantiate->GetId()));
+		Console::WriteLine("An object was instantiated with a prefab ID of " + std::to_string(instantiate->GetId()));
 		break;
 	}
 	case EVENT_LENGTH:

@@ -11,30 +11,54 @@ public:
 	virtual void Update() {}
 };
 
+class Gun : public GameObject {
+	enum FireType {
+		AUTO,
+		BURST,
+		SEMI,
+	};
+
+	FireType type;
+	GameObject* bulletPrefab;
+	float damage;
+	float overHeat;
+
+	void Update();
+};
+
 class ControllerObject: public GameObject, public Controlable {
 public:
 	ControllerObject()
 	{
 		TypeMap::RegisterObjectAlias<ControllerObject>("ViveController");
 	}
+public:
+	enum State {
+		GUN,
+		CONTROLLER,
+		HAND,
+	};
+	State state;
+	Gun* gun;
 };
 
 class LeftControllerObject: public ControllerObject {
 
 public:
+	LeftControllerObject() { state = GUN; };
 	void Update();
 };
 
 class RightControllerObject: public ControllerObject {
 public:
-
+	RightControllerObject() { state = GUN; };
 	void Update();
 };
 
 class SomeCoolObject: public GameObject, public Controlable {
 public:
 	void Awake() {
-		WriteLine("Hey im being awakened.");
+		Console::WriteLine("Hey im being awakened.");
 	}
 	void Update() {};
 };
@@ -53,7 +77,7 @@ public:
 	}
 
 	void Awake() override {
-		WriteLine("I am a cool object being awakened!");
+		Console::WriteLine("I am a cool object being awakened!");
 	}
 
 	void Update() override {

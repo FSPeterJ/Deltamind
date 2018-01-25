@@ -3,7 +3,6 @@
 #include <unordered_map>
 #include <bitset>
 #include "Object.h"
-#include "MeshManager.h"
 #include "ObjectManager.h"
 #include "TypeMapping.h"
 

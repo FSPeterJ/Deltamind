@@ -23,6 +23,9 @@ void RigidBody::SetVelocity(float x, float y, float z) {
 void RigidBody::SetMass(float _mass) {
 	mass = _mass;
 }
+void RigidBody::GravityOn(bool _hasGravity) {
+	hasGavity = _hasGravity;
+}
 void RigidBody::CalculateNetAccelaration() {
 	XMVECTOR net = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
 	for(unsigned int i = 0; i < actingForces.size(); ++i) {
@@ -42,6 +45,8 @@ bool RigidBody::AddForce(float _magnitude) {
 }
 bool RigidBody::AddForce(float _magnitude, float x, float y, float z, float _time, bool _isConstant) {
 	if(actingForces.size() < MAX_APPLIED_FORCE) {
+		if (_isConstant)
+			_time = 1.0f;
 		actingForces.push_back(AppliedForce(_magnitude, x, y, z, _time, _isConstant));
 		return true;
 	}

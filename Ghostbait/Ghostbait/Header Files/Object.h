@@ -1,8 +1,9 @@
 #pragma once
-#include <directxmath.h>
-#include "MessageEvents.h"
-#include "ComponentBase.h"
+#include <DirectXMath.h>
 #include "TypeContainer.h"
+#include "MessageEvents.h"
+
+class ComponentBase;
 
 
 

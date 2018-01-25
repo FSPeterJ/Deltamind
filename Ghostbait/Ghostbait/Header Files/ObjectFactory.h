@@ -162,7 +162,7 @@ public:
 
 						char* ext;
 						GetFileExtension(componentName, compNameLen, (char**)&ext);
-						int componentTypeID;// = TypeMap::GetComponentNameID(std::string(ext)); //TODO: above, ext is used as a null in/out variable, so it is possible for it to become null when passed into std::string
+						unsigned componentTypeID;// = TypeMap::GetComponentNameID(std::string(ext)); //TODO: above, ext is used as a null in/out variable, so it is possible for it to become null when passed into std::string
 						if(ext == nullptr)
 							componentTypeID = TypeMap::GetComponentNameID(std::string(componentName));
 						else

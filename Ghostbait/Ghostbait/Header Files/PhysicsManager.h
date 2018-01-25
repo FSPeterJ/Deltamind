@@ -43,8 +43,7 @@ public:
 	//bool CreateBoxCollider(XMFLOAT3 p1, XMFLOAT3 p2);
 
 	void AddComponent(Object* obj, float veloX = 0.0f, float veloY = 0.0f, float veloZ = 0.0f);
-	PhysicsComponent* GetComponent(const char * _meshFilePath = nullptr) override;
-	PhysicsComponent* GetReferenceComponent(const char* _dataBlock);
-	PhysicsComponent* GetElement(const unsigned int _id) override;
+	PhysicsComponent* CloneComponent(ComponentBase * reference) override;
+	PhysicsComponent* GetReferenceComponent(const char * _FilePath, const char* _data) override;
 	void Update(float dt);
 };

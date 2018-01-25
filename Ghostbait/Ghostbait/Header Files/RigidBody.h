@@ -46,6 +46,6 @@ public:
 	/// <returns>Returns FALSE if force cannot be added on this rigid body</returns>
 	bool AddForce(float _magnitude, float x, float y, float z, float _time = 0.01f, bool _isConstant = false);
 
-	void Update(float _delta);
+	void Update();
 	DirectX::XMVECTOR GetVelocity();
 };

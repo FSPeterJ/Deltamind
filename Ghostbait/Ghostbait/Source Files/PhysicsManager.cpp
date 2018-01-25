@@ -98,14 +98,14 @@ PhysicsComponent* PhysicsManager::GetElement(const unsigned int _id) {
 	//Hmmm
 	return nullptr;
 }
-void PhysicsManager::Update(const float dt) {
+void PhysicsManager::Update() {
 	std::vector<PhysicsComponent*>*temp = components.GetActiveList();
 	int activeCount = (int)components.GetActiveCount();
 	for (int i = 0; i < activeCount; ++i) {
 		//This seems absurd, are we sure we can't use XMVECTOR and XMMATRIX in a more manageable manner?
 		XMFLOAT4* objectPosition = (XMFLOAT4*)&components[i].parentObject->position.m[3];
 		XMVECTOR newposition = XMLoadFloat4(objectPosition);
-		components[i].rigidBody.Update(dt);
+		components[i].rigidBody.Update();
 		newposition += components[i].rigidBody.GetVelocity();
 		XMStoreFloat4(objectPosition, newposition);
 		//components[i].parentObject->position.r[3] += components[i].rigidBody.GetVelocity() * dt;

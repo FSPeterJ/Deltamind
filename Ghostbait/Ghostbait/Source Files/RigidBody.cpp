@@ -1,4 +1,5 @@
 #include "RigidBody.h"
+#include "GhostTime.h"
 using namespace DirectX;
 
 RigidBody::RigidBody() {
@@ -55,7 +56,8 @@ bool RigidBody::AddForce(float _magnitude, float x, float y, float z, float _tim
 void RigidBody::AdjustGravityMagnitude(float magnitude) {
 	actingForces[0].magnitude = magnitude;
 }
-void RigidBody::Update(float _delta) {
+void RigidBody::Update() {
+	float delta = (float) GhostTime::SmoothDeltaTime();
 	unsigned int i = 0;
 	while(i < actingForces.size()) {
 		if(actingForces[i].timeInAction <= 0.0f) {
@@ -65,13 +67,13 @@ void RigidBody::Update(float _delta) {
 	}
 	for(i = 0; i < actingForces.size(); ++i) {
 		if(!actingForces[i].isConstant) {
-			actingForces[i].timeInAction -= _delta;
+			actingForces[i].timeInAction -= delta;
 		}
 	}
 
 	CalculateNetAccelaration();
 
-	XMStoreFloat3(&velocity, XMLoadFloat3(&velocity) + (XMLoadFloat3(&netAcceleration) * _delta));
+	XMStoreFloat3(&velocity, XMLoadFloat3(&velocity) + (XMLoadFloat3(&netAcceleration) * delta));
 }
 XMVECTOR RigidBody::GetVelocity() {
 	return XMLoadFloat3(&velocity);

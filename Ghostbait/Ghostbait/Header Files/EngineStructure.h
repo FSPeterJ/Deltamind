@@ -9,6 +9,8 @@ class EngineStructure {
 	friend class Controlable;
 	friend class ObjectManager;
 
+	friend class GhostTime;
+
 	static Delegate<> Awake;
 	static Delegate<> OnEnable;
 	static Delegate<> Start;

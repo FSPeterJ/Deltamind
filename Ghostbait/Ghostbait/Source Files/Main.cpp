@@ -17,7 +17,7 @@
 #include "Game.h"
 #include "ThreadPool.h"
 #include "PhysicsManager.h"
-#include "XTime.h"
+#include "GhostTime.h"
 
 Renderer* rendInter;
 VRManager* vrMan;
@@ -26,7 +26,6 @@ InputManager* inputMan;
 PhysicsManager* phyMan;
 MemoryManager MemMan;
 ObjectManager* objMan;
-XTime timer;
 EngineStructure engine;
 
 /*
@@ -202,16 +201,14 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	//MessageEvents::SendMessage(EVENT_Destroy, DestroyMessage(cube1));
 
-	//Initialize XTime
-	timer.Restart();
+	GhostTime::Initalize();
 }
 
 void Loop() {
-	timer.Signal();
 	rendInter->Render();
 	game->Update();
 	inputMan->HandleInput();
-	phyMan->Update((float) timer.SmoothDelta());
+	phyMan->Update();
 	engine.ExecuteUpdate();
 }
 

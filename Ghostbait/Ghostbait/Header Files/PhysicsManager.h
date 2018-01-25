@@ -46,5 +46,5 @@ public:
 	PhysicsComponent* GetComponent(const char * _meshFilePath = nullptr) override;
 	PhysicsComponent* GetReferenceComponent(const char* _dataBlock);
 	PhysicsComponent* GetElement(const unsigned int _id) override;
-	void Update(float dt);
+	void Update();
 };

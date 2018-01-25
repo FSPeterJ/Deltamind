@@ -175,6 +175,7 @@
     <ClInclude Include="Header Files\Game.h" />
     <ClInclude Include="Header Files\GameObject.h" />
     <ClInclude Include="Header Files\GameObjectComponent.h" />
+    <ClInclude Include="Header Files\GhostTime.h" />
     <ClInclude Include="Header Files\InputManager.h" />
     <ClInclude Include="Header Files\IComponentManager.h" />
     <ClInclude Include="Header Files\MaterialManager.h" />
@@ -228,6 +229,7 @@
     <ClCompile Include="Source Files\WICTextureLoader.cpp" />
     <ClCompile Include="Source Files\Window.cpp" />
     <ClCompile Include="Source Files\XTime.cpp" />
+    <ClCompile Include="GhostTime.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resource Files\Ghostbait.ico" />

@@ -1,5 +1,6 @@
 #include "Camera.h"
-
+#include "EngineStructure.h"
+#include "GhostTime.h" //To use deltatime use GhostTime::DeltaTime()
 using namespace DirectX;
 
 Camera::Camera() {}

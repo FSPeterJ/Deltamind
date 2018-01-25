@@ -10,7 +10,6 @@
 GameObject::GameObject() {
 	
 }
-
 void GameObject::Activate() {
 	EngineStructure::Awake += [=]() {this->Awake(); };
 }
@@ -38,7 +37,6 @@ void Gun::Update() {
 	//Console::Write(" : ");
 	//Console::WriteLine(timeSinceLastShot);
 }
-
 bool Gun::Shoot() {
 	switch (type) {
 	case AUTO:
@@ -163,5 +161,21 @@ void ControllerObject::RightUpdate() {
 			}
 			break;
 		}
+	}
+}
+
+Spawner::Spawner() {
+	timeSinceLastSpawn = runSpawnDelay - startSpawnDelay;
+}
+void Spawner::SpawnObject() {
+	Object* obj;
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0, 0, 0 }, &obj));
+	obj->position = position;
+	timeSinceLastSpawn = 0;
+}
+void Spawner::Update() {
+	timeSinceLastSpawn += (float)GhostTime::SmoothDeltaTime();
+	if (timeSinceLastSpawn >= runSpawnDelay) {
+		SpawnObject();
 	}
 }

@@ -5,6 +5,7 @@
 #include "Object.h"
 #include "ObjectManager.h"
 #include "TypeMapping.h"
+#include "ComponentBase.h"
 
 /// <summary>
 /// Creates and manages prefabs loaded from the disk.
@@ -75,7 +76,7 @@ public:
 	/// </param>
 	template <typename ObjectType>
 	static void RegisterPrefabBase() {
-		registeredConstructors[TypeMap::GetTypeId<ObjectType>()] = &ConstructorFunc<ObjectType>;
+		registeredConstructors[TypeMap::GetObjectTypeID<ObjectType>()] = &ConstructorFunc<ObjectType>;
 		objMan->CreatePool<ObjectType>();
 	}
 
@@ -179,6 +180,7 @@ public:
 						}
 						prefab->object->SetComponent(prefab->instantiatedComponents[componentTypeID], componentTypeID);
 						//Send data
+
 					}
 				}
 				fclose(file);
@@ -211,7 +213,6 @@ public:
 			instantiate->SetReturnObject(newobject);
 		}
 		memcpy(&newobject->position.m[3], &instantiate->GetPosition(), sizeof(DirectX::XMFLOAT4));
-		Mesh * test = newobject->GetComponent<Mesh>();
 		MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
 	}
 

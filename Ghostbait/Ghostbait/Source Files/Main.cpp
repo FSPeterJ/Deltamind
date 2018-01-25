@@ -160,6 +160,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	objMan->Initialize(80);
 
 	ObjectFactory::Initialize(objMan);
+	ObjectFactory::RegisterPrefabBase<ControllerObject>();
 	ObjectFactory::RegisterPrefabBase<GameObject>();
 	ObjectFactory::RegisterPrefabBase<SomeCoolObject>();
 	ObjectFactory::RegisterPrefabBase<LeftControllerObject>();

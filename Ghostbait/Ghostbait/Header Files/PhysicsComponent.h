@@ -2,6 +2,8 @@
 #include "RigidBody.h" // DirectXMath, vector
 #include "Object.h"
 
+//class PhysicsManager;
+
 enum ColliderType {
 	SPHERE,
 	CAPSULE,

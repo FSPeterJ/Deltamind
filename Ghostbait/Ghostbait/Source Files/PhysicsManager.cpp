@@ -29,13 +29,15 @@ void PhysicsManager::AddComponent(Object* obj, float veloX, float veloY, float v
 	physComponent->rigidBody = RigidBody();
 	physComponent->rigidBody.SetVelocity(veloX, veloY, veloZ);
 }
-PhysicsComponent* PhysicsManager::GetComponent(const char* _meshFilePath) {
+
+PhysicsComponent* PhysicsManager::CloneComponent(ComponentBase* reference){
 	PhysicsComponent* physComponent = components.Activate();
-	physComponent->colliders.push_back(defaultColider);
+	// SHALLOW COPY - this only copies the std::vector head.
+	physComponent->colliders = ((PhysicsComponent*)reference)->colliders;
 	physComponent->rigidBody = RigidBody();
 	return physComponent;
 }
-PhysicsComponent* PhysicsManager::GetReferenceComponent(const char* _dataBlock) {
+PhysicsComponent* PhysicsManager::GetReferenceComponent(const char * _FilePath, const char * _dataBlock){
 	PhysicsComponent compHolder;
 	XMFLOAT3 offsetHolder;
 	ColliderData* colDataHolder = nullptr;
@@ -96,10 +98,7 @@ PhysicsComponent* PhysicsManager::GetReferenceComponent(const char* _dataBlock) 
 		return nullptr;
 	}
 }
-PhysicsComponent* PhysicsManager::GetElement(const unsigned int _id) {
-	//Hmmm
-	return nullptr;
-}
+
 void PhysicsManager::Update(const float dt) {
 	std::vector<PhysicsComponent*>*temp = components.GetActiveList();
 	int activeCount = (int)components.GetActiveCount();

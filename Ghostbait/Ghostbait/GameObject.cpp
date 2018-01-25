@@ -14,33 +14,90 @@ void GameObject::Activate() {
 	EngineStructure::Awake += [=]() {this->Awake(); };
 }
 
+void Gun::Update(float _dt) {
+	dt = _dt; 
+	timeSinceLastShot += dt;
+
+	if (energyOverheatDelayTimeLeft > 0) {
+		energyOverheatDelayTimeLeft -= dt;
+		if (energyOverheatDelayTimeLeft <= 0) {
+			energyOverheatDelayTimeLeft = 0;
+			currentEnergy = 0;
+		}
+	}
+	else if (timeSinceLastShot >= energyWaitCooldown) {
+		currentEnergy = 0;
+	}
+
+	//Console::Write(currentEnergy);
+	//Console::Write("__");
+	//Console::Write(energyLimit);
+	//Console::Write(" : ");
+	//Console::Write(energyOverheatDelayTimeLeft);
+	//Console::Write(" : ");
+	//Console::WriteLine(timeSinceLastShot);
+}
+
+bool Gun::Shoot() {
+	switch (type) {
+	case AUTO:
+		if (timeSinceLastShot > (1 / fireRate) && !energyOverheatDelayTimeLeft) {
+			//Fire
+			Object* obj;
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, { 0, 0, 0, 0 }, &obj));
+			obj->position = position;
+			obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
+			obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 0.1f, position._32 * 0.1f, position._33 * 0.1f);
+			if (!AddEnergy(energyBulletCost)) {
+				energyOverheatDelayTimeLeft = energyOverheatDelay;
+			}
+			timeSinceLastShot = 0;
+		}
+		break;
+	case SEMI:
+		if (timeSinceLastShot > (1 / fireRate) && !energyOverheatDelayTimeLeft) {
+			//Fire
+			Object* obj;
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, { 0, 0, 0, 0 }, &obj));
+			obj->position = position;
+			obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
+			obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 0.1f, position._32 * 0.1f, position._33 * 0.1f);
+			if (!AddEnergy(energyBulletCost)) {
+				energyOverheatDelayTimeLeft = energyOverheatDelay;
+			}
+			timeSinceLastShot = 0;
+			return false;
+		}
+		break;
+	}
+	return true;
+}
+
 void LeftControllerObject::Update() {
-	if (KeyIsDown(leftItem1)) {
+	#pragma region Switch Controller Item
+		if (KeyIsDown(leftItem1)) {
 		state = GUN;
 		ResetKey(leftItem1);
 	}
-	else if (KeyIsDown(leftItem2)) {
+		else if (KeyIsDown(leftItem2)) {
 		state = CONTROLLER;
 		ResetKey(leftItem2);
 	}
-	else if (KeyIsDown(leftItem3)) {
+		else if (KeyIsDown(leftItem3)) {
 		state = HAND;
 		ResetKey(leftItem3);
 	}
-	else {
+		else {
 
 	}
+	#pragma endregion
+	gun.Update();
 
 	switch (state) {
 	case GUN:
 		if (KeyIsDown(leftAttack)) {
-			WriteLine("Left gun shoot");
-			ResetKey(leftAttack);
-			Object* obj;
-			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, {0, 0, 0, 0}, &obj));
-			obj->position = position;
-			obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
-			obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 0.1f, position._32 * 0.1f, position._33 * 0.1f);
+			if (!gun.Shoot()) ResetKey(leftAttack);
+			gun.position = position;
 		}
 		break;
 	case CONTROLLER:
@@ -58,33 +115,30 @@ void LeftControllerObject::Update() {
 	}
 }
 void RightControllerObject::Update() {
-
-	if (KeyIsDown(rightItem1)) {
+	#pragma region Switch Controller Item
+		if (KeyIsDown(rightItem1)) {
 		state = GUN;
 		ResetKey(rightItem1);
 	}
-	else if (KeyIsDown(rightItem2)) {
+		else if (KeyIsDown(rightItem2)) {
 		state = CONTROLLER;
 		ResetKey(rightItem2);
 	}
-	else if (KeyIsDown(rightItem3)) {
+		else if (KeyIsDown(rightItem3)) {
 		state = HAND;
 		ResetKey(rightItem3);
 	}
-	else {
+		else {
 
 	}
+	#pragma endregion
+	gun.Update();
 
 	switch (state) {
 	case GUN:
 		if (KeyIsDown(rightAttack)) {
-			WriteLine("Right gun shoot");
-			ResetKey(rightAttack);
-			Object* obj;
-			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, { 0, 0, 0, 0 }, &obj));
-			obj->position = position;
-			obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
-			obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 0.1f, position._32 * 0.1f, position._33 * 0.1f);
+			gun.Shoot();
+			gun.position = position;
 		}
 		break;
 	case CONTROLLER:

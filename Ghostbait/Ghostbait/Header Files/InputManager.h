@@ -26,6 +26,8 @@ private:
 	};
 	struct VRInput: public InputBridge {
 		VRManager* vrMan;
+		float rightTPX = 0, rightTPY = 0;
+		float leftTPX = 0, leftTPY = 0;
 		VRInput() {};
 		VRInput(VRManager* vrManager);
 		bool MapKey(Control control, int key) override;

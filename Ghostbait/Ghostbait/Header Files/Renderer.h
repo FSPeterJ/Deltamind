@@ -9,9 +9,12 @@
 #include "MaterialManager.h"
 #include "Camera.h"
 
+
 enum renderState {
 	RENDER_STATE_DEFAULT, RENDER_STATE_TRANSPARENT
 };
+
+#define MAX_LIGHTS 83
 
 class Renderer {
 private:
@@ -68,14 +71,36 @@ private:
 	};
 
 	struct genericLight {
-		DirectX::XMFLOAT4 color;
+		DirectX::XMFLOAT4 color = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 		DirectX::XMFLOAT3 dir;
+		float radius = 0.0f;
 		DirectX::XMFLOAT3 pos;
-		float radius;
-		float outerRadius;
+		float outerRadius = 0.0f;
+	};
+
+	struct lightBufferStruct
+	{
+		genericLight cpu_side_lights[MAX_LIGHTS];
+		DirectX::XMFLOAT3 ambientColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
+		float ambientIntensity = 0.5f;
 	};
 #pragma endregion
 
+	class LightPool
+	{
+		int numLights;
+		lightBufferStruct cpu_light_info;
+	public:
+		void addLight(genericLight toAdd)
+		{
+			if (numLights < MAX_LIGHTS)
+			{
+				cpu_light_info.cpu_side_lights[numLights] = toAdd;
+				numLights++;
+			}
+		};
+		lightBufferStruct* getLightBuffer() { return &cpu_light_info; };
+	};
 	ID3D11SamplerState* OnlySamplerState; //DirectX is a hoot
 
 	ID3D11Device* device;
@@ -93,13 +118,14 @@ private:
 	ID3D11Buffer* cameraBuffer;
 	ID3D11Buffer* modelBuffer;
 	ID3D11Buffer* factorBuffer;
-	ID3D11Buffer* dirLightBuffer;
+	ID3D11Buffer* lightBuffer;
 	pipeline_state_t defaultPipeline;
 	int tempId;
 	int tempMatId;
 	Camera* keyboardCamera;
 	viewProjectionConstantBuffer defaultCamera;
 
+	LightPool lightManager;
 	//eye leftEye;
 	//eye rightEye;
 
@@ -197,6 +223,8 @@ public:
 	bool unregisterObject(const Object* toRemove, renderState specialInstructions = RENDER_STATE_DEFAULT);
 	//////////////////////////////////////////////////////////////////////////////////
 	void addDirectionalLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 dir);
+	void addPointLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, float radius);
+	void addSpotLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir, float radius, float outerRadius);
 
 	MeshManager* getMeshManager() { return meshManagement; }
 	MaterialManager* getMaterialManager() { return materialManagement; }

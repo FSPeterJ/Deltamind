@@ -11,18 +11,40 @@ public:
 	virtual void Update() {}
 };
 
-class ControllerObject: public GameObject, public Controlable {
+class Gun : public GameObject {
+	enum FireType {
+		AUTO,
+		BURST,
+		SEMI,
+	};
+
+	FireType type;
+	GameObject* bulletPrefab;
+	float damage;
+	float overHeat;
+
+	void Update();
 };
+
+class ControllerObject: public GameObject, public Controlable {
+public:
+	enum State {
+		GUN,
+		CONTROLLER,
+		HAND,
+	};
+	State state;
+	Gun* gun;
+};
+
 class LeftControllerObject: public ControllerObject {
 public:
-
-	int order = 66;
+	LeftControllerObject() { state = GUN; };
 	void Update();
 };
 class RightControllerObject: public ControllerObject {
 public:
-
-	int order = 77;
+	RightControllerObject() { state = GUN; };
 	void Update();
 };
 

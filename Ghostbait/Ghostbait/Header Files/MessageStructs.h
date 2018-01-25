@@ -10,10 +10,18 @@ enum Control {
 	backward,
 	left,
 	right,
-	leftAttack,
-	rightAttack,
 	teleport,
-	menu
+	menu,
+	rightItem1,
+	rightItem2,
+	rightItem3,
+	rightItem4,
+	rightAttack,
+	leftItem1,
+	leftItem2,
+	leftItem3,
+	leftItem4,
+	leftAttack,
 };
 
 class EventMessageBase {

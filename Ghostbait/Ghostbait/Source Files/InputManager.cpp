@@ -1,9 +1,15 @@
 #include "InputManager.h"
-
 #include <unordered_map>
 #include <assert.h>
 #include "Messagebox.h"
 #include "PhysicsComponent.h"
+
+#define RAD_PI 3.14159265359
+
+#define RAD_PI_4 0.78539816339
+#define RAD_3PI_4 2.35619449019
+#define RAD_5PI_4 3.92699081699
+#define RAD_7PI_4 5.49778714378
 
 //VR
 InputManager::VRInput::VRInput(VRManager* vrManager) {
@@ -34,6 +40,17 @@ InputPackage InputManager::VRInput::CheckForInput() {
 		case vr::VREvent_ButtonTouch:
 		{
 			if(event.data.controller.button == vr::k_EButton_SteamVR_Touchpad) {
+				vr::VRControllerState_t state;
+				if (event.trackedDeviceIndex == vrMan->leftController.index) {
+					vrMan->pVRHMD->GetControllerState(vrMan->leftController.index, &state, sizeof(state));
+					leftTPX = state.rAxis[0].x;
+					leftTPY = state.rAxis[0].y;
+				}
+				else {
+					vrMan->pVRHMD->GetControllerState(vrMan->rightController.index, &state, sizeof(state));
+					rightTPX = state.rAxis[0].x;
+					rightTPY = state.rAxis[0].y;
+				}
 			}
 			break;
 		}
@@ -48,7 +65,9 @@ InputPackage InputManager::VRInput::CheckForInput() {
 			switch(event.data.controller.button) {
 			case vr::k_EButton_ApplicationMenu:
 				if(event.trackedDeviceIndex == vrMan->leftController.index) {
-				} else {
+				
+				} 
+				else {
 					input = teleport;
 					amount = 1;
 					DirectX::XMStoreFloat4x4(&vrMan->world, DirectX::XMLoadFloat4x4(&vrMan->world) * DirectX::XMMatrixTranslation(vrMan->hmdPose._31, vrMan->hmdPose._32, vrMan->hmdPose._33));
@@ -57,28 +76,42 @@ InputPackage InputManager::VRInput::CheckForInput() {
 			case vr::k_EButton_Grip:
 				break;
 			case vr::k_EButton_SteamVR_Touchpad:
+				float x, y, rads;
+				if (event.trackedDeviceIndex == vrMan->leftController.index) {
+					x = leftTPX; 
+					y = leftTPY;
+				}
+				else {
+					x = rightTPX; 
+					y = rightTPY;
+				}
+				if (x == 0 && y == 0) break;
+
+				rads = atan2(x, y);
+				if (rads < 0) rads += 2 * RAD_PI;
+				if (rads >= RAD_PI_4 && rads < RAD_3PI_4) {
+					input = event.trackedDeviceIndex == vrMan->leftController.index ? leftItem3 : rightItem3;
+					amount = 1;
+				}
+				else if (rads >= RAD_3PI_4 && rads < RAD_5PI_4) {
+					input = event.trackedDeviceIndex == vrMan->leftController.index ? leftItem4 : rightItem4;
+					amount = 1;
+				}
+				else if (rads >= RAD_5PI_4 && rads < RAD_7PI_4) {
+					input = event.trackedDeviceIndex == vrMan->leftController.index ? leftItem2 : rightItem2;
+					amount = 1;
+				}
+				else {
+					input = event.trackedDeviceIndex == vrMan->leftController.index ? leftItem1 : rightItem1;
+					amount = 1;
+				}
 				break;
 			case vr::k_EButton_SteamVR_Trigger:
 				if(event.trackedDeviceIndex == VRManager::leftController.index) {
-					//DirectX::XMFLOAT4 temp(vrMan->leftController.pose._41, vrMan->leftController.pose._42, vrMan->leftController.pose._43, vrMan->leftController.pose._44);
-					//Object* obj;
-					//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, { 0, 0, 0, 0 }, &obj));
-					//DirectX::XMMATRIX scaled = DirectX::XMLoadFloat4x4(&(vrMan->leftController.obj->position));
-					////DirectX::XMMATRIX scaled = DirectX::XMLoadFloat4x4(&obj->position);
-					//
-					//obj->position = VRManager::leftController.obj->position;
-					//obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(obj->position._31 * 3.0f, obj->position._32 * 3.0f, obj->position._33 * 3.0f);
 					input = leftAttack;
 					amount = 1.0f;
-				} else {
-					//DirectX::XMFLOAT4 temp(vrMan->rightController.pose._41, vrMan->rightController.pose._42, vrMan->rightController.pose._43, vrMan->rightController.pose._44);
-					//Object* obj;
-					//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, temp, &obj));
-					//DirectX::XMMATRIX scaled = DirectX::XMLoadFloat4x4(&(vrMan->rightController.obj->position));
-					////DirectX::XMMATRIX scaled = DirectX::XMLoadFloat4x4(&obj->position);
-					//
-					//XMStoreFloat4x4(&obj->position, /*DirectX::XMMatrixScaling(0.30f, 0.30f, 0.30f)*/ scaled);
-					//obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(obj->position._31 * 3.0f, obj->position._32 * 3.0f, obj->position._33 * 3.0f);
+				} 
+				else {
 					input = rightAttack;
 					amount = 1.0f;
 				}

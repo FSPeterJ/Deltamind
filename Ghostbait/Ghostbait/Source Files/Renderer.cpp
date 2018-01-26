@@ -243,9 +243,8 @@ void Renderer::Initialize(Window window, VRManager * vr) {
 	context->PSSetSamplers(0, 1, &OnlySamplerState);
 #pragma endregion
 
-	addDirectionalLight(DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), DirectX::XMFLOAT3(0.0f, -0.5f, 0.5f));
-	addPointLight(DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f), DirectX::XMFLOAT3(0.0f, 0.0f, 15.0f), 15.0f);
-	addSpotLight(DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f), DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f), DirectX::XMFLOAT3(0.0f, -0.5f, 0.5f), 1.0f, 0.9f);
+	setAmbient(DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), 0.4f);
+	addSpotLight(DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), DirectX::XMFLOAT3(0.0f, 2.0f, 0.0f), DirectX::XMFLOAT3(0.0f, -1.0f, 0.0f), 0.5f, 0.3f);
 	keyboardCamera = new Camera();
 	keyboardCamera->pointCameraAt(DirectX::XMFLOAT3(0.0f, 2.0f, -15.0f), DirectX::XMFLOAT3(0.0f, -2.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
 	XMStoreFloat4x4(&defaultCamera.projection, XMMatrixTranspose(XMMatrixPerspectiveFovLH(60.0f * XM_PI / 180.0f, defaultPipeline.viewport.Width / defaultPipeline.viewport.Height, 0.001f, 300.0f)));
@@ -376,6 +375,11 @@ void Renderer::addSpotLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, Dire
 	toManager.radius = radius;
 	toManager.outerRadius = outerRadius;
 	lightManager.addLight(toManager);
+}
+
+void Renderer::setAmbient(DirectX::XMFLOAT3 color, float factor)
+{
+	lightManager.setAmbient(color, factor);
 }
 
 XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {

@@ -3,6 +3,7 @@
 
 
 Projectile::Projectile() {
+	tag = "bullet";
 }
 
 

@@ -5,10 +5,10 @@
 //#include <functional>
 
 class GameObject: public Object {
-	std::string tag = "none";
 	//Until delegate unsubscribe is fixed
 protected:
 
+	std::string tag = "none";
 	bool isAwake = false;
 
 public:

@@ -6,7 +6,7 @@
 ObjectManager::ObjectManager(MemoryManager* _memMan) : memMan(_memMan) {
 	//TODO: Fix this into Initialize
 	poolListCount = 80;
-	poolList = (_Pool_Base*) memMan->RequestMemory((unsigned int)poolListCount, sizeof(Pool<size_t>));
+	poolList = (_Pool_Base*) memMan->RequestMemory(poolListCount, sizeof(Pool<size_t>));
 	//objectpool.reserve(prefabCount);
 
 	EngineStructure::Update += [=]() {this->Update(); };
@@ -33,8 +33,8 @@ void ObjectManager::Update() {
 	Update_Delegate();
 }
 
-Object* ObjectManager::Instantiate(int typeID) {
-	Write(typeID);
+Object* ObjectManager::Instantiate(unsigned typeID) {
+	//Write(typeID);
 	_Pool_Base* poolBase = (_Pool_Base*) ((char*) poolList + sizeof(Pool<size_t>) * typeID);
 	Object* newobject = (Object*) poolBase->Activate();
 	pointers2Bucket[newobject] = poolBase;

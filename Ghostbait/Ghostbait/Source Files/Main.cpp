@@ -173,7 +173,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<ControllerObject>("ControllerObject");
 
 	ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"), true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/basicSphere.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ScifiRoom.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));

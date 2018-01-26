@@ -24,7 +24,7 @@ public:
 		HAND,
 	};
 	State state;
-
+	Item() { SetTag("Item"); };
 	void Update() {};
 };
 class Gun : public Item {
@@ -62,8 +62,8 @@ private:
 	}
 
 public:
-	Gun() { state = GUN; };
-	Gun(FireType _type, float _fireRate, float _damage) : type(_type), fireRate(_fireRate), damage(_damage) { state = GUN; };
+	Gun() { state = GUN; SetTag("Gun"); };
+	Gun(FireType _type, float _fireRate, float _damage) : type(_type), fireRate(_fireRate), damage(_damage) { state = GUN; SetTag("Gun");};
 	void SetStats(FireType _type, float _fireRate, float _damage) { type = _type; fireRate = _fireRate; damage = _damage; };
 	bool Shoot();
 	void Update();
@@ -72,7 +72,7 @@ class ViveController : public Item {
 public:
 	ViveController() { 
 		state = CONTROLLER;
-		//TypeMap::RegisterObjectAlias<ViveController>("ViveController");
+		SetTag("Controller");
 	}
 	void update() {};
 };
@@ -101,14 +101,15 @@ public:
 	void AddGun(int itemSlot, int prefabID, Gun::FireType _fireType, float _fireRate, float _damage) {
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0}, (Object**)&items[itemSlot]));
 		((Gun*)items[itemSlot])->SetStats(_fireType, _fireRate, _damage);
+		if (!currentItem) currentItem = items[itemSlot];
 	};
 	void AddController(int itemSlot, int prefabID) {
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0}, (Object**)&items[itemSlot]));
+		if (!currentItem) currentItem = items[itemSlot];
 	};
 	inline void SetControllerHand(ControllerHand _hand) {hand = _hand;};
 	void Update() override;
 };
-
 
 class Spawner : public GameObject {
 	float dt = 0;

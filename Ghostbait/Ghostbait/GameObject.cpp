@@ -166,6 +166,7 @@ void ControllerObject::RightUpdate() {
 
 Spawner::Spawner() {
 	timeSinceLastSpawn = runSpawnDelay - startSpawnDelay;
+	SetTag("Spawner");
 }
 void Spawner::SpawnObject() {
 	Object* obj;

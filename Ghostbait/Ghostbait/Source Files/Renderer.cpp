@@ -252,6 +252,7 @@ void Renderer::Initialize(Window window, VRManager * vr) {
 	MessageEvents::Subscribe(EVENT_Instantiated, [this](EventMessageBase * _e) {this->registerObject(_e); });
 	MessageEvents::Subscribe(EVENT_Destroy, [this](EventMessageBase * _e) {this->unregisterObject(_e); });
 	MessageEvents::Subscribe(EVENT_Unrender, [this](EventMessageBase * _e) {this->unregisterObject(_e); });
+	MessageEvents::Subscribe(EVENT_Addrender, [this](EventMessageBase * _e) {this->registerObject(_e); });
 
 #if _DEBUG
 	DebugRenderer::Initialize(device, context, modelBuffer, PassThroughPositionColorVS, PassThroughPS, ILPositionColor, defaultPipeline.rasterizer_state);

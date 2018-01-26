@@ -24,7 +24,7 @@ void MaterialManager::Destroy() {
 }
 
 Material* MaterialManager::ConstructMaterial(const char * _materialFilePath) {
-	Material* ret = trackedMaterials.Activate();
+	Material* ret = trackedMaterials.ActivateMemory();
 	std::ifstream reader;
 	reader.open(_materialFilePath, std::ios_base::binary);
 	if(reader.is_open()) {
@@ -97,6 +97,9 @@ Material* MaterialManager::GetReferenceComponent(const char* _FilePath, const ch
 		material = ConstructMaterial(_FilePath);
 	}
 	return material;
+}
+void MaterialManager::ResetComponent(ComponentBase * reset) {
+	trackedMaterials.DeactivateMemory(reset);
 }
 Material* MaterialManager::CloneComponent(ComponentBase* reference){
 

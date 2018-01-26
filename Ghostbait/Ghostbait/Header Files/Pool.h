@@ -22,12 +22,12 @@ public:
 		memManage = mem;
 	}
 
-	void Deactivate(void* o) {
+	void DeactivateMemory(void* o) {
 		RemoveObjectFromActive(o);
 		inactiveList.push_back(o);
 	}
 
-	void* Activate() {
+	void* ActivateMemory() {
 		if(inactiveList.size()) {
 			activeList.push_back(inactiveList[0]);
 			inactiveList.erase(inactiveList.begin());
@@ -59,48 +59,37 @@ public:
 
 	~Pool() {
 		//We want to destruct in reverse order so the first created is the first destructed
-		for(size_t i = pool_size; i --> 0;) //goes to 'operator' ;D
-		{
+		for(size_t i = pool_size; i --> 0;) { //goes to 'operator' ;D
 			elements[i].~T();
 		}
 	}
 
-	
-
-	T &operator[](const size_t index) {
-		return *(T*) activeList[index];
-	}
+	inline T &operator[](const size_t index) { return *(T*) activeList[index]; }
 
 	/// <summary>
 	/// Gets the items.
 	/// </summary>
 	/// <returns>T *.</returns>
-	T* GetItems() const {
-		return elements;
-	}
+	inline T* GetItems() const { return elements; }
 
 	/// <summary>
 	/// Activates the specified object.
 	/// </summary>
 	/// <param name="o">The object to activate.</param>
 	/// <returns>A pointer to the activated or added Object.</returns>
-	T* Activate() {
-		return (T*) _Pool_Base::Activate();
-	}
+	inline T* ActivateMemory() { return (T*) _Pool_Base::ActivateMemory(); }
+
+	inline void DeactivateMemory(void* reset) { _Pool_Base::DeactivateMemory(reset); }
 
 	/// <summary>
 	/// Gets the active count.
 	/// </summary>
 	/// <returns>size_t.</returns>
-	size_t GetActiveCount() const {
-		return activeList.size();
-	}
+	inline size_t GetActiveCount() const { return activeList.size(); }
 
 	/// <summary>
 	/// Gets the active list.
 	/// </summary>
 	/// <returns>std.vector&lt;T*&gt;*.</returns>
-	std::vector< T*>* GetActiveList() const{
-		return (std::vector<T*>*)&activeList;
-	}
+	inline std::vector< T*>* GetActiveList() const { return (std::vector<T*>*)&activeList; }
 };

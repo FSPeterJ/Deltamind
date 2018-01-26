@@ -58,7 +58,7 @@ void MeshManager::generateCube() {
 	10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
 	25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35};
 #pragma endregion
-	Mesh* newMesh = trackedMeshes.Activate();
+	Mesh* newMesh = trackedMeshes.ActivateMemory();
 	newMesh->meshId = UINT_MAX;
 	newMesh->indexCount = 36;
 
@@ -131,7 +131,7 @@ Mesh* MeshManager::ConstructMesh(const char* _meshFilePath) {
 	}
 	reader.close();
 
-	Mesh * loadingIn = trackedMeshes.Activate();
+	Mesh * loadingIn = trackedMeshes.ActivateMemory();
 	D3D11_SUBRESOURCE_DATA vertexBufferData = {0};
 	vertexBufferData.pSysMem = &verts[0];
 	vertexBufferData.SysMemPitch = 0;
@@ -174,4 +174,8 @@ Mesh* MeshManager::CloneComponent(ComponentBase* meshReference)
 
 	//If you are here there is probably something wrong
 	return nullptr;
+}
+
+void MeshManager::ResetComponent(ComponentBase * reset) {
+	trackedMeshes.DeactivateMemory(reset);
 }

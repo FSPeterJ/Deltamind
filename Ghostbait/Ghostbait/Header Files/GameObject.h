@@ -2,20 +2,26 @@
 #include "Object.h"
 #include "Controlable.h"
 #include "Console.h"
+//#include <functional>
 
 class GameObject: public Object {
 	std::string tag = "none";
 public:
 	GameObject();
-	void Activate();
+
+	void Enable();
+	void Disable();
+
+	void Destroy();
+
 	virtual void Awake() {};
 	virtual void Update() {};
-		
-	inline const std::string GetTag() const {return tag;};
+
+	inline const std::string GetTag() const { return tag; };
 	inline void SetTag(std::string _tag) { tag = _tag; };
 };
 
-class Item : public GameObject {
+class Item: public GameObject {
 public:
 	enum State {
 		INVALID,
@@ -27,7 +33,7 @@ public:
 	Item() { SetTag("Item"); };
 	void Update() {};
 };
-class Gun : public Item {
+class Gun: public Item {
 public:
 	enum FireType {
 		AUTO,
@@ -54,7 +60,7 @@ private:
 
 	bool AddEnergy(float energy) {
 		currentEnergy += energy;
-		if (currentEnergy >= energyLimit) {
+		if(currentEnergy >= energyLimit) {
 			currentEnergy = energyLimit;
 			return false;
 		}
@@ -68,9 +74,9 @@ public:
 	bool Shoot();
 	void Update();
 };
-class ViveController : public Item {
+class ViveController: public Item {
 public:
-	ViveController() { 
+	ViveController() {
 		state = CONTROLLER;
 		SetTag("Controller");
 	}
@@ -92,22 +98,21 @@ private:
 	void LeftUpdate();
 	void RightUpdate();
 public:
-	
-	ControllerObject()
-	{
+
+	ControllerObject() {
 		items.resize(4);
 		hand = INVALID;
 	}
 	void AddGun(int itemSlot, int prefabID, Gun::FireType _fireType, float _fireRate, float _damage) {
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0}, (Object**)&items[itemSlot]));
-		((Gun*)items[itemSlot])->SetStats(_fireType, _fireRate, _damage);
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, {0,0,0}, (Object**) &items[itemSlot]));
+		((Gun*) items[itemSlot])->SetStats(_fireType, _fireRate, _damage);
 		if (!currentItem) currentItem = items[itemSlot];
 	};
 	void AddController(int itemSlot, int prefabID) {
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0}, (Object**)&items[itemSlot]));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, {0,0,0}, (Object**) &items[itemSlot]));
 		if (!currentItem) currentItem = items[itemSlot];
 	};
-	inline void SetControllerHand(ControllerHand _hand) {hand = _hand;};
+	inline void SetControllerHand(ControllerHand _hand) { hand = _hand; };
 	void Update() override;
 };
 
@@ -119,7 +124,7 @@ class Spawner : public GameObject {
 	int objectToSpawn = 10;
 	float startSpawnDelay = 0;
 	float runSpawnDelay = 2;
-	
+
 	void SpawnObject();
 public:
 	Spawner();

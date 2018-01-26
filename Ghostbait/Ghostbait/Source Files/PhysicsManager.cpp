@@ -23,7 +23,7 @@ PhysicsManager::PhysicsManager() {
 PhysicsManager::~PhysicsManager() {}
 
 void PhysicsManager::AddComponent(Object* obj, float veloX, float veloY, float veloZ) {
-	PhysicsComponent* physComponent = components.Activate();
+	PhysicsComponent* physComponent = components.ActivateMemory();
 	physComponent->colliders.push_back(defaultColider);
 	physComponent->parentObject = obj;
 	physComponent->rigidBody = RigidBody();
@@ -31,7 +31,7 @@ void PhysicsManager::AddComponent(Object* obj, float veloX, float veloY, float v
 }
 
 PhysicsComponent* PhysicsManager::CloneComponent(ComponentBase* reference){
-	PhysicsComponent* physComponent = components.Activate();
+	PhysicsComponent* physComponent = components.ActivateMemory();
 	// SHALLOW COPY - this only copies the std::vector head.
 	physComponent->colliders = ((PhysicsComponent*)reference)->colliders;
 	physComponent->rigidBody = RigidBody();
@@ -97,6 +97,10 @@ PhysicsComponent* PhysicsManager::GetReferenceComponent(const char * _FilePath, 
 		//If it breaks here, you ran out of prefab space. change MAX_PREFABS 
 		return nullptr;
 	}
+}
+
+void PhysicsManager::ResetComponent(ComponentBase * reset) {
+	components.DeactivateMemory(reset);
 }
 
 void PhysicsManager::Update() {

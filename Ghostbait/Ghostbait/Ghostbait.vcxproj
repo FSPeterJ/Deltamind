@@ -203,6 +203,7 @@
     <ClInclude Include="Header Files\PhysicsComponent.h" />
     <ClInclude Include="Header Files\PhysicsManager.h" />
     <ClInclude Include="Header Files\Pool.h" />
+    <ClInclude Include="Header Files\Projectile.h" />
     <ClInclude Include="Header Files\Renderer.h" />
     <ClInclude Include="Header Files\RigidBody.h" />
     <ClInclude Include="Header Files\StdHeader.h" />
@@ -216,17 +217,16 @@
     <ClInclude Include="Header Files\Window.h" />
     <ClInclude Include="Header Files\MessageEvents.h" />
     <ClInclude Include="Header Files\XTime.h" />
-    <ClInclude Include="Projectile.h" />
     <ClInclude Include="Resource Files\Resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameObject.cpp" />
-    <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="Source Files\AnimationManager.cpp" />
     <ClCompile Include="Source Files\Camera.cpp" />
     <ClCompile Include="Source Files\DebugRenderer.cpp" />
     <ClCompile Include="Source Files\EnemyBase.cpp" />
     <ClCompile Include="Source Files\EngineStructure.cpp" />
+    <ClCompile Include="Source Files\GhostTime.cpp" />
     <ClCompile Include="Source Files\InputManager.cpp" />
     <ClCompile Include="Source Files\Main.cpp" />
     <ClCompile Include="Source Files\MaterialManager.cpp" />
@@ -238,6 +238,7 @@
     <ClCompile Include="Source Files\ObjectManager.cpp" />
     <ClCompile Include="Source Files\PhysicsManager.cpp" />
     <ClCompile Include="Source Files\Pool.cpp" />
+    <ClCompile Include="Source Files\Projectile.cpp" />
     <ClCompile Include="Source Files\Renderer.cpp" />
     <ClCompile Include="Source Files\RigidBody.cpp" />
     <ClCompile Include="Source Files\ThreadPool.cpp" />
@@ -246,7 +247,6 @@
     <ClCompile Include="Source Files\WICTextureLoader.cpp" />
     <ClCompile Include="Source Files\Window.cpp" />
     <ClCompile Include="Source Files\XTime.cpp" />
-    <ClCompile Include="GhostTime.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resource Files\Ghostbait.ico" />

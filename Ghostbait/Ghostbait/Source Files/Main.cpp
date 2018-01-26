@@ -18,7 +18,7 @@
 #include "ThreadPool.h"
 #include "PhysicsManager.h"
 #include "GhostTime.h"
-#include "../Projectile.h"
+#include "Projectile.h"
 #include "EnemyBase.h"
 
 Renderer* rendInter;

@@ -82,4 +82,6 @@ public:
 	Material* GetElement(const unsigned int _id);
 	Material* CloneComponent(ComponentBase* reference) override;
 	Material* GetReferenceComponent(const char * _FilePath, const char * _data) override;
+	void ResetComponent(ComponentBase * reset) override;
+
 };

@@ -13,11 +13,13 @@ protected:
 private:
 
 public:
-	
+	Delegate<> DestroyComponents;
+
 	//TODO: convert to XMFLAOT4x4
 	DirectX::XMFLOAT4X4 position;
 	ComponentTypeContainer<ComponentBase*> Components;
 	//Endnote
+
 
 	Object() {
 		XMStoreFloat4x4(&position, DirectX::XMMatrixIdentity());

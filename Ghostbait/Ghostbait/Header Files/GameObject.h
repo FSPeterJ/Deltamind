@@ -2,11 +2,18 @@
 #include "Object.h"
 #include "Controlable.h"
 #include "Console.h"
+//#include <functional>
 
 class GameObject: public Object {
+
 public:
 	GameObject();
-	void Activate();
+
+	void Enable();
+	void Disable();
+
+	void Destroy();
+
 	virtual void Awake() {}
 	virtual void Update() {}
 };

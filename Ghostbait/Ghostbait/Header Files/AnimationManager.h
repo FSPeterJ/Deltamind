@@ -44,4 +44,7 @@ public:
 
 	unsigned int AddElement(const char* _animationFilePath, const char* _bindposeFilePath);
 	AnimComponent * GetElement(const unsigned int _id);
+	void ResetComponent(ComponentBase * reset) override;
+
+
 };

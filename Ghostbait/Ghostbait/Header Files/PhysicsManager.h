@@ -45,5 +45,6 @@ public:
 	void AddComponent(Object* obj, float veloX = 0.0f, float veloY = 0.0f, float veloZ = 0.0f);
 	PhysicsComponent* CloneComponent(ComponentBase * reference) override;
 	PhysicsComponent* GetReferenceComponent(const char * _FilePath, const char* _data) override;
+	void ResetComponent(ComponentBase * reset) override;
 	void Update();
 };

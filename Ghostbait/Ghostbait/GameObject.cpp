@@ -6,13 +6,26 @@
 #include "PhysicsManager.h"
 #include "GameObject.h"
 #include "GhostTime.h"
+#include "MessageEvents.h"
 
 GameObject::GameObject() {
-	
 }
 
-void GameObject::Activate() {
+void GameObject::Enable() {
 	EngineStructure::Awake += [=]() {this->Awake(); };
+}
+
+void GameObject::Disable() {
+//unsub from delegates
+}
+
+void GameObject::Destroy() {
+	//recycle memory, pool::deactivatememory
+	MessageEvents::SendMessage(EVENT_Destroy, DestroyMessage(this));
+
+	DestroyComponents();
+	//TODO:: Make component clear
+	//Components.Clear();
 }
 
 void Gun::Update() {

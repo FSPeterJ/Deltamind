@@ -71,3 +71,7 @@ AnimComponent * AnimationManager::GetElement(const unsigned int _id) {
 	}
 	return nullptr;
 }
+
+void AnimationManager::ResetComponent(ComponentBase * reset) {
+//TODO: deactivate reset's memory
+}

@@ -19,6 +19,6 @@ class EnemyBase : public GameObject {
 public:
 	EnemyBase() { tag = "enemy"; };
 	void Update() override;
-	void OnCollision(PhysicsComponent* _other);
+	void OnCollision(GameObject* _other);
 };
 

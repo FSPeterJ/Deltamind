@@ -14,11 +14,10 @@ void EnemyBase::Update() {
 	}
 }
 
-void EnemyBase::OnCollision(PhysicsComponent* _other) {
+void EnemyBase::OnCollision(GameObject* _other) {
 	PhysicsComponent* myPhys = GetComponent<PhysicsComponent>();
-	DirectX::XMVECTOR incomingDirection = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat4x4(&position).r[3], DirectX::XMLoadFloat4x4(&(_other->parentObject->position)).r[3]));
-	GameObject* theOtherGuy = (GameObject*)(_other->parentObject);
-	if (theOtherGuy->GetTag() == "bullet") {
+	DirectX::XMVECTOR incomingDirection = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat4x4(&position).r[3], DirectX::XMLoadFloat4x4(&(_other->position)).r[3]));
+	if (_other->GetTag() == "bullet") {
 		myPhys->rigidBody.AddForce(5.0f, DirectX::XMVectorGetX(incomingDirection), DirectX::XMVectorGetY(incomingDirection), DirectX::XMVectorGetZ(incomingDirection));
 		health -= 50.0f;
 	}

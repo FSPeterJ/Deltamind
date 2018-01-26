@@ -515,5 +515,10 @@ namespace GhostbaitModelCreator {
                 }
             }
         }
+
+        private void materialFileName_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

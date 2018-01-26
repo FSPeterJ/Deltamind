@@ -307,7 +307,6 @@ bool PhysicsManager::CapsuleToSphereCollision(Collider capCol, DirectX::XMMATRIX
 
 	float radii = capCol.colliderData->colliderInfo.capsuleCollider.radius + sphCol.colliderData->colliderInfo.sphereCollider.radius;
 	XMVECTOR sphCenterToClosest = closestOnCap - sphereCenter;
-
 	return !(XMVectorGetX(XMVector3Dot(sphCenterToClosest, sphCenterToClosest)) > (radii * radii));
 }
 
@@ -320,7 +319,7 @@ XMVECTOR PhysicsManager::FindClosestPointOnLine(XMVECTOR& _lineSegStart, XMVECTO
 }
 
 void PhysicsManager::SendCollision(Object* obj1, Object* obj2) {
-	//Console::WriteLine("Cube Collision");
+	Console::WriteLine("Cube Collision");
 }
 
 void PhysicsManager::TestAllComponentsCollision() {

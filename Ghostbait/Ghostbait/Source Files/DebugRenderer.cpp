@@ -64,25 +64,22 @@ void DebugRenderer::Destroy() {
 }
 
 void DebugRenderer::AddLine(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2, DirectX::XMFLOAT3 color) {
-	if(v_count >= MAX_VERTS)
+	if(v_count >= MAX_VERTS - 1)
 		return;
-	VertexPositionColor t1; //TODO: this is uninitalized. initalize it before using it
+	VertexPositionColor t1 = VertexPositionColor();
 	t1.pos = p1;
 	t1.color = color;
-	VertexPositionColor t2; //TODO: this is uninitalized. initalize it before using it
+	VertexPositionColor t2 = VertexPositionColor();
 	t2.pos = p2;
 	t2.color = color;
 
-	//TODO: cpu_side_buffer is reading invalid data from cpu_side_buffer. the readable size is 49152 bytes but 49176 bytes can be read
-	//cpu_side_buffer is output from VertexTypes.h at line 8
 	cpu_side_buffer[v_count] = t1;
-	cpu_side_buffer[v_count + 1] = t2; //assuming (v_count >= MAX_VERTS) is false, this is reading [2048] but the range is 0-2047
+	cpu_side_buffer[v_count + 1] = t2;
 	v_count += 2;
 }
 
 void DebugRenderer::AddBox(ColliderData* cIn, DirectX::XMFLOAT3 color) {
-	//TODO: cubeCorners is uninitalized. initalize it before using it
-	DirectX::XMFLOAT3 cubeCorners[8], min, max;
+	DirectX::XMFLOAT3 cubeCorners[8] = { DirectX::XMFLOAT3() }, min, max;
 	max = cIn->colliderInfo.boxCollider.topRightFrontCorner;
 	min = cIn->colliderInfo.boxCollider.bottLeftBackCorner;
 

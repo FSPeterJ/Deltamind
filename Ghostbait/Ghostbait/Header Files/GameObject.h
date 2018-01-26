@@ -6,6 +6,11 @@
 
 class GameObject: public Object {
 	std::string tag = "none";
+	//Until delegate unsubscribe is fixed
+protected:
+
+	bool isAwake = false;
+
 public:
 	GameObject();
 
@@ -71,7 +76,7 @@ private:
 
 public:
 	Gun() { state = GUN; SetTag("Gun"); };
-	Gun(FireType _type, float _fireRate, float _damage) : type(_type), fireRate(_fireRate), damage(_damage) { state = GUN; SetTag("Gun");};
+	Gun(FireType _type, float _fireRate, float _damage): type(_type), fireRate(_fireRate), damage(_damage) { state = GUN; SetTag("Gun"); };
 	void SetStats(FireType _type, float _fireRate, float _damage) { type = _type; fireRate = _fireRate; damage = _damage; };
 	bool Shoot();
 	void Update();
@@ -106,19 +111,19 @@ public:
 		hand = INVALID;
 	}
 	void AddGun(int itemSlot, int prefabID, Gun::FireType _fireType, float _fireRate, float _damage) {
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, {0,0,0}, (Object**) &items[itemSlot]));
-		((Gun*) items[itemSlot])->SetStats(_fireType, _fireRate, _damage);
-		if (!currentItem) currentItem = items[itemSlot];
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0 }, (Object**)&items[itemSlot]));
+		((Gun*)items[itemSlot])->SetStats(_fireType, _fireRate, _damage);
+		if(!currentItem) currentItem = items[itemSlot];
 	};
 	void AddController(int itemSlot, int prefabID) {
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, {0,0,0}, (Object**) &items[itemSlot]));
-		if (!currentItem) currentItem = items[itemSlot];
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0 }, (Object**)&items[itemSlot]));
+		if(!currentItem) currentItem = items[itemSlot];
 	};
 	inline void SetControllerHand(ControllerHand _hand) { hand = _hand; };
 	void Update() override;
 };
 
-class Spawner : public GameObject {
+class Spawner: public GameObject {
 	float dt = 0;
 	float timeSinceLastSpawn = 0;
 

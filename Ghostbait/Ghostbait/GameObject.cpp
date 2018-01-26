@@ -7,14 +7,17 @@
 #include "GameObject.h"
 #include "GhostTime.h"
 #include "MessageEvents.h"
+#include "Projectile.h"
 
 GameObject::GameObject() {}
 
 void GameObject::Enable() {
 	EngineStructure::Awake += [=]() {this->Awake(); };
+	isAwake = true;
 }
 
 void GameObject::Disable() {
+	isAwake = false;
 	//unsub from delegates
 }
 
@@ -23,8 +26,9 @@ void GameObject::Destroy() {
 	MessageEvents::SendMessage(EVENT_Destroy, DestroyMessage(this));
 
 	DestroyComponents();
+	Disable();
 	//TODO:: Make component clear
-	//Components.Clear();
+	Components.Clear();
 }
 
 void Gun::Update() {
@@ -57,11 +61,12 @@ bool Gun::Shoot() {
 		case AUTO:
 			if(timeSinceLastShot > (1 / fireRate) && !energyOverheatDelayTimeLeft) {
 				//Fire
-				Object* obj;
-				MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(projectiePrefabID, { 0, 0, 0 }, &obj));
+				Projectile* obj;
+				MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(projectiePrefabID, { 0, 0, 0 }, (Object**)&obj));
 				obj->position = position;
 				obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
 				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 0.1f, position._32 * 0.1f, position._33 * 0.1f);
+				obj->Enable();
 				if(!AddEnergy(energyBulletCost)) {
 					energyOverheatDelayTimeLeft = energyOverheatDelay;
 				}
@@ -71,11 +76,12 @@ bool Gun::Shoot() {
 		case SEMI:
 			if(timeSinceLastShot > (1 / fireRate) && !energyOverheatDelayTimeLeft) {
 				//Fire
-				Object* obj;
-				MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(projectiePrefabID, { 0, 0, 0 }, &obj));
+				Projectile* obj;
+				MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(projectiePrefabID, { 0, 0, 0 }, (Object**)&obj));
 				obj->position = position;
 				obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
 				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 0.1f, position._32 * 0.1f, position._33 * 0.1f);
+				obj->Enable();
 				if(!AddEnergy(energyBulletCost)) {
 					energyOverheatDelayTimeLeft = energyOverheatDelay;
 				}

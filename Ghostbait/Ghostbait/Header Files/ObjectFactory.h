@@ -181,7 +181,7 @@ public:
 							((InstantiatedCompBase *)prefab->instantiatedComponents[componentTypeID])->parentObject = prefab->object;
 						}
 						prefab->object->SetComponent(prefab->instantiatedComponents[componentTypeID], componentTypeID);
-						//Send data
+						delete[] compData; //TODO: Not sure if delete[] or delete
 
 					}
 				}

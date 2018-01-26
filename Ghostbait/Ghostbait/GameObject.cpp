@@ -11,6 +11,12 @@
 
 GameObject::GameObject() {}
 
+
+void GameObject::OnCollision(GameObject* obj) {
+
+}
+
+
 void GameObject::Enable() {
 	EngineStructure::Awake += [=]() {this->Awake(); };
 	isAwake = true;
@@ -45,6 +51,11 @@ void Gun::Update() {
 
 	else if(timeSinceLastShot >= energyWaitCooldown) {
 		currentEnergy = 0;
+	}
+
+	if(KeyIsDown(Control::TestInput1)) {
+		Shoot();
+		ResetKey(Control::TestInput1);
 	}
 
 	//Console::Write(currentEnergy);

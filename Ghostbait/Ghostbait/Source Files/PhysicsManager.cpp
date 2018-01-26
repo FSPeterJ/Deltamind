@@ -1,5 +1,6 @@
 #include "PhysicsManager.h"
 #include "DebugRenderer.h"
+#include "GameObject.h"
 
 Collider PhysicsManager::defaultColider;
 ColliderData PhysicsManager::defaultSphereColider;
@@ -307,7 +308,6 @@ bool PhysicsManager::CapsuleToSphereCollision(Collider capCol, DirectX::XMMATRIX
 
 	float radii = capCol.colliderData->colliderInfo.capsuleCollider.radius + sphCol.colliderData->colliderInfo.sphereCollider.radius;
 	XMVECTOR sphCenterToClosest = closestOnCap - sphereCenter;
-
 	return !(XMVectorGetX(XMVector3Dot(sphCenterToClosest, sphCenterToClosest)) > (radii * radii));
 }
 
@@ -320,8 +320,10 @@ XMVECTOR PhysicsManager::FindClosestPointOnLine(XMVECTOR& _lineSegStart, XMVECTO
 }
 
 void PhysicsManager::SendCollision(Object* obj1, Object* obj2) {
-	Console::WriteLine("Cube Collision");
-	
+	//TODO: Fix this frown
+	((GameObject*)obj1)->OnCollision((GameObject*)obj2);
+	((GameObject*)obj2)->OnCollision((GameObject*)obj1);
+
 }
 
 void PhysicsManager::TestAllComponentsCollision() {

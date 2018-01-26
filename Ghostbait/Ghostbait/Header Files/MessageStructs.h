@@ -22,6 +22,7 @@ enum Control {
 	leftItem3,
 	leftItem4,
 	leftAttack,
+	TestInput1,
 };
 
 class EventMessageBase {

@@ -165,6 +165,7 @@ namespace GhostbaitModelCreator
             // 
             // capsuleHeight
             // 
+            this.capsuleHeight.DecimalPlaces = 3;
             this.capsuleHeight.Location = new System.Drawing.Point(125, 29);
             this.capsuleHeight.Name = "capsuleHeight";
             this.capsuleHeight.Size = new System.Drawing.Size(147, 20);
@@ -172,6 +173,7 @@ namespace GhostbaitModelCreator
             // 
             // capsuleRadius
             // 
+            this.capsuleRadius.DecimalPlaces = 3;
             this.capsuleRadius.Location = new System.Drawing.Point(125, 6);
             this.capsuleRadius.Name = "capsuleRadius";
             this.capsuleRadius.Size = new System.Drawing.Size(147, 20);

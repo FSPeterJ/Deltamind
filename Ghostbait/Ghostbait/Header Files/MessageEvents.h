@@ -3,6 +3,8 @@
 #include "MessageStructs.h"
 #include "Console.h"
 #include "Delegate.h"
+#include <queue>
+#include "EngineStructure.h"
 
 #undef SendMessage
 
@@ -22,6 +24,8 @@ class EventMessageBase;
 class MessageEvents {
 private:
 	static std::unordered_map<EVENT_TYPES, Delegate<EventMessageBase*>> eventmap;
+	
+	static std::queue<std::function<void()>> queuedEvents;
 
 	static void HandleMessage(const EVENT_TYPES t, EventMessageBase* m) { HandleMessage(t, *m); }
 	static void HandleMessage(const EVENT_TYPES t, EventMessageBase& m);
@@ -48,7 +52,14 @@ public:
 	/// </summary>
 	/// <param name="eventtype">The eventtype.</param>
 	/// <param name="message">The message.</param>
-	inline static void SendQueueMessage(const EVENT_TYPES eventtype, EventMessageBase* message = 0) { eventmap[eventtype](message); HandleMessage(eventtype, message); }
+	template <typename ...T>
+	inline static void SendQueueMessage(const EVENT_TYPES eventtype, std::function<void(T...)> execute) {
+		
+		//execute(T...);
+		queuedEvents.push([=]() {execute(T...)});
+		//HandleMessage(eventtype, message);
+	
+	}
 
 	/// <summary>
 	/// Sends a message.
@@ -57,7 +68,7 @@ public:
 	/// <param name="message">The message.</param>
 	inline static void SendMessage(const EVENT_TYPES eventtype, EventMessageBase& message = EventMessageBase()) { eventmap[eventtype](&message); HandleMessage(eventtype, message); }
 
-	//void ProcessEvents();
+	void ProcessEvents();
 	MessageEvents();
 	~MessageEvents();
 };

@@ -9,6 +9,8 @@ class EngineStructure {
 	friend class Controlable;
 	friend class ObjectManager;
 	friend class Camera;
+	friend class MessageEvents;
+	friend class Game;
 
 	friend class GhostTime;
 
@@ -59,5 +61,13 @@ public:
 		//WriteLine(" subscribers.");
 
 		Update();
+	}
+
+	void ExecuteLateUpdate() {
+		//Write("Update delegate contains ");
+		//Write((int) Update.subscriber_count());
+		//WriteLine(" subscribers.");
+
+		LateUpdate();
 	}
 };

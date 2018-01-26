@@ -34,10 +34,12 @@ public:
 		SEMI,
 	};
 private:
+	unsigned projectiePrefabID = 4;
 	float dt = 0;
 	float timeSinceLastShot = 0;
 
 	//Main Stats
+
 	GameObject* bulletPrefab;
 	FireType type = AUTO;
 	float fireRate = 2; //shotsPerSecond

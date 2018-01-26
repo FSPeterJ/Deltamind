@@ -6,6 +6,8 @@
 #include "PhysicsManager.h"
 #include "GameObject.h"
 #include "GhostTime.h"
+#include "MessageEvents.h"
+#include <winuser.h>
 
 GameObject::GameObject() {
 
@@ -15,6 +17,7 @@ void GameObject::Activate() {
 }
 
 void Gun::Update() {
+	//This should be a parameter that makes it way all the way from main, don't query per object per frame
 	dt = (float)GhostTime::SmoothDeltaTime();
 	timeSinceLastShot += dt;
 
@@ -25,6 +28,7 @@ void Gun::Update() {
 			currentEnergy = 0;
 		}
 	}
+
 	else if(timeSinceLastShot >= energyWaitCooldown) {
 		currentEnergy = 0;
 	}
@@ -43,7 +47,7 @@ bool Gun::Shoot() {
 			if(timeSinceLastShot > (1 / fireRate) && !energyOverheatDelayTimeLeft) {
 				//Fire
 				Object* obj;
-				MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(2, { 0, 0, 0 }, &obj));
+				MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(projectiePrefabID, { 0, 0, 0 }, &obj));
 				obj->position = position;
 				obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
 				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 0.1f, position._32 * 0.1f, position._33 * 0.1f);
@@ -57,7 +61,7 @@ bool Gun::Shoot() {
 			if(timeSinceLastShot > (1 / fireRate) && !energyOverheatDelayTimeLeft) {
 				//Fire
 				Object* obj;
-				MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(2, { 0, 0, 0 }, &obj));
+				MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(projectiePrefabID, { 0, 0, 0 }, &obj));
 				obj->position = position;
 				obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
 				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 0.1f, position._32 * 0.1f, position._33 * 0.1f);

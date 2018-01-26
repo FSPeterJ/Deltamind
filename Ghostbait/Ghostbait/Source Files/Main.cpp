@@ -18,6 +18,7 @@
 #include "ThreadPool.h"
 #include "PhysicsManager.h"
 #include "GhostTime.h"
+#include "../Projectile.h"
 
 Renderer* rendInter;
 VRManager* vrMan;
@@ -132,7 +133,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	// This is a proof of concept, thread decoupling with .get is still uncertain.
 	try {
 		temp.get();
-	} catch(const std::exception& e) {
+	}
+	catch(const std::exception& e) {
 		//std::rethrow_exception(e);
 		// handle it
 
@@ -146,7 +148,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	if(isVR) {
 		rendInter->Initialize(wnd, vrMan);
 		inputMan = new InputManager(VR, vrMan);
-	} else {
+	}
+	else {
 		WriteLine("VR not initialized! Defaulting to 2D");
 		rendInter->Initialize(wnd, nullptr);
 		inputMan = new InputManager(KEYBOARD);
@@ -157,10 +160,11 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	objMan->Initialize(80);
 
 	ObjectFactory::Initialize(objMan);
-	ObjectFactory::RegisterPrefabBase<ControllerObject>();
-	ObjectFactory::RegisterPrefabBase<Gun>();
-	ObjectFactory::RegisterPrefabBase<ViveController>();
-	ObjectFactory::RegisterPrefabBase<GameObject>();
+	ObjectFactory::RegisterPrefabBase<ControllerObject>(2);
+	ObjectFactory::RegisterPrefabBase<Gun>(10);
+	ObjectFactory::RegisterPrefabBase<ViveController>(2);
+	ObjectFactory::RegisterPrefabBase<GameObject>(512);
+	ObjectFactory::RegisterPrefabBase<Projectile>(512);
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
 	ObjectFactory::RegisterManager<PhysicsComponent, PhysicsManager>(phyMan);
 	ObjectFactory::RegisterManager<Material, MaterialManager>(rendInter->getMaterialManager());
@@ -171,11 +175,13 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<ViveController>("ViveController");
 	TypeMap::RegisterObjectAlias<Gun>("Gun");
 	TypeMap::RegisterObjectAlias<ControllerObject>("ControllerObject");
+	TypeMap::RegisterObjectAlias<Projectile>("Projectile");
 
 	ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"), true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/basicSphere.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ScifiRoom.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/ProjectileSphere.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object"));
 	//ObjectFactory::CreatePrefab(&std::string("SomeCoolObject"));
@@ -189,18 +195,18 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	DirectX::XMFLOAT4X4 roomMatrix;
 	DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.33f, 0.33f, 0.33f));
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(3, roomMatrix));
-//	Object* cube1, *cube2;
+	//	Object* cube1, *cube2;
 
-	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {0,-1,0,1}, &cube1));
-	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {0,-3,0,1}, &cube2));
+		//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {0,-1,0,1}, &cube1));
+		//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {0,-3,0,1}, &cube2));
 
-	//Object* cube1 = Object::Create<Object>({0,-1,0,1}, 1);
-	//SomeCoolObject* cube2 = Object::Create<SomeCoolObject>({0,-3,0,1}, 2);
+		//Object* cube1 = Object::Create<Object>({0,-1,0,1}, 1);
+		//SomeCoolObject* cube2 = Object::Create<SomeCoolObject>({0,-3,0,1}, 2);
 
-	//cube1->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(0.5f, -1.0f, 0.0f);
-	//cube2->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(1.0f, 0.0f, 0.0f);
+		//cube1->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(0.5f, -1.0f, 0.0f);
+		//cube2->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(1.0f, 0.0f, 0.0f);
 
-	//MessageEvents::SendMessage(EVENT_Destroy, DestroyMessage(cube1));
+		//MessageEvents::SendMessage(EVENT_Destroy, DestroyMessage(cube1));
 
 	GhostTime::Initalize();
 }
@@ -246,7 +252,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			if(msg.message == WM_QUIT) { break; }
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-		} else {
+		}
+		else {
 			//test2->position = vrMan->hmdPose;
 			//test3->position = XMMatrixTranspose(XMLoadFloat4x4(&(rendInter->leftEye.camera.view)));
 			//test4->position = XMMatrixTranspose(XMLoadFloat4x4(&(rendInter->rightEye.camera.view)));
@@ -259,5 +266,5 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	Free();
 
-	return (int) msg.wParam;
+	return (int)msg.wParam;
 }

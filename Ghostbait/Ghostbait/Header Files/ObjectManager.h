@@ -26,11 +26,11 @@ public:
 	void Update();
 
 	template<typename PoolType>
-	void CreatePool() {
+	void CreatePool(unsigned size) {
 		unsigned typeID = TypeMap::GetObjectTypeID<PoolType>();
 		if(typeID < poolListCount) {
 			// HATE HATE HATE
-			Pool<PoolType>* data = new ((char*)poolList + (sizeof(Pool<size_t>) * typeID)) Pool<PoolType>(128);
+			Pool<PoolType>* data = new ((char*)poolList + (sizeof(Pool<size_t>) * typeID)) Pool<PoolType>((unsigned)size);
 			Delete += [data]() { data->~Pool<PoolType>(); };
 			Update_Delegate += [data]() {
 				std::vector<PoolType*>* lst = data->GetActiveList();

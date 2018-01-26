@@ -77,9 +77,9 @@ public:
 	///	Changing this value means you MUST change this in every ghostbait file. 
 	/// </param>
 	template <typename ObjectType>
-	static void RegisterPrefabBase() {
+	static void RegisterPrefabBase(unsigned size) {
 		registeredConstructors[TypeMap::GetObjectTypeID<ObjectType>()] = &ConstructorFunc<ObjectType>;
-		objMan->CreatePool<ObjectType>();
+		objMan->CreatePool<ObjectType>(size);
 	}
 
 	template <typename ComponentType, typename ManagerType>
@@ -141,8 +141,7 @@ public:
 						//Handle specific file extension
 						char* ext;
 						GetFileExtension(dataName, dataNameLen, (char**)&ext);
-						if(ext == nullptr)
-						{
+						if(ext == nullptr) {
 							strcpy_s(ext, 64, dataName);
 						}
 						int componentTypeID = TypeMap::GetComponentNameID(std::string(ext));
@@ -176,8 +175,7 @@ public:
 
 						prefab->instantiatedComponents[componentTypeID] = component;
 						prefab->fastclone[componentTypeID] = component->singleInstance;
-						if(component->singleInstance)
-						{
+						if(component->singleInstance) {
 							((InstantiatedCompBase *)prefab->instantiatedComponents[componentTypeID])->parentObject = prefab->object;
 						}
 						prefab->object->SetComponent(prefab->instantiatedComponents[componentTypeID], componentTypeID);
@@ -217,8 +215,7 @@ public:
 		MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
 	}
 
-	static Object* ActivateObject(unsigned pid)
-	{
+	static Object* ActivateObject(unsigned pid) {
 		Object* newobject = objMan->Instantiate(prefabs[pid].objectTypeID);
 
 		for(int i = 0; i < 64; i++) {

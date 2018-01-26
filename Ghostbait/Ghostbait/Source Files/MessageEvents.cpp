@@ -6,13 +6,13 @@ MessageEvents::MessageEvents() {}
 
 MessageEvents::~MessageEvents() {}
 
-//for testing only. used to test messages that have no subscribers yet
+//for testing only. used to test messages that have no subscribers yetx
 void MessageEvents::HandleMessage(EVENT_TYPES eventtype, EventMessageBase& m) {
 	switch(eventtype) {
 	case EVENT_InstantiateRequest:
 	{
 		InstantiateMessage* instantiate = (InstantiateMessage*) &m;
-		Console::WriteLine("An object was instantiated with a prefab ID of " + std::to_string(instantiate->GetId()));
+		Console::WriteLine("An object was instantiated with a prefab ID of " + std::to_string(instantiate->GetPrefabId()));
 		break;
 	}
 	case EVENT_LENGTH:

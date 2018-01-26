@@ -189,6 +189,7 @@ namespace GhostbaitModelCreator
             // 
             // sphereRadius
             // 
+            this.sphereRadius.DecimalPlaces = 3;
             this.sphereRadius.Location = new System.Drawing.Point(142, 7);
             this.sphereRadius.Name = "sphereRadius";
             this.sphereRadius.Size = new System.Drawing.Size(130, 20);
@@ -352,6 +353,7 @@ namespace GhostbaitModelCreator
             // 
             // colliderOffsetX
             // 
+            this.colliderOffsetX.DecimalPlaces = 3;
             this.colliderOffsetX.Location = new System.Drawing.Point(139, 51);
             this.colliderOffsetX.Name = "colliderOffsetX";
             this.colliderOffsetX.Size = new System.Drawing.Size(33, 20);
@@ -359,6 +361,7 @@ namespace GhostbaitModelCreator
             // 
             // colliderOffsetY
             // 
+            this.colliderOffsetY.DecimalPlaces = 3;
             this.colliderOffsetY.Location = new System.Drawing.Point(188, 51);
             this.colliderOffsetY.Name = "colliderOffsetY";
             this.colliderOffsetY.Size = new System.Drawing.Size(33, 20);
@@ -366,6 +369,7 @@ namespace GhostbaitModelCreator
             // 
             // colliderOffsetZ
             // 
+            this.colliderOffsetZ.DecimalPlaces = 3;
             this.colliderOffsetZ.Location = new System.Drawing.Point(239, 51);
             this.colliderOffsetZ.Name = "colliderOffsetZ";
             this.colliderOffsetZ.Size = new System.Drawing.Size(33, 20);

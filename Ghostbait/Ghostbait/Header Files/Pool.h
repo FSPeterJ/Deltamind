@@ -48,7 +48,7 @@ class Pool:
 	T* elements;
 	size_t pool_size;
 public:
-	Pool(size_t size = (size_t) 128) : pool_size((size_t) size), elements((T*) memManage->RequestMemory(size, sizeof(T))) {
+	Pool(size_t size = (size_t) 128) : pool_size((size_t) size), elements((T*) memManage->RequestMemory((unsigned)size, sizeof(T))) {
 		inactiveList.resize(pool_size);
 		for(size_t i = 0; i < pool_size; ++i) {
 			//WTF WHY DOES THIS WORK BUT NOT &elements ????????

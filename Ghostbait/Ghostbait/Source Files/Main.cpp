@@ -118,12 +118,10 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	//Memory Test
 	//=============================
-
 	//WriteLine((int)sizeof(Pool<Object>(15)));
 	//WriteLine((int)sizeof(Pool<SomeLeakyObject>(15)));
 
 	//=============================
-
 	//Multithreading Test
 	//=============================
 
@@ -144,8 +142,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	vrMan = new VRManager();
 	rendInter = new Renderer();
-
-	if(vrMan->Init()) {
+	bool isVR = vrMan->Init();
+	if(isVR) {
 		rendInter->Initialize(wnd, vrMan);
 		inputMan = new InputManager(VR, vrMan);
 	} else {
@@ -160,8 +158,9 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	ObjectFactory::Initialize(objMan);
 	ObjectFactory::RegisterPrefabBase<ControllerObject>();
+	ObjectFactory::RegisterPrefabBase<Gun>();
+	ObjectFactory::RegisterPrefabBase<ViveController>();
 	ObjectFactory::RegisterPrefabBase<GameObject>();
-	ObjectFactory::RegisterPrefabBase<SomeCoolObject>();
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
 	ObjectFactory::RegisterManager<PhysicsComponent, PhysicsManager>(phyMan);
 	ObjectFactory::RegisterManager<Material, MaterialManager>(rendInter->getMaterialManager());
@@ -169,8 +168,13 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//------
 	// Scenemanager would make this
 	//=========================================================
+	TypeMap::RegisterObjectAlias<ViveController>("ViveController");
+	TypeMap::RegisterObjectAlias<Gun>("Gun");
+	TypeMap::RegisterObjectAlias<ControllerObject>("ControllerObject");
 
-	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"), true);
+	ObjectFactory::CreatePrefab(&std::string("Assets/basicSphere.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ScifiRoom.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object"));
@@ -181,10 +185,10 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	game = new Game();
 	game->Start();
-	vrMan->CreateControllers();
+	if(isVR) vrMan->CreateControllers();
 	DirectX::XMFLOAT4X4 roomMatrix;
 	DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.33f, 0.33f, 0.33f));
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(1, roomMatrix));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(3, roomMatrix));
 //	Object* cube1, *cube2;
 
 	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {0,-1,0,1}, &cube1));

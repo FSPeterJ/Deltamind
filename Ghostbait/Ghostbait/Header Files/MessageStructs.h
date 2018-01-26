@@ -61,7 +61,7 @@ public:
 	InstantiateMessage(const PrefabId _pid, const DirectX::XMFLOAT3 _position, Object**  _obj = nullptr) : pid(_pid), obj(_obj) { DirectX::XMStoreFloat4x4(&position, DirectX::XMMatrixTranslation(_position.x, _position.y, _position.z)); }
 	InstantiateMessage(const PrefabId _pid, const DirectX::XMFLOAT4X4 _position, Object**  _obj = nullptr) : pid(_pid), position(_position), obj(_obj) {}
 
-	const PrefabId GetId() const { return pid; }
+	const PrefabId GetPrefabId() const { return pid; }
 	Object ** GetReturnObject() const { return obj; }
 	DirectX::XMFLOAT4X4 GetPosition() const { return position; }
 	void SetReturnObject(Object * _object) const {
@@ -84,6 +84,7 @@ public:
 	Object* RetrieveObject() const { return obj; }
 };
 
+//Duplicate is unnessessary
 class NewObjectMessage: public EventMessageBase {
 	Object* obj;
 public:

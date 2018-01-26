@@ -19,6 +19,7 @@
 #include "PhysicsManager.h"
 #include "GhostTime.h"
 #include "../Projectile.h"
+#include "EnemyBase.h"
 
 Renderer* rendInter;
 VRManager* vrMan;
@@ -160,12 +161,13 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	objMan->Initialize(80);
 
 	ObjectFactory::Initialize(objMan);
-	ObjectFactory::RegisterPrefabBase<ControllerObject>(2);
+	ObjectFactory::RegisterPrefabBase<ControllerObject>(8);
 	ObjectFactory::RegisterPrefabBase<Gun>(10);
-	ObjectFactory::RegisterPrefabBase<ViveController>(2);
+	ObjectFactory::RegisterPrefabBase<ViveController>(8);
 	ObjectFactory::RegisterPrefabBase<GameObject>(512);
 	ObjectFactory::RegisterPrefabBase<Projectile>(512);
 	ObjectFactory::RegisterPrefabBase<Spawner>(16);
+	ObjectFactory::RegisterPrefabBase<EnemyBase>(32);
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
 	ObjectFactory::RegisterManager<PhysicsComponent, PhysicsManager>(phyMan);
 	ObjectFactory::RegisterManager<Material, MaterialManager>(rendInter->getMaterialManager());
@@ -178,6 +180,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<Gun>("Gun");
 	TypeMap::RegisterObjectAlias<Projectile>("Projectile");
 	TypeMap::RegisterObjectAlias<Spawner>("Spawner");
+	TypeMap::RegisterObjectAlias<EnemyBase>("EnemyBase");
+
 
 	ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer2.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"), true);
@@ -185,6 +189,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/ScifiRoom.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ProjectileSphere.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/EnemyRobot.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object"));
 	//ObjectFactory::CreatePrefab(&std::string("SomeCoolObject"));

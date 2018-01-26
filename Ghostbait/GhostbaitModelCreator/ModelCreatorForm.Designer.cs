@@ -118,7 +118,6 @@ namespace GhostbaitModelCreator
             // 
             this.meshFileName.Location = new System.Drawing.Point(6, 23);
             this.meshFileName.Name = "meshFileName";
-            this.meshFileName.ReadOnly = true;
             this.meshFileName.Size = new System.Drawing.Size(128, 20);
             this.meshFileName.TabIndex = 0;
             // 
@@ -291,7 +290,6 @@ namespace GhostbaitModelCreator
             // 
             this.bindPoseFileName.Location = new System.Drawing.Point(6, 23);
             this.bindPoseFileName.Name = "bindPoseFileName";
-            this.bindPoseFileName.ReadOnly = true;
             this.bindPoseFileName.Size = new System.Drawing.Size(128, 20);
             this.bindPoseFileName.TabIndex = 0;
             // 
@@ -332,9 +330,9 @@ namespace GhostbaitModelCreator
             // 
             this.materialFileName.Location = new System.Drawing.Point(6, 23);
             this.materialFileName.Name = "materialFileName";
-            this.materialFileName.ReadOnly = true;
             this.materialFileName.Size = new System.Drawing.Size(128, 20);
             this.materialFileName.TabIndex = 0;
+            this.materialFileName.TextChanged += new System.EventHandler(this.materialFileName_TextChanged);
             // 
             // materialFileGrab
             // 
@@ -385,34 +383,34 @@ namespace GhostbaitModelCreator
             this.blankToolStripMenuItem,
             this.fromFBXToolStripMenuItem});
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.newToolStripMenuItem.Text = "New";
             // 
             // blankToolStripMenuItem
             // 
             this.blankToolStripMenuItem.Name = "blankToolStripMenuItem";
-            this.blankToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.blankToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
             this.blankToolStripMenuItem.Text = "Blank";
             this.blankToolStripMenuItem.Click += new System.EventHandler(this.blankToolStripMenuItem_Click);
             // 
             // fromFBXToolStripMenuItem
             // 
             this.fromFBXToolStripMenuItem.Name = "fromFBXToolStripMenuItem";
-            this.fromFBXToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.fromFBXToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
             this.fromFBXToolStripMenuItem.Text = "From .FBX";
             this.fromFBXToolStripMenuItem.Click += new System.EventHandler(this.fromFBXToolStripMenuItem_Click);
             // 
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.openToolStripMenuItem.Text = "Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 

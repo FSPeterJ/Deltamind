@@ -154,7 +154,20 @@ public:
 			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, { -10, 0, 0 }));
 			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, { 0, 0, 10 }));
 			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, { 0, 0, -10 }));
+			GameObject* obj;
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(8/*Core*/, { 0, 1.5f, 0 }, (Object**)&obj));
+			DirectX::XMStoreFloat4x4(&obj->position, DirectX::XMLoadFloat4x4(&obj->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
+		}
+	};
+};
 
+class CoreCube : public GameObject {
+public:
+	CoreCube() { SetTag("Core"); };
+	void OnCollision(GameObject* other) {
+		if (other->GetTag() == "enemy") {
+			Console::WriteLine("YOU LOSE!");
+			Destroy();
 		}
 	};
 };

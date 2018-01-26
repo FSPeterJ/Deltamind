@@ -14,7 +14,7 @@ public:
 		//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 0,2,0,1 }));
 		//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { 2,0,0,1 }));
 		//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, { -2,0,0,1 }));
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(6, DirectX::XMFLOAT3(5.0f, 0.0f, 5.0f)));
+		//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(6, DirectX::XMFLOAT3(5.0f, 0.0f, 5.0f)));
 
 	}
 

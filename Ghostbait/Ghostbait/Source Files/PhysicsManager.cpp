@@ -117,6 +117,9 @@ void PhysicsManager::Update() {
 		XMStoreFloat4(objectPosition, newposition);
 		//components[i].parentObject->position.r[3] += components[i].rigidBody.GetVelocity() * dt;
 
+		if (((GameObject*)components[i].parentObject)->GetTag() == "Core") {
+			Console::WriteLine("COREEEEEEE");
+		}
 #if _DEBUG
 		for (int colInd = 0; colInd < components[i].colliders.size(); ++colInd) {
 			XMVECTOR offset = XMLoadFloat3(&(components[i].colliders[colInd].centerOffset));
@@ -303,7 +306,7 @@ bool PhysicsManager::CapsuleToSphereCollision(Collider capCol, DirectX::XMMATRIX
 	capStart = XMVector3TransformCoord(capStart, capPos);
 	capEnd = XMVector3TransformCoord(capEnd, capPos);
 
-	sphereCenter = XMLoadFloat3(&sphCol.centerOffset);
+	sphereCenter = XMVector3TransformCoord(XMLoadFloat3(&sphCol.centerOffset),sphPos);
 	closestOnCap = FindClosestPointOnLine(capStart, capEnd, sphereCenter);
 
 	float radii = capCol.colliderData->colliderInfo.capsuleCollider.radius + sphCol.colliderData->colliderInfo.sphereCollider.radius;

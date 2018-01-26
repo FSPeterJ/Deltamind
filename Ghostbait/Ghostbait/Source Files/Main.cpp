@@ -169,6 +169,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<Spawner>(16);
 	ObjectFactory::RegisterPrefabBase<EnemyBase>(32);
 	ObjectFactory::RegisterPrefabBase<MenuCube>(5);
+	ObjectFactory::RegisterPrefabBase<CoreCube>(5);
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
 	ObjectFactory::RegisterManager<PhysicsComponent, PhysicsManager>(phyMan);
 	ObjectFactory::RegisterManager<Material, MaterialManager>(rendInter->getMaterialManager());
@@ -183,6 +184,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<Spawner>("Spawner");
 	TypeMap::RegisterObjectAlias<EnemyBase>("EnemyBase");
 	TypeMap::RegisterObjectAlias<MenuCube>("MenuCube");
+	TypeMap::RegisterObjectAlias<CoreCube>("CoreCube");
 
 
 	ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer2.ghost"));
@@ -193,6 +195,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/EnemyRobot.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/CoreCube.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object"));
 	//ObjectFactory::CreatePrefab(&std::string("SomeCoolObject"));

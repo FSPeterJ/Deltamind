@@ -5,39 +5,39 @@
 //TODO: FIX THIS LATER
 
 class TypeMap {
-	static std::atomic_int lastTypeID; // the fact that this is static means it needs to be seperate.
-	static std::atomic_int lastObjectTypeID; // the fact that this is static means it needs to be seperate.
-	static std::atomic_int lastComponentTypeID; // the fact that this is static means it needs to be seperate.
+	static std::atomic_uint lastTypeID; // the fact that this is static means it needs to be seperate.
+	static std::atomic_uint lastObjectTypeID; // the fact that this is static means it needs to be seperate.
+	static std::atomic_uint lastComponentTypeID; // the fact that this is static means it needs to be seperate.
 protected:
-	static std::unordered_map<std::string, int> mapname;
-	static std::unordered_map<std::string, int> mapnameObject;
-	static std::unordered_map<std::string, int> mapnameComponent;
+	static std::unordered_map<std::string, unsigned> mapname;
+	static std::unordered_map<std::string, unsigned> mapnameObject;
+	static std::unordered_map<std::string, unsigned> mapnameComponent;
 public:
 	template <class Type>
-	static int GetTypeId() {
-		static const int id = lastTypeID++;
+	static unsigned GetTypeId() {
+		static const unsigned id = lastTypeID++;
 		return id;
 	}
 	template <class ObjectType>
-	static int GetObjectTypeID() {
-		static const int id = lastObjectTypeID++;
+	static unsigned GetObjectTypeID() {
+		static const unsigned id = lastObjectTypeID++;
 		return id;
 	}
 	template <class ComponentType>
-	static int GetComponentTypeID() {
-		static const int id = lastComponentTypeID++;
+	static unsigned GetComponentTypeID() {
+		static const unsigned id = lastComponentTypeID++;
 		return id;
 	}
 
-	static int GetNameId(std::string &name) {
+	static unsigned GetNameId(std::string &name) {
 		return mapname[name];
 	}
 
-	static int GetObjectNameID(std::string &_name) {
+	static unsigned GetObjectNameID(std::string &_name) {
 		return mapnameObject[_name];
 	}
 
-	static int GetComponentNameID(std::string &_name) {
+	static unsigned GetComponentNameID(std::string &_name) {
 		return mapnameComponent[_name];
 	}
 	template <typename ComponentType>

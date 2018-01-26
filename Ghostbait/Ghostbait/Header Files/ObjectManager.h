@@ -16,7 +16,7 @@ class ObjectManager: public IManager {
 	std::unordered_map<Object*, _Pool_Base*> pointers2Bucket;
 	_Pool_Base* poolList;
 
-	size_t poolListCount;
+	unsigned poolListCount;
 	size_t poolListNewIndex = 0;
 
 
@@ -27,7 +27,7 @@ public:
 
 	template<typename PoolType>
 	void CreatePool() {
-		int typeID = TypeMap::GetObjectTypeID<PoolType>();
+		unsigned typeID = TypeMap::GetObjectTypeID<PoolType>();
 		if(typeID < poolListCount) {
 			// HATE HATE HATE
 			Pool<PoolType>* data = new ((char*)poolList + (sizeof(Pool<size_t>) * typeID)) Pool<PoolType>(128);
@@ -45,10 +45,10 @@ public:
 	}
 	ObjectManager(MemoryManager* _memMan);
 	~ObjectManager();
-	Object* Instantiate(int typeID);
+	Object* Instantiate(unsigned typeID);
 	void Initialize(size_t prefabCount);
 	void Shutdown() const;
-	void CreatePool(int _size, Object* poolType) {}
+	void CreatePool(unsigned _size, Object* poolType) {}
 
 	const size_t BucketCount() const { return poolListCount; }
 };

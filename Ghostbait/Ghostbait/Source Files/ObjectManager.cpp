@@ -33,10 +33,10 @@ void ObjectManager::Update() {
 	Update_Delegate();
 }
 
-Object* ObjectManager::Instantiate(int typeID) {
-	Write(typeID);
+Object* ObjectManager::Instantiate(unsigned typeID) {
+	//Write(typeID);
 	_Pool_Base* poolBase = (_Pool_Base*) ((char*) poolList + sizeof(Pool<size_t>) * typeID);
-	Object* newobject = (Object*) poolBase->Activate();
+	Object* newobject = (Object*) poolBase->ActivateMemory();
 	pointers2Bucket[newobject] = poolBase;
 	return newobject;
 }
@@ -44,5 +44,5 @@ Object* ObjectManager::Instantiate(int typeID) {
 void ObjectManager::Destroy(EventMessageBase *e) {
 	DestroyMessage* destroy = (DestroyMessage*) e;
 	Object* o = destroy->RetrieveObject();
-	pointers2Bucket.find(o)->second->Deactivate((char*) o);
+	pointers2Bucket.find(o)->second->DeactivateMemory((char*) o);
 }

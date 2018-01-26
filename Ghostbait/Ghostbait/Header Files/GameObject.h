@@ -2,16 +2,26 @@
 #include "Object.h"
 #include "Controlable.h"
 #include "Console.h"
+//#include <functional>
 
 class GameObject: public Object {
+	std::string tag = "none";
 public:
 	GameObject();
-	void Activate();
-	virtual void Awake() {}
-	virtual void Update() {}
+
+	void Enable();
+	void Disable();
+
+	void Destroy();
+
+	virtual void Awake() {};
+	virtual void Update() {};
+
+	inline const std::string GetTag() const { return tag; };
+	inline void SetTag(std::string _tag) { tag = _tag; };
 };
 
-class Item : public GameObject {
+class Item: public GameObject {
 public:
 	enum State {
 		INVALID,
@@ -23,7 +33,7 @@ public:
 
 	void Update() {};
 };
-class Gun : public Item {
+class Gun: public Item {
 public:
 	enum FireType {
 		AUTO,
@@ -50,7 +60,7 @@ private:
 
 	bool AddEnergy(float energy) {
 		currentEnergy += energy;
-		if (currentEnergy >= energyLimit) {
+		if(currentEnergy >= energyLimit) {
 			currentEnergy = energyLimit;
 			return false;
 		}
@@ -64,9 +74,9 @@ public:
 	bool Shoot();
 	void Update();
 };
-class ViveController : public Item {
+class ViveController: public Item {
 public:
-	ViveController() { 
+	ViveController() {
 		state = CONTROLLER;
 		//TypeMap::RegisterObjectAlias<ViveController>("ViveController");
 	}
@@ -88,66 +98,33 @@ private:
 	void LeftUpdate();
 	void RightUpdate();
 public:
-	
-	ControllerObject()
-	{
+
+	ControllerObject() {
 		items.resize(4);
 		hand = INVALID;
 	}
 	void AddGun(int itemSlot, int prefabID, Gun::FireType _fireType, float _fireRate, float _damage) {
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0}, (Object**)&items[itemSlot]));
-		((Gun*)items[itemSlot])->SetStats(_fireType, _fireRate, _damage);
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, {0,0,0}, (Object**) &items[itemSlot]));
+		((Gun*) items[itemSlot])->SetStats(_fireType, _fireRate, _damage);
 	};
 	void AddController(int itemSlot, int prefabID) {
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0}, (Object**)&items[itemSlot]));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, {0,0,0}, (Object**) &items[itemSlot]));
 	};
-	inline void SetControllerHand(ControllerHand _hand) {hand = _hand;};
+	inline void SetControllerHand(ControllerHand _hand) { hand = _hand; };
 	void Update() override;
 };
 
-//class LeftControllerObject: public ControllerObject {
-//
-//public:
-//	LeftControllerObject() { 
-//		state = GUN; gun = Gun(Gun::FireType::SEMI, 60, 1); 
-//	};
-//	void Update() override;
-//};
+class Spawner: public GameObject {
+	float dt = 0;
+	float timeSinceLastSpawn = 0;
 
-//class RightControllerObject: public ControllerObject {
-//public:
-//	RightControllerObject() { 
-//		TypeMap::RegisterObjectAlias<RightControllerObject>("RightViveController");
-//		state = GUN; gun = Gun(Gun::FireType::AUTO, 4, 1); 
-//	};
-//	void Update() override;
-//};
+	int prefabID = 0;
+	int objectToSpawn = 10;
+	float startSpawnDelay = 0;
+	float runSpawnDelay = 2;
 
-class SomeCoolObject: public GameObject, public Controlable {
+	void SpawnObject();
 public:
-	void Awake() {
-		Console::WriteLine("Hey im being awakened.");
-	}
-	void Update() {};
-};
-class SomeLeakyObject: public GameObject {
-	int* testing;
-public:
-	SomeLeakyObject() {
-		TypeMap::RegisterObjectAlias<SomeLeakyObject>("SomeLeakyObject");
-		TypeMap::RegisterObjectAlias<SomeLeakyObject>("SomeLeaks");
-		TypeMap::RegisterObjectAlias<SomeLeakyObject>("LeakyThing");
-		testing = new int(66);
-	}
-
-	~SomeLeakyObject() {
-		delete testing;
-	}
-
-	void Awake() override {
-		Console::WriteLine("I am a cool object being awakened!");
-	}
-
-	void Update() override {
-	}
+	Spawner();
+	void Update();
 };

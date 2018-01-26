@@ -13,11 +13,13 @@ protected:
 private:
 
 public:
-	
+	Delegate<> DestroyComponents;
+
 	//TODO: convert to XMFLAOT4x4
 	DirectX::XMFLOAT4X4 position;
 	ComponentTypeContainer<ComponentBase*> Components;
 	//Endnote
+
 
 	Object() {
 		XMStoreFloat4x4(&position, DirectX::XMMatrixIdentity());
@@ -35,6 +37,8 @@ public:
 
 	template<typename T>
 	static T* Create(DirectX::XMFLOAT4 position, const PrefabId id) {
+
+		
 		//T* newObject = nullptr;
 		//how to get id from type??
 		//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(id, position, &newObject));
@@ -43,7 +47,10 @@ public:
 
 	template<typename ComponentType>
 	ComponentType* GetComponent() {
+		
+		
 		return Components.GetComponent<ComponentType>();
+		
 	};
 
 	template<typename ComponentType>

@@ -165,6 +165,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<ViveController>(2);
 	ObjectFactory::RegisterPrefabBase<GameObject>(512);
 	ObjectFactory::RegisterPrefabBase<Projectile>(512);
+	ObjectFactory::RegisterPrefabBase<Spawner>(16);
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
 	ObjectFactory::RegisterManager<PhysicsComponent, PhysicsManager>(phyMan);
 	ObjectFactory::RegisterManager<Material, MaterialManager>(rendInter->getMaterialManager());
@@ -172,16 +173,18 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//------
 	// Scenemanager would make this
 	//=========================================================
+	TypeMap::RegisterObjectAlias<ControllerObject>("ControllerObject");
 	TypeMap::RegisterObjectAlias<ViveController>("ViveController");
 	TypeMap::RegisterObjectAlias<Gun>("Gun");
-	TypeMap::RegisterObjectAlias<ControllerObject>("ControllerObject");
 	TypeMap::RegisterObjectAlias<Projectile>("Projectile");
+	TypeMap::RegisterObjectAlias<Spawner>("Spawner");
 
-	ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer2.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"), true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/basicSphere.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ScifiRoom.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ProjectileSphere.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object"));
 	//ObjectFactory::CreatePrefab(&std::string("SomeCoolObject"));
@@ -193,7 +196,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	game->Start();
 	if(isVR) vrMan->CreateControllers();
 	DirectX::XMFLOAT4X4 roomMatrix;
-	DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.33f, 0.33f, 0.33f));
+	DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * DirectX::XMMatrixTranslation(0, 3, 0));
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(3, roomMatrix));
 	//	Object* cube1, *cube2;
 

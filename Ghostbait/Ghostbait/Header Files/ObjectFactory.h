@@ -219,6 +219,7 @@ public:
 		Object* newobject = objMan->Instantiate(prefabs[pid].objectTypeID);
 
 		for(int i = 0; i < 64; i++) {
+
 			if(prefabs[pid].fastclone[i]) {
 				newobject->SetComponent(prefabs[pid].instantiatedComponents[i], i);
 			}
@@ -226,6 +227,9 @@ public:
 				InstantiatedCompBase* comptemp = (InstantiatedCompBase *)managers[i]->CloneComponent(prefabs[pid].instantiatedComponents[i]);
 				comptemp->parentObject = newobject; // This will crash if this is not an InstantiatedCompBase
 				newobject->SetComponent(comptemp, i);
+				newobject->DestroyComponents += [=]() {
+					managers[i]->ResetComponent(comptemp);
+				};
 			}
 		}
 		return newobject;

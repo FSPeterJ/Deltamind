@@ -70,7 +70,7 @@ InputPackage InputManager::VRInput::CheckForInput() {
 				else {
 					input = teleport;
 					amount = 1;
-					DirectX::XMStoreFloat4x4(&vrMan->world, DirectX::XMLoadFloat4x4(&vrMan->world) * DirectX::XMMatrixTranslation(vrMan->hmdPose._31, vrMan->hmdPose._32, vrMan->hmdPose._33));
+					DirectX::XMStoreFloat4x4(&vrMan->world, DirectX::XMLoadFloat4x4(&vrMan->world) * DirectX::XMMatrixTranslation(vrMan->hmdPose._31, 0, vrMan->hmdPose._33));
 				}
 				break;
 			case vr::k_EButton_Grip:

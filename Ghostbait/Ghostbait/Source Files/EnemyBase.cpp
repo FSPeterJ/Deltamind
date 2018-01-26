@@ -6,7 +6,7 @@ void EnemyBase::Update() {
 	DirectX::XMVECTOR directionToGoal = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&target), DirectX::XMLoadFloat4x4(&position).r[3]));
 	PhysicsComponent* myPhys = GetComponent<PhysicsComponent>();
 	
-	myPhys->rigidBody.AddForce(10.0f * GhostTime::SmoothDeltaTime(), DirectX::XMVectorGetX(directionToGoal), DirectX::XMVectorGetY(directionToGoal), DirectX::XMVectorGetZ(directionToGoal));
+	myPhys->rigidBody.AddForce(10.0f * (float)GhostTime::SmoothDeltaTime(), DirectX::XMVectorGetX(directionToGoal), DirectX::XMVectorGetY(directionToGoal), DirectX::XMVectorGetZ(directionToGoal));
 
 	if (myPhys->rigidBody.GetSpeedSq() > maxSpeed * maxSpeed) {
 		DirectX::XMVECTOR clampedVelocity = DirectX::XMVectorScale(DirectX::XMVector3Normalize(myPhys->rigidBody.GetVelocity()), maxSpeed);

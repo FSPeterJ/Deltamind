@@ -21,3 +21,9 @@ void Projectile::Update() {
 		}
 	}
 }
+
+void Projectile::OnCollision(GameObject* object )
+{
+	Destroy();
+	timeSinceShot = 0;
+}

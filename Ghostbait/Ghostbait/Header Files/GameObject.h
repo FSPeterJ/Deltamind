@@ -15,6 +15,7 @@ public:
 	GameObject();
 
 	void Enable();
+	virtual void OnCollision(GameObject* obj);
 	void Disable();
 
 	void Destroy();
@@ -38,8 +39,8 @@ public:
 	Item() { SetTag("Item"); };
 	void Update() {};
 };
-//class Gun: public Item, public Controlable {
-class Gun: public Item {
+class Gun: public Item, public Controlable {
+//class Gun: public Item {
 public:
 	enum FireType {
 		AUTO,

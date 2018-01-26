@@ -29,9 +29,11 @@ public:
 	RigidBody();
 	RigidBody(bool _hasGravity, float _mass, float veloX, float veloY, float veloZ);
 	void SetVelocity(float x, float y, float z);
+	void SetVelocity(DirectX::XMVECTOR _velocity);
 	void SetMass(float _mass);
 	void GravityOn(bool _hasGravity);
 	void AdjustGravityMagnitude(float magnitude);
+	float GetSpeedSq();
 
 	/// <summary>
 	/// Adds acceleration in the current forward Z diretion </summary>

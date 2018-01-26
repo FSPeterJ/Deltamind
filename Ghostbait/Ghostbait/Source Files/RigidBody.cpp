@@ -3,7 +3,7 @@
 using namespace DirectX;
 
 RigidBody::RigidBody() {
-	hasGavity = true;
+	hasGavity = false;
 	mass = 1.0f;
 	velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	netAcceleration = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -20,6 +20,9 @@ RigidBody::RigidBody(bool _hasGravity, float _mass, float veloX, float veloY, fl
 }
 void RigidBody::SetVelocity(float x, float y, float z) {
 	velocity = XMFLOAT3(x, y, z);
+}
+void RigidBody::SetVelocity(XMVECTOR _velocity) {
+	XMStoreFloat3(&velocity, _velocity);
 }
 void RigidBody::SetMass(float _mass) {
 	mass = _mass;
@@ -77,4 +80,8 @@ void RigidBody::Update() {
 }
 XMVECTOR RigidBody::GetVelocity() {
 	return XMLoadFloat3(&velocity);
+}
+
+float RigidBody::GetSpeedSq() {
+	return XMVectorGetX(XMVector3LengthSq(XMLoadFloat3(&velocity)));
 }

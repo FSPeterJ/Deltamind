@@ -13,6 +13,7 @@ enum EVENT_TYPES {
 	EVENT_InstantiateRequestByType,
 	EVENT_Destroy,
 	EVENT_Unrender,
+	EVENT_Addrender,
 	EVENT_LENGTH,
 };
 

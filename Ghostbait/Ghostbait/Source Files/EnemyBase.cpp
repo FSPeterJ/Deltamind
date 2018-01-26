@@ -20,7 +20,7 @@ void EnemyBase::OnCollision(GameObject* _other) {
 	PhysicsComponent* myPhys = GetComponent<PhysicsComponent>();
 	DirectX::XMVECTOR incomingDirection = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat4x4(&position).r[3], DirectX::XMLoadFloat4x4(&(_other->position)).r[3]));
 	if(_other->GetTag() == "Bullet") {
-		myPhys->rigidBody.AddForce(1.0f, DirectX::XMVectorGetX(incomingDirection), 0.0f, DirectX::XMVectorGetZ(incomingDirection));
+		myPhys->rigidBody.AddForce(0.2f, DirectX::XMVectorGetX(incomingDirection), 0.0f, DirectX::XMVectorGetZ(incomingDirection));
 		health -= 50.0f;
 	}
 	if(health <= 0.0f) {
@@ -29,6 +29,7 @@ void EnemyBase::OnCollision(GameObject* _other) {
 		if(temp > 3) {
 			MessageEvents::SendMessage(EVENT_GameWin, EventMessageBase());
 			WriteLine("GAME WAS WON");
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(9/*WinCube*/, { 0, 0.75f, 0 }));
 		}
 		this->Destroy();
 	}

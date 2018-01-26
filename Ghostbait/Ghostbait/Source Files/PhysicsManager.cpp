@@ -1,4 +1,5 @@
 #include "PhysicsManager.h"
+#include "DebugRenderer.h"
 
 Collider PhysicsManager::defaultColider;
 ColliderData PhysicsManager::defaultSphereColider;
@@ -86,7 +87,7 @@ PhysicsComponent* PhysicsManager::GetReferenceComponent(const char * _FilePath, 
 
 		compHolder.AddCollider(colDataHolder, offsetHolder.x, offsetHolder.y, offsetHolder.z);
 		colDataHolder = nullptr;
-		delete typeName; //TODO: typeName is allocated with new[] but is only being deleted with delete (not delete[])
+		delete[] typeName; //TODO: typeName is allocated with new[] but is only being deleted with delete (not delete[])
 	}
 
 	if (prefabComponents.size() < MAX_PREFABS) {
@@ -114,6 +115,40 @@ void PhysicsManager::Update() {
 		newposition += components[i].rigidBody.GetVelocity();
 		XMStoreFloat4(objectPosition, newposition);
 		//components[i].parentObject->position.r[3] += components[i].rigidBody.GetVelocity() * dt;
+
+#if _DEBUG
+		for (int colInd = 0; colInd < components[i].colliders.size(); ++colInd) {
+			XMVECTOR offset = XMLoadFloat3(&(components[i].colliders[colInd].centerOffset));
+			XMFLOAT3 colPos;
+			XMStoreFloat3(&colPos, newposition + offset);
+
+			switch (components[i].colliders[colInd].colliderData->colliderType)
+			{
+			case SPHERE:
+				DebugRenderer::AddSphere(colPos, components[i].colliders[colInd].colliderData->colliderInfo.sphereCollider.radius, XMFLOAT3(1.0f, 0.0f, 0.0f));
+				break;
+			case CAPSULE:
+			{
+				float _height = components[i].colliders[colInd].colliderData->colliderInfo.capsuleCollider.height;
+				XMVECTOR cap1A = offset + XMVectorSet(0, _height * 0.5f, 0, 0);
+				XMVECTOR cap1B = offset - XMVectorSet(0, _height * 0.5f, 0, 0);
+				cap1A = XMVector3TransformCoord(cap1A, XMLoadFloat4x4(&(components[i].parentObject->position)));
+				cap1B = XMVector3TransformCoord(cap1B, XMLoadFloat4x4(&(components[i].parentObject->position)));
+				XMFLOAT3 capStart, capEnd;
+				XMStoreFloat3(&capStart, cap1A);
+				XMStoreFloat3(&capEnd, cap1B);
+				DebugRenderer::AddSphere(capStart, components[i].colliders[colInd].colliderData->colliderInfo.capsuleCollider.radius, XMFLOAT3(1.0f, 0.0f, 0.0f));
+				DebugRenderer::AddSphere(capEnd, components[i].colliders[colInd].colliderData->colliderInfo.capsuleCollider.radius, XMFLOAT3(1.0f, 0.0f, 0.0f));
+				DebugRenderer::AddLine(capStart, capEnd, XMFLOAT3(1.0f, 0.0f, 0.0f));
+			}
+				break;
+			default:
+				break;
+			}
+
+		}
+
+#endif
 	}
 	//components[0].srcObj->position.r[3] -= XMVectorSet(0, dt, 0, 0);
 	TestAllComponentsCollision();

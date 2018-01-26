@@ -1,5 +1,6 @@
 #include "PhysicsManager.h"
 #include "DebugRenderer.h"
+#include "GameObject.h"
 
 Collider PhysicsManager::defaultColider;
 ColliderData PhysicsManager::defaultSphereColider;
@@ -319,15 +320,24 @@ XMVECTOR PhysicsManager::FindClosestPointOnLine(XMVECTOR& _lineSegStart, XMVECTO
 }
 
 void PhysicsManager::SendCollision(Object* obj1, Object* obj2) {
-	Console::WriteLine("Cube Collision");
+	//TODO: Fix this frown
+	((GameObject*)obj1)->OnCollision((GameObject*)obj2);
+	((GameObject*)obj2)->OnCollision((GameObject*)obj1);
+
 }
 
 void PhysicsManager::TestAllComponentsCollision() {
-	for (int comp1 = 0; comp1 < components.GetActiveCount(); ++comp1) {
-		for (int comp2 = 0; comp2 < components.GetActiveCount(); ++comp2) {
+	//Console::WriteLine((int)components.GetActiveCount());
+	int range = (int)components.GetActiveCount();
+	for (int comp1 = 0; comp1 < range; ++comp1) {
+		for (int comp2 = 0; comp2 < range; ++comp2) {
+			if (range <= comp1) {
+				break;
+			}
 			if (comp1 != comp2) {
 				CollisionCheck(components[comp1], components[comp2]);
 			}
+			range = (int)components.GetActiveCount();
 		}
 	}
 }

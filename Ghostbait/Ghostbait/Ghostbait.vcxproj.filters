@@ -257,11 +257,11 @@
     <FxCompile Include="PassThroughPS.hlsl">
       <Filter>Shaders\Pixel Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="StandardVertexShader.hlsl">
-      <Filter>Shaders\Vertex Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="StandardPixelShader.hlsl">
       <Filter>Shaders\Pixel Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="StandardVertexShader.hlsl">
+      <Filter>Shaders\Vertex Shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

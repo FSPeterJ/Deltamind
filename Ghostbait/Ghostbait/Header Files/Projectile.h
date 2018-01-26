@@ -6,6 +6,7 @@ public:
 	Projectile();
 	~Projectile();
 	void Update();
+	void OnCollision(GameObject * object);
 	float timeSinceShot = 0;
 	float maxProjectileTime = 4.0f;
 };

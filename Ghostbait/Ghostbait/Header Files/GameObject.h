@@ -5,16 +5,17 @@
 //#include <functional>
 
 class GameObject: public Object {
-	std::string tag = "none";
 	//Until delegate unsubscribe is fixed
 protected:
 
+	std::string tag = "none";
 	bool isAwake = false;
 
 public:
 	GameObject();
 
 	void Enable();
+	virtual void OnCollision(GameObject* obj);
 	void Disable();
 
 	void Destroy();
@@ -38,8 +39,8 @@ public:
 	Item() { SetTag("Item"); };
 	void Update() {};
 };
-//class Gun: public Item, public Controlable {
-class Gun: public Item {
+class Gun: public Item, public Controlable {
+//class Gun: public Item {
 public:
 	enum FireType {
 		AUTO,
@@ -115,10 +116,13 @@ public:
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0 }, (Object**)&items[itemSlot]));
 		((Gun*)items[itemSlot])->SetStats(_fireType, _fireRate, _damage);
 		if(!currentItem) currentItem = items[itemSlot];
+		else MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(items[itemSlot]));
 	};
 	void AddController(int itemSlot, int prefabID) {
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0 }, (Object**)&items[itemSlot]));
 		if(!currentItem) currentItem = items[itemSlot];
+		else MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(items[itemSlot]));
+
 	};
 	inline void SetControllerHand(ControllerHand _hand) { hand = _hand; };
 	void Update() override;
@@ -127,9 +131,10 @@ public:
 class Spawner: public GameObject {
 	float dt = 0;
 	float timeSinceLastSpawn = 0;
+	int spawnCount = 0;
 
-	int prefabID = 0;
-	int objectToSpawn = 10;
+	int prefabID = 6;
+	int objectsToSpawn = 1;
 	float startSpawnDelay = 0;
 	float runSpawnDelay = 2;
 
@@ -137,4 +142,19 @@ class Spawner: public GameObject {
 public:
 	Spawner();
 	void Update();
+};
+
+
+class MenuCube : public GameObject {
+public:
+	void OnCollision(GameObject* other){
+		if (other->GetTag() == "Bullet") {
+			Destroy();
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, { 10, 0, 0 }));
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, { -10, 0, 0 }));
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, { 0, 0, 10 }));
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, { 0, 0, -10 }));
+
+		}
+	};
 };

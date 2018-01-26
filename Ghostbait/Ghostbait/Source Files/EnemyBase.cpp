@@ -6,7 +6,7 @@ void EnemyBase::Update() {
 	DirectX::XMVECTOR directionToGoal = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&target), DirectX::XMLoadFloat4x4(&position).r[3]));
 	PhysicsComponent* myPhys = GetComponent<PhysicsComponent>();
 	
-	myPhys->rigidBody.AddForce(1.0f * (float)GhostTime::SmoothDeltaTime(), DirectX::XMVectorGetX(directionToGoal), DirectX::XMVectorGetY(directionToGoal), DirectX::XMVectorGetZ(directionToGoal));
+	//myPhys->rigidBody.AddForce(1.0f * (float)GhostTime::DeltaTime(), DirectX::XMVectorGetX(directionToGoal), DirectX::XMVectorGetY(directionToGoal), DirectX::XMVectorGetZ(directionToGoal));
 
 	if (myPhys->rigidBody.GetSpeedSq() > maxSpeed * maxSpeed) {
 		DirectX::XMVECTOR clampedVelocity = DirectX::XMVectorScale(DirectX::XMVector3Normalize(myPhys->rigidBody.GetVelocity()), maxSpeed);
@@ -14,15 +14,16 @@ void EnemyBase::Update() {
 	}
 }
 
-void EnemyBase::OnCollision(PhysicsComponent* _other) {
+void EnemyBase::OnCollision(GameObject* _other) {
 	PhysicsComponent* myPhys = GetComponent<PhysicsComponent>();
-	DirectX::XMVECTOR incomingDirection = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat4x4(&position).r[3], DirectX::XMLoadFloat4x4(&(_other->parentObject->position)).r[3]));
-	//if bullet
-	//myPhys->rigidBody.AddForce(5.0f, DirectX::XMVectorGetX(incomingDirection), DirectX::XMVectorGetY(incomingDirection), DirectX::XMVectorGetZ(incomingDirection));
-	//health -= 50.0f;
-
+	DirectX::XMVECTOR incomingDirection = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat4x4(&position).r[3], DirectX::XMLoadFloat4x4(&(_other->position)).r[3]));
+	if (_other->GetTag() == "bullet") {
+		myPhys->rigidBody.AddForce(5.0f, DirectX::XMVectorGetX(incomingDirection), DirectX::XMVectorGetY(incomingDirection), DirectX::XMVectorGetZ(incomingDirection));
+		health -= 50.0f;
+	}
 	if (health <= 0.0f) {
 		//Destroy itself
+		this->Destroy();
 	}
 }
 

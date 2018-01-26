@@ -168,6 +168,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<Projectile>(512);
 	ObjectFactory::RegisterPrefabBase<Spawner>(16);
 	ObjectFactory::RegisterPrefabBase<EnemyBase>(32);
+	ObjectFactory::RegisterPrefabBase<MenuCube>(5);
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
 	ObjectFactory::RegisterManager<PhysicsComponent, PhysicsManager>(phyMan);
 	ObjectFactory::RegisterManager<Material, MaterialManager>(rendInter->getMaterialManager());
@@ -181,6 +182,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<Projectile>("Projectile");
 	TypeMap::RegisterObjectAlias<Spawner>("Spawner");
 	TypeMap::RegisterObjectAlias<EnemyBase>("EnemyBase");
+	TypeMap::RegisterObjectAlias<MenuCube>("MenuCube");
 
 
 	ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer2.ghost"));
@@ -190,6 +192,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/ProjectileSphere.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/EnemyRobot.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object"));
 	//ObjectFactory::CreatePrefab(&std::string("SomeCoolObject"));
@@ -202,13 +205,18 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	if(isVR) vrMan->CreateControllers();
 	DirectX::XMFLOAT4X4 roomMatrix;
 	DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * DirectX::XMMatrixTranslation(0, 3, 0));
+	MenuCube* startCube;
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(3, roomMatrix));
-	//Gun* cube1;
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(7, {0, 1.5f, 0.5f}, (Object**)&startCube));
+	DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
 
-	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(2, { 0,1,0 }, (Object**)&cube1));
+	//	Object* cube1, *cube2;
+
+	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(2, { 0,1,0 }, (Object**)&gunthing));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(4, { 0,1,4 }, (Object**)&cube2));
+
 
 	
-	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {0,-3,0,1}, &cube2));
 
 	//Object* cube1 = Object::Create<Object>({0,-1,0,1}, 1);
 	//SomeCoolObject* cube2 = Object::Create<SomeCoolObject>({0,-3,0,1}, 2);

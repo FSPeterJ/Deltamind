@@ -516,9 +516,19 @@ namespace GhostbaitModelCreator {
             }
         }
 
+        private void meshFileName_TextChanged(object sender, EventArgs e)
+        {
+            mesh.FilePath = meshFileName.Text;
+        }
+
         private void materialFileName_TextChanged(object sender, EventArgs e)
         {
+            mat.FilePath = materialFileName.Text;
+        }
 
+        private void bindPoseFileName_TextChanged(object sender, EventArgs e)
+        {
+            bindPose.FilePath = bindPoseFileName.Text;
         }
     }
 }

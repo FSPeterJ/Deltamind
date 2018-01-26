@@ -11,6 +11,12 @@
 
 GameObject::GameObject() {}
 
+
+void GameObject::OnCollision(GameObject* obj) {
+
+}
+
+
 void GameObject::Enable() {
 	EngineStructure::Awake += [=]() {this->Awake(); };
 	isAwake = true;
@@ -27,13 +33,12 @@ void GameObject::Destroy() {
 
 	DestroyComponents();
 	Disable();
-	//TODO:: Make component clear
 	Components.Clear();
 }
 
 void Gun::Update() {
 	//This should be a parameter that makes it way all the way from main, don't query per object per frame
-	dt = (float)GhostTime::SmoothDeltaTime();
+	dt = (float)GhostTime::DeltaTime();
 	timeSinceLastShot += dt;
 
 	if(energyOverheatDelayTimeLeft > 0) {
@@ -48,10 +53,10 @@ void Gun::Update() {
 		currentEnergy = 0;
 	}
 
-	//if(KeyIsDown(Control::TestInput1)) {
-	//	Shoot();
-	//	ResetKey(Control::TestInput1);
-	//}
+	if(KeyIsDown(Control::TestInput1)) {
+		Shoot();
+		ResetKey(Control::TestInput1);
+	}
 
 	//Console::Write(currentEnergy);
 	//Console::Write("__");
@@ -69,6 +74,9 @@ bool Gun::Shoot() {
 				Projectile* obj;
 				MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(projectiePrefabID, { 0, 0, 0 }, (Object**)&obj));
 				obj->position = position;
+				obj->position._41 += obj->position._31 * 0.2f;
+				obj->position._42 += obj->position._32 * 0.2f;
+				obj->position._43 += obj->position._33 * 0.2f;
 				obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
 				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 0.1f, position._32 * 0.1f, position._33 * 0.1f);
 				obj->Enable();
@@ -84,6 +92,9 @@ bool Gun::Shoot() {
 				Projectile* obj;
 				MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(projectiePrefabID, { 0, 0, 0 }, (Object**)&obj));
 				obj->position = position;
+				obj->position._41 += obj->position._31 * 0.2f;
+				obj->position._42 += obj->position._32 * 0.2f;
+				obj->position._43 += obj->position._33 * 0.2f;
 				obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
 				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 0.1f, position._32 * 0.1f, position._33 * 0.1f);
 				obj->Enable();
@@ -106,16 +117,35 @@ void ControllerObject::Update() {
 void ControllerObject::LeftUpdate() {
 #pragma region Switch Controller Item
 	if(KeyIsDown(leftItem1)) {
-		if(items[0]) currentItem = items[0];
+		if (items[0]) {
+			MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentItem));
+			currentItem = items[0];
+			MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentItem));
+		}
 		ResetKey(leftItem1);
-	} else if(KeyIsDown(leftItem2)) {
-		if(items[1]) currentItem = items[1];
+	} 
+	else if(KeyIsDown(leftItem2)) {
+		if (items[1]) {
+			MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentItem));
+			currentItem = items[1];
+			MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentItem));
+		}
 		ResetKey(leftItem2);
-	} else if(KeyIsDown(leftItem3)) {
-		if(items[2]) currentItem = items[2];
+	} 
+	else if(KeyIsDown(leftItem3)) {
+		if (items[2]) {
+			MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentItem));
+			currentItem = items[2];
+			MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentItem));
+		}
 		ResetKey(leftItem3);
-	} else if(KeyIsDown(leftItem4)) {
-		if(items[3]) currentItem = items[3];
+	} 
+	else if(KeyIsDown(leftItem4)) {
+		if (items[3]) {
+			MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentItem));
+			currentItem = items[3];
+			MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentItem));
+		}
 		ResetKey(leftItem4);
 	}
 #pragma endregion
@@ -146,16 +176,35 @@ void ControllerObject::LeftUpdate() {
 void ControllerObject::RightUpdate() {
 #pragma region Switch Controller Item
 	if(KeyIsDown(rightItem1)) {
-		if(items[0]) currentItem = items[0];
+		if (items[0]) {
+			MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentItem));
+			currentItem = items[0];
+			MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentItem));
+		}
 		ResetKey(rightItem1);
-	} else if(KeyIsDown(rightItem2)) {
-		if(items[1]) currentItem = items[1];
+	} 
+	else if(KeyIsDown(rightItem2)) {
+		if (items[1]) {
+			MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentItem));
+			currentItem = items[1];
+			MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentItem));
+		}
 		ResetKey(rightItem2);
-	} else if(KeyIsDown(rightItem3)) {
-		if(items[2]) currentItem = items[2];
+	} 
+	else if(KeyIsDown(rightItem3)) {
+		if (items[2]) {
+			MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentItem));
+			currentItem = items[2];
+			MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentItem));
+		}
 		ResetKey(rightItem3);
-	} else if(KeyIsDown(rightItem4)) {
-		if(items[3]) currentItem = items[3];
+	} 
+	else if(KeyIsDown(rightItem4)) {
+		if (items[3]) {
+			MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentItem));
+			currentItem = items[3];
+			MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentItem));
+		}
 		ResetKey(rightItem4);
 	}
 #pragma endregion
@@ -193,10 +242,11 @@ void Spawner::SpawnObject() {
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, {0, 0, 0}, &obj));
 	obj->position = position;
 	timeSinceLastSpawn = 0;
+	++spawnCount;
 }
 void Spawner::Update() {
-	timeSinceLastSpawn += (float) GhostTime::SmoothDeltaTime();
-	if(timeSinceLastSpawn >= runSpawnDelay) {
+	timeSinceLastSpawn += (float) GhostTime::DeltaTime();
+	if(timeSinceLastSpawn >= runSpawnDelay && spawnCount < objectsToSpawn) {
 		SpawnObject();
 	}
 }

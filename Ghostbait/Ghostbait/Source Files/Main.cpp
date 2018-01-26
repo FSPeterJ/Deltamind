@@ -118,12 +118,10 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	//Memory Test
 	//=============================
-
 	//WriteLine((int)sizeof(Pool<Object>(15)));
 	//WriteLine((int)sizeof(Pool<SomeLeakyObject>(15)));
 
 	//=============================
-
 	//Multithreading Test
 	//=============================
 
@@ -144,8 +142,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	vrMan = new VRManager();
 	rendInter = new Renderer();
-
-	if(vrMan->Init()) {
+	bool isVR = vrMan->Init();
+	if(isVR) {
 		rendInter->Initialize(wnd, vrMan);
 		inputMan = new InputManager(VR, vrMan);
 	} else {
@@ -187,7 +185,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	game = new Game();
 	game->Start();
-	vrMan->CreateControllers();
+	if(isVR) vrMan->CreateControllers();
 	DirectX::XMFLOAT4X4 roomMatrix;
 	DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.33f, 0.33f, 0.33f));
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(3, roomMatrix));

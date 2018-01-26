@@ -233,11 +233,12 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 }
 
 void Loop() {
-	rendInter->Render();
-	game->Update();
-	inputMan->HandleInput();
 	phyMan->Update();
+	inputMan->HandleInput();
 	engine.ExecuteUpdate();
+	engine.ExecuteLateUpdate();
+
+	rendInter->Render();
 }
 
 void CleanUp() {

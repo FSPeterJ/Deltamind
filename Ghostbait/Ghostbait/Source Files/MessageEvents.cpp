@@ -1,10 +1,21 @@
 #include "MessageEvents.h"
 
 std::unordered_map<EVENT_TYPES, Delegate<EventMessageBase*>> MessageEvents::eventmap;
+std::queue<std::function<void()>> MessageEvents::queuedEvents;
 
-MessageEvents::MessageEvents() {}
+MessageEvents::MessageEvents() {
+	EngineStructure::LateUpdate += [=]() { ProcessEvents(); };
+}
 
 MessageEvents::~MessageEvents() {}
+
+void MessageEvents::ProcessEvents() {
+	while(!queuedEvents.empty()) {
+		auto f = queuedEvents.front();
+		f();
+		queuedEvents.pop();
+	}
+}
 
 //for testing only. used to test messages that have no subscribers yetx
 void MessageEvents::HandleMessage(EVENT_TYPES eventtype, EventMessageBase& m) {

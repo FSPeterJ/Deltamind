@@ -1,8 +1,12 @@
 #pragma once
-
+#include "EngineStructure.h"
 class Game {
 public:
-	Game() {}
+	Game() {
+		EngineStructure::Update += [=]() { 
+			this->Update(); 
+		};
+	}
 
 	Object * test, *test2;
 

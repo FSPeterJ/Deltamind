@@ -167,6 +167,7 @@ public:
 	void OnCollision(GameObject* other) {
 		if (other->GetTag() == "enemy") {
 			Console::WriteLine("YOU LOSE!");
+			Debug("YOU LOSE!");
 			Destroy();
 		}
 	};

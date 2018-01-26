@@ -27,7 +27,6 @@ void GameObject::Destroy() {
 
 	DestroyComponents();
 	Disable();
-	//TODO:: Make component clear
 	Components.Clear();
 }
 
@@ -101,16 +100,35 @@ void ControllerObject::Update() {
 void ControllerObject::LeftUpdate() {
 #pragma region Switch Controller Item
 	if(KeyIsDown(leftItem1)) {
-		if(items[0]) currentItem = items[0];
+		if (items[0]) {
+			MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentItem));
+			currentItem = items[0];
+			MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentItem));
+		}
 		ResetKey(leftItem1);
-	} else if(KeyIsDown(leftItem2)) {
-		if(items[1]) currentItem = items[1];
+	} 
+	else if(KeyIsDown(leftItem2)) {
+		if (items[1]) {
+			MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentItem));
+			currentItem = items[1];
+			MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentItem));
+		}
 		ResetKey(leftItem2);
-	} else if(KeyIsDown(leftItem3)) {
-		if(items[2]) currentItem = items[2];
+	} 
+	else if(KeyIsDown(leftItem3)) {
+		if (items[2]) {
+			MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentItem));
+			currentItem = items[2];
+			MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentItem));
+		}
 		ResetKey(leftItem3);
-	} else if(KeyIsDown(leftItem4)) {
-		if(items[3]) currentItem = items[3];
+	} 
+	else if(KeyIsDown(leftItem4)) {
+		if (items[3]) {
+			MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentItem));
+			currentItem = items[3];
+			MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentItem));
+		}
 		ResetKey(leftItem4);
 	}
 #pragma endregion
@@ -141,16 +159,35 @@ void ControllerObject::LeftUpdate() {
 void ControllerObject::RightUpdate() {
 #pragma region Switch Controller Item
 	if(KeyIsDown(rightItem1)) {
-		if(items[0]) currentItem = items[0];
+		if (items[0]) {
+			MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentItem));
+			currentItem = items[0];
+			MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentItem));
+		}
 		ResetKey(rightItem1);
-	} else if(KeyIsDown(rightItem2)) {
-		if(items[1]) currentItem = items[1];
+	} 
+	else if(KeyIsDown(rightItem2)) {
+		if (items[1]) {
+			MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentItem));
+			currentItem = items[1];
+			MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentItem));
+		}
 		ResetKey(rightItem2);
-	} else if(KeyIsDown(rightItem3)) {
-		if(items[2]) currentItem = items[2];
+	} 
+	else if(KeyIsDown(rightItem3)) {
+		if (items[2]) {
+			MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentItem));
+			currentItem = items[2];
+			MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentItem));
+		}
 		ResetKey(rightItem3);
-	} else if(KeyIsDown(rightItem4)) {
-		if(items[3]) currentItem = items[3];
+	} 
+	else if(KeyIsDown(rightItem4)) {
+		if (items[3]) {
+			MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentItem));
+			currentItem = items[3];
+			MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentItem));
+		}
 		ResetKey(rightItem4);
 	}
 #pragma endregion

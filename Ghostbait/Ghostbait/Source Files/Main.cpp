@@ -160,12 +160,13 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	objMan->Initialize(80);
 
 	ObjectFactory::Initialize(objMan);
-	ObjectFactory::RegisterPrefabBase<ControllerObject>(2);
+	ObjectFactory::RegisterPrefabBase<ControllerObject>(8);
 	ObjectFactory::RegisterPrefabBase<Gun>(10);
-	ObjectFactory::RegisterPrefabBase<ViveController>(2);
+	ObjectFactory::RegisterPrefabBase<ViveController>(8);
 	ObjectFactory::RegisterPrefabBase<GameObject>(512);
 	ObjectFactory::RegisterPrefabBase<Projectile>(512);
 	ObjectFactory::RegisterPrefabBase<Spawner>(16);
+	ObjectFactory::RegisterPrefabBase<MenuCube>(5);
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
 	ObjectFactory::RegisterManager<PhysicsComponent, PhysicsManager>(phyMan);
 	ObjectFactory::RegisterManager<Material, MaterialManager>(rendInter->getMaterialManager());
@@ -178,6 +179,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<Gun>("Gun");
 	TypeMap::RegisterObjectAlias<Projectile>("Projectile");
 	TypeMap::RegisterObjectAlias<Spawner>("Spawner");
+	TypeMap::RegisterObjectAlias<MenuCube>("MenuCube");
 
 	ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer2.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"), true);
@@ -185,6 +187,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/ScifiRoom.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ProjectileSphere.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object"));
 	//ObjectFactory::CreatePrefab(&std::string("SomeCoolObject"));
@@ -197,7 +200,11 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	if(isVR) vrMan->CreateControllers();
 	DirectX::XMFLOAT4X4 roomMatrix;
 	DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * DirectX::XMMatrixTranslation(0, 3, 0));
+	MenuCube* startCube;
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(3, roomMatrix));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(6, {0, 1.5f, 0.5f}, (Object**)&startCube));
+	DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
+
 	//	Object* cube1, *cube2;
 
 		//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {0,-1,0,1}, &cube1));

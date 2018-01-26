@@ -6,7 +6,7 @@ public:
 	Projectile();
 	~Projectile();
 	void Update();
-	float timeSinceShot;
+	float timeSinceShot = 0;
 	float maxProjectileTime = 3.0;
 };
 

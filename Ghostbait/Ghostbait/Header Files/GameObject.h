@@ -114,10 +114,13 @@ public:
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0 }, (Object**)&items[itemSlot]));
 		((Gun*)items[itemSlot])->SetStats(_fireType, _fireRate, _damage);
 		if(!currentItem) currentItem = items[itemSlot];
+		else MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(items[itemSlot]));
 	};
 	void AddController(int itemSlot, int prefabID) {
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0 }, (Object**)&items[itemSlot]));
 		if(!currentItem) currentItem = items[itemSlot];
+		else MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(items[itemSlot]));
+
 	};
 	inline void SetControllerHand(ControllerHand _hand) { hand = _hand; };
 	void Update() override;
@@ -136,4 +139,14 @@ class Spawner: public GameObject {
 public:
 	Spawner();
 	void Update();
+};
+
+
+class MenuCube : public GameObject {
+public:
+	void OnCollision(GameObject* other){
+		if (other->GetTag() == "Bullet") {
+			Destroy();
+		}
+	};
 };

@@ -38,7 +38,7 @@ void GameObject::Destroy() {
 
 void Gun::Update() {
 	//This should be a parameter that makes it way all the way from main, don't query per object per frame
-	dt = (float)GhostTime::SmoothDeltaTime();
+	dt = (float)GhostTime::DeltaTime();
 	timeSinceLastShot += dt;
 
 	if(energyOverheatDelayTimeLeft > 0) {
@@ -74,6 +74,9 @@ bool Gun::Shoot() {
 				Projectile* obj;
 				MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(projectiePrefabID, { 0, 0, 0 }, (Object**)&obj));
 				obj->position = position;
+				obj->position._41 += obj->position._31 * 0.2f;
+				obj->position._42 += obj->position._32 * 0.2f;
+				obj->position._43 += obj->position._33 * 0.2f;
 				obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
 				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 0.1f, position._32 * 0.1f, position._33 * 0.1f);
 				obj->Enable();
@@ -89,6 +92,9 @@ bool Gun::Shoot() {
 				Projectile* obj;
 				MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(projectiePrefabID, { 0, 0, 0 }, (Object**)&obj));
 				obj->position = position;
+				obj->position._41 += obj->position._31 * 0.2f;
+				obj->position._42 += obj->position._32 * 0.2f;
+				obj->position._43 += obj->position._33 * 0.2f;
 				obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
 				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 0.1f, position._32 * 0.1f, position._33 * 0.1f);
 				obj->Enable();
@@ -236,10 +242,11 @@ void Spawner::SpawnObject() {
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, {0, 0, 0}, &obj));
 	obj->position = position;
 	timeSinceLastSpawn = 0;
+	++spawnCount;
 }
 void Spawner::Update() {
-	timeSinceLastSpawn += (float) GhostTime::SmoothDeltaTime();
-	if(timeSinceLastSpawn >= runSpawnDelay) {
+	timeSinceLastSpawn += (float) GhostTime::DeltaTime();
+	if(timeSinceLastSpawn >= runSpawnDelay && spawnCount < objectsToSpawn) {
 		SpawnObject();
 	}
 }

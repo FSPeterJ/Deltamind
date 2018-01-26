@@ -131,9 +131,10 @@ public:
 class Spawner: public GameObject {
 	float dt = 0;
 	float timeSinceLastSpawn = 0;
+	int spawnCount = 0;
 
-	int prefabID = 0;
-	int objectToSpawn = 10;
+	int prefabID = 6;
+	int objectsToSpawn = 1;
 	float startSpawnDelay = 0;
 	float runSpawnDelay = 2;
 
@@ -149,6 +150,11 @@ public:
 	void OnCollision(GameObject* other){
 		if (other->GetTag() == "Bullet") {
 			Destroy();
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, { 10, 0, 0 }));
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, { -10, 0, 0 }));
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, { 0, 0, 10 }));
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, { 0, 0, -10 }));
+
 		}
 	};
 };

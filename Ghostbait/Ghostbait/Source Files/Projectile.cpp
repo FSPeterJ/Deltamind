@@ -17,7 +17,8 @@ void Projectile::Update() {
 		timeSinceShot += dt;
 
 		if(timeSinceShot > maxProjectileTime) {
-			MessageEvents::SendMessage(EVENT_Destroy, DestroyMessage(this));
+			Destroy();
+			timeSinceShot = 0;
 		}
 	}
 }

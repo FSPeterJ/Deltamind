@@ -156,6 +156,7 @@ InputManager::KeyboardInput::KeyboardInput() {
 	MapKey(teleport, 'T');
 	MapKey(leftAttack, 'Q');
 	MapKey(rightAttack, 'E');
+	MapKey(TestInput1, 'X');
 }
 InputPackage InputManager::KeyboardInput::CheckForInput() {
 	Control input = none;

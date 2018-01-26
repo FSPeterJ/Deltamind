@@ -48,6 +48,11 @@ void Gun::Update() {
 		currentEnergy = 0;
 	}
 
+	//if(KeyIsDown(Control::TestInput1)) {
+	//	Shoot();
+	//	ResetKey(Control::TestInput1);
+	//}
+
 	//Console::Write(currentEnergy);
 	//Console::Write("__");
 	//Console::Write(energyLimit);

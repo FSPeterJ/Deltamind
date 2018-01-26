@@ -1,9 +1,13 @@
 #pragma once
 #include <windows.h>
 #include <iostream>
+#include <sstream>
 #include <string>
 
 namespace Console {
+
+#define Debug( s ) do{  std::wostringstream os_; os_ << s << std::endl;  OutputDebugStringW( os_.str().c_str() ); }while(0)
+
 #ifndef NDEBUG
 	/// <summary>
 	/// Allocates memory for the Console.
@@ -39,7 +43,6 @@ namespace Console {
 
 #define WriteT( s )   std::cout << s;
 
-#define Debug( s ) do{  std::wostringstream os_; os_ << s << std::endl;  OutputDebugStringW( os_.str().c_str() ); }while(0)
 
 #else
 	static void ConsoleAllocate() {}

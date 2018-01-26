@@ -16,6 +16,8 @@ enum EVENT_TYPES {
 	EVENT_Destroy,
 	EVENT_Unrender,
 	EVENT_Addrender,
+	EVENT_GameWin,
+	EVENT_GameLose,
 	EVENT_LENGTH,
 };
 

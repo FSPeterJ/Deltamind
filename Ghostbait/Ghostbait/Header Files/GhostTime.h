@@ -10,5 +10,5 @@ public:
 	static void Initalize();
 
 	static double DeltaTime() { return timer.Delta(); }
-	static double SmoothDeltaTime() { return timer.SmoothDelta(); }
+	//static double SmoothDeltaTime() { return timer.SmoothDelta(); }
 };

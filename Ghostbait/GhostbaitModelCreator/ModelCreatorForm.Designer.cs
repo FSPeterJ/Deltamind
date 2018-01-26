@@ -120,6 +120,7 @@ namespace GhostbaitModelCreator
             this.meshFileName.Name = "meshFileName";
             this.meshFileName.Size = new System.Drawing.Size(128, 20);
             this.meshFileName.TabIndex = 0;
+            this.meshFileName.TextChanged += new System.EventHandler(this.meshFileName_TextChanged);
             // 
             // groupBox3
             // 
@@ -292,6 +293,7 @@ namespace GhostbaitModelCreator
             this.bindPoseFileName.Name = "bindPoseFileName";
             this.bindPoseFileName.Size = new System.Drawing.Size(128, 20);
             this.bindPoseFileName.TabIndex = 0;
+            this.bindPoseFileName.TextChanged += new System.EventHandler(this.bindPoseFileName_TextChanged);
             // 
             // bindPoseFileGrab
             // 

@@ -60,7 +60,7 @@ void RigidBody::AdjustGravityMagnitude(float magnitude) {
 	actingForces[0].magnitude = magnitude;
 }
 void RigidBody::Update() {
-	float delta = (float) GhostTime::SmoothDeltaTime();
+	float delta = (float) GhostTime::DeltaTime();
 	unsigned int i = 0;
 	while(i < actingForces.size()) {
 		if(actingForces[i].timeInAction <= 0.0f) {

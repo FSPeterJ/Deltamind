@@ -207,9 +207,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * DirectX::XMMatrixTranslation(0, 3, 0));
 	MenuCube* startCube;
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(3, roomMatrix));
-	Gun* gunthing;
-	Projectile* cube2;
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(6, {0, 1.5f, 0.5f}, (Object**)&startCube));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(7, {0, 1.5f, 0.5f}, (Object**)&startCube));
 	DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
 
 	//	Object* cube1, *cube2;

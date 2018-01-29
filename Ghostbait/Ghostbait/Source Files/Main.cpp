@@ -33,63 +33,7 @@ MemoryManager MemMan;
 ObjectManager* objMan;
 EngineStructure engine;
 
-/*
 
-		MMP""MM""YMM   .g8""8q. `7MM"""Yb.     .g8""8q.
-		P'   MM   `7 .dP'    `YM. MM    `Yb. .dP'    `YM.
-			 MM      dM'      `MM MM     `Mb dM'      `MM
-			 MM      MM        MM MM      MM MM        MM
-			 MM      MM.      ,MP MM     ,MP MM.      ,MP
-			 MM      `Mb.    ,dP' MM    ,dP' `Mb.    ,dP'
-		   .JMML.      `"bmmd"' .JMMmmmdP'     `"bmmd"'
-	==============================================================
-	==============================================================
-
-	-EVERYONE do this:
-		+ Download Visual Leak Detector from here:
-			https://github.com/KindDragon/vld/releases
-
-		+ Open and copy the dbghelp.dlls from the VS2017 folder into the VDL folder since it doesn't natively support VS2017:
-
-			E:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\CommonExtensions\Microsoft\TestWindow\Extensions\CppUnitFramework\x64	<- has the 64x version of dbghelp.dll
-			E:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\CommonExtensions\Microsoft\TestWindow\Extensions\CppUnitFramework\		<- has the 86x version of dbghelp.dll
-
-			E:\Program Files (x86)\Visual Leak Detector\bin\Win64 <- COPY the 64x version of dbghelp.dll in here
-			E:\Program Files (x86)\Visual Leak Detector\bin\Win32 <- COPY the 86x version of dbghelp.dll in here
-
-		if you want to debug on a desktop or another computer, be sure to add Program Files (x86)\Visual Leak Detector\inc to the C++ includes
-		vdl.h does not compile in release and is automaticallSy ignored.
-		we can then get rid of the obnoxious CRT memory debug on breakpoint method which is annoying
-
-	== Objects ==
-	- Re-test to be sure that new object manager works as expected after merging back into main with Pool_Test && Memory_Management (Large Malloc)
-		+ Test recycling of an object
-		+ Verify that the memory block we get (roughly 500MB) is passing out memory address correcty (no stepping on toes or re-righting our neighbors)
-	- Objects need to have a destroy delegate that
-	- Clean up Object Manager constructor.  Maybe Create the Pools using std::vector, then when Initialize is called, check the number of registerd classes and std::move() the pools into managed heap space in an array.
-	- Seperate template instance counting of Objects from Components (See TypeMapping.h for functionality).  MAybe just have two differently named functions and incrementors
-	- Replace factory manual dummy loading with actual loading of a ghostbait object file
-
-	== Engine ==
-	- Add delta time
-	- fix ALL warnings
-	- Create a standard header with COMMON includes and attach it to .cpp's that use those things.
-	- find any range based loops that do not use by reference ie: for(auto & element : container) and change it to use reference
-	- Re-evaluate usages of singletons / static classes vs instanced classes (does factory need to be pure static?  is this anti-architecture?)
-
-	== Physics ==
-	- Investigate if Physics call collisions twice IE: Object A hits Object B so there is an event (A hit B) but ALSO an event (B hit A) which is redundant processing
-	- The prefabs with collider samples are given live colliders and generate collisions at origin.  This is weird.
-	- Research how much we can get away with having XMMATRIX and XMVECTOR use instead of XMFLOAT4x4 and XMFLOAT4
-		It's very not cool loading and storing or memcpying just to do one or two lines of math.
-
-	== Memory && Input ==
-
-End of TODO
-=====================================================================================================================================
--------------------------------------------------------------------------------------------------------------------------------------
-=====================================================================================================================================
-*/
 
 void ExecuteAsync() {
 	WriteLine("I am executed asyncly!");
@@ -243,7 +187,6 @@ void Loop() {
 	inputMan->HandleInput();
 	engine.ExecuteUpdate();
 	engine.ExecuteLateUpdate();
-
 	rendInter->Render();
 }
 

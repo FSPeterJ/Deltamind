@@ -5,7 +5,19 @@
 
 class ComponentBase;
 
+class GhostMatrix : public DirectX::XMFLOAT4X4 {
+	DirectX::XMFLOAT4X4 previous = DirectX::XMFLOAT4X4(0, 0, 0, 0, 
+														0, 0, 0, 0, 
+														0, 0, 0, 0, 
+														0, 0, 0, 0);
+public:
+	inline const DirectX::XMFLOAT4X4 Previous() const { return previous; };
 
+	void operator=(const DirectX::XMFLOAT4X4& other) {
+		previous = *this;
+		*this = other;
+	}
+};
 
 class Object {
 protected:
@@ -13,10 +25,8 @@ protected:
 private:
 
 public:
+	GhostMatrix position;
 	Delegate<> DestroyComponents;
-
-	//TODO: convert to XMFLAOT4x4
-	DirectX::XMFLOAT4X4 position;
 	ComponentTypeContainer<ComponentBase*> Components;
 	//Endnote
 

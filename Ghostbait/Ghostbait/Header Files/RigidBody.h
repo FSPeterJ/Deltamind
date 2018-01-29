@@ -35,6 +35,19 @@ public:
 	void AdjustGravityMagnitude(float magnitude);
 	float GetSpeedSq();
 
+	//bool operator==(const RigidBody other) {
+	//	if (hasGavity != other.hasGavity) return false;
+	//	if (mass != other.mass) return false;
+	//	if (velocity.x != other.velocity.x) return false;
+	//	if (velocity.y != other.velocity.y) return false;
+	//	if (velocity.z != other.velocity.z) return false;
+	//	if (netAcceleration.x != other.netAcceleration.x) return false;
+	//	if (netAcceleration.y != other.netAcceleration.y) return false;
+	//	if (netAcceleration.z != other.netAcceleration.z) return false;
+	//	if (actingForces != other.actingForces) return false;
+	//	return true;
+	//}
+
 	/// <summary>
 	/// Adds acceleration in the current forward Z diretion </summary>
 	/// <returns>Returns FALSE if force cannot be added on this rigid body</returns>

@@ -55,7 +55,6 @@ public:
 			Object* temper;
 			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(10/*LoseCube*/, { 0, 0.75, 0 }, &temper));
 			DirectX::XMStoreFloat4x4(&temper->position, DirectX::XMLoadFloat4x4(&temper->position) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));
-
 		}
 	};
 };

@@ -209,6 +209,7 @@
     <ClInclude Include="Header Files\Projectile.h" />
     <ClInclude Include="Header Files\Renderer.h" />
     <ClInclude Include="Header Files\RigidBody.h" />
+    <ClInclude Include="Header Files\SpatialPartition.h" />
     <ClInclude Include="Header Files\Spawner.h" />
     <ClInclude Include="Header Files\StdHeader.h" />
     <ClInclude Include="Header Files\targetver.h" />
@@ -249,6 +250,7 @@
     <ClCompile Include="Source Files\Projectile.cpp" />
     <ClCompile Include="Source Files\Renderer.cpp" />
     <ClCompile Include="Source Files\RigidBody.cpp" />
+    <ClCompile Include="Source Files\SpatialPartition.cpp" />
     <ClCompile Include="Source Files\Spawner.cpp" />
     <ClCompile Include="Source Files\ThreadPool.cpp" />
     <ClCompile Include="Source Files\TypeMapping.cpp" />

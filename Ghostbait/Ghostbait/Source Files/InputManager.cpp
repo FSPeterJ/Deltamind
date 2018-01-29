@@ -164,7 +164,7 @@ InputPackage InputManager::KeyboardInput::CheckForInput() {
 
 	while(inputQueue.size() > 0) {
 		int j = 0;
-		for(auto value : keyBind) {
+		for(auto &value : keyBind) {
 			if(value.second == inputQueue.front()) {
 				input = value.first;
 				amount = 1;

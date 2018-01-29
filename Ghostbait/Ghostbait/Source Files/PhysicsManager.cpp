@@ -107,7 +107,7 @@ void PhysicsManager::ResetComponent(ComponentBase * reset) {
 
 void PhysicsManager::Update() {
 	std::vector<PhysicsComponent*>*temp = components.GetActiveList();
-	int activeCount = (int)components.GetActiveCount();
+	const int activeCount = (int)components.GetActiveCount();
 	for (int i = 0; i < activeCount; ++i) {
 		//This seems absurd, are we sure we can't use XMVECTOR and XMMATRIX in a more manageable manner?
 		XMFLOAT4* objectPosition = (XMFLOAT4*)&components[i].parentObject->position.m[3];

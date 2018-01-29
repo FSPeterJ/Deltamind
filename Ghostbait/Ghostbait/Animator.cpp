@@ -100,4 +100,16 @@ void Animator::Update()
 
 void Animator::addAnim(const char * animFilePath, const char * bindposeFilePath, const char * animName)
 {
+	animations[std::string(animName)] = animMan->GetReferenceAnimation(animFilePath, bindposeFilePath);
+}
+
+bool Animator::setState(const char * animName)
+{
+	Animation* toSet = animations[std::string(animName)];
+	if (toSet)
+	{
+		currAnim = toSet;
+		return true;
+	}
+	return false;
 }

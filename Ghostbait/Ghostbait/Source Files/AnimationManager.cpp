@@ -28,13 +28,15 @@ Animation * AnimationManager::LoadAnimation(const char * _animationFilePath, con
 	toPush->animID = (unsigned int) animations.size();
 	toPush->bPose = LoadBindpose(_bindposeFilePath);
 	animations.push_back(toPush);
+	animNames[std::string(_animationFilePath)] = toPush;
 	return animations[animations.size() - 1];
 }
 
 bindpose * AnimationManager::LoadBindpose(const char * _bindposeFilePath) {
-	for(size_t i = 0; i < bindPoses.size(); ++i) {
-		if(strcmp(bindPoses[i]->filePath, _bindposeFilePath))
-			return bindPoses[i];
+	{
+		bindpose* temp = bindposeNames[std::string(_bindposeFilePath)];
+		if (temp)
+			return temp;
 	}
 	bindpose* toPush = new bindpose;
 	std::ifstream reader;
@@ -51,8 +53,8 @@ bindpose * AnimationManager::LoadBindpose(const char * _bindposeFilePath) {
 		toPush->joints.push_back(alright);
 	}
 	reader.close();
-	toPush->filePath = _bindposeFilePath;
 	bindPoses.push_back(toPush);
+	bindposeNames[std::string(_bindposeFilePath)] = toPush;
 	return bindPoses[bindPoses.size() - 1];
 }
 
@@ -82,7 +84,12 @@ Animation * AnimationManager::GetElement(const unsigned int _id) {
 
 Animation * AnimationManager::GetReferenceAnimation(const char * _FilePath, const char * _bindposeFilePath)
 {
-	return nullptr;
+	Animation* toReturn = animNames[_FilePath];
+	if (!toReturn)
+	{
+		toReturn = LoadAnimation(_FilePath, _bindposeFilePath);
+	}
+	return toReturn;
 }
 
 void AnimationManager::ResetComponent(ComponentBase * reset) {

@@ -19,6 +19,7 @@ public:
 	void Initialize(AnimationManager* animManIn) { animMan = animManIn; };
 	void Update();
 	void addAnim(const char* animFilePath, const char* bindposeFilePath, const char* animName);
+	bool setState(const char* animName);
 	std::vector<animJoint>* getTweens() { return &tweens; }
 	Animation* getCurrentAnimation() { return currAnim; }
 };

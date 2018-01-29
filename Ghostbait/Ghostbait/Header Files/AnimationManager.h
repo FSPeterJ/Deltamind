@@ -3,6 +3,7 @@
 #include <IComponentManager.h>
 #include <directxmath.h>
 #include "ComponentBase.h"
+#include <map>
 
 #define MAX_ANIMATIONS 512
 struct animJoint {
@@ -16,7 +17,6 @@ struct keyframe {
 };
 
 struct bindpose {
-	const char * filePath;
 	std::vector<animJoint> joints;
 };
 
@@ -30,6 +30,8 @@ struct Animation {
 class AnimationManager : public IComponentManager {
 	std::vector<bindpose*> bindPoses;
 	std::vector<Animation*> animations;
+	std::map<std::string, Animation*> animNames;
+	std::map<std::string, bindpose*> bindposeNames;
 
 	Animation* LoadAnimation(const char* _animationFilePath, const char* _bindposeFilePath);
 	bindpose* LoadBindpose(const char* _bindposeFilePath);

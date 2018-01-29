@@ -6,7 +6,7 @@
 #include "Renderer.h"
 #include "ObjectManager.h"
 #include "MemoryManager.h"
-#include "GameObject.h"
+//#include "GameObject.h"
 #include "MessageEvents.h"
 #include "ObjectFactory.h"
 #include "GameObjectComponent.h"
@@ -20,6 +20,9 @@
 #include "GhostTime.h"
 #include "Projectile.h"
 #include "EnemyBase.h"
+#include "ViveController.h"
+#include "ControllerObject.h"
+#include "Spawner.h"
 
 Renderer* rendInter;
 VRManager* vrMan;
@@ -129,7 +132,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<EnemyBase>("EnemyBase");
 	TypeMap::RegisterObjectAlias<MenuCube>("MenuCube");
 	TypeMap::RegisterObjectAlias<CoreCube>("CoreCube");
-
+	TypeMap::RegisterObjectAlias<GameObject>("GameObject");
 
 	ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer2.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"), true);
@@ -140,6 +143,9 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/EnemyRobot.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/CoreCube.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"));
+
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object"));
 	//ObjectFactory::CreatePrefab(&std::string("SomeCoolObject"));
@@ -154,7 +160,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * DirectX::XMMatrixTranslation(0, 3, 0));
 	MenuCube* startCube;
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(3, roomMatrix));
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(7, {0, 1.5f, 0.5f}, (Object**)&startCube));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(7, {0, 1.5f, 0.0f}, (Object**)&startCube));
 	DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
 
 	//	Object* cube1, *cube2;

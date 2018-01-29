@@ -2,7 +2,7 @@
 #include "openvr.h"
 #include "ObjectManager.h"
 #include <DirectXMath.h>
-#include "GameObject.h"
+#include "ControllerObject.h"
 
 #define FLOAT4X4Identity DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 

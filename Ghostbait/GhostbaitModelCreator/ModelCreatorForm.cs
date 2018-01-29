@@ -24,7 +24,7 @@ namespace GhostbaitModelCreator {
         [DllImport("..\\..\\FBXInterface.dll")]
         public static extern int get_bindpose_from_scene(string fbx_file_path, string output_file_path);
 
-        private string GenerateRelativeComponentFilePath(string path, ComponentType type) {
+        public string GenerateRelativeComponentFilePath(string path, ComponentType type) {
             int dotIndex = path.LastIndexOf('.');
             int nameStartIndex = path.LastIndexOf('\\') + 1;
             string relativePath = path.Substring(nameStartIndex, dotIndex - nameStartIndex);
@@ -63,7 +63,7 @@ namespace GhostbaitModelCreator {
         }
 
         [Flags]
-        internal enum ComponentType {
+        public enum ComponentType {
             MESH = 1 << 0,
             MATERIAL = 1 << 1,
             BINDPOSE = 1 << 2,
@@ -107,6 +107,51 @@ namespace GhostbaitModelCreator {
             public void Reset() {
                 listBox.Items.Clear();
                 colliderList.Clear();
+            }
+        }
+
+        private struct animationFileData
+        {
+            private List<AnimationCreatorForm.AnimationData> animations;
+            private ListBox listbox;
+
+            public int animCount => animations.Count;
+            
+            public void addAnimation(AnimationCreatorForm.AnimationData anim)
+            {
+                listbox.Items.Add(anim.name);
+                animations.Add(anim);
+            }
+
+            public void Edit(AnimationCreatorForm.AnimationData anim, int index)
+            {
+                animations[index] = anim;
+                listbox.Items[index] = anim.name;
+            }
+
+            public AnimationCreatorForm.AnimationData GetAnimation(int index)
+            {
+                return animations[index];
+            }
+
+            public void Init(ListBox _listbox)
+            {
+                listbox = _listbox;
+                animations = new List<AnimationCreatorForm.AnimationData>();
+            }
+
+            public void RemoveAnimation()
+            {
+                int index = listbox.SelectedIndex;
+                if (index < 0 || index > listbox.Items.Count)
+                    return;
+                listbox.Items.RemoveAt(index);
+                animations.RemoveAt(index);
+            }
+            public void Reset()
+            {
+                listbox.Items.Clear();
+                animations.Clear();
             }
         }
 
@@ -154,7 +199,7 @@ namespace GhostbaitModelCreator {
             public void Reset() => FilePath = string.Empty;
         }
 
-        private MiltiFileData anim;
+        private animationFileData anim;
         private MiltiFileData audio;
         private SingleFileData bindPose;
         private Collider colliders;
@@ -176,27 +221,30 @@ namespace GhostbaitModelCreator {
 
         internal void CreateColliderPressed(ColliderCreatorForm.ColliderData d, int index) => colliders.Edit(d, index);
 
+        internal void CreateAnimationPressed(AnimationCreatorForm.AnimationData d) => anim.addAnimation(d);
+
         //Animation
         private void animationAdd_Click(object sender, EventArgs e) {
-            OpenFileDialog open = new OpenFileDialog {
-                Filter = "Animations (*.anim), (*.fbx)| *.anim; *.fbx;",
-                InitialDirectory = @"C:\",
-                Title = "An animation file for this Ghostbait object."
-            };
-            if (open.ShowDialog() == DialogResult.OK) {
-                if (open.FileName.Substring(open.FileName.Length - 4) == ".fbx") {
-                    string animFile = GenerateRelativeComponentFilePath(open.FileName, ANIMATION);
-                    if (get_animdata_from_scene(open.FileName, animFile) != -1) {
-                        animFile = animFile.Substring(/*Make const*/19);
-                        anim.AddFile(animFile);
-                    }
-                } else {
-                    anim.AddFile(open.FileName);
-                }
-            }
+            //OpenFileDialog open = new OpenFileDialog {
+            //    Filter = "Animations (*.anim), (*.fbx)| *.anim; *.fbx;",
+            //    InitialDirectory = @"C:\",
+            //    Title = "An animation file for this Ghostbait object."
+            //};
+            //if (open.ShowDialog() == DialogResult.OK) {
+            //    if (open.FileName.Substring(open.FileName.Length - 4) == ".fbx") {
+            //        string animFile = GenerateRelativeComponentFilePath(open.FileName, ANIMATION);
+            //        if (get_animdata_from_scene(open.FileName, animFile) != -1) {
+            //            animFile = animFile.Substring(/*Make const*/19);
+            //            anim.AddFile(animFile);
+            //        }
+            //    } else {
+            //        anim.AddFile(open.FileName);
+            //    }
+            //}
+            new AnimationCreatorForm(this).Show(this);
         }
 
-        private void animationRemove_Click(object sender, EventArgs e) => anim.RemoveFile();
+        private void animationRemove_Click(object sender, EventArgs e) => anim.RemoveAnimation();
 
         //Audio
         private void audioAdd_Click(object sender, EventArgs e) {
@@ -267,10 +315,6 @@ namespace GhostbaitModelCreator {
                 if (get_bindpose_from_scene(open.FileName, bindPoseFile) != -1) {
                     bindPoseFile = bindPoseFile.Substring(appendedPath.Length);
                     bindPose.FilePath = bindPoseFile;
-                }
-                if (get_animdata_from_scene(open.FileName, animFile) != -1) {
-                    animFile = animFile.Substring(appendedPath.Length);
-                    anim.AddFile(animFile);
                 }
             }
         }
@@ -349,7 +393,7 @@ namespace GhostbaitModelCreator {
                         else if (GetExtension(data).ToLower() == ".mat") mat.FilePath = data;
                         else if (GetExtension(data).ToLower() == ".bind") bindPose.FilePath = data;
                         else if (GetExtension(data).ToLower() == ".mp3" || GetExtension(data).ToLower() == ".wav") audio.AddFile(data);
-                        else if (GetExtension(data).ToLower() == ".anim") anim.AddFile(data);
+                        //else if (GetExtension(data).ToLower() == ".anim") anim.AddFile(data); TODO: Update this when animations are ready
                         continue;
                     } else {
                         string componentName = new string(reader.ReadChars(reader.ReadInt32()));
@@ -506,8 +550,8 @@ namespace GhostbaitModelCreator {
                         writer.Write(outstr.ToCharArray());
                     }
                     //Animations
-                    for (int i = 0; i < anim.filePaths.Count; ++i) {
-                        outstr = anim.filePaths[i] + '\0';
+                    for (int i = 0; i < anim.animCount; ++i) {
+                        outstr = anim.GetAnimation(i).filePath + '\0';
                         writer.Write(outstr.Length);
                         writer.Write(outstr.ToCharArray());
                     }

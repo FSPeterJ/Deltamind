@@ -6,7 +6,7 @@
 #include "Renderer.h"
 #include "ObjectManager.h"
 #include "MemoryManager.h"
-#include "GameObject.h"
+//#include "GameObject.h"
 #include "MessageEvents.h"
 #include "ObjectFactory.h"
 #include "GameObjectComponent.h"
@@ -20,6 +20,9 @@
 #include "GhostTime.h"
 #include "Projectile.h"
 #include "EnemyBase.h"
+#include "ViveController.h"
+#include "ControllerObject.h"
+#include "Spawner.h"
 
 Renderer* rendInter;
 VRManager* vrMan;

@@ -54,6 +54,7 @@ struct Material: ComponentBase {
 		//emissive.texture ? toShader.emissiveFactor = emissive.factor : toShader.emissiveFactor = 0.0f;
 
 		//!this is how you use the ternary operator
+		//appreciate the hindsight but it worked so I'm not sure why you're in my house telling me this
 		toShader.diffuseFactor = diffuse.texture ? diffuse.factor : 0.0f;
 		toShader.specularFactor = specular.texture ? specular.factor : 0.0f;
 		toShader.emissiveFactor = emissive.texture ? emissive.factor : 0.0f;

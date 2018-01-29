@@ -2,11 +2,11 @@
 #include <fstream>
 
 Animation * AnimationManager::LoadAnimation(const char * _animationFilePath, const char* _bindposeFilePath) {
-	Animation toPush;
+	Animation* toPush = new Animation;
 	std::ifstream reader;
 	reader.open(_animationFilePath, std::ios_base::binary);
 	if(reader.is_open()) {
-		reader.read((char*) &toPush.duration, sizeof(toPush.duration));
+		reader.read((char*) &toPush->duration, sizeof(toPush->duration));
 		int length;
 		reader.read((char*) &length, sizeof(length));
 		for(int i = 0; i < length; ++i) {
@@ -21,22 +21,22 @@ Animation * AnimationManager::LoadAnimation(const char * _animationFilePath, con
 					reader.read((char*) &joint.transform.m[almostThere], sizeof(joint.transform.m[almostThere]));
 				temp.joints.push_back(joint);
 			}
-			toPush.keyframes.push_back(temp);
+			toPush->keyframes.push_back(temp);
 		}
 	}
 	reader.close();
-	toPush.animID = (unsigned int) animations.size();
-	toPush.bPose = LoadBindpose(_bindposeFilePath);
+	toPush->animID = (unsigned int) animations.size();
+	toPush->bPose = LoadBindpose(_bindposeFilePath);
 	animations.push_back(toPush);
-	return &animations[animations.size() - 1];
+	return animations[animations.size() - 1];
 }
 
 bindpose * AnimationManager::LoadBindpose(const char * _bindposeFilePath) {
 	for(size_t i = 0; i < bindPoses.size(); ++i) {
-		if(strcmp(bindPoses[i].filePath, _bindposeFilePath))
-			return &bindPoses[i];
+		if(strcmp(bindPoses[i]->filePath, _bindposeFilePath))
+			return bindPoses[i];
 	}
-	bindpose toPush;
+	bindpose* toPush = new bindpose;
 	std::ifstream reader;
 	reader.open(_bindposeFilePath, std::ios_base::binary);
 	int len;
@@ -48,27 +48,40 @@ bindpose * AnimationManager::LoadBindpose(const char * _bindposeFilePath) {
 			reader.read((char*) &alright.transform.m[almostThere], sizeof(alright.transform.m[almostThere]));
 
 		XMStoreFloat4x4(&alright.transform, XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat4x4(&alright.transform)), XMLoadFloat4x4(&alright.transform)));
-		toPush.joints.push_back(alright);
+		toPush->joints.push_back(alright);
 	}
 	reader.close();
-	toPush.filePath = _bindposeFilePath;
+	toPush->filePath = _bindposeFilePath;
 	bindPoses.push_back(toPush);
-	return &bindPoses[bindPoses.size() - 1];
+	return bindPoses[bindPoses.size() - 1];
 }
 
 AnimationManager::AnimationManager() {}
 
 AnimationManager::~AnimationManager() {}
 
+void AnimationManager::Destroy()
+{
+	for (size_t i = 0; i < animations.size(); ++i)
+		delete animations[i];
+	for (size_t i = 0; i < bindPoses.size(); ++i)
+		delete bindPoses[i];
+}
+
 unsigned int AnimationManager::AddElement(const char * _animationFilePath, const char * _bindposeFilePath) {
 	return LoadAnimation(_animationFilePath, _bindposeFilePath)->animID;
 }
 
-AnimComponent * AnimationManager::GetElement(const unsigned int _id) {
+Animation * AnimationManager::GetElement(const unsigned int _id) {
 	for(size_t i = 0; i < animations.size(); ++i) {
-		if(animations[i].animID == _id)
-			return nullptr;// &animations[i];
+		if(animations[i]->animID == _id)
+			return animations[i];
 	}
+	return nullptr;
+}
+
+Animation * AnimationManager::GetReferenceAnimation(const char * _FilePath, const char * _bindposeFilePath)
+{
 	return nullptr;
 }
 

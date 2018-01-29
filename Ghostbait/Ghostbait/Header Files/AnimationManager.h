@@ -4,6 +4,7 @@
 #include <directxmath.h>
 #include "ComponentBase.h"
 
+#define MAX_ANIMATIONS 512
 struct animJoint {
 	DirectX::XMFLOAT4X4 transform;
 	int parent_index;
@@ -26,15 +27,9 @@ struct Animation {
 	bindpose* bPose;
 };
 
-struct AnimComponent: ComponentBase {
-	double timePos;
-	Animation * anim;
-	std::vector<animJoint> tweens;
-};
-
 class AnimationManager : public IComponentManager {
-	std::vector<bindpose> bindPoses;
-	std::vector<Animation> animations;
+	std::vector<bindpose*> bindPoses;
+	std::vector<Animation*> animations;
 
 	Animation* LoadAnimation(const char* _animationFilePath, const char* _bindposeFilePath);
 	bindpose* LoadBindpose(const char* _bindposeFilePath);
@@ -42,8 +37,10 @@ public:
 	AnimationManager();
 	~AnimationManager();
 
+	void Destroy();
 	unsigned int AddElement(const char* _animationFilePath, const char* _bindposeFilePath);
-	AnimComponent * GetElement(const unsigned int _id);
+	Animation * GetElement(const unsigned int _id);
+	Animation* GetReferenceAnimation(const char * _FilePath, const char * _bindposeFilePath);
 	void ResetComponent(ComponentBase * reset) override;
 
 

@@ -71,8 +71,23 @@ namespace GhostbaitModelCreator
             newAnim = new AnimationData();
             newAnim.filePath = filePathBox.Text;
             newAnim.name = nameBox.Text;
-            mainForm.CreateAnimationPressed(newAnim);
+            if(editing)
+            {
+                editing = false;
+                mainForm.CreateAnimationPressed(newAnim, editIndex);
+                editIndex = -1;
+            }
+            else
+                mainForm.CreateAnimationPressed(newAnim);
             this.Close();
+        }
+
+        internal void Edit(AnimationData data, int index)
+        {
+            editing = true;
+            editIndex = index;
+            filePathBox.Text = data.filePath;
+            nameBox.Text = data.name;
         }
     }
 }

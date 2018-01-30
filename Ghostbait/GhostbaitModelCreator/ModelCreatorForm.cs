@@ -223,6 +223,8 @@ namespace GhostbaitModelCreator {
 
         internal void CreateAnimationPressed(AnimationCreatorForm.AnimationData d) => anim.addAnimation(d);
 
+        internal void CreateAnimationPressed(AnimationCreatorForm.AnimationData d, int index) => anim.Edit(d, index);
+
         //Animation
         private void animationAdd_Click(object sender, EventArgs e) {
             //OpenFileDialog open = new OpenFileDialog {
@@ -588,7 +590,13 @@ namespace GhostbaitModelCreator {
 
         private void animationListBox_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-
+            int index = animationListBox.IndexFromPoint(e.Location);
+            if (index != ListBox.NoMatches)
+            {
+                var f = new AnimationCreatorForm(this);
+                f.Show(this);
+                f.Edit(anim.GetAnimation(index), index);
+            }
         }
     }
 }

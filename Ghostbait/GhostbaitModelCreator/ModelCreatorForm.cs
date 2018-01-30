@@ -393,7 +393,15 @@ namespace GhostbaitModelCreator {
                         else if (GetExtension(data).ToLower() == ".mat") mat.FilePath = data;
                         else if (GetExtension(data).ToLower() == ".bind") bindPose.FilePath = data;
                         else if (GetExtension(data).ToLower() == ".mp3" || GetExtension(data).ToLower() == ".wav") audio.AddFile(data);
-                        //else if (GetExtension(data).ToLower() == ".anim") anim.AddFile(data); TODO: Update this when animations are ready
+                        else if (GetExtension(data).ToLower() == ".anim")
+                        {
+                            int len = reader.ReadInt32();
+                            String name = new string(reader.ReadChars(len));
+                            AnimationCreatorForm.AnimationData toPush = new AnimationCreatorForm.AnimationData();
+                            toPush.filePath = data;
+                            toPush.name = name;
+                            anim.addAnimation(toPush);
+                        }
                         continue;
                     } else {
                         string componentName = new string(reader.ReadChars(reader.ReadInt32()));
@@ -552,6 +560,9 @@ namespace GhostbaitModelCreator {
                     //Animations
                     for (int i = 0; i < anim.animCount; ++i) {
                         outstr = anim.GetAnimation(i).filePath + '\0';
+                        writer.Write(outstr.Length);
+                        writer.Write(outstr.ToCharArray());
+                        outstr = anim.GetAnimation(i).name + '\0';
                         writer.Write(outstr.Length);
                         writer.Write(outstr.ToCharArray());
                     }

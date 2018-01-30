@@ -1,6 +1,6 @@
-texture2D diffuse : register(t0);
-texture2D specular : register(t1);
-texture2D emissive : register(t2);
+Texture2D diffuse : register(t0);
+Texture2D specular : register(t1);
+Texture2D emissive : register(t2);
 
 SamplerState sample : register(s0);
 
@@ -76,7 +76,6 @@ float4 main(PixelShaderInput input) : SV_TARGET
     }
 	//finalLight *= atten;
 	float4 diffuseColor = diffuse.Sample(sample, input.uv) * diffuseFactor;
-    float4 diffuseColor = diffuse.Sample(sample, float3(0, 0, 0));
 	float4 emissiveColor = emissive.Sample(sample, input.uv) * emissiveFactor;
 
 	//float3 reflectionDir = reflect(lightDir, input.norm);

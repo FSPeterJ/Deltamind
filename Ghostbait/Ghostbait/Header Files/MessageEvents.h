@@ -18,6 +18,7 @@ enum EVENT_TYPES {
 	EVENT_Addrender,
 	EVENT_GameWin,
 	EVENT_GameLose,
+	EVENT_Late,
 	EVENT_LENGTH,
 };
 
@@ -26,7 +27,7 @@ class EventMessageBase;
 class MessageEvents {
 private:
 	static std::unordered_map<EVENT_TYPES, Delegate<EventMessageBase*>> eventmap;
-	
+
 	static std::queue<std::function<void()>> queuedEvents;
 
 	static void HandleMessage(const EVENT_TYPES t, EventMessageBase* m) { HandleMessage(t, *m); }
@@ -39,15 +40,17 @@ public:
 	/// <param name="eventtype">The eventtype.</param>
 	/// <param name="execute">The function to execute.</param>
 	/// <param name="priority">The optional priority. Leaving it as -1 means no priority. Zero is highest priority.</param>
-	inline static void Subscribe(const EVENT_TYPES eventtype, std::function<void(EventMessageBase *)> execute, const int priority = -1) {
+	inline static unsigned Subscribe(const EVENT_TYPES eventtype, std::function<void(EventMessageBase *)> execute, const int priority = -1) {
 		//if(priority < 0) {
-		eventmap[eventtype] += execute;
+		return eventmap[eventtype].Add(execute);
 		//return;
 	//}
 
 	//size_t index = priority > eventmap.size() - 1 ? eventmap.size() - 1 : priority;
 	//eventmap[eventtype].insert(execute, index);
 	}
+
+	//This does not work v
 
 	/// <summary>
 	/// Sends a message and stores it in the event queue.
@@ -56,11 +59,14 @@ public:
 	/// <param name="message">The message.</param>
 	template <typename ...T>
 	inline static void SendQueueMessage(const EVENT_TYPES eventtype, std::function<void(T...)> execute) {
-		
+
 		//execute(T...);
-		queuedEvents.push([=]() {execute(T...)});
+		queuedEvents.push([=]()
+		{
+			execute(T...);
+		});
 		//HandleMessage(eventtype, message);
-	
+
 	}
 
 	/// <summary>

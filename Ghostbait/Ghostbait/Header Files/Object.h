@@ -4,8 +4,11 @@
 #include "MessageEvents.h"
 
 class ComponentBase;
-
-
+//
+//namespace DirectX {
+//
+//	struct XMFLOAT4X4;
+//}
 
 class Object {
 protected:
@@ -38,7 +41,6 @@ public:
 	template<typename T>
 	static T* Create(DirectX::XMFLOAT4 position, const PrefabId id) {
 
-		
 		//T* newObject = nullptr;
 		//how to get id from type??
 		//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(id, position, &newObject));
@@ -47,10 +49,8 @@ public:
 
 	template<typename ComponentType>
 	ComponentType* GetComponent() {
-		
-		
+
 		return Components.GetComponent<ComponentType>();
-		
 	};
 
 	template<typename ComponentType>

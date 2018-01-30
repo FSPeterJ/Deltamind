@@ -20,6 +20,8 @@ namespace GhostbaitModelCreator
             public string name;
         }
 
+        private bool editing = false;
+        private int editIndex = -1;
         private ModelCreatorForm mainForm;
         private AnimationData newAnim;
         public AnimationCreatorForm(ModelCreatorForm _main)

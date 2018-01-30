@@ -585,5 +585,10 @@ namespace GhostbaitModelCreator {
         {
             bindPose.FilePath = bindPoseFileName.Text;
         }
+
+        private void animationListBox_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+
+        }
     }
 }

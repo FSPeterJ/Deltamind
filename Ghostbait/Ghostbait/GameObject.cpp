@@ -6,6 +6,7 @@
 #include "MessageEvents.h"
 #include "GhostTime.h"
 #include "Console.h"
+#include "functional"
 
 
 GameObject::GameObject()
@@ -22,7 +23,12 @@ void GameObject::Enable() {
 
 void GameObject::Disable() {
 	//MessageEvents::SendQueueMessage(EVENT_Late, [=]() {this->Update(); });
-	//MessageEvents::SendQueueMessage(EVENT_Late,  [updateID]() { EngineStructure::Update.Remove(updateID); })
+	//MessageEvents::SendQueueMessage(EVENT_Late,  [updateID]() { EngineStructure::Update.Remove(updateID); });
+	//MessageEvents::SendQueueMessage<unsigned>(EVENT_Late, std::function( [updateID]() { EngineStructure::Update.Remove(updateID); }));
+	/*MessageEvents::SendQueueMessage(EVENT_Late, std::function( [updateID]() { EngineStructure::Update.Remove(updateID); }));
+	MessageEvents::SendQueueMessage(EVENT_Late, std::function( [=]() { EngineStructure::Update.Remove(updateID); }));
+	MessageEvents::SendQueueMessage(EVENT_Late, [updateID]() { EngineStructure::Update.Remove(updateID); });
+	MessageEvents::SendQueueMessage(EVENT_Late, [=]() { EngineStructure::Update.Remove(updateID); });*/
 	EngineStructure::Update.Sleep(updateID);
 
 	

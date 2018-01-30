@@ -162,6 +162,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(3, roomMatrix));
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(7, {0, 1.5f, 0.0f}, (Object**)&startCube));
 	DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
+	startCube->Enable();
 
 	//	Object* cube1, *cube2;
 

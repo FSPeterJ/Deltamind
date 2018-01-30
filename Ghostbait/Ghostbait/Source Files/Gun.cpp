@@ -1,6 +1,7 @@
 #include "Gun.h"
 #include "Projectile.h"
 #include "PhysicsManager.h"
+#include "GhostTime.h"
 
 bool Gun::Shoot() {
 	switch (type) {

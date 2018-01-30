@@ -9,7 +9,8 @@ ObjectManager::ObjectManager(MemoryManager* _memMan) : memMan(_memMan) {
 	poolList = (_Pool_Base*) memMan->RequestMemory(poolListCount, sizeof(Pool<size_t>));
 	//objectpool.reserve(prefabCount);
 
-	EngineStructure::Update += [=]() {this->Update(); };
+	//DISABLED - USE PER OBJECT NOW
+	//EngineStructure::Update.Add([=]() {this->Update(); });
 }
 
 ObjectManager::~ObjectManager() {

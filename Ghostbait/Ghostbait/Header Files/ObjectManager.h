@@ -32,12 +32,12 @@ public:
 			// HATE HATE HATE
 			Pool<PoolType>* data = new ((char*)poolList + (sizeof(Pool<size_t>) * typeID)) Pool<PoolType>((unsigned)size);
 			Delete += [data]() { data->~Pool<PoolType>(); };
-			Update_Delegate += [data]() {
+			/*Update_Delegate += [data]() {
 				std::vector<PoolType*>* lst = data->GetActiveList();
 				for(size_t i = 0; i < data->GetActiveCount(); ++i) {
 					((PoolType*)lst->operator[](i))->Update();
 				}
-			};
+			};*/
 		}
 		else {
 			throw std::exception("Attempted to allocate a pool at an index larger than the maximum ObjectPool collection size.");

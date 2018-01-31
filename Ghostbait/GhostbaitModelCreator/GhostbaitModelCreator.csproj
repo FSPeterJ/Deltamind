@@ -47,6 +47,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AnimationCreatorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AnimationCreatorForm.Designer.cs">
+      <DependentUpon>AnimationCreatorForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Extensions.cs" />
     <Compile Include="ModelCreatorForm.cs">
       <SubType>Form</SubType>
@@ -62,6 +68,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="AnimationCreatorForm.resx">
+      <DependentUpon>AnimationCreatorForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ModelCreatorForm.resx">
       <DependentUpon>ModelCreatorForm.cs</DependentUpon>
     </EmbeddedResource>

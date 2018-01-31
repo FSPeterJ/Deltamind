@@ -81,24 +81,28 @@ namespace GhostbaitModelCreator
             this.groupBox2.Controls.Add(this.className);
             this.groupBox2.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox2.Location = new System.Drawing.Point(0, 0);
+            this.groupBox2.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(200, 49);
+            this.groupBox2.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox2.Size = new System.Drawing.Size(267, 60);
             this.groupBox2.TabIndex = 3;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Class";
             // 
             // className
             // 
-            this.className.Location = new System.Drawing.Point(6, 23);
+            this.className.Location = new System.Drawing.Point(8, 28);
+            this.className.Margin = new System.Windows.Forms.Padding(4);
             this.className.Name = "className";
-            this.className.Size = new System.Drawing.Size(188, 20);
+            this.className.Size = new System.Drawing.Size(249, 22);
             this.className.TabIndex = 3;
             // 
             // meshFileRemove
             // 
-            this.meshFileRemove.Location = new System.Drawing.Point(170, 23);
+            this.meshFileRemove.Location = new System.Drawing.Point(227, 28);
+            this.meshFileRemove.Margin = new System.Windows.Forms.Padding(4);
             this.meshFileRemove.Name = "meshFileRemove";
-            this.meshFileRemove.Size = new System.Drawing.Size(24, 20);
+            this.meshFileRemove.Size = new System.Drawing.Size(32, 25);
             this.meshFileRemove.TabIndex = 2;
             this.meshFileRemove.Text = "X";
             this.meshFileRemove.UseVisualStyleBackColor = true;
@@ -106,9 +110,10 @@ namespace GhostbaitModelCreator
             // 
             // meshFileGrab
             // 
-            this.meshFileGrab.Location = new System.Drawing.Point(140, 23);
+            this.meshFileGrab.Location = new System.Drawing.Point(187, 28);
+            this.meshFileGrab.Margin = new System.Windows.Forms.Padding(4);
             this.meshFileGrab.Name = "meshFileGrab";
-            this.meshFileGrab.Size = new System.Drawing.Size(24, 20);
+            this.meshFileGrab.Size = new System.Drawing.Size(32, 25);
             this.meshFileGrab.TabIndex = 1;
             this.meshFileGrab.Text = "...";
             this.meshFileGrab.UseVisualStyleBackColor = true;
@@ -116,9 +121,10 @@ namespace GhostbaitModelCreator
             // 
             // meshFileName
             // 
-            this.meshFileName.Location = new System.Drawing.Point(6, 23);
+            this.meshFileName.Location = new System.Drawing.Point(8, 28);
+            this.meshFileName.Margin = new System.Windows.Forms.Padding(4);
             this.meshFileName.Name = "meshFileName";
-            this.meshFileName.Size = new System.Drawing.Size(128, 20);
+            this.meshFileName.Size = new System.Drawing.Size(169, 22);
             this.meshFileName.TabIndex = 0;
             this.meshFileName.TextChanged += new System.EventHandler(this.meshFileName_TextChanged);
             // 
@@ -128,18 +134,21 @@ namespace GhostbaitModelCreator
             this.groupBox3.Controls.Add(this.animationListBox);
             this.groupBox3.Controls.Add(this.animationRemove);
             this.groupBox3.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.groupBox3.Location = new System.Drawing.Point(0, 491);
+            this.groupBox3.Location = new System.Drawing.Point(0, 606);
+            this.groupBox3.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(200, 146);
+            this.groupBox3.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox3.Size = new System.Drawing.Size(267, 180);
             this.groupBox3.TabIndex = 4;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Animation";
             // 
             // animationAdd
             // 
-            this.animationAdd.Location = new System.Drawing.Point(3, 118);
+            this.animationAdd.Location = new System.Drawing.Point(4, 145);
+            this.animationAdd.Margin = new System.Windows.Forms.Padding(4);
             this.animationAdd.Name = "animationAdd";
-            this.animationAdd.Size = new System.Drawing.Size(84, 22);
+            this.animationAdd.Size = new System.Drawing.Size(112, 27);
             this.animationAdd.TabIndex = 4;
             this.animationAdd.Text = "Add";
             this.animationAdd.UseVisualStyleBackColor = true;
@@ -149,16 +158,20 @@ namespace GhostbaitModelCreator
             // 
             this.animationListBox.Dock = System.Windows.Forms.DockStyle.Top;
             this.animationListBox.FormattingEnabled = true;
-            this.animationListBox.Location = new System.Drawing.Point(3, 16);
+            this.animationListBox.ItemHeight = 16;
+            this.animationListBox.Location = new System.Drawing.Point(4, 19);
+            this.animationListBox.Margin = new System.Windows.Forms.Padding(4);
             this.animationListBox.Name = "animationListBox";
-            this.animationListBox.Size = new System.Drawing.Size(194, 95);
+            this.animationListBox.Size = new System.Drawing.Size(259, 116);
             this.animationListBox.TabIndex = 3;
+            this.animationListBox.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.animationListBox_MouseDoubleClick);
             // 
             // animationRemove
             // 
-            this.animationRemove.Location = new System.Drawing.Point(113, 118);
+            this.animationRemove.Location = new System.Drawing.Point(151, 145);
+            this.animationRemove.Margin = new System.Windows.Forms.Padding(4);
             this.animationRemove.Name = "animationRemove";
-            this.animationRemove.Size = new System.Drawing.Size(84, 22);
+            this.animationRemove.Size = new System.Drawing.Size(112, 27);
             this.animationRemove.TabIndex = 2;
             this.animationRemove.Text = "Remove";
             this.animationRemove.UseVisualStyleBackColor = true;
@@ -174,9 +187,10 @@ namespace GhostbaitModelCreator
             this.panel1.Controls.Add(this.groupBox2);
             this.panel1.Controls.Add(this.groupBox3);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panel1.Location = new System.Drawing.Point(684, 24);
+            this.panel1.Location = new System.Drawing.Point(912, 28);
+            this.panel1.Margin = new System.Windows.Forms.Padding(4);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(200, 637);
+            this.panel1.Size = new System.Drawing.Size(267, 786);
             this.panel1.TabIndex = 5;
             // 
             // groupBox7
@@ -185,18 +199,21 @@ namespace GhostbaitModelCreator
             this.groupBox7.Controls.Add(this.colliderListBox);
             this.groupBox7.Controls.Add(this.colliderRemove);
             this.groupBox7.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.groupBox7.Location = new System.Drawing.Point(0, 199);
+            this.groupBox7.Location = new System.Drawing.Point(0, 246);
+            this.groupBox7.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox7.Name = "groupBox7";
-            this.groupBox7.Size = new System.Drawing.Size(200, 146);
+            this.groupBox7.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox7.Size = new System.Drawing.Size(267, 180);
             this.groupBox7.TabIndex = 8;
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "Colliders";
             // 
             // colliderAdd
             // 
-            this.colliderAdd.Location = new System.Drawing.Point(3, 118);
+            this.colliderAdd.Location = new System.Drawing.Point(4, 145);
+            this.colliderAdd.Margin = new System.Windows.Forms.Padding(4);
             this.colliderAdd.Name = "colliderAdd";
-            this.colliderAdd.Size = new System.Drawing.Size(84, 22);
+            this.colliderAdd.Size = new System.Drawing.Size(112, 27);
             this.colliderAdd.TabIndex = 4;
             this.colliderAdd.Text = "Add";
             this.colliderAdd.UseVisualStyleBackColor = true;
@@ -206,17 +223,20 @@ namespace GhostbaitModelCreator
             // 
             this.colliderListBox.Dock = System.Windows.Forms.DockStyle.Top;
             this.colliderListBox.FormattingEnabled = true;
-            this.colliderListBox.Location = new System.Drawing.Point(3, 16);
+            this.colliderListBox.ItemHeight = 16;
+            this.colliderListBox.Location = new System.Drawing.Point(4, 19);
+            this.colliderListBox.Margin = new System.Windows.Forms.Padding(4);
             this.colliderListBox.Name = "colliderListBox";
-            this.colliderListBox.Size = new System.Drawing.Size(194, 95);
+            this.colliderListBox.Size = new System.Drawing.Size(259, 116);
             this.colliderListBox.TabIndex = 3;
             this.colliderListBox.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.colliderListBox_MouseDoubleClick);
             // 
             // colliderRemove
             // 
-            this.colliderRemove.Location = new System.Drawing.Point(113, 118);
+            this.colliderRemove.Location = new System.Drawing.Point(151, 145);
+            this.colliderRemove.Margin = new System.Windows.Forms.Padding(4);
             this.colliderRemove.Name = "colliderRemove";
-            this.colliderRemove.Size = new System.Drawing.Size(84, 22);
+            this.colliderRemove.Size = new System.Drawing.Size(112, 27);
             this.colliderRemove.TabIndex = 2;
             this.colliderRemove.Text = "Remove";
             this.colliderRemove.UseVisualStyleBackColor = true;
@@ -228,18 +248,21 @@ namespace GhostbaitModelCreator
             this.groupBox6.Controls.Add(this.audioListBox);
             this.groupBox6.Controls.Add(this.audioRemove);
             this.groupBox6.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.groupBox6.Location = new System.Drawing.Point(0, 345);
+            this.groupBox6.Location = new System.Drawing.Point(0, 426);
+            this.groupBox6.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox6.Name = "groupBox6";
-            this.groupBox6.Size = new System.Drawing.Size(200, 146);
+            this.groupBox6.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox6.Size = new System.Drawing.Size(267, 180);
             this.groupBox6.TabIndex = 7;
             this.groupBox6.TabStop = false;
             this.groupBox6.Text = "Audio";
             // 
             // audioAdd
             // 
-            this.audioAdd.Location = new System.Drawing.Point(3, 118);
+            this.audioAdd.Location = new System.Drawing.Point(4, 145);
+            this.audioAdd.Margin = new System.Windows.Forms.Padding(4);
             this.audioAdd.Name = "audioAdd";
-            this.audioAdd.Size = new System.Drawing.Size(84, 22);
+            this.audioAdd.Size = new System.Drawing.Size(112, 27);
             this.audioAdd.TabIndex = 4;
             this.audioAdd.Text = "Add";
             this.audioAdd.UseVisualStyleBackColor = true;
@@ -249,16 +272,19 @@ namespace GhostbaitModelCreator
             // 
             this.audioListBox.Dock = System.Windows.Forms.DockStyle.Top;
             this.audioListBox.FormattingEnabled = true;
-            this.audioListBox.Location = new System.Drawing.Point(3, 16);
+            this.audioListBox.ItemHeight = 16;
+            this.audioListBox.Location = new System.Drawing.Point(4, 19);
+            this.audioListBox.Margin = new System.Windows.Forms.Padding(4);
             this.audioListBox.Name = "audioListBox";
-            this.audioListBox.Size = new System.Drawing.Size(194, 95);
+            this.audioListBox.Size = new System.Drawing.Size(259, 116);
             this.audioListBox.TabIndex = 3;
             // 
             // audioRemove
             // 
-            this.audioRemove.Location = new System.Drawing.Point(113, 118);
+            this.audioRemove.Location = new System.Drawing.Point(151, 145);
+            this.audioRemove.Margin = new System.Windows.Forms.Padding(4);
             this.audioRemove.Name = "audioRemove";
-            this.audioRemove.Size = new System.Drawing.Size(84, 22);
+            this.audioRemove.Size = new System.Drawing.Size(112, 27);
             this.audioRemove.TabIndex = 2;
             this.audioRemove.Text = "Remove";
             this.audioRemove.UseVisualStyleBackColor = true;
@@ -270,18 +296,21 @@ namespace GhostbaitModelCreator
             this.groupBox5.Controls.Add(this.bindPoseFileName);
             this.groupBox5.Controls.Add(this.bindPoseFileGrab);
             this.groupBox5.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox5.Location = new System.Drawing.Point(0, 147);
+            this.groupBox5.Location = new System.Drawing.Point(0, 180);
+            this.groupBox5.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(200, 49);
+            this.groupBox5.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox5.Size = new System.Drawing.Size(267, 60);
             this.groupBox5.TabIndex = 6;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Bind Pose";
             // 
             // bindPoseFileRemove
             // 
-            this.bindPoseFileRemove.Location = new System.Drawing.Point(170, 23);
+            this.bindPoseFileRemove.Location = new System.Drawing.Point(227, 28);
+            this.bindPoseFileRemove.Margin = new System.Windows.Forms.Padding(4);
             this.bindPoseFileRemove.Name = "bindPoseFileRemove";
-            this.bindPoseFileRemove.Size = new System.Drawing.Size(24, 20);
+            this.bindPoseFileRemove.Size = new System.Drawing.Size(32, 25);
             this.bindPoseFileRemove.TabIndex = 2;
             this.bindPoseFileRemove.Text = "X";
             this.bindPoseFileRemove.UseVisualStyleBackColor = true;
@@ -289,17 +318,19 @@ namespace GhostbaitModelCreator
             // 
             // bindPoseFileName
             // 
-            this.bindPoseFileName.Location = new System.Drawing.Point(6, 23);
+            this.bindPoseFileName.Location = new System.Drawing.Point(8, 28);
+            this.bindPoseFileName.Margin = new System.Windows.Forms.Padding(4);
             this.bindPoseFileName.Name = "bindPoseFileName";
-            this.bindPoseFileName.Size = new System.Drawing.Size(128, 20);
+            this.bindPoseFileName.Size = new System.Drawing.Size(169, 22);
             this.bindPoseFileName.TabIndex = 0;
             this.bindPoseFileName.TextChanged += new System.EventHandler(this.bindPoseFileName_TextChanged);
             // 
             // bindPoseFileGrab
             // 
-            this.bindPoseFileGrab.Location = new System.Drawing.Point(140, 23);
+            this.bindPoseFileGrab.Location = new System.Drawing.Point(187, 28);
+            this.bindPoseFileGrab.Margin = new System.Windows.Forms.Padding(4);
             this.bindPoseFileGrab.Name = "bindPoseFileGrab";
-            this.bindPoseFileGrab.Size = new System.Drawing.Size(24, 20);
+            this.bindPoseFileGrab.Size = new System.Drawing.Size(32, 25);
             this.bindPoseFileGrab.TabIndex = 1;
             this.bindPoseFileGrab.Text = "...";
             this.bindPoseFileGrab.UseVisualStyleBackColor = true;
@@ -311,18 +342,21 @@ namespace GhostbaitModelCreator
             this.groupBox4.Controls.Add(this.materialFileName);
             this.groupBox4.Controls.Add(this.materialFileGrab);
             this.groupBox4.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox4.Location = new System.Drawing.Point(0, 98);
+            this.groupBox4.Location = new System.Drawing.Point(0, 120);
+            this.groupBox4.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(200, 49);
+            this.groupBox4.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox4.Size = new System.Drawing.Size(267, 60);
             this.groupBox4.TabIndex = 5;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Material";
             // 
             // materialFileRemove
             // 
-            this.materialFileRemove.Location = new System.Drawing.Point(170, 23);
+            this.materialFileRemove.Location = new System.Drawing.Point(227, 28);
+            this.materialFileRemove.Margin = new System.Windows.Forms.Padding(4);
             this.materialFileRemove.Name = "materialFileRemove";
-            this.materialFileRemove.Size = new System.Drawing.Size(24, 20);
+            this.materialFileRemove.Size = new System.Drawing.Size(32, 25);
             this.materialFileRemove.TabIndex = 2;
             this.materialFileRemove.Text = "X";
             this.materialFileRemove.UseVisualStyleBackColor = true;
@@ -330,17 +364,19 @@ namespace GhostbaitModelCreator
             // 
             // materialFileName
             // 
-            this.materialFileName.Location = new System.Drawing.Point(6, 23);
+            this.materialFileName.Location = new System.Drawing.Point(8, 28);
+            this.materialFileName.Margin = new System.Windows.Forms.Padding(4);
             this.materialFileName.Name = "materialFileName";
-            this.materialFileName.Size = new System.Drawing.Size(128, 20);
+            this.materialFileName.Size = new System.Drawing.Size(169, 22);
             this.materialFileName.TabIndex = 0;
             this.materialFileName.TextChanged += new System.EventHandler(this.materialFileName_TextChanged);
             // 
             // materialFileGrab
             // 
-            this.materialFileGrab.Location = new System.Drawing.Point(140, 23);
+            this.materialFileGrab.Location = new System.Drawing.Point(187, 28);
+            this.materialFileGrab.Margin = new System.Windows.Forms.Padding(4);
             this.materialFileGrab.Name = "materialFileGrab";
-            this.materialFileGrab.Size = new System.Drawing.Size(24, 20);
+            this.materialFileGrab.Size = new System.Drawing.Size(32, 25);
             this.materialFileGrab.TabIndex = 1;
             this.materialFileGrab.Text = "...";
             this.materialFileGrab.UseVisualStyleBackColor = true;
@@ -352,20 +388,24 @@ namespace GhostbaitModelCreator
             this.groupBox1.Controls.Add(this.meshFileName);
             this.groupBox1.Controls.Add(this.meshFileGrab);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox1.Location = new System.Drawing.Point(0, 49);
+            this.groupBox1.Location = new System.Drawing.Point(0, 60);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(200, 49);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox1.Size = new System.Drawing.Size(267, 60);
             this.groupBox1.TabIndex = 4;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Mesh";
             // 
             // menuStrip1
             // 
+            this.menuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(884, 24);
+            this.menuStrip1.Padding = new System.Windows.Forms.Padding(8, 2, 0, 2);
+            this.menuStrip1.Size = new System.Drawing.Size(1179, 28);
             this.menuStrip1.TabIndex = 6;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -376,7 +416,7 @@ namespace GhostbaitModelCreator
             this.openToolStripMenuItem,
             this.saveToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(44, 24);
             this.fileToolStripMenuItem.Text = "File";
             // 
             // newToolStripMenuItem
@@ -385,41 +425,42 @@ namespace GhostbaitModelCreator
             this.blankToolStripMenuItem,
             this.fromFBXToolStripMenuItem});
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(120, 26);
             this.newToolStripMenuItem.Text = "New";
             // 
             // blankToolStripMenuItem
             // 
             this.blankToolStripMenuItem.Name = "blankToolStripMenuItem";
-            this.blankToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
+            this.blankToolStripMenuItem.Size = new System.Drawing.Size(150, 26);
             this.blankToolStripMenuItem.Text = "Blank";
             this.blankToolStripMenuItem.Click += new System.EventHandler(this.blankToolStripMenuItem_Click);
             // 
             // fromFBXToolStripMenuItem
             // 
             this.fromFBXToolStripMenuItem.Name = "fromFBXToolStripMenuItem";
-            this.fromFBXToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
+            this.fromFBXToolStripMenuItem.Size = new System.Drawing.Size(150, 26);
             this.fromFBXToolStripMenuItem.Text = "From .FBX";
             this.fromFBXToolStripMenuItem.Click += new System.EventHandler(this.fromFBXToolStripMenuItem_Click);
             // 
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(120, 26);
             this.openToolStripMenuItem.Text = "Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(120, 26);
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // pictureBox1
             // 
             this.pictureBox1.Image = global::GhostbaitModelCreator.Properties.Resources.Ghostbait;
-            this.pictureBox1.Location = new System.Drawing.Point(646, 27);
+            this.pictureBox1.Location = new System.Drawing.Point(861, 33);
+            this.pictureBox1.Margin = new System.Windows.Forms.Padding(4);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(32, 32);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -428,14 +469,15 @@ namespace GhostbaitModelCreator
             // 
             // ModelCreatorForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(884, 661);
+            this.ClientSize = new System.Drawing.Size(1179, 814);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.menuStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "ModelCreatorForm";
             this.Text = "Ghostbait Model Editor";
             this.groupBox2.ResumeLayout(false);

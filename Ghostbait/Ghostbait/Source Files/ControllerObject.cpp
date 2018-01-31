@@ -5,13 +5,13 @@ ControllerObject::ControllerObject() {
 	hand = INVALID;
 }
 void ControllerObject::AddGun(int itemSlot, int prefabID, Gun::FireType _fireType, float _fireRate, float _damage) {
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0 }, (Object**)&items[itemSlot]));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0 }, (GameObject**)&items[itemSlot]));
 	((Gun*)items[itemSlot])->SetStats(_fireType, _fireRate, _damage);
 	if (!currentItem) currentItem = items[itemSlot];
 	else MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(items[itemSlot]));
 };
 void ControllerObject::AddController(int itemSlot, int prefabID) {
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0 }, (Object**)&items[itemSlot]));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0 }, (GameObject**)&items[itemSlot]));
 	if (!currentItem) currentItem = items[itemSlot];
 	else MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(items[itemSlot]));
 };

@@ -1,8 +1,12 @@
 #pragma once
+#include <unordered_map>
 #include "IComponentManager.h"
-#include "Object.h"
-#include "MessageEvents.h"
 #include "Pool.h"
+#include "Delegate.h"
+#include "Controlable.h"
+
+class EventMessageBase;
+
 #define MAX_ENTITY_COUNT 16384
 
 
@@ -45,10 +49,9 @@ public:
 	}
 	ObjectManager(MemoryManager* _memMan);
 	~ObjectManager();
-	Object* Instantiate(unsigned typeID);
+	GameObject* Instantiate(unsigned typeID);
 	void Initialize(size_t prefabCount);
 	void Shutdown() const;
-	void CreatePool(unsigned _size, Object* poolType) {}
 
 	const size_t BucketCount() const { return poolListCount; }
 };

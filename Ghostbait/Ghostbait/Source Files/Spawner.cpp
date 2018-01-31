@@ -6,7 +6,7 @@ Spawner::Spawner() {
 	SetTag("Spawner");
 }
 void Spawner::SpawnObject() {
-	Object* obj;
+	GameObject* obj;
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0, 0, 0 }, &obj));
 	obj->position = position;
 	timeSinceLastSpawn = 0;

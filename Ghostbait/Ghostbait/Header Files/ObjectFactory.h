@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <bitset>
 #include "Object.h"
+#include "GameObject.h"
 #include "ObjectManager.h"
 #include "TypeMapping.h"
 #include "ComponentBase.h"
@@ -29,7 +30,7 @@ class ObjectFactory {
 	/// Translates a typename's constructor for Objects
 	/// </summary>
 	template <typename T>
-	static Object* ConstructorFunc() {
+	static GameObject* ConstructorFunc() {
 		return new T;
 	}
 	ObjectFactory() {};
@@ -44,7 +45,7 @@ class ObjectFactory {
 	static std::unordered_map<std::string, unsigned> prefabNames;
 	static std::unordered_map<unsigned, unsigned> Object2Prefab;
 
-	//static std::unordered_map<int, Object*> prefabs;
+	//static std::unordered_map<int,GameObject*> prefabs;
 	//pointer storage for prefabs, access by Prefab ID
 	static std::vector<Prefab> prefabs;
 
@@ -195,7 +196,7 @@ public:
 
 	static void Instantiate(EventMessageBase *e) {
 		InstantiateMessage* instantiate = (InstantiateMessage*)e;
-		Object* newobject = ActivateObject(instantiate->GetPrefabId());
+		GameObject* newobject = ActivateObject(instantiate->GetPrefabId());
 		if(instantiate->GetReturnObject() != nullptr) {
 			instantiate->SetReturnObject(newobject);
 		}
@@ -206,7 +207,7 @@ public:
 
 	static void InstantiateByType(EventMessageBase *e) {
 		InstantiateMessage* instantiate = (InstantiateMessage*)e;
-		Object* newobject = ActivateObject(Object2Prefab[instantiate->GetPrefabId()]);
+		GameObject* newobject = ActivateObject(Object2Prefab[instantiate->GetPrefabId()]);
 		if(instantiate->GetReturnObject() != nullptr) {
 			instantiate->SetReturnObject(newobject);
 		}
@@ -215,8 +216,8 @@ public:
 		MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
 	}
 
-	static Object* ActivateObject(unsigned pid) {
-		Object* newobject = objMan->Instantiate(prefabs[pid].objectTypeID);
+	static GameObject* ActivateObject(unsigned pid) {
+		GameObject* newobject = objMan->Instantiate(prefabs[pid].objectTypeID);
 
 		for(int i = 0; i < 64; i++) {
 

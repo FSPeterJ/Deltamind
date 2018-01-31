@@ -4,8 +4,6 @@
 #include "MeshManager.h"
 #include "Window.h"
 #include "VRManager.h"
-#include "Object.h"
-#include "MessageEvents.h"
 #include "MaterialManager.h"
 #include "Camera.h"
 
@@ -128,7 +126,7 @@ private:
 	//eye leftEye;
 	//eye rightEye;
 
-	std::vector<const Object*> renderedObjects;
+	std::vector<const GameObject*> renderedObjects;
 
 	MeshManager* meshManagement = nullptr;
 	VRManager* VRManagement = nullptr;
@@ -178,16 +176,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////
 	void Destroy();
 
-	//////////////////////////////////////////////////////////////////////////////////
-	//registerObject
-	//Used to have the rendering system begin to render the position.  Only needs to be called once per position.
-	//
-	//Parameters: toRegister, specialInstructions
-	//[toRegister] A pointer to the position to place in the system
-	//[specialInstructions] Used to specify any special rendering instructions, such as transparent items.
-	//////////////////////////////////////////////////////////////////////////////////
-	void registerObject(const Object* toRegister, renderState specialInstructions = RENDER_STATE_DEFAULT);
-
+	
 	//////////////////////////////////////////////////////////////////////////////////
 	//registerObject
 	//Used to have the rendering system start rendering the object.
@@ -208,18 +197,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////
 	void unregisterObject(EventMessageBase* e);
 
-	//////////////////////////////////////////////////////////////////////////////////
-	//unregisterObject
-	//Used to have the rendering system stop rendering the position.  Only needs to be called once per position.
-	//
-	//Parameters: toRemove, specialInstructions
-	//[toRegister] A pointer to the position to remove from the system
-	//[specialInstructions] Used to specify any special rendering instructions, such as transparent items.
-	//
-	//Return value: bool
-	//Used to indicate if the position was found.
-	//////////////////////////////////////////////////////////////////////////////////
-	bool unregisterObject(const Object* toRemove, renderState specialInstructions = RENDER_STATE_DEFAULT);
+	
 	//////////////////////////////////////////////////////////////////////////////////
 	void addDirectionalLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 dir);
 	void addPointLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, float radius);

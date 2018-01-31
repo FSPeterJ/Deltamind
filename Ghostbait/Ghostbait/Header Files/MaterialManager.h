@@ -1,5 +1,4 @@
 #pragma once
-#include <vector>
 #include <d3d11.h>
 #include <unordered_map>
 #include <Pool.h>

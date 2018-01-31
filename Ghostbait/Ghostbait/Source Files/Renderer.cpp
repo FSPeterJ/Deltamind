@@ -291,19 +291,6 @@ void Renderer::Destroy() {
 #endif
 }
 
-void Renderer::registerObject(const Object * toRegister, renderState specialInstructions) {
-	switch(specialInstructions) {
-		case RENDER_STATE_DEFAULT:
-		{
-			renderedObjects.push_back(toRegister);
-		}
-		break;
-		case RENDER_STATE_TRANSPARENT:
-		{
-		}
-		break;
-	}
-}
 
 void Renderer::registerObject(EventMessageBase* e) {
 	//TODO: Need logic to determine which objects group to push to
@@ -318,32 +305,12 @@ void Renderer::registerObject(EventMessageBase* e) {
 void Renderer::unregisterObject(EventMessageBase* e) {
 	DestroyMessage* removeobjMessage = (DestroyMessage*)e;
 	//TODO: Need logic for which register it is under
-	for(std::vector<const Object*>::iterator iter = renderedObjects.begin(); iter != renderedObjects.end(); ++iter) {
+	for(std::vector<const GameObject*>::iterator iter = renderedObjects.begin(); iter != renderedObjects.end(); ++iter) {
 		if(*iter == removeobjMessage->RetrieveObject()) {
 			renderedObjects.erase(iter);
 			return;
 		}
 	}
-}
-
-bool Renderer::unregisterObject(const Object * toRemove, renderState specialInstructions) {
-	switch(specialInstructions) {
-		case RENDER_STATE_DEFAULT:
-		{
-			for(std::vector<const Object*>::iterator iter = renderedObjects.begin(); iter != renderedObjects.end(); ++iter) {
-				if(*iter == toRemove) {
-					renderedObjects.erase(iter);
-					return true;
-				}
-			}
-		}
-		break;
-		case RENDER_STATE_TRANSPARENT:
-		{
-		}
-		break;
-	}
-	return false;
 }
 
 void Renderer::addDirectionalLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 dir)

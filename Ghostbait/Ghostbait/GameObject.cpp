@@ -59,7 +59,7 @@ void MenuCube::OnCollision(GameObject* other) {
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, { 0, 0, 10 }));
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, { 0, 0, -10 }));
 		GameObject* obj;
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(8/*Core*/, { 0, 1.5f, 0 }, (Object**)&obj));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(8/*Core*/, { 0, 1.5f, 0 }, &obj));
 		DirectX::XMStoreFloat4x4(&obj->position,
 			DirectX::XMLoadFloat4x4(&obj->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
 	}
@@ -70,7 +70,7 @@ void CoreCube::OnCollision(GameObject* other) {
 		Console::WriteLine("YOU LOSE!");
 		Debug("YOU LOSE!");
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {this->Destroy(); });
-		Object* temper;
+		GameObject* temper;
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(10/*LoseCube*/, { 0, 0.75, 0 }, &temper));
 		DirectX::XMStoreFloat4x4(&temper->position,
 			DirectX::XMLoadFloat4x4(&temper->position) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));

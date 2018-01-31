@@ -24,7 +24,7 @@ PhysicsManager::PhysicsManager() {
 }
 PhysicsManager::~PhysicsManager() {}
 
-void PhysicsManager::AddComponent(Object* obj, float veloX, float veloY, float veloZ) {
+void PhysicsManager::AddComponent(GameObject* obj, float veloX, float veloY, float veloZ) {
 	PhysicsComponent* physComponent = components.ActivateMemory();
 	physComponent->colliders.push_back(defaultColider);
 	physComponent->parentObject = obj;
@@ -247,7 +247,7 @@ void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponen
 			}
 
 			if(collisionResult)
-				SendCollision(component1.parentObject, component2.parentObject);
+				SendCollision((GameObject*)component1.parentObject, (GameObject*)component2.parentObject);
 		}
 	}
 }
@@ -319,10 +319,10 @@ XMVECTOR PhysicsManager::FindClosestPointOnLine(XMVECTOR& _lineSegStart, XMVECTO
 	return _lineSegStart + (lineSegment * ratio);
 }
 
-void PhysicsManager::SendCollision(Object* obj1, Object* obj2) {
+void PhysicsManager::SendCollision(GameObject* obj1,GameObject* obj2) {
 	//TODO: Fix this frown
-	((GameObject*)obj1)->OnCollision((GameObject*)obj2);
-	((GameObject*)obj2)->OnCollision((GameObject*)obj1);
+	(obj1)->OnCollision(obj2);
+	(obj2)->OnCollision(obj1);
 
 }
 

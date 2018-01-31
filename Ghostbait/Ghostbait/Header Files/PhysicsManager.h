@@ -1,8 +1,11 @@
 #pragma once
 #include <DirectXMath.h>
 #include <vector>
-#include "PhysicsComponent.h"
+#include "PhysicsComponent.h" //This can probably be forward declared with notable effort
 #include "Pool.h"
+
+
+class GameObject;
 
 #define MAX_PHYSICALS 1024
 #define MAX_COLLIDER_DATA 24
@@ -26,7 +29,7 @@ class PhysicsManager: public IComponentManager {
 	bool CapsuleToCapsuleCollision(Collider col1, DirectX::XMMATRIX& pos1, Collider col2, DirectX::XMMATRIX& pos2);
 	bool CapsuleToSphereCollision(Collider capCol, DirectX::XMMATRIX& capPos, Collider sphCol, DirectX::XMMATRIX& sphPos);
 	bool BoxToBoxCollision();
-	void SendCollision(Object* obj1, Object* obj2);
+	void SendCollision(GameObject* obj1,GameObject* obj2);
 	//bool BoxToCapsuleCollision();
 	//bool CapsuleToSphereCollision();
 	//bool BoxToSphereCollision();
@@ -43,7 +46,7 @@ public:
 	//bool CreateCapsuleCollider(float radius, float height);
 	//bool CreateBoxCollider(XMFLOAT3 p1, XMFLOAT3 p2);
 
-	void AddComponent(Object* obj, float veloX = 0.0f, float veloY = 0.0f, float veloZ = 0.0f);
+	void AddComponent(GameObject* obj, float veloX = 0.0f, float veloY = 0.0f, float veloZ = 0.0f);
 	PhysicsComponent* CloneComponent(ComponentBase * reference) override;
 	PhysicsComponent* GetReferenceComponent(const char * _FilePath, const char* _data) override;
 	void ResetComponent(ComponentBase * reset) override;

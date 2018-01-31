@@ -65,15 +65,3 @@ void MenuCube::OnCollision(GameObject* other) {
 			DirectX::XMLoadFloat4x4(&obj->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
 	}
 }
-
-void CoreCube::OnCollision(GameObject* other) {
-	if(other->GetTag() == "enemy") {
-		Console::WriteLine("YOU LOSE!");
-		Debug("YOU LOSE!");
-		Destroy();
-		Object* temper;
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(10/*LoseCube*/, { 0, 0.75, 0 }, &temper));
-		DirectX::XMStoreFloat4x4(&temper->position,
-			DirectX::XMLoadFloat4x4(&temper->position) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));
-	}
-}

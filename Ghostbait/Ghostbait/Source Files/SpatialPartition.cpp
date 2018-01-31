@@ -1,32 +1,35 @@
 #include "SpatialPartition.h"
 #include "PhysicsComponent.h"
 
-Unit::Unit() {
+SpatialPartition::Unit::Unit() {
 
 }
-Unit::Unit(PhysicsComponent* comp) {
+SpatialPartition::Unit::Unit(PhysicsComponent* comp) {
 	AddComponent(comp);
 }
-int Unit::FindComponent(PhysicsComponent* comp) {
-	for (int i = 0; i < components.size(); ++i) {
-		//TODO May need to overload the == operator
+uint32_t SpatialPartition::Unit::FindComponent(PhysicsComponent* comp) {
+	for (uint32_t i = 0; i < (uint32_t)components.size(); ++i) {
+		//TODO Does this comparison work?
 		if (comp == components[i]) {
 			return i;
 		}
 	}
 	return -1;
 }
-bool Unit::AddComponent(PhysicsComponent* comp) {
-	if (FindComponent(comp) >= 0) {
+bool SpatialPartition::Unit::AddComponent(PhysicsComponent* comp) {
+	//Is component in here already?
+	if (FindComponent(comp) < 0) {
+		//Add it
 		components.push_back(comp);
 		return true;
 	}
 	return false;
 }
-bool Unit::RemoveComponent(PhysicsComponent* comp) {
+bool SpatialPartition::Unit::RemoveComponent(PhysicsComponent* comp) {
 	int index = FindComponent(comp);
 	if (index >= 0) {
-		components.erase(components.cbegin + index);
+		//TODO: Does this work like I expect?
+		components.erase(components.begin() + index);
 		return true;
 	}
 	return false;
@@ -49,81 +52,101 @@ uint32_t SpatialPartition::Hash(const float x, const float y, const float z) {
 	if (n < 0) n += bucketCount;	// Keep indices in positive range
 	return n;
 }
+uint32_t SpatialPartition::Hash(DirectX::XMFLOAT3 point) {
+	return Hash(point.x, point.y, point.z);
+}
+std::vector<uint32_t> SpatialPartition::Hash(const AABB aabb) {
+	std::vector<uint32_t> indicies;
+	std::vector<DirectX::XMFLOAT3> points;
+	points.resize(8);
+	points[0] = aabb.min;
+	points[1] = DirectX::XMFLOAT3(aabb.min.x, aabb.min.y, aabb.max.z);
+	points[2] = DirectX::XMFLOAT3(aabb.min.x, aabb.max.y, aabb.min.z);
+	points[3] = DirectX::XMFLOAT3(aabb.min.x, aabb.max.y, aabb.max.z);
+	points[4] = DirectX::XMFLOAT3(aabb.max.x, aabb.min.y, aabb.min.z);
+	points[5] = DirectX::XMFLOAT3(aabb.max.x, aabb.min.y, aabb.max.z);
+	points[6] = DirectX::XMFLOAT3(aabb.max.x, aabb.max.y, aabb.min.z);
+	points[7] = aabb.max;
+	int index;
+	for (int point = 0; point < 8; ++point) {
+		index = Hash(points[point]);
+		bool found = false;
+		for (int exist = 0; exist < indicies.size(); ++exist) {
+			if (index == indicies[exist]) {
+				found = true;
+				break;
+			}
+		}
+		if (!found) indicies.push_back(index);
+	}
+	return indicies;
+}
 
 bool SpatialPartition::AddComponent(PhysicsComponent* component) {
-	for (int i = 0; i < component->colliders.size(); ++i) {
-		//TODO: This only works for set points. Doesnt take collider radius or rotation
-		//		into account.
-		float x = component->parentObject->position._41 + component->colliders[i].centerOffset.x;
-		float y = component->parentObject->position._42 + component->colliders[i].centerOffset.y;
-		float z = component->parentObject->position._43 + component->colliders[i].centerOffset.z;
-		uint32_t index = Hash(x, y, z);
-		
-		if (table.find(index) != table.end()) table[index].AddComponent(component);
-		else table[index] = Unit(component);
+	bool anythingAdded = false;
+	std::vector<uint32_t> indicies = Hash(component->currentAABB);
+	for (int i = 0; i < indicies.size(); ++i) {
+		if (table.find(indicies[i]) != table.end()) {
+			if (table[indicies[i]].AddComponent(component)) {
+				anythingAdded = true;
+			}
+		}
+		else {
+			table[indicies[i]] = Unit(component);
+			anythingAdded = true;
+		}
 	}
+	return anythingAdded;
 }
 bool SpatialPartition::RemoveComponent(PhysicsComponent* component, PositionOption option) {
 	bool foundAndRemoved = false;
-	uint32_t index1 = -1;
-	for (int i = 0; i < component->colliders.size(); ++i) {
-		//TODO: This only works for set points. Doesnt take collider radius or rotation
-		//		into account.
-		float x = component->colliders[i].centerOffset.x;
-		float y = component->colliders[i].centerOffset.y;
-		float z = component->colliders[i].centerOffset.z;
-	
-		if (option == Both || option == Previous) {
-			 index1 = Hash(x + component->parentObject->position.Previous()._41,
-								  y + component->parentObject->position.Previous()._42,
-								  z + component->parentObject->position.Previous()._43);
-			if (table.find(index1) != table.end()) {
-				if (table[index1].RemoveComponent(component)) {
+	std::vector<uint32_t> indicies;
+	if (option != Both) {
+		if (option == Current) indicies = Hash(component->currentAABB);
+		else if (option == Previous) indicies = Hash(component->previousAABB);
+		for (int i = 0; i < indicies.size(); ++i) {
+			if (table.find(indicies[i]) != table.end()) {
+				if (table[indicies[i]].RemoveComponent(component)) {
 					foundAndRemoved = true;
 				}
 			}
 		}
-		if (option == Both || option == Current) {
-			uint32_t index2 = Hash(x + component->parentObject->position._41,
-								  y + component->parentObject->position._42,
-								  z + component->parentObject->position._43);
-			if (index2 != index1) {
-				if (table.find(index2) != table.end()) {
-					if (table[index2].RemoveComponent(component)) {
-						foundAndRemoved = true;
-					}
-				}
-			}
-		}
+	}
+	else if (RemoveComponent(component, Previous) || RemoveComponent(component, Current)) {
+		foundAndRemoved = true;
 	}
 	return foundAndRemoved;
 }
-bool SpatialPartition::UpdateComponent(PhysicsComponent* component) {
-	if (component->parentObject->position != component->parentObject->position.Previous()) {
-		if (RemoveComponent(component, Previous)) {
-			AddComponent(component);
-			return true;
-		}
-		else return false;
+void SpatialPartition::UpdateComponent(PhysicsComponent* component) {
+	//Did it move?
+	if (component->currentAABB != component->previousAABB) {
+		//Remove previous component instances
+		RemoveComponent(component, Previous);
+		//Add Current component instances
+		AddComponent(component);
+		//set previous to current
+		component->previousAABB = component->currentAABB;
 	}
-	return true;
 }
-const std::vector<PhysicsComponent*> SpatialPartition::GetComponentsFromUnit(const float x, const float y, const float z) const {
 
-}
-const std::vector<PhysicsComponent*> SpatialPartition::GetComponentsFromUnit(const Unit u) const {
-	return u.components;
-}
-const std::vector<Unit*> SpatialPartition::GetUnitsFromComponent(const PhysicsComponent* component) {
-	std::vector<Unit*> units;
-	for (int i = 0; i < component->colliders.size(); ++i) {
-		//TODO: This only works for set points. Doesnt take collider radius or rotation
-		//		into account.
-		float x = component->parentObject->position._41 + component->colliders[i].centerOffset.x;
-		float y = component->parentObject->position._42 + component->colliders[i].centerOffset.y;
-		float z = component->parentObject->position._43 + component->colliders[i].centerOffset.z;
-		uint32_t index = Hash(x, y, z);
+const std::vector<PhysicsComponent*> SpatialPartition::GetComponentsToTest(const PhysicsComponent* component) {
+	std::vector<PhysicsComponent*> testComps;
+	std::vector<uint32_t> indicies = Hash(component->currentAABB);
+	//for every bin
+	for (int index = 0; index < indicies.size(); ++index) {
+		//for every component in that bin
+		for (int newComp = 0; newComp < table[indicies[index]].components.size(); ++newComp) {
+			//is it a dupe, or do I add it?
+			bool found = false;
+			for (int oldComp = 0; oldComp < testComps.size(); ++oldComp) {
+				if (table[indicies[index]].components[newComp] == testComps[oldComp] || 
+					table[indicies[index]].components[newComp] == component) {
+					found = true;
+					break;
+				}
+			}
+			if(!found) testComps.push_back(table[indicies[index]].components[newComp]);
+		}
 	}
-	
-	return table[]
+	return testComps;
 }

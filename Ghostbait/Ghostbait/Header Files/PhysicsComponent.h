@@ -1,6 +1,7 @@
 #pragma once
 #include "RigidBody.h" // DirectXMath, vector
 #include "Object.h"
+#include "AABB.h"
 
 //class PhysicsManager;
 
@@ -42,6 +43,8 @@ struct Collider {
 struct PhysicsComponent: public InstantiatedCompBase {
 	RigidBody rigidBody;
 	std::vector<Collider> colliders;
+	AABB currentAABB;
+	AABB previousAABB;
 
 	//bool operator==(const PhysicsComponent other) {
 	//	if (!(this->rigidBody == other.rigidBody)) return false;

@@ -2,21 +2,22 @@
 #include <unordered_map>
 #include <vector>
 #include "GameObject.h"
+#include "AABB.h"
 
 struct Collider;
 struct PhysicsComponent;
 
-struct Unit {
-	std::vector<PhysicsComponent*> components;
-	
-	Unit();
-	Unit(PhysicsComponent* comp);
-	int FindComponent(PhysicsComponent* comp);
-	bool AddComponent(PhysicsComponent* comp);
-	bool RemoveComponent(PhysicsComponent* comp);
-};
-
 class SpatialPartition {
+	struct Unit {
+		std::vector<PhysicsComponent*> components;
+
+		Unit();
+		Unit(PhysicsComponent* comp);
+		uint32_t FindComponent(PhysicsComponent* comp);
+		bool AddComponent(PhysicsComponent* comp);
+		bool RemoveComponent(PhysicsComponent* comp);
+	};
+
 	enum PositionOption {
 		Both,
 		Current,
@@ -27,6 +28,8 @@ class SpatialPartition {
 	float unitSize = 0;
 	std::unordered_map<uint32_t, Unit> table;
 	uint32_t Hash(const float x, const float y, const float z);
+	uint32_t Hash(DirectX::XMFLOAT3 point);
+	std::vector<uint32_t> Hash(const AABB aabb);
 
 public:
 	SpatialPartition();
@@ -34,9 +37,7 @@ public:
 
 	bool AddComponent(PhysicsComponent* component);
 	bool RemoveComponent(PhysicsComponent* component, PositionOption option = Both);
-	bool UpdateComponent(PhysicsComponent* component);
+	void UpdateComponent(PhysicsComponent* component);
 
-	const std::vector<PhysicsComponent*> GetComponentsFromUnit(const float x, const float y, const float z) const;
-	const std::vector<PhysicsComponent*> GetComponentsFromUnit(const Unit u) const;
-	const std::vector<Unit*> GetUnitsFromComponent(const PhysicsComponent* component);
+	const std::vector<PhysicsComponent*> GetComponentsToTest(const PhysicsComponent* component);
 };

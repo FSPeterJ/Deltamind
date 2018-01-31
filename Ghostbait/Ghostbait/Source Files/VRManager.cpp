@@ -1,7 +1,4 @@
 #include "VRManager.h"
-#include "Console.h"
-#include "Messagebox.h"
-#include <string>
 
 DirectX::XMFLOAT4X4 VRManager::world = FLOAT4X4Identity;
 VRManager::VRController VRManager::leftController;

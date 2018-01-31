@@ -1,7 +1,4 @@
-#include "ObjectManager.h"
 #include "ObjectFactory.h"
-#include "EngineStructure.h"
-#include "GameObject.h"
 
 ObjectManager::ObjectManager(MemoryManager* _memMan) : memMan(_memMan) {
 	//TODO: Fix this into Initialize

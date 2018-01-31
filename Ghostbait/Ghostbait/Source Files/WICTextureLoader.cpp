@@ -30,7 +30,6 @@
 
 #include "WICTextureLoader.h"
 
-#include <dxgiformat.h>
 #include <assert.h>
 
 #include <wincodec.h>

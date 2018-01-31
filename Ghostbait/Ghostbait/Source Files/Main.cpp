@@ -1,17 +1,6 @@
-#include <windows.h>
-#include "vld.h" //Before commenting this out, please see TODO below and then don't comment this out...
-#include "Resource.h"
-#include "Window.h"
-#include "Console.h"
 #include "Renderer.h"
-#include "ObjectManager.h"
-#include "MemoryManager.h"
 //#include "GameObject.h"
-#include "MessageEvents.h"
 #include "ObjectFactory.h"
-#include "GameObjectComponent.h"
-#include "EngineStructure.h"
-#include "VRManager.h"
 #include "InputManager.h"
 #include "Messagebox.h"
 #include "Game.h"
@@ -22,7 +11,6 @@
 #include "Projectile.h"
 #include "EnemyBase.h"
 #include "ViveController.h"
-#include "ControllerObject.h"
 #include "Spawner.h"
 
 Renderer* rendInter;

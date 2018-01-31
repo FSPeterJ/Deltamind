@@ -1,7 +1,5 @@
 #include "Renderer.h"
-#include <math.h>
 #include <fstream>
-#include <VertexTypes.h>
 #include "DebugRenderer.h"
 
 using namespace DirectX;

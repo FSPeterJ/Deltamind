@@ -1,5 +1,4 @@
 #include "XTime.h"
-#include <math.h>
 
 XTime::XTime(unsigned char samples, double smoothFactor) {
 	// clear the structure and init basic values

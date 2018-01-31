@@ -1,7 +1,6 @@
 #include "Projectile.h"
 #include "GhostTime.h"
 
-
 Projectile::Projectile() {
 	SetTag("Bullet");
 }

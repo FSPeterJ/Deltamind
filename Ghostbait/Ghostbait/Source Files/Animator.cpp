@@ -1,8 +1,6 @@
 #include "Animator.h"
-#include "EngineStructure.h"
 #include "GhostTime.h"
 
-#include <d3d11.h>
 
 DirectX::XMFLOAT3X3 Animator::pullRotation(DirectX::XMFLOAT4X4 pullFrom)
 {

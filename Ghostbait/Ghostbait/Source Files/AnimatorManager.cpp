@@ -1,5 +1,4 @@
 #include "AnimatorManager.h"
-#include "Object.h"
 
 AnimatorManager::~AnimatorManager()
 {

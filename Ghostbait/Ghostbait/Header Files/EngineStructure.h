@@ -1,7 +1,6 @@
 #pragma once
 #include "Delegate.h"
 #include "Console.h"
-using namespace Console;
 
 class EngineStructure {
 	friend class GameObjectComponent;
@@ -48,9 +47,7 @@ class EngineStructure {
 public:
 
 	void ExecuteAwake() {
-		Write("Awake delegate contains ");
-		Write((int) Awake.subscriber_count());
-		WriteLine(" subscribers.");
+		Console::WriteLine << "Awake delegate contains " << Awake.subscriber_count() << " subscribers.";
 
 		Awake();
 	}

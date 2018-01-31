@@ -11,7 +11,7 @@ public:
 	Object * test, *test2;
 
 	void ThreadTest(int test) {
-		Write(test);
+		Console::Write << test;
 	}
 
 	void Start() {

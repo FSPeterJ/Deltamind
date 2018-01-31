@@ -69,8 +69,8 @@ void MenuCube::OnCollision(GameObject* other) {
 
 void CoreCube::OnCollision(GameObject* other) {
 	if(other->GetTag() == "enemy") {
-		Console::WriteLine("YOU LOSE!");
-		Debug("YOU LOSE!");
+		Console::WriteLine << "YOU LOSE!";
+		Console::OutLine << "YOU LOSE!";
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {this->Destroy(); });
 		GameObject* temper;
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(10/*LoseCube*/, { 0, 0.75f, 0 }, &temper));

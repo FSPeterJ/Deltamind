@@ -152,6 +152,7 @@ void PhysicsManager::Update() {
 #endif
 	}
 	//components[0].srcObj->position.r[3] -= XMVectorSet(0, dt, 0, 0);
+	
 	TestAllComponentsCollision();
 }
 

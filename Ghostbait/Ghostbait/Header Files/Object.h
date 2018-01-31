@@ -16,9 +16,8 @@ protected:
 private:
 
 public:
-	Delegate<> DestroyComponents;
 
-	//TODO: convert to XMFLAOT4x4
+	Delegate<> DestroyComponents;
 	DirectX::XMFLOAT4X4 position;
 	ComponentTypeContainer<ComponentBase*> Components;
 	//Endnote

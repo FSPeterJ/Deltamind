@@ -41,6 +41,14 @@ struct Collider {
 struct PhysicsComponent: public InstantiatedCompBase {
 	RigidBody rigidBody;
 	std::vector<Collider> colliders;
+	AABB currentAABB;
+	AABB previousAABB;
+
+	//bool operator==(const PhysicsComponent other) {
+	//	if (!(this->rigidBody == other.rigidBody)) return false;
+	//	if (colliders != other.colliders) return false;
+	//	return true;
+	//}
 
 	bool AddCollider(ColliderData* _colData, float _offsetX = 0.0f, float _offsetY = 0.0f, float _offsetZ = 0.0f, bool _isTrigger = false) {
 		if (_colData) {

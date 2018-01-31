@@ -17,6 +17,7 @@
 #include "Game.h"
 #include "ThreadPool.h"
 #include "PhysicsManager.h"
+#include "AnimatorManager.h"
 #include "GhostTime.h"
 #include "Projectile.h"
 #include "EnemyBase.h"
@@ -32,7 +33,7 @@ PhysicsManager* phyMan;
 MemoryManager MemMan;
 ObjectManager* objMan;
 EngineStructure engine;
-
+AnimatorManager* animMan;
 
 
 void ExecuteAsync() {
@@ -102,7 +103,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 		rendInter->Initialize(wnd, nullptr);
 		inputMan = new InputManager(KEYBOARD);
 	}
-
+	animMan = new AnimatorManager(rendInter->getAnimationManager());
 	phyMan = new PhysicsManager();
 	objMan = new ObjectManager(&MemMan);
 	objMan->Initialize(80);
@@ -120,6 +121,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
 	ObjectFactory::RegisterManager<PhysicsComponent, PhysicsManager>(phyMan);
 	ObjectFactory::RegisterManager<Material, MaterialManager>(rendInter->getMaterialManager());
+	ObjectFactory::RegisterManager<Animator, AnimatorManager>(animMan);
 
 	
 	TypeMap::RegisterObjectAlias<ControllerObject>("ControllerObject");
@@ -207,6 +209,7 @@ void CleanUp() {
 	delete objMan;
 	delete phyMan;
 	delete inputMan;
+	delete animMan;
 	if(game) {
 		game->Clean();
 		delete game;

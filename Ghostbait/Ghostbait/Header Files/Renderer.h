@@ -6,7 +6,7 @@
 #include "VRManager.h"
 #include "MaterialManager.h"
 #include "Camera.h"
-
+#include "AnimationManager.h"
 
 #include <DirectXMath.h>
 enum renderState {
@@ -98,6 +98,11 @@ private:
 				numLights++;
 			}
 		};
+		void setAmbient(DirectX::XMFLOAT3 color, float factor)
+		{
+			cpu_light_info.ambientIntensity = factor;
+			cpu_light_info.ambientColor = color;
+		};
 		lightBufferStruct* getLightBuffer() { return &cpu_light_info; };
 	};
 	ID3D11SamplerState* OnlySamplerState; //DirectX is a hoot
@@ -131,6 +136,7 @@ private:
 	MeshManager* meshManagement = nullptr;
 	VRManager* VRManagement = nullptr;
 	MaterialManager* materialManagement = nullptr;
+	AnimationManager* animationManagement = nullptr;
 
 	void initDepthStencilBuffer(pipeline_state_t* pipelineTo);
 	void initDepthStencilState(pipeline_state_t* pipelineTo);
@@ -202,9 +208,11 @@ public:
 	void addDirectionalLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 dir);
 	void addPointLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, float radius);
 	void addSpotLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir, float radius, float outerRadius);
+	void setAmbient(DirectX::XMFLOAT3 color, float factor);
 
 	MeshManager* getMeshManager() { return meshManagement; }
 	MaterialManager* getMaterialManager() { return materialManagement; }
+	AnimationManager* getAnimationManager() { return animationManagement; }
 	Camera* getCamera() { return keyboardCamera; }
 	void Render();
 };

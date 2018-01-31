@@ -105,10 +105,12 @@ void Renderer::setupVRTargets() {
 	viewDesc.Texture2D.MostDetailedMip = 0;
 
 	device->CreateTexture2D(&texDesc, nullptr, &leftEye.renderInfo.texture);
-	device->CreateRenderTargetView(leftEye.renderInfo.texture, nullptr, &leftEye.renderInfo.rtv); //TODO: leftEye.renderInfo.texture can be null, this goes against SAL annotation
+	if (leftEye.renderInfo.texture)
+		device->CreateRenderTargetView(leftEye.renderInfo.texture, nullptr, &leftEye.renderInfo.rtv);
 
 	device->CreateTexture2D(&texDesc, nullptr, &rightEye.renderInfo.texture);
-	device->CreateRenderTargetView(rightEye.renderInfo.texture, nullptr, &rightEye.renderInfo.rtv); //TODO: rightEye.renderInfo.texture can be null, this goes against SAL annotation
+	if(rightEye.renderInfo.texture)
+		device->CreateRenderTargetView(rightEye.renderInfo.texture, nullptr, &rightEye.renderInfo.rtv);
 
 	texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	texDesc.MiscFlags = NULL;
@@ -121,10 +123,12 @@ void Renderer::setupVRTargets() {
 	depthStencilDesc.Flags = 0;
 
 	device->CreateTexture2D(&texDesc, nullptr, &leftEye.renderInfo.depthBuffer);
-	device->CreateDepthStencilView(leftEye.renderInfo.depthBuffer, &depthStencilDesc, &leftEye.renderInfo.dsv); //TODO: leftEye.renderInfo.depthBuffer could be null, this goes against SAL annotation
+	if(leftEye.renderInfo.depthBuffer)
+		device->CreateDepthStencilView(leftEye.renderInfo.depthBuffer, &depthStencilDesc, &leftEye.renderInfo.dsv);
 
 	device->CreateTexture2D(&texDesc, nullptr, &rightEye.renderInfo.depthBuffer);
-	device->CreateDepthStencilView(rightEye.renderInfo.depthBuffer, &depthStencilDesc, &rightEye.renderInfo.dsv); //TODO: rightEye.renderInfo.depthBuffer could be null, this goes against SAL annotation
+	if(rightEye.renderInfo.depthBuffer)
+		device->CreateDepthStencilView(rightEye.renderInfo.depthBuffer, &depthStencilDesc, &rightEye.renderInfo.dsv);
 }
 
 void Renderer::renderObjectDefaultState(Object * obj) {
@@ -220,6 +224,7 @@ void Renderer::Initialize(Window window, VRManager * vr) {
 	meshManagement->Initialize(device);
 	materialManagement = new MaterialManager();
 	materialManagement->Initialize(device, context);
+	animationManagement = new AnimationManager();
 	context->VSSetConstantBuffers(0, 1, &cameraBuffer);
 	context->VSSetConstantBuffers(1, 1, &modelBuffer);
 	context->PSSetConstantBuffers(0, 1, &lightBuffer);
@@ -239,9 +244,8 @@ void Renderer::Initialize(Window window, VRManager * vr) {
 	context->PSSetSamplers(0, 1, &OnlySamplerState);
 #pragma endregion
 
-	addDirectionalLight(DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), DirectX::XMFLOAT3(0.0f, -0.5f, 0.5f));
-	addPointLight(DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f), DirectX::XMFLOAT3(0.0f, 0.0f, 15.0f), 15.0f);
-	addSpotLight(DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f), DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f), DirectX::XMFLOAT3(0.0f, -0.5f, 0.5f), 1.0f, 0.9f);
+	setAmbient(DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), 0.4f);
+	addSpotLight(DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), DirectX::XMFLOAT3(0.0f, 2.0f, 0.0f), DirectX::XMFLOAT3(0.0f, -1.0f, 0.0f), 0.5f, 0.3f);
 	keyboardCamera = new Camera();
 	keyboardCamera->pointCameraAt(DirectX::XMFLOAT3(0.0f, 2.0f, -15.0f), DirectX::XMFLOAT3(0.0f, -2.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
 	XMStoreFloat4x4(&defaultCamera.projection, XMMatrixTranspose(XMMatrixPerspectiveFovLH(60.0f * XM_PI / 180.0f, defaultPipeline.viewport.Width / defaultPipeline.viewport.Height, 0.001f, 300.0f)));
@@ -285,6 +289,8 @@ void Renderer::Destroy() {
 	delete meshManagement;
 	materialManagement->Destroy();
 	delete materialManagement;
+	animationManagement->Destroy();
+	delete animationManagement;
 	delete keyboardCamera;
 #if _DEBUG
 	DebugRenderer::Destroy();
@@ -339,6 +345,11 @@ void Renderer::addSpotLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, Dire
 	toManager.radius = radius;
 	toManager.outerRadius = outerRadius;
 	lightManager.addLight(toManager);
+}
+
+void Renderer::setAmbient(DirectX::XMFLOAT3 color, float factor)
+{
+	lightManager.setAmbient(color, factor);
 }
 
 XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {

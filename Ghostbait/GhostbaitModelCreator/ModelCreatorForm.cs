@@ -24,7 +24,7 @@ namespace GhostbaitModelCreator {
         [DllImport("..\\..\\FBXInterface.dll")]
         public static extern int get_bindpose_from_scene(string fbx_file_path, string output_file_path);
 
-        private string GenerateRelativeComponentFilePath(string path, ComponentType type) {
+        public string GenerateRelativeComponentFilePath(string path, ComponentType type) {
             int dotIndex = path.LastIndexOf('.');
             int nameStartIndex = path.LastIndexOf('\\') + 1;
             string relativePath = path.Substring(nameStartIndex, dotIndex - nameStartIndex);
@@ -63,7 +63,7 @@ namespace GhostbaitModelCreator {
         }
 
         [Flags]
-        internal enum ComponentType {
+        public enum ComponentType {
             MESH = 1 << 0,
             MATERIAL = 1 << 1,
             BINDPOSE = 1 << 2,
@@ -107,6 +107,51 @@ namespace GhostbaitModelCreator {
             public void Reset() {
                 listBox.Items.Clear();
                 colliderList.Clear();
+            }
+        }
+
+        private struct animationFileData
+        {
+            private List<AnimationCreatorForm.AnimationData> animations;
+            private ListBox listbox;
+
+            public int animCount => animations.Count;
+            
+            public void addAnimation(AnimationCreatorForm.AnimationData anim)
+            {
+                listbox.Items.Add(anim.name);
+                animations.Add(anim);
+            }
+
+            public void Edit(AnimationCreatorForm.AnimationData anim, int index)
+            {
+                animations[index] = anim;
+                listbox.Items[index] = anim.name;
+            }
+
+            public AnimationCreatorForm.AnimationData GetAnimation(int index)
+            {
+                return animations[index];
+            }
+
+            public void Init(ListBox _listbox)
+            {
+                listbox = _listbox;
+                animations = new List<AnimationCreatorForm.AnimationData>();
+            }
+
+            public void RemoveAnimation()
+            {
+                int index = listbox.SelectedIndex;
+                if (index < 0 || index > listbox.Items.Count)
+                    return;
+                listbox.Items.RemoveAt(index);
+                animations.RemoveAt(index);
+            }
+            public void Reset()
+            {
+                listbox.Items.Clear();
+                animations.Clear();
             }
         }
 
@@ -154,7 +199,7 @@ namespace GhostbaitModelCreator {
             public void Reset() => FilePath = string.Empty;
         }
 
-        private MiltiFileData anim;
+        private animationFileData anim;
         private MiltiFileData audio;
         private SingleFileData bindPose;
         private Collider colliders;
@@ -176,27 +221,32 @@ namespace GhostbaitModelCreator {
 
         internal void CreateColliderPressed(ColliderCreatorForm.ColliderData d, int index) => colliders.Edit(d, index);
 
+        internal void CreateAnimationPressed(AnimationCreatorForm.AnimationData d) => anim.addAnimation(d);
+
+        internal void CreateAnimationPressed(AnimationCreatorForm.AnimationData d, int index) => anim.Edit(d, index);
+
         //Animation
         private void animationAdd_Click(object sender, EventArgs e) {
-            OpenFileDialog open = new OpenFileDialog {
-                Filter = "Animations (*.anim), (*.fbx)| *.anim; *.fbx;",
-                InitialDirectory = @"C:\",
-                Title = "An animation file for this Ghostbait object."
-            };
-            if (open.ShowDialog() == DialogResult.OK) {
-                if (open.FileName.Substring(open.FileName.Length - 4) == ".fbx") {
-                    string animFile = GenerateRelativeComponentFilePath(open.FileName, ANIMATION);
-                    if (get_animdata_from_scene(open.FileName, animFile) != -1) {
-                        animFile = animFile.Substring(/*Make const*/19);
-                        anim.AddFile(animFile);
-                    }
-                } else {
-                    anim.AddFile(open.FileName);
-                }
-            }
+            //OpenFileDialog open = new OpenFileDialog {
+            //    Filter = "Animations (*.anim), (*.fbx)| *.anim; *.fbx;",
+            //    InitialDirectory = @"C:\",
+            //    Title = "An animation file for this Ghostbait object."
+            //};
+            //if (open.ShowDialog() == DialogResult.OK) {
+            //    if (open.FileName.Substring(open.FileName.Length - 4) == ".fbx") {
+            //        string animFile = GenerateRelativeComponentFilePath(open.FileName, ANIMATION);
+            //        if (get_animdata_from_scene(open.FileName, animFile) != -1) {
+            //            animFile = animFile.Substring(/*Make const*/19);
+            //            anim.AddFile(animFile);
+            //        }
+            //    } else {
+            //        anim.AddFile(open.FileName);
+            //    }
+            //}
+            new AnimationCreatorForm(this).Show(this);
         }
 
-        private void animationRemove_Click(object sender, EventArgs e) => anim.RemoveFile();
+        private void animationRemove_Click(object sender, EventArgs e) => anim.RemoveAnimation();
 
         //Audio
         private void audioAdd_Click(object sender, EventArgs e) {
@@ -267,10 +317,6 @@ namespace GhostbaitModelCreator {
                 if (get_bindpose_from_scene(open.FileName, bindPoseFile) != -1) {
                     bindPoseFile = bindPoseFile.Substring(appendedPath.Length);
                     bindPose.FilePath = bindPoseFile;
-                }
-                if (get_animdata_from_scene(open.FileName, animFile) != -1) {
-                    animFile = animFile.Substring(appendedPath.Length);
-                    anim.AddFile(animFile);
                 }
             }
         }
@@ -349,18 +395,29 @@ namespace GhostbaitModelCreator {
                         else if (GetExtension(data).ToLower() == ".mat") mat.FilePath = data;
                         else if (GetExtension(data).ToLower() == ".bind") bindPose.FilePath = data;
                         else if (GetExtension(data).ToLower() == ".mp3" || GetExtension(data).ToLower() == ".wav") audio.AddFile(data);
-                        else if (GetExtension(data).ToLower() == ".anim") anim.AddFile(data);
+                        else if (GetExtension(data).ToLower() == ".anim")
+                        {
+                            int len = reader.ReadInt32();
+                            String name = new string(reader.ReadChars(len));
+                            AnimationCreatorForm.AnimationData toPush = new AnimationCreatorForm.AnimationData();
+                            toPush.filePath = data;
+                            toPush.name = name;
+                            anim.addAnimation(toPush);
+                        }
                         continue;
                     } else {
                         string componentName = new string(reader.ReadChars(reader.ReadInt32()));
-                        componentName = componentName.Remove(componentName.Length - 1); 
-                        if (componentName == "Physical") {
+                        componentName = componentName.Remove(componentName.Length - 1);
+                        if (componentName == "Physical")
+                        {
                             int colCount = reader.ReadInt32();
                             ColliderCreatorForm.ColliderData colData = new ColliderCreatorForm.ColliderData();
-                            for (int i = 0; i < colCount; ++i) {
+                            for (int i = 0; i < colCount; ++i)
+                            {
                                 var stringCol = new string(reader.ReadChars(reader.ReadInt32()));
                                 stringCol = stringCol.Remove(stringCol.Length - 1);
-                                if (!Enum.TryParse(stringCol, out colData.type)) {
+                                if (!Enum.TryParse(stringCol, out colData.type))
+                                {
                                     MessageBox.Show("Invalid Collider Type!", $@"The Collider string.Empty{stringCol}string.Empty is not a valid collider.", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                     //return;
                                 }
@@ -368,7 +425,8 @@ namespace GhostbaitModelCreator {
                                 colData.offsetY = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
                                 colData.offsetZ = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
 
-                                switch (colData.type) {
+                                switch (colData.type)
+                                {
                                     case ColliderCreatorForm.ColliderType.SPHERE:
                                         colData.radius = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
                                         break;
@@ -393,6 +451,23 @@ namespace GhostbaitModelCreator {
                                 colliders.AddCollider(colData);
                             }
                         }
+                        else if (componentName == "Animate")
+                        {
+                            int bindLen = reader.ReadInt32();
+                            string bindName = new string(reader.ReadChars(bindLen));
+                            bindPose.FilePath = bindName;
+                            int animCount = reader.ReadInt32();
+
+                            for (int i = 0; i < animCount; ++i)
+                            {
+                                var stringAnim = new string(reader.ReadChars(reader.ReadInt32()));
+                                var stringName = new string(reader.ReadChars(reader.ReadInt32()));
+                                AnimationCreatorForm.AnimationData toPush = new AnimationCreatorForm.AnimationData();
+                                toPush.filePath = stringAnim;
+                                toPush.name = stringName;
+                                anim.addAnimation(toPush);
+                            }
+                        }
                     }
                 }
                 reader.Close();
@@ -402,6 +477,11 @@ namespace GhostbaitModelCreator {
         private void saveToolStripMenuItem_Click(object sender, EventArgs e) {
             if (className.Text == string.Empty) {
                 MessageBox.Show(this, "Must have class name.", "Missing Data", MessageBoxButtons.OK);
+                return;
+            }
+            if(anim.animCount > 0 && bindPoseFileName.Text == String.Empty)
+            {
+                MessageBox.Show(this, "Objects with animations must have a bindpose!", "Missing Data", MessageBoxButtons.OK);
                 return;
             }
             SaveFileDialog save = new SaveFileDialog {
@@ -428,11 +508,11 @@ namespace GhostbaitModelCreator {
                         writer.Write(outstr.ToCharArray());
                     }
                     //BindPose
-                    if (bindPose.FilePath != string.Empty) {
-                        outstr = bindPose.FilePath + '\0';
-                        writer.Write(outstr.Length);
-                        writer.Write(outstr.ToCharArray());
-                    }
+                    //if (bindPose.FilePath != string.Empty) {
+                    //    outstr = bindPose.FilePath + '\0';
+                    //    writer.Write(outstr.Length);
+                    //    writer.Write(outstr.ToCharArray());
+                    //}
                     //Colliders
                     if (colliders.ColliderCount > 0) {
                         //Find ColliderDataSize
@@ -506,10 +586,33 @@ namespace GhostbaitModelCreator {
                         writer.Write(outstr.ToCharArray());
                     }
                     //Animations
-                    for (int i = 0; i < anim.filePaths.Count; ++i) {
-                        outstr = anim.filePaths[i] + '\0';
+                    if (anim.animCount > 0)
+                    {
+                        int animDataSize = sizeof(Int32);
+                        string animName = "Animate\0";
+                        animDataSize += sizeof(Int32) + bindPoseFileName.Text.Length + 1;
+                        for(int i = 0; i < anim.animCount; ++i)
+                        {
+                            animDataSize += sizeof(Int32) + anim.GetAnimation(i).filePath.Length + 1;
+                            animDataSize += sizeof(Int32) + anim.GetAnimation(i).name.Length + 1;
+                        }
+                        //Writer Animation Header
+                        writer.Write(-animDataSize);
+                        writer.Write(animName.Length);
+                        writer.Write(animName.ToCharArray());
+                        outstr = bindPose.FilePath + '\0';
                         writer.Write(outstr.Length);
                         writer.Write(outstr.ToCharArray());
+                        writer.Write(anim.animCount);
+                        for (int i = 0; i < anim.animCount; ++i)
+                        {
+                            outstr = anim.GetAnimation(i).filePath + '\0';
+                            writer.Write(outstr.Length);
+                            writer.Write(outstr.ToCharArray());
+                            outstr = anim.GetAnimation(i).name + '\0';
+                            writer.Write(outstr.Length);
+                            writer.Write(outstr.ToCharArray());
+                        }
                     }
                     writer.Close();
                 }
@@ -529,6 +632,17 @@ namespace GhostbaitModelCreator {
         private void bindPoseFileName_TextChanged(object sender, EventArgs e)
         {
             bindPose.FilePath = bindPoseFileName.Text;
+        }
+
+        private void animationListBox_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            int index = animationListBox.IndexFromPoint(e.Location);
+            if (index != ListBox.NoMatches)
+            {
+                var f = new AnimationCreatorForm(this);
+                f.Show(this);
+                f.Edit(anim.GetAnimation(index), index);
+            }
         }
     }
 }

@@ -227,9 +227,9 @@ public:
 				InstantiatedCompBase* comptemp = (InstantiatedCompBase *)managers[i]->CloneComponent(prefabs[pid].instantiatedComponents[i]);
 				comptemp->parentObject = newobject; // This will crash if this is not an InstantiatedCompBase
 				newobject->SetComponent(comptemp, i);
-				newobject->DestroyComponents += [=]() {
+				newobject->DestroyComponents.Add([=]() {
 					managers[i]->ResetComponent(comptemp);
-				};
+				});
 			}
 		}
 		return newobject;

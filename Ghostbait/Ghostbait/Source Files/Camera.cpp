@@ -3,7 +3,10 @@
 #include "GhostTime.h" //To use deltatime use GhostTime::DeltaTime()
 using namespace DirectX;
 
-Camera::Camera() {EngineStructure::Update += [=]() {this->Update();};}
+Camera::Camera()
+{
+	EngineStructure::Update.Add([=]() {this->Update(); });
+}
 
 Camera::~Camera() {}
 

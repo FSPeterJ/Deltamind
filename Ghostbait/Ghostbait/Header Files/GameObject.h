@@ -1,16 +1,14 @@
 #pragma once
 #include "Object.h"
 #include "Controlable.h"
-#include "Console.h"
-#include "GhostTime.h"
-//#include <functional>
 
 class GameObject: public Object {
 	//Until delegate unsubscribe is fixed
-protected:
 
+protected:
+	
 	std::string tag = "none";
-	bool isAwake = false;
+	unsigned updateID;
 
 public:
 	GameObject();
@@ -30,19 +28,9 @@ public:
 
 //Other
 class MenuCube : public GameObject {
+	void Update();
 public:
-	void OnCollision(GameObject* other){
-		if (other->GetTag() == "Bullet") {
-			Destroy();
-			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, { 10, 0, 0 }));
-			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, { -10, 0, 0 }));
-			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, { 0, 0, 10 }));
-			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, { 0, 0, -10 }));
-			GameObject* obj;
-			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(8/*Core*/, { 0, 1.5f, 0 }, (Object**)&obj));
-			DirectX::XMStoreFloat4x4(&obj->position, DirectX::XMLoadFloat4x4(&obj->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
-		}
-	};
+	void OnCollision(GameObject* other);;
 };
 class CoreCube : public GameObject {
 public:

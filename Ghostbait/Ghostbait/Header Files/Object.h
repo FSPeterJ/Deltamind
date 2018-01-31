@@ -4,38 +4,11 @@
 #include "MessageEvents.h"
 
 class ComponentBase;
-
-class GhostMatrix : public DirectX::XMFLOAT4X4 {
-	DirectX::XMFLOAT4X4 previous = DirectX::XMFLOAT4X4(0, 0, 0, 0, 
-														0, 0, 0, 0, 
-														0, 0, 0, 0, 
-														0, 0, 0, 0);
-public:
-	inline const DirectX::XMFLOAT4X4 Previous() const { return previous; };
-	bool operator!=(const DirectX::XMFLOAT4X4& other) {
-		if (this->_11 != other._11) return true;
-		if (this->_12 != other._12) return true;
-		if (this->_13 != other._13) return true;
-		if (this->_14 != other._14) return true;
-		if (this->_21 != other._21) return true;
-		if (this->_22 != other._22) return true;
-		if (this->_23 != other._23) return true;
-		if (this->_24 != other._24) return true;
-		if (this->_31 != other._31) return true;
-		if (this->_32 != other._32) return true;
-		if (this->_33 != other._33) return true;
-		if (this->_34 != other._34) return true;
-		if (this->_41 != other._41) return true;
-		if (this->_42 != other._42) return true;
-		if (this->_43 != other._43) return true;
-		if (this->_44 != other._44) return true;
-		return false;
-	}
-	void operator=(const DirectX::XMFLOAT4X4& other) {
-		previous = *this;
-		*this = other;
-	}
-};
+//
+//namespace DirectX {
+//
+//	struct XMFLOAT4X4;
+//}
 
 class Object {
 protected:
@@ -43,8 +16,9 @@ protected:
 private:
 
 public:
-	GhostMatrix position;
+
 	Delegate<> DestroyComponents;
+	DirectX::XMFLOAT4X4 position;
 	ComponentTypeContainer<ComponentBase*> Components;
 	//Endnote
 
@@ -66,7 +40,6 @@ public:
 	template<typename T>
 	static T* Create(DirectX::XMFLOAT4 position, const PrefabId id) {
 
-		
 		//T* newObject = nullptr;
 		//how to get id from type??
 		//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(id, position, &newObject));
@@ -75,10 +48,8 @@ public:
 
 	template<typename ComponentType>
 	ComponentType* GetComponent() {
-		
-		
+
 		return Components.GetComponent<ComponentType>();
-		
 	};
 
 	template<typename ComponentType>

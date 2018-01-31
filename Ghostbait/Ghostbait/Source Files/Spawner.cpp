@@ -1,4 +1,5 @@
 #include "Spawner.h"
+#include "GhostTime.h"
 
 Spawner::Spawner() {
 	timeSinceLastSpawn = runSpawnDelay - startSpawnDelay;
@@ -13,7 +14,7 @@ void Spawner::SpawnObject() {
 }
 void Spawner::Update() {
 	timeSinceLastSpawn += (float)GhostTime::DeltaTime();
-	if (timeSinceLastSpawn >= runSpawnDelay && spawnCount < objectsToSpawn) {
+	if(timeSinceLastSpawn >= runSpawnDelay && spawnCount < objectsToSpawn) {
 		SpawnObject();
 	}
 }

@@ -181,6 +181,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//MessageEvents::SendMessage(EVENT_Destroy, DestroyMessage(cube1));
 
 	GhostTime::Initalize();
+	MessageEvents::Initilize();
 }
 
 void Loop() {

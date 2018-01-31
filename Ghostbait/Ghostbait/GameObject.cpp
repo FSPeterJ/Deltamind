@@ -9,45 +9,44 @@
 #include "functional"
 
 
-GameObject::GameObject()
-{
-	updateID = EngineStructure::Update.AddAsleep([=]() {this->Update(); });
+GameObject::GameObject() {
+	//updateID = EngineStructure::Update.Add([=]() {this->Update(); });
 }
 
 void GameObject::OnCollision(GameObject* obj) {
 }
 
+//This is potentially dangerous if used incorrectly.  
+//Double Enable emplaces an update delegate that can never be removed.  
 void GameObject::Enable() {
-	EngineStructure::Update.Awake(updateID);
+	//If check was added to prevent user error, but may be unecessary
+	if(!updateID) {
+		//Profile for if adding a delegate has any performance impact +/-
+		// Iterating & checking states of hundreds of pool active items per frame vs adding / removing one or two delegates every handful of frames
+		updateID = EngineStructure::Update.Add([=]() {this->Update(); });
+	}
 }
 
 void GameObject::Disable() {
-	//MessageEvents::SendQueueMessage(EVENT_Late, [=]() {this->Update(); });
-	//MessageEvents::SendQueueMessage(EVENT_Late,  [updateID]() { EngineStructure::Update.Remove(updateID); });
-	//MessageEvents::SendQueueMessage<unsigned>(EVENT_Late, std::function( [updateID]() { EngineStructure::Update.Remove(updateID); }));
-	/*MessageEvents::SendQueueMessage(EVENT_Late, std::function( [updateID]() { EngineStructure::Update.Remove(updateID); }));
-	MessageEvents::SendQueueMessage(EVENT_Late, std::function( [=]() { EngineStructure::Update.Remove(updateID); }));
-	MessageEvents::SendQueueMessage(EVENT_Late, [updateID]() { EngineStructure::Update.Remove(updateID); });
-	MessageEvents::SendQueueMessage(EVENT_Late, [=]() { EngineStructure::Update.Remove(updateID); });*/
-	EngineStructure::Update.Sleep(updateID);
+	MessageEvents::SendQueueMessage(EVENT_Late, [=] {EngineStructure::Update.Remove(updateID); updateID = 0; });
+}
 
-	
+void GameObject::DisableLate() {
+	EngineStructure::Update.Remove(updateID);
+	updateID = 0;
 }
 
 void GameObject::Destroy() {
 	//recycle memory, pool::deactivatememory
 	MessageEvents::SendMessage(EVENT_Destroy, DestroyMessage(this));
-	
 	DestroyComponents();
-	Disable();
 	Components.Clear();
+	Disable();
 }
 
-void MenuCube::Update()
-{
-	position.m[3][1] += 0.2f * (float)GhostTime::DeltaTime();
-	if(position.m[3][1] > 2.5f)
-	{
+void MenuCube::Update() {
+	position.m[3][1] += 0.4f * (float)GhostTime::DeltaTime();
+	if(position.m[3][1] > 1.5f) {
 		Disable();
 	}
 }
@@ -70,7 +69,7 @@ void CoreCube::OnCollision(GameObject* other) {
 	if(other->GetTag() == "enemy") {
 		Console::WriteLine("YOU LOSE!");
 		Debug("YOU LOSE!");
-		Destroy();
+		MessageEvents::SendQueueMessage(EVENT_Late, [=] {this->Destroy(); });
 		Object* temper;
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(10/*LoseCube*/, { 0, 0.75, 0 }, &temper));
 		DirectX::XMStoreFloat4x4(&temper->position,

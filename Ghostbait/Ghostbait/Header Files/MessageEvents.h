@@ -57,13 +57,12 @@ public:
 	/// </summary>
 	/// <param name="eventtype">The eventtype.</param>
 	/// <param name="message">The message.</param>
-	template <typename ...T>
-	inline static void SendQueueMessage(const EVENT_TYPES eventtype, std::function<void(T...)> execute) {
+	inline static void SendQueueMessage(const EVENT_TYPES eventtype, std::function<void(void)> execute) {
+
 
 		//execute(T...);
-		queuedEvents.push([=]()
-		{
-			execute(T...);
+		queuedEvents.push([=]() {
+			execute();
 		});
 		//HandleMessage(eventtype, message);
 
@@ -76,7 +75,8 @@ public:
 	/// <param name="message">The message.</param>
 	inline static void SendMessage(const EVENT_TYPES eventtype, EventMessageBase& message = EventMessageBase()) { eventmap[eventtype](&message); HandleMessage(eventtype, message); }
 
-	void ProcessEvents();
+	static void ProcessEvents();
 	MessageEvents();
+	static void Initilize();
 	~MessageEvents();
 };

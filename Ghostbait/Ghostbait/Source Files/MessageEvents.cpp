@@ -4,6 +4,12 @@ std::unordered_map<EVENT_TYPES, Delegate<EventMessageBase*>> MessageEvents::even
 std::queue<std::function<void()>> MessageEvents::queuedEvents;
 
 MessageEvents::MessageEvents() {
+	//Any code you write in here does not get called as MessageEvents is not instantiated
+	//Consider using a singleton otherwise.
+}
+
+void MessageEvents::Initilize()
+{
 	EngineStructure::LateUpdate += [=]() { ProcessEvents(); };
 }
 

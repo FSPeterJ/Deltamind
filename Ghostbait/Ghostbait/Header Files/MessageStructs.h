@@ -55,6 +55,7 @@ class InstantiateMessage: public EventMessageBase {
 	DirectX::XMFLOAT4X4 position;
 public:
 	GameObject** obj;
+
 	/// <summary>
 	/// Initializes a new instance of the <see cref="InstantiateMessage"/> class.
 	/// </summary>

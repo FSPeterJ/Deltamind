@@ -119,7 +119,7 @@
       <AdditionalIncludeDirectories>C:\Program Files %28x86%29\Visual Leak Detector\include;openvr\headers;Shaders;Resource Files;Source Files;Header Files;E:\Program Files (x86)\Visual Leak Detector\include</AdditionalIncludeDirectories>
       <AdditionalUsingDirectories>d3dcompiler.h;directxmath.h;d3d11_1.h;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
       <EnablePREfast>false</EnablePREfast>
-      <TreatWarningAsError>true</TreatWarningAsError>
+      <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -228,6 +228,7 @@
     <ClInclude Include="Resource Files\Resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Console.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Source Files\AnimationManager.cpp" />
     <ClCompile Include="Source Files\Animator.cpp" />

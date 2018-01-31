@@ -18,13 +18,12 @@ public:
 
 class SomeCoolComponent: public GameObjectComponent, public Controlable {
 	void Awake() {
-		WriteLine("I am a cool object being awakened!");
+		Console::WriteLine << "I am a cool object being awakened!";
 	}
 
 	void Update() {
 		if(KeyIsDown(teleport)) {
-			Write("teleport down: ");
-			WriteLine(Amount(teleport));
+			Console::WriteLine << "teleport down: " << Amount(teleport);
 		}
 	}
 };

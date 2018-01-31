@@ -37,8 +37,8 @@ public:
 	CoreCube() { SetTag("Core"); };
 	void OnCollision(GameObject* other) {
 		if (other->GetTag() == "enemy") {
-			Console::WriteLine("YOU LOSE!");
-			Debug("YOU LOSE!");
+			Console::WriteLine <<"YOU LOSE!";
+			Console::OutLine << "YOU LOSE!";
 			Destroy();
 			Object* temper;
 			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(10/*LoseCube*/, { 0, 0.75, 0 }, &temper));

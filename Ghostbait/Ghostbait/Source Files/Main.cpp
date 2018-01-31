@@ -37,19 +37,20 @@ AnimatorManager* animMan;
 
 
 void ExecuteAsync() {
-	WriteLine("I am executed asyncly!");
+	Console::WriteLine << "I am executed asyncly!";
 	throw std::invalid_argument("ERROR: This is a test showing we can know if a thread throws an exception on it's work.\n");
 }
 
 void Setup(HINSTANCE hInstance, int nCmdShow) {
+	Console::Allocate();
+
 	Window wnd(900, 900);
 
 	if(!wnd.Initialize(hInstance, nCmdShow)) { Messagebox::ShowError("Error!!", "Main window is not initialized!"); }
 	wnd.UpdateTitle(L"Ghostbait");
 
-	ConsoleAllocate();
 	_Pool_Base::RegisterMemory(&MemMan);
-	WriteLine("App has been initalized!");
+	Console::WriteLine << "App has been initalized!" ;
 
 	//Minimize();
 
@@ -99,7 +100,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 		inputMan = new InputManager(VR, vrMan);
 	}
 	else {
-		WriteLine("VR not initialized! Defaulting to 2D");
+		Console::WriteLine <<"VR not initialized! Defaulting to 2D";
 		rendInter->Initialize(wnd, nullptr);
 		inputMan = new InputManager(KEYBOARD);
 	}
@@ -239,7 +240,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	CleanUp();
 
-	Free();
+	Console::Free();
 
 	return (int)msg.wParam;
 }

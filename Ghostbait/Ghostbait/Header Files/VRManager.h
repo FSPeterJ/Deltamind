@@ -47,12 +47,14 @@ public:
 	void CreateControllers() {
 		//Left
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {0,0,0}, (Object**) &leftController.obj));
+		leftController.obj->Enable();
 		leftController.obj->SetControllerHand(ControllerObject::ControllerHand::LEFT);
 		leftController.obj->AddController(0, 1);
 		leftController.obj->AddGun(1, 2, Gun::FireType::SEMI, 60, 1);
 		leftController.obj->AddGun(2, 2, Gun::FireType::AUTO, 4, 1);
 		//Right
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {1,0,1}, (Object**) &rightController.obj));
+		rightController.obj->Enable();
 		rightController.obj->SetControllerHand(ControllerObject::ControllerHand::RIGHT);
 		rightController.obj->AddController(0, 1);
 		rightController.obj->AddGun(1, 2, Gun::FireType::SEMI, 60, 1);

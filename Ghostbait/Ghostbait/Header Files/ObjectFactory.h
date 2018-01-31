@@ -81,6 +81,7 @@ public:
 	static void RegisterPrefabBase(unsigned size) {
 		registeredConstructors[TypeMap::GetObjectTypeID<ObjectType>()] = &ConstructorFunc<ObjectType>;
 		objMan->CreatePool<ObjectType>(size);
+
 	}
 
 	template <typename ComponentType, typename ManagerType>
@@ -110,9 +111,7 @@ public:
 		return extSize;
 	}
 
-
-
-	static void CreatePrefab(std::string *_filename, bool objectPrefabOverride = false) {
+	static void CreatePrefab(std::string *_filename, char* DEBUG_STRING_NAME = nullptr, bool objectPrefabOverride = false) {
 
 		int prefabID = prefabNames[*_filename];
 		if(prefabID) {
@@ -189,27 +188,39 @@ public:
 					Object2Prefab[prefab->objectTypeID] = prefabID;
 				}
 				prefabNames[*_filename] = prefabID;
+				if(DEBUG_STRING_NAME) {
+					prefabNames[std::string(DEBUG_STRING_NAME)] = prefabID;
+				}
 			}
 		}
 	}
 
-
 	static void Instantiate(EventMessageBase *e) {
 		InstantiateMessage* instantiate = (InstantiateMessage*)e;
 		GameObject* newobject = ActivateObject(instantiate->GetPrefabId());
-		if(instantiate->GetReturnObject() != nullptr) {
-			instantiate->SetReturnObject(newobject);
+		if(instantiate->obj != nullptr) {
+			*instantiate->obj = newobject;
 		}
 		memcpy(&newobject->position, &instantiate->GetPosition(), sizeof(DirectX::XMFLOAT4X4));
 		MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
 	}
 
-
 	static void InstantiateByType(EventMessageBase *e) {
 		InstantiateMessage* instantiate = (InstantiateMessage*)e;
 		GameObject* newobject = ActivateObject(Object2Prefab[instantiate->GetPrefabId()]);
-		if(instantiate->GetReturnObject() != nullptr) {
-			instantiate->SetReturnObject(newobject);
+		if(instantiate->obj != nullptr) {
+			*instantiate->obj = newobject;
+		}
+
+		memcpy(&newobject->position, &instantiate->GetPosition(), sizeof(DirectX::XMFLOAT4X4));
+		MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
+	}
+
+	static void InstantiateByName(EventMessageBase *e) {
+		InstantiateMessage* instantiate = (InstantiateMessage*)e;
+		GameObject* newobject = ActivateObject(Object2Prefab[instantiate->GetPrefabId()]);
+		if(instantiate->obj != nullptr) {
+			*instantiate->obj = newobject;
 		}
 
 		memcpy(&newobject->position, &instantiate->GetPosition(), sizeof(DirectX::XMFLOAT4X4));

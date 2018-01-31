@@ -52,9 +52,9 @@ public:
 
 class InstantiateMessage: public EventMessageBase {
 	PrefabId pid;
-	GameObject** obj;
 	DirectX::XMFLOAT4X4 position;
 public:
+	GameObject** obj;
 	/// <summary>
 	/// Initializes a new instance of the <see cref="InstantiateMessage"/> class.
 	/// </summary>
@@ -64,14 +64,26 @@ public:
 	InstantiateMessage(const PrefabId _pid, const DirectX::XMFLOAT3 _position,GameObject**  _obj = nullptr) : pid(_pid), obj(_obj) { DirectX::XMStoreFloat4x4(&position, DirectX::XMMatrixTranslation(_position.x, _position.y, _position.z)); }
 	InstantiateMessage(const PrefabId _pid, const DirectX::XMFLOAT4X4 _position,GameObject**  _obj = nullptr) : pid(_pid), position(_position), obj(_obj) {}
 
-	const PrefabId GetPrefabId() const { return pid; }
-	GameObject ** GetReturnObject() const { return obj; }
+	PrefabId GetPrefabId() const { return pid; }
 	DirectX::XMFLOAT4X4 GetPosition() const { return position; }
-	void SetReturnObject(GameObject * _object) const {
-		if(obj != nullptr) {
-			*obj = _object;
-		}
-	}
+};
+
+
+class InstantiateNameMessage: public EventMessageBase {
+	DirectX::XMFLOAT4X4 position;
+public:
+	char* debug_name;
+	GameObject * * obj;
+	/// <summary>
+	/// Initializes a new instance of the <see cref="InstantiateMessage"/> class.
+	/// </summary>
+	/// <param name="_pid">The object's Prefab id.</param>
+	/// <param name="_position">Where to instantiate</param>
+	/// <param name="_obj"> return pointer reference of the object (optional)</param>
+	InstantiateNameMessage( char* const name_Debug, const DirectX::XMFLOAT3 _position, GameObject**  _obj = nullptr): debug_name(name_Debug), obj(_obj) { DirectX::XMStoreFloat4x4(&position, DirectX::XMMatrixTranslation(_position.x, _position.y, _position.z)); }
+	InstantiateNameMessage( char* const name_Debug, const DirectX::XMFLOAT4X4 _position, GameObject**  _obj = nullptr): debug_name(name_Debug), position(_position), obj(_obj) {}
+
+	DirectX::XMFLOAT4X4 GetPosition() const { return position; }
 };
 
 class DestroyMessage: public EventMessageBase {

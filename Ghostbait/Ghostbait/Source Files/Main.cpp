@@ -121,9 +121,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterManager<PhysicsComponent, PhysicsManager>(phyMan);
 	ObjectFactory::RegisterManager<Material, MaterialManager>(rendInter->getMaterialManager());
 
-	//------
-	// Scenemanager would make this
-	//=========================================================
+	
 	TypeMap::RegisterObjectAlias<ControllerObject>("ControllerObject");
 	TypeMap::RegisterObjectAlias<ViveController>("ViveController");
 	TypeMap::RegisterObjectAlias<Gun>("Gun");
@@ -134,8 +132,11 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<CoreCube>("CoreCube");
 	TypeMap::RegisterObjectAlias<GameObject>("GameObject");
 
+	//------
+	// Scenemanager would make this
+	//=========================================================
 	ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer2.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"), true);
+	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"),"ViveController", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/basicSphere.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ScifiRoom.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ProjectileSphere.ghost"));

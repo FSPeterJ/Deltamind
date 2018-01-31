@@ -161,7 +161,7 @@
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>openvr\headers;Shaders;Resource Files;Source Files;Header Files;;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\Visual Leak Detector\include;openvr\headers;Shaders;Resource Files;Source Files;Header Files;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\Visual Leak Detector\include;openvr\headers;Shaders;Resource Files;Source Files;Header Files;E:\Program Files (x86)\Visual Leak Detector\include;E:\Program Files (x86)\Visual Leak Detector\bin\Win64;C:\Program Files %28x86%29\Visual Leak Detector\bin\Win64</AdditionalIncludeDirectories>
       <AdditionalUsingDirectories>d3dcompiler.h;directxmath.h;d3d11_1.h;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
       <EnablePREfast>false</EnablePREfast>
     </ClCompile>

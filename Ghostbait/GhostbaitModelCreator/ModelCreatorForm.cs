@@ -407,14 +407,17 @@ namespace GhostbaitModelCreator {
                         continue;
                     } else {
                         string componentName = new string(reader.ReadChars(reader.ReadInt32()));
-                        componentName = componentName.Remove(componentName.Length - 1); 
-                        if (componentName == "Physical") {
+                        componentName = componentName.Remove(componentName.Length - 1);
+                        if (componentName == "Physical")
+                        {
                             int colCount = reader.ReadInt32();
                             ColliderCreatorForm.ColliderData colData = new ColliderCreatorForm.ColliderData();
-                            for (int i = 0; i < colCount; ++i) {
+                            for (int i = 0; i < colCount; ++i)
+                            {
                                 var stringCol = new string(reader.ReadChars(reader.ReadInt32()));
                                 stringCol = stringCol.Remove(stringCol.Length - 1);
-                                if (!Enum.TryParse(stringCol, out colData.type)) {
+                                if (!Enum.TryParse(stringCol, out colData.type))
+                                {
                                     MessageBox.Show("Invalid Collider Type!", $@"The Collider string.Empty{stringCol}string.Empty is not a valid collider.", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                     //return;
                                 }
@@ -422,7 +425,8 @@ namespace GhostbaitModelCreator {
                                 colData.offsetY = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
                                 colData.offsetZ = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
 
-                                switch (colData.type) {
+                                switch (colData.type)
+                                {
                                     case ColliderCreatorForm.ColliderType.SPHERE:
                                         colData.radius = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
                                         break;
@@ -447,6 +451,23 @@ namespace GhostbaitModelCreator {
                                 colliders.AddCollider(colData);
                             }
                         }
+                        else if (componentName == "Animate")
+                        {
+                            int bindLen = reader.ReadInt32();
+                            string bindName = new string(reader.ReadChars(bindLen));
+                            bindPose.FilePath = bindName;
+                            int animCount = reader.ReadInt32();
+
+                            for (int i = 0; i < animCount; ++i)
+                            {
+                                var stringAnim = new string(reader.ReadChars(reader.ReadInt32()));
+                                var stringName = new string(reader.ReadChars(reader.ReadInt32()));
+                                AnimationCreatorForm.AnimationData toPush = new AnimationCreatorForm.AnimationData();
+                                toPush.filePath = stringAnim;
+                                toPush.name = stringName;
+                                anim.addAnimation(toPush);
+                            }
+                        }
                     }
                 }
                 reader.Close();
@@ -456,6 +477,11 @@ namespace GhostbaitModelCreator {
         private void saveToolStripMenuItem_Click(object sender, EventArgs e) {
             if (className.Text == string.Empty) {
                 MessageBox.Show(this, "Must have class name.", "Missing Data", MessageBoxButtons.OK);
+                return;
+            }
+            if(anim.animCount > 0 && bindPoseFileName.Text == String.Empty)
+            {
+                MessageBox.Show(this, "Objects with animations must have a bindpose!", "Missing Data", MessageBoxButtons.OK);
                 return;
             }
             SaveFileDialog save = new SaveFileDialog {
@@ -482,11 +508,11 @@ namespace GhostbaitModelCreator {
                         writer.Write(outstr.ToCharArray());
                     }
                     //BindPose
-                    if (bindPose.FilePath != string.Empty) {
-                        outstr = bindPose.FilePath + '\0';
-                        writer.Write(outstr.Length);
-                        writer.Write(outstr.ToCharArray());
-                    }
+                    //if (bindPose.FilePath != string.Empty) {
+                    //    outstr = bindPose.FilePath + '\0';
+                    //    writer.Write(outstr.Length);
+                    //    writer.Write(outstr.ToCharArray());
+                    //}
                     //Colliders
                     if (colliders.ColliderCount > 0) {
                         //Find ColliderDataSize
@@ -560,13 +586,33 @@ namespace GhostbaitModelCreator {
                         writer.Write(outstr.ToCharArray());
                     }
                     //Animations
-                    for (int i = 0; i < anim.animCount; ++i) {
-                        outstr = anim.GetAnimation(i).filePath + '\0';
+                    if (anim.animCount > 0)
+                    {
+                        int animDataSize = sizeof(Int32);
+                        string animName = "Animate\0";
+                        animDataSize += sizeof(Int32) + bindPoseFileName.Text.Length + 1;
+                        for(int i = 0; i < anim.animCount; ++i)
+                        {
+                            animDataSize += sizeof(Int32) + anim.GetAnimation(i).filePath.Length + 1;
+                            animDataSize += sizeof(Int32) + anim.GetAnimation(i).name.Length + 1;
+                        }
+                        //Writer Animation Header
+                        writer.Write(-animDataSize);
+                        writer.Write(animName.Length);
+                        writer.Write(animName.ToCharArray());
+                        outstr = bindPose.FilePath + '\0';
                         writer.Write(outstr.Length);
                         writer.Write(outstr.ToCharArray());
-                        outstr = anim.GetAnimation(i).name + '\0';
-                        writer.Write(outstr.Length);
-                        writer.Write(outstr.ToCharArray());
+                        writer.Write(anim.animCount);
+                        for (int i = 0; i < anim.animCount; ++i)
+                        {
+                            outstr = anim.GetAnimation(i).filePath + '\0';
+                            writer.Write(outstr.Length);
+                            writer.Write(outstr.ToCharArray());
+                            outstr = anim.GetAnimation(i).name + '\0';
+                            writer.Write(outstr.Length);
+                            writer.Write(outstr.ToCharArray());
+                        }
                     }
                     writer.Close();
                 }

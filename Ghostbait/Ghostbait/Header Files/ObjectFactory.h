@@ -66,6 +66,7 @@ public:
 		//int r = TypeMap::GetTypeId<std::result_of<decltype(&MeshManager::GetElement)(int&)>>();
 		MessageEvents::Subscribe(EVENT_InstantiateRequest, Instantiate);
 		MessageEvents::Subscribe(EVENT_InstantiateRequestByType, InstantiateByType);
+		MessageEvents::Subscribe(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateByName);
 	}
 
 	~ObjectFactory() {};
@@ -217,8 +218,8 @@ public:
 	}
 
 	static void InstantiateByName(EventMessageBase *e) {
-		InstantiateMessage* instantiate = (InstantiateMessage*)e;
-		GameObject* newobject = ActivateObject(Object2Prefab[instantiate->GetPrefabId()]);
+		InstantiateNameMessage* instantiate = (InstantiateNameMessage*)e;
+		GameObject* newobject = ActivateObject(prefabNames[std::string(instantiate->debug_name)]);
 		if(instantiate->obj != nullptr) {
 			*instantiate->obj = newobject;
 		}

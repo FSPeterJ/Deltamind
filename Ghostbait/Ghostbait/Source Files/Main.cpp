@@ -9,7 +9,6 @@
 //#include "GameObject.h"
 #include "MessageEvents.h"
 #include "ObjectFactory.h"
-#include "GameObjectComponent.h"
 #include "EngineStructure.h"
 #include "VRManager.h"
 #include "InputManager.h"
@@ -145,7 +144,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/ProjectileSphere.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/EnemyRobot.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"), "startCube");
 	ObjectFactory::CreatePrefab(&std::string("Assets/CoreCube.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"));
@@ -165,7 +164,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * DirectX::XMMatrixTranslation(0, 3, 0));
 	MenuCube* startCube;
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(3, roomMatrix));
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(7, {0, 1.5f, 0.0f}, (GameObject**)&startCube));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(7, {0, 1.5f, 0.0f}, (GameObject**)&startCube));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage("startCube", {4, 1.5f, 0.0f}, (GameObject**)&startCube));
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(11, { 0, 0, 0 }, nullptr));
 	DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
 	startCube->Enable();

@@ -175,10 +175,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Animator.h" />
-    <ClInclude Include="AnimatorManager.h" />
     <ClInclude Include="Header Files\AABB.h" />
     <ClInclude Include="Header Files\AnimationManager.h" />
+    <ClInclude Include="Header Files\Animator.h" />
+    <ClInclude Include="Header Files\AnimatorManager.h" />
     <ClInclude Include="Header Files\Camera.h" />
     <ClInclude Include="Header Files\ComponentBase.h" />
     <ClInclude Include="Header Files\Console.h" />
@@ -227,10 +227,10 @@
     <ClInclude Include="Resource Files\Resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Animator.cpp" />
-    <ClCompile Include="AnimatorManager.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Source Files\AnimationManager.cpp" />
+    <ClCompile Include="Source Files\Animator.cpp" />
+    <ClCompile Include="Source Files\AnimatorManager.cpp" />
     <ClCompile Include="Source Files\Camera.cpp" />
     <ClCompile Include="Source Files\ControllerObject.cpp" />
     <ClCompile Include="Source Files\DebugRenderer.cpp" />

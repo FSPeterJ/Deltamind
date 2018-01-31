@@ -27,7 +27,7 @@ struct Animation {
 	bindpose* bPose;
 };
 
-class AnimationManager : public IComponentManager {
+class AnimationManager {
 	std::vector<bindpose*> bindPoses;
 	std::vector<Animation*> animations;
 	std::map<std::string, Animation*> animNames;
@@ -43,7 +43,7 @@ public:
 	unsigned int AddElement(const char* _animationFilePath, const char* _bindposeFilePath);
 	Animation * GetElement(const unsigned int _id);
 	Animation* GetReferenceAnimation(const char * _FilePath, const char * _bindposeFilePath);
-	void ResetComponent(ComponentBase * reset) override;
+	void ResetComponent(ComponentBase * reset);
 
 
 };

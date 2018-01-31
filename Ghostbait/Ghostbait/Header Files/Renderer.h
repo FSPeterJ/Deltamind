@@ -8,7 +8,7 @@
 #include "MessageEvents.h"
 #include "MaterialManager.h"
 #include "Camera.h"
-
+#include "AnimationManager.h"
 
 #include <DirectXMath.h>
 enum renderState {
@@ -138,6 +138,7 @@ private:
 	MeshManager* meshManagement = nullptr;
 	VRManager* VRManagement = nullptr;
 	MaterialManager* materialManagement = nullptr;
+	AnimationManager* animationManagement = nullptr;
 
 	void initDepthStencilBuffer(pipeline_state_t* pipelineTo);
 	void initDepthStencilState(pipeline_state_t* pipelineTo);
@@ -233,6 +234,7 @@ public:
 
 	MeshManager* getMeshManager() { return meshManagement; }
 	MaterialManager* getMaterialManager() { return materialManagement; }
+	AnimationManager* getAnimationManager() { return animationManagement; }
 	Camera* getCamera() { return keyboardCamera; }
 	void Render();
 };

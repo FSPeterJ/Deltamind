@@ -224,6 +224,7 @@ void Renderer::Initialize(Window window, VRManager * vr) {
 	meshManagement->Initialize(device);
 	materialManagement = new MaterialManager();
 	materialManagement->Initialize(device, context);
+	animationManagement = new AnimationManager();
 	context->VSSetConstantBuffers(0, 1, &cameraBuffer);
 	context->VSSetConstantBuffers(1, 1, &modelBuffer);
 	context->PSSetConstantBuffers(0, 1, &lightBuffer);
@@ -288,6 +289,8 @@ void Renderer::Destroy() {
 	delete meshManagement;
 	materialManagement->Destroy();
 	delete materialManagement;
+	animationManagement->Destroy();
+	delete animationManagement;
 	delete keyboardCamera;
 #if _DEBUG
 	DebugRenderer::Destroy();

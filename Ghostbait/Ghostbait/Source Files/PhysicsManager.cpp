@@ -332,13 +332,7 @@ void PhysicsManager::TestAllComponentsCollision() {
 	int range = (int)components.GetActiveCount();
 	for (int comp1 = 0; comp1 < range; ++comp1) {
 		for (int comp2 = 0; comp2 < range; ++comp2) {
-			if (range <= comp1) {
-				break;
-			}
-			if (comp1 != comp2) {
-				CollisionCheck(components[comp1], components[comp2]);
-			}
-			range = (int)components.GetActiveCount();
+			CollisionCheck(components[comp1], components[comp2]);
 		}
 	}
 }

@@ -15,7 +15,7 @@ public:
 
 	void Enable();
 	void Disable();
-	void DisableLate();
+	void DisableNow();
 	virtual void OnCollision(GameObject* obj);
 
 	void Destroy();

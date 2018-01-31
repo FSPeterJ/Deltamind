@@ -23,15 +23,16 @@ void GameObject::Enable() {
 	if(!updateID) {
 		//Profile for if adding a delegate has any performance impact +/-
 		// Iterating & checking states of hundreds of pool active items per frame vs adding / removing one or two delegates every handful of frames
-		updateID = EngineStructure::Update.Add([=]() {this->Update(); });
+		updateID = EngineStructure::Update.Add([=]() { Update(); });
 	}
 }
 
+// Will disable the object after Update main loop is complete
 void GameObject::Disable() {
 	MessageEvents::SendQueueMessage(EVENT_Late, [=] {EngineStructure::Update.Remove(updateID); updateID = 0; });
 }
 
-void GameObject::DisableLate() {
+void GameObject::DisableNow() {
 	EngineStructure::Update.Remove(updateID);
 	updateID = 0;
 }
@@ -71,7 +72,7 @@ void CoreCube::OnCollision(GameObject* other) {
 	if(other->GetTag() == "enemy") {
 		Console::WriteLine << "YOU LOSE!";
 		Console::OutLine << "YOU LOSE!";
-		MessageEvents::SendQueueMessage(EVENT_Late, [=] {this->Destroy(); });
+		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 		GameObject* temper;
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(10/*LoseCube*/, { 0, 0.75f, 0 }, &temper));
 		DirectX::XMStoreFloat4x4(&temper->position, DirectX::XMLoadFloat4x4(&temper->position) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));

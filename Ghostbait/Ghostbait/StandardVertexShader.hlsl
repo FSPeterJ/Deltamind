@@ -9,6 +9,7 @@ cbuffer ModelConstantBuffer : register(b1) {
 
 cbuffer animdataBuffer : register(b2) {
 	matrix joints[50];
+    bool animated;
 };
 
 struct vertexShaderInput {
@@ -29,11 +30,16 @@ struct outputstruct {
 outputstruct main(vertexShaderInput input) {
 	outputstruct output;
 	float4 pos = input.pos;
-	float4 skinned_pos = {0, 0, 0, 0};
-	for(int i = 0; i < 4; ++i)
-		skinned_pos += mul(joints[input.indices[i]], pos) * input.weights[i];
-
-	float4 outputpos = pos;
+    float4 outputpos;
+    if(animated)
+    {
+        float4 skinned_pos = { 0, 0, 0, 0 };
+        for (int i = 0; i < 4; ++i)
+            skinned_pos += mul(joints[input.indices[i]], pos) * input.weights[i];
+        outputpos = skinned_pos;
+    }
+    else
+	    outputpos = pos;
 	float4 norm = float4(input.normal, 0.0f);
 	outputpos = mul(outputpos, model);
     output.worldPos = outputpos.xyz;

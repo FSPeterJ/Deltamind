@@ -1,5 +1,6 @@
 #include "RigidBody.h"
 #include "GhostTime.h"
+
 using namespace DirectX;
 
 RigidBody::RigidBody() {
@@ -84,4 +85,9 @@ XMVECTOR RigidBody::GetVelocity() {
 
 float RigidBody::GetSpeedSq() {
 	return XMVectorGetX(XMVector3LengthSq(XMLoadFloat3(&velocity)));
+}
+
+inline RigidBody::AppliedForce::AppliedForce(float _magnitude, float x, float y, float z, float _time, bool _isConstant) :
+	isConstant(_isConstant), timeInAction(_time), magnitude(_magnitude) {
+	DirectX::XMStoreFloat3(&direction, DirectX::XMVector3Normalize(DirectX::XMVectorSet(x, y, z, 0.0f)));
 }

@@ -1,5 +1,6 @@
 #include "Spawner.h"
 #include "GhostTime.h"
+#include "MessageEvents.h"
 
 Spawner::Spawner() {
 	timeSinceLastSpawn = runSpawnDelay - startSpawnDelay;

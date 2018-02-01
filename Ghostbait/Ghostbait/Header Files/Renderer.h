@@ -1,14 +1,20 @@
 #pragma once
 
 #include <d3d11.h>
-#include "MeshManager.h"
 #include "Window.h"
-#include "VRManager.h"
-#include "MaterialManager.h"
-#include "Camera.h"
-#include "AnimationManager.h"
-
+#include <vector>
 #include <DirectXMath.h>
+
+
+class Camera;
+class GameObject;
+class Object;
+class VRManager;
+class MeshManager;
+class MaterialManager;
+class AnimationManager;
+class EventMessageBase;
+
 enum renderState {
 	RENDER_STATE_DEFAULT, RENDER_STATE_TRANSPARENT
 };
@@ -210,9 +216,9 @@ public:
 	void addSpotLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir, float radius, float outerRadius);
 	void setAmbient(DirectX::XMFLOAT3 color, float factor);
 
-	MeshManager* getMeshManager() { return meshManagement; }
-	MaterialManager* getMaterialManager() { return materialManagement; }
-	AnimationManager* getAnimationManager() { return animationManagement; }
-	Camera* getCamera() { return keyboardCamera; }
+	  MeshManager* getMeshManager();
+	  MaterialManager* getMaterialManager();
+	  AnimationManager* getAnimationManager();
+	  Camera* getCamera();
 	void Render();
 };

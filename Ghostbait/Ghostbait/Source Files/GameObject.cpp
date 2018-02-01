@@ -1,7 +1,8 @@
 #pragma once
 #include "GameObject.h"
 #include "GhostTime.h"
-
+#include "EngineStructure.h"
+#include "MessageEvents.h"
 
 GameObject::GameObject() {
 	//updateID = EngineStructure::Update.Add([=]() {this->Update(); });

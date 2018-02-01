@@ -1,9 +1,12 @@
 #include "AnimatorManager.h"
 
+#include "TypeMapping.h"        // for TypeMap
 AnimatorManager::~AnimatorManager()
 {
 }
-
+AnimatorManager::AnimatorManager(AnimationManager* animManIn) : animMan(animManIn) {
+	TypeMap::RegisterComponentAlias<Animator>("Animate");
+};
 Animator* AnimatorManager::GetReferenceComponent(const char * _FilePath, const char* _data)
 {
 	Animator* toReturn = animators.ActivateMemory();

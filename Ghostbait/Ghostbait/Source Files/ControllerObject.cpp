@@ -1,4 +1,9 @@
 #include "ControllerObject.h"
+#include <DirectXMath.h>     // for XMFLOAT4X4
+#include "Console.h"         // for Console, Console::WriteLine, Console::WriteLiner
+#include "Item.h"            // for Item, Item::State, Item::State::CONTROLLER, Item::State::GUN, Item::State::INVALID
+#include "MessageStructs.h"  // for Control::leftAttack, Control::rightAttack, Control::leftItem1, Control::leftItem2, Control::leftItem3, Control::leftItem4, Control::rightItem1, Control::rightItem2, Control::rightItem3, Control::rightItem4
+#include "MessageEvents.h"
 
 ControllerObject::ControllerObject() {
 	items.resize(4);

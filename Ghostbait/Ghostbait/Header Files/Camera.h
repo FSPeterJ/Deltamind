@@ -1,5 +1,5 @@
 #pragma once
-#include <DirectXMath.h>
+#include <DirectXMath.h> 
 #include "GameObject.h"
 #include "Controlable.h"
 class Camera : public GameObject, public Controlable{

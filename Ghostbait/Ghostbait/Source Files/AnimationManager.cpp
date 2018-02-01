@@ -1,6 +1,12 @@
 #include "AnimationManager.h"
 #include <fstream>
 
+#include "type_traits"      // for forward
+#include "vcruntime_new.h"  // for operator new
+#include "xstddef"          // for _Unfancy, addressof, less
+#include "xstring"          // for string
+#include <directxmath.h>
+
 Animation * AnimationManager::LoadAnimation(const char * _animationFilePath, const char* _bindposeFilePath) {
 	Animation* toPush = new Animation;
 	std::ifstream reader;
@@ -18,7 +24,7 @@ Animation * AnimationManager::LoadAnimation(const char * _animationFilePath, con
 				animJoint joint;
 				reader.read((char*) &joint.parent_index, sizeof(joint.parent_index));
 				for(int almostThere = 0; almostThere < 4; ++almostThere)
-					reader.read((char*) &joint.transform.m[almostThere], sizeof(joint.transform.m[almostThere]));
+					reader.read((char*) &joint.transform->m[almostThere], sizeof(joint.transform->m[almostThere]));
 				temp.joints.push_back(joint);
 			}
 			toPush->keyframes.push_back(temp);
@@ -47,9 +53,9 @@ bindpose * AnimationManager::LoadBindpose(const char * _bindposeFilePath) {
 		animJoint alright;
 		reader.read((char*) &alright.parent_index, sizeof(alright.parent_index));
 		for(int almostThere = 0; almostThere < 4; ++almostThere)
-			reader.read((char*) &alright.transform.m[almostThere], sizeof(alright.transform.m[almostThere]));
+			reader.read((char*) &alright.transform->m[almostThere], sizeof(alright.transform->m[almostThere]));
 
-		XMStoreFloat4x4(&alright.transform, XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat4x4(&alright.transform)), XMLoadFloat4x4(&alright.transform)));
+		XMStoreFloat4x4(alright.transform, XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat4x4(alright.transform)), XMLoadFloat4x4(alright.transform)));
 		toPush->joints.push_back(alright);
 	}
 	reader.close();

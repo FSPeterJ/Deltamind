@@ -1,6 +1,15 @@
 #include "Renderer.h"
 #include <fstream>
 #include "DebugRenderer.h"
+#include "MessageEvents.h"
+
+
+#include "MeshManager.h"
+#include "VRManager.h"
+#include "MaterialManager.h"
+#include "Camera.h"
+#include "AnimationManager.h"
+#include "MessageStructs.h"
 
 using namespace DirectX;
 
@@ -523,3 +532,7 @@ void Renderer::initViewport(const RECT window, pipeline_state_t * pipelineTo) {
 
 	pipelineTo->viewport = tempView;
 }
+ MeshManager* Renderer::getMeshManager() { return meshManagement; }
+ MaterialManager* Renderer::getMaterialManager() { return materialManagement; }
+ AnimationManager* Renderer::getAnimationManager() { return animationManagement; }
+ Camera* Renderer::getCamera() { return keyboardCamera; }

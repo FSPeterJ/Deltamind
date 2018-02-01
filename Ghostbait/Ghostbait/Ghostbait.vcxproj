@@ -197,6 +197,7 @@
     <ClInclude Include="Header Files\InputManager.h" />
     <ClInclude Include="Header Files\IComponentManager.h" />
     <ClInclude Include="Header Files\Item.h" />
+    <ClInclude Include="Header Files\Material.h" />
     <ClInclude Include="Header Files\MaterialManager.h" />
     <ClInclude Include="Header Files\MemoryManager.h" />
     <ClInclude Include="Header Files\MeshManager.h" />
@@ -228,16 +229,18 @@
     <ClInclude Include="Resource Files\Resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Console.cpp" />
-    <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="Source Files\AABB.cpp" />
     <ClCompile Include="Source Files\AnimationManager.cpp" />
     <ClCompile Include="Source Files\Animator.cpp" />
     <ClCompile Include="Source Files\AnimatorManager.cpp" />
     <ClCompile Include="Source Files\Camera.cpp" />
+    <ClCompile Include="Source Files\Console.cpp" />
+    <ClCompile Include="Source Files\Controlable.cpp" />
     <ClCompile Include="Source Files\ControllerObject.cpp" />
     <ClCompile Include="Source Files\DebugRenderer.cpp" />
     <ClCompile Include="Source Files\EnemyBase.cpp" />
     <ClCompile Include="Source Files\EngineStructure.cpp" />
+    <ClCompile Include="Source Files\GameObject.cpp" />
     <ClCompile Include="Source Files\GhostTime.cpp" />
     <ClCompile Include="Source Files\Gun.cpp">
       <ShowIncludes Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ShowIncludes>
@@ -245,6 +248,7 @@
     <ClCompile Include="Source Files\InputManager.cpp" />
     <ClCompile Include="Source Files\Item.cpp" />
     <ClCompile Include="Source Files\Main.cpp" />
+    <ClCompile Include="Source Files\Material.cpp" />
     <ClCompile Include="Source Files\MaterialManager.cpp" />
     <ClCompile Include="Source Files\MemoryManager.cpp" />
     <ClCompile Include="Source Files\MeshManager.cpp" />
@@ -252,6 +256,7 @@
     <ClCompile Include="Source Files\Object.cpp" />
     <ClCompile Include="Source Files\ObjectFactory.cpp" />
     <ClCompile Include="Source Files\ObjectManager.cpp" />
+    <ClCompile Include="Source Files\PhysicsComponent.cpp" />
     <ClCompile Include="Source Files\PhysicsManager.cpp" />
     <ClCompile Include="Source Files\Pool.cpp" />
     <ClCompile Include="Source Files\Projectile.cpp" />

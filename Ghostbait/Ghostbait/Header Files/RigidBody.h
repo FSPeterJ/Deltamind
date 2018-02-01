@@ -1,7 +1,8 @@
 #pragma once
-#include <DirectXMath.h>
 #include <vector>
 #define MAX_APPLIED_FORCE 5
+#include <DirectXMath.h>//todo get rid
+
 
 class RigidBody {
 	struct AppliedForce {
@@ -11,10 +12,7 @@ class RigidBody {
 		DirectX::XMFLOAT3 direction;
 
 		AppliedForce() {};
-		AppliedForce(float _magnitude, float x, float y, float z, float _time = 1.0f, bool _isConstant = false) :
-			isConstant(_isConstant), timeInAction(_time), magnitude(_magnitude) {
-			DirectX::XMStoreFloat3(&direction, DirectX::XMVector3Normalize(DirectX::XMVectorSet(x, y, z, 0.0f)));
-		};
+		AppliedForce(float _magnitude, float x, float y, float z, float _time = 1.0f, bool _isConstant = false);;
 	};
 
 	bool hasGavity;

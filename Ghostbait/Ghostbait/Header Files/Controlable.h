@@ -1,8 +1,7 @@
 #pragma once
-#include <functional>
-#include <unordered_map>
-#include "MessageStructs.h"
-#include "MessageEvents.h"
+#include <functional>		//can probably be moved to header if nested classes move
+#include <unordered_map>	//can probably be moved to header if nested classes move
+#include "MessageStructs.h"	//can probably be moved to header if nested classes move
 
 //This becomes some sort of component add-on?
 class Controlable {
@@ -49,6 +48,6 @@ public:
 	/// <summary>
 	/// Subscribes children to receive message input events.
 	/// </summary>
-	Controlable() { MessageEvents::Subscribe(EVENT_Input, inputReceivedEvent.ReceiveInputEvent()); }
-	virtual ~Controlable() {}
+	Controlable();
+	virtual ~Controlable();
 };

@@ -1,4 +1,9 @@
-#include "ObjectFactory.h"
+#include "ObjectManager.h"
+#include "MessageEvents.h"
+#include "GameObject.h"
+#include "functional"        // for _Func_impl_no_alloc<>::_Mybase
+#include "MemoryManager.h"   // for MemoryManager
+#include "MessageStructs.h"  // for DestroyMessage, EventMessageBase (ptr only)
 
 ObjectManager::ObjectManager(MemoryManager* _memMan) : memMan(_memMan) {
 	//TODO: Fix this into Initialize

@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include "vld.h"
 //#include "GameObject.h"
 #include "ObjectFactory.h"
 #include "InputManager.h"
@@ -12,6 +13,13 @@
 #include "EnemyBase.h"
 #include "ViveController.h"
 #include "Spawner.h"
+#include "ObjectManager.h"
+#include "MessageEvents.h"
+#include "VRManager.h"
+#include "MaterialManager.h"
+#include "MeshManager.h"
+#include "ControllerObject.h"
+
 
 Renderer* rendInter;
 VRManager* vrMan;
@@ -26,7 +34,7 @@ AnimatorManager* animMan;
 
 void ExecuteAsync() {
 	Console::WriteLine << "I am executed asyncly!";
-	throw std::invalid_argument("ERROR: This is a test showing we can know if a thread throws an exception on it's work.\n");
+	throw std::invalid_argument("ERROR: This is a test showing we can know if a thread throws an exception on its work.\n");
 }
 
 void Setup(HINSTANCE hInstance, int nCmdShow) {
@@ -76,7 +84,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 		//std::rethrow_exception(e);
 		// handle it
 
-		std::cout << e.what();
+		Console::Write << e.what();
 	}
 	//=============================
 

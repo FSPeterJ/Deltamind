@@ -1,5 +1,11 @@
 #include "InputManager.h"
 #include "Messagebox.h"
+#include <DirectXMath.h>  // for XMFLOAT4X4, XMFLOAT4X4::(anonymous union)::(anonymous), XMFLOAT4X4::(anonymous), XMMATRIX
+#include "VRManager.h"    // for VRManager, VRManager::VRController, VRManager::leftController
+#include "MessageEvents.h"
+
+#include "MessageStructs.h"  // for Control
+#include "unordered_map"     // for _Umap_traits<>::allocator_type, unordered_map
 
 #define RAD_PI 3.14159265359
 
@@ -7,6 +13,53 @@
 #define RAD_3PI_4 2.35619449019
 #define RAD_5PI_4 3.92699081699
 #define RAD_7PI_4 5.49778714378
+
+
+
+struct InputPackage {
+	Control control;
+	float amount;
+	InputPackage() {};
+	InputPackage(const Control _control, const float _amount) : control(_control), amount(_amount) {}
+};
+
+
+struct InputManager::InputBridge {
+	std::unordered_map<Control, int> keyBind;
+	virtual bool MapKey(Control control, int key) = 0;
+	virtual InputPackage CheckForInput() = 0;
+};
+struct InputManager::VRInput: public InputBridge {
+	VRManager* vrMan;
+	float rightTPX = 0, rightTPY = 0;
+	float leftTPX = 0, leftTPY = 0;
+	VRInput() {};
+	VRInput(VRManager* vrManager);
+	bool MapKey(Control control, int key) override;
+	InputPackage CheckForInput() override;
+};
+struct InputManager::KeyboardInput: public InputBridge {
+	KeyboardInput();
+	bool MapKey(Control control, int key);
+	InputPackage CheckForInput();
+};
+struct InputManager::ControllerInput: public InputBridge {
+	ControllerInput();
+	bool MapKey(Control control, int key);
+	InputPackage CheckForInput();
+};
+
+
+InputManager::~InputManager() {
+	delete bridge; delete inputPoll;
+};
+InputManager::InputManager(InputType type, VRManager* vrManager) {
+	vrMan = vrManager;
+	SetInputType(type);
+	inputPoll = new InputPackage();
+};
+inline InputType InputManager::GetInputType() { return inputType; };
+
 
 //VR
 InputManager::VRInput::VRInput(VRManager* vrManager) {
@@ -195,13 +248,13 @@ bool InputManager::ControllerInput::MapKey(Control control, int key) {
 //Input Manager
 std::queue<uint64_t> InputManager::inputQueue;
 
-InputPackage InputManager::HandleInput() {
-	InputPackage input = bridge->CheckForInput();
+InputPackage* InputManager::HandleInput() {
+	*inputPoll = bridge->CheckForInput();
 
-	if(input.control != Control::none)
-		MessageEvents::SendMessage(EVENT_Input, InputMessage(input.control, input.amount));
+	if(inputPoll->control != Control::none)
+		MessageEvents::SendMessage(EVENT_Input, InputMessage(inputPoll->control, inputPoll->amount));
 
-	return input;
+	return inputPoll;
 }
 void InputManager::SetInputType(InputType type) {
 	if(bridge)

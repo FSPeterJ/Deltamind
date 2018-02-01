@@ -1,7 +1,7 @@
 #include "MaterialManager.h"
-#include <fstream>
 #include "WICTextureLoader.h"
 #include "TypeMapping.h"
+#include <fstream>
 
 MaterialManager::MaterialManager() {}
 

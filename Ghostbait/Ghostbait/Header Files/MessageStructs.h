@@ -1,6 +1,6 @@
 #pragma once
 #include "StdHeader.h"
-#include "DirectXMath.h"
+#include "DirectXMath.h" //todo get rid
 
 #undef GetObject
 

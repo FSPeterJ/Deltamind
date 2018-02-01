@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 #include "MemoryManager.h"
-#include "Console.h"
 
 class _Pool_Base {
 	void RemoveObjectFromActive(const void* o) {
@@ -61,7 +60,7 @@ public:
 
 	~Pool() {
 		//We want to destruct in reverse order so the first created is the first destructed
-		for(size_t i = pool_size; i-- > 0;) { //goes to 'operator' ;D
+		for(size_t i = pool_size; i-- > 0;) { 
 			elements[i].~T();
 		}
 	}
@@ -93,5 +92,5 @@ public:
 	/// Gets the active list.
 	/// </summary>
 	/// <returns>std.vector&lt;T*&gt;*.</returns>
-	inline std::vector< T*>* GetActiveList() const { return (std::vector<T*>*)&activeList; }
+	inline std::vector<T*>* GetActiveList() const { return (std::vector<T*>*)&activeList; }
 };

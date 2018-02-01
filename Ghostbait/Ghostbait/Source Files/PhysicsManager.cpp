@@ -96,7 +96,7 @@ PhysicsComponent* PhysicsManager::GetReferenceComponent(const char * _FilePath, 
 		return &prefabComponents.back();
 	}
 	else {
-		//If it breaks here, you ran out of prefab space. change MAX_PREFABS 
+		throw "If it breaks here, you ran out of prefab space. change MAX_PREFABS ";
 		return nullptr;
 	}
 }

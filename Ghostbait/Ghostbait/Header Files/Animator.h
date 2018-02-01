@@ -1,6 +1,7 @@
 #pragma once
 #include "AnimationManager.h"
-#include <map>
+#include "ComponentBase.h"
+#include <DirectXMath.h>       // for XMFLOAT3X3, XMFLOAT4X4 (ptr only)
 
 class Animator : public InstantiatedCompBase
 {
@@ -21,27 +22,7 @@ public:
 	void addAnim(const char* animFilePath, const char* bindposeFilePath, const char* animName);
 	bool setState(const char* animName);
 
-	Animator& operator=(const Animator& that)
-	{
-		if (this != &that)
-		{
-			//All pointer copies in this operator are not shallow; animators do not manage the memory they point to and should all point to the same places
-			this->animMan = that.animMan;
-			for (auto i = that.animations.begin(); i != that.animations.end(); ++i)
-			{
-				std::string name = i->first;
-				Animation* point = i->second;
-				this->animations[name] = point;
-			}
-			this->timePos = that.timePos;
-			this->currAnim = that.currAnim;
-			for (size_t i = 0; i < tweens.size(); ++i)
-			{
-				this->tweens.push_back(that.tweens[i]);
-			}
-		}
-		return *this;
-	};
+	Animator& operator=(const Animator& that);
 
 	double getTimePos() { return timePos; }
 	std::map<std::string, Animation*>* getAnimations() { return &animations; }

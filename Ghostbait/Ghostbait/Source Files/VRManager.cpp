@@ -1,5 +1,7 @@
 #include "VRManager.h"
-
+#include "Console.h"
+#include "ControllerObject.h"
+#include "MessageEvents.h"
 DirectX::XMFLOAT4X4 VRManager::world = FLOAT4X4Identity;
 VRManager::VRController VRManager::leftController;
 VRManager::VRController VRManager::rightController;
@@ -41,6 +43,21 @@ bool VRManager::Init() {
 	leftEyeToHead = VRMatrix34ToDirectXMatrix44(pVRHMD->GetEyeToHeadTransform(vr::EVREye::Eye_Left));
 	rightEyeToHead = VRMatrix34ToDirectXMatrix44(pVRHMD->GetEyeToHeadTransform(vr::EVREye::Eye_Right));
 	return true;
+}
+
+void VRManager::CreateControllers() {
+	//Left
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {0,0,0}, (GameObject**) &leftController.obj));
+	leftController.obj->SetControllerHand(ControllerObject::ControllerHand::LEFT);
+	leftController.obj->AddController(0, 1);
+	leftController.obj->AddGun(1, 2, Gun::FireType::SEMI, 60, 1);
+	leftController.obj->AddGun(2, 2, Gun::FireType::AUTO, 4, 1);
+	//Right
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {1,0,1}, (GameObject**) &rightController.obj));
+	rightController.obj->SetControllerHand(ControllerObject::ControllerHand::RIGHT);
+	rightController.obj->AddController(0, 1);
+	rightController.obj->AddGun(1, 2, Gun::FireType::SEMI, 60, 1);
+	rightController.obj->AddGun(2, 2, Gun::FireType::AUTO, 4, 1);
 }
 
 DirectX::XMFLOAT4X4 VRManager::VRProjectionToDirectXMatrix(vr::EVREye eye, float nearPlane, float farPlane) {

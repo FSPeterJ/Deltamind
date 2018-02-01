@@ -1,7 +1,16 @@
 #pragma once
-#include "openvr.h"
-#include <DirectXMath.h>
-#include "ControllerObject.h"
+#include "openvr.h" //todo get rid.  (convert to ptrs and include in cpp) then uncomment namespace below
+#include <DirectXMath.h> // same as above
+
+//namespace vr {
+//	class IVRSystem;
+//	class IVRRenderModels;
+//	class IVRCompositor;
+//	enum EVREye;
+//	struct HmdMatrix34_t;
+////	class TrackedDevicePose_t;
+//}
+class ControllerObject;
 
 #define FLOAT4X4Identity DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
@@ -43,20 +52,7 @@ public:
 
 	bool Init();
 
-	void CreateControllers() {
-		//Left
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {0,0,0}, (GameObject**) &leftController.obj));
-		leftController.obj->SetControllerHand(ControllerObject::ControllerHand::LEFT);
-		leftController.obj->AddController(0, 1);
-		leftController.obj->AddGun(1, 2, Gun::FireType::SEMI, 60, 1);
-		leftController.obj->AddGun(2, 2, Gun::FireType::AUTO, 4, 1);
-		//Right
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {1,0,1}, (GameObject**) &rightController.obj));
-		rightController.obj->SetControllerHand(ControllerObject::ControllerHand::RIGHT);
-		rightController.obj->AddController(0, 1);
-		rightController.obj->AddGun(1, 2, Gun::FireType::SEMI, 60, 1);
-		rightController.obj->AddGun(2, 2, Gun::FireType::AUTO, 4, 1);
-	}
+	void CreateControllers();
 
 	void GetVRMatrices(DirectX::XMFLOAT4X4* leftProj, DirectX::XMFLOAT4X4* rightProj, DirectX::XMFLOAT4X4* leftView, DirectX::XMFLOAT4X4* rightView);
 	void SendToHMD(void* leftTexture, void* rightTexture);

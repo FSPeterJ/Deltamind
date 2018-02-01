@@ -1,6 +1,8 @@
 #include "EnemyBase.h"
 #include "GhostTime.h"
 #include "PhysicsComponent.h"
+#include "MessageEvents.h"
+#include "Console.h"
 
 void EnemyBase::Update() {
 	DirectX::XMVECTOR directionToGoal = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&target), DirectX::XMLoadFloat4x4(&position).r[3]));

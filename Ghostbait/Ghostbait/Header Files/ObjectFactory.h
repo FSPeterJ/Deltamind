@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <bitset>
 #include "Object.h"
+#include "GameObject.h"
 #include "ObjectManager.h"
 #include "TypeMapping.h"
 #include "ComponentBase.h"
@@ -29,7 +30,7 @@ class ObjectFactory {
 	/// Translates a typename's constructor for Objects
 	/// </summary>
 	template <typename T>
-	static Object* ConstructorFunc() {
+	static GameObject* ConstructorFunc() {
 		return new T;
 	}
 	ObjectFactory() {};
@@ -44,7 +45,7 @@ class ObjectFactory {
 	static std::unordered_map<std::string, unsigned> prefabNames;
 	static std::unordered_map<unsigned, unsigned> Object2Prefab;
 
-	//static std::unordered_map<int, Object*> prefabs;
+	//static std::unordered_map<int,GameObject*> prefabs;
 	//pointer storage for prefabs, access by Prefab ID
 	static std::vector<Prefab> prefabs;
 
@@ -65,6 +66,7 @@ public:
 		//int r = TypeMap::GetTypeId<std::result_of<decltype(&MeshManager::GetElement)(int&)>>();
 		MessageEvents::Subscribe(EVENT_InstantiateRequest, Instantiate);
 		MessageEvents::Subscribe(EVENT_InstantiateRequestByType, InstantiateByType);
+		MessageEvents::Subscribe(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateByName);
 	}
 
 	~ObjectFactory() {};
@@ -80,6 +82,7 @@ public:
 	static void RegisterPrefabBase(unsigned size) {
 		registeredConstructors[TypeMap::GetObjectTypeID<ObjectType>()] = &ConstructorFunc<ObjectType>;
 		objMan->CreatePool<ObjectType>(size);
+
 	}
 
 	template <typename ComponentType, typename ManagerType>
@@ -109,9 +112,7 @@ public:
 		return extSize;
 	}
 
-
-
-	static void CreatePrefab(std::string *_filename, bool objectPrefabOverride = false) {
+	static void CreatePrefab(std::string *_filename, char* DEBUG_STRING_NAME = nullptr, bool objectPrefabOverride = false) {
 
 		int prefabID = prefabNames[*_filename];
 		if(prefabID) {
@@ -188,35 +189,47 @@ public:
 					Object2Prefab[prefab->objectTypeID] = prefabID;
 				}
 				prefabNames[*_filename] = prefabID;
+				if(DEBUG_STRING_NAME) {
+					prefabNames[std::string(DEBUG_STRING_NAME)] = prefabID;
+				}
 			}
 		}
 	}
 
-
 	static void Instantiate(EventMessageBase *e) {
 		InstantiateMessage* instantiate = (InstantiateMessage*)e;
-		Object* newobject = ActivateObject(instantiate->GetPrefabId());
-		if(instantiate->GetReturnObject() != nullptr) {
-			instantiate->SetReturnObject(newobject);
+		GameObject* newobject = ActivateObject(instantiate->GetPrefabId());
+		if(instantiate->obj != nullptr) {
+			*instantiate->obj = newobject;
 		}
 		memcpy(&newobject->position, &instantiate->GetPosition(), sizeof(DirectX::XMFLOAT4X4));
 		MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
 	}
-
 
 	static void InstantiateByType(EventMessageBase *e) {
 		InstantiateMessage* instantiate = (InstantiateMessage*)e;
-		Object* newobject = ActivateObject(Object2Prefab[instantiate->GetPrefabId()]);
-		if(instantiate->GetReturnObject() != nullptr) {
-			instantiate->SetReturnObject(newobject);
+		GameObject* newobject = ActivateObject(Object2Prefab[instantiate->GetPrefabId()]);
+		if(instantiate->obj != nullptr) {
+			*instantiate->obj = newobject;
 		}
 
 		memcpy(&newobject->position, &instantiate->GetPosition(), sizeof(DirectX::XMFLOAT4X4));
 		MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
 	}
 
-	static Object* ActivateObject(unsigned pid) {
-		Object* newobject = objMan->Instantiate(prefabs[pid].objectTypeID);
+	static void InstantiateByName(EventMessageBase *e) {
+		InstantiateNameMessage* instantiate = (InstantiateNameMessage*)e;
+		GameObject* newobject = ActivateObject(prefabNames[std::string(instantiate->debug_name)]);
+		if(instantiate->obj != nullptr) {
+			*instantiate->obj = newobject;
+		}
+
+		memcpy(&newobject->position, &instantiate->GetPosition(), sizeof(DirectX::XMFLOAT4X4));
+		MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
+	}
+
+	static GameObject* ActivateObject(unsigned pid) {
+		GameObject* newobject = objMan->Instantiate(prefabs[pid].objectTypeID);
 
 		for(int i = 0; i < 64; i++) {
 
@@ -232,6 +245,7 @@ public:
 				});
 			}
 		}
+		newobject->Enable();
 		return newobject;
 	}
 

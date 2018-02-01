@@ -2,10 +2,7 @@
 #include <functional>
 #include <unordered_map>
 #include "MessageStructs.h"
-
-class EventMessageBase;
-class InputMessage;
-
+#include "MessageEvents.h"
 
 //This becomes some sort of component add-on?
 class Controlable {

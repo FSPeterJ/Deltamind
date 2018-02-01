@@ -9,7 +9,7 @@ bool Gun::Shoot() {
 		if (timeSinceLastShot > (1 / fireRate) && !energyOverheatDelayTimeLeft) {
 			//Fire
 			Projectile* obj;
-			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(projectiePrefabID, { 0, 0, 0 }, (Object**)&obj));
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(projectiePrefabID, { 0, 0, 0 }, (GameObject**)&obj));
 			obj->position = position;
 			obj->position._41 += obj->position._31 * 0.2f;
 			obj->position._42 += obj->position._32 * 0.2f;
@@ -27,7 +27,7 @@ bool Gun::Shoot() {
 		if (timeSinceLastShot > (1 / fireRate) && !energyOverheatDelayTimeLeft) {
 			//Fire
 			Projectile* obj;
-			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(projectiePrefabID, { 0, 0, 0 }, (Object**)&obj));
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(projectiePrefabID, { 0, 0, 0 }, (GameObject**)&obj));
 			obj->position = position;
 			obj->position._41 += obj->position._31 * 0.2f;
 			obj->position._42 += obj->position._32 * 0.2f;

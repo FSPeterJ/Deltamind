@@ -34,10 +34,10 @@ void ObjectManager::Update() {
 	Update_Delegate();
 }
 
-Object* ObjectManager::Instantiate(unsigned typeID) {
+GameObject* ObjectManager::Instantiate(unsigned typeID) {
 	//Write(typeID);
 	_Pool_Base* poolBase = (_Pool_Base*) ((char*) poolList + sizeof(Pool<size_t>) * typeID);
-	Object* newobject = (Object*) poolBase->ActivateMemory();
+	GameObject* newobject = (GameObject*) poolBase->ActivateMemory();
 	pointers2Bucket[newobject] = poolBase;
 	return newobject;
 }

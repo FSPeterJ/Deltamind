@@ -1,9 +1,9 @@
 #pragma once
 #include "RigidBody.h" // DirectXMath, vector
-#include "Object.h"
-#include "AABB.h"
+#include"AABB.h"
 
 //class PhysicsManager;
+
 
 enum ColliderType {
 	SPHERE,

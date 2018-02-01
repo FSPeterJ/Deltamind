@@ -9,7 +9,6 @@
 //#include "GameObject.h"
 #include "MessageEvents.h"
 #include "ObjectFactory.h"
-#include "GameObjectComponent.h"
 #include "EngineStructure.h"
 #include "VRManager.h"
 #include "InputManager.h"
@@ -37,19 +36,20 @@ AnimatorManager* animMan;
 
 
 void ExecuteAsync() {
-	WriteLine("I am executed asyncly!");
+	Console::WriteLine << "I am executed asyncly!";
 	throw std::invalid_argument("ERROR: This is a test showing we can know if a thread throws an exception on it's work.\n");
 }
 
 void Setup(HINSTANCE hInstance, int nCmdShow) {
+	Console::Allocate();
+
 	Window wnd(900, 900);
 
 	if(!wnd.Initialize(hInstance, nCmdShow)) { Messagebox::ShowError("Error!!", "Main window is not initialized!"); }
 	wnd.UpdateTitle(L"Ghostbait");
 
-	ConsoleAllocate();
 	_Pool_Base::RegisterMemory(&MemMan);
-	WriteLine("App has been initalized!");
+	Console::WriteLine << "App has been initalized!" ;
 
 	//Minimize();
 
@@ -99,7 +99,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 		inputMan = new InputManager(VR, vrMan);
 	}
 	else {
-		WriteLine("VR not initialized! Defaulting to 2D");
+		Console::WriteLine <<"VR not initialized! Defaulting to 2D";
 		rendInter->Initialize(wnd, nullptr);
 		inputMan = new InputManager(KEYBOARD);
 	}
@@ -123,9 +123,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterManager<Material, MaterialManager>(rendInter->getMaterialManager());
 	ObjectFactory::RegisterManager<Animator, AnimatorManager>(animMan);
 
-	//------
-	// Scenemanager would make this
-	//=========================================================
+	
 	TypeMap::RegisterObjectAlias<ControllerObject>("ControllerObject");
 	TypeMap::RegisterObjectAlias<ViveController>("ViveController");
 	TypeMap::RegisterObjectAlias<Gun>("Gun");
@@ -136,17 +134,21 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<CoreCube>("CoreCube");
 	TypeMap::RegisterObjectAlias<GameObject>("GameObject");
 
+	//------
+	// Scenemanager would make this
+	//=========================================================
 	ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer2.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"), true);
+	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"),"ViveController", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/basicSphere.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ScifiRoom.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ProjectileSphere.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/EnemyRobot.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"), "startCube");
 	ObjectFactory::CreatePrefab(&std::string("Assets/CoreCube.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/Teddy.ghost"));
 
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object"));
@@ -162,7 +164,9 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * DirectX::XMMatrixTranslation(0, 3, 0));
 	MenuCube* startCube;
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(3, roomMatrix));
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(7, {0, 1.5f, 0.0f}, (Object**)&startCube));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(7, {0, 1.5f, 0.0f}, (GameObject**)&startCube));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage("startCube", {4, 1.5f, 0.0f}, (GameObject**)&startCube));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(11, { 0, 0, 0 }, nullptr));
 	DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
 	startCube->Enable();
 
@@ -183,6 +187,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//MessageEvents::SendMessage(EVENT_Destroy, DestroyMessage(cube1));
 
 	GhostTime::Initalize();
+	MessageEvents::Initilize();
 }
 
 void Loop() {
@@ -229,9 +234,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			DispatchMessage(&msg);
 		}
 		else {
-			//test2->position = vrMan->hmdPose;
-			//test3->position = XMMatrixTranspose(XMLoadFloat4x4(&(rendInter->leftEye.camera.view)));
-			//test4->position = XMMatrixTranspose(XMLoadFloat4x4(&(rendInter->rightEye.camera.view)));
+	
 
 			Loop();
 		}
@@ -239,7 +242,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	CleanUp();
 
-	Free();
+	Console::Free();
 
 	return (int)msg.wParam;
 }

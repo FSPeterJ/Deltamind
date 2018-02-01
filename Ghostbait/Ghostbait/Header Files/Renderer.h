@@ -4,8 +4,6 @@
 #include "MeshManager.h"
 #include "Window.h"
 #include "VRManager.h"
-#include "Object.h"
-#include "MessageEvents.h"
 #include "MaterialManager.h"
 #include "Camera.h"
 #include "AnimationManager.h"
@@ -51,26 +49,6 @@ private:
 		viewProjectionConstantBuffer camera;
 	};
 
-	struct directionalLight {
-		DirectX::XMFLOAT4 color;
-		DirectX::XMFLOAT3 dir;
-		float padding;
-	};
-
-	struct pointLight {
-		DirectX::XMFLOAT4 color;
-		DirectX::XMFLOAT3 pos;
-		float radius;
-	};
-
-	struct spotLight {
-		DirectX::XMFLOAT4 color;
-		DirectX::XMFLOAT3 pos;
-		float radius;
-		DirectX::XMFLOAT3 dir;
-		float outerRadius;
-	};
-
 	struct genericLight {
 		DirectX::XMFLOAT4 color = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 		DirectX::XMFLOAT3 dir;
@@ -84,6 +62,13 @@ private:
 		genericLight cpu_side_lights[MAX_LIGHTS];
 		DirectX::XMFLOAT3 ambientColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 		float ambientIntensity = 0.5f;
+	};
+	
+	struct animDataBufferStruct
+	{
+		DirectX::XMFLOAT4X4 cpu_side_joints[50];
+		bool willAnimate;
+		DirectX::XMFLOAT3 filler;
 	};
 #pragma endregion
 
@@ -125,15 +110,17 @@ private:
 	ID3D11Buffer* modelBuffer;
 	ID3D11Buffer* factorBuffer;
 	ID3D11Buffer* lightBuffer;
+	ID3D11Buffer* animDataBuffer;
 	pipeline_state_t defaultPipeline;
 	Camera* keyboardCamera;
 	viewProjectionConstantBuffer defaultCamera;
+	animDataBufferStruct cpuAnimationData;
 
 	LightPool lightManager;
 	//eye leftEye;
 	//eye rightEye;
 
-	std::vector<const Object*> renderedObjects;
+	std::vector<const GameObject*> renderedObjects;
 
 	MeshManager* meshManagement = nullptr;
 	VRManager* VRManagement = nullptr;
@@ -184,16 +171,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////
 	void Destroy();
 
-	//////////////////////////////////////////////////////////////////////////////////
-	//registerObject
-	//Used to have the rendering system begin to render the position.  Only needs to be called once per position.
-	//
-	//Parameters: toRegister, specialInstructions
-	//[toRegister] A pointer to the position to place in the system
-	//[specialInstructions] Used to specify any special rendering instructions, such as transparent items.
-	//////////////////////////////////////////////////////////////////////////////////
-	void registerObject(const Object* toRegister, renderState specialInstructions = RENDER_STATE_DEFAULT);
-
+	
 	//////////////////////////////////////////////////////////////////////////////////
 	//registerObject
 	//Used to have the rendering system start rendering the object.
@@ -214,18 +192,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////
 	void unregisterObject(EventMessageBase* e);
 
-	//////////////////////////////////////////////////////////////////////////////////
-	//unregisterObject
-	//Used to have the rendering system stop rendering the position.  Only needs to be called once per position.
-	//
-	//Parameters: toRemove, specialInstructions
-	//[toRegister] A pointer to the position to remove from the system
-	//[specialInstructions] Used to specify any special rendering instructions, such as transparent items.
-	//
-	//Return value: bool
-	//Used to indicate if the position was found.
-	//////////////////////////////////////////////////////////////////////////////////
-	bool unregisterObject(const Object* toRemove, renderState specialInstructions = RENDER_STATE_DEFAULT);
+	
 	//////////////////////////////////////////////////////////////////////////////////
 	void addDirectionalLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 dir);
 	void addPointLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, float radius);

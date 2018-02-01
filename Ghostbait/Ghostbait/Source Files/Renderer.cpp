@@ -3,6 +3,7 @@
 #include <fstream>
 #include <VertexTypes.h>
 #include "DebugRenderer.h"
+#include "Animator.h"
 
 using namespace DirectX;
 
@@ -139,6 +140,19 @@ void Renderer::renderObjectDefaultState(Object * obj) {
 	context->IASetIndexBuffer(obj->GetComponent<Mesh>()->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(XMLoadFloat4x4(&obj->position)), 0, 0);
 	obj->GetComponent<Material>()->bindToShader(context, factorBuffer);
+	Animator* anim = obj->GetComponent<Animator>();
+	if (anim)
+	{
+		const std::vector<animJoint>* joints = anim->getTweens();
+		for (size_t i = 0; i < joints->size(); ++i)
+		{
+			DirectX::XMStoreFloat4x4(&cpuAnimationData.cpu_side_joints[i], XMLoadFloat4x4(&joints->operator[](i).transform));
+		}
+		cpuAnimationData.willAnimate = true;
+	}
+	else
+		cpuAnimationData.willAnimate = false;
+	context->UpdateSubresource(animDataBuffer, 0, NULL, &cpuAnimationData, 0, 0);
 	//materialManagement->GetElement(UINT_MAX)->bindToShader(context, factorBuffer);
 	context->DrawIndexed(obj->GetComponent<Mesh>()->indexCount, 0, 0);
 }
@@ -227,6 +241,7 @@ void Renderer::Initialize(Window window, VRManager * vr) {
 	animationManagement = new AnimationManager();
 	context->VSSetConstantBuffers(0, 1, &cameraBuffer);
 	context->VSSetConstantBuffers(1, 1, &modelBuffer);
+	context->VSSetConstantBuffers(2, 1, &animDataBuffer);
 	context->PSSetConstantBuffers(0, 1, &lightBuffer);
 	context->PSSetConstantBuffers(1, 1, &factorBuffer);
 #pragma region SamplerState
@@ -269,6 +284,7 @@ void Renderer::Destroy() {
 	modelBuffer->Release();
 	factorBuffer->Release();
 	lightBuffer->Release();
+	animDataBuffer->Release();
 	ILPositionColor->Release();
 	ILStandard->Release();
 	PassThroughPositionColorVS->Release();
@@ -297,19 +313,6 @@ void Renderer::Destroy() {
 #endif
 }
 
-void Renderer::registerObject(const Object * toRegister, renderState specialInstructions) {
-	switch(specialInstructions) {
-		case RENDER_STATE_DEFAULT:
-		{
-			renderedObjects.push_back(toRegister);
-		}
-		break;
-		case RENDER_STATE_TRANSPARENT:
-		{
-		}
-		break;
-	}
-}
 
 void Renderer::registerObject(EventMessageBase* e) {
 	//TODO: Need logic to determine which objects group to push to
@@ -324,32 +327,12 @@ void Renderer::registerObject(EventMessageBase* e) {
 void Renderer::unregisterObject(EventMessageBase* e) {
 	DestroyMessage* removeobjMessage = (DestroyMessage*)e;
 	//TODO: Need logic for which register it is under
-	for(std::vector<const Object*>::iterator iter = renderedObjects.begin(); iter != renderedObjects.end(); ++iter) {
+	for(std::vector<const GameObject*>::iterator iter = renderedObjects.begin(); iter != renderedObjects.end(); ++iter) {
 		if(*iter == removeobjMessage->RetrieveObject()) {
 			renderedObjects.erase(iter);
 			return;
 		}
 	}
-}
-
-bool Renderer::unregisterObject(const Object * toRemove, renderState specialInstructions) {
-	switch(specialInstructions) {
-		case RENDER_STATE_DEFAULT:
-		{
-			for(std::vector<const Object*>::iterator iter = renderedObjects.begin(); iter != renderedObjects.end(); ++iter) {
-				if(*iter == toRemove) {
-					renderedObjects.erase(iter);
-					return true;
-				}
-			}
-		}
-		break;
-		case RENDER_STATE_TRANSPARENT:
-		{
-		}
-		break;
-	}
-	return false;
 }
 
 void Renderer::addDirectionalLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 dir)
@@ -545,6 +528,9 @@ void Renderer::initShaders() {
 
 	CD3D11_BUFFER_DESC dirBufferDesc(sizeof(lightBufferStruct), D3D11_BIND_CONSTANT_BUFFER);
 	device->CreateBuffer(&dirBufferDesc, nullptr, &lightBuffer);
+
+	CD3D11_BUFFER_DESC animBufferDesc(sizeof(animDataBufferStruct), D3D11_BIND_CONSTANT_BUFFER);
+	device->CreateBuffer(&animBufferDesc, nullptr, &animDataBuffer);
 }
 
 void Renderer::initViewport(const RECT window, pipeline_state_t * pipelineTo) {

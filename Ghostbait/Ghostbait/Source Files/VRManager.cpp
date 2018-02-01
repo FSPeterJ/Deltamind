@@ -19,8 +19,7 @@ bool VRManager::Init() {
 
 	if(error != vr::VRInitError_None) {
 		pVRHMD = nullptr;
-		Console::Write("Unable to initialize VR: ");
-		Console::WriteLine(vr::VR_GetVRInitErrorAsSymbol(error));
+		Console::ErrorLine << "Unable to initialize VR: " << vr::VR_GetVRInitErrorAsSymbol(error);
 		return false;
 	}
 
@@ -29,15 +28,14 @@ bool VRManager::Init() {
 	pVRRenderModel = (vr::IVRRenderModels*) vr::VR_GetGenericInterface(vr::IVRRenderModels_Version, &error);
 	if(!pVRRenderModel) {
 		Shutdown();
-		Console::Write("Unable to get render model: ");
-		Console::WriteLine(vr::VR_GetVRInitErrorAsSymbol(error));
+		Console::ErrorLine << "Unable to get render model: " << vr::VR_GetVRInitErrorAsSymbol(error);
 		return false;
 	}
 
 	pVRCompositor = vr::VRCompositor();
 	if(!pVRCompositor) {
 		Shutdown();
-		Console::WriteLine("Compositor initialization failed! ");
+		Console::ErrorLine << "Compositor initialization failed! ";
 		return false;
 	}
 
@@ -99,11 +97,11 @@ DirectX::XMFLOAT4X4 VRManager::VRMatrix44ToDirectXMatrix44(vr::HmdMatrix44_t m) 
 void VRManager::WriteMatrix(DirectX::XMFLOAT4X4 m, int frame = 60) {
 	static int i = 0;
 	if(++i >= frame) {
-		Console::WriteLine("-----------------------------------------------------------------------------");
-		Console::Write(m._11); Console::Write(" "); Console::Write(m._12); Console::Write(" "); Console::Write(m._13); Console::Write(" "); Console::WriteLine(m._14);
-		Console::Write(m._21); Console::Write(" "); Console::Write(m._22); Console::Write(" "); Console::Write(m._23); Console::Write(" "); Console::WriteLine(m._24);
-		Console::Write(m._31); Console::Write(" "); Console::Write(m._32); Console::Write(" "); Console::Write(m._33); Console::Write(" "); Console::WriteLine(m._34);
-		Console::Write(m._41); Console::Write(" "); Console::Write(m._42); Console::Write(" "); Console::Write(m._43); Console::Write(" "); Console::WriteLine(m._44);
+		Console::WriteLine << "-----------------------------------------------------------------------------";
+		Console::WriteLine << m._11 << " " << m._12 << " " << m._13 << " " << m._14;
+		Console::WriteLine << m._21 << " " << m._22 << " " << m._23 << " " << m._24;
+		Console::WriteLine << m._31 << " " << m._32 << " " << m._33 << " " << m._34;
+		Console::WriteLine << m._41 << " " << m._42 << " " << m._43 << " " << m._44;
 		i = 0;
 	}
 }

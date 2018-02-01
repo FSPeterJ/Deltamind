@@ -8,7 +8,7 @@ class GameObject: public Object {
 protected:
 	
 	std::string tag = "none";
-	unsigned updateID;
+	unsigned updateID = 0;
 
 public:
 	GameObject();

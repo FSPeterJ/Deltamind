@@ -245,6 +245,7 @@ public:
 				});
 			}
 		}
+		newobject->Enable();
 		return newobject;
 	}
 

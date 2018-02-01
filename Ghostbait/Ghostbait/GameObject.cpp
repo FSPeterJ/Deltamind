@@ -29,7 +29,9 @@ void GameObject::Enable() {
 
 // Will disable the object after Update main loop is complete
 void GameObject::Disable() {
-	MessageEvents::SendQueueMessage(EVENT_Late, [=] {EngineStructure::Update.Remove(updateID); updateID = 0; });
+	MessageEvents::SendQueueMessage(EVENT_Late, [=] {
+		EngineStructure::Update.Remove(updateID); updateID = 0;
+	});
 }
 
 void GameObject::DisableNow() {
@@ -76,6 +78,5 @@ void CoreCube::OnCollision(GameObject* other) {
 		GameObject* temper;
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(10/*LoseCube*/, { 0, 0.75f, 0 }, &temper));
 		DirectX::XMStoreFloat4x4(&temper->position, DirectX::XMLoadFloat4x4(&temper->position) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));
-		DirectX::XMStoreFloat4x4(&temper->position,	DirectX::XMLoadFloat4x4(&temper->position) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));
 	}
 }

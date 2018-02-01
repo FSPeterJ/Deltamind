@@ -1,6 +1,5 @@
 #include "SpatialPartition.h"
 #include "PhysicsComponent.h"
-#include "AABB.h"
 
 SpatialPartition::Unit::Unit() {
 

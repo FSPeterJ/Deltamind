@@ -1,12 +1,6 @@
-#include "ObjectFactory.h"
-#include <DirectXMath.h>        // for XMFLOAT4X4
 #include "ComponentBase.h"      // for InstantiatedCompBase, ComponentBase
-#include "Delegate.h"           // for Delegate
 #include "GameObject.h"         // for GameObject
-#include "IComponentManager.h"  // for IComponentManager
-#include "MessageStructs.h"     // for InstantiateMessage, EventMessageBase (ptr only)
 #include "ObjectManager.h"      // for ObjectManager
-#include "TypeMapping.h"        // for TypeMap
 #include "MessageEvents.h"
 
 

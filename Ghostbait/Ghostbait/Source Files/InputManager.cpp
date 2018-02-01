@@ -1,11 +1,9 @@
 #include "InputManager.h"
 #include "Messagebox.h"
-#include <DirectXMath.h>  // for XMFLOAT4X4, XMFLOAT4X4::(anonymous union)::(anonymous), XMFLOAT4X4::(anonymous), XMMATRIX
 #include "VRManager.h"    // for VRManager, VRManager::VRController, VRManager::leftController
 #include "MessageEvents.h"
 
 #include "MessageStructs.h"  // for Control
-#include "unordered_map"     // for _Umap_traits<>::allocator_type, unordered_map
 
 #define RAD_PI 3.14159265359
 

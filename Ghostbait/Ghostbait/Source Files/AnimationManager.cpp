@@ -1,10 +1,6 @@
 #include "AnimationManager.h"
 #include <fstream>
 
-#include "type_traits"      // for forward
-#include "vcruntime_new.h"  // for operator new
-#include "xstddef"          // for _Unfancy, addressof, less
-#include "xstring"          // for string
 #include <directxmath.h>
 
 Animation * AnimationManager::LoadAnimation(const char * _animationFilePath, const char* _bindposeFilePath) {

@@ -1,11 +1,5 @@
 #include "DebugRenderer.h"
-#include <DirectXMath.h>       // for XMFLOAT3, XMLoadFloat3, XMStoreFloat3, operator*, operator+, XMVECTOR, XMFLOAT4X4, XMFLOAT4X4::(anonymous union)::(anonymous), XMFLOAT4X4::(anonymous), XMMatrixIdentity
-#include <minwindef.h>         // for UINT, HRESULT
-#include <stddef.h>            // for NULL
-#include "cmath"               // for sqrt
 #include "PhysicsComponent.h"  // for ColliderData, ColliderData::Data, ColliderData::Data::BoxCollider
-#include "vcruntime_string.h"  // for memcpy
-#include "VertexTypes.h"       // for VertexPositionColor
 
 ID3D11Device* DebugRenderer::device;
 ID3D11DeviceContext* DebugRenderer::context;

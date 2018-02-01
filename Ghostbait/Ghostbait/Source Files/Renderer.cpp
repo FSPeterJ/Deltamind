@@ -9,7 +9,6 @@
 #include "MaterialManager.h"
 #include "Camera.h"
 #include "AnimationManager.h"
-#include "MessageStructs.h"
 
 using namespace DirectX;
 

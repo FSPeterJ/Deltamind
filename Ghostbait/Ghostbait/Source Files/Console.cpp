@@ -1,8 +1,6 @@
 #include "Console.h"
 #include <windows.h>
 #include <iostream>
-#include <sstream>
-#include <string>
 const char* Console::file_formatter(char* source) {
 	std::string src(source);
 	size_t start = src.find_last_of('\\') + 1;

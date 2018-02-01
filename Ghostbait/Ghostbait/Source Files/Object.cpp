@@ -1,7 +1,5 @@
 #include "Object.h"
 
-#include "MessageEvents.h"
-#include "Console.h"
 
 Object::Object() {
 	XMStoreFloat4x4(&position, DirectX::XMMatrixIdentity());

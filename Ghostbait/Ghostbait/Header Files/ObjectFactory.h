@@ -116,7 +116,8 @@ public:
 
 	static void InstantiateByName(EventMessageBase *e);
 
-	static GameObject* ActivateObject(unsigned pid);
+
+	static GameObject* ActivateObject(PrefabId pid);
 
 	/// <summary>
 	/// gives an immutable pointer to the requested Prefab

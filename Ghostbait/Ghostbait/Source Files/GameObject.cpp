@@ -18,15 +18,28 @@ void GameObject::Enable() {
 	if(!updateID) {
 		//Profile for if adding a delegate has any performance impact +/-
 		// Iterating & checking states of hundreds of pool active items per frame vs adding / removing one or two delegates every handful of frames
-		updateID = EngineStructure::Update.Add([=]() {this->Update(); });
+		updateID = EngineStructure::Update.Add([=]() { Update(); });
 	}
 }
 
+// Will disable the object after Update main loop is complete
 void GameObject::Disable() {
-	MessageEvents::SendQueueMessage(EVENT_Late, [=] {EngineStructure::Update.Remove(updateID); updateID = 0; });
+	// "Bad ID given.  You cannot remove permament delegates (ID of 0)";
+	//assert(updateID != 0);
+
+	MessageEvents::SendQueueMessage(EVENT_Late, [=] {
+		if(updateID != 0) {
+			// This is because many people in the same update loop can tell you "hey, disable yourself" 
+			// but only the first execution will disable the correct one. I do not have a quick solution to this problem
+			// Possibly confirming with a local bool or bitset for state information would be better than constructing a redundant lambda, but then this may be confusing and hard to debug later
+			// (Object tests as active half way through the update loop vs Object consistently tests as active the whole update loop and then is disabled with LateUpdate)
+			EngineStructure::Update.Remove(updateID);
+			updateID = 0;
+		}
+	});
 }
 
-void GameObject::DisableLate() {
+void GameObject::DisableNow() {
 	EngineStructure::Update.Remove(updateID);
 	updateID = 0;
 }
@@ -48,7 +61,7 @@ void MenuCube::Update() {
 
 void MenuCube::OnCollision(GameObject* other) {
 	if(other->GetTag() == "Bullet") {
-		Destroy();
+		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, { 10, 0, 0 }));
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, { -10, 0, 0 }));
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, { 0, 0, 10 }));
@@ -66,10 +79,9 @@ void CoreCube::OnCollision(GameObject* other) {
 	if(other->GetTag() == "enemy") {
 		Console::WriteLine << "YOU LOSE!";
 		Console::OutLine << "YOU LOSE!";
-		MessageEvents::SendQueueMessage(EVENT_Late, [=] {this->Destroy(); });
+		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 		GameObject* temper;
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(10/*LoseCube*/, { 0, 0.75f, 0 }, &temper));
 		DirectX::XMStoreFloat4x4(&temper->position, DirectX::XMLoadFloat4x4(&temper->position) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));
-		DirectX::XMStoreFloat4x4(&temper->position,	DirectX::XMLoadFloat4x4(&temper->position) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));
 	}
 }

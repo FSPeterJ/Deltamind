@@ -140,10 +140,11 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/ProjectileSphere.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/EnemyRobot.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"), "startCube");
 	ObjectFactory::CreatePrefab(&std::string("Assets/CoreCube.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/Teddy.ghost"));
 
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object"));
@@ -159,7 +160,9 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * DirectX::XMMatrixTranslation(0, 3, 0));
 	MenuCube* startCube;
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(3, roomMatrix));
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(7, {0, 1.5f, 0.0f}, (GameObject**)&startCube));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(7, {0, 1.5f, 0.0f}, (GameObject**)&startCube));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage("startCube", {4, 1.5f, 0.0f}, (GameObject**)&startCube));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(11, { 0, 0, 0 }, nullptr));
 	DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
 	startCube->Enable();
 
@@ -227,9 +230,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			DispatchMessage(&msg);
 		}
 		else {
-			//test2->position = vrMan->hmdPose;
-			//test3->position = XMMatrixTranspose(XMLoadFloat4x4(&(rendInter->leftEye.camera.view)));
-			//test4->position = XMMatrixTranspose(XMLoadFloat4x4(&(rendInter->rightEye.camera.view)));
+	
 
 			Loop();
 		}

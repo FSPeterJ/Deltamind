@@ -1,15 +1,16 @@
 #pragma once
 #include <vector>
 #include <map>
+#include <DirectXMath.h> //todo get rid
 
-namespace DirectX {
-	struct XMFLOAT4X4;
-}
+//namespace DirectX {
+//	struct XMFLOAT4X4;
+//}
 class ComponentBase;
 
 #define MAX_ANIMATIONS 512
 struct animJoint {
-	DirectX::XMFLOAT4X4* transform;
+	DirectX::XMFLOAT4X4 transform;
 	int parent_index;
 };
 

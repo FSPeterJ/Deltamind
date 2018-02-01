@@ -22,6 +22,8 @@ void ObjectFactory::Initialize(ObjectManager* _objMan) {
 	//int r = TypeMap::GetTypeId<std::result_of<decltype(&MeshManager::GetElement)(int&)>>();
 	MessageEvents::Subscribe(EVENT_InstantiateRequest, Instantiate);
 	MessageEvents::Subscribe(EVENT_InstantiateRequestByType, InstantiateByType);
+	MessageEvents::Subscribe(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateByName);
+
 }
 
 
@@ -58,7 +60,7 @@ void ObjectFactory::InstantiateByName(EventMessageBase *e) {
 }
 
 
-GameObject* ObjectFactory::ActivateObject(unsigned pid) {
+GameObject* ObjectFactory::ActivateObject(PrefabId pid) {
 	GameObject* newobject = objMan->Instantiate(prefabs[pid].objectTypeID);
 
 	for(int i = 0; i < 64; i++) {
@@ -79,6 +81,7 @@ GameObject* ObjectFactory::ActivateObject(unsigned pid) {
 
 
 void ObjectFactory::CreatePrefab(std::string *_filename, char* DEBUG_STRING_NAME, bool objectPrefabOverride) {
+
 
 	int prefabID = prefabNames[*_filename];
 	if(prefabID) {

@@ -26,14 +26,24 @@ class Delegate: std::function<void(T...)> {
 	//vld HATES this resizing itself but less than 1 second at runtime without vld, non-issue for now
 	std::vector<Delegate_Entry> delegates;
 	unsigned lastID = 0;
+	size_t delegate_iteration = 0;
 public:
-	void operator()(const T&... e) const {
-
-		for(const Delegate_Entry &element : delegates) {
-			element.function(e...);
+	void operator()(const T&... e) {
+		size_t delsize = delegates.size();
+		//Iterators were not cutting the cake for us.  Accessing by index is ok, and we prevet iterator invalidation by pushback mid iteration
+		for(delegate_iteration = 0; delegate_iteration < delsize; delegate_iteration++) {
+			delegates[delegate_iteration].function(e...);
 		}
+		//Process the delegate further if more things were added to the current delegate by previous delegate calls in this update
+		if(delsize < delegates.size()) {
+			for(delegate_iteration = delsize; delegate_iteration < delegates.size(); delegate_iteration++) {
+				delegates[delegate_iteration].function(e...);
+			}
+		}
+		delegate_iteration = 0;
 	}
-	//Possibly want to phase this out.  Unsure what problems we will run into with 0 being an ID for permament registration
+	//Possibly want to phase this out.  Unsure what problems we will run into with legacy support and 0 being an ID for permament registration
+	//ONLY use this if you NEVER want to remove your delegated function post-registration
 	void operator+=(const std::function<void(T...)> execute) {
 		Delegate_Entry data = { 0, execute };
 		delegates.push_back(data);
@@ -46,10 +56,15 @@ public:
 	}
 
 	void Remove(unsigned id) {
-		if(id == 0)
-		{
-			throw "Bad ID.  You cannot remove permament delegates (ID 0)";
-		}
+		//Bad ID given.  You cannot remove permament delegates as all permament delegates are give the same ID of 0
+		assert(id != 0);
+
+		//Error: You cannot call remove on a delegate from within that same delegate process loop!
+		//(you cannot remove a vector element while iterating that vector)
+		//Example: While processing all update functions in the Update delegate, you remove thisobject.Update from the Update delegate.  
+		//Please use a deffered removal method
+		assert(delegate_iteration == 0);
+
 		Delegate_Entry data = { id, nullptr };
 		std::vector<Delegate_Entry>::iterator it = find(delegates.begin(), delegates.end(), data);
 		*it = std::move(delegates.back());

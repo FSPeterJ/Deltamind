@@ -8,14 +8,14 @@ class GameObject: public Object {
 protected:
 	
 	std::string tag = "none";
-	unsigned updateID;
+	unsigned updateID = 0;
 
 public:
 	GameObject();
 
 	void Enable();
 	void Disable();
-	void DisableLate();
+	void DisableNow();
 	virtual void OnCollision(GameObject* obj);
 
 	void Destroy();

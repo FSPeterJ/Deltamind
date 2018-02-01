@@ -48,11 +48,13 @@ Animator* AnimatorManager::GetReferenceComponent(const char * _FilePath, const c
 Animator * AnimatorManager::CloneComponent(ComponentBase * reference)
 {
 	Animator* toReturn = animators.ActivateMemory();
-	*toReturn = *((Animator*)reference);
+	toReturn->Copy(((Animator*)reference));
+	toReturn->Initialize(animMan);
 	return toReturn;
 }
 
 void AnimatorManager::ResetComponent(ComponentBase * reset)
 {
+	((Animator*)reset)->Destroy();
 	animators.DeactivateMemory(reset);
 }

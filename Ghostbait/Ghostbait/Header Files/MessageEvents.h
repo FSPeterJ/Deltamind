@@ -10,6 +10,7 @@ enum EVENT_TYPES {
 	EVENT_Instantiated,
 	EVENT_InstantiateRequest,
 	EVENT_InstantiateRequestByType,
+	EVENT_InstantiateRequestByName_DEBUG_ONLY,
 	EVENT_Destroy,
 	EVENT_Unrender,
 	EVENT_Addrender,

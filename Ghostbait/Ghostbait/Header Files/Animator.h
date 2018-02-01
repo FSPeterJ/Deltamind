@@ -5,11 +5,12 @@
 
 class Animator : public InstantiatedCompBase
 {
+	unsigned int updateID;
 	AnimationManager* animMan;
 	std::map<std::string, Animation*> animations;
-	Animation* currAnim;
-	double timePos;
-	std::vector<animJoint> tweens;
+	Animation* currAnim = nullptr;
+	double timePos = 0.0f;
+	std::vector<animJoint> tweens = std::vector<animJoint>();
 
 	DirectX::XMFLOAT3X3 pullRotation(DirectX::XMFLOAT4X4 pullFrom);
 	DirectX::XMFLOAT3X3 lerpRotation(DirectX::XMFLOAT3X3 m1, DirectX::XMFLOAT3X3 m2, float ratio);
@@ -17,16 +18,16 @@ public:
 	Animator();
 	~Animator();
 	
-	void Initialize(AnimationManager* animManIn) { animMan = animManIn; };
+	void Destroy();
+	void Initialize(AnimationManager* animManIn);
 	void Update();
 	void addAnim(const char* animFilePath, const char* bindposeFilePath, const char* animName);
 	bool setState(const char* animName);
 
-	Animator& operator=(const Animator& that);
-
+	void Copy(const Animator* that);
 	double getTimePos() { return timePos; }
 	std::map<std::string, Animation*>* getAnimations() { return &animations; }
-	std::vector<animJoint>* getTweens() { return &tweens; }
+	const std::vector<animJoint>* getTweens() { return &tweens; }
 	Animation* getCurrentAnimation() { return currAnim; }
 };
 

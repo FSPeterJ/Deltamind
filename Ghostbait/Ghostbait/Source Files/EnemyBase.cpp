@@ -16,6 +16,7 @@ void EnemyBase::Update() {
 	}
 }
 
+// TODO: Get Rid Of Temp
 static int temp = 0;
 void EnemyBase::OnCollision(GameObject* _other) {
 	PhysicsComponent* myPhys = GetComponent<PhysicsComponent>();
@@ -32,7 +33,7 @@ void EnemyBase::OnCollision(GameObject* _other) {
 			Console::WriteLine << "GAME WAS WON";
 			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(9/*WinCube*/, { 0, 0.75f, 0 }));
 		}
-		this->Destroy();
+		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 	}
 }
 

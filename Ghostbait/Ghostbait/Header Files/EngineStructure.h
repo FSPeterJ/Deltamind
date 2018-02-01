@@ -10,7 +10,7 @@ class EngineStructure {
 	friend class Camera;
 	friend class MessageEvents;
 	friend class Game;
-
+	friend class Animator;
 	friend class GhostTime;
 
 	static Delegate<> Awake;

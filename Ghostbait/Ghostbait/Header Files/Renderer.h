@@ -55,26 +55,6 @@ private:
 		viewProjectionConstantBuffer camera;
 	};
 
-	struct directionalLight {
-		DirectX::XMFLOAT4 color;
-		DirectX::XMFLOAT3 dir;
-		float padding;
-	};
-
-	struct pointLight {
-		DirectX::XMFLOAT4 color;
-		DirectX::XMFLOAT3 pos;
-		float radius;
-	};
-
-	struct spotLight {
-		DirectX::XMFLOAT4 color;
-		DirectX::XMFLOAT3 pos;
-		float radius;
-		DirectX::XMFLOAT3 dir;
-		float outerRadius;
-	};
-
 	struct genericLight {
 		DirectX::XMFLOAT4 color = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 		DirectX::XMFLOAT3 dir;
@@ -88,6 +68,13 @@ private:
 		genericLight cpu_side_lights[MAX_LIGHTS];
 		DirectX::XMFLOAT3 ambientColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 		float ambientIntensity = 0.5f;
+	};
+	
+	struct animDataBufferStruct
+	{
+		DirectX::XMFLOAT4X4 cpu_side_joints[50];
+		bool willAnimate;
+		DirectX::XMFLOAT3 filler;
 	};
 #pragma endregion
 
@@ -129,9 +116,11 @@ private:
 	ID3D11Buffer* modelBuffer;
 	ID3D11Buffer* factorBuffer;
 	ID3D11Buffer* lightBuffer;
+	ID3D11Buffer* animDataBuffer;
 	pipeline_state_t defaultPipeline;
 	Camera* keyboardCamera;
 	viewProjectionConstantBuffer defaultCamera;
+	animDataBufferStruct cpuAnimationData;
 
 	LightPool lightManager;
 	//eye leftEye;

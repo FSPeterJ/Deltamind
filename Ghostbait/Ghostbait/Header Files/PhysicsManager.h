@@ -3,6 +3,7 @@
 #include <vector>
 #include "PhysicsComponent.h" //This can probably be forward declared with notable effort
 #include "Pool.h"
+#include "SpatialPartition.h"
 
 
 class GameObject;
@@ -14,6 +15,7 @@ class GameObject;
 #include "IComponentManager.h"
 class PhysicsManager: public IComponentManager {
 	//std::vector<PhysicsComponent> components;
+	SpatialPartition partitionSpace;
 	Pool<PhysicsComponent> components = Pool<PhysicsComponent>(MAX_PHYSICALS);
 	std::vector<ColliderData> colliderDataList;
 	std::vector<PhysicsComponent> prefabComponents;
@@ -23,7 +25,7 @@ class PhysicsManager: public IComponentManager {
 	ColliderData* AddColliderData(float x1, float y1, float z1, float x2, float y2, float z2);
 
 	void CollisionCheck(PhysicsComponent component1, PhysicsComponent component2);
-	
+	void UpdateAABB(PhysicsComponent& component);
 	void TestAllComponentsCollision();
 	bool IsVectorZero(DirectX::XMVECTOR& _toTest);
 	bool SphereToSphereCollision(Collider col1, DirectX::XMVECTOR& pos1, Collider col2, DirectX::XMVECTOR& pos2);

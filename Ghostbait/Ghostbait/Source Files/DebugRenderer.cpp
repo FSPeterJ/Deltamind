@@ -106,6 +106,32 @@ void DebugRenderer::AddBox(ColliderData* cIn, DirectX::XMFLOAT3 color) {
 	AddLine(cubeCorners[6], cubeCorners[7], color);
 }
 
+void DebugRenderer::AddBox(DirectX::XMFLOAT3& min, DirectX::XMFLOAT3& max, DirectX::XMFLOAT3& color) {
+	DirectX::XMFLOAT3 cubeCorners[8] = { DirectX::XMFLOAT3() };
+
+	cubeCorners[0] = DirectX::XMFLOAT3(min.x, min.y, min.z);
+	cubeCorners[1] = DirectX::XMFLOAT3(min.x, max.y, min.z);
+	cubeCorners[2] = DirectX::XMFLOAT3(max.x, min.y, min.z);
+	cubeCorners[3] = DirectX::XMFLOAT3(max.x, max.y, min.z);
+	cubeCorners[4] = DirectX::XMFLOAT3(min.x, min.y, max.z);
+	cubeCorners[5] = DirectX::XMFLOAT3(min.x, max.y, max.z);
+	cubeCorners[6] = DirectX::XMFLOAT3(max.x, min.y, max.z);
+	cubeCorners[7] = DirectX::XMFLOAT3(max.x, max.y, max.z);
+
+	AddLine(cubeCorners[0], cubeCorners[1], color);
+	AddLine(cubeCorners[0], cubeCorners[2], color);
+	AddLine(cubeCorners[0], cubeCorners[4], color);
+	AddLine(cubeCorners[1], cubeCorners[3], color);
+	AddLine(cubeCorners[1], cubeCorners[5], color);
+	AddLine(cubeCorners[2], cubeCorners[3], color);
+	AddLine(cubeCorners[4], cubeCorners[5], color);
+	AddLine(cubeCorners[4], cubeCorners[6], color);
+	AddLine(cubeCorners[5], cubeCorners[7], color);
+	AddLine(cubeCorners[3], cubeCorners[7], color);
+	AddLine(cubeCorners[2], cubeCorners[6], color);
+	AddLine(cubeCorners[6], cubeCorners[7], color);
+}
+
 void DebugRenderer::AddSphere(DirectX::XMFLOAT3 pos, float radius, DirectX::XMFLOAT3 color) {
 	
 	//http://blog.andreaskahler.com/2009/06/creating-icosphere-mesh-in-code.html

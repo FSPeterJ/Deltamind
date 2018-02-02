@@ -35,13 +35,23 @@ void PhysicsManager::AddComponent(GameObject* obj, float veloX, float veloY, flo
 PhysicsComponent* PhysicsManager::CloneComponent(ComponentBase* reference) {
 	PhysicsComponent* physComponent = components.ActivateMemory();
 	// SHALLOW COPY - this only copies the std::vector head.
-	physComponent->colliders = ((PhysicsComponent*)reference)->colliders;
 	physComponent->rigidBody = RigidBody();
+	physComponent->colliders = ((PhysicsComponent*)reference)->colliders;
+	physComponent->currentAABB = ((PhysicsComponent*)reference)->currentAABB;
+	physComponent->previousAABB = ((PhysicsComponent*)reference)->previousAABB;
+	physComponent->baseAABB = ((PhysicsComponent*)reference)->baseAABB;
+
+	partitionSpace.AddComponent(physComponent);
+
 	return physComponent;
 }
 PhysicsComponent* PhysicsManager::GetReferenceComponent(const char * _FilePath, const char * _dataBlock) {
 	PhysicsComponent compHolder;
 	XMFLOAT3 offsetHolder;
+	XMFLOAT3 aabbMax(FLT_MIN_EXP, FLT_MIN_EXP, FLT_MIN_EXP);
+	XMFLOAT3 aabbMin(FLT_MAX_EXP, FLT_MAX_EXP, FLT_MAX_EXP);
+	XMFLOAT3 incomingMax = aabbMax, incomingMin = aabbMin;
+
 	ColliderData* colDataHolder = nullptr;
 	int numofColliders, lengthofTypeName, currIndex = 0;
 	float radiusHolder, heightHolder;
@@ -68,6 +78,9 @@ PhysicsComponent* PhysicsManager::GetReferenceComponent(const char * _FilePath, 
 			memcpy(&radiusHolder, &_dataBlock[currIndex], sizeof(radiusHolder));
 			currIndex += sizeof(radiusHolder);
 			colDataHolder = AddColliderData(radiusHolder);
+
+			incomingMax = { offsetHolder.x + radiusHolder, offsetHolder.y + radiusHolder, offsetHolder.z + radiusHolder };
+			incomingMin = { offsetHolder.x - radiusHolder, offsetHolder.y - radiusHolder, offsetHolder.z - radiusHolder };
 		}
 		else if(!strcmp(typeName, capsule)) {
 			memcpy(&radiusHolder, &_dataBlock[currIndex], sizeof(radiusHolder));
@@ -75,21 +88,35 @@ PhysicsComponent* PhysicsManager::GetReferenceComponent(const char * _FilePath, 
 			memcpy(&heightHolder, &_dataBlock[currIndex], sizeof(heightHolder));
 			currIndex += sizeof(heightHolder);
 			colDataHolder = AddColliderData(radiusHolder, heightHolder);
+
+			incomingMax = { offsetHolder.x + radiusHolder, offsetHolder.y + radiusHolder + (heightHolder * 0.5f), offsetHolder.z + radiusHolder };
+			incomingMin = { offsetHolder.x - radiusHolder, offsetHolder.y - radiusHolder - (heightHolder * 0.5f), offsetHolder.z - radiusHolder };
 		}
 		else if(!strcmp(typeName, box)) {
-			XMFLOAT3 tempMax, tempMin;
+			memcpy(&incomingMax, &_dataBlock[currIndex], sizeof(float) * 3);
+			currIndex += sizeof(float) * 3;
+			memcpy(&incomingMin, &_dataBlock[currIndex], sizeof(float) * 3);
+			currIndex += sizeof(float) * 3;
+			colDataHolder = AddColliderData(incomingMax.x, incomingMax.y, incomingMax.z, incomingMin.x, incomingMin.y, incomingMin.z);
 
-			memcpy(&tempMax, &_dataBlock[currIndex], sizeof(float) * 3);
-			currIndex += sizeof(float) * 3;
-			memcpy(&tempMin, &_dataBlock[currIndex], sizeof(float) * 3);
-			currIndex += sizeof(float) * 3;
-			colDataHolder = AddColliderData(tempMax.x, tempMax.y, tempMax.z, tempMin.x, tempMin.y, tempMin.z);
+			incomingMax = { incomingMax.x + radiusHolder, incomingMax.y + radiusHolder, incomingMax.z + radiusHolder };
+			incomingMin = { incomingMin.x - radiusHolder, incomingMin.y - radiusHolder, incomingMin.z - radiusHolder };
 		}
+
+		//Update AABB
+		if (incomingMax.x > aabbMax.x) { aabbMax.x = incomingMax.x; };
+		if (incomingMax.y > aabbMax.y) { aabbMax.y = incomingMax.y; };
+		if (incomingMax.z > aabbMax.z) { aabbMax.z = incomingMax.z; };
+		if (incomingMin.x < aabbMin.x) { aabbMin.x = incomingMin.x; };
+		if (incomingMin.y < aabbMin.y) { aabbMin.y = incomingMin.y; };
+		if (incomingMin.z < aabbMin.z) { aabbMin.z = incomingMin.z; };
 
 		compHolder.AddCollider(colDataHolder, offsetHolder.x, offsetHolder.y, offsetHolder.z);
 		colDataHolder = nullptr;
 		delete[] typeName; //TODO: typeName is allocated with new[] but is only being deleted with delete (not delete[])
 	}
+
+	compHolder.previousAABB = compHolder.currentAABB = compHolder.baseAABB = AABB(aabbMin, aabbMax);
 
 	if(prefabComponents.size() < MAX_PREFABS) {
 		prefabComponents.push_back(compHolder);
@@ -115,6 +142,8 @@ void PhysicsManager::Update() {
 		components[i].rigidBody.Update();
 		newposition += components[i].rigidBody.GetVelocity();
 		XMStoreFloat4(objectPosition, newposition);
+		UpdateAABB(components[i]);
+		partitionSpace.UpdateComponent(&components[i]);
 		//components[i].parentObject->position.r[3] += components[i].rigidBody.GetVelocity() * dt;
 
 #if _DEBUG
@@ -147,6 +176,8 @@ void PhysicsManager::Update() {
 			}
 
 		}
+
+		DebugRenderer::AddBox(components[i].currentAABB.min, components[i].currentAABB.max, XMFLOAT3(0.0f, 1.0f, 0.0f));
 
 #endif
 	}
@@ -193,7 +224,15 @@ ColliderData* PhysicsManager::AddColliderData(float trfX, float trfY, float trfZ
 	}
 	return nullptr;
 }
+void PhysicsManager::UpdateAABB(PhysicsComponent& component) {
+	component.currentAABB.max.x = component.baseAABB.max.x + component.parentObject->position._41;
+	component.currentAABB.max.y = component.baseAABB.max.y + component.parentObject->position._42;
+	component.currentAABB.max.z = component.baseAABB.max.z + component.parentObject->position._43;
+	component.currentAABB.min.x = component.baseAABB.min.x + component.parentObject->position._41;
+	component.currentAABB.min.y = component.baseAABB.min.y + component.parentObject->position._42;
+	component.currentAABB.min.z = component.baseAABB.min.z + component.parentObject->position._43;
 
+}
 void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponent component2) {
 	bool collisionResult = false;
 	ColliderType colliderType1, colliderType2;
@@ -391,12 +430,12 @@ void PhysicsManager::SendCollision(GameObject* obj1, GameObject* obj2) {
 
 void PhysicsManager::TestAllComponentsCollision() {
 	//Console::WriteLine((int)components.GetActiveCount());
+	std::vector<PhysicsComponent*> collidingList;
 	int range = (int)components.GetActiveCount();
 	for(int comp1 = 0; comp1 < range; ++comp1) {
-		for(int comp2 = 0; comp2 < range; ++comp2) {
-			if(comp1 != comp2) {
-				CollisionCheck(components[comp1], components[comp2]);
-			}
+		collidingList = partitionSpace.GetComponentsToTest(&components[comp1]);
+		for(int comp2 = 0; comp2 < collidingList.size(); ++comp2) {
+			CollisionCheck(components[comp1], *(collidingList[comp2]));
 		}
 	}
 }

@@ -16,4 +16,13 @@ struct AABB {
 		if (*this == other) return false;
 		return true;
 	}
+
+	AABB operator=(const AABB& other) {
+		this->max = other.max;
+		this->min = other.min;
+		return *this;
+	}
+
+	AABB() {};
+	AABB(DirectX::XMFLOAT3& _min, DirectX::XMFLOAT3& _max) { min = _min; max = _max; };
 };

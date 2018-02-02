@@ -49,5 +49,5 @@ void PhysicsTestObj::Update() {
 
 void PhysicsTestObj::OnCollision(GameObject* _other)
 {
-	Console::WriteLine << "Colliding";
+	//Console::WriteLine << "Colliding";
 }

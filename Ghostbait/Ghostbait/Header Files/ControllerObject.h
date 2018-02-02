@@ -15,6 +15,7 @@ private:
 
 	ControllerHand hand = LEFT;
 	std::vector<Item*> items;
+	std::vector<Item*> displayItems;
 	Item* currentItem = nullptr;
 	void LeftUpdate();
 	void RightUpdate();

@@ -42,6 +42,7 @@ struct Collider {
 struct PhysicsComponent: public InstantiatedCompBase {
 	RigidBody rigidBody;
 	std::vector<Collider> colliders;
+	AABB baseAABB;
 	AABB currentAABB;
 	AABB previousAABB;
 

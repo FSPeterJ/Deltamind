@@ -1,7 +1,10 @@
 #pragma once
 #include <unordered_map>
 #include <vector>
-#include <DirectXMath.h>
+
+namespace DirectX {
+	struct XMFLOAT3;
+}
 
 struct PhysicsComponent;
 struct AABB;
@@ -12,7 +15,7 @@ class SpatialPartition {
 
 		Unit();
 		Unit(PhysicsComponent* comp);
-		uint32_t FindComponent(PhysicsComponent* comp);
+		int64_t FindComponent(PhysicsComponent* comp);
 		bool AddComponent(PhysicsComponent* comp);
 		bool RemoveComponent(PhysicsComponent* comp);
 	};
@@ -38,5 +41,5 @@ public:
 	bool RemoveComponent(PhysicsComponent* component, PositionOption option = Both);
 	void UpdateComponent(PhysicsComponent* component);
 
-	const std::vector<PhysicsComponent*> GetComponentsToTest(const PhysicsComponent* component);
+	const std::vector<PhysicsComponent*> GetComponentsToTest();
 };

@@ -141,6 +141,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Assets/Teddy.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/EarthMage.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/PlaneMap.ghost"));
 
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object"));
@@ -152,10 +153,10 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	game = new Game();
 	game->Start();
 	if(isVR) vrMan->CreateControllers();
-	DirectX::XMFLOAT4X4 roomMatrix;
-	DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * DirectX::XMMatrixTranslation(0, 3, 0));
+	//DirectX::XMFLOAT4X4 roomMatrix;
+	//DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * DirectX::XMMatrixTranslation(0, 3, 0));
 	MenuCube* startCube;
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(3, roomMatrix));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { 0, 0, 0 }/*roomMatrix*/));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(7, {0, 1.5f, 0.0f}, (GameObject**)&startCube));
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage("startCube", {4, 1.5f, 0.0f}, (GameObject**) &startCube));
 	GameObject* teddy;

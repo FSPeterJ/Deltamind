@@ -1,7 +1,8 @@
 #include "PhysicsManager.h"
 #include "DebugRenderer.h"
 #include "GameObject.h"
-#include <DirectXMath.h>
+#include "Console.h"
+//#include <DirectXMath.h>
 
 Collider PhysicsManager::defaultColider;
 ColliderData PhysicsManager::defaultSphereColider;
@@ -36,13 +37,21 @@ void PhysicsManager::AddComponent(GameObject* obj, float veloX, float veloY, flo
 PhysicsComponent* PhysicsManager::CloneComponent(ComponentBase* reference) {
 	PhysicsComponent* physComponent = components.ActivateMemory();
 	// SHALLOW COPY - this only copies the std::vector head.
-	physComponent->colliders = ((PhysicsComponent*) reference)->colliders;
-	physComponent->rigidBody = RigidBody();
+	physComponent->colliders = ((PhysicsComponent*)reference)->colliders;	physComponent->currentAABB = ((PhysicsComponent*)reference)->currentAABB;
+	physComponent->previousAABB = ((PhysicsComponent*)reference)->previousAABB;
+	physComponent->baseAABB = ((PhysicsComponent*)reference)->baseAABB;
+
+	partitionSpace.AddComponent(physComponent);
+
 	return physComponent;
 }
 PhysicsComponent* PhysicsManager::GetReferenceComponent(const char * _FilePath, const char * _dataBlock) {
 	PhysicsComponent compHolder;
 	XMFLOAT3 offsetHolder;
+	XMFLOAT3 aabbMax(FLT_MIN_EXP, FLT_MIN_EXP, FLT_MIN_EXP);
+	XMFLOAT3 aabbMin(FLT_MAX_EXP, FLT_MAX_EXP, FLT_MAX_EXP);
+	XMFLOAT3 incomingMax = aabbMax, incomingMin = aabbMin;
+
 	ColliderData* colDataHolder = nullptr;
 	int numofColliders, lengthofTypeName, currIndex = 0;
 	float radiusHolder, heightHolder;
@@ -68,26 +77,45 @@ PhysicsComponent* PhysicsManager::GetReferenceComponent(const char * _FilePath, 
 			memcpy(&radiusHolder, &_dataBlock[currIndex], sizeof(radiusHolder));
 			currIndex += sizeof(radiusHolder);
 			colDataHolder = AddColliderData(radiusHolder);
-		} else if(!strcmp(typeName, capsule)) {
+
+			incomingMax = { offsetHolder.x + radiusHolder, offsetHolder.y + radiusHolder, offsetHolder.z + radiusHolder };
+			incomingMin = { offsetHolder.x - radiusHolder, offsetHolder.y - radiusHolder, offsetHolder.z - radiusHolder };
+		}
+		else if(!strcmp(typeName, capsule)) {
 			memcpy(&radiusHolder, &_dataBlock[currIndex], sizeof(radiusHolder));
 			currIndex += sizeof(radiusHolder);
 			memcpy(&heightHolder, &_dataBlock[currIndex], sizeof(heightHolder));
 			currIndex += sizeof(heightHolder);
 			colDataHolder = AddColliderData(radiusHolder, heightHolder);
-		} else if(!strcmp(typeName, box)) {
-			XMFLOAT3 tempMax, tempMin;
 
-			memcpy(&tempMax, &_dataBlock[currIndex], sizeof(float) * 3);
-			currIndex += sizeof(float) * 3;
-			memcpy(&tempMin, &_dataBlock[currIndex], sizeof(float) * 3);
-			currIndex += sizeof(float) * 3;
-			colDataHolder = AddColliderData(tempMax.x, tempMax.y, tempMax.z, tempMin.x, tempMin.y, tempMin.z);
+			incomingMax = { offsetHolder.x + radiusHolder, offsetHolder.y + radiusHolder + (heightHolder * 0.5f), offsetHolder.z + radiusHolder };
+			incomingMin = { offsetHolder.x - radiusHolder, offsetHolder.y - radiusHolder - (heightHolder * 0.5f), offsetHolder.z - radiusHolder };
 		}
+		else if(!strcmp(typeName, box)) {
+			memcpy(&incomingMax, &_dataBlock[currIndex], sizeof(float) * 3);
+			currIndex += sizeof(float) * 3;
+			memcpy(&incomingMin, &_dataBlock[currIndex], sizeof(float) * 3);
+			currIndex += sizeof(float) * 3;
+			colDataHolder = AddColliderData(incomingMax.x, incomingMax.y, incomingMax.z, incomingMin.x, incomingMin.y, incomingMin.z);
+
+			incomingMax = { incomingMax.x + radiusHolder, incomingMax.y + radiusHolder, incomingMax.z + radiusHolder };
+			incomingMin = { incomingMin.x - radiusHolder, incomingMin.y - radiusHolder, incomingMin.z - radiusHolder };
+		}
+
+		//Update AABB
+		if (incomingMax.x > aabbMax.x) { aabbMax.x = incomingMax.x; };
+		if (incomingMax.y > aabbMax.y) { aabbMax.y = incomingMax.y; };
+		if (incomingMax.z > aabbMax.z) { aabbMax.z = incomingMax.z; };
+		if (incomingMin.x < aabbMin.x) { aabbMin.x = incomingMin.x; };
+		if (incomingMin.y < aabbMin.y) { aabbMin.y = incomingMin.y; };
+		if (incomingMin.z < aabbMin.z) { aabbMin.z = incomingMin.z; };
 
 		compHolder.AddCollider(colDataHolder, offsetHolder.x, offsetHolder.y, offsetHolder.z);
 		colDataHolder = nullptr;
 		delete[] typeName; //TODO: typeName is allocated with new[] but is only being deleted with delete (not delete[])
 	}
+
+	compHolder.previousAABB = compHolder.currentAABB = compHolder.baseAABB = AABB(aabbMin, aabbMax);
 
 	if(prefabComponents.size() < MAX_PREFABS) {
 		prefabComponents.push_back(compHolder);
@@ -112,10 +140,12 @@ void PhysicsManager::Update() {
 		components[i].rigidBody.Update();
 		newposition += components[i].rigidBody.GetVelocity();
 		XMStoreFloat4(objectPosition, newposition);
+		UpdateAABB(components[i]);
+		partitionSpace.UpdateComponent(&components[i]);
 		//components[i].parentObject->position.r[3] += components[i].rigidBody.GetVelocity() * dt;
 
 #if _DEBUG
-		for(int colInd = 0; colInd < components[i].colliders.size(); ++colInd) {
+		for(unsigned int colInd = 0; colInd < components[i].colliders.size(); ++colInd) {
 			XMVECTOR offset = XMLoadFloat3(&(components[i].colliders[colInd].centerOffset));
 			XMFLOAT3 colPos;
 			XMStoreFloat3(&colPos, newposition + offset);
@@ -143,6 +173,8 @@ void PhysicsManager::Update() {
 				break;
 			}
 		}
+
+		DebugRenderer::AddBox(components[i].currentAABB.min, components[i].currentAABB.max, XMFLOAT3(0.0f, 1.0f, 0.0f));
 
 #endif
 	}
@@ -189,7 +221,15 @@ ColliderData* PhysicsManager::AddColliderData(float trfX, float trfY, float trfZ
 	}
 	return nullptr;
 }
+void PhysicsManager::UpdateAABB(PhysicsComponent& component) {
+	component.currentAABB.max.x = component.baseAABB.max.x + component.parentObject->position._41;
+	component.currentAABB.max.y = component.baseAABB.max.y + component.parentObject->position._42;
+	component.currentAABB.max.z = component.baseAABB.max.z + component.parentObject->position._43;
+	component.currentAABB.min.x = component.baseAABB.min.x + component.parentObject->position._41;
+	component.currentAABB.min.y = component.baseAABB.min.y + component.parentObject->position._42;
+	component.currentAABB.min.z = component.baseAABB.min.z + component.parentObject->position._43;
 
+}
 void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponent component2) {
 	bool collisionResult = false;
 	ColliderType colliderType1, colliderType2;
@@ -197,10 +237,10 @@ void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponen
 	XMMATRIX matrixComA = XMLoadFloat4x4(&component1.parentObject->position);
 	XMMATRIX matrixComB = XMLoadFloat4x4(&component2.parentObject->position);
 
-	for(int com1 = 0; com1 < component1.colliders.size(); ++com1) {
+	for(unsigned int com1 = 0; com1 < component1.colliders.size(); ++com1) {
 		colliderType1 = component1.colliders[com1].colliderData->colliderType;
 
-		for(int com2 = 0; com2 < component2.colliders.size(); ++com2) {
+		for(unsigned int com2 = 0; com2 < component2.colliders.size(); ++com2) {
 			collisionResult = false;
 			colliderType2 = component2.colliders[com2].colliderData->colliderType;
 
@@ -245,6 +285,11 @@ void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponen
 		}
 	}
 }
+bool PhysicsManager::IsVectorZero(XMVECTOR& _toTest) {
+	if (fabsf(XMVectorGetX(_toTest)) < FLT_EPSILON && fabsf(XMVectorGetY(_toTest)) < FLT_EPSILON && fabsf(XMVectorGetZ(_toTest)) < FLT_EPSILON)
+		return true;
+	return false;
+}
 bool PhysicsManager::SphereToSphereCollision(Collider col1, XMVECTOR& pos1, Collider col2, XMVECTOR& pos2) {
 	XMVECTOR offset1 = XMLoadFloat3(&col1.centerOffset);
 	XMVECTOR offset2 = XMLoadFloat3(&col2.centerOffset);
@@ -261,29 +306,91 @@ bool PhysicsManager::BoxToBoxCollision() {
 	return false;
 }
 bool PhysicsManager::CapsuleToCapsuleCollision(Collider col1, XMMATRIX& pos1, Collider col2, XMMATRIX& pos2) {
+	float combineRadiusSq = col1.colliderData->colliderInfo.capsuleCollider.radius + col2.colliderData->colliderInfo.capsuleCollider.radius;
+	combineRadiusSq *= combineRadiusSq;
+
 	//Create Capsule 1
 	XMVECTOR cap1Offset = XMLoadFloat3(&col1.centerOffset);
-	XMVECTOR cap1A = cap1Offset + XMVectorSet(0, col1.colliderData->colliderInfo.capsuleCollider.height * 0.5f, 0, 0);
-	XMVECTOR cap1B = cap1Offset - XMVectorSet(0, col1.colliderData->colliderInfo.capsuleCollider.height * 0.5f, 0, 0);
-	cap1A = XMVector3TransformCoord(cap1A, pos1);
-	cap1B = XMVector3TransformCoord(cap1B, pos1);
-	//XMVECTOR seg1 = cap1A - cap1B;
+	XMVECTOR cap1Start = cap1Offset + XMVectorSet(0, col1.colliderData->colliderInfo.capsuleCollider.height * 0.5f, 0, 0);
+	XMVECTOR cap1End = cap1Offset - XMVectorSet(0, col1.colliderData->colliderInfo.capsuleCollider.height * 0.5f, 0, 0);
+	cap1Start = XMVector3TransformCoord(cap1Start, pos1);
+	cap1End = XMVector3TransformCoord(cap1End, pos1);
+	XMVECTOR seg1 = cap1End - cap1Start;
 
 	//Create Capsule 2
 	XMVECTOR cap2Offset = XMLoadFloat3(&col2.centerOffset);
-	XMVECTOR cap2A = cap2Offset + XMVectorSet(0, col2.colliderData->colliderInfo.capsuleCollider.height * 0.5f, 0, 0);
-	XMVECTOR cap2B = cap2Offset - XMVectorSet(0, col2.colliderData->colliderInfo.capsuleCollider.height * 0.5f, 0, 0);
-	cap2A = XMVector3TransformCoord(cap2A, pos2);
-	cap2B = XMVector3TransformCoord(cap2B, pos2);
-	//XMVECTOR seg2 = cap2A - cap2B;
+	XMVECTOR cap2Start = cap2Offset + XMVectorSet(0, col2.colliderData->colliderInfo.capsuleCollider.height * 0.5f, 0, 0);
+	XMVECTOR cap2End = cap2Offset - XMVectorSet(0, col2.colliderData->colliderInfo.capsuleCollider.height * 0.5f, 0, 0);
+	cap2Start = XMVector3TransformCoord(cap2Start, pos2);
+	cap2End = XMVector3TransformCoord(cap2End, pos2);
+	XMVECTOR seg2 = cap2End - cap2Start;
 
-	//float dot;// , segmentDistance;
-	//XMStoreFloat(&dot, XMVector3Dot(seg1, seg2));
+	XMVECTOR segBetweenStarts = cap1Start - cap2Start;
 
-	//If lines intersecting (Collision)
-	//Else find closest points on the line segments
+	//Find shortest line between line segments
+	//Reference: http://paulbourke.net/geometry/pointlineplane/lineline.c
+	if (IsVectorZero(seg1) || IsVectorZero(seg2))
+		return false;
 
-	return false;
+	float segTweenDotSeg1, segTweenDotSeg2, seg1DotSeg2, seg2SqLength, seg1SqLength, numer, denom, ratioOnSeg1, ratioOnSeg2;
+
+	segTweenDotSeg1 = XMVectorGetX(XMVector3Dot(segBetweenStarts, seg1));
+	segTweenDotSeg2 = XMVectorGetX(XMVector3Dot(segBetweenStarts, seg2));
+	seg1DotSeg2 = XMVectorGetX(XMVector3Dot(seg1, seg2));
+	seg1SqLength = XMVectorGetX(XMVector3LengthSq(seg1));
+	seg2SqLength = XMVectorGetX(XMVector3LengthSq(seg2));
+
+	denom = (seg1SqLength * seg2SqLength) - (seg1DotSeg2 * seg1DotSeg2);
+
+	//If Denom is zero, lines are parallel
+	if (fabsf(denom) < FLT_EPSILON) {
+		float closestDistSq, testNextClosestDistSq;
+		XMVECTOR closestTo1Start, closestTo1End, closestTo2Start, closestTo2End;
+
+		closestTo1Start = FindClosestPointOnLine(cap2Start, cap2End, cap1Start);
+		closestTo1End = FindClosestPointOnLine(cap2Start, cap2End, cap1End);
+		closestTo2Start = FindClosestPointOnLine(cap1Start, cap1End, cap2Start);
+		closestTo2End = FindClosestPointOnLine(cap1Start, cap1End, cap2End);
+
+		closestDistSq = XMVectorGetX(XMVector3LengthSq(closestTo1Start - cap1Start));
+
+		testNextClosestDistSq = XMVectorGetX(XMVector3LengthSq(closestTo1End - cap1End));
+		if (testNextClosestDistSq < closestDistSq) {
+			closestDistSq = testNextClosestDistSq;
+		}
+		testNextClosestDistSq = XMVectorGetX(XMVector3LengthSq(closestTo2Start - cap2Start));
+		if (testNextClosestDistSq < closestDistSq) {
+			closestDistSq = testNextClosestDistSq;
+		}
+		testNextClosestDistSq = XMVectorGetX(XMVector3LengthSq(closestTo2End - cap2End));
+		if (testNextClosestDistSq < closestDistSq) {
+			closestDistSq = testNextClosestDistSq;
+		}
+		
+		XMVECTOR cap2A = cap2Offset + XMVectorSet(0, col2.colliderData->colliderInfo.capsuleCollider.height * 0.5f, 0, 0);
+		XMVECTOR cap2B = cap2Offset - XMVectorSet(0, col2.colliderData->colliderInfo.capsuleCollider.height * 0.5f, 0, 0);
+		cap2A = XMVector3TransformCoord(cap2A, pos2);
+		cap2B = XMVector3TransformCoord(cap2B, pos2);
+		//XMVECTOR seg2 = cap2A - cap2B;
+
+		if (closestDistSq < combineRadiusSq)
+			return true;
+
+		return false;
+	}
+	numer = (segTweenDotSeg2 * seg1DotSeg2) - (segTweenDotSeg1 * seg2SqLength);
+
+	ratioOnSeg1 = numer / denom;
+	ratioOnSeg2 = (segTweenDotSeg2 + (seg1DotSeg2 * ratioOnSeg1)) / seg2SqLength;
+
+	XMVECTOR pointB = (cap2Start + (seg2 * ratioOnSeg2));
+	XMVECTOR pointA = (cap1Start + (seg1 * ratioOnSeg1));
+	XMVECTOR shortestLine = pointB - pointA;
+
+	if (XMVectorGetX(XMVector3LengthSq(shortestLine)) > combineRadiusSq)
+		return false;
+
+	return true;
 }
 
 bool PhysicsManager::CapsuleToSphereCollision(Collider capCol, DirectX::XMMATRIX& capPos, Collider sphCol, DirectX::XMMATRIX& sphPos) {
@@ -319,14 +426,18 @@ void PhysicsManager::SendCollision(GameObject* obj1, GameObject* obj2) {
 
 void PhysicsManager::TestAllComponentsCollision() {
 	//Console::WriteLine((int)components.GetActiveCount());
-	int range = (int) components.GetActiveCount();
+	static int counter;
+	counter = 0;
+	std::vector<PhysicsComponent*> collidingList;
+	int range = (int)components.GetActiveCount();
 	for(int comp1 = 0; comp1 < range; ++comp1) {
-		for(int comp2 = 0; comp2 < range; ++comp2) {
-			if(comp1 != comp2) {
-				CollisionCheck(components[comp1], components[comp2]);
-			}
+		collidingList = partitionSpace.GetComponentsToTest(&components[comp1]);
+		for(int comp2 = 0; comp2 < collidingList.size(); ++comp2) {
+			CollisionCheck(components[comp1], *(collidingList[comp2]));
+			counter++;
 		}
 	}
+	Console::WriteLine << counter;
 }
 
 #pragma endregion

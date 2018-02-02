@@ -137,12 +137,12 @@ void Camera::Update() {
 
 	if(KeyIsDown(Control::left)) {
 		//position._41 -= 50.0f * dt;
-		rotationY -= 5.0f * dt;
+		rotationY -= 15.0f * dt;
 		ResetKey(Control::left);
 	}
 	if(KeyIsDown(Control::right)) {
 		//position._41 += 50.0f * dt;
-		rotationY += 5.0f * dt;
+		rotationY += 15.0f * dt;
 		ResetKey(Control::right);
 	}
 	if(KeyIsDown(Control::forward)) {

@@ -131,27 +131,38 @@ void SpatialPartition::UpdateComponent(PhysicsComponent* component) {
 	}
 }
 
-const std::vector<PhysicsComponent*> SpatialPartition::GetComponentsToTest(const PhysicsComponent* component) {
-	std::vector<PhysicsComponent*> testComps;
-	std::vector<uint32_t> indicies = Hash(component->currentAABB);
-	//Console::WriteLine << (int)indicies.size();
-	//for every bin
-	for (unsigned int index = 0; index < indicies.size(); ++index) {
-		//for every component in that bin
-		for (unsigned int newComp = 0; newComp < table[indicies[index]].components.size(); ++newComp) {
-			//is it a dupe, or do I add it?
-			if (table[indicies[index]].components[newComp] == component)
-				continue;
+const std::vector<PhysicsComponent*> SpatialPartition::GetComponentsToTest() {
+	//std::vector<PhysicsComponent*> testComps;
+	//std::vector<uint32_t> indicies = Hash(component->currentAABB);
+	////Console::WriteLine << (int)indicies.size();
+	////for every bin
+	//for (unsigned int index = 0; index < indicies.size(); ++index) {
+	//	//for every component in that bin
+	//	for (unsigned int newComp = 0; newComp < table[indicies[index]].components.size(); ++newComp) {
+	//		//is it a dupe, or do I add it?
+	//		if (table[indicies[index]].components[newComp] == component)
+	//			continue;
 
-			bool found = false;
-			for (unsigned int oldComp = 0; oldComp < testComps.size(); ++oldComp) {
-				if (table[indicies[index]].components[newComp] == testComps[oldComp]) {
-					found = true;
-					break;
-				}
-			}
-			if(!found) testComps.push_back(table[indicies[index]].components[newComp]);
+	//		bool found = false;
+	//		for (unsigned int oldComp = 0; oldComp < testComps.size(); ++oldComp) {
+	//			if (table[indicies[index]].components[newComp] == testComps[oldComp]) {
+	//				found = true;
+	//				break;
+	//			}
+	//		}
+	//		if(!found) testComps.push_back(table[indicies[index]].components[newComp]);
+	//	}
+	//}
+	//return testComps;
+
+	std::vector<PhysicsComponent*> testComps;
+
+	for each (auto bucket in table)
+	{
+		for (int i = 0; i < bucket.second.components.size(); ++i) {
+			testComps.push_back(bucket.second.components[i]);
 		}
+		testComps.push_back(nullptr);
 	}
 	return testComps;
 }

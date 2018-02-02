@@ -128,6 +128,7 @@ PhysicsComponent* PhysicsManager::GetReferenceComponent(const char * _FilePath, 
 
 void PhysicsManager::ResetComponent(ComponentBase * reset) {
 	components.DeactivateMemory(reset);
+	partitionSpace.RemoveComponent((PhysicsComponent*)reset);
 }
 
 void PhysicsManager::Update() {
@@ -426,7 +427,7 @@ void PhysicsManager::SendCollision(GameObject* obj1, GameObject* obj2) {
 
 void PhysicsManager::TestAllComponentsCollision() {
 	//Console::WriteLine((int)components.GetActiveCount());
-	static int counter;
+	/*static int counter;
 	counter = 0;
 	std::vector<PhysicsComponent*> collidingList;
 	int range = (int)components.GetActiveCount();
@@ -437,7 +438,17 @@ void PhysicsManager::TestAllComponentsCollision() {
 			counter++;
 		}
 	}
-	Console::WriteLine << counter;
+	Console::WriteLine << counter;*/
+
+	std::vector<PhysicsComponent*> collidingList = partitionSpace.GetComponentsToTest();
+
+	for (unsigned int comp1Index = 0; comp1Index < collidingList.size(); ++comp1Index) {
+		if (!collidingList[comp1Index])
+			continue;
+		for (unsigned int comp2Index = comp1Index + 1; collidingList[comp2Index]; ++comp2Index) {
+			CollisionCheck(*(collidingList[comp1Index]), *(collidingList[comp2Index]));
+		}
+	}
 }
 
 #pragma endregion

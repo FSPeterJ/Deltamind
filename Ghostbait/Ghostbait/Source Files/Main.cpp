@@ -182,7 +182,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 
 	dynamic_cast<PhysicsTestObj*>(test1)->isControllable = true;
-	//test2->Enable();
+	test1->Enable();
 
 	//	Object* cube1, *cube2;
 

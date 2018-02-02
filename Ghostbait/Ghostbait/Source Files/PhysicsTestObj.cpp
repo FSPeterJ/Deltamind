@@ -1,5 +1,6 @@
 #include "PhysicsTestObj.h"
 #include "GhostTime.h"
+#include "Console.h"
 
 PhysicsTestObj::PhysicsTestObj() {
 	SetTag("PhysicsTestObj");

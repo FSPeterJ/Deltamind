@@ -61,14 +61,14 @@ std::vector<uint32_t> SpatialPartition::Hash(const AABB aabb) {
 	std::vector<uint32_t> indicies;
 	std::vector<DirectX::XMFLOAT3> points;
 	points.resize(8);
-	points[0] = *aabb.min;
-	points[1] = DirectX::XMFLOAT3(aabb.min->x, aabb.min->y, aabb.max->z);
-	points[2] = DirectX::XMFLOAT3(aabb.min->x, aabb.max->y, aabb.min->z);
-	points[3] = DirectX::XMFLOAT3(aabb.min->x, aabb.max->y, aabb.max->z);
-	points[4] = DirectX::XMFLOAT3(aabb.max->x, aabb.min->y, aabb.min->z);
-	points[5] = DirectX::XMFLOAT3(aabb.max->x, aabb.min->y, aabb.max->z);
-	points[6] = DirectX::XMFLOAT3(aabb.max->x, aabb.max->y, aabb.min->z);
-	points[7] = *aabb.max;
+	points[0] = aabb.min;
+	points[1] = DirectX::XMFLOAT3(aabb.min.x, aabb.min.y, aabb.max.z);
+	points[2] = DirectX::XMFLOAT3(aabb.min.x, aabb.max.y, aabb.min.z);
+	points[3] = DirectX::XMFLOAT3(aabb.min.x, aabb.max.y, aabb.max.z);
+	points[4] = DirectX::XMFLOAT3(aabb.max.x, aabb.min.y, aabb.min.z);
+	points[5] = DirectX::XMFLOAT3(aabb.max.x, aabb.min.y, aabb.max.z);
+	points[6] = DirectX::XMFLOAT3(aabb.max.x, aabb.max.y, aabb.min.z);
+	points[7] = aabb.max;
 	int index;
 	for(int point = 0; point < 8; ++point) {
 		index = Hash(points[point]);

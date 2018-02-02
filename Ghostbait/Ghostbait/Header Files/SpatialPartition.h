@@ -1,7 +1,10 @@
 #pragma once
 #include <unordered_map>
 #include <vector>
-#include <DirectXMath.h>
+
+namespace DirectX {
+	struct XMFLOAT3;
+}
 
 struct PhysicsComponent;
 struct AABB;

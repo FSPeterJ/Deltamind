@@ -1,6 +1,5 @@
 #include "Object.h"
 
-
 Object::Object() {
 	XMStoreFloat4x4(&position, DirectX::XMMatrixIdentity());
 	//Example of string registration

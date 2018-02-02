@@ -7,8 +7,6 @@ struct ID3D11ShaderResourceView;
 struct ID3D11DeviceContext;
 
 struct Material: ComponentBase {
-
-
 	struct matComponent {
 		float factor;
 		ID3D11Buffer * texture;

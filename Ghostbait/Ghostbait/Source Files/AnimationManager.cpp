@@ -1,7 +1,6 @@
 #include "AnimationManager.h"
 #include <fstream>
 
-
 Animation * AnimationManager::LoadAnimation(const char * _animationFilePath, const char* _bindposeFilePath) {
 	Animation* toPush = new Animation;
 	std::ifstream reader;
@@ -36,7 +35,7 @@ Animation * AnimationManager::LoadAnimation(const char * _animationFilePath, con
 bindpose * AnimationManager::LoadBindpose(const char * _bindposeFilePath) {
 	{
 		bindpose* temp = bindposeNames[std::string(_bindposeFilePath)];
-		if (temp)
+		if(temp)
 			return temp;
 	}
 	bindpose* toPush = new bindpose;
@@ -63,11 +62,10 @@ AnimationManager::AnimationManager() {}
 
 AnimationManager::~AnimationManager() {}
 
-void AnimationManager::Destroy()
-{
-	for (size_t i = 0; i < animations.size(); ++i)
+void AnimationManager::Destroy() {
+	for(size_t i = 0; i < animations.size(); ++i)
 		delete animations[i];
-	for (size_t i = 0; i < bindPoses.size(); ++i)
+	for(size_t i = 0; i < bindPoses.size(); ++i)
 		delete bindPoses[i];
 }
 
@@ -83,16 +81,14 @@ Animation * AnimationManager::GetElement(const unsigned int _id) {
 	return nullptr;
 }
 
-Animation * AnimationManager::GetReferenceAnimation(const char * _FilePath, const char * _bindposeFilePath)
-{
+Animation * AnimationManager::GetReferenceAnimation(const char * _FilePath, const char * _bindposeFilePath) {
 	Animation* toReturn = animNames[_FilePath];
-	if (!toReturn)
-	{
+	if(!toReturn) {
 		toReturn = LoadAnimation(_FilePath, _bindposeFilePath);
 	}
 	return toReturn;
 }
 
 void AnimationManager::ResetComponent(ComponentBase * reset) {
-//TODO: deactivate reset's memory
+	//TODO: deactivate reset's memory
 }

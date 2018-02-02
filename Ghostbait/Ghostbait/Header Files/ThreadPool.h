@@ -5,7 +5,6 @@
 #include <queue>
 #include <future>
 
-
 class ThreadPool {
 	static int maxThreads;
 

@@ -47,6 +47,4 @@ public:
 	Animation * GetElement(const unsigned int _id);
 	Animation* GetReferenceAnimation(const char * _FilePath, const char * _bindposeFilePath);
 	void ResetComponent(ComponentBase * reset);
-
-
 };

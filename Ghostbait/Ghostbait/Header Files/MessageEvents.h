@@ -40,7 +40,6 @@ public:
 	/// <param name="priority">The optional priority. Leaving it as -1 means no priority. Zero is highest priority.</param>
 	static unsigned Subscribe(const EVENT_TYPES eventtype, std::function<void(EventMessageBase *)> execute, const int priority = -1);
 
-
 	/// <summary>
 	/// Sends a message and stores it in the event queue.
 	/// </summary>

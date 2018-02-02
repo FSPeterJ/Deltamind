@@ -1,7 +1,7 @@
 #pragma once
 #include "GameObject.h"
 
-class Spawner : public GameObject {
+class Spawner: public GameObject {
 	float dt = 0;
 	float timeSinceLastSpawn = 0;
 	int spawnCount = 0;

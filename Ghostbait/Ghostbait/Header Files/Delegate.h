@@ -3,15 +3,13 @@
 #include <functional>
 #include <algorithm>
 
-
 template <typename ...T>
 class Delegate: std::function<void(T...)> {
-
 	struct Delegate_Entry {
 		unsigned id;
 		std::function<void(T...)> function;
 		//----------
-		// Operators 
+		// Operators
 		//===========================
 		bool operator ==(const Delegate_Entry &B) const {
 			return id == B.id;
@@ -20,7 +18,6 @@ class Delegate: std::function<void(T...)> {
 		bool operator () (const Delegate_Entry& B) const {
 			return id == B.id;
 		}
-
 	};
 
 	//vld HATES this resizing itself but less than 1 second at runtime without vld, non-issue for now
@@ -45,12 +42,12 @@ public:
 	//Possibly want to phase this out.  Unsure what problems we will run into with legacy support and 0 being an ID for permament registration
 	//ONLY use this if you NEVER want to remove your delegated function post-registration
 	void operator+=(const std::function<void(T...)> execute) {
-		Delegate_Entry data = { 0, execute };
+		Delegate_Entry data = {0, execute};
 		delegates.push_back(data);
 	}
 
 	unsigned Add(const std::function<void(T...)> execute) {
-		Delegate_Entry data = { ++lastID, execute };
+		Delegate_Entry data = {++lastID, execute};
 		delegates.push_back(data);
 		return data.id;
 	}
@@ -61,11 +58,11 @@ public:
 
 		//Error: You cannot call remove on a delegate from within that same delegate process loop!
 		//(you cannot remove a vector element while iterating that vector)
-		//Example: While processing all update functions in the Update delegate, you remove thisobject.Update from the Update delegate.  
+		//Example: While processing all update functions in the Update delegate, you remove thisobject.Update from the Update delegate.
 		//Please use a deffered removal method
 		assert(delegate_iteration == 0);
 
-		Delegate_Entry data = { id, nullptr };
+		Delegate_Entry data = {id, nullptr};
 		std::vector<Delegate_Entry>::iterator it = find(delegates.begin(), delegates.end(), data);
 		*it = std::move(delegates.back());
 		delegates.pop_back();

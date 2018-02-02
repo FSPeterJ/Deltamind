@@ -34,5 +34,4 @@ public:
 	Mesh* GetReferenceComponent(const char * _FilePath, const char * _data) override;
 	Mesh* CloneComponent(ComponentBase* meshReference) override;
 	void ResetComponent(ComponentBase * reset) override;
-
 };

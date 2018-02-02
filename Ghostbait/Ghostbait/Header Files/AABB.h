@@ -1,7 +1,7 @@
 #pragma once
 
 namespace DirectX {
-struct XMFLOAT3;
+	struct XMFLOAT3;
 }
 
 struct AABB {

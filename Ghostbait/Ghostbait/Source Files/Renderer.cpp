@@ -2,8 +2,6 @@
 #include <fstream>
 #include "DebugRenderer.h"
 #include "MessageEvents.h"
-
-
 #include "MeshManager.h"
 #include "VRManager.h"
 #include "MaterialManager.h"
@@ -38,7 +36,7 @@ void Renderer::createDeviceContextAndSwapchain(Window window) {
 #else
 	D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, feature, 1, D3D11_SDK_VERSION, &desc, &swapchain, &device, outputFeature, &context);
 #endif
-	swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
+	swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**) &backBuffer);
 
 	delete feature;
 }
@@ -72,16 +70,16 @@ bool Renderer::LoadShaderFromCSO(char ** szByteCode, size_t & szByteCodeSize, co
 
 void Renderer::setupVRTargets() {
 	leftEye.renderInfo.viewport = D3D11_VIEWPORT();
-	leftEye.renderInfo.viewport.Height = (float)VRManagement->RecommendedRenderHeight;
-	leftEye.renderInfo.viewport.Width = (float)VRManagement->RecommendedRenderWidth;
+	leftEye.renderInfo.viewport.Height = (float) VRManagement->RecommendedRenderHeight;
+	leftEye.renderInfo.viewport.Width = (float) VRManagement->RecommendedRenderWidth;
 	leftEye.renderInfo.viewport.MaxDepth = 1.0f;
 	leftEye.renderInfo.viewport.MinDepth = 0.0f;
 	leftEye.renderInfo.viewport.TopLeftX = 0.0f;
 	leftEye.renderInfo.viewport.TopLeftY = 0.0f;
 
 	rightEye.renderInfo.viewport = D3D11_VIEWPORT();
-	rightEye.renderInfo.viewport.Height = (float)VRManagement->RecommendedRenderHeight;
-	rightEye.renderInfo.viewport.Width = (float)VRManagement->RecommendedRenderWidth;
+	rightEye.renderInfo.viewport.Height = (float) VRManagement->RecommendedRenderHeight;
+	rightEye.renderInfo.viewport.Width = (float) VRManagement->RecommendedRenderWidth;
 	rightEye.renderInfo.viewport.MaxDepth = 1.0f;
 	rightEye.renderInfo.viewport.MinDepth = 0.0f;
 	rightEye.renderInfo.viewport.TopLeftX = 0.0f;
@@ -110,7 +108,7 @@ void Renderer::setupVRTargets() {
 	viewDesc.Texture2D.MostDetailedMip = 0;
 
 	device->CreateTexture2D(&texDesc, nullptr, &leftEye.renderInfo.texture);
-	if (leftEye.renderInfo.texture)
+	if(leftEye.renderInfo.texture)
 		device->CreateRenderTargetView(leftEye.renderInfo.texture, nullptr, &leftEye.renderInfo.rtv);
 
 	device->CreateTexture2D(&texDesc, nullptr, &rightEye.renderInfo.texture);
@@ -145,16 +143,13 @@ void Renderer::renderObjectDefaultState(Object * obj) {
 	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(XMLoadFloat4x4(&obj->position)), 0, 0);
 	obj->GetComponent<Material>()->bindToShader(context, factorBuffer);
 	Animator* anim = obj->GetComponent<Animator>();
-	if (anim)
-	{
+	if(anim) {
 		const std::vector<animJoint>* joints = anim->getTweens();
-		for (size_t i = 0; i < joints->size(); ++i)
-		{
+		for(size_t i = 0; i < joints->size(); ++i) {
 			DirectX::XMStoreFloat4x4(&cpuAnimationData.cpu_side_joints[i], XMLoadFloat4x4(&joints->operator[](i).transform));
 		}
 		cpuAnimationData.willAnimate = true;
-	}
-	else
+	} else
 		cpuAnimationData.willAnimate = false;
 	context->UpdateSubresource(animDataBuffer, 0, NULL, &cpuAnimationData, 0, 0);
 	//materialManagement->GetElement(UINT_MAX)->bindToShader(context, factorBuffer);
@@ -162,7 +157,7 @@ void Renderer::renderObjectDefaultState(Object * obj) {
 }
 
 void Renderer::renderToEye(eye * eyeTo) {
-	float color[] = { 0.5f, 0.5f, 1.0f, 1.0f };
+	float color[] = {0.5f, 0.5f, 1.0f, 1.0f};
 	context->ClearRenderTargetView(eyeTo->renderInfo.rtv, color);
 	context->ClearDepthStencilView(eyeTo->renderInfo.dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	context->OMSetRenderTargets(1, &eyeTo->renderInfo.rtv, eyeTo->renderInfo.dsv);
@@ -170,7 +165,7 @@ void Renderer::renderToEye(eye * eyeTo) {
 	context->UpdateSubresource(cameraBuffer, 0, NULL, &eyeTo->camera, 0, 0);
 
 	for(size_t i = 0; i < renderedObjects.size(); ++i) {
-		renderObjectDefaultState((Object*)renderedObjects[i]);
+		renderObjectDefaultState((Object*) renderedObjects[i]);
 	}
 
 #if _DEBUG
@@ -317,19 +312,17 @@ void Renderer::Destroy() {
 #endif
 }
 
-
 void Renderer::registerObject(EventMessageBase* e) {
 	//TODO: Need logic to determine which objects group to push to
 	//based off of what the object has - may include instructions in the future
-	NewObjectMessage* instantiate = (NewObjectMessage*)e;
-	if(instantiate->RetrieveObject()->GetComponent<Mesh>())
-	{
+	NewObjectMessage* instantiate = (NewObjectMessage*) e;
+	if(instantiate->RetrieveObject()->GetComponent<Mesh>()) {
 		renderedObjects.push_back(instantiate->RetrieveObject());
 	}
 }
 
 void Renderer::unregisterObject(EventMessageBase* e) {
-	DestroyMessage* removeobjMessage = (DestroyMessage*)e;
+	DestroyMessage* removeobjMessage = (DestroyMessage*) e;
 	//TODO: Need logic for which register it is under
 	for(std::vector<const GameObject*>::iterator iter = renderedObjects.begin(); iter != renderedObjects.end(); ++iter) {
 		if(*iter == removeobjMessage->RetrieveObject()) {
@@ -339,16 +332,14 @@ void Renderer::unregisterObject(EventMessageBase* e) {
 	}
 }
 
-void Renderer::addDirectionalLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 dir)
-{
+void Renderer::addDirectionalLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 dir) {
 	genericLight toManager;
 	toManager.color = DirectX::XMFLOAT4(color.x, color.y, color.z, 1.0f);
 	toManager.dir = dir;
 	lightManager.addLight(toManager);
 }
 
-void Renderer::addPointLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, float radius)
-{
+void Renderer::addPointLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, float radius) {
 	genericLight toManager;
 	toManager.color = DirectX::XMFLOAT4(color.x, color.y, color.z, 1.0f);
 	toManager.pos = pos;
@@ -356,8 +347,7 @@ void Renderer::addPointLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, flo
 	lightManager.addLight(toManager);
 }
 
-void Renderer::addSpotLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir, float radius, float outerRadius)
-{
+void Renderer::addSpotLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir, float radius, float outerRadius) {
 	genericLight toManager;
 	toManager.color = DirectX::XMFLOAT4(color.x, color.y, color.z, 1.0f);
 	toManager.pos = pos;
@@ -367,8 +357,7 @@ void Renderer::addSpotLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, Dire
 	lightManager.addLight(toManager);
 }
 
-void Renderer::setAmbient(DirectX::XMFLOAT3 color, float factor)
-{
+void Renderer::setAmbient(DirectX::XMFLOAT3 color, float factor) {
 	lightManager.setAmbient(color, factor);
 }
 
@@ -411,18 +400,17 @@ void Renderer::Render() {
 
 		renderToEye(&leftEye);
 		renderToEye(&rightEye);
-		VRManagement->SendToHMD((void*)leftEye.renderInfo.texture, (void*)rightEye.renderInfo.texture);
+		VRManagement->SendToHMD((void*) leftEye.renderInfo.texture, (void*) rightEye.renderInfo.texture);
 		context->UpdateSubresource(cameraBuffer, 0, NULL, &(leftEye.camera), 0, 0);
-	}
-	else context->UpdateSubresource(cameraBuffer, 0, NULL, &defaultCamera, 0, 0);
-	float color[] = { 0.5f, 0.5f, 1.0f, 1.0f };
+	} else context->UpdateSubresource(cameraBuffer, 0, NULL, &defaultCamera, 0, 0);
+	float color[] = {0.5f, 0.5f, 1.0f, 1.0f};
 	context->ClearRenderTargetView(defaultPipeline.render_target_view, color);
 	context->ClearDepthStencilView(defaultPipeline.depth_stencil_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	context->OMSetRenderTargets(1, &defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view);
 	context->RSSetViewports(1, &defaultPipeline.viewport);
 
 	for(size_t i = 0; i < renderedObjects.size(); ++i) {
-		renderObjectDefaultState((Object*)renderedObjects[i]);
+		renderObjectDefaultState((Object*) renderedObjects[i]);
 	}
 
 #if _DEBUG
@@ -458,7 +446,7 @@ void Renderer::initDepthStencilState(pipeline_state_t * pipelineTo) {
 
 void Renderer::initDepthStencilView(pipeline_state_t * pipelineTo) {
 	CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc(D3D11_DSV_DIMENSION_TEXTURE2D);
-	device->CreateDepthStencilView((ID3D11Resource*)pipelineTo->depth_stencil_buffer, &depthStencilViewDesc, &pipelineTo->depth_stencil_view);
+	device->CreateDepthStencilView((ID3D11Resource*) pipelineTo->depth_stencil_buffer, &depthStencilViewDesc, &pipelineTo->depth_stencil_view);
 }
 
 void Renderer::initRasterState(pipeline_state_t * pipelineTo, bool wireFrame) {
@@ -539,8 +527,8 @@ void Renderer::initShaders() {
 
 void Renderer::initViewport(const RECT window, pipeline_state_t * pipelineTo) {
 	D3D11_VIEWPORT tempView;
-	tempView.Height = (float)window.bottom - (float)window.top;
-	tempView.Width = (float)window.right - (float)window.left;
+	tempView.Height = (float) window.bottom - (float) window.top;
+	tempView.Width = (float) window.right - (float) window.left;
 	tempView.MaxDepth = 1.0f;
 	tempView.MinDepth = 0.0f;
 	tempView.TopLeftX = 0.0f;
@@ -548,7 +536,7 @@ void Renderer::initViewport(const RECT window, pipeline_state_t * pipelineTo) {
 
 	pipelineTo->viewport = tempView;
 }
- MeshManager* Renderer::getMeshManager() { return meshManagement; }
- MaterialManager* Renderer::getMaterialManager() { return materialManagement; }
- AnimationManager* Renderer::getAnimationManager() { return animationManagement; }
- Camera* Renderer::getCamera() { return keyboardCamera; }
+MeshManager* Renderer::getMeshManager() { return meshManagement; }
+MaterialManager* Renderer::getMaterialManager() { return materialManagement; }
+AnimationManager* Renderer::getAnimationManager() { return animationManagement; }
+Camera* Renderer::getCamera() { return keyboardCamera; }

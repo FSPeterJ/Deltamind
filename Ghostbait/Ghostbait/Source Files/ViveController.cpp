@@ -6,5 +6,4 @@ ViveController::ViveController() {
 }
 
 void ViveController::Update() {
-
 }

@@ -5,7 +5,6 @@
 
 //class PhysicsManager;
 
-
 enum ColliderType {
 	SPHERE,
 	CAPSULE,

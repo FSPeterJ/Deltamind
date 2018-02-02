@@ -3,8 +3,7 @@
 #include "ComponentBase.h"
 #include <DirectXMath.h>       // for XMFLOAT3X3, XMFLOAT4X4 (ptr only)
 
-class Animator : public InstantiatedCompBase
-{
+class Animator: public InstantiatedCompBase {
 	unsigned int updateID;
 	AnimationManager* animMan;
 	std::map<std::string, Animation*> animations;
@@ -17,7 +16,7 @@ class Animator : public InstantiatedCompBase
 public:
 	Animator();
 	~Animator();
-	
+
 	void Destroy();
 	void Initialize(AnimationManager* animManIn);
 	void Update();
@@ -30,4 +29,3 @@ public:
 	const std::vector<animJoint>* getTweens() { return &tweens; }
 	Animation* getCurrentAnimation() { return currAnim; }
 };
-

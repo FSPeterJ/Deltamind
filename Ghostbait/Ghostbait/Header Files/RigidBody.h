@@ -3,7 +3,6 @@
 #define MAX_APPLIED_FORCE 5
 #include <DirectXMath.h>//todo get rid
 
-
 class RigidBody {
 	struct AppliedForce {
 		bool isConstant = false;
@@ -53,7 +52,7 @@ public:
 
 	/// <summary>
 	/// Adds acceleration in the direction of (x,y,z)
-	/// with _time being the length at which acceleration is applied to the rigid body 
+	/// with _time being the length at which acceleration is applied to the rigid body
 	/// If accerleration is constant, set time to 1.0f
 	/// </summary>
 	/// <returns>Returns FALSE if force cannot be added on this rigid body</returns>

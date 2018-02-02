@@ -50,7 +50,7 @@ bool RigidBody::AddForce(float _magnitude) {
 }
 bool RigidBody::AddForce(float _magnitude, float x, float y, float z, float _time, bool _isConstant) {
 	if(actingForces.size() < MAX_APPLIED_FORCE) {
-		if (_isConstant)
+		if(_isConstant)
 			_time = 1.0f;
 		actingForces.push_back(AppliedForce(_magnitude, x, y, z, _time, _isConstant));
 		return true;

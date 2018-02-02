@@ -13,7 +13,7 @@ PhysicsManager::PhysicsManager() {
 	defaultSphereColider.colliderInfo.sphereCollider.radius = 0.5f;
 	defaultSphereColider.colliderType = SPHERE;
 
-	defaultColider.centerOffset = { 0, 0, 0 };
+	defaultColider.centerOffset = {0, 0, 0};
 	defaultColider.isTrigger = true;
 	defaultColider.colliderData = &defaultSphereColider;
 	TypeMap::RegisterComponentAlias<PhysicsComponent>("Physical");
@@ -35,7 +35,7 @@ void PhysicsManager::AddComponent(GameObject* obj, float veloX, float veloY, flo
 PhysicsComponent* PhysicsManager::CloneComponent(ComponentBase* reference) {
 	PhysicsComponent* physComponent = components.ActivateMemory();
 	// SHALLOW COPY - this only copies the std::vector head.
-	physComponent->colliders = ((PhysicsComponent*)reference)->colliders;
+	physComponent->colliders = ((PhysicsComponent*) reference)->colliders;
 	physComponent->rigidBody = RigidBody();
 	return physComponent;
 }
@@ -50,7 +50,6 @@ PhysicsComponent* PhysicsManager::GetReferenceComponent(const char * _FilePath, 
 	char sphere[] = "SPHERE";
 	char capsule[] = "CAPSULE";
 	char box[] = "BOX";
-
 
 	memcpy(&numofColliders, &_dataBlock[currIndex], sizeof(numofColliders));
 	currIndex += sizeof(numofColliders);
@@ -68,15 +67,13 @@ PhysicsComponent* PhysicsManager::GetReferenceComponent(const char * _FilePath, 
 			memcpy(&radiusHolder, &_dataBlock[currIndex], sizeof(radiusHolder));
 			currIndex += sizeof(radiusHolder);
 			colDataHolder = AddColliderData(radiusHolder);
-		}
-		else if(!strcmp(typeName, capsule)) {
+		} else if(!strcmp(typeName, capsule)) {
 			memcpy(&radiusHolder, &_dataBlock[currIndex], sizeof(radiusHolder));
 			currIndex += sizeof(radiusHolder);
 			memcpy(&heightHolder, &_dataBlock[currIndex], sizeof(heightHolder));
 			currIndex += sizeof(heightHolder);
 			colDataHolder = AddColliderData(radiusHolder, heightHolder);
-		}
-		else if(!strcmp(typeName, box)) {
+		} else if(!strcmp(typeName, box)) {
 			XMFLOAT3 tempMax, tempMin;
 
 			memcpy(&tempMax, &_dataBlock[currIndex], sizeof(float) * 3);
@@ -94,8 +91,7 @@ PhysicsComponent* PhysicsManager::GetReferenceComponent(const char * _FilePath, 
 	if(prefabComponents.size() < MAX_PREFABS) {
 		prefabComponents.push_back(compHolder);
 		return &prefabComponents.back();
-	}
-	else {
+	} else {
 		throw "If it breaks here, you ran out of prefab space. change MAX_PREFABS ";
 		return nullptr;
 	}
@@ -107,10 +103,10 @@ void PhysicsManager::ResetComponent(ComponentBase * reset) {
 
 void PhysicsManager::Update() {
 	std::vector<PhysicsComponent*>*temp = components.GetActiveList();
-	const int activeCount = (int)components.GetActiveCount();
+	const int activeCount = (int) components.GetActiveCount();
 	for(int i = 0; i < activeCount; ++i) {
 		//This seems absurd, are we sure we can't use XMVECTOR and XMMATRIX in a more manageable manner?
-		XMFLOAT4* objectPosition = (XMFLOAT4*)&components[i].parentObject->position.m[3];
+		XMFLOAT4* objectPosition = (XMFLOAT4*) &components[i].parentObject->position.m[3];
 		XMVECTOR newposition = XMLoadFloat4(objectPosition);
 		components[i].rigidBody.Update();
 		newposition += components[i].rigidBody.GetVelocity();
@@ -124,28 +120,27 @@ void PhysicsManager::Update() {
 			XMStoreFloat3(&colPos, newposition + offset);
 
 			switch(components[i].colliders[colInd].colliderData->colliderType) {
-				case SPHERE:
-					DebugRenderer::AddSphere(colPos, components[i].colliders[colInd].colliderData->colliderInfo.sphereCollider.radius, XMFLOAT3(1.0f, 0.0f, 0.0f));
-					break;
-				case CAPSULE:
-				{
-					float _height = components[i].colliders[colInd].colliderData->colliderInfo.capsuleCollider.height;
-					XMVECTOR cap1A = offset + XMVectorSet(0, _height * 0.5f, 0, 0);
-					XMVECTOR cap1B = offset - XMVectorSet(0, _height * 0.5f, 0, 0);
-					cap1A = XMVector3TransformCoord(cap1A, XMLoadFloat4x4(&(components[i].parentObject->position)));
-					cap1B = XMVector3TransformCoord(cap1B, XMLoadFloat4x4(&(components[i].parentObject->position)));
-					XMFLOAT3 capStart, capEnd;
-					XMStoreFloat3(&capStart, cap1A);
-					XMStoreFloat3(&capEnd, cap1B);
-					DebugRenderer::AddSphere(capStart, components[i].colliders[colInd].colliderData->colliderInfo.capsuleCollider.radius, XMFLOAT3(1.0f, 0.0f, 0.0f));
-					DebugRenderer::AddSphere(capEnd, components[i].colliders[colInd].colliderData->colliderInfo.capsuleCollider.radius, XMFLOAT3(1.0f, 0.0f, 0.0f));
-					DebugRenderer::AddLine(capStart, capEnd, XMFLOAT3(1.0f, 0.0f, 0.0f));
-				}
+			case SPHERE:
+				DebugRenderer::AddSphere(colPos, components[i].colliders[colInd].colliderData->colliderInfo.sphereCollider.radius, XMFLOAT3(1.0f, 0.0f, 0.0f));
 				break;
-				default:
-					break;
+			case CAPSULE:
+			{
+				float _height = components[i].colliders[colInd].colliderData->colliderInfo.capsuleCollider.height;
+				XMVECTOR cap1A = offset + XMVectorSet(0, _height * 0.5f, 0, 0);
+				XMVECTOR cap1B = offset - XMVectorSet(0, _height * 0.5f, 0, 0);
+				cap1A = XMVector3TransformCoord(cap1A, XMLoadFloat4x4(&(components[i].parentObject->position)));
+				cap1B = XMVector3TransformCoord(cap1B, XMLoadFloat4x4(&(components[i].parentObject->position)));
+				XMFLOAT3 capStart, capEnd;
+				XMStoreFloat3(&capStart, cap1A);
+				XMStoreFloat3(&capEnd, cap1B);
+				DebugRenderer::AddSphere(capStart, components[i].colliders[colInd].colliderData->colliderInfo.capsuleCollider.radius, XMFLOAT3(1.0f, 0.0f, 0.0f));
+				DebugRenderer::AddSphere(capEnd, components[i].colliders[colInd].colliderData->colliderInfo.capsuleCollider.radius, XMFLOAT3(1.0f, 0.0f, 0.0f));
+				DebugRenderer::AddLine(capStart, capEnd, XMFLOAT3(1.0f, 0.0f, 0.0f));
 			}
-
+			break;
+			default:
+				break;
+			}
 		}
 
 #endif
@@ -209,43 +204,43 @@ void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponen
 			colliderType2 = component2.colliders[com2].colliderData->colliderType;
 
 			switch(colliderType1) {
+			case SPHERE:
+			{
+				switch(colliderType2) {
 				case SPHERE:
-				{
-					switch(colliderType2) {
-						case SPHERE:
-							collisionResult = SphereToSphereCollision(component1.colliders[com1], matrixComA.r[3], component2.colliders[com2], matrixComB.r[3]);
-							break;
-						case CAPSULE:
-							collisionResult = CapsuleToSphereCollision(component2.colliders[com2], matrixComB, component1.colliders[com1], matrixComA);
-							break;
-						default:
-							break;
-					}
-				} break;
-
+					collisionResult = SphereToSphereCollision(component1.colliders[com1], matrixComA.r[3], component2.colliders[com2], matrixComB.r[3]);
+					break;
 				case CAPSULE:
-				{
-					switch(colliderType2) {
-						case SPHERE:
-							collisionResult = CapsuleToSphereCollision(component1.colliders[com1], matrixComA, component2.colliders[com2], matrixComB);
-							break;
-						case CAPSULE:
-							collisionResult = CapsuleToCapsuleCollision(component1.colliders[com1], matrixComA, component2.colliders[com2], matrixComB);
-							break;
-						default:
-							break;
-					}
-				}
-				break;
-
-				case BOX:
+					collisionResult = CapsuleToSphereCollision(component2.colliders[com2], matrixComB, component1.colliders[com1], matrixComA);
 					break;
 				default:
 					break;
+				}
+			} break;
+
+			case CAPSULE:
+			{
+				switch(colliderType2) {
+				case SPHERE:
+					collisionResult = CapsuleToSphereCollision(component1.colliders[com1], matrixComA, component2.colliders[com2], matrixComB);
+					break;
+				case CAPSULE:
+					collisionResult = CapsuleToCapsuleCollision(component1.colliders[com1], matrixComA, component2.colliders[com2], matrixComB);
+					break;
+				default:
+					break;
+				}
+			}
+			break;
+
+			case BOX:
+				break;
+			default:
+				break;
 			}
 
 			if(collisionResult)
-				SendCollision((GameObject*)component1.parentObject, (GameObject*)component2.parentObject);
+				SendCollision((GameObject*) component1.parentObject, (GameObject*) component2.parentObject);
 		}
 	}
 }
@@ -280,8 +275,6 @@ bool PhysicsManager::CapsuleToCapsuleCollision(Collider col1, XMMATRIX& pos1, Co
 	cap2A = XMVector3TransformCoord(cap2A, pos2);
 	cap2B = XMVector3TransformCoord(cap2B, pos2);
 	//XMVECTOR seg2 = cap2A - cap2B;
-
-
 
 	//float dot;// , segmentDistance;
 	//XMStoreFloat(&dot, XMVector3Dot(seg1, seg2));
@@ -321,12 +314,11 @@ void PhysicsManager::SendCollision(GameObject* obj1, GameObject* obj2) {
 	//TODO: Fix this frown
 	(obj1)->OnCollision(obj2);
 	(obj2)->OnCollision(obj1);
-
 }
 
 void PhysicsManager::TestAllComponentsCollision() {
 	//Console::WriteLine((int)components.GetActiveCount());
-	int range = (int)components.GetActiveCount();
+	int range = (int) components.GetActiveCount();
 	for(int comp1 = 0; comp1 < range; ++comp1) {
 		for(int comp2 = 0; comp2 < range; ++comp2) {
 			if(comp1 != comp2) {
@@ -337,5 +329,3 @@ void PhysicsManager::TestAllComponentsCollision() {
 }
 
 #pragma endregion
-
-

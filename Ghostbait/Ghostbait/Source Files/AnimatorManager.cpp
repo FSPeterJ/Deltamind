@@ -1,14 +1,11 @@
 #include "AnimatorManager.h"
 
 #include "TypeMapping.h"        // for TypeMap
-AnimatorManager::~AnimatorManager()
-{
-}
+AnimatorManager::~AnimatorManager() {}
 AnimatorManager::AnimatorManager(AnimationManager* animManIn) : animMan(animManIn) {
 	TypeMap::RegisterComponentAlias<Animator>("Animate");
 };
-Animator* AnimatorManager::GetReferenceComponent(const char * _FilePath, const char* _data)
-{
+Animator* AnimatorManager::GetReferenceComponent(const char * _FilePath, const char* _data) {
 	Animator* toReturn = animators.ActivateMemory();
 	toReturn->Initialize(animMan);
 
@@ -23,8 +20,7 @@ Animator* AnimatorManager::GetReferenceComponent(const char * _FilePath, const c
 	currIndex += strLength;
 	memcpy(&numOfAnims, &_data[currIndex], sizeof(numOfAnims));
 	currIndex += sizeof(numOfAnims);
-	for (int i = 0; i < numOfAnims; ++i)
-	{
+	for(int i = 0; i < numOfAnims; ++i) {
 		char* filePath, *name;
 		memcpy(&strLength, &_data[currIndex], sizeof(strLength));
 		currIndex += sizeof(strLength);
@@ -45,16 +41,14 @@ Animator* AnimatorManager::GetReferenceComponent(const char * _FilePath, const c
 	return toReturn;
 }
 
-Animator * AnimatorManager::CloneComponent(ComponentBase * reference)
-{
+Animator * AnimatorManager::CloneComponent(ComponentBase * reference) {
 	Animator* toReturn = animators.ActivateMemory();
-	toReturn->Copy(((Animator*)reference));
+	toReturn->Copy(((Animator*) reference));
 	toReturn->Initialize(animMan);
 	return toReturn;
 }
 
-void AnimatorManager::ResetComponent(ComponentBase * reset)
-{
-	((Animator*)reset)->Destroy();
+void AnimatorManager::ResetComponent(ComponentBase * reset) {
+	((Animator*) reset)->Destroy();
 	animators.DeactivateMemory(reset);
 }

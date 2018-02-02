@@ -19,7 +19,6 @@
 #include "MeshManager.h"
 #include "ControllerObject.h"
 
-
 Renderer* rendInter;
 VRManager* vrMan;
 Game* game;
@@ -29,7 +28,6 @@ MemoryManager MemMan;
 ObjectManager* objMan;
 EngineStructure engine;
 AnimatorManager* animMan;
-
 
 void ExecuteAsync() {
 	Console::WriteLine << "I am executed asyncly!";
@@ -45,7 +43,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	wnd.UpdateTitle(L"Ghostbait");
 
 	_Pool_Base::RegisterMemory(&MemMan);
-	Console::WriteLine << "App has been initalized!" ;
+	Console::WriteLine << "App has been initalized!";
 
 	//Minimize();
 
@@ -78,8 +76,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	// This is a proof of concept, thread decoupling with .get is still uncertain.
 	try {
 		temp.get();
-	}
-	catch(const std::exception& e) {
+	} catch(const std::exception& e) {
 		//std::rethrow_exception(e);
 		// handle it
 
@@ -93,9 +90,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	if(isVR) {
 		rendInter->Initialize(wnd, vrMan);
 		inputMan = new InputManager(VR, vrMan);
-	}
-	else {
-		Console::WriteLine <<"VR not initialized! Defaulting to 2D";
+	} else {
+		Console::WriteLine << "VR not initialized! Defaulting to 2D";
 		rendInter->Initialize(wnd, nullptr);
 		inputMan = new InputManager(KEYBOARD);
 	}
@@ -119,7 +115,6 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterManager<Material, MaterialManager>(rendInter->getMaterialManager());
 	ObjectFactory::RegisterManager<Animator, AnimatorManager>(animMan);
 
-	
 	TypeMap::RegisterObjectAlias<ControllerObject>("ControllerObject");
 	TypeMap::RegisterObjectAlias<ViveController>("ViveController");
 	TypeMap::RegisterObjectAlias<Gun>("Gun");
@@ -134,7 +129,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	// Scenemanager would make this
 	//=========================================================
 	ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer2.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"),"ViveController", true);
+	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"), "ViveController", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/basicSphere.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ScifiRoom.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ProjectileSphere.ghost"));
@@ -161,8 +156,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	MenuCube* startCube;
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(3, roomMatrix));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(7, {0, 1.5f, 0.0f}, (GameObject**)&startCube));
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage("startCube", {4, 1.5f, 0.0f}, (GameObject**)&startCube));
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(11, { 0, 0, 0 }, nullptr));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage("startCube", {4, 1.5f, 0.0f}, (GameObject**) &startCube));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(11, {0, 0, 0}, nullptr));
 	DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
 	startCube->Enable();
 
@@ -170,9 +165,6 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(2, { 0,1,0 }, (Object**)&gunthing));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(4, { 0,1,4 }, (Object**)&cube2));
-
-
-	
 
 	//Object* cube1 = Object::Create<Object>({0,-1,0,1}, 1);
 	//SomeCoolObject* cube2 = Object::Create<SomeCoolObject>({0,-3,0,1}, 2);
@@ -228,10 +220,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			if(msg.message == WM_QUIT) { break; }
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-		}
-		else {
-	
-
+		} else {
 			Loop();
 		}
 	}
@@ -240,5 +229,5 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	Console::Free();
 
-	return (int)msg.wParam;
+	return (int) msg.wParam;
 }

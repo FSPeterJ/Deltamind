@@ -9,7 +9,6 @@ struct ID3D11Device;
 struct ID3D11DeviceContext;
 
 class MaterialManager: public IComponentManager {
-
 	ID3D11Device* device;
 	ID3D11DeviceContext* context;
 	std::unordered_map<std::string, Material*> materialNames; //Checking for duplicates
@@ -29,5 +28,4 @@ public:
 	Material* CloneComponent(ComponentBase* reference) override;
 	Material* GetReferenceComponent(const char * _FilePath, const char * _data) override;
 	void ResetComponent(ComponentBase * reset) override;
-
 };

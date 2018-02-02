@@ -1,7 +1,7 @@
 #pragma once
 #include "GameObject.h"
 
-class EnemyBase : public GameObject {
+class EnemyBase: public GameObject {
 	enum State {
 		IDLE,
 		PATROL,
@@ -19,4 +19,3 @@ public:
 	void Update() override;
 	void OnCollision(GameObject* _other);
 };
-

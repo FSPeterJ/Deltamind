@@ -6,7 +6,7 @@ class GhostTime {
 
 	static void Tick() { timer.Signal(); }
 public:
-	
+
 	static void Initalize();
 
 	static double DeltaTime() { return timer.Delta(); }

@@ -11,7 +11,6 @@ class GameObject;
 
 #define MAX_ENTITY_COUNT 16384
 
-
 class ObjectManager: public IManager {
 	Delegate<> Delete;
 	Delegate<> Update_Delegate;
@@ -24,7 +23,6 @@ class ObjectManager: public IManager {
 
 	unsigned poolListCount;
 	size_t poolListNewIndex = 0;
-
 
 	void Destroy(EventMessageBase* e);
 

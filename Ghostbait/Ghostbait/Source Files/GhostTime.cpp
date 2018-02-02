@@ -4,6 +4,6 @@
 XTime GhostTime::timer;
 
 void GhostTime::Initalize() {
-		timer.Restart();
-		EngineStructure::Update += [=]() { Tick(); };
+	timer.Restart();
+	EngineStructure::Update += [=]() { Tick(); };
 }

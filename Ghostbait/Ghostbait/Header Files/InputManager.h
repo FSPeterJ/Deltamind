@@ -8,7 +8,6 @@ enum InputType {
 
 struct InputPackage;
 
-
 class VRManager;
 
 class InputManager {

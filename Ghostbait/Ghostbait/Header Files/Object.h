@@ -23,20 +23,17 @@ public:
 	ComponentTypeContainer<ComponentBase*> Components;
 	//Endnote
 
-
 	Object();
 
 	virtual ~Object();
 
 	template<typename T>
 	static T* Create(DirectX::XMFLOAT4 position, const PrefabId id) {
-
 		//T* newObject = nullptr;
 		//how to get id from type??
 		//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(id, position, &newObject));
 		//return newObject;
 	}
-
 
 	template<typename ComponentType>
 	ComponentType* GetComponent() {
@@ -48,14 +45,12 @@ public:
 		return Components.GetComponent<ComponentType>();
 	}
 
-
 	template<typename ComponentType>
 	int SetComponent(ComponentType * _component) {
 		return Components.AddComponent<ComponentType>(_component);
 	}
 
 	int SetComponent(ComponentBase* _component, const int _id);
-
 
 	//ComponentBase* GetComponent(const std::string &componentname)
 	//{

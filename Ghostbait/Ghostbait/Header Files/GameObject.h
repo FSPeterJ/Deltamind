@@ -6,7 +6,7 @@ class GameObject: public Object {
 	//Until delegate unsubscribe is fixed
 
 protected:
-	
+
 	std::string tag = "none";
 	unsigned updateID = 0;
 
@@ -28,7 +28,7 @@ public:
 };
 
 //Other
-class MenuCube : public GameObject {
+class MenuCube: public GameObject {
 	void Update();
 public:
 	void OnCollision(GameObject* other);;

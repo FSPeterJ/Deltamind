@@ -6,8 +6,7 @@
 std::unordered_map<EVENT_TYPES, Delegate<EventMessageBase*>> MessageEvents::eventmap;
 std::queue<std::function<void()>> MessageEvents::queuedEvents;
 
-void MessageEvents::Initilize()
-{
+void MessageEvents::Initilize() {
 	EngineStructure::LateUpdate += [=]() { ProcessEvents(); };
 }
 
@@ -27,14 +26,11 @@ void MessageEvents::SendMessage(const EVENT_TYPES eventtype, EventMessageBase& m
 }
 
 void MessageEvents::SendQueueMessage(const EVENT_TYPES eventtype, std::function<void(void)> execute) {
-
-
 	//execute(T...);
 	queuedEvents.push([=]() {
 		execute();
 	});
 	//HandleMessage(eventtype, message);
-
 }
 
 void MessageEvents::ProcessEvents() {
@@ -51,7 +47,7 @@ void MessageEvents::HandleMessage(EVENT_TYPES eventtype, EventMessageBase& m) {
 	case EVENT_InstantiateRequest:
 	{
 		InstantiateMessage* instantiate = (InstantiateMessage*) &m;
-		Console::WriteLine<<"An object was instantiated with a prefab ID of " << instantiate->GetPrefabId();
+		Console::WriteLine << "An object was instantiated with a prefab ID of " << instantiate->GetPrefabId();
 		break;
 	}
 	case EVENT_LENGTH:

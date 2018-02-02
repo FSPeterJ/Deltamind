@@ -17,7 +17,6 @@ class ObjectFactory {
 	static ObjectManager* objMan;
 
 	struct Prefab {
-
 	private:
 		const static unsigned MAX_DATA = 64;
 	public:
@@ -73,7 +72,7 @@ public:
 	/// </summary>
 	/// <param name="_id">Class ID to register.</param>
 	/// <param name="ioClassname">String stored in Ghostbait files that determine which class the data is supposed to go in.
-	///	Changing this value means you MUST change this in every ghostbait file. 
+	///	Changing this value means you MUST change this in every ghostbait file.
 	/// </param>
 	template <typename ObjectType>
 	static void RegisterPrefabBase(unsigned size) {
@@ -115,7 +114,6 @@ public:
 	static void InstantiateByType(EventMessageBase *e);
 
 	static void InstantiateByName(EventMessageBase *e);
-
 
 	static GameObject* ActivateObject(PrefabId pid);
 

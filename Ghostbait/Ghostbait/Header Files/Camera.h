@@ -1,8 +1,8 @@
 #pragma once
-#include <DirectXMath.h> 
+#include <DirectXMath.h>
 #include "GameObject.h"
 #include "Controlable.h"
-class Camera : public GameObject, public Controlable{
+class Camera: public GameObject, public Controlable {
 	//Note: This is not inversed.  Renderer still handles inverse and transpose operations.
 public:
 	Camera();

@@ -18,8 +18,6 @@ public:
 	}
 };
 
-
-
 class Console::PrefixWriter: public std::streambuf {
 	std::string     prefix;
 	bool            need_prefix = true;
@@ -52,9 +50,6 @@ class Console::PrefixWriter: public std::streambuf {
 public:
 	PrefixWriter(std::string prefix, std::streambuf* sbuf, ConsoleColor _color) : prefix(std::move(prefix)), sbuf(sbuf), color(_color) {}
 };
-
-
-
 
 Console::OutputWriter Console::outputStream;
 

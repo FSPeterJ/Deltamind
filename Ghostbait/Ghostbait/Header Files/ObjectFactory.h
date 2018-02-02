@@ -3,11 +3,13 @@
 #include <unordered_map>
 #include <bitset>
 #include "Object.h"
-#include "GameObject.h"
-#include "ObjectManager.h"
-#include "TypeMapping.h"
-#include "ComponentBase.h"
+#include "functional"       // for function
+#include "StdHeader.h"      // for PrefabId
 
+class ObjectManager;
+class GameObject;
+class IComponentManager;
+class EventMessageBase;
 /// <summary>
 /// Creates and manages prefabs loaded from the disk.
 /// </summary>
@@ -15,7 +17,6 @@ class ObjectFactory {
 	static ObjectManager* objMan;
 
 	struct Prefab {
-
 	private:
 		const static unsigned MAX_DATA = 64;
 	public:
@@ -33,6 +34,7 @@ class ObjectFactory {
 	static GameObject* ConstructorFunc() {
 		return new T;
 	}
+
 	ObjectFactory() {};
 
 	static std::unordered_map<unsigned, std::function<Object*(void)>> registeredConstructors;
@@ -61,13 +63,7 @@ public:
 	/// <summary>
 	/// Initializes the Object Factory and hands off the managers it needs to access
 	/// </summary>
-	static void Initialize(ObjectManager* _objMan) {
-		objMan = _objMan;
-		//int r = TypeMap::GetTypeId<std::result_of<decltype(&MeshManager::GetElement)(int&)>>();
-		MessageEvents::Subscribe(EVENT_InstantiateRequest, Instantiate);
-		MessageEvents::Subscribe(EVENT_InstantiateRequestByType, InstantiateByType);
-		MessageEvents::Subscribe(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateByName);
-	}
+	static void Initialize(ObjectManager* _objMan);
 
 	~ObjectFactory() {};
 
@@ -76,13 +72,12 @@ public:
 	/// </summary>
 	/// <param name="_id">Class ID to register.</param>
 	/// <param name="ioClassname">String stored in Ghostbait files that determine which class the data is supposed to go in.
-	///	Changing this value means you MUST change this in every ghostbait file. 
+	///	Changing this value means you MUST change this in every ghostbait file.
 	/// </param>
 	template <typename ObjectType>
 	static void RegisterPrefabBase(unsigned size) {
 		registeredConstructors[TypeMap::GetObjectTypeID<ObjectType>()] = &ConstructorFunc<ObjectType>;
 		objMan->CreatePool<ObjectType>(size);
-
 	}
 
 	template <typename ComponentType, typename ManagerType>
@@ -112,142 +107,15 @@ public:
 		return extSize;
 	}
 
-	static void CreatePrefab(std::string *_filename, char* DEBUG_STRING_NAME = nullptr, bool objectPrefabOverride = false) {
+	static void CreatePrefab(std::string *_filename, char* DEBUG_STRING_NAME = nullptr, bool objectPrefabOverride = false);
 
-		int prefabID = prefabNames[*_filename];
-		if(prefabID) {
-			//This Prefab already exists.
-		}
-		else {
-			prefabID = (int)prefabs.size();
-			prefabs.push_back(Prefab());
-			Prefab* prefab = &prefabs[prefabID];
-			FILE* file = nullptr;
-			fopen_s(&file, _filename->c_str(), "rb");
-			if(file) {
-				//Read ClassName
-				int nameLength;
-				fread(&nameLength, sizeof(int), 1, file);
-				char className[512];
-				fgets(className, nameLength + 1, file); //TODO: possible buffer overrun with fgets, nameLength is used without being checked
-				prefab->objectTypeID = TypeMap::GetObjectNameID(std::string(className));
-				prefab->object = registeredConstructors[prefab->objectTypeID]();
-				int dataNameLen;
-				while(fread(&dataNameLen, sizeof(int), 1, file)) {
-					//Check for special flag
-					if(dataNameLen > 0) {
+	static void Instantiate(EventMessageBase *e);
 
-						char dataName[512];
-						fgets(dataName, dataNameLen + 1, file);
-						//Handle specific file extension
-						char* ext;
-						GetFileExtension(dataName, dataNameLen, (char**)&ext);
-						if(ext == nullptr) {
-							strcpy_s(ext, 64, dataName);
-						}
-						int componentTypeID = TypeMap::GetComponentNameID(std::string(ext));
+	static void InstantiateByType(EventMessageBase *e);
 
-						ComponentBase * component = managers[componentTypeID]->GetReferenceComponent(dataName, nullptr);
-						prefab->instantiatedComponents[componentTypeID] = component;
-						prefab->fastclone[componentTypeID] = component->singleInstance;
-						prefab->object->SetComponent(component, componentTypeID);
+	static void InstantiateByName(EventMessageBase *e);
 
-					}
-					else {
-						int compNameLen;
-						fread(&compNameLen, sizeof(int), 1, file);
-						//Get component to send data to
-						char componentName[512];
-						fgets(componentName, compNameLen + 1, file); //TODO: possible buffer overrun with fgets, compNameLen is used without being checked
-
-						char* ext;
-						GetFileExtension(componentName, compNameLen, (char**)&ext);
-						unsigned componentTypeID;// = TypeMap::GetComponentNameID(std::string(ext)); //TODO: above, ext is used as a null in/out variable, so it is possible for it to become null when passed into std::string
-						if(ext == nullptr)
-							componentTypeID = TypeMap::GetComponentNameID(std::string(componentName));
-						else
-							componentTypeID = TypeMap::GetComponentNameID(std::string(ext));
-
-
-						//Get data to send
-						char* compData = new char[-dataNameLen];
-						fread(compData, -dataNameLen, 1, file);
-						ComponentBase * component = managers[componentTypeID]->GetReferenceComponent(componentName, compData);
-
-						prefab->instantiatedComponents[componentTypeID] = component;
-						prefab->fastclone[componentTypeID] = component->singleInstance;
-						if(component->singleInstance) {
-							((InstantiatedCompBase *)prefab->instantiatedComponents[componentTypeID])->parentObject = prefab->object;
-						}
-						prefab->object->SetComponent(prefab->instantiatedComponents[componentTypeID], componentTypeID);
-						delete[] compData; //TODO: Not sure if delete[] or delete
-
-					}
-				}
-				fclose(file);
-				if(objectPrefabOverride) {
-					Object2Prefab[prefab->objectTypeID] = prefabID;
-				}
-				prefabNames[*_filename] = prefabID;
-				if(DEBUG_STRING_NAME) {
-					prefabNames[std::string(DEBUG_STRING_NAME)] = prefabID;
-				}
-			}
-		}
-	}
-
-	static void Instantiate(EventMessageBase *e) {
-		InstantiateMessage* instantiate = (InstantiateMessage*)e;
-		GameObject* newobject = ActivateObject(instantiate->GetPrefabId());
-		if(instantiate->obj != nullptr) {
-			*instantiate->obj = newobject;
-		}
-		memcpy(&newobject->position, &instantiate->GetPosition(), sizeof(DirectX::XMFLOAT4X4));
-		MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
-	}
-
-	static void InstantiateByType(EventMessageBase *e) {
-		InstantiateMessage* instantiate = (InstantiateMessage*)e;
-		GameObject* newobject = ActivateObject(Object2Prefab[instantiate->GetPrefabId()]);
-		if(instantiate->obj != nullptr) {
-			*instantiate->obj = newobject;
-		}
-
-		memcpy(&newobject->position, &instantiate->GetPosition(), sizeof(DirectX::XMFLOAT4X4));
-		MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
-	}
-
-	static void InstantiateByName(EventMessageBase *e) {
-		InstantiateNameMessage* instantiate = (InstantiateNameMessage*)e;
-		GameObject* newobject = ActivateObject(prefabNames[std::string(instantiate->debug_name)]);
-		if(instantiate->obj != nullptr) {
-			*instantiate->obj = newobject;
-		}
-
-		memcpy(&newobject->position, &instantiate->GetPosition(), sizeof(DirectX::XMFLOAT4X4));
-		MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
-	}
-
-	static GameObject* ActivateObject(unsigned pid) {
-		GameObject* newobject = objMan->Instantiate(prefabs[pid].objectTypeID);
-
-		for(int i = 0; i < 64; i++) {
-
-			if(prefabs[pid].fastclone[i]) {
-				newobject->SetComponent(prefabs[pid].instantiatedComponents[i], i);
-			}
-			else if(prefabs[pid].instantiatedComponents[i] != nullptr) {
-				InstantiatedCompBase* comptemp = (InstantiatedCompBase *)managers[i]->CloneComponent(prefabs[pid].instantiatedComponents[i]);
-				comptemp->parentObject = newobject; // This will crash if this is not an InstantiatedCompBase
-				newobject->SetComponent(comptemp, i);
-				newobject->DestroyComponents.Add([=]() {
-					managers[i]->ResetComponent(comptemp);
-				});
-			}
-		}
-		newobject->Enable();
-		return newobject;
-	}
+	static GameObject* ActivateObject(PrefabId pid);
 
 	/// <summary>
 	/// gives an immutable pointer to the requested Prefab

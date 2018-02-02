@@ -1,8 +1,7 @@
 #pragma once
-#include <functional>
-#include <unordered_map>
-#include "MessageStructs.h"
-#include "MessageEvents.h"
+#include <functional>		//can probably be moved to header if nested classes move
+#include <unordered_map>	//can probably be moved to header if nested classes move
+#include "MessageStructs.h"	//can probably be moved to header if nested classes move
 
 //This becomes some sort of component add-on?
 class Controlable {
@@ -20,7 +19,7 @@ class Controlable {
 		}*receiver;
 		ReceiveEvent ReceiveInput;
 	public:
-		InputReceiver *const GetState() const { return this->receiver; }
+		InputReceiver * const GetState() const { return this->receiver; }
 		void SetState(const Control key, const float amount) { this->receiver->operator[](key) = amount; }
 		ReceiveEvent const ReceiveInputEvent() const { return ReceiveInput; }
 		InputReceivedEvent() : receiver(new InputReceiver()), ReceiveInput([receiver = receiver](EventMessageBase* e) mutable { receiver->OnInputReceived(e); }) {}
@@ -49,6 +48,6 @@ public:
 	/// <summary>
 	/// Subscribes children to receive message input events.
 	/// </summary>
-	Controlable() { MessageEvents::Subscribe(EVENT_Input, inputReceivedEvent.ReceiveInputEvent()); }
-	virtual ~Controlable() {}
+	Controlable();
+	virtual ~Controlable();
 };

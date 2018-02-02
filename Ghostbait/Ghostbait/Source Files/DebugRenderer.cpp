@@ -1,4 +1,5 @@
 #include "DebugRenderer.h"
+#include "PhysicsComponent.h"  // for ColliderData, ColliderData::Data, ColliderData::Data::BoxCollider
 
 ID3D11Device* DebugRenderer::device;
 ID3D11DeviceContext* DebugRenderer::context;
@@ -79,7 +80,7 @@ void DebugRenderer::AddLine(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2, DirectX:
 }
 
 void DebugRenderer::AddBox(ColliderData* cIn, DirectX::XMFLOAT3 color) {
-	DirectX::XMFLOAT3 cubeCorners[8] = { DirectX::XMFLOAT3() }, min, max;
+	DirectX::XMFLOAT3 cubeCorners[8] = {DirectX::XMFLOAT3()}, min, max;
 	max = cIn->colliderInfo.boxCollider.topRightFrontCorner;
 	min = cIn->colliderInfo.boxCollider.bottLeftBackCorner;
 

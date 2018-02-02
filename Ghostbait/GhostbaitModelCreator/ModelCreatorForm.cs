@@ -455,13 +455,16 @@ namespace GhostbaitModelCreator {
                         {
                             int bindLen = reader.ReadInt32();
                             string bindName = new string(reader.ReadChars(bindLen));
+                            bindName = bindName.Remove(bindName.Length - 1);
                             bindPose.FilePath = bindName;
                             int animCount = reader.ReadInt32();
 
                             for (int i = 0; i < animCount; ++i)
                             {
                                 var stringAnim = new string(reader.ReadChars(reader.ReadInt32()));
+                                stringAnim = stringAnim.Remove(stringAnim.Length - 1);
                                 var stringName = new string(reader.ReadChars(reader.ReadInt32()));
+                                stringName = stringName.Remove(stringName.Length - 1);
                                 AnimationCreatorForm.AnimationData toPush = new AnimationCreatorForm.AnimationData();
                                 toPush.filePath = stringAnim;
                                 toPush.name = stringName;

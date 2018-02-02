@@ -1,7 +1,7 @@
 #pragma once
 #include "GameObject.h"
 
-class Item : public GameObject {
+class Item: public GameObject {
 public:
 	enum State {
 		INVALID,

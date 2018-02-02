@@ -1,7 +1,8 @@
 #pragma once
-#include <DirectXMath.h>
+#include <DirectXMath.h> //todo get rid of
 #include "TypeContainer.h"
-#include "MessageEvents.h"
+#include "StdHeader.h" //for PrefabId
+#include "Delegate.h"
 
 class ComponentBase;
 //
@@ -18,28 +19,16 @@ private:
 public:
 
 	Delegate<> DestroyComponents;
-	DirectX::XMFLOAT4X4 position;
+	DirectX::XMFLOAT4X4 position; //if we make this a pointer we don't have to include DXMath into every single object
 	ComponentTypeContainer<ComponentBase*> Components;
 	//Endnote
 
+	Object();
 
-	Object() {
-		XMStoreFloat4x4(&position, DirectX::XMMatrixIdentity());
-		//Example of string registration
-		//Use this to associate strings to same typeid
-		//This MUST be called SOMEWHERE in order for Factory to know what object to grab
-		//ObjectTypeMap::RegisterObject<Object>("Object");
-		//ObjectTypeMap::RegisterObject<Object>("object");
-		//ObjectTypeMap::RegisterObject<Object>("obj");
-
-	};
-	virtual ~Object() {
-		//int x = 111;
-	};
+	virtual ~Object();
 
 	template<typename T>
 	static T* Create(DirectX::XMFLOAT4 position, const PrefabId id) {
-
 		//T* newObject = nullptr;
 		//how to get id from type??
 		//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(id, position, &newObject));
@@ -48,29 +37,26 @@ public:
 
 	template<typename ComponentType>
 	ComponentType* GetComponent() {
-
 		return Components.GetComponent<ComponentType>();
-	};
+	}
 
 	template<typename ComponentType>
 	ComponentType* GetComponent() const {
 		return Components.GetComponent<ComponentType>();
-	};
+	}
+
+	template<typename ComponentType>
+	int SetComponent(ComponentType * _component) {
+		return Components.AddComponent<ComponentType>(_component);
+	}
+
+	int SetComponent(ComponentBase* _component, const int _id);
 
 	//ComponentBase* GetComponent(const std::string &componentname)
 	//{
 	//	return Components.GetComponent<>(componentname);
 	//};
 
-	template<typename ComponentType>
-	int SetComponent(ComponentType * _component) {
-		return Components.AddComponent<ComponentType>(_component);
-	};
-
-	int SetComponent(ComponentBase* _component, const int _id) {
-		return Components.AddComponent(_component, _id);
-	};
-
 	//always return 0?
-	static int GetTypeId() { return 0; };
+	static int GetTypeId();
 };

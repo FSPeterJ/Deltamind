@@ -1,10 +1,7 @@
 #pragma once
 #include <unordered_map>
-#include "MessageStructs.h"
-#include "Console.h"
 #include "Delegate.h"
 #include <queue>
-#include "EngineStructure.h"
 
 #undef SendMessage
 
@@ -41,43 +38,22 @@ public:
 	/// <param name="eventtype">The eventtype.</param>
 	/// <param name="execute">The function to execute.</param>
 	/// <param name="priority">The optional priority. Leaving it as -1 means no priority. Zero is highest priority.</param>
-	inline static unsigned Subscribe(const EVENT_TYPES eventtype, std::function<void(EventMessageBase *)> execute, const int priority = -1) {
-		//if(priority < 0) {
-		return eventmap[eventtype].Add(execute);
-		//return;
-	//}
-
-	//size_t index = priority > eventmap.size() - 1 ? eventmap.size() - 1 : priority;
-	//eventmap[eventtype].insert(execute, index);
-	}
-
-	//This does not work v
+	static unsigned Subscribe(const EVENT_TYPES eventtype, std::function<void(EventMessageBase *)> execute, const int priority = -1);
 
 	/// <summary>
 	/// Sends a message and stores it in the event queue.
 	/// </summary>
 	/// <param name="eventtype">The eventtype.</param>
 	/// <param name="message">The message.</param>
-	inline static void SendQueueMessage(const EVENT_TYPES eventtype, std::function<void(void)> execute) {
-
-
-		//execute(T...);
-		queuedEvents.push([=]() {
-			execute();
-		});
-		//HandleMessage(eventtype, message);
-
-	}
-
+	static void SendQueueMessage(const EVENT_TYPES eventtype, std::function<void(void)> execute);
 	/// <summary>
 	/// Sends a message.
 	/// </summary>
 	/// <param name="eventtype">The eventtype.</param>
 	/// <param name="message">The message.</param>
-	inline static void SendMessage(const EVENT_TYPES eventtype, EventMessageBase& message = EventMessageBase()) { eventmap[eventtype](&message); HandleMessage(eventtype, message); }
+	static void SendMessage(const EVENT_TYPES eventtype, EventMessageBase& message);
 
 	static void ProcessEvents();
-	MessageEvents();
+
 	static void Initilize();
-	~MessageEvents();
 };

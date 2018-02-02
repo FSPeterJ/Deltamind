@@ -1,16 +1,6 @@
-#include <windows.h>
-#include "vld.h" //Before commenting this out, please see TODO below and then don't comment this out...
-#include "Resource.h"
-#include "Window.h"
-#include "Console.h"
 #include "Renderer.h"
-#include "ObjectManager.h"
-#include "MemoryManager.h"
+#include "vld.h"
 //#include "GameObject.h"
-#include "MessageEvents.h"
-#include "ObjectFactory.h"
-#include "EngineStructure.h"
-#include "VRManager.h"
 #include "InputManager.h"
 #include "Messagebox.h"
 #include "Game.h"
@@ -21,8 +11,13 @@
 #include "Projectile.h"
 #include "EnemyBase.h"
 #include "ViveController.h"
-#include "ControllerObject.h"
 #include "Spawner.h"
+#include "ObjectManager.h"
+#include "MessageEvents.h"
+#include "VRManager.h"
+#include "MaterialManager.h"
+#include "MeshManager.h"
+#include "ControllerObject.h"
 #include "PhysicsTestObj.h"
 
 Renderer* rendInter;
@@ -35,10 +30,9 @@ ObjectManager* objMan;
 EngineStructure engine;
 AnimatorManager* animMan;
 
-
 void ExecuteAsync() {
 	Console::WriteLine << "I am executed asyncly!";
-	throw std::invalid_argument("ERROR: This is a test showing we can know if a thread throws an exception on it's work.\n");
+	throw std::invalid_argument("ERROR: This is a test showing we can know if a thread throws an exception on its work.\n");
 }
 
 void Setup(HINSTANCE hInstance, int nCmdShow) {
@@ -50,7 +44,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	wnd.UpdateTitle(L"Ghostbait");
 
 	_Pool_Base::RegisterMemory(&MemMan);
-	Console::WriteLine << "App has been initalized!" ;
+	Console::WriteLine << "App has been initalized!";
 
 	//Minimize();
 
@@ -83,12 +77,11 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	// This is a proof of concept, thread decoupling with .get is still uncertain.
 	try {
 		temp.get();
-	}
-	catch(const std::exception& e) {
+	} catch(const std::exception& e) {
 		//std::rethrow_exception(e);
 		// handle it
 
-		std::cout << e.what();
+		Console::Write << e.what();
 	}
 	//=============================
 
@@ -98,9 +91,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	if(isVR) {
 		rendInter->Initialize(wnd, vrMan);
 		inputMan = new InputManager(VR, vrMan);
-	}
-	else {
-		Console::WriteLine <<"VR not initialized! Defaulting to 2D";
+	} else {
+		Console::WriteLine << "VR not initialized! Defaulting to 2D";
 		rendInter->Initialize(wnd, nullptr);
 		inputMan = new InputManager(KEYBOARD);
 	}
@@ -126,7 +118,6 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterManager<Material, MaterialManager>(rendInter->getMaterialManager());
 	ObjectFactory::RegisterManager<Animator, AnimatorManager>(animMan);
 
-	
 	TypeMap::RegisterObjectAlias<ControllerObject>("ControllerObject");
 	TypeMap::RegisterObjectAlias<ViveController>("ViveController");
 	TypeMap::RegisterObjectAlias<Gun>("Gun");
@@ -142,7 +133,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	// Scenemanager would make this
 	//=========================================================
 	ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer2.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"),"ViveController", true);
+	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"), "ViveController", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/basicSphere.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ScifiRoom.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ProjectileSphere.ghost"));
@@ -152,7 +143,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/CoreCube.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/Teddy.ghost"));
+	//ObjectFactory::CreatePrefab(&std::string("Assets/Teddy.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/EarthMage.ghost"));
 
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest1.ghost")); //12
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest2.ghost")); //13
@@ -173,6 +165,10 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(7, {0, 1.5f, 0.0f}, (GameObject**)&startCube));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage("startCube", {4, 1.5f, 0.0f}, (GameObject**)&startCube));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(11, { 0, 0, 0 }, nullptr));
+	//GameObject* teddy;
+	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(11, {0, 0, 0}, &teddy));
+	//teddy->GetComponent<Animator>()->setState("Walk");
+
 	//DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
 	//startCube->Enable();
 
@@ -192,9 +188,6 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(2, { 0,1,0 }, (Object**)&gunthing));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(4, { 0,1,4 }, (Object**)&cube2));
-
-
-	
 
 	//Object* cube1 = Object::Create<Object>({0,-1,0,1}, 1);
 	//SomeCoolObject* cube2 = Object::Create<SomeCoolObject>({0,-3,0,1}, 2);
@@ -250,10 +243,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			if(msg.message == WM_QUIT) { break; }
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-		}
-		else {
-	
-
+		} else {
 			Loop();
 		}
 	}
@@ -262,5 +252,5 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	Console::Free();
 
-	return (int)msg.wParam;
+	return (int) msg.wParam;
 }

@@ -19,7 +19,6 @@ Animation * AnimationManager::LoadAnimation(const char * _animationFilePath, con
 				reader.read((char*) &joint.parent_index, sizeof(joint.parent_index));
 				for(int almostThere = 0; almostThere < 4; ++almostThere)
 					reader.read((char*) &joint.transform.m[almostThere], sizeof(joint.transform.m[almostThere]));
-				
 				temp.joints.push_back(joint);
 			}
 			toPush->keyframes.push_back(temp);
@@ -36,7 +35,7 @@ Animation * AnimationManager::LoadAnimation(const char * _animationFilePath, con
 bindpose * AnimationManager::LoadBindpose(const char * _bindposeFilePath) {
 	{
 		bindpose* temp = bindposeNames[std::string(_bindposeFilePath)];
-		if (temp)
+		if(temp)
 			return temp;
 	}
 	bindpose* toPush = new bindpose;
@@ -51,7 +50,6 @@ bindpose * AnimationManager::LoadBindpose(const char * _bindposeFilePath) {
 			reader.read((char*) &alright.transform.m[almostThere], sizeof(alright.transform.m[almostThere]));
 
 		XMStoreFloat4x4(&alright.transform, XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat4x4(&alright.transform)), XMLoadFloat4x4(&alright.transform)));
-		
 		toPush->joints.push_back(alright);
 	}
 	reader.close();
@@ -64,11 +62,10 @@ AnimationManager::AnimationManager() {}
 
 AnimationManager::~AnimationManager() {}
 
-void AnimationManager::Destroy()
-{
-	for (size_t i = 0; i < animations.size(); ++i)
+void AnimationManager::Destroy() {
+	for(size_t i = 0; i < animations.size(); ++i)
 		delete animations[i];
-	for (size_t i = 0; i < bindPoses.size(); ++i)
+	for(size_t i = 0; i < bindPoses.size(); ++i)
 		delete bindPoses[i];
 }
 
@@ -84,16 +81,14 @@ Animation * AnimationManager::GetElement(const unsigned int _id) {
 	return nullptr;
 }
 
-Animation * AnimationManager::GetReferenceAnimation(const char * _FilePath, const char * _bindposeFilePath)
-{
+Animation * AnimationManager::GetReferenceAnimation(const char * _FilePath, const char * _bindposeFilePath) {
 	Animation* toReturn = animNames[_FilePath];
-	if (!toReturn)
-	{
+	if(!toReturn) {
 		toReturn = LoadAnimation(_FilePath, _bindposeFilePath);
 	}
 	return toReturn;
 }
 
 void AnimationManager::ResetComponent(ComponentBase * reset) {
-//TODO: deactivate reset's memory
+	//TODO: deactivate reset's memory
 }

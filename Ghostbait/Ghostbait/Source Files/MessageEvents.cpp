@@ -1,19 +1,37 @@
 #include "MessageEvents.h"
+#include "EngineStructure.h"
+#include "MessageStructs.h"
+#undef SendMessage
 
 std::unordered_map<EVENT_TYPES, Delegate<EventMessageBase*>> MessageEvents::eventmap;
 std::queue<std::function<void()>> MessageEvents::queuedEvents;
 
-MessageEvents::MessageEvents() {
-	//Any code you write in here does not get called as MessageEvents is not instantiated
-	//Consider using a singleton otherwise.
-}
-
-void MessageEvents::Initilize()
-{
+void MessageEvents::Initilize() {
 	EngineStructure::LateUpdate += [=]() { ProcessEvents(); };
 }
 
-MessageEvents::~MessageEvents() {}
+unsigned  MessageEvents::Subscribe(const EVENT_TYPES eventtype,
+	std::function<void(EventMessageBase *)> execute, const int priority) {
+	//if(priority < 0) {
+	return eventmap[eventtype].Add(execute);
+	//return;
+	//}
+
+	//size_t index = priority > eventmap.size() - 1 ? eventmap.size() - 1 : priority;
+	//eventmap[eventtype].insert(execute, index);
+}
+
+void MessageEvents::SendMessage(const EVENT_TYPES eventtype, EventMessageBase& message) {
+	eventmap[eventtype](&message); HandleMessage(eventtype, message);
+}
+
+void MessageEvents::SendQueueMessage(const EVENT_TYPES eventtype, std::function<void(void)> execute) {
+	//execute(T...);
+	queuedEvents.push([=]() {
+		execute();
+	});
+	//HandleMessage(eventtype, message);
+}
 
 void MessageEvents::ProcessEvents() {
 	while(!queuedEvents.empty()) {
@@ -29,7 +47,7 @@ void MessageEvents::HandleMessage(EVENT_TYPES eventtype, EventMessageBase& m) {
 	case EVENT_InstantiateRequest:
 	{
 		InstantiateMessage* instantiate = (InstantiateMessage*) &m;
-		Console::WriteLine<<"An object was instantiated with a prefab ID of " << instantiate->GetPrefabId();
+		Console::WriteLine << "An object was instantiated with a prefab ID of " << instantiate->GetPrefabId();
 		break;
 	}
 	case EVENT_LENGTH:

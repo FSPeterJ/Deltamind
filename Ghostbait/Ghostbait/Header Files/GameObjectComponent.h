@@ -1,8 +1,9 @@
 #pragma once
-#include "Object.h"
 #include "Delegate.h"
 #include "EngineStructure.h"
 #include "Controlable.h"
+#include "Console.h"          // for Console, Console::WriteLine, Console::WriteLiner
+#include "ComponentBase.h"
 
 class GameObjectComponent: public ComponentBase {
 public:

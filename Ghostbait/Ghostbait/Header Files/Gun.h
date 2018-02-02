@@ -1,7 +1,7 @@
 #pragma once
 #include "Item.h"
 
-class Gun : public Item {
+class Gun: public Item {
 public:
 	enum FireType {
 		AUTO,

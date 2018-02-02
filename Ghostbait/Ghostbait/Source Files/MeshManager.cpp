@@ -5,7 +5,6 @@
 #include "TypeMapping.h"
 using namespace DirectX;
 
-
 void MeshManager::generateCube() {
 #pragma region pleasedontopenthis
 	//you fool
@@ -169,9 +168,7 @@ Mesh*  MeshManager::GetElement(const unsigned int _id) {
 	return nullptr;
 }
 
-Mesh* MeshManager::CloneComponent(ComponentBase* meshReference)
-{
-
+Mesh* MeshManager::CloneComponent(ComponentBase* meshReference) {
 	//If you are here there is probably something wrong
 	return nullptr;
 }

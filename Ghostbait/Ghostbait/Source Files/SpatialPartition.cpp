@@ -2,15 +2,14 @@
 #include "PhysicsComponent.h"
 
 SpatialPartition::Unit::Unit() {
-
 }
 SpatialPartition::Unit::Unit(PhysicsComponent* comp) {
 	AddComponent(comp);
 }
 int64_t SpatialPartition::Unit::FindComponent(PhysicsComponent* comp) {
-	for (uint32_t i = 0; i < (uint32_t)components.size(); ++i) {
+	for(uint32_t i = 0; i < (uint32_t) components.size(); ++i) {
 		//TODO Does this comparison work?
-		if (comp == components[i]) {
+		if(comp == components[i]) {
 			return i;
 		}
 	}
@@ -18,7 +17,7 @@ int64_t SpatialPartition::Unit::FindComponent(PhysicsComponent* comp) {
 }
 bool SpatialPartition::Unit::AddComponent(PhysicsComponent* comp) {
 	//Is component in here already?
-	if (FindComponent(comp) < 0) {
+	if(FindComponent(comp) < 0) {
 		//Add it
 		components.push_back(comp);
 		return true;
@@ -27,7 +26,7 @@ bool SpatialPartition::Unit::AddComponent(PhysicsComponent* comp) {
 }
 bool SpatialPartition::Unit::RemoveComponent(PhysicsComponent* comp) {
 	int64_t index = FindComponent(comp);
-	if (index >= 0) {
+	if(index >= 0) {
 		//TODO: Does this work like I expect?
 		components.erase(components.begin() + index);
 		return true;
@@ -40,7 +39,6 @@ SpatialPartition::SpatialPartition() {
 	unitSize = 3;
 }
 SpatialPartition::SpatialPartition(uint32_t _bucketCount, float _unitSize) : bucketCount(_bucketCount), unitSize(_unitSize) {
-
 }
 
 uint32_t SpatialPartition::Hash(const float x, const float y, const float z) {
@@ -63,16 +61,16 @@ std::vector<uint32_t> SpatialPartition::Hash(const AABB aabb) {
 	std::vector<uint32_t> indicies;
 	std::vector<DirectX::XMFLOAT3> points;
 	points.resize(8);
-	points[0] = aabb.min;
-	points[1] = DirectX::XMFLOAT3(aabb.min.x, aabb.min.y, aabb.max.z);
-	points[2] = DirectX::XMFLOAT3(aabb.min.x, aabb.max.y, aabb.min.z);
-	points[3] = DirectX::XMFLOAT3(aabb.min.x, aabb.max.y, aabb.max.z);
-	points[4] = DirectX::XMFLOAT3(aabb.max.x, aabb.min.y, aabb.min.z);
-	points[5] = DirectX::XMFLOAT3(aabb.max.x, aabb.min.y, aabb.max.z);
-	points[6] = DirectX::XMFLOAT3(aabb.max.x, aabb.max.y, aabb.min.z);
-	points[7] = aabb.max;
+	points[0] = *aabb.min;
+	points[1] = DirectX::XMFLOAT3(aabb.min->x, aabb.min->y, aabb.max->z);
+	points[2] = DirectX::XMFLOAT3(aabb.min->x, aabb.max->y, aabb.min->z);
+	points[3] = DirectX::XMFLOAT3(aabb.min->x, aabb.max->y, aabb.max->z);
+	points[4] = DirectX::XMFLOAT3(aabb.max->x, aabb.min->y, aabb.min->z);
+	points[5] = DirectX::XMFLOAT3(aabb.max->x, aabb.min->y, aabb.max->z);
+	points[6] = DirectX::XMFLOAT3(aabb.max->x, aabb.max->y, aabb.min->z);
+	points[7] = *aabb.max;
 	int index;
-	for (int point = 0; point < 8; ++point) {
+	for(int point = 0; point < 8; ++point) {
 		index = Hash(points[point]);
 		bool found = false;
 		for (unsigned int exist = 0; exist < indicies.size(); ++exist) {
@@ -81,7 +79,7 @@ std::vector<uint32_t> SpatialPartition::Hash(const AABB aabb) {
 				break;
 			}
 		}
-		if (!found) indicies.push_back(index);
+		if(!found) indicies.push_back(index);
 	}
 	return indicies;
 }
@@ -94,8 +92,7 @@ bool SpatialPartition::AddComponent(PhysicsComponent* component) {
 			if (table[indicies[i]].AddComponent(component)) {
 				anythingAdded = true;
 			}
-		}
-		else {
+		} else {
 			table[indicies[i]] = Unit(component);
 			anythingAdded = true;
 		}
@@ -117,15 +114,14 @@ bool SpatialPartition::RemoveComponent(PhysicsComponent* component, PositionOpti
 				}
 			}
 		}
-	}
-	else if (RemoveComponent(component, Previous) || RemoveComponent(component, Current)) {
+	} else if(RemoveComponent(component, Previous) || RemoveComponent(component, Current)) {
 		foundAndRemoved = true;
 	}
 	return foundAndRemoved;
 }
 void SpatialPartition::UpdateComponent(PhysicsComponent* component) {
 	//Did it move?
-	if (component->currentAABB != component->previousAABB) {
+	if(component->currentAABB != component->previousAABB) {
 		//Remove previous component instances
 		RemoveComponent(component, Previous);
 		//Add Current component instances

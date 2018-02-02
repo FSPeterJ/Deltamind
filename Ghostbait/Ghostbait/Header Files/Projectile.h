@@ -1,7 +1,7 @@
 #pragma once
 #include "GameObject.h"
 
-class Projectile : public GameObject {
+class Projectile: public GameObject {
 public:
 	Projectile();
 	~Projectile();
@@ -10,4 +10,3 @@ public:
 	float timeSinceShot = 0;
 	float maxProjectileTime = 4.0f;
 };
-

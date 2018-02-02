@@ -1,8 +1,8 @@
 #pragma once
 #include <windows.h>
-#include <windowsx.h>
+
+#include "xstring"      // for wstring
 #include "Resource.h"
-#include <string>
 
 #define MAX_LOADSTRING 100
 

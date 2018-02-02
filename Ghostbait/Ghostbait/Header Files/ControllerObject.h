@@ -1,8 +1,10 @@
 #pragma once
 #include "GameObject.h"
 #include "Gun.h"
+#include "Controlable.h"  // for Controlable
+#include "vector"         // for vector
 
-class ControllerObject : public GameObject, public Controlable {
+class ControllerObject: public GameObject, public Controlable {
 public:
 	enum ControllerHand {
 		INVALID,

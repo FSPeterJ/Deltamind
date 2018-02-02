@@ -1,14 +1,18 @@
 #pragma once
-
-#include <d3d11.h>
-#include "MeshManager.h"
-#include "Window.h"
-#include "VRManager.h"
-#include "MaterialManager.h"
-#include "Camera.h"
-#include "AnimationManager.h"
-
 #include <DirectXMath.h>
+#include <d3d11.h>
+#include "Window.h"
+#include <vector>
+
+class Camera;
+class GameObject;
+class Object;
+class VRManager;
+class MeshManager;
+class MaterialManager;
+class AnimationManager;
+class EventMessageBase;
+
 enum renderState {
 	RENDER_STATE_DEFAULT, RENDER_STATE_TRANSPARENT
 };
@@ -57,36 +61,30 @@ private:
 		float outerRadius = 0.0f;
 	};
 
-	struct lightBufferStruct
-	{
+	struct lightBufferStruct {
 		genericLight cpu_side_lights[MAX_LIGHTS];
 		DirectX::XMFLOAT3 ambientColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 		float ambientIntensity = 0.5f;
 	};
-	
-	struct animDataBufferStruct
-	{
+
+	struct animDataBufferStruct {
 		DirectX::XMFLOAT4X4 cpu_side_joints[50];
 		bool willAnimate;
 		DirectX::XMFLOAT3 filler;
 	};
 #pragma endregion
 
-	class LightPool
-	{
+	class LightPool {
 		int numLights;
 		lightBufferStruct cpu_light_info;
 	public:
-		void addLight(genericLight toAdd)
-		{
-			if (numLights < MAX_LIGHTS)
-			{
+		void addLight(genericLight toAdd) {
+			if(numLights < MAX_LIGHTS) {
 				cpu_light_info.cpu_side_lights[numLights] = toAdd;
 				numLights++;
 			}
 		};
-		void setAmbient(DirectX::XMFLOAT3 color, float factor)
-		{
+		void setAmbient(DirectX::XMFLOAT3 color, float factor) {
 			cpu_light_info.ambientIntensity = factor;
 			cpu_light_info.ambientColor = color;
 		};
@@ -171,7 +169,6 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////
 	void Destroy();
 
-	
 	//////////////////////////////////////////////////////////////////////////////////
 	//registerObject
 	//Used to have the rendering system start rendering the object.
@@ -192,16 +189,15 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////
 	void unregisterObject(EventMessageBase* e);
 
-	
 	//////////////////////////////////////////////////////////////////////////////////
 	void addDirectionalLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 dir);
 	void addPointLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, float radius);
 	void addSpotLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir, float radius, float outerRadius);
 	void setAmbient(DirectX::XMFLOAT3 color, float factor);
 
-	MeshManager* getMeshManager() { return meshManagement; }
-	MaterialManager* getMaterialManager() { return materialManagement; }
-	AnimationManager* getAnimationManager() { return animationManagement; }
-	Camera* getCamera() { return keyboardCamera; }
+	MeshManager* getMeshManager();
+	MaterialManager* getMaterialManager();
+	AnimationManager* getAnimationManager();
+	Camera* getCamera();
 	void Render();
 };

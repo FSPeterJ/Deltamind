@@ -3,7 +3,6 @@
 #include <vector>
 #include <mutex>
 #include <queue>
-#include <functional>
 #include <future>
 
 class ThreadPool {
@@ -21,29 +20,10 @@ class ThreadPool {
 
 	static std::mutex queueMutex;
 
-	static void WaitForJob() {
-		while(true) {
-			// See comments below on which is better
-			std::unique_lock<std::mutex> lock(queueMutex);
-			condition.wait(lock, [] { return !queue.empty() || quit; });
-			if(quit) {
-				lock.unlock();
-				break;
-			}
-			Job job = std::move(queue.front());
-			queue.pop();
-			// We are done with the queue, can release now
-			lock.unlock();
-			job();
-		}
-	}
+	static void WaitForJob();
 
 public:
-	static void Start() {
-		for(int i = 0; i < maxThreads; ++i) {
-			pool.push_back(std::thread(WaitForJob));
-		}
-	}
+	static void Start();
 
 	template<typename F, typename... Args>
 	static std::future<void> MakeJob(F f, Args&&... args) {
@@ -59,13 +39,5 @@ public:
 		condition.notify_one();
 		return fut;
 	}
-	static void Shutdown() {
-		quit = true;
-		condition.notify_all();
-		for(auto& thread : pool) {
-			if(thread.joinable()) {
-				thread.join();
-			}
-		}
-	}
+	static void Shutdown();
 };

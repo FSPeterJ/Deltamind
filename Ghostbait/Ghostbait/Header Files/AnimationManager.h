@@ -1,9 +1,12 @@
 #pragma once
 #include <vector>
-#include <IComponentManager.h>
-#include <directxmath.h>
-#include "ComponentBase.h"
 #include <map>
+#include <DirectXMath.h> //todo get rid
+
+//namespace DirectX {
+//	struct XMFLOAT4X4;
+//}
+class ComponentBase;
 
 #define MAX_ANIMATIONS 512
 struct animJoint {
@@ -44,6 +47,4 @@ public:
 	Animation * GetElement(const unsigned int _id);
 	Animation* GetReferenceAnimation(const char * _FilePath, const char * _bindposeFilePath);
 	void ResetComponent(ComponentBase * reset);
-
-
 };

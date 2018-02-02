@@ -1,13 +1,9 @@
 #include "Animator.h"
-#include "EngineStructure.h"
-#include "MessageEvents.h"
 #include "GhostTime.h"
 #include "DebugRenderer.h"
+#include "EngineStructure.h"
 
-#include <d3d11.h>
-
-DirectX::XMFLOAT3X3 Animator::pullRotation(DirectX::XMFLOAT4X4 pullFrom)
-{
+DirectX::XMFLOAT3X3 Animator::pullRotation(DirectX::XMFLOAT4X4 pullFrom) {
 	DirectX::XMFLOAT3X3 ret;
 	ret._11 = pullFrom._11;
 	ret._12 = pullFrom._12;
@@ -21,8 +17,7 @@ DirectX::XMFLOAT3X3 Animator::pullRotation(DirectX::XMFLOAT4X4 pullFrom)
 	return ret;
 }
 
-DirectX::XMFLOAT3X3 Animator::lerpRotation(DirectX::XMFLOAT3X3 m1, DirectX::XMFLOAT3X3 m2, float ratio)
-{
+DirectX::XMFLOAT3X3 Animator::lerpRotation(DirectX::XMFLOAT3X3 m1, DirectX::XMFLOAT3X3 m2, float ratio) {
 	DirectX::XMVECTOR v1 = XMQuaternionRotationMatrix(XMLoadFloat3x3(&m1));
 	DirectX::XMVECTOR v2 = XMQuaternionRotationMatrix(XMLoadFloat3x3(&m2));
 	DirectX::XMVECTOR lerpResult = DirectX::XMQuaternionSlerp(v1, v2, ratio);
@@ -31,74 +26,56 @@ DirectX::XMFLOAT3X3 Animator::lerpRotation(DirectX::XMFLOAT3X3 m1, DirectX::XMFL
 	return result;
 }
 
-Animator::Animator()
-{
-}
+Animator::Animator() {}
 
-Animator::~Animator()
-{
-}
+Animator::~Animator() {}
 
-void Animator::Copy(const Animator * that)
-{
-	if (this != that)
-	{
+void Animator::Copy(const Animator * that) {
+	if(this != that) {
 		//All pointer copies in this operator are not shallow; animators do not manage the memory they point to and should all point to the same places
 		this->animMan = that->animMan;
-		for (auto i = that->animations.begin(); i != that->animations.end(); ++i)
-		{
+		for(auto i = that->animations.begin(); i != that->animations.end(); ++i) {
 			std::string name = i->first;
 			Animation* point = i->second;
 			this->animations[name] = point;
 		}
 		this->timePos = that->timePos;
 		this->currAnim = that->currAnim;
-		for (size_t i = 0; i < that->tweens.size(); ++i)
-		{
+		for(size_t i = 0; i < that->tweens.size(); ++i) {
 			this->tweens.push_back(that->tweens[i]);
 		}
 	}
 }
 
-void Animator::Destroy()
-{
+void Animator::Destroy() {
 	EngineStructure::Update.Remove(updateID);
 }
 
-void Animator::Initialize(AnimationManager* animManIn)
-{
+void Animator::Initialize(AnimationManager* animManIn) {
 	animMan = animManIn;
 	updateID = EngineStructure::Update.Add([=]() {this->Update(); });
 }
 
-void Animator::Update()
-{
+void Animator::Update() {
 	timePos += GhostTime::DeltaTime();
 	bool loopState = false;
-	if (timePos < 0.0)
-	{
+	if(timePos < 0.0) {
 		timePos = currAnim->keyframes[currAnim->keyframes.size() - 1].endTime;
 	}
-	if (timePos > currAnim->keyframes[currAnim->keyframes.size() - 1].endTime)
-	{
+	if(timePos > currAnim->keyframes[currAnim->keyframes.size() - 1].endTime) {
 		timePos = 0.0;
 	}
 
 	keyframe beginFrame;
 	keyframe endFrame;
 
-	if (timePos < currAnim->keyframes[0].endTime)
-	{
+	if(timePos < currAnim->keyframes[0].endTime) {
 		beginFrame = currAnim->keyframes[currAnim->keyframes.size() - 1];
 		endFrame = currAnim->keyframes[0];
 		loopState = true;
-	}
-	else
-	{
-		for (size_t i = 0; i < currAnim->keyframes.size() - 1; ++i)
-		{
-			if (timePos > currAnim->keyframes[i].endTime && timePos <= currAnim->keyframes[i + 1].endTime)
-			{
+	} else {
+		for(size_t i = 0; i < currAnim->keyframes.size() - 1; ++i) {
+			if(timePos > currAnim->keyframes[i].endTime && timePos <= currAnim->keyframes[i + 1].endTime) {
 				beginFrame = currAnim->keyframes[i];
 				endFrame = currAnim->keyframes[i + 1];
 			}
@@ -106,20 +83,20 @@ void Animator::Update()
 	}
 
 	float ratio;
-	if (!loopState)
-		ratio = (float)((timePos - beginFrame.endTime) / (endFrame.endTime - beginFrame.endTime));
+	if(!loopState)
+		ratio = (float) ((timePos - beginFrame.endTime) / (endFrame.endTime - beginFrame.endTime));
 	else
-		ratio = (float)(timePos / endFrame.endTime);
+		ratio = (float) (timePos / endFrame.endTime);
 
-	for (size_t i = 1; i < beginFrame.joints.size(); ++i)
-	{
+	for(size_t i = 1; i < beginFrame.joints.size(); ++i) {
 		bindpose* bPose = currAnim->bPose;
 		DirectX::XMFLOAT3 beginPos = DirectX::XMFLOAT3(beginFrame.joints[i].transform._41, beginFrame.joints[i].transform._42, beginFrame.joints[i].transform._43);
-		DirectX::XMFLOAT3 endPos = DirectX::XMFLOAT3(beginFrame.joints[beginFrame.joints[i].parent_index].transform._41, beginFrame.joints[beginFrame.joints[i].parent_index].transform._42, beginFrame.joints[beginFrame.joints[i].parent_index].transform._43);
+		DirectX::XMFLOAT3 endPos = DirectX::XMFLOAT3(beginFrame.joints[beginFrame.joints[i].parent_index].transform._41,
+			beginFrame.joints[beginFrame.joints[i].parent_index].transform._42,
+			beginFrame.joints[beginFrame.joints[i].parent_index].transform._43);
 		DebugRenderer::AddLine(beginPos, endPos, DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f));
 	}
-	for (size_t i = 0; i < tweens.size(); ++i)
-	{
+	for(size_t i = 0; i < tweens.size(); ++i) {
 		DirectX::XMFLOAT3X3 endJointMat = pullRotation(endFrame.joints[i].transform);
 		DirectX::XMFLOAT3X3 beginJointMat = pullRotation(beginFrame.joints[i].transform);
 		DirectX::XMFLOAT3X3 interpolatedMat = lerpRotation(beginJointMat, endJointMat, ratio);
@@ -139,21 +116,17 @@ void Animator::Update()
 	}
 }
 
-void Animator::addAnim(const char * animFilePath, const char * bindposeFilePath, const char * animName)
-{
+void Animator::addAnim(const char * animFilePath, const char * bindposeFilePath, const char * animName) {
 	animations[std::string(animName)] = animMan->GetReferenceAnimation(animFilePath, bindposeFilePath);
-	if (!currAnim)
-	{
+	if(!currAnim) {
 		currAnim = animations[std::string(animName)];
 		tweens = animations[std::string(animName)]->keyframes[0].joints;
 	}
 }
 
-bool Animator::setState(const char * animName)
-{
+bool Animator::setState(const char * animName) {
 	Animation* toSet = animations[std::string(animName)];
-	if (toSet)
-	{
+	if(toSet) {
 		currAnim = toSet;
 		return true;
 	}

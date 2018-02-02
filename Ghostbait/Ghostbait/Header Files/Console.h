@@ -1,9 +1,6 @@
 #pragma once
 
-#include <windows.h>
-#include <iostream>
-#include <sstream>
-#include <string>
+#include <ostream> //required for koenig lookups
 
 enum class ConsoleColor {
 	LightGray = 7,
@@ -31,16 +28,7 @@ class Console {
 	static void* hConsole;
 	Console() {}
 
-	class OutputWriter: public std::streambuf {
-	public:
-		virtual int_type overflow(int_type c = EOF) {
-			if(c != EOF) {
-				TCHAR buf[] = {(TCHAR) c, '\0'};
-				OutputDebugString(buf);
-			}
-			return c;
-		}
-	};
+	class OutputWriter;
 
 	class WriteLiner {
 		std::streambuf* sbuf;
@@ -70,38 +58,7 @@ class Console {
 		}
 	};
 
-	class PrefixWriter: public std::streambuf {
-		std::string     prefix;
-		bool            need_prefix = true;
-		std::streambuf* sbuf;
-		ConsoleColor color;
-
-		int overflow(int c) {
-			if(c == std::char_traits<char>::eof()) {
-				return std::char_traits<char>::not_eof(c);
-			}
-			switch(c) {
-			case '\n':
-			case '\r':
-				need_prefix = true;
-				break;
-			default:
-				if(need_prefix) {
-					Console::SetColor(color);
-					this->sbuf->sputn(this->prefix.c_str(), this->prefix.size());
-					need_prefix = false;
-					Console::SetColor(ConsoleColor::Default);
-				}
-			}
-			auto res = this->sbuf->sputc(c);
-			return res;
-		}
-		int sync() {
-			return this->sbuf->pubsync();
-		}
-	public:
-		PrefixWriter(std::string prefix, std::streambuf* sbuf, ConsoleColor _color) : prefix(std::move(prefix)), sbuf(sbuf), color(_color) {}
-	};
+	class PrefixWriter;
 
 	static OutputWriter outputStream;
 	static PrefixWriter errorPrefix;
@@ -119,7 +76,7 @@ public:
 	static Writer		ErrorOut;
 	static WriteLiner   ErrorOutLine;
 
-	static std::string file_formatter(char* source);
+	static const char* file_formatter(char* source);
 
 	/// <summary>
 	/// Allocates memory for the Console.

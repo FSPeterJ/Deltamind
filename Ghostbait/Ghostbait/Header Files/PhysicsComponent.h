@@ -1,9 +1,9 @@
 #pragma once
 #include "RigidBody.h" // DirectXMath, vector
 #include"AABB.h"
+#include "ComponentBase.h"
 
 //class PhysicsManager;
-
 
 enum ColliderType {
 	SPHERE,
@@ -39,7 +39,6 @@ struct Collider {
 	bool isTrigger = false;
 };
 
-#include "ComponentBase.h"
 struct PhysicsComponent: public InstantiatedCompBase {
 	RigidBody rigidBody;
 	std::vector<Collider> colliders;
@@ -52,15 +51,5 @@ struct PhysicsComponent: public InstantiatedCompBase {
 	//	return true;
 	//}
 
-	bool AddCollider(ColliderData* _colData, float _offsetX = 0.0f, float _offsetY = 0.0f, float _offsetZ = 0.0f, bool _isTrigger = false) {
-		if (_colData) {
-			Collider temp;
-			temp.colliderData = _colData;
-			temp.centerOffset = DirectX::XMFLOAT3(_offsetX, _offsetY, _offsetZ);
-			temp.isTrigger = _isTrigger;
-			colliders.push_back(temp);
-			return true;
-		}
-		return false;
-	}
+	bool AddCollider(ColliderData* _colData, float _offsetX = 0.0f, float _offsetY = 0.0f, float _offsetZ = 0.0f, bool _isTrigger = false);
 };

@@ -1,11 +1,10 @@
 #pragma once
 #include <unordered_map>
 #include <vector>
-#include "GameObject.h"
-#include "AABB.h"
+#include <DirectXMath.h>
 
-struct Collider;
 struct PhysicsComponent;
+struct AABB;
 
 class SpatialPartition {
 	struct Unit {

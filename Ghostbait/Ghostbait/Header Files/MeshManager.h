@@ -2,7 +2,7 @@
 #include <Pool.h>
 #include <unordered_map>
 #include "IComponentManager.h"	// For Interface
-#include "ComponentBase.h"		// For Interface
+#include "ComponentBase.h"
 
 struct ID3D11Device;
 struct ID3D11Buffer;
@@ -10,7 +10,6 @@ struct ID3D11Buffer;
 // Highly doubt we will hit this
 #define MAX_MESHES 512
 
-#include "ComponentBase.h"
 struct Mesh: ComponentBase {
 	unsigned int meshId;
 	ID3D11Buffer* vertexBuffer;
@@ -35,5 +34,4 @@ public:
 	Mesh* GetReferenceComponent(const char * _FilePath, const char * _data) override;
 	Mesh* CloneComponent(ComponentBase* meshReference) override;
 	void ResetComponent(ComponentBase * reset) override;
-
 };

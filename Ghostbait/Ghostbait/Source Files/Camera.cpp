@@ -1,6 +1,7 @@
 #include "Camera.h"
+#include "GhostTime.h"
 #include "EngineStructure.h"
-#include "GhostTime.h" //To use deltatime use GhostTime::DeltaTime()
+#include <DirectXMath.h>
 using namespace DirectX;
 
 Camera::Camera() {
@@ -10,6 +11,8 @@ Camera::Camera() {
 }
 
 Camera::~Camera() {}
+
+void Camera::setCamera(const DirectX::XMFLOAT4X4 matrixToUse) { position = matrixToUse; }
 
 void Camera::setCameraPosition(const float x, const float y, const float z) {
 	position._41 = x;
@@ -120,7 +123,7 @@ void Camera::turnCameraTowards(XMFLOAT3 target, float speed) {
 }
 
 void Camera::moveCameraAlongForward(float speed) {
-	float dt = (float)GhostTime::DeltaTime();
+	float dt = (float) GhostTime::DeltaTime();
 	position._41 += position._31 * speed * dt;
 	position._42 += position._32 * speed * dt;
 	position._43 += position._33 * speed * dt;
@@ -128,7 +131,7 @@ void Camera::moveCameraAlongForward(float speed) {
 
 void Camera::Update() {
 	static float rotationY = 0.0f;
-	float dt = (float)GhostTime::DeltaTime();
+	float dt = (float) GhostTime::DeltaTime();
 	if(rotationY < -XM_2PI || rotationY > XM_2PI)
 		rotationY = 0.0f;
 

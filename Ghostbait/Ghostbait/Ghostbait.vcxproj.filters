@@ -177,6 +177,9 @@
     <ClInclude Include="Header Files\AnimatorManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Header Files\Material.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Header Files\SceneManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -251,9 +254,6 @@
     <ClCompile Include="Source Files\XTime.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source Files\EnemyBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -261,9 +261,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\Projectile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Console.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\ControllerObject.cpp">
@@ -290,6 +287,24 @@
     <ClCompile Include="Source Files\AnimatorManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source Files\PhysicsComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\Console.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\AABB.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\Controlable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\GameObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\Material.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Source Files\SceneManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -308,14 +323,14 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="PassThroughPositionColorVS.hlsl">
-      <Filter>Shaders\Vertex Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="PassThroughPS.hlsl">
       <Filter>Shaders\Pixel Shaders</Filter>
     </FxCompile>
     <FxCompile Include="StandardPixelShader.hlsl">
       <Filter>Shaders\Pixel Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="PassThroughPositionColorVS.hlsl">
+      <Filter>Shaders\Vertex Shaders</Filter>
     </FxCompile>
     <FxCompile Include="StandardVertexShader.hlsl">
       <Filter>Shaders\Vertex Shaders</Filter>

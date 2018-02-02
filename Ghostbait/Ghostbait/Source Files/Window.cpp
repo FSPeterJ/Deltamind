@@ -1,6 +1,5 @@
 #include "Window.h"
 #include "InputManager.h"
-
 Window::Window(UINT _w, UINT _h) {
 	width = _w; height = _h;
 	LoadStringW(hInstance, IDS_APP_TITLE, GetTitle(), MAX_LOADSTRING);

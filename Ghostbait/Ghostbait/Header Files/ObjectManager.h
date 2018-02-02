@@ -3,12 +3,13 @@
 #include "IComponentManager.h"
 #include "Pool.h"
 #include "Delegate.h"
-#include "Controlable.h"
+#include "TypeMapping.h"          // for TypeMap
+#include "ObjectFactory.h"
 
 class EventMessageBase;
+class GameObject;
 
 #define MAX_ENTITY_COUNT 16384
-
 
 class ObjectManager: public IManager {
 	Delegate<> Delete;
@@ -23,7 +24,6 @@ class ObjectManager: public IManager {
 	unsigned poolListCount;
 	size_t poolListNewIndex = 0;
 
-
 	void Destroy(EventMessageBase* e);
 
 public:
@@ -34,16 +34,15 @@ public:
 		unsigned typeID = TypeMap::GetObjectTypeID<PoolType>();
 		if(typeID < poolListCount) {
 			// HATE HATE HATE
-			Pool<PoolType>* data = new ((char*)poolList + (sizeof(Pool<size_t>) * typeID)) Pool<PoolType>((unsigned)size);
+			Pool<PoolType>* data = new ((char*) poolList + (sizeof(Pool<size_t>) * typeID)) Pool<PoolType>((unsigned) size);
 			Delete += [data]() { data->~Pool<PoolType>(); };
 			/*Update_Delegate += [data]() {
-				std::vector<PoolType*>* lst = data->GetActiveList();
-				for(size_t i = 0; i < data->GetActiveCount(); ++i) {
-					((PoolType*)lst->operator[](i))->Update();
-				}
+			std::vector<PoolType*>* lst = data->GetActiveList();
+			for(size_t i = 0; i < data->GetActiveCount(); ++i) {
+			((PoolType*)lst->operator[](i))->Update();
+			}
 			};*/
-		}
-		else {
+		} else {
 			throw std::exception("Attempted to allocate a pool at an index larger than the maximum ObjectPool collection size.");
 		}
 	}

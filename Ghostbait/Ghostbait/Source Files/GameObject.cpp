@@ -1,23 +1,17 @@
 #pragma once
-#include "Object.h"
-#include "Delegate.h"
-#include "EngineStructure.h"
 #include "GameObject.h"
-#include "MessageEvents.h"
 #include "GhostTime.h"
-#include "Console.h"
-#include "functional"
-
+#include "EngineStructure.h"
+#include "MessageEvents.h"
 
 GameObject::GameObject() {
 	//updateID = EngineStructure::Update.Add([=]() {this->Update(); });
 }
 
-void GameObject::OnCollision(GameObject* obj) {
-}
+void GameObject::OnCollision(GameObject* obj) {}
 
-//This is potentially dangerous if used incorrectly.  
-//Double Enable emplaces an update delegate that can never be removed.  
+//This is potentially dangerous if used incorrectly.
+//Double Enable emplaces an update delegate that can never be removed.
 void GameObject::Enable() {
 	//If check was added to prevent user error, but may be unecessary
 	if(!updateID) {
@@ -34,7 +28,7 @@ void GameObject::Disable() {
 
 	MessageEvents::SendQueueMessage(EVENT_Late, [=] {
 		if(updateID != 0) {
-			// This is because many people in the same update loop can tell you "hey, disable yourself" 
+			// This is because many people in the same update loop can tell you "hey, disable yourself"
 			// but only the first execution will disable the correct one. I do not have a quick solution to this problem
 			// Possibly confirming with a local bool or bitset for state information would be better than constructing a redundant lambda, but then this may be confusing and hard to debug later
 			// (Object tests as active half way through the update loop vs Object consistently tests as active the whole update loop and then is disabled with LateUpdate)
@@ -58,7 +52,7 @@ void GameObject::Destroy() {
 }
 
 void MenuCube::Update() {
-	position.m[3][1] += 0.4f * (float)GhostTime::DeltaTime();
+	position.m[3][1] += 0.4f * (float) GhostTime::DeltaTime();
 	if(position.m[3][1] > 1.5f) {
 		Disable();
 	}
@@ -67,18 +61,16 @@ void MenuCube::Update() {
 void MenuCube::OnCollision(GameObject* other) {
 	if(other->GetTag() == "Bullet") {
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, { 10, 0, 0 }));
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, { -10, 0, 0 }));
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, { 0, 0, 10 }));
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, { 0, 0, -10 }));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, {10, 0, 0}));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, {-10, 0, 0}));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, {0, 0, 10}));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, {0, 0, -10}));
 		GameObject* obj;
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(8/*Core*/, { 0, 1.5f, 0 }, &obj));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(8/*Core*/, {0, 1.5f, 0}, &obj));
 		DirectX::XMStoreFloat4x4(&obj->position,
 			DirectX::XMLoadFloat4x4(&obj->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
 	}
 }
-
-
 
 void CoreCube::OnCollision(GameObject* other) {
 	if(other->GetTag() == "enemy") {
@@ -86,7 +78,7 @@ void CoreCube::OnCollision(GameObject* other) {
 		Console::OutLine << "YOU LOSE!";
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 		GameObject* temper;
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(10/*LoseCube*/, { 0, 0.75f, 0 }, &temper));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(10/*LoseCube*/, {0, 0.75f, 0}, &temper));
 		DirectX::XMStoreFloat4x4(&temper->position, DirectX::XMLoadFloat4x4(&temper->position) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));
 	}
 }

@@ -1,9 +1,7 @@
 #pragma once
-#include <DirectXMath.h>
 #include <vector>
 #include "PhysicsComponent.h" //This can probably be forward declared with notable effort
 #include "Pool.h"
-
 
 class GameObject;
 
@@ -23,13 +21,13 @@ class PhysicsManager: public IComponentManager {
 	ColliderData* AddColliderData(float x1, float y1, float z1, float x2, float y2, float z2);
 
 	void CollisionCheck(PhysicsComponent component1, PhysicsComponent component2);
-	
+
 	void TestAllComponentsCollision();
 	bool SphereToSphereCollision(Collider col1, DirectX::XMVECTOR& pos1, Collider col2, DirectX::XMVECTOR& pos2);
 	bool CapsuleToCapsuleCollision(Collider col1, DirectX::XMMATRIX& pos1, Collider col2, DirectX::XMMATRIX& pos2);
 	bool CapsuleToSphereCollision(Collider capCol, DirectX::XMMATRIX& capPos, Collider sphCol, DirectX::XMMATRIX& sphPos);
 	bool BoxToBoxCollision();
-	void SendCollision(GameObject* obj1,GameObject* obj2);
+	void SendCollision(GameObject* obj1, GameObject* obj2);
 	//bool BoxToCapsuleCollision();
 	//bool CapsuleToSphereCollision();
 	//bool BoxToSphereCollision();

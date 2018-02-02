@@ -7,7 +7,7 @@ SpatialPartition::Unit::Unit() {
 SpatialPartition::Unit::Unit(PhysicsComponent* comp) {
 	AddComponent(comp);
 }
-uint32_t SpatialPartition::Unit::FindComponent(PhysicsComponent* comp) {
+int64_t SpatialPartition::Unit::FindComponent(PhysicsComponent* comp) {
 	for (uint32_t i = 0; i < (uint32_t)components.size(); ++i) {
 		//TODO Does this comparison work?
 		if (comp == components[i]) {
@@ -26,7 +26,7 @@ bool SpatialPartition::Unit::AddComponent(PhysicsComponent* comp) {
 	return false;
 }
 bool SpatialPartition::Unit::RemoveComponent(PhysicsComponent* comp) {
-	int index = FindComponent(comp);
+	int64_t index = FindComponent(comp);
 	if (index >= 0) {
 		//TODO: Does this work like I expect?
 		components.erase(components.begin() + index);
@@ -47,8 +47,12 @@ uint32_t SpatialPartition::Hash(const float x, const float y, const float z) {
 	const int h1 = 0x8da6b343;	// Arbitrary, large primes.
 	const int h2 = 0xd8163841;	// Primes are popular for hash functions
 	const int h3 = 0xcb1ab31f;	// for reducing the chance of hash collision.
-	uint32_t n = (uint32_t)(h1*x + h2*y + h3*z);
+	int cellX = (int)(x / unitSize);
+	int cellY = (int)(y / unitSize);
+	int cellZ = (int)(z / unitSize);
+	uint32_t n = (uint32_t)(h1*cellX + h2*cellY + h3*cellZ);
 	n = n % bucketCount;	// Wrap indices to stay in bucket range
+	//Console::WriteLine << cellX << ", " << cellY << ", " << cellZ << "  bucket: " << n;
 	if (n < 0) n += bucketCount;	// Keep indices in positive range
 	return n;
 }
@@ -132,15 +136,18 @@ void SpatialPartition::UpdateComponent(PhysicsComponent* component) {
 const std::vector<PhysicsComponent*> SpatialPartition::GetComponentsToTest(const PhysicsComponent* component) {
 	std::vector<PhysicsComponent*> testComps;
 	std::vector<uint32_t> indicies = Hash(component->currentAABB);
+	//Console::WriteLine << (int)indicies.size();
 	//for every bin
 	for (unsigned int index = 0; index < indicies.size(); ++index) {
 		//for every component in that bin
 		for (unsigned int newComp = 0; newComp < table[indicies[index]].components.size(); ++newComp) {
 			//is it a dupe, or do I add it?
+			if (table[indicies[index]].components[newComp] == component)
+				continue;
+
 			bool found = false;
 			for (unsigned int oldComp = 0; oldComp < testComps.size(); ++oldComp) {
-				if (table[indicies[index]].components[newComp] == testComps[oldComp] || 
-					table[indicies[index]].components[newComp] == component) {
+				if (table[indicies[index]].components[newComp] == testComps[oldComp]) {
 					found = true;
 					break;
 				}

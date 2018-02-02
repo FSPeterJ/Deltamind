@@ -430,14 +430,18 @@ void PhysicsManager::SendCollision(GameObject* obj1, GameObject* obj2) {
 
 void PhysicsManager::TestAllComponentsCollision() {
 	//Console::WriteLine((int)components.GetActiveCount());
+	static int counter;
+	counter = 0;
 	std::vector<PhysicsComponent*> collidingList;
 	int range = (int)components.GetActiveCount();
 	for(int comp1 = 0; comp1 < range; ++comp1) {
 		collidingList = partitionSpace.GetComponentsToTest(&components[comp1]);
 		for(int comp2 = 0; comp2 < collidingList.size(); ++comp2) {
 			CollisionCheck(components[comp1], *(collidingList[comp2]));
+			counter++;
 		}
 	}
+	Console::WriteLine << counter;
 }
 
 #pragma endregion

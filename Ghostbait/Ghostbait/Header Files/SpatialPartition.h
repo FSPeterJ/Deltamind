@@ -13,7 +13,7 @@ class SpatialPartition {
 
 		Unit();
 		Unit(PhysicsComponent* comp);
-		uint32_t FindComponent(PhysicsComponent* comp);
+		int64_t FindComponent(PhysicsComponent* comp);
 		bool AddComponent(PhysicsComponent* comp);
 		bool RemoveComponent(PhysicsComponent* comp);
 	};

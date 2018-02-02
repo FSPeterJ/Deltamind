@@ -112,6 +112,8 @@ bool SpatialPartition::RemoveComponent(PhysicsComponent* component, PositionOpti
 			if (table.find(indicies[i]) != table.end()) {
 				if (table[indicies[i]].RemoveComponent(component)) {
 					foundAndRemoved = true;
+					if (table[indicies[i]].components.size() <= 0)
+						table.erase(indicies[i]);
 				}
 			}
 		}

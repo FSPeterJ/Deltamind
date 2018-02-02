@@ -2,7 +2,7 @@
 #include "Messagebox.h"
 #include "VRManager.h"    // for VRManager, VRManager::VRController, VRManager::leftController
 #include "MessageEvents.h"
-
+#include "Console.h"
 #include "MessageStructs.h"  // for Control
 
 #define RAD_PI 3.14159265359
@@ -66,6 +66,9 @@ InputManager::VRInput::VRInput(VRManager* vrManager) {
 	MapKey(leftAttack, 6);
 	MapKey(rightAttack, 7);
 	MapKey(menu, 8);
+	MapKey(leftTouch, 9);
+	MapKey(rightTouch, 10);
+
 }
 bool InputManager::VRInput::MapKey(Control control, int key) {
 	if(keyBind.find(control) != keyBind.end()) {
@@ -74,24 +77,46 @@ bool InputManager::VRInput::MapKey(Control control, int key) {
 	} else { return false; }
 }
 InputPackage InputManager::VRInput::CheckForInput() {
+	static bool leftTouchpadTouched = false;
+	static bool rightTouchpadTouched = false;
 	Control input = none;
 	float amount = 0;
-
+	vr::VRControllerState_t state;
 	vr::VREvent_t event;
+	
+	
+	if (leftTouchpadTouched) {
+		vrMan->pVRHMD->GetControllerState(vrMan->leftController.index, &state, sizeof(state));
+		leftTPX = state.rAxis[0].x;
+		leftTPY = state.rAxis[0].y;
+	}
+	if (rightTouchpadTouched) {
+		vrMan->pVRHMD->GetControllerState(vrMan->rightController.index, &state, sizeof(state));
+		rightTPX = state.rAxis[0].x;
+		rightTPY = state.rAxis[0].y;
+	}
+
 	while(vrMan->pVRHMD->PollNextEvent(&event, sizeof(event))) {
 		switch(event.eventType) {
 		case vr::VREvent_ButtonTouch:
 		{
 			if(event.data.controller.button == vr::k_EButton_SteamVR_Touchpad) {
-				vr::VRControllerState_t state;
 				if(event.trackedDeviceIndex == vrMan->leftController.index) {
+					leftTouchpadTouched = true;
 					vrMan->pVRHMD->GetControllerState(vrMan->leftController.index, &state, sizeof(state));
 					leftTPX = state.rAxis[0].x;
 					leftTPY = state.rAxis[0].y;
-				} else {
+					Console::WriteLine << "Touched!!";
+					input = leftTouch;
+					amount = 1.0f;
+				} 
+				else {
+					rightTouchpadTouched = true;
 					vrMan->pVRHMD->GetControllerState(vrMan->rightController.index, &state, sizeof(state));
 					rightTPX = state.rAxis[0].x;
 					rightTPY = state.rAxis[0].y;
+					input = rightTouch;
+					amount = 1.0f;
 				}
 			}
 			break;
@@ -99,6 +124,16 @@ InputPackage InputManager::VRInput::CheckForInput() {
 		case vr::VREvent_ButtonUntouch:
 		{
 			if(event.data.controller.button == vr::k_EButton_SteamVR_Touchpad) {
+				if (event.trackedDeviceIndex == vrMan->leftController.index) {
+					leftTouchpadTouched = false;
+					input = leftTouch;
+					amount = 0.0f;
+				}
+				else {
+					rightTouchpadTouched = false;
+					input = rightTouch;
+					amount = 0.0f;
+				}
 			}
 			break;
 		}
@@ -179,8 +214,8 @@ InputPackage InputManager::VRInput::CheckForInput() {
 		}
 		}
 	}
+	
 	InputPackage message(input, amount);
-
 	return message;
 }
 

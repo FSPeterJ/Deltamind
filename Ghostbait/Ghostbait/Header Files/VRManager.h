@@ -14,6 +14,11 @@ class ControllerObject;
 
 #define FLOAT4X4Identity DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
+enum class VRControllerType {
+	Left,
+	Right
+};
+
 class VRManager {
 private:
 	DirectX::XMFLOAT4X4 leftProj;
@@ -53,6 +58,8 @@ public:
 	bool Init();
 
 	void CreateControllers();
+
+	void Vibrate(VRControllerType ctrl, unsigned short durationMs);
 
 	void GetVRMatrices(DirectX::XMFLOAT4X4* leftProj, DirectX::XMFLOAT4X4* rightProj, DirectX::XMFLOAT4X4* leftView, DirectX::XMFLOAT4X4* rightView);
 	void SendToHMD(void* leftTexture, void* rightTexture);

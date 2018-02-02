@@ -41,5 +41,5 @@ public:
 	bool RemoveComponent(PhysicsComponent* component, PositionOption option = Both);
 	void UpdateComponent(PhysicsComponent* component);
 
-	const std::vector<PhysicsComponent*> GetComponentsToTest(const PhysicsComponent* component);
+	const std::vector<PhysicsComponent*> GetComponentsToTest();
 };

@@ -88,14 +88,6 @@ void Animator::Update() {
 	else
 		ratio = (float) (timePos / endFrame.endTime);
 
-	for(size_t i = 1; i < beginFrame.joints.size(); ++i) {
-		bindpose* bPose = currAnim->bPose;
-		DirectX::XMFLOAT3 beginPos = DirectX::XMFLOAT3(beginFrame.joints[i].transform._41, beginFrame.joints[i].transform._42, beginFrame.joints[i].transform._43);
-		DirectX::XMFLOAT3 endPos = DirectX::XMFLOAT3(beginFrame.joints[beginFrame.joints[i].parent_index].transform._41,
-			beginFrame.joints[beginFrame.joints[i].parent_index].transform._42,
-			beginFrame.joints[beginFrame.joints[i].parent_index].transform._43);
-		DebugRenderer::AddLine(beginPos, endPos, DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f));
-	}
 	for(size_t i = 0; i < tweens.size(); ++i) {
 		DirectX::XMFLOAT3X3 endJointMat = pullRotation(endFrame.joints[i].transform);
 		DirectX::XMFLOAT3X3 beginJointMat = pullRotation(beginFrame.joints[i].transform);

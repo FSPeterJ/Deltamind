@@ -107,28 +107,31 @@ void DebugRenderer::AddBox(ColliderData* cIn, DirectX::XMFLOAT3 color) {
 }
 
 void DebugRenderer::AddSphere(DirectX::XMFLOAT3 pos, float radius, DirectX::XMFLOAT3 color) {
+	
+	//http://blog.andreaskahler.com/2009/06/creating-icosphere-mesh-in-code.html
+
 	if(tri_count + 60 > MAX_VERTS)
 		return;
 	const float t = (1.0f + sqrt(5.0f))*0.5f;
-	float correctedR = radius / sqrt(t*t + 1.0f);
+	float correctedR = (radius + 0.005f) / sqrt(t*t + 1.0f);
 
 	VertexPositionColor verts[12];
 	VertexPositionColor toBuffer[60];
 
-	XMStoreFloat3(&verts[0].pos, XMLoadFloat3(&pos) + (radius * XMLoadFloat3(&XMFLOAT3(-1.0f, t, 0.0f))));
-	XMStoreFloat3(&verts[1].pos, XMLoadFloat3(&pos) + (radius * XMLoadFloat3(&XMFLOAT3(1.0f, t, 0.0f))));
-	XMStoreFloat3(&verts[2].pos, XMLoadFloat3(&pos) + (radius * XMLoadFloat3(&XMFLOAT3(-1.0f, -t, 0.0f))));
-	XMStoreFloat3(&verts[3].pos, XMLoadFloat3(&pos) + (radius * XMLoadFloat3(&XMFLOAT3(1.0f, -t, 0.0f))));
-
-	XMStoreFloat3(&verts[4].pos, XMLoadFloat3(&pos) + (radius * XMLoadFloat3(&XMFLOAT3(0.0f, -1.0f, t))));
-	XMStoreFloat3(&verts[5].pos, XMLoadFloat3(&pos) + (radius * XMLoadFloat3(&XMFLOAT3(0.0f, 1.0f, t))));
-	XMStoreFloat3(&verts[6].pos, XMLoadFloat3(&pos) + (radius * XMLoadFloat3(&XMFLOAT3(0.0f, -1.0f, -t))));
-	XMStoreFloat3(&verts[7].pos, XMLoadFloat3(&pos) + (radius * XMLoadFloat3(&XMFLOAT3(0.0f, 1.0f, -t))));
-
-	XMStoreFloat3(&verts[8].pos, XMLoadFloat3(&pos) + (radius * XMLoadFloat3(&XMFLOAT3(t, 0.0f, -1.0f))));
-	XMStoreFloat3(&verts[9].pos, XMLoadFloat3(&pos) + (radius * XMLoadFloat3(&XMFLOAT3(t, 0.0f, 1.0f))));
-	XMStoreFloat3(&verts[10].pos, XMLoadFloat3(&pos) + (radius * XMLoadFloat3(&XMFLOAT3(-t, 0.0f, -1.0f))));
-	XMStoreFloat3(&verts[11].pos, XMLoadFloat3(&pos) + (radius * XMLoadFloat3(&XMFLOAT3(-t, 0.0f, 1.0f))));
+	XMStoreFloat3(&verts[0].pos, XMLoadFloat3(&pos) + (correctedR * XMLoadFloat3(&XMFLOAT3(-1.0f, t, 0.0f))));
+	XMStoreFloat3(&verts[1].pos, XMLoadFloat3(&pos) + (correctedR * XMLoadFloat3(&XMFLOAT3(1.0f, t, 0.0f))));
+	XMStoreFloat3(&verts[2].pos, XMLoadFloat3(&pos) + (correctedR * XMLoadFloat3(&XMFLOAT3(-1.0f, -t, 0.0f))));
+	XMStoreFloat3(&verts[3].pos, XMLoadFloat3(&pos) + (correctedR * XMLoadFloat3(&XMFLOAT3(1.0f, -t, 0.0f))));
+													   
+	XMStoreFloat3(&verts[4].pos, XMLoadFloat3(&pos) + (correctedR * XMLoadFloat3(&XMFLOAT3(0.0f, -1.0f, t))));
+	XMStoreFloat3(&verts[5].pos, XMLoadFloat3(&pos) + (correctedR * XMLoadFloat3(&XMFLOAT3(0.0f, 1.0f, t))));
+	XMStoreFloat3(&verts[6].pos, XMLoadFloat3(&pos) + (correctedR * XMLoadFloat3(&XMFLOAT3(0.0f, -1.0f, -t))));
+	XMStoreFloat3(&verts[7].pos, XMLoadFloat3(&pos) + (correctedR * XMLoadFloat3(&XMFLOAT3(0.0f, 1.0f, -t))));
+													   
+	XMStoreFloat3(&verts[8].pos, XMLoadFloat3(&pos) + (correctedR * XMLoadFloat3(&XMFLOAT3(t, 0.0f, -1.0f))));
+	XMStoreFloat3(&verts[9].pos, XMLoadFloat3(&pos) + (correctedR * XMLoadFloat3(&XMFLOAT3(t, 0.0f, 1.0f))));
+	XMStoreFloat3(&verts[10].pos, XMLoadFloat3(&pos) + (correctedR * XMLoadFloat3(&XMFLOAT3(-t, 0.0f, -1.0f))));
+	XMStoreFloat3(&verts[11].pos, XMLoadFloat3(&pos) + (correctedR * XMLoadFloat3(&XMFLOAT3(-t, 0.0f, 1.0f))));
 
 	for(int i = 0; i < 12; ++i)
 		verts[i].color = color;

@@ -23,6 +23,7 @@
 #include "ViveController.h"
 #include "ControllerObject.h"
 #include "Spawner.h"
+#include "PhysicsTestObj.h"
 
 Renderer* rendInter;
 VRManager* vrMan;
@@ -118,6 +119,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<EnemyBase>(32);
 	ObjectFactory::RegisterPrefabBase<MenuCube>(5);
 	ObjectFactory::RegisterPrefabBase<CoreCube>(5);
+	ObjectFactory::RegisterPrefabBase<PhysicsTestObj>(32);
+
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
 	ObjectFactory::RegisterManager<PhysicsComponent, PhysicsManager>(phyMan);
 	ObjectFactory::RegisterManager<Material, MaterialManager>(rendInter->getMaterialManager());
@@ -133,6 +136,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<MenuCube>("MenuCube");
 	TypeMap::RegisterObjectAlias<CoreCube>("CoreCube");
 	TypeMap::RegisterObjectAlias<GameObject>("GameObject");
+	TypeMap::RegisterObjectAlias<PhysicsTestObj>("PhysicsTestObj");
 
 	//------
 	// Scenemanager would make this
@@ -150,6 +154,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/Teddy.ghost"));
 
+	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest1.ghost")); //12
+	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest2.ghost")); //13
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object"));
 	//ObjectFactory::CreatePrefab(&std::string("SomeCoolObject"));
@@ -162,13 +168,22 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	if(isVR) vrMan->CreateControllers();
 	DirectX::XMFLOAT4X4 roomMatrix;
 	DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * DirectX::XMMatrixTranslation(0, 3, 0));
-	MenuCube* startCube;
+	//MenuCube* startCube;
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(3, roomMatrix));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(7, {0, 1.5f, 0.0f}, (GameObject**)&startCube));
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage("startCube", {4, 1.5f, 0.0f}, (GameObject**)&startCube));
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(11, { 0, 0, 0 }, nullptr));
-	DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
-	startCube->Enable();
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage("startCube", {4, 1.5f, 0.0f}, (GameObject**)&startCube));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(11, { 0, 0, 0 }, nullptr));
+	//DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
+	//startCube->Enable();
+
+	GameObject *test1, *test2;
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 0.0f, 2.0f, -1.0f }, &test1));
+	DirectX::XMStoreFloat4x4(&test1->position, DirectX::XMLoadFloat4x4(&test1->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
+
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 0.0f, 2.0f, 0.0f }, &test2));
+
+	dynamic_cast<PhysicsTestObj*>(test1)->isControllable = true;
+	//test2->Enable();
 
 	//	Object* cube1, *cube2;
 

@@ -71,7 +71,7 @@ std::vector<uint32_t> SpatialPartition::Hash(const AABB aabb) {
 	for (int point = 0; point < 8; ++point) {
 		index = Hash(points[point]);
 		bool found = false;
-		for (int exist = 0; exist < indicies.size(); ++exist) {
+		for (unsigned int exist = 0; exist < indicies.size(); ++exist) {
 			if (index == indicies[exist]) {
 				found = true;
 				break;
@@ -85,7 +85,7 @@ std::vector<uint32_t> SpatialPartition::Hash(const AABB aabb) {
 bool SpatialPartition::AddComponent(PhysicsComponent* component) {
 	bool anythingAdded = false;
 	std::vector<uint32_t> indicies = Hash(component->currentAABB);
-	for (int i = 0; i < indicies.size(); ++i) {
+	for (unsigned int i = 0; i < indicies.size(); ++i) {
 		if (table.find(indicies[i]) != table.end()) {
 			if (table[indicies[i]].AddComponent(component)) {
 				anythingAdded = true;
@@ -104,7 +104,7 @@ bool SpatialPartition::RemoveComponent(PhysicsComponent* component, PositionOpti
 	if (option != Both) {
 		if (option == Current) indicies = Hash(component->currentAABB);
 		else if (option == Previous) indicies = Hash(component->previousAABB);
-		for (int i = 0; i < indicies.size(); ++i) {
+		for (unsigned int i = 0; i < indicies.size(); ++i) {
 			if (table.find(indicies[i]) != table.end()) {
 				if (table[indicies[i]].RemoveComponent(component)) {
 					foundAndRemoved = true;
@@ -133,12 +133,12 @@ const std::vector<PhysicsComponent*> SpatialPartition::GetComponentsToTest(const
 	std::vector<PhysicsComponent*> testComps;
 	std::vector<uint32_t> indicies = Hash(component->currentAABB);
 	//for every bin
-	for (int index = 0; index < indicies.size(); ++index) {
+	for (unsigned int index = 0; index < indicies.size(); ++index) {
 		//for every component in that bin
-		for (int newComp = 0; newComp < table[indicies[index]].components.size(); ++newComp) {
+		for (unsigned int newComp = 0; newComp < table[indicies[index]].components.size(); ++newComp) {
 			//is it a dupe, or do I add it?
 			bool found = false;
-			for (int oldComp = 0; oldComp < testComps.size(); ++oldComp) {
+			for (unsigned int oldComp = 0; oldComp < testComps.size(); ++oldComp) {
 				if (table[indicies[index]].components[newComp] == testComps[oldComp] || 
 					table[indicies[index]].components[newComp] == component) {
 					found = true;

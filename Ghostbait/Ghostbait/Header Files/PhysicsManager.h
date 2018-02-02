@@ -25,6 +25,7 @@ class PhysicsManager: public IComponentManager {
 	void CollisionCheck(PhysicsComponent component1, PhysicsComponent component2);
 	
 	void TestAllComponentsCollision();
+	bool IsVectorZero(DirectX::XMVECTOR& _toTest);
 	bool SphereToSphereCollision(Collider col1, DirectX::XMVECTOR& pos1, Collider col2, DirectX::XMVECTOR& pos2);
 	bool CapsuleToCapsuleCollision(Collider col1, DirectX::XMMATRIX& pos1, Collider col2, DirectX::XMMATRIX& pos2);
 	bool CapsuleToSphereCollision(Collider capCol, DirectX::XMMATRIX& capPos, Collider sphCol, DirectX::XMMATRIX& sphPos);

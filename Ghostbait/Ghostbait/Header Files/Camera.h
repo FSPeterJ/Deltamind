@@ -1,5 +1,4 @@
 #pragma once
-#include <DirectXMath.h>
 #include "GameObject.h"
 #include "Controlable.h"
 class Camera: public GameObject, public Controlable {
@@ -8,7 +7,7 @@ public:
 	Camera();
 	~Camera();
 
-	void setCamera(const DirectX::XMFLOAT4X4 matrixToUse) { position = matrixToUse; }
+	void setCamera(const DirectX::XMFLOAT4X4 matrixToUse);
 
 	void setCameraPosition(const float x, const float y, const float z);
 	void setCameraRotationDegrees(const float x, const float y, const float z);

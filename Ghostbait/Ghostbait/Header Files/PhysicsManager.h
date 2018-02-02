@@ -1,5 +1,4 @@
 #pragma once
-#include <DirectXMath.h>
 #include <vector>
 #include "PhysicsComponent.h" //This can probably be forward declared with notable effort
 #include "Pool.h"

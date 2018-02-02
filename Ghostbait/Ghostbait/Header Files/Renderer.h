@@ -1,9 +1,8 @@
 #pragma once
-
+#include <DirectXMath.h>
 #include <d3d11.h>
 #include "Window.h"
 #include <vector>
-#include <DirectXMath.h>
 
 class Camera;
 class GameObject;

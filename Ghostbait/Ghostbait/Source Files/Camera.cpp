@@ -1,6 +1,7 @@
 #include "Camera.h"
-#include "GhostTime.h" //To use deltatime use GhostTime::DeltaTime()
+#include "GhostTime.h"
 #include "EngineStructure.h"
+#include <DirectXMath.h>
 using namespace DirectX;
 
 Camera::Camera() {
@@ -10,6 +11,8 @@ Camera::Camera() {
 }
 
 Camera::~Camera() {}
+
+void Camera::setCamera(const DirectX::XMFLOAT4X4 matrixToUse) { position = matrixToUse; }
 
 void Camera::setCameraPosition(const float x, const float y, const float z) {
 	position._41 = x;

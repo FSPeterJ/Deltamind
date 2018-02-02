@@ -1,6 +1,7 @@
 #include "PhysicsManager.h"
 #include "DebugRenderer.h"
 #include "GameObject.h"
+#include <DirectXMath.h>
 
 Collider PhysicsManager::defaultColider;
 ColliderData PhysicsManager::defaultSphereColider;

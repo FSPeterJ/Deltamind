@@ -7,6 +7,7 @@
 #include "MaterialManager.h"
 #include "Camera.h"
 #include "Animator.h"
+
 using namespace DirectX;
 
 void Renderer::createDeviceContextAndSwapchain(Window window) {

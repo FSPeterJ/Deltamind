@@ -61,7 +61,7 @@ namespace GhostbaitModelCreator.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of ComponentData System.Drawing.Bitmap.
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap Ghostbait {
             get {

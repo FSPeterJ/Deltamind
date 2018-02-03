@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -72,65 +73,99 @@ namespace GhostbaitModelCreator {
             ANIMATION = 1 << 5,
         }
 
-        internal class BaseComponent
+        public class BaseComponent
         {
-            private string ComponentIdentifier;
-            private string ComponentTag;
+            public string ComponentIdentifier { get; set; }
+
+            //WHAT THE FUCK - DataGridView can't Bind without get.
+            public string ComponentTag { get; set; }
         }
 
-        internal class BaseComponentGroup<T>
+        public class BaseComponentGroup<T>
         {
-            protected List<T> componentList;
+            public BindingList<T> componentList;
 
-            protected DataGridView dataGridView;
+            public DataGridView dataGridView;
 
             public void Add(T comp)
             {
                 componentList.Add(comp);
+                dataGridView.Refresh();
+                
             }
 
             public void Init(DataGridView _DataGridView)
             {
-                componentList = new List<T>();
+                componentList = new BindingList<T>();
 
                 dataGridView = _DataGridView;
-                dataGridView.AutoGenerateColumns = false;
+                //dataGridView.AutoGenerateColumns = false;
                 dataGridView.AllowUserToAddRows = false;
 
-                dataGridView.DataSource = componentList;
                 DataGridViewTextBoxColumn ComponentColumn = new DataGridViewTextBoxColumn();
                 ComponentColumn.Name = "ComponentIdentifier";
+                ComponentColumn.ReadOnly = false;
                 ComponentColumn.HeaderText = "Component";
                 ComponentColumn.DataPropertyName = "ComponentIdentifier";
                 dataGridView.Columns.Add(ComponentColumn);
+                ComponentColumn.DisplayIndex = 0;
 
-                DataGridViewTextBoxColumn ComponentData = new DataGridViewTextBoxColumn();
-                ComponentData.Name = "ComponentData";
-                ComponentData.HeaderText = "Data";
-                ComponentData.DataPropertyName = "ComponentData";
-                ComponentData.Visible = false;
-                dataGridView.Columns.Add(ComponentData);
 
                 DataGridViewTextBoxColumn ComponentTag = new DataGridViewTextBoxColumn();
                 ComponentTag.Name = "ComponentTag";
                 ComponentTag.HeaderText = "Tag";
+                ComponentTag.ReadOnly = false;
                 ComponentTag.DataPropertyName = "ComponentTag";
                 dataGridView.Columns.Add(ComponentTag);
+                ComponentTag.DisplayIndex = 1;
 
-                
+
+
                 InternalInit();
+                dataGridView.DataSource = componentList;
             }
+
+            
 
             protected virtual void InternalInit() { }
         }
 
-        internal class ColliderGroup : BaseComponentGroup<ColliderCreatorForm.ColliderData>
+
+
+        public class ColliderGroup : BaseComponentGroup<ColliderCreatorForm.ColliderData>
         {
             protected override void InternalInit()
             {
-                dataGridView.Columns["ComponentData"].Visible = true;
                 dataGridView.Columns["ComponentIdentifier"].Visible = false;
+                //dataGridView.CellFormatting += this.CellFormat;
+
+                DataGridViewTextBoxColumn ComponentData = new DataGridViewTextBoxColumn();
+                ComponentData.Name = "colliderType";
+                ComponentData.HeaderText = "Data";
+                ComponentData.DataPropertyName = "colliderType";
+                dataGridView.Columns.Add(ComponentData);
+                ComponentData.DisplayIndex = 0;
             }
+
+
+            //Save this if type conversion is needed later
+            //private void CellFormat(object sender, DataGridViewCellFormattingEventArgs e)
+            //{
+            //    DataGridView ex = sender as DataGridView;
+            //    if (ex.Columns[e.ColumnIndex].Name == "colliderType")
+            //    {
+            //        ;
+            //        if (e.Value != null)
+            //        {
+            //            e.Value = ((ColliderCreatorForm.ColliderType)e.Value).ToString();
+            //        }
+            //        else
+            //        {
+            //            e.Value ="NULL";
+            //        } 
+
+            //    }
+            //}
         }
 
 
@@ -140,13 +175,13 @@ namespace GhostbaitModelCreator {
             public int ColliderCount => colliderList.Count;
 
             public void AddCollider(ColliderCreatorForm.ColliderData col) {
-                dataGridView.Items.Add(col.type);
+                dataGridView.Items.Add(col.colliderType);
                 colliderList.Add(col);
             }
 
             public void Edit(ColliderCreatorForm.ColliderData col, int index) {
                 colliderList[index] = col;
-                dataGridView.Items[index] = col.type;
+                dataGridView.Items[index] = col.colliderType;
             }
 
             public ColliderCreatorForm.ColliderData GetCollider(int index) {
@@ -481,16 +516,19 @@ namespace GhostbaitModelCreator {
                             {
                                 var stringCol = new string(reader.ReadChars(reader.ReadInt32()));
                                 stringCol = stringCol.Remove(stringCol.Length - 1);
-                                if (!Enum.TryParse(stringCol, out colData.type))
+                                ColliderCreatorForm.ColliderType temp;
+                                if (!Enum.TryParse(stringCol, out temp))
                                 {
                                     MessageBox.Show("Invalid Collider Type!", $@"The Collider string.Empty{stringCol}string.Empty is not a valid collider.", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                    //return;
+                                    return;
+                                    
                                 }
+                                colData.colliderType = temp;
                                 colData.offsetX = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
                                 colData.offsetY = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
                                 colData.offsetZ = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
 
-                                switch (colData.type)
+                                switch (colData.colliderType)
                                 {
                                     case ColliderCreatorForm.ColliderType.SPHERE:
                                         colData.radius = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
@@ -588,11 +626,11 @@ namespace GhostbaitModelCreator {
                         string physicsName = "Physical\0";
                         for (int i = 0; i < colliders.ColliderCount; ++i) {
                             //Type
-                            colliderDataSize += sizeof(Int32) + colliders.GetCollider(i).type.ToString().Length + 1;
+                            colliderDataSize += sizeof(Int32) + colliders.GetCollider(i).colliderType.ToString().Length + 1;
                             //Offset
                             colliderDataSize += sizeof(float) * 3;
                             //Custom Data
-                            switch (colliders.GetCollider(i).type) {
+                            switch (colliders.GetCollider(i).colliderType) {
                                 case ColliderCreatorForm.ColliderType.SPHERE:
                                     colliderDataSize += sizeof(float);
                                     break;
@@ -616,7 +654,7 @@ namespace GhostbaitModelCreator {
                         writer.Write(colliders.ColliderCount);
                         for (int i = 0; i < colliders.ColliderCount; ++i) {
                             //Type
-                            var enumString = colliders.GetCollider(i).type.ToString() + '\0';
+                            var enumString = colliders.GetCollider(i).colliderType.ToString() + '\0';
                             writer.Write(enumString.Length);
                             writer.Write(enumString.ToCharArray());
                             //Offset
@@ -624,7 +662,7 @@ namespace GhostbaitModelCreator {
                             writer.Write(colliders.GetCollider(i).offsetY);
                             writer.Write(colliders.GetCollider(i).offsetZ);
                             //Custom Data
-                            switch (colliders.GetCollider(i).type) {
+                            switch (colliders.GetCollider(i).colliderType) {
                                 case ColliderCreatorForm.ColliderType.SPHERE:
                                     writer.Write(colliders.GetCollider(i).radius);
                                     break;
@@ -729,6 +767,16 @@ namespace GhostbaitModelCreator {
         }
 
         private void dataGridViewColliders_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void groupBox3_Enter(object sender, EventArgs e)
         {
 
         }

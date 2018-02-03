@@ -6,12 +6,12 @@ namespace GhostbaitModelCreator {
     public partial class ColliderCreatorForm : Form {
 
         public enum ColliderType {
-            SPHERE,
-            CAPSULE,
-            BOX,
+            SPHERE =0,
+            CAPSULE =1,
+            BOX = 2,
         }
 
-        internal class ColliderData : ModelCreatorForm.BaseComponent
+        public class ColliderData : ModelCreatorForm.BaseComponent
         {
 
             //Capsule
@@ -27,7 +27,7 @@ namespace GhostbaitModelCreator {
             //Sphere
             public float radius;
 
-            public ColliderType type;
+            public ColliderType colliderType { get; set; }
         }
 
         private bool edit = false;
@@ -49,7 +49,7 @@ namespace GhostbaitModelCreator {
 
             edit = true;
             editingIndex = index;
-            switch (col.type) {
+            switch (col.colliderType) {
                 case ColliderType.SPHERE:
                     spherePanel.Visible = true;
                     capsulePanel.Visible = false;
@@ -75,7 +75,7 @@ namespace GhostbaitModelCreator {
                     break;
             }
 
-            colliderType.SelectedItem = col.type;
+            colliderType.SelectedItem = col.colliderType;
 
             colliderOffsetX.Value = (decimal)col.offsetX;
             colliderOffsetY.Value = (decimal)col.offsetY;
@@ -132,13 +132,13 @@ namespace GhostbaitModelCreator {
 
         private void createButton_Click(object sender, EventArgs e) {
             newCol = new ColliderData {
-                type = (ColliderType)Enum.Parse(typeof(ColliderType), colliderType.Items[colliderType.SelectedIndex].ToString(), true),
+                colliderType = (ColliderType)Enum.Parse(typeof(ColliderType), colliderType.Items[colliderType.SelectedIndex].ToString(), true),
                 offsetX = (float)colliderOffsetX.Value,
                 offsetY = (float)colliderOffsetY.Value,
                 offsetZ = (float)colliderOffsetZ.Value,
             };
 
-            switch (newCol.type) {
+            switch (newCol.colliderType) {
                 case ColliderType.SPHERE:
                     newCol.radius = (float)sphereRadius.Value;
                     break;
@@ -164,7 +164,9 @@ namespace GhostbaitModelCreator {
                 edit = false;
                 mainForm.CreateColliderPressed(newCol, editingIndex);
                 editingIndex = -1;
-            } else {
+            } else
+            {
+                newCol.ComponentIdentifier= "Physical";
                 mainForm.CreateColliderPressed(newCol);
             }
             this.Close();

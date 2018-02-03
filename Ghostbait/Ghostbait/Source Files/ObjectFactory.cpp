@@ -70,6 +70,7 @@ GameObject* ObjectFactory::ActivateObject(PrefabId pid) {
 			});
 		}
 	}
+	newobject->Enable();
 	return newobject;
 }
 
@@ -83,11 +84,14 @@ void ObjectFactory::CreatePrefab(std::string *_filename, char* DEBUG_STRING_NAME
 		Prefab* prefab = &prefabs[prefabID];
 		FILE* file = nullptr;
 		fopen_s(&file, _filename->c_str(), "rb");
+
+		int max_fget = 0;
 		if(file) {
 			//Read ClassName
 			int nameLength;
 			fread(&nameLength, sizeof(int), 1, file);
 			char className[512];
+			max_fget = 512;
 			fgets(className, nameLength + 1, file); //TODO: possible buffer overrun with fgets, nameLength is used without being checked
 			prefab->objectTypeID = TypeMap::GetObjectNameID(std::string(className));
 			prefab->object = registeredConstructors[prefab->objectTypeID]();
@@ -96,7 +100,7 @@ void ObjectFactory::CreatePrefab(std::string *_filename, char* DEBUG_STRING_NAME
 				//Check for special flag
 				if(dataNameLen > 0) {
 					char dataName[512];
-					fgets(dataName, dataNameLen + 1, file);
+					fgets(dataName, dataNameLen + 1, file);//TODO: possible buffer overrun with fgets, nameLength is used without being checked
 					//Handle specific file extension
 					char* ext;
 					GetFileExtension(dataName, dataNameLen, (char**) &ext);

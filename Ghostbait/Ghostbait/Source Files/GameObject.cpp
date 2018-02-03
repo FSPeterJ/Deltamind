@@ -10,9 +10,10 @@ GameObject::GameObject() {
 
 void GameObject::OnCollision(GameObject* obj) {}
 
-//This is potentially dangerous if used incorrectly.
-//Double Enable emplaces an update delegate that can never be removed.
+
 void GameObject::Enable() {
+	//This is potentially dangerous if used incorrectly.
+	//Double Enable emplaces a second update delegate that can never be removed.
 	//If check was added to prevent user error, but may be unecessary
 	if(!updateID) {
 		//Profile for if adding a delegate has any performance impact +/-
@@ -50,6 +51,14 @@ void GameObject::Destroy() {
 	Components.Clear();
 	Disable();
 }
+
+
+
+
+
+
+
+
 
 void MenuCube::Update() {
 	position.m[3][1] += 0.4f * (float) GhostTime::DeltaTime();

@@ -5,13 +5,14 @@ namespace GhostbaitModelCreator {
 
     public partial class ColliderCreatorForm : Form {
 
-        internal enum ColliderType {
+        public enum ColliderType {
             SPHERE,
             CAPSULE,
             BOX,
         }
 
-        internal struct ColliderData {
+        internal class ColliderData : ModelCreatorForm.BaseComponent
+        {
 
             //Capsule
             public float height;

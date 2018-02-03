@@ -72,40 +72,103 @@ namespace GhostbaitModelCreator {
             ANIMATION = 1 << 5,
         }
 
+        internal class BaseComponent
+        {
+            private string ComponentIdentifier;
+            private string ComponentTag;
+        }
+
+        internal class BaseComponentGroup<T>
+        {
+            protected List<T> componentList;
+
+            protected DataGridView dataGridView;
+
+            public void Add(T comp)
+            {
+                componentList.Add(comp);
+            }
+
+            public void Init(DataGridView _DataGridView)
+            {
+                componentList = new List<T>();
+
+                dataGridView = _DataGridView;
+                dataGridView.AutoGenerateColumns = false;
+                dataGridView.AllowUserToAddRows = false;
+
+                dataGridView.DataSource = componentList;
+                DataGridViewTextBoxColumn ComponentColumn = new DataGridViewTextBoxColumn();
+                ComponentColumn.Name = "ComponentIdentifier";
+                ComponentColumn.HeaderText = "Component";
+                ComponentColumn.DataPropertyName = "ComponentIdentifier";
+                dataGridView.Columns.Add(ComponentColumn);
+
+                DataGridViewTextBoxColumn ComponentData = new DataGridViewTextBoxColumn();
+                ComponentData.Name = "ComponentData";
+                ComponentData.HeaderText = "Data";
+                ComponentData.DataPropertyName = "ComponentData";
+                ComponentData.Visible = false;
+                dataGridView.Columns.Add(ComponentData);
+
+                DataGridViewTextBoxColumn ComponentTag = new DataGridViewTextBoxColumn();
+                ComponentTag.Name = "ComponentTag";
+                ComponentTag.HeaderText = "Tag";
+                ComponentTag.DataPropertyName = "ComponentTag";
+                dataGridView.Columns.Add(ComponentTag);
+
+                
+                InternalInit();
+            }
+
+            protected virtual void InternalInit() { }
+        }
+
+        internal class ColliderGroup : BaseComponentGroup<ColliderCreatorForm.ColliderData>
+        {
+            protected override void InternalInit()
+            {
+                dataGridView.Columns["ComponentData"].Visible = true;
+                dataGridView.Columns["ComponentIdentifier"].Visible = false;
+            }
+        }
+
+
         private struct Collider {
             private List<ColliderCreatorForm.ColliderData> colliderList;
-            private ListBox listBox;
+            private ListBox dataGridView;
             public int ColliderCount => colliderList.Count;
 
             public void AddCollider(ColliderCreatorForm.ColliderData col) {
-                listBox.Items.Add(col.type);
+                dataGridView.Items.Add(col.type);
                 colliderList.Add(col);
             }
 
             public void Edit(ColliderCreatorForm.ColliderData col, int index) {
                 colliderList[index] = col;
-                listBox.Items[index] = col.type;
+                dataGridView.Items[index] = col.type;
             }
 
             public ColliderCreatorForm.ColliderData GetCollider(int index) {
                 return colliderList[index];
             }
 
-            public void Init(ListBox _listBox) {
-                listBox = _listBox;
+            public void Init(ListBox _DataGridView) {
+                dataGridView = _DataGridView;
                 colliderList = new List<ColliderCreatorForm.ColliderData>();
+               
             }
 
             public void RemoveCollider() {
-                int index = listBox.SelectedIndex;
-                if (index < 0 || index > listBox.Items.Count)
+                int index = dataGridView.SelectedIndex;
+                if (index < 0 || index > dataGridView.Items.Count)
                     return;
-                listBox.Items.RemoveAt(index);
+                dataGridView.Items.RemoveAt(index);
                 colliderList.RemoveAt(index);
             }
 
             public void Reset() {
-                listBox.Items.Clear();
+                dataGridView.Items.Clear();
                 colliderList.Clear();
             }
         }
@@ -203,21 +266,23 @@ namespace GhostbaitModelCreator {
         private MiltiFileData audio;
         private SingleFileData bindPose;
         private Collider colliders;
+        private ColliderGroup colliders2;
         private SingleFileData mat;
         private SingleFileData mesh;
 
         public ModelCreatorForm() {
+            colliders2 = new ColliderGroup();
             InitializeComponent();
-
             mesh.Init(meshFileName);
             mat.Init(materialFileName);
             bindPose.Init(bindPoseFileName);
             colliders.Init(colliderListBox);
+            colliders2.Init(dataGridViewColliders);
             audio.Init(audioListBox);
             anim.Init(animationListBox);
         }
 
-        internal void CreateColliderPressed(ColliderCreatorForm.ColliderData d) => colliders.AddCollider(d);
+        internal void CreateColliderPressed(ColliderCreatorForm.ColliderData d) => colliders2.Add(d);
 
         internal void CreateColliderPressed(ColliderCreatorForm.ColliderData d, int index) => colliders.Edit(d, index);
 
@@ -646,6 +711,26 @@ namespace GhostbaitModelCreator {
                 f.Show(this);
                 f.Edit(anim.GetAnimation(index), index);
             }
+        }
+
+        private void ModelCreatorForm_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
+        }
+
+        private void colliderListBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dataGridViewColliders_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
         }
     }
 }

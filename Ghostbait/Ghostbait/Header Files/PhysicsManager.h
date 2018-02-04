@@ -32,7 +32,6 @@ class PhysicsManager: public IComponentManager {
 	bool BoxToBoxCollision();
 	void SendCollision(GameObject* obj1, GameObject* obj2);
 	//bool BoxToCapsuleCollision();
-	//bool CapsuleToSphereCollision();
 	//bool BoxToSphereCollision();
 	DirectX::XMVECTOR FindClosestPointOnLine(DirectX::XMVECTOR& _lineSegStart, DirectX::XMVECTOR& _lineSegEnd, DirectX::XMVECTOR& _testPoint);
 

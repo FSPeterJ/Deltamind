@@ -179,9 +179,11 @@ InputPackage InputManager::VRInput::CheckForInput() {
 				break;
 			case vr::k_EButton_SteamVR_Trigger:
 				if(event.trackedDeviceIndex == VRManager::leftController.index) {
+					vrMan->Vibrate(VRControllerType::Left, 500);
 					input = leftAttack;
 					amount = 1.0f;
 				} else {
+					vrMan->Vibrate(VRControllerType::Right, 500);
 					input = rightAttack;
 					amount = 1.0f;
 				}

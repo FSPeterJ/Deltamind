@@ -217,6 +217,7 @@
     <ClInclude Include="Header Files\PhysicsManager.h" />
     <ClInclude Include="Header Files\PhysicsTestObj.h" />
     <ClInclude Include="Header Files\Pool.h" />
+    <ClInclude Include="Header Files\ProgressBar.h" />
     <ClInclude Include="Header Files\Projectile.h" />
     <ClInclude Include="Header Files\Renderer.h" />
     <ClInclude Include="Header Files\RigidBody.h" />
@@ -269,6 +270,7 @@
     <ClCompile Include="Source Files\PhysicsManager.cpp" />
     <ClCompile Include="Source Files\PhysicsTestObj.cpp" />
     <ClCompile Include="Source Files\Pool.cpp" />
+    <ClCompile Include="Source Files\ProgressBar.cpp" />
     <ClCompile Include="Source Files\Projectile.cpp" />
     <ClCompile Include="Source Files\Renderer.cpp" />
     <ClCompile Include="Source Files\RigidBody.cpp" />

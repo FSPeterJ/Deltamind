@@ -10,9 +10,12 @@ ControllerObject::ControllerObject() {
 void ControllerObject::AddGun(int itemSlot, int prefabID, Gun::FireType _fireType, float _fireRate, float _damage) {
 	//Add Item to Inventory
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0 }, (GameObject**) &items[itemSlot]));
-	((Gun*) items[itemSlot])->SetStats(_fireType, _fireRate, _damage);
 	if(!currentItem) currentItem = items[itemSlot];
 	else MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(items[itemSlot]));
+	
+	//Initialize new Gun
+	((Gun*) items[itemSlot])->Init();
+	((Gun*) items[itemSlot])->SetStats(_fireType, _fireRate, _damage);
 
 	//Add Item to display Inventory
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0 }, (GameObject**)&displayItems[itemSlot]));
@@ -27,7 +30,6 @@ void ControllerObject::AddController(int itemSlot, int prefabID) {
 	//Add Item to display Inventory
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0 }, (GameObject**)&displayItems[itemSlot]));
 	MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(displayItems[itemSlot]));
-
 };
 void ControllerObject::Update() {
 	if(hand == INVALID) return;
@@ -44,21 +46,24 @@ void ControllerObject::LeftUpdate() {
 			MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentItem));
 		}
 		ResetKey(leftItem1);
-	} else if(KeyIsDown(leftItem2)) {
+	} 
+	else if(KeyIsDown(leftItem2)) {
 		if(items[1]) {
 			MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentItem));
 			currentItem = items[1];
 			MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentItem));
 		}
 		ResetKey(leftItem2);
-	} else if(KeyIsDown(leftItem3)) {
+	} 
+	else if(KeyIsDown(leftItem3)) {
 		if(items[2]) {
 			MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentItem));
 			currentItem = items[2];
 			MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentItem));
 		}
 		ResetKey(leftItem3);
-	} else if(KeyIsDown(leftItem4)) {
+	} 
+	else if(KeyIsDown(leftItem4)) {
 		if(items[3]) {
 			MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentItem));
 			currentItem = items[3];
@@ -124,64 +129,68 @@ void ControllerObject::LeftUpdate() {
 		touchHeld = false;
 	}
 	#pragma endregion
-
-	if(currentItem) {
-		currentItem->position = position;
-		currentItem->Update();
-		switch(currentItem->state) {
-		case Item::State::GUN:
-			if(KeyIsDown(leftAttack)) {
-				if(!((Gun*) currentItem)->Shoot()) ResetKey(leftAttack);
-			}
-			break;
-		case Item::State::CONTROLLER:
-			if(KeyIsDown(leftAttack)) {
-				//Console::WriteLine << "Right controller select";
-				ResetKey(leftAttack);
-			}
-			break;
-		case Item::State::INVALID:
-			if(KeyIsDown(leftAttack)) {
-				//Console::WriteLine << "Right hand pickup";
-				ResetKey(leftAttack);
-			}
-			break;
+	#pragma region Update Inactive Items
+		for (int i = 0; i < items.size(); ++i) {
+		if (items[i] && items[i] != currentItem) {
+			items[i]->InactiveUpdate();
 		}
 	}
+	#pragma endregion
+	#pragma region Update Current Item
+		if(currentItem) {
+			currentItem->position = position;
+			currentItem->ActiveUpdate();
+			switch(currentItem->state) {
+			case Item::State::GUN:
+				if(KeyIsDown(leftAttack)) {
+					if(!((Gun*) currentItem)->Shoot()) 
+						ResetKey(leftAttack);
+				}
+				break;
+			case Item::State::CONTROLLER:
+				break;
+			case Item::State::INVALID:
+				break;
+			}
+		}
+	#pragma endregion
 }
 void ControllerObject::RightUpdate() {
 	static bool touchHeld = false;
 	#pragma region Switch Controller Item
-	if(KeyIsDown(rightItem1)) {
-		if(items[0]) {
-			MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentItem));
-			currentItem = items[0];
-			MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentItem));
+		if (KeyIsDown(rightItem1)) {
+			if (items[0]) {
+				MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentItem));
+				currentItem = items[0];
+				MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentItem));
+			}
+			ResetKey(rightItem1);
 		}
-		ResetKey(rightItem1);
-	} else if(KeyIsDown(rightItem2)) {
-		if(items[1]) {
-			MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentItem));
-			currentItem = items[1];
-			MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentItem));
+		else if (KeyIsDown(rightItem2)) {
+			if (items[1]) {
+				MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentItem));
+				currentItem = items[1];
+				MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentItem));
+			}
+			ResetKey(rightItem2);
 		}
-		ResetKey(rightItem2);
-	} else if(KeyIsDown(rightItem3)) {
-		if(items[2]) {
-			MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentItem));
-			currentItem = items[2];
-			MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentItem));
+		else if (KeyIsDown(rightItem3)) {
+			if (items[2]) {
+				MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentItem));
+				currentItem = items[2];
+				MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentItem));
+			}
+			ResetKey(rightItem3);
 		}
-		ResetKey(rightItem3);
-	} else if(KeyIsDown(rightItem4)) {
-		if(items[3]) {
-			MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentItem));
-			currentItem = items[3];
-			MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentItem));
+		else if (KeyIsDown(rightItem4)) {
+			if (items[3]) {
+				MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentItem));
+				currentItem = items[3];
+				MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentItem));
+			}
+			ResetKey(rightItem4);
 		}
-		ResetKey(rightItem4);
-	}
-#pragma endregion
+	#pragma endregion
 	#pragma region Display Inventory
 		//If we are touching the touchpad
 		if (KeyIsDown(rightTouch)) {
@@ -245,27 +254,27 @@ void ControllerObject::RightUpdate() {
 			touchHeld = false;
 		}
 	#pragma endregion
+	#pragma region Update Inactive Items
+		for (int i = 0; i < items.size(); ++i) {
+			if (items[i] && items[i] != currentItem) {
+				items[i]->InactiveUpdate();
+			}
+		}
+	#pragma endregion
 	#pragma region Current Item Logic
 		if(currentItem) {
 			currentItem->position = position;
-			currentItem->Update();
+			currentItem->ActiveUpdate();
 			switch(currentItem->state) {
 			case Item::State::GUN:
 				if(KeyIsDown(rightAttack)) {
-					if(!((Gun*) currentItem)->Shoot()) ResetKey(rightAttack);
+					if(!((Gun*) currentItem)->Shoot()) 
+						ResetKey(rightAttack);
 				}
 				break;
 			case Item::State::CONTROLLER:
-				if(KeyIsDown(rightAttack)) {
-					//Console::WriteLine << "Right controller select";
-					ResetKey(leftAttack);
-				}
 				break;
 			case Item::State::INVALID:
-				if(KeyIsDown(rightAttack)) {
-					//Console::WriteLine << "Right hand pickup";
-					ResetKey(rightAttack);
-				}
 				break;
 			}
 		}

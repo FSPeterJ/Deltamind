@@ -11,4 +11,7 @@ public:
 	};
 	State state;
 	Item();
+
+	virtual void InactiveUpdate() {};
+	virtual void ActiveUpdate() {};
 };

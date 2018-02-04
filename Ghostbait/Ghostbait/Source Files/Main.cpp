@@ -19,6 +19,7 @@
 #include "MeshManager.h"
 #include "ControllerObject.h"
 #include "PhysicsTestObj.h"
+#include "ProgressBar.h"
 
 Renderer* rendInter;
 VRManager* vrMan;
@@ -104,6 +105,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::Initialize(objMan);
 	ObjectFactory::RegisterPrefabBase<ControllerObject>(8);
 	ObjectFactory::RegisterPrefabBase<Gun>(10);
+	ObjectFactory::RegisterPrefabBase<ProgressBar>(10);
 	ObjectFactory::RegisterPrefabBase<ViveController>(8);
 	ObjectFactory::RegisterPrefabBase<GameObject>(512);
 	ObjectFactory::RegisterPrefabBase<Projectile>(512);
@@ -121,6 +123,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<ControllerObject>("ControllerObject");
 	TypeMap::RegisterObjectAlias<ViveController>("ViveController");
 	TypeMap::RegisterObjectAlias<Gun>("Gun");
+	TypeMap::RegisterObjectAlias<ProgressBar>("OverheatBar");
 	TypeMap::RegisterObjectAlias<Projectile>("Projectile");
 	TypeMap::RegisterObjectAlias<Spawner>("Spawner");
 	TypeMap::RegisterObjectAlias<EnemyBase>("EnemyBase");
@@ -149,6 +152,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest1.ghost")); //12
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest2.ghost")); //13
 	ObjectFactory::CreatePrefab(&std::string("Assets/PlaneMap.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/OverheatBar.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object"));
 	//ObjectFactory::CreatePrefab(&std::string("SomeCoolObject"));

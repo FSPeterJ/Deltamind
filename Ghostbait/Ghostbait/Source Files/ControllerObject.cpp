@@ -183,12 +183,16 @@ void ControllerObject::RightUpdate() {
 	}
 #pragma endregion
 	#pragma region Display Inventory
+		//If we are touching the touchpad
 		if (KeyIsDown(rightTouch)) {
+			//for each item in this hands inventory
 			for (int i = 0; i < displayItems.size(); ++i) {
+				//If the slot it filled
 				if (displayItems[i]) {
-					if (!touchHeld) {
-						MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(displayItems[i]));
-					}
+					//If its the first time for each item that the touchpad is pressed
+					if (!touchHeld) MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(displayItems[i]));
+					
+					//Move Item to controller and scale it down
 					displayItems[i]->position._11 = position._11 * 0.5f;
 					displayItems[i]->position._12 = position._12 * 0.5f;
 					displayItems[i]->position._13 = position._13 * 0.5f;
@@ -205,23 +209,25 @@ void ControllerObject::RightUpdate() {
 					displayItems[i]->position._42 = position._42;
 					displayItems[i]->position._43 = position._43;
 					displayItems[i]->position._44 = position._44;
+
+					//Apply custom offset depending on item
 					switch (i) {
-					case 0:
+					case 0: // Top
 						displayItems[i]->position._41 += ((position._21 * 0.2f) + (position._31 * 0.1f));
 						displayItems[i]->position._42 += ((position._22 * 0.2f) + (position._32 * 0.1f));
 						displayItems[i]->position._43 += ((position._23 * 0.2f) + (position._33 * 0.1f));
 						break;
-					case 1:
+					case 1: // Left
 						displayItems[i]->position._41 += ((-position._11 * 0.2f) + (position._31 * 0.1f));
 						displayItems[i]->position._42 += ((-position._12 * 0.2f) + (position._32 * 0.1f));
 						displayItems[i]->position._43 += ((-position._13 * 0.2f) + (position._33 * 0.1f));
 						break;
-					case 2:
+					case 2: // Right
 						displayItems[i]->position._41 += ((position._11 * 0.2f) + (position._31 * 0.1f));
 						displayItems[i]->position._42 += ((position._12 * 0.2f) + (position._32 * 0.1f));
 						displayItems[i]->position._43 += ((position._13 * 0.2f) + (position._33 * 0.1f));
 						break;
-					case 3:
+					case 3: // Bottom
 						displayItems[i]->position._41 += ((-position._21 * 0.2f) + (position._31 * 0.1f));
 						displayItems[i]->position._42 += ((-position._22 * 0.2f) + (position._32 * 0.1f));
 						displayItems[i]->position._43 += ((-position._23 * 0.2f) + (position._33 * 0.1f));
@@ -239,27 +245,29 @@ void ControllerObject::RightUpdate() {
 			touchHeld = false;
 		}
 	#pragma endregion
-	if(currentItem) {
-		currentItem->position = position;
-		currentItem->Update();
-		switch(currentItem->state) {
-		case Item::State::GUN:
-			if(KeyIsDown(rightAttack)) {
-				if(!((Gun*) currentItem)->Shoot()) ResetKey(rightAttack);
+	#pragma region Current Item Logic
+		if(currentItem) {
+			currentItem->position = position;
+			currentItem->Update();
+			switch(currentItem->state) {
+			case Item::State::GUN:
+				if(KeyIsDown(rightAttack)) {
+					if(!((Gun*) currentItem)->Shoot()) ResetKey(rightAttack);
+				}
+				break;
+			case Item::State::CONTROLLER:
+				if(KeyIsDown(rightAttack)) {
+					//Console::WriteLine << "Right controller select";
+					ResetKey(leftAttack);
+				}
+				break;
+			case Item::State::INVALID:
+				if(KeyIsDown(rightAttack)) {
+					//Console::WriteLine << "Right hand pickup";
+					ResetKey(rightAttack);
+				}
+				break;
 			}
-			break;
-		case Item::State::CONTROLLER:
-			if(KeyIsDown(rightAttack)) {
-				//Console::WriteLine << "Right controller select";
-				ResetKey(leftAttack);
-			}
-			break;
-		case Item::State::INVALID:
-			if(KeyIsDown(rightAttack)) {
-				//Console::WriteLine << "Right hand pickup";
-				ResetKey(rightAttack);
-			}
-			break;
 		}
-	}
+	#pragma endregion
 }

@@ -5,16 +5,15 @@
 #include <AK/SoundEngine/Common/AkModule.h>            
 #include <AK/SoundEngine/Common/IAkStreamMgr.h>
 #include <AK/Tools/Common/AkPlatformFuncs.h>
-#include <AkFilePackageLowLevelIOBlocking.h>
+#include <Ak/Samples/SoundEngine/Win32/AkFilePackageLowLevelIOBlocking.h>
 
-//CAkFilePackageLowLevelIOBlocking g_lowLevelIO;
+CAkFilePackageLowLevelIOBlocking g_lowLevelIO;
 /////////////////////////////////////////////////////////////////////////////////
 // Custom alloc/free functions. These are declared as "extern" in AkMemoryMgr.h
 // and MUST be defined by the game developer.
 /////////////////////////////////////////////////////////////////////////////////
 namespace AK
 {
-#ifdef WIN32
 	void * AllocHook(size_t in_size)
 	{
 		return malloc(in_size);
@@ -44,7 +43,6 @@ namespace AK
 	{
 		VirtualFree(in_pMemAddress, in_size, in_dwFreeType);
 	}
-#endif
 }
 
 AudioManager::AudioManager() //Thank the lord for SDK documentation
@@ -52,14 +50,14 @@ AudioManager::AudioManager() //Thank the lord for SDK documentation
 	AkMemSettings memSettings;
 	memSettings.uMaxNumPools = 20;
 	AK::MemoryMgr::Init(&memSettings);
-	//
-	//AkStreamMgrSettings streamMgrSettings;
-	//AK::StreamMgr::GetDefaultSettings(streamMgrSettings);
-	//AK::StreamMgr::Create(streamMgrSettings);
-	//
-	//AkDeviceSettings devSettings;
-	//AK::StreamMgr::GetDefaultDeviceSettings(devSettings);
-	//g_lowLevelIO.Init(devSettings);
+	
+	AkStreamMgrSettings streamMgrSettings;
+	AK::StreamMgr::GetDefaultSettings(streamMgrSettings);
+	AK::StreamMgr::Create(streamMgrSettings);
+	
+	AkDeviceSettings devSettings;
+	AK::StreamMgr::GetDefaultDeviceSettings(devSettings);
+	g_lowLevelIO.Init(devSettings);
 }
 
 

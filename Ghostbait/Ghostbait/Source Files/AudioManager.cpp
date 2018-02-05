@@ -58,9 +58,24 @@ AudioManager::AudioManager() //Thank the lord for SDK documentation
 	AkDeviceSettings devSettings;
 	AK::StreamMgr::GetDefaultDeviceSettings(devSettings);
 	g_lowLevelIO.Init(devSettings);
+
+	AkInitSettings initSettings;
+	AkPlatformInitSettings platformInitSettings;
+	AK::SoundEngine::GetDefaultInitSettings(initSettings);
+	AK::SoundEngine::GetDefaultPlatformInitSettings(platformInitSettings);
+	AK::SoundEngine::Init(&initSettings, &platformInitSettings);
 }
 
 
 AudioManager::~AudioManager()
 {
+	g_lowLevelIO.Term();
+	AK::SoundEngine::Term();
+	AK::IAkStreamMgr::Get()->Destroy();
+	AK::MemoryMgr::Term();
+}
+
+void AudioManager::Update()
+{
+	AK::SoundEngine::RenderAudio();
 }

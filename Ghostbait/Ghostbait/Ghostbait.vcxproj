@@ -117,7 +117,7 @@
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>openvr\headers;Shaders;Resource Files;Source Files;Header Files;E:\Program Files (x86)\Visual Leak Detector\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories>Dependencies\Wwise\Samples\SoundEngine\Win32;Dependencies\Wwise\Samples\SoundEngine\Common;Dependencies\Wwise\SoundEngine\Common;Dependencies\Wwise\SoundEngine\Win32;C:\Program Files %28x86%29\Visual Leak Detector\include;openvr\headers;Shaders;Resource Files;Source Files;Header Files;E:\Program Files (x86)\Visual Leak Detector\include;E:\Program Files (x86)\Visual Leak Detector\bin\Win64;C:\Program Files %28x86%29\Visual Leak Detector\bin\Win64;Dependencies\Wwise\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Dependencies\Wwise\Samples\SoundEngine\Win32;Dependencies\Wwise\Samples\SoundEngine\Common;C:\Program Files %28x86%29\Visual Leak Detector\include;openvr\headers;Shaders;Resource Files;Source Files;Header Files;E:\Program Files (x86)\Visual Leak Detector\include;E:\Program Files (x86)\Visual Leak Detector\bin\Win64;C:\Program Files %28x86%29\Visual Leak Detector\bin\Win64;Dependencies\Wwise\include</AdditionalIncludeDirectories>
       <AdditionalUsingDirectories>d3dcompiler.h;directxmath.h;d3d11_1.h;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
       <EnablePREfast>false</EnablePREfast>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -167,7 +167,7 @@
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>openvr\headers;Shaders;Resource Files;Source Files;Header Files;;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories>Dependencies\Wwise\Samples\SoundEngine\Win32;Dependencies\Wwise\Samples\SoundEngine\Common;Dependencies\Wwise\SoundEngine\Common;Dependencies\Wwise\SoundEngine\Win32;C:\Program Files %28x86%29\Visual Leak Detector\include;openvr\headers;Shaders;Resource Files;Source Files;Header Files;E:\Program Files (x86)\Visual Leak Detector\include;E:\Program Files (x86)\Visual Leak Detector\bin\Win64;C:\Program Files %28x86%29\Visual Leak Detector\bin\Win64;Dependencies\Wwise\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Dependencies\Wwise\Samples\SoundEngine\Win32;Dependencies\Wwise\Samples\SoundEngine\Common;C:\Program Files %28x86%29\Visual Leak Detector\include;openvr\headers;Shaders;Resource Files;Source Files;Header Files;E:\Program Files (x86)\Visual Leak Detector\include;E:\Program Files (x86)\Visual Leak Detector\bin\Win64;C:\Program Files %28x86%29\Visual Leak Detector\bin\Win64;Dependencies\Wwise\include</AdditionalIncludeDirectories>
       <AdditionalUsingDirectories>d3dcompiler.h;directxmath.h;d3d11_1.h;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
       <EnablePREfast>false</EnablePREfast>
       <TreatWarningAsError>true</TreatWarningAsError>

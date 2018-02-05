@@ -20,6 +20,7 @@
 #include "ControllerObject.h"
 #include "PhysicsTestObj.h"
 #include "ProgressBar.h"
+#include "AudioManager.h"
 
 Renderer* rendInter;
 VRManager* vrMan;
@@ -160,6 +161,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//ObjectFactory::CreatePrefab(&std::string("RightControllerObject"));
 	//=============================
 
+	AudioManager tempAudioMan = AudioManager();
 	game = new Game();
 	game->Start();
 	if(isVR) vrMan->CreateControllers();

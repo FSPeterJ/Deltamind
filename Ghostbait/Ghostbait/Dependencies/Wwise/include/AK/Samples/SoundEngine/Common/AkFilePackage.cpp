@@ -25,8 +25,8 @@ written agreement between you and Audiokinetic Inc.
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "stdafx.h"
-#include "AkFilePackage.h"
+#include "../Win32/stdafx.h"
+#include "../Common/AkFilePackage.h"
 
 // Destroy file package and free memory / destroy pool.
 void CAkFilePackage::Destroy()

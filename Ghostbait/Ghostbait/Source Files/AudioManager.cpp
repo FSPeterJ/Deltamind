@@ -51,7 +51,7 @@ AudioManager::AudioManager() //Thank the lord for SDK documentation
 {
 	AkMemSettings memSettings;
 	memSettings.uMaxNumPools = 20;
-	//AK::MemoryMgr::Init(&memSettings);
+	AK::MemoryMgr::Init(&memSettings);
 	//
 	//AkStreamMgrSettings streamMgrSettings;
 	//AK::StreamMgr::GetDefaultSettings(streamMgrSettings);

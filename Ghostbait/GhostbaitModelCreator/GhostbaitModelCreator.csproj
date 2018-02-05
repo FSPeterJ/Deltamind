@@ -113,6 +113,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="FBXInterface.dll" />
+    <None Include="Resources\%24this.Icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

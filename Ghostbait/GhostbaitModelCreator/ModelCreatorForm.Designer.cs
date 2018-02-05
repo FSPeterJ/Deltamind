@@ -29,7 +29,6 @@ namespace GhostbaitModelCreator
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ModelCreatorForm));
             this.groupBoxAnimation = new System.Windows.Forms.GroupBox();
             this.animationListBox = new System.Windows.Forms.ListBox();
             this.animationRemove = new System.Windows.Forms.Button();
@@ -67,7 +66,6 @@ namespace GhostbaitModelCreator
             this.fromFBXToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.colliderBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.colliderCreatorFormBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.programBindingSource = new System.Windows.Forms.BindingSource(this.components);
@@ -85,7 +83,6 @@ namespace GhostbaitModelCreator
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewMesh)).BeginInit();
             this.groupBoxClass.SuspendLayout();
             this.menuStrip1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.colliderBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.colliderCreatorFormBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.programBindingSource)).BeginInit();
@@ -473,17 +470,6 @@ namespace GhostbaitModelCreator
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.pictureBox1.Image = global::GhostbaitModelCreator.Properties.Resources.Ghostbait_Icon;
-            this.pictureBox1.Location = new System.Drawing.Point(524, 27);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(32, 36);
-            this.pictureBox1.TabIndex = 7;
-            this.pictureBox1.TabStop = false;
-            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
-            // 
             // colliderCreatorFormBindingSource
             // 
             this.colliderCreatorFormBindingSource.DataSource = typeof(GhostbaitModelCreator.ColliderCreatorForm);
@@ -497,10 +483,8 @@ namespace GhostbaitModelCreator
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(884, 661);
-            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.SidePanel);
             this.Controls.Add(this.menuStrip1);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "ModelCreatorForm";
             this.Text = "Ghostbait Model Editor";
@@ -523,7 +507,6 @@ namespace GhostbaitModelCreator
             this.groupBoxClass.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.colliderBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.colliderCreatorFormBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.programBindingSource)).EndInit();
@@ -557,7 +540,6 @@ namespace GhostbaitModelCreator
         private System.Windows.Forms.Button audioAdd;
         private System.Windows.Forms.ListBox audioListBox;
         private System.Windows.Forms.Button audioRemove;
-        private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.DataGridView dataGridViewMesh;
         private System.Windows.Forms.DataGridView dataGridViewColliders;
         private System.Windows.Forms.GroupBox groupBoxBindPose;

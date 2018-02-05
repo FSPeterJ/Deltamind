@@ -12,6 +12,10 @@ VRManager::~VRManager() {
 	Shutdown();
 }
 
+void VRManager::Vibrate(VRControllerType ctrl, unsigned short durationMs) {
+	pVRHMD->TriggerHapticPulse(ctrl == VRControllerType::Left ? VRManager::leftController.index : VRManager::rightController.index, 0, durationMs);
+}
+
 bool VRManager::Init() {
 	vr::EVRInitError error = vr::VRInitError_None;
 	pVRHMD = vr::VR_Init(&error, vr::VRApplication_Scene);
@@ -51,13 +55,15 @@ void VRManager::CreateControllers() {
 	leftController.obj->SetControllerHand(ControllerObject::ControllerHand::LEFT);
 	leftController.obj->AddController(0, 1);
 	leftController.obj->AddGun(1, 2, Gun::FireType::SEMI, 60, 1);
-	leftController.obj->AddGun(2, 2, Gun::FireType::AUTO, 4, 1);
+	leftController.obj->AddGun(2, 2, Gun::FireType::AUTO, 8, 1);
+	leftController.obj->Enable();
 	//Right
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {1,0,1}, (GameObject**) &rightController.obj));
 	rightController.obj->SetControllerHand(ControllerObject::ControllerHand::RIGHT);
 	rightController.obj->AddController(0, 1);
 	rightController.obj->AddGun(1, 2, Gun::FireType::SEMI, 60, 1);
-	rightController.obj->AddGun(2, 2, Gun::FireType::AUTO, 4, 1);
+	rightController.obj->AddGun(2, 2, Gun::FireType::AUTO, 8, 1);
+	rightController.obj->Enable();
 }
 
 DirectX::XMFLOAT4X4 VRManager::VRProjectionToDirectXMatrix(vr::EVREye eye, float nearPlane, float farPlane) {
@@ -185,4 +191,6 @@ void VRManager::SendToHMD(void* leftTexture, void* rightTexture) {
 	error = pVRCompositor->Submit(vr::EVREye::Eye_Right, &rightTex);
 	//if (error)
 	//	Console::Write("Unable to submit right eye texture");
+
+	
 }

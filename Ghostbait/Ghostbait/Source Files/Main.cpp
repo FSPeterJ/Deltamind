@@ -19,6 +19,7 @@
 #include "MeshManager.h"
 #include "ControllerObject.h"
 #include "PhysicsTestObj.h"
+#include "ProgressBar.h"
 
 Renderer* rendInter;
 VRManager* vrMan;
@@ -104,6 +105,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::Initialize(objMan);
 	ObjectFactory::RegisterPrefabBase<ControllerObject>(8);
 	ObjectFactory::RegisterPrefabBase<Gun>(10);
+	ObjectFactory::RegisterPrefabBase<ProgressBar>(10);
 	ObjectFactory::RegisterPrefabBase<ViveController>(8);
 	ObjectFactory::RegisterPrefabBase<GameObject>(512);
 	ObjectFactory::RegisterPrefabBase<Projectile>(512);
@@ -121,6 +123,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<ControllerObject>("ControllerObject");
 	TypeMap::RegisterObjectAlias<ViveController>("ViveController");
 	TypeMap::RegisterObjectAlias<Gun>("Gun");
+	TypeMap::RegisterObjectAlias<ProgressBar>("OverheatBar");
 	TypeMap::RegisterObjectAlias<Projectile>("Projectile");
 	TypeMap::RegisterObjectAlias<Spawner>("Spawner");
 	TypeMap::RegisterObjectAlias<EnemyBase>("EnemyBase");
@@ -148,6 +151,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest1.ghost")); //12
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest2.ghost")); //13
+	ObjectFactory::CreatePrefab(&std::string("Assets/PlaneMap.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/OverheatBar.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object"));
 	//ObjectFactory::CreatePrefab(&std::string("SomeCoolObject"));
@@ -158,10 +163,10 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	game = new Game();
 	game->Start();
 	if(isVR) vrMan->CreateControllers();
-	DirectX::XMFLOAT4X4 roomMatrix;
-	DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * DirectX::XMMatrixTranslation(0, 3, 0));
+	//DirectX::XMFLOAT4X4 roomMatrix;
+	//DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * DirectX::XMMatrixTranslation(0, 3, 0));
 	//MenuCube* startCube;
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(3, roomMatrix));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(14, { 0, 0, 0 }/*roomMatrix*/));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(7, {0, 1.5f, 0.0f}, (GameObject**)&startCube));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage("startCube", {4, 1.5f, 0.0f}, (GameObject**)&startCube));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(11, { 0, 0, 0 }, nullptr));

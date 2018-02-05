@@ -201,6 +201,7 @@
     <ClInclude Include="Header Files\GameObject.h" />
     <ClInclude Include="Header Files\GameObjectComponent.h" />
     <ClInclude Include="Header Files\GhostTime.h" />
+    <ClInclude Include="Header Files\Grid.h" />
     <ClInclude Include="Header Files\Gun.h" />
     <ClInclude Include="Header Files\InputManager.h" />
     <ClInclude Include="Header Files\IComponentManager.h" />
@@ -218,6 +219,7 @@
     <ClInclude Include="Header Files\PhysicsManager.h" />
     <ClInclude Include="Header Files\PhysicsTestObj.h" />
     <ClInclude Include="Header Files\Pool.h" />
+    <ClInclude Include="Header Files\ProgressBar.h" />
     <ClInclude Include="Header Files\Projectile.h" />
     <ClInclude Include="Header Files\Renderer.h" />
     <ClInclude Include="Header Files\RigidBody.h" />
@@ -253,6 +255,7 @@
     <ClCompile Include="Source Files\EngineStructure.cpp" />
     <ClCompile Include="Source Files\GameObject.cpp" />
     <ClCompile Include="Source Files\GhostTime.cpp" />
+    <ClCompile Include="Source Files\Grid.cpp" />
     <ClCompile Include="Source Files\Gun.cpp">
       <ShowIncludes Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ShowIncludes>
     </ClCompile>
@@ -271,6 +274,7 @@
     <ClCompile Include="Source Files\PhysicsManager.cpp" />
     <ClCompile Include="Source Files\PhysicsTestObj.cpp" />
     <ClCompile Include="Source Files\Pool.cpp" />
+    <ClCompile Include="Source Files\ProgressBar.cpp" />
     <ClCompile Include="Source Files\Projectile.cpp" />
     <ClCompile Include="Source Files\Renderer.cpp" />
     <ClCompile Include="Source Files\RigidBody.cpp" />

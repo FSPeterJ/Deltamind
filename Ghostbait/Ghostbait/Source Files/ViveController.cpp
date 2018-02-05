@@ -5,5 +5,7 @@ ViveController::ViveController() {
 	SetTag("Controller");
 }
 
-void ViveController::Update() {
+void ViveController::ActiveUpdate() {
+}
+void ViveController::InactiveUpdate() {
 }

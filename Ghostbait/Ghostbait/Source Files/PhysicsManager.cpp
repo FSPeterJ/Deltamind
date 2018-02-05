@@ -307,6 +307,8 @@ bool PhysicsManager::BoxToBoxCollision() {
 	return false;
 }
 bool PhysicsManager::CapsuleToCapsuleCollision(Collider col1, XMMATRIX& pos1, Collider col2, XMMATRIX& pos2) {
+	//*** Edge case where tall/long capsules intersect will not collide ***
+	
 	float combineRadiusSq = col1.colliderData->colliderInfo.capsuleCollider.radius + col2.colliderData->colliderInfo.capsuleCollider.radius;
 	combineRadiusSq *= combineRadiusSq;
 
@@ -326,25 +328,25 @@ bool PhysicsManager::CapsuleToCapsuleCollision(Collider col1, XMMATRIX& pos1, Co
 	cap2End = XMVector3TransformCoord(cap2End, pos2);
 	XMVECTOR seg2 = cap2End - cap2Start;
 
-	XMVECTOR segBetweenStarts = cap1Start - cap2Start;
+	//XMVECTOR segBetweenStarts = cap1Start - cap2Start;
 
-	//Find shortest line between line segments
-	//Reference: http://paulbourke.net/geometry/pointlineplane/lineline.c
-	if (IsVectorZero(seg1) || IsVectorZero(seg2))
-		return false;
+	////Find shortest line between line segments
+	////Reference: http://paulbourke.net/geometry/pointlineplane/lineline.c
+	//if (IsVectorZero(seg1) || IsVectorZero(seg2))
+	//	return false;
 
-	float segTweenDotSeg1, segTweenDotSeg2, seg1DotSeg2, seg2SqLength, seg1SqLength, numer, denom, ratioOnSeg1, ratioOnSeg2;
+	//float segTweenDotSeg1, segTweenDotSeg2, seg1DotSeg2, seg2SqLength, seg1SqLength, numer, denom, ratioOnSeg1, ratioOnSeg2;
 
-	segTweenDotSeg1 = XMVectorGetX(XMVector3Dot(segBetweenStarts, seg1));
-	segTweenDotSeg2 = XMVectorGetX(XMVector3Dot(segBetweenStarts, seg2));
-	seg1DotSeg2 = XMVectorGetX(XMVector3Dot(seg1, seg2));
-	seg1SqLength = XMVectorGetX(XMVector3LengthSq(seg1));
-	seg2SqLength = XMVectorGetX(XMVector3LengthSq(seg2));
+	//segTweenDotSeg1 = XMVectorGetX(XMVector3Dot(segBetweenStarts, seg1));
+	//segTweenDotSeg2 = XMVectorGetX(XMVector3Dot(segBetweenStarts, seg2));
+	//seg1DotSeg2 = XMVectorGetX(XMVector3Dot(seg1, seg2));
+	//seg1SqLength = XMVectorGetX(XMVector3LengthSq(seg1));
+	//seg2SqLength = XMVectorGetX(XMVector3LengthSq(seg2));
 
-	denom = (seg1SqLength * seg2SqLength) - (seg1DotSeg2 * seg1DotSeg2);
+	//denom = (seg1SqLength * seg2SqLength) - (seg1DotSeg2 * seg1DotSeg2);
 
-	//If Denom is zero, lines are parallel
-	if (fabsf(denom) < FLT_EPSILON) {
+	////If Denom is zero, lines are parallel
+	//if (fabsf(denom) < FLT_EPSILON) {
 		float closestDistSq, testNextClosestDistSq;
 		XMVECTOR closestTo1Start, closestTo1End, closestTo2Start, closestTo2End;
 
@@ -353,6 +355,21 @@ bool PhysicsManager::CapsuleToCapsuleCollision(Collider col1, XMMATRIX& pos1, Co
 		closestTo2Start = FindClosestPointOnLine(cap1Start, cap1End, cap2Start);
 		closestTo2End = FindClosestPointOnLine(cap1Start, cap1End, cap2End);
 
+#if _DEBUG
+		XMFLOAT3 start, end;
+		XMStoreFloat3(&start, cap1Start);
+		XMStoreFloat3(&end, closestTo1Start);
+		DebugRenderer::AddLine(start, end, XMFLOAT3(0.0f, 0.0f, 1.0f));
+		XMStoreFloat3(&start, cap1End);
+		XMStoreFloat3(&end, closestTo1End);
+		DebugRenderer::AddLine(start, end, XMFLOAT3(0.0f, 0.0f, 1.0f));
+		XMStoreFloat3(&start, cap2Start);
+		XMStoreFloat3(&end, closestTo2Start);
+		DebugRenderer::AddLine(start, end, XMFLOAT3(0.0f, 0.0f, 1.0f));
+		XMStoreFloat3(&start, cap2End);
+		XMStoreFloat3(&end, closestTo2End);
+		DebugRenderer::AddLine(start, end, XMFLOAT3(0.0f, 0.0f, 1.0f));
+#endif
 		closestDistSq = XMVectorGetX(XMVector3LengthSq(closestTo1Start - cap1Start));
 
 		testNextClosestDistSq = XMVectorGetX(XMVector3LengthSq(closestTo1End - cap1End));
@@ -378,20 +395,20 @@ bool PhysicsManager::CapsuleToCapsuleCollision(Collider col1, XMMATRIX& pos1, Co
 			return true;
 
 		return false;
-	}
-	numer = (segTweenDotSeg2 * seg1DotSeg2) - (segTweenDotSeg1 * seg2SqLength);
+	//}
+	//numer = (segTweenDotSeg2 * seg1DotSeg2) - (segTweenDotSeg1 * seg2SqLength);
 
-	ratioOnSeg1 = numer / denom;
-	ratioOnSeg2 = (segTweenDotSeg2 + (seg1DotSeg2 * ratioOnSeg1)) / seg2SqLength;
+	//ratioOnSeg1 = numer / denom;
+	//ratioOnSeg2 = (segTweenDotSeg2 + (seg1DotSeg2 * ratioOnSeg1)) / seg2SqLength;
 
-	XMVECTOR pointB = (cap2Start + (seg2 * ratioOnSeg2));
-	XMVECTOR pointA = (cap1Start + (seg1 * ratioOnSeg1));
-	XMVECTOR shortestLine = pointB - pointA;
+	//XMVECTOR pointB = (cap2Start + (seg2 * ratioOnSeg2));
+	//XMVECTOR pointA = (cap1Start + (seg1 * ratioOnSeg1));
+	//XMVECTOR shortestLine = pointB - pointA;
 
-	if (XMVectorGetX(XMVector3LengthSq(shortestLine)) > combineRadiusSq)
-		return false;
+	//if (XMVectorGetX(XMVector3LengthSq(shortestLine)) > combineRadiusSq)
+	//	return false;
 
-	return true;
+	//return true;
 }
 
 bool PhysicsManager::CapsuleToSphereCollision(Collider capCol, DirectX::XMMATRIX& capPos, Collider sphCol, DirectX::XMMATRIX& sphPos) {
@@ -412,11 +429,22 @@ bool PhysicsManager::CapsuleToSphereCollision(Collider capCol, DirectX::XMMATRIX
 }
 
 XMVECTOR PhysicsManager::FindClosestPointOnLine(XMVECTOR& _lineSegStart, XMVECTOR& _lineSegEnd, XMVECTOR& _testPoint) {
-	XMVECTOR lineSegment, lineToPoint;
+	XMVECTOR lineSegment, lineToPoint, closest;
 	lineSegment = _lineSegEnd - _lineSegStart;
 	lineToPoint = _testPoint - _lineSegStart;
 	float ratio = XMVectorGetX(XMVector3Dot(lineToPoint, lineSegment)) / XMVectorGetX(XMVector3Dot(lineSegment, lineSegment));
-	return _lineSegStart + (lineSegment * ratio);
+	closest = _lineSegStart + (lineSegment * ratio);
+
+	float closestToStartLengthSq = XMVectorGetX(XMVector3LengthSq(closest - _lineSegStart));
+	float closestToEndLengthSq = XMVectorGetX(XMVector3LengthSq(closest - _lineSegEnd));
+	float lineSegLengthSq = XMVectorGetX(XMVector3LengthSq(lineSegment));
+
+	if (closestToStartLengthSq > lineSegLengthSq)
+		return _lineSegEnd;
+	else if (closestToEndLengthSq > lineSegLengthSq)
+		return _lineSegStart;
+	else
+		return closest;
 }
 
 void PhysicsManager::SendCollision(GameObject* obj1, GameObject* obj2) {

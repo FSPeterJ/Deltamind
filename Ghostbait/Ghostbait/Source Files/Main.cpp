@@ -31,6 +31,7 @@ MemoryManager MemMan;
 ObjectManager* objMan;
 EngineStructure engine;
 AnimatorManager* animMan;
+AudioManager* audioMan;
 
 void ExecuteAsync() {
 	Console::WriteLine << "I am executed asyncly!";
@@ -103,6 +104,9 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	objMan = new ObjectManager(&MemMan);
 	objMan->Initialize(80);
 
+	audioMan = new AudioManager();
+	audioMan->setCamera(rendInter->getCamera());
+
 	ObjectFactory::Initialize(objMan);
 	ObjectFactory::RegisterPrefabBase<ControllerObject>(8);
 	ObjectFactory::RegisterPrefabBase<Gun>(10);
@@ -160,8 +164,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//ObjectFactory::CreatePrefab(&std::string("LeftControllerObject"));
 	//ObjectFactory::CreatePrefab(&std::string("RightControllerObject"));
 	//=============================
-
-	AudioManager tempAudioMan = AudioManager();
+	
 	game = new Game();
 	game->Start();
 	if(isVR) vrMan->CreateControllers();
@@ -210,6 +213,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 void Loop() {
 	phyMan->Update();
+	audioMan->Update();
 	inputMan->HandleInput();
 	engine.ExecuteUpdate();
 	engine.ExecuteLateUpdate();
@@ -231,6 +235,7 @@ void CleanUp() {
 	delete phyMan;
 	delete inputMan;
 	delete animMan;
+	delete audioMan;
 	if(game) {
 		game->Clean();
 		delete game;

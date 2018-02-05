@@ -27,12 +27,20 @@ namespace GhostbaitModelCreator
         [DllImport("..\\..\\FBXInterface.dll")]
         public static extern int get_bindpose_from_scene(string fbx_file_path, string output_file_path);
 
+        public string GetRelativePath(string path)
+        {
+            int nameStartIndex = path.LastIndexOf('\\') + 1;
+            return path.Substring(nameStartIndex, path.Length - nameStartIndex);
+        }
+
         public string GenerateRelativeComponentFilePath(string path, ComponentType type)
         {
             int dotIndex = path.LastIndexOf('.');
             int nameStartIndex = path.LastIndexOf('\\') + 1;
             string relativePath = path.Substring(nameStartIndex, dotIndex - nameStartIndex);
-            relativePath = toAppend + relativePath;
+            //relativePath = toAppend + relativePath;
+            // We'll move this to the engine side since we are re-writing the file structure slightly
+            // Not interested in hardcoded paths in the files
 
             switch (type)
             {
@@ -84,6 +92,7 @@ namespace GhostbaitModelCreator
             //WHAT THE FUCK - DataGridView can't Bind without get / set.  I am ignorant
             public string ComponentIdentifier { get; set; }
             public string ComponentTag { get; set; }
+            public string AbsolutePath { get; set; }
         }
 
         public class BaseComponentGroup<T>
@@ -98,7 +107,7 @@ namespace GhostbaitModelCreator
 
                 dataGridView = _DataGridView;
 
-                //dataGridView.AutoGenerateColumns = false;
+                dataGridView.AutoGenerateColumns = false;
                 dataGridView.AllowUserToAddRows = false;
                 dataGridView.AllowUserToResizeColumns = false;
                 dataGridView.AllowUserToResizeRows = false;
@@ -151,6 +160,8 @@ namespace GhostbaitModelCreator
                 DeleteButton.DisplayIndex = 99;
                 dataGridView.Columns.Add(DeleteButton);
 
+                dataGridView.CellContentClick += dataGridView_CellContentClick;
+
                 // This may seem weird, but we want to process base init first, then the derived init
                 // Which is not the normal order of executing inherited functions
                 // It allows for modifying the base grid columns to tailor the grid to the custom type in the derived class
@@ -180,6 +191,28 @@ namespace GhostbaitModelCreator
             public void Remove(int index)
             {
                 componentList.RemoveAt(index);
+            }
+
+            public void OpenEdit(int index)
+            {
+                componentList.RemoveAt(index);
+            }
+
+            private void dataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
+            {
+                var senderGrid = (DataGridView)sender;
+                if (senderGrid.Columns[e.ColumnIndex] is DataGridViewButtonColumn &&
+                    e.RowIndex >= 0)
+                {
+                    if (senderGrid.Columns[e.ColumnIndex].Name == "DeleteButton")
+                    {
+                        Remove(e.RowIndex);
+                    }
+                    else if (senderGrid.Columns[e.ColumnIndex].Name == "EditButton")
+                    {
+                        //OpenEdit();
+                    }
+                }
             }
 
             public void Reset()
@@ -516,7 +549,8 @@ namespace GhostbaitModelCreator
             if (open.ShowDialog() == DialogResult.OK)
             {
                 BaseComponent component = new BaseComponent();
-                component.ComponentIdentifier = open.FileName;
+                component.ComponentIdentifier = GetRelativePath(open.FileName);
+                component.AbsolutePath = open.FileName;
                 materials.Add(component);
             }
         }
@@ -535,7 +569,8 @@ namespace GhostbaitModelCreator
             if (open.ShowDialog() == DialogResult.OK)
             {
                 BaseComponent component = new BaseComponent();
-                component.ComponentIdentifier = open.FileName;
+                component.ComponentIdentifier = GetRelativePath(open.FileName);
+                component.AbsolutePath = open.FileName;
                 meshes.Add(component);
             }
         }

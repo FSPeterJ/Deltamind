@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using static GhostbaitModelCreator.ModelCreatorForm.ComponentType;
+using GhostbaitModelCreator.Properties;
 
 namespace GhostbaitModelCreator
 {
@@ -13,7 +14,7 @@ namespace GhostbaitModelCreator
     {
 
         const string appendedPath = "../../../GhostBait/";
-        const string toAppend = appendedPath + "Assets/";
+
 
         [DllImport("..\\..\\FBXInterface.dll")]
         public static extern int get_mesh_from_scene(string fbx_file_path, string output_file_path, string name = null);
@@ -27,100 +28,51 @@ namespace GhostbaitModelCreator
         [DllImport("..\\..\\FBXInterface.dll")]
         public static extern int get_bindpose_from_scene(string fbx_file_path, string output_file_path);
 
-        public string GetRelativePath(string path)
-        {
-            int nameStartIndex = path.LastIndexOf('\\') + 1;
-            return path.Substring(nameStartIndex, path.Length - nameStartIndex);
-        }
-
-        public string GenerateRelativeComponentFilePath(string path, ComponentType type)
-        {
-            int dotIndex = path.LastIndexOf('.');
-            int nameStartIndex = path.LastIndexOf('\\') + 1;
-            string relativePath = path.Substring(nameStartIndex, dotIndex - nameStartIndex);
-            //relativePath = toAppend + relativePath;
-            // We'll move this to the engine side since we are re-writing the file structure slightly
-            // Not interested in hardcoded paths in the files
-
-            switch (type)
-            {
-                case MESH:
-                    //relativePath = relativePath.Insert(0, "Output\\");
-                    relativePath = relativePath.Insert(relativePath.Length, ".mesh");
-
-                    break;
-
-                case MATERIAL:
-                    //relativePath = relativePath.Insert(0, "Output\\");
-                    relativePath = relativePath.Insert(relativePath.Length, ".mat");
-                    break;
-
-                case BINDPOSE:
-                    //relativePath = relativePath.Insert(0, "Output\\");
-                    relativePath = relativePath.Insert(relativePath.Length, ".bind");
-                    break;
-
-                case ANIMATION:
-                    //relativePath = relativePath.Insert(0, "Output\\");
-                    relativePath = relativePath.Insert(relativePath.Length, ".anim");
-                    break;
-
-                default:
-                    break;
-            }
-            return relativePath;
-        }
-
-        private string GetExtension(string file)
-        {
-            return file.Substring(file.LastIndexOf('.'));
-        }
-
-        [Flags]
-        public enum ComponentType
-        {
-            MESH = 1 << 0,
-            MATERIAL = 1 << 1,
-            BINDPOSE = 1 << 2,
-            COLLIDERS = 1 << 3,
-            AUDIO = 1 << 4,
-            ANIMATION = 1 << 5,
-        }
-
-        public class BaseComponent
+        internal class BaseComponent
         {
             //WHAT THE FUCK - DataGridView can't Bind without get / set.  I am ignorant
             public string ComponentIdentifier { get; set; }
             public string ComponentTag { get; set; }
             public string AbsolutePath { get; set; }
+
+            public virtual MemoryStream SpecialDataBlock()
+            {
+                throw new NotImplementedException();
+            }
         }
 
-        public class BaseComponentGroup<T>
+        internal class BaseComponentGroup<T>
         {
             public BindingList<T> componentList;
             public DataGridView dataGridView;
             public int Count => componentList.Count;
+            protected int blankTagCount = 0;
 
-            public void Init(DataGridView _DataGridView)
+
+            protected ModelCreatorForm thisForm; // This is extremely bad programming lol, but I don't care at this point.  Too much time spent on this already
+
+
+            public BaseComponentGroup(DataGridView _DataGridView, ModelCreatorForm form)
             {
+                dataGridView = _DataGridView;
+                thisForm = form;
+
                 componentList = new BindingList<T>();
 
                 dataGridView = _DataGridView;
 
                 dataGridView.AutoGenerateColumns = false;
-                dataGridView.AllowUserToAddRows = false;
+
                 dataGridView.AllowUserToResizeColumns = false;
                 dataGridView.AllowUserToResizeRows = false;
                 dataGridView.AllowUserToOrderColumns = false;
 
-                // We programatically popluate the DataGridView with the columns.  T
-                // his allows Inhertited versions to extend the columns available or hide if necessary.  
+                // We programatically popluate the DataGridView with the columns. 
+                // This allows Inhertited versions to extend the columns available or hide if necessary.  
                 // It also lets us change the properties for all the grids ONCE following DRY better.
-                // Unless there is a way to share properties across controls and edit them in desgin only once...
+                // Unless there is a way to share properties across controls and make changes to them in desgin only once...
                 // Would be nice to learn this if that's possible, but techincally irrelevant for me, just convienent
 
-                // Possible change: use constructor instead of per property set, 
-                // however you will lose intellisense
                 DataGridViewTextBoxColumn ComponentColumn = new DataGridViewTextBoxColumn();
                 ComponentColumn.Name = "ComponentIdentifier";
                 ComponentColumn.ReadOnly = false;
@@ -148,6 +100,7 @@ namespace GhostbaitModelCreator
                 EditButton.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
                 EditButton.Width = 20;
                 EditButton.DisplayIndex = 98;
+                EditButton.Visible = false;
                 dataGridView.Columns.Add(EditButton);
 
                 DataGridViewButtonColumn DeleteButton = new DataGridViewButtonColumn();
@@ -160,12 +113,9 @@ namespace GhostbaitModelCreator
                 DeleteButton.DisplayIndex = 99;
                 dataGridView.Columns.Add(DeleteButton);
 
-                dataGridView.CellContentClick += dataGridView_CellContentClick;
+                dataGridView.CellContentClick += CellContentClick;
+                dataGridView.CellFormatting += CellFormat;
 
-                // This may seem weird, but we want to process base init first, then the derived init
-                // Which is not the normal order of executing inherited functions
-                // It allows for modifying the base grid columns to tailor the grid to the custom type in the derived class
-                InternalInit();
                 dataGridView.DataSource = componentList;
             }
 
@@ -175,7 +125,6 @@ namespace GhostbaitModelCreator
             public void Add(T comp)
             {
                 componentList.Add(comp);
-                //dataGridView.Refresh();
             }
 
             public void SaveEdit(T comp, int index)
@@ -193,12 +142,11 @@ namespace GhostbaitModelCreator
                 componentList.RemoveAt(index);
             }
 
-            public void OpenEdit(int index)
+            public virtual void OpenEdit(int index)
             {
-                componentList.RemoveAt(index);
             }
 
-            private void dataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
+            private void CellContentClick(object sender, DataGridViewCellEventArgs e)
             {
                 var senderGrid = (DataGridView)sender;
                 if (senderGrid.Columns[e.ColumnIndex] is DataGridViewButtonColumn &&
@@ -210,7 +158,45 @@ namespace GhostbaitModelCreator
                     }
                     else if (senderGrid.Columns[e.ColumnIndex].Name == "EditButton")
                     {
-                        //OpenEdit();
+                        OpenEdit(e.RowIndex);
+                    }
+                }
+            }
+
+            public void TurnOffCellFormat()
+            {
+                dataGridView.CellFormatting -= CellFormat;
+            }
+            protected void CellFormat(object sender, DataGridViewCellFormattingEventArgs e)
+            {
+                var senderGrid = (DataGridView)sender;
+
+                if (senderGrid.Columns[e.ColumnIndex].Name == "ComponentTag")
+                {
+                    if (e.RowIndex == 0)
+                    {
+                        blankTagCount = 0;
+                    }
+                    if (senderGrid.Rows[e.RowIndex].IsNewRow)
+                    {
+                        e.CellStyle.BackColor = Color.Gray;
+                    }
+                    else if (e.Value == null)
+                    {
+                        ++blankTagCount;
+                        if (blankTagCount > 1)
+                        {
+                            e.CellStyle.BackColor = Color.Red;
+                        }
+                        else
+                        {
+                            e.Value = "(default)";
+                            e.CellStyle.ForeColor = Color.LightGray;
+                        }
+                    }
+                    else
+                    {
+                        e.CellStyle.ForeColor = Color.Black;
                     }
                 }
             }
@@ -219,21 +205,18 @@ namespace GhostbaitModelCreator
             {
                 componentList.Clear();
             }
-
-            protected virtual void InternalInit() { }
         }
 
-
-
-        public class ColliderGroup : BaseComponentGroup<ColliderCreatorForm.ColliderData>
+        internal class ColliderGroup : BaseComponentGroup<ColliderCreatorForm.ColliderData>
         {
-            protected override void InternalInit()
+            public ColliderGroup(DataGridView _DataGridView, ModelCreatorForm form) : base(_DataGridView, form)
             {
+                dataGridView.AllowUserToAddRows = false;
                 //They all say "Physical" anyways
                 dataGridView.Columns["ComponentIdentifier"].Visible = false;
-
-                //dataGridView.CellFormatting += this.CellFormat;  // Use this for custom types in columns
-                // See comments Below
+                dataGridView.Columns["EditButton"].Visible = true;
+                dataGridView.Columns["ComponentTag"].Visible = false;
+                dataGridView.CellFormatting -= CellFormat;
 
                 DataGridViewTextBoxColumn ComponentData = new DataGridViewTextBoxColumn();
                 ComponentData.Name = "colliderType";
@@ -244,105 +227,32 @@ namespace GhostbaitModelCreator
                 ComponentData.DisplayIndex = 0;  // Shoves the other columns over so "I am first"
             }
 
-
-
-            // Save this if type conversion is needed later
-            // This orgianlly coverted the enum to string, until I realized DataGridView intrinsically knows
-            // how to convert enums on it's own. The bug was elseware.  
-            // Convert this for custom typess or string display redefintions
-            //private void CellFormat(object sender, DataGridViewCellFormattingEventArgs e)
-            //{
-            //    DataGridView ex = sender as DataGridView;
-            //    if (ex.Columns[e.ColumnIndex].Name == "colliderType")
-            //    {
-            //        ;
-            //        if (e.Value != null)
-            //        {
-            //            e.Value = ((ColliderCreatorForm.ColliderType)e.Value).ToString();
-            //        }
-            //        else
-            //        {
-            //            e.Value ="NULL";
-            //        } 
-
-            //    }
-            //}
-        }
-
-        private struct animationFileData
-        {
-            private List<AnimationCreatorForm.AnimationData> animations;
-            private ListBox listbox;
-
-            public int animCount => animations.Count;
-
-            public void addAnimation(AnimationCreatorForm.AnimationData anim)
+            public override void OpenEdit(int index)
             {
-                listbox.Items.Add(anim.name);
-                animations.Add(anim);
-            }
 
-            public void Edit(AnimationCreatorForm.AnimationData anim, int index)
-            {
-                animations[index] = anim;
-                listbox.Items[index] = anim.name;
-            }
-
-            public AnimationCreatorForm.AnimationData GetAnimation(int index)
-            {
-                return animations[index];
-            }
-
-            public void Init(ListBox _listbox)
-            {
-                listbox = _listbox;
-                animations = new List<AnimationCreatorForm.AnimationData>();
-            }
-
-            public void RemoveAnimation()
-            {
-                int index = listbox.SelectedIndex;
-                if (index < 0 || index > listbox.Items.Count)
-                    return;
-                listbox.Items.RemoveAt(index);
-                animations.RemoveAt(index);
-            }
-            public void Reset()
-            {
-                listbox.Items.Clear();
-                animations.Clear();
+                var f = new ColliderCreatorForm(thisForm);
+                f.Show(thisForm);
+                f.Edit(Get(index), index);
             }
         }
 
-        private struct MultiFileData
+        internal class AnimationGroup : BaseComponentGroup<AnimationCreatorForm.AnimationData>
         {
-            public List<string> filePaths;
-            private ListBox listBox;
-
-            public void AddFile(string fileName)
+            public AnimationGroup(DataGridView _DataGridView, ModelCreatorForm form) : base(_DataGridView, form)
             {
-                listBox.Items.Add(fileName);
-                filePaths.Add(fileName);
+                dataGridView.AllowUserToAddRows = false;
+                dataGridView.Columns["ComponentIdentifier"].Visible = true;
+                dataGridView.Columns["EditButton"].Visible = true;
+                dataGridView.Columns["ComponentTag"].Visible = true;
+
             }
 
-            public void Init(ListBox _listBox)
+            public override void OpenEdit(int index)
             {
-                listBox = _listBox;
-                filePaths = new List<string>();
-            }
 
-            public void RemoveFile()
-            {
-                int index = listBox.SelectedIndex;
-                if (index < 0 || index > listBox.Items.Count) return;
-                listBox.Items.RemoveAt(index);
-                filePaths.RemoveAt(index);
-            }
-
-            public void Reset()
-            {
-                listBox.Items.Clear();
-                filePaths.Clear();
+                var f = new AnimationCreatorForm(thisForm);
+                f.Show(thisForm);
+                f.Edit(Get(index), index);
             }
         }
 
@@ -366,66 +276,58 @@ namespace GhostbaitModelCreator
             public void Reset() => FilePath = string.Empty;
         }
 
-        private animationFileData anim;
-        private MultiFileData audio;
         private SingleFileData bindPose;
+        private BaseComponentGroup<BaseComponent> audio;
         private BaseComponentGroup<BaseComponent> meshes;
         private BaseComponentGroup<BaseComponent> materials;
+        private BaseComponentGroup<BaseComponent> childObjects;
         private ColliderGroup colliders;
+        private AnimationGroup animations;
 
         private List<BaseComponentGroup<BaseComponent>> BaseComponentContainers = new List<BaseComponentGroup<BaseComponent>>();
 
         public ModelCreatorForm()
         {
             InitializeComponent();
-            //Todo: Might as well just make this the constructor instead of a seperate init
-            meshes = new BaseComponentGroup<BaseComponent>();
-            materials = new BaseComponentGroup<BaseComponent>();
-            colliders = new ColliderGroup();
-            meshes.Init(dataGridViewMesh);
-            materials.Init(dataGridViewMaterial);
-            colliders.Init(dataGridViewColliders);
+            meshes = new BaseComponentGroup<BaseComponent>(dataGridViewMesh, this);
+            materials = new BaseComponentGroup<BaseComponent>(dataGridViewMaterial, this);
+            colliders = new ColliderGroup(dataGridViewColliders, this);
+            animations = new AnimationGroup(dataGridViewAnimation, this);
+            childObjects = new BaseComponentGroup<BaseComponent>(dataGridViewChildObjects, this);
+            audio = new BaseComponentGroup<BaseComponent>(dataGridViewAudio, this);
+
+            childObjects.TurnOffCellFormat();
+
+            //--------------
+            // ONLY ADD ITEMS WITH NO EXTRA DATA
+            //===========================================
             BaseComponentContainers.Add(meshes);
             BaseComponentContainers.Add(materials);
+            BaseComponentContainers.Add(childObjects);
+            BaseComponentContainers.Add(audio);
 
-            //Older system
+            // Older system
             //=====================
             bindPose.Init(bindPoseFileName);
-            audio.Init(audioListBox);
-            anim.Init(animationListBox);
         }
 
         internal void CreateColliderPressed(ColliderCreatorForm.ColliderData d) => colliders.Add(d);
 
         internal void CreateColliderPressed(ColliderCreatorForm.ColliderData d, int index) => colliders.SaveEdit(d, index);
 
-        internal void CreateAnimationPressed(AnimationCreatorForm.AnimationData d) => anim.addAnimation(d);
+        internal void CreateAnimationPressed(AnimationCreatorForm.AnimationData d) => animations.Add(d);
 
-        internal void CreateAnimationPressed(AnimationCreatorForm.AnimationData d, int index) => anim.Edit(d, index);
+        internal void CreateAnimationPressed(AnimationCreatorForm.AnimationData d, int index) => animations.SaveEdit(d, index);
+
+        //Collider
+        private void colliderAdd_Click(object sender, EventArgs e) => new ColliderCreatorForm(this).Show(this);
 
         //Animation
         private void animationAdd_Click(object sender, EventArgs e)
         {
-            //OpenFileDialog open = new OpenFileDialog {
-            //    Filter = "Animations (*.anim), (*.fbx)| *.anim; *.fbx;",
-            //    InitialDirectory = @"C:\",
-            //    Title = "An animation file for this Ghostbait object."
-            //};
-            //if (open.ShowDialog() == DialogResult.OK) {
-            //    if (open.FileName.Substring(open.FileName.Length - 4) == ".fbx") {
-            //        string animFile = GenerateRelativeComponentFilePath(open.FileName, ANIMATION);
-            //        if (get_animdata_from_scene(open.FileName, animFile) != -1) {
-            //            animFile = animFile.Substring(/*Make const*/19);
-            //            anim.AddFile(animFile);
-            //        }
-            //    } else {
-            //        anim.AddFile(open.FileName);
-            //    }
-            //}
+
             new AnimationCreatorForm(this).Show(this);
         }
-
-        private void animationRemove_Click(object sender, EventArgs e) => anim.RemoveAnimation();
 
         //Audio
         private void audioAdd_Click(object sender, EventArgs e)
@@ -433,16 +335,21 @@ namespace GhostbaitModelCreator
             OpenFileDialog open = new OpenFileDialog
             {
                 Filter = "Audio (*.wav, *.mp3) | *.wav; *.mp3;",
-                InitialDirectory = @"C:\",
+                InitialDirectory = Settings.Default.audio_path,
                 Title = "An audio file for this Ghostbait object."
+
             };
             if (open.ShowDialog() == DialogResult.OK)
             {
-                audio.AddFile(open.FileName);
+                Settings.Default.audio_path = Path.GetDirectoryName(open.FileName);
+                Settings.Default.Save();
+                BaseComponent component = new BaseComponent();
+                component.ComponentIdentifier = Path.GetFileName(open.FileName);
+                component.AbsolutePath = open.FileName;
+                audio.Add(component);
             }
         }
 
-        private void audioRemove_Click(object sender, EventArgs e) => audio.RemoveFile();
 
         //BindPose
         private void bindPoseFileGrab_Click(object sender, EventArgs e)
@@ -469,7 +376,7 @@ namespace GhostbaitModelCreator
             bindPose.Reset();
             colliders.Reset();
             audio.Reset();
-            anim.Reset();
+            animations.Reset();
             className.Text = string.Empty;
         }
 
@@ -478,62 +385,58 @@ namespace GhostbaitModelCreator
             OpenFileDialog open = new OpenFileDialog
             {
                 Filter = "FBX files (*.fbx) | *.fbx;",
-                InitialDirectory = @"C:\",
-                Title = "FBX file"
+                InitialDirectory = Settings.Default.fbx_path,
+                Title = "FBX file",
+                RestoreDirectory = true
+
             };
             if (open.ShowDialog() == DialogResult.OK)
             {
+                Settings.Default.fbx_path = Path.GetDirectoryName(open.FileName);
+                Settings.Default.Save();
                 meshes.Reset();
                 materials.Reset();
                 bindPose.Reset();
                 colliders.Reset();
                 audio.Reset();
-                anim.Reset();
+                animations.Reset();
 
-                string meshFile = GenerateRelativeComponentFilePath(open.FileName, MESH);
-                string matFile = GenerateRelativeComponentFilePath(open.FileName, MATERIAL);
-                string bindPoseFile = GenerateRelativeComponentFilePath(open.FileName, BINDPOSE);
-                string animFile = GenerateRelativeComponentFilePath(open.FileName, ANIMATION);
+                string baseName = Path.GetFileNameWithoutExtension(open.FileName);
+                string path = Path.GetDirectoryName(open.FileName);
+                string meshFile = path + "/" + baseName + ".mesh";
+                string matFile = path + "/" + baseName + ".mat";
+                string bindPoseFile = path + "/" + baseName + ".bind";
+                string animFile = path + "/" + baseName + ".anim";
 
                 if (get_mesh_from_scene(open.FileName, meshFile) != -1)
                 {
-                    meshFile = meshFile.Substring(appendedPath.Length);
                     BaseComponent component = new BaseComponent();
-                    component.ComponentIdentifier = meshFile;
+                    component.AbsolutePath = meshFile;
+                    component.ComponentIdentifier = Path.GetFileName(meshFile);
                     meshes.Add(component);
                 }
                 if (get_material_from_scene(open.FileName, matFile) != -1)
                 {
-                    matFile = matFile.Substring(appendedPath.Length);
                     BaseComponent component = new BaseComponent();
-                    component.ComponentIdentifier = matFile;
+                    component.AbsolutePath = matFile;
+                    component.ComponentIdentifier = Path.GetFileName(matFile);
                     materials.Add(component);
                 }
                 if (get_bindpose_from_scene(open.FileName, bindPoseFile) != -1)
                 {
-                    bindPoseFile = bindPoseFile.Substring(appendedPath.Length);
-                    bindPose.FilePath = bindPoseFile;
+                    //Depreciated?
+                    bindPose.FilePath = Path.GetFileName(bindPoseFile);
+                }
+                if (get_animdata_from_scene(open.FileName, animFile) != -1)
+                {
+                    AnimationCreatorForm.AnimationData component = new AnimationCreatorForm.AnimationData();
+                    component.AbsolutePath = animFile;
+                    component.ComponentIdentifier = Path.GetFileName(animFile);
+                    animations.Add(component);
                 }
             }
         }
 
-        //Collider
-        private void colliderAdd_Click(object sender, EventArgs e) => new ColliderCreatorForm(this).Show(this);
-
-        //TODO : Test to see if we want to put this functionality back in
-        //private void colliderListBox_MouseDoubleClick(object sender, MouseEventArgs e)
-        //{
-        //    int index = colliderListBox.IndexFromPoint(e.Location);
-        //    if (index != ListBox.NoMatches)
-        //    {
-        //        var f = new ColliderCreatorForm(this);
-        //        f.Show(this);
-        //        f.Edit(colliders.Get(index), index);
-        //    }
-        //}
-
-        //TODO : Replace with delete box column
-        private void colliderRemove_Click(object sender, EventArgs e) => MessageBox.Show("Depreciated!", $@"This function does nothing and should be removed.", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
 
         //Material
@@ -543,13 +446,15 @@ namespace GhostbaitModelCreator
             OpenFileDialog open = new OpenFileDialog
             {
                 Filter = "Materials (*.mat)| *.mat;",
-                InitialDirectory = @"C:\",
+                InitialDirectory = Settings.Default.material_path,
                 Title = "A material file for this Ghostbait object."
             };
             if (open.ShowDialog() == DialogResult.OK)
             {
+                Settings.Default.material_path = Path.GetDirectoryName(open.FileName);
+                Settings.Default.Save();
                 BaseComponent component = new BaseComponent();
-                component.ComponentIdentifier = GetRelativePath(open.FileName);
+                component.ComponentIdentifier = Path.GetFileName(open.FileName);
                 component.AbsolutePath = open.FileName;
                 materials.Add(component);
             }
@@ -563,13 +468,15 @@ namespace GhostbaitModelCreator
             OpenFileDialog open = new OpenFileDialog
             {
                 Filter = "Meshes (*.mesh)| *.mesh;",
-                InitialDirectory = @"C:\",
+                InitialDirectory = Settings.Default.mesh_path,
                 Title = "A mesh file for this Ghostbait object."
             };
             if (open.ShowDialog() == DialogResult.OK)
             {
+                Settings.Default.mesh_path = Path.GetDirectoryName(open.FileName);
+                Settings.Default.Save();
                 BaseComponent component = new BaseComponent();
-                component.ComponentIdentifier = GetRelativePath(open.FileName);
+                component.ComponentIdentifier = Path.GetFileName(open.FileName);
                 component.AbsolutePath = open.FileName;
                 meshes.Add(component);
             }
@@ -583,17 +490,19 @@ namespace GhostbaitModelCreator
             OpenFileDialog open = new OpenFileDialog
             {
                 Filter = "Ghostbait files (*.ghost) | *.ghost;",
-                InitialDirectory = @"C:\",
+                InitialDirectory = Settings.Default.ghost_path,
                 Title = "Ghostbait model file"
             };
             if (open.ShowDialog() == DialogResult.OK)
             {
+                Settings.Default.ghost_path = Path.GetDirectoryName(open.FileName);
+                Settings.Default.Save();
                 meshes.Reset();
                 materials.Reset();
                 bindPose.Reset();
                 colliders.Reset();
                 audio.Reset();
-                anim.Reset();
+                animations.Reset();
 
                 //Read .ghost file to fill in data
                 BinaryReader reader = new BinaryReader(open.OpenFile());
@@ -609,34 +518,37 @@ namespace GhostbaitModelCreator
                     {
                         string data = new string(reader.ReadChars(size));
                         data = data.Remove(data.Length - 1);
-                        if (GetExtension(data).ToLower() == ".mesh")
+                        if (Path.GetExtension(data).ToLower() == ".mesh")
                         {
                             BaseComponent component = new BaseComponent();
                             component.ComponentIdentifier = data;
                             meshes.Add(component);
                         }
-                        else if (GetExtension(data).ToLower() == ".mat")
+                        else if (Path.GetExtension(data).ToLower() == ".mat")
                         {
                             BaseComponent component = new BaseComponent();
                             component.ComponentIdentifier = data;
                             materials.Add(component);
                         }
-                        else if (GetExtension(data).ToLower() == ".bind")
+                        else if (Path.GetExtension(data).ToLower() == ".bind")
                         {
                             bindPose.FilePath = data;
                         }
-                        else if (GetExtension(data).ToLower() == ".mp3" || GetExtension(data).ToLower() == ".wav")
+                        else if (Path.GetExtension(data).ToLower() == ".mp3" || Path.GetExtension(data).ToLower() == ".wav")
                         {
-                            audio.AddFile(data);
+                            BaseComponent component = new BaseComponent();
+                            component.ComponentIdentifier = data;
+                            audio.Add(component);
                         }
-                        else if (GetExtension(data).ToLower() == ".anim")
+                        else if (Path.GetExtension(data).ToLower() == ".anim")
                         {
                             int len = reader.ReadInt32();
                             String name = new string(reader.ReadChars(len));
                             AnimationCreatorForm.AnimationData toPush = new AnimationCreatorForm.AnimationData();
-                            toPush.filePath = data;
-                            toPush.name = name;
-                            anim.addAnimation(toPush);
+                            toPush.ComponentIdentifier = Path.GetFileName(data);
+                            toPush.AbsolutePath = data; // I am making an assumption about pathing here
+                            toPush.ComponentTag = name;
+                            animations.Add(toPush);
                         }
                         continue;
                     }
@@ -706,9 +618,10 @@ namespace GhostbaitModelCreator
                                 var stringName = new string(reader.ReadChars(reader.ReadInt32()));
                                 stringName = stringName.Remove(stringName.Length - 1);
                                 AnimationCreatorForm.AnimationData toPush = new AnimationCreatorForm.AnimationData();
-                                toPush.filePath = stringAnim;
-                                toPush.name = stringName;
-                                anim.addAnimation(toPush);
+                                toPush.ComponentIdentifier = Path.GetFileName(stringAnim);
+                                toPush.AbsolutePath = stringAnim; // I am making an assumption about pathing here
+                                toPush.ComponentTag = stringName;
+                                animations.Add(toPush);
                             }
                         }
                     }
@@ -721,22 +634,36 @@ namespace GhostbaitModelCreator
         {
             if (className.Text == string.Empty)
             {
-                MessageBox.Show(this, "Must have class name.", "Missing Data", MessageBoxButtons.OK);
+                MessageBox.Show(this, "Must have a c++ object class name or alias.", "Missing Data", MessageBoxButtons.OK);
                 return;
             }
-            if (anim.animCount > 0 && bindPoseFileName.Text == String.Empty)
+            //Shouldn't Bind pose data be bound within the animation stage 0?
+            if (animations.Count > 0 && bindPoseFileName.Text == String.Empty)
             {
                 MessageBox.Show(this, "Objects with animations must have a bindpose!", "Missing Data", MessageBoxButtons.OK);
                 return;
             }
+
+            for (int i = 0; i < animations.Count; i++)
+            {
+                if (animations.Get(i).ComponentTag == null)
+                {
+                    MessageBox.Show(this, "Animations must have tags!", "Missing Data", MessageBoxButtons.OK);
+
+                    return;
+                }
+            }
+
             SaveFileDialog save = new SaveFileDialog
             {
                 Filter = "Ghostbait file (*.ghost)| *.ghost; |Binary file (*.bin)| *.bin;",
-                InitialDirectory = @"C:\",
+                InitialDirectory = Settings.Default.ghost_path,
                 Title = "Ghostbait model file"
             };
             if (save.ShowDialog() == DialogResult.OK)
             {
+                Settings.Default.ghost_path = Path.GetDirectoryName(save.FileName);
+                Settings.Default.Save();
                 using (BinaryWriter writer = new BinaryWriter(save.OpenFile()))
                 {
                     //Class
@@ -754,6 +681,16 @@ namespace GhostbaitModelCreator
                                 outstr = component.ComponentIdentifier + '\0';
                                 writer.Write(outstr.Length);
                                 writer.Write(outstr.ToCharArray());
+                                if (component.ComponentTag == null)
+                                {
+                                    writer.Write(0);
+                                }
+                                else
+                                {
+                                    outstr = component.ComponentTag + '\0';
+                                    writer.Write(outstr.Length);
+                                    writer.Write(outstr.ToCharArray());
+                                }
                             }
                         }
                     }
@@ -767,104 +704,94 @@ namespace GhostbaitModelCreator
                     if (colliders.Count > 0)
                     {
                         //Find ColliderDataSize
-                        int colliderDataSize = sizeof(Int32);
+                        //int colliderDataSize = sizeof(Int32);
+                        //for (int i = 0; i < colliders.Count; ++i)
+                        //{
+                        //    //Type
+                        //    colliderDataSize += sizeof(Int32) + colliders.Get(i).colliderType.ToString().Length + 1;
+                        //    //Offset
+                        //    colliderDataSize += sizeof(float) * 3;
+                        //    //Custom Data
+                        //    switch (colliders.Get(i).colliderType)
+                        //    {
+                        //        case ColliderCreatorForm.ColliderType.SPHERE:
+                        //            colliderDataSize += sizeof(float);
+                        //            break;
+
+                        //        case ColliderCreatorForm.ColliderType.CAPSULE:
+                        //            colliderDataSize += sizeof(float) * 2;
+                        //            break;
+
+                        //        case ColliderCreatorForm.ColliderType.BOX:
+                        //            colliderDataSize += sizeof(float) * 6;
+                        //            break;
+
+                        //        default: break;
+                        //    }
+                        //}
+                        //Writer Collider Header
+                        writer.Write(-colliders.Get(0).ComponentIdentifier.Length);
+                        writer.Write(colliders.Get(0).ComponentIdentifier.ToCharArray());
+                        if (colliders.Get(0).ComponentTag == null)
+                        {
+                            writer.Write(0);
+                        }
+                        else
+                        {
+                            outstr = colliders.Get(0).ComponentTag + '\0';
+                            writer.Write(outstr.Length);
+                            writer.Write(outstr.ToCharArray());
+                        }
+
+                        MemoryStream specialData;
                         for (int i = 0; i < colliders.Count; ++i)
                         {
-                            //Type
-                            colliderDataSize += sizeof(Int32) + colliders.Get(i).colliderType.ToString().Length + 1;
-                            //Offset
-                            colliderDataSize += sizeof(float) * 3;
-                            //Custom Data
-                            switch (colliders.Get(i).colliderType)
-                            {
-                                case ColliderCreatorForm.ColliderType.SPHERE:
-                                    colliderDataSize += sizeof(float);
-                                    break;
-
-                                case ColliderCreatorForm.ColliderType.CAPSULE:
-                                    colliderDataSize += sizeof(float) * 2;
-                                    break;
-
-                                case ColliderCreatorForm.ColliderType.BOX:
-                                    colliderDataSize += sizeof(float) * 6;
-                                    break;
-
-                                default: break;
-                            }
+                            colliders.Get(0).SpecialDataBlock();
                         }
-                        //Writer Collider Header
-                        writer.Write(-colliderDataSize);
-                        writer.Write(colliders.Get(0).ComponentIdentifier.Length);
-                        writer.Write(colliders.Get(0).ComponentIdentifier.ToCharArray());
+
+                        writer.Write(colliderDataSize);
                         //Write ColliderData
                         writer.Write(colliders.Count);
                         for (int i = 0; i < colliders.Count; ++i)
                         {
-                            //Type
-                            var enumString = colliders.Get(i).colliderType.ToString() + '\0';
-                            writer.Write(enumString.Length);
-                            writer.Write(enumString.ToCharArray());
-                            //Offset
-                            writer.Write(colliders.Get(i).offsetX);
-                            writer.Write(colliders.Get(i).offsetY);
-                            writer.Write(colliders.Get(i).offsetZ);
-                            //Custom Data
-                            switch (colliders.Get(i).colliderType)
-                            {
-                                case ColliderCreatorForm.ColliderType.SPHERE:
-                                    writer.Write(colliders.Get(i).radius);
-                                    break;
-
-                                case ColliderCreatorForm.ColliderType.CAPSULE:
-                                    writer.Write(colliders.Get(i).radius);
-                                    writer.Write(colliders.Get(i).height);
-                                    break;
-
-                                case ColliderCreatorForm.ColliderType.BOX:
-                                    writer.Write(colliders.Get(i).point1X);
-                                    writer.Write(colliders.Get(i).point1Y);
-                                    writer.Write(colliders.Get(i).point1Z);
-                                    writer.Write(colliders.Get(i).point2X);
-                                    writer.Write(colliders.Get(i).point2Y);
-                                    writer.Write(colliders.Get(i).point2Z);
-                                    break;
-
-                                default: break;
-                            }
+                            
+                            
                         }
                     }
                     //Audio
-                    for (int i = 0; i < audio.filePaths.Count; ++i)
+                    //TODO : Fix Later
+                    for (int i = 0; i < audio.Count; ++i)
                     {
-                        outstr = audio.filePaths[i] + '\0';
+                        outstr = audio.Get(i).ComponentIdentifier + '\0';
                         writer.Write(outstr.Length);
                         writer.Write(outstr.ToCharArray());
                     }
                     //Animations
-                    if (anim.animCount > 0)
+                    if (animations.Count > 0)
                     {
                         int animDataSize = sizeof(Int32);
                         string animName = "Animate\0";
                         animDataSize += sizeof(Int32) + bindPoseFileName.Text.Length + 1;
-                        for (int i = 0; i < anim.animCount; ++i)
+                        for (int i = 0; i < animations.Count; ++i)
                         {
-                            animDataSize += sizeof(Int32) + anim.GetAnimation(i).filePath.Length + 1;
-                            animDataSize += sizeof(Int32) + anim.GetAnimation(i).name.Length + 1;
+                            animDataSize += sizeof(Int32) + animations.Get(i).ComponentIdentifier.Length + 1;
+                            animDataSize += sizeof(Int32) + animations.Get(i).ComponentTag.Length + 1;// ERROR COMPONENT TAG IS NULL
                         }
                         //Writer Animation Header
                         writer.Write(-animDataSize);
                         writer.Write(animName.Length);
                         writer.Write(animName.ToCharArray());
+
                         outstr = bindPose.FilePath + '\0';
                         writer.Write(outstr.Length);
                         writer.Write(outstr.ToCharArray());
-                        writer.Write(anim.animCount);
-                        for (int i = 0; i < anim.animCount; ++i)
+                        writer.Write(animations.Count);
+                        for (int i = 0; i < animations.Count; ++i)
                         {
-                            outstr = anim.GetAnimation(i).filePath + '\0';
+                            outstr = animations.Get(i).ComponentIdentifier + '\0';
                             writer.Write(outstr.Length);
                             writer.Write(outstr.ToCharArray());
-                            outstr = anim.GetAnimation(i).name + '\0';
+                            outstr = animations.Get(i).ComponentTag + '\0';
                             writer.Write(outstr.Length);
                             writer.Write(outstr.ToCharArray());
                         }
@@ -880,45 +807,24 @@ namespace GhostbaitModelCreator
             bindPose.FilePath = bindPoseFileName.Text;
         }
 
-        private void animationListBox_MouseDoubleClick(object sender, MouseEventArgs e)
+        private void ChildObjectsAdd_Click(object sender, EventArgs e)
         {
-            int index = animationListBox.IndexFromPoint(e.Location);
-            if (index != ListBox.NoMatches)
+            OpenFileDialog open = new OpenFileDialog
             {
-                var f = new AnimationCreatorForm(this);
-                f.Show(this);
-                f.Edit(anim.GetAnimation(index), index);
+                Filter = "Ghostbait File (*.ghost) | *.ghost;",
+                InitialDirectory = Settings.Default.ghost_path,
+                Title = "An Object file for this Ghostbait Engine."
+            };
+            if (open.ShowDialog() == DialogResult.OK)
+            {
+                Settings.Default.ghost_path = Path.GetDirectoryName(open.FileName);
+                Settings.Default.Save();
+                BaseComponent component = new BaseComponent();
+                component.ComponentIdentifier = Path.GetFileName(open.FileName);
+                component.AbsolutePath = open.FileName;
+                childObjects.Add(component);
             }
         }
 
-        private void ModelCreatorForm_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
-        {
-
-        }
-
-        private void colliderListBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void dataGridViewColliders_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
-
-        private void pictureBox1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void groupBox3_Enter(object sender, EventArgs e)
-        {
-
-        }
     }
 }

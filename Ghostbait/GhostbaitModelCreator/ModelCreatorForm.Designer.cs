@@ -30,29 +30,30 @@ namespace GhostbaitModelCreator
         {
             this.components = new System.ComponentModel.Container();
             this.groupBoxAnimation = new System.Windows.Forms.GroupBox();
-            this.animationListBox = new System.Windows.Forms.ListBox();
-            this.animationRemove = new System.Windows.Forms.Button();
+            this.dataGridViewAnimation = new System.Windows.Forms.DataGridView();
+            this.panel4 = new System.Windows.Forms.Panel();
             this.animationAdd = new System.Windows.Forms.Button();
             this.className = new System.Windows.Forms.TextBox();
-            this.meshFileRemove = new System.Windows.Forms.Button();
             this.meshFileGrab = new System.Windows.Forms.Button();
             this.SidePanel = new System.Windows.Forms.Panel();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.dataGridViewChildObjects = new System.Windows.Forms.DataGridView();
+            this.panel5 = new System.Windows.Forms.Panel();
+            this.ChildObjectsAdd = new System.Windows.Forms.Button();
             this.groupBoxBindPose = new System.Windows.Forms.GroupBox();
             this.bindPoseFileRemove = new System.Windows.Forms.Button();
             this.bindPoseFileName = new System.Windows.Forms.TextBox();
             this.bindPoseFileGrab = new System.Windows.Forms.Button();
             this.groupBoxAudio = new System.Windows.Forms.GroupBox();
+            this.dataGridViewAudio = new System.Windows.Forms.DataGridView();
+            this.panel6 = new System.Windows.Forms.Panel();
             this.audioAdd = new System.Windows.Forms.Button();
-            this.audioListBox = new System.Windows.Forms.ListBox();
-            this.audioRemove = new System.Windows.Forms.Button();
             this.groupBoxColliders = new System.Windows.Forms.GroupBox();
             this.dataGridViewColliders = new System.Windows.Forms.DataGridView();
             this.panel1 = new System.Windows.Forms.Panel();
             this.colliderAdd = new System.Windows.Forms.Button();
-            this.colliderRemove = new System.Windows.Forms.Button();
             this.groupBoxMaterial = new System.Windows.Forms.GroupBox();
             this.dataGridViewMaterial = new System.Windows.Forms.DataGridView();
-            this.materialFileRemove = new System.Windows.Forms.Button();
             this.panel2 = new System.Windows.Forms.Panel();
             this.materialFileGrab = new System.Windows.Forms.Button();
             this.groupBoxMesh = new System.Windows.Forms.GroupBox();
@@ -70,9 +71,16 @@ namespace GhostbaitModelCreator
             this.colliderCreatorFormBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.programBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.groupBoxAnimation.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewAnimation)).BeginInit();
+            this.panel4.SuspendLayout();
             this.SidePanel.SuspendLayout();
+            this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewChildObjects)).BeginInit();
+            this.panel5.SuspendLayout();
             this.groupBoxBindPose.SuspendLayout();
             this.groupBoxAudio.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewAudio)).BeginInit();
+            this.panel6.SuspendLayout();
             this.groupBoxColliders.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewColliders)).BeginInit();
             this.panel1.SuspendLayout();
@@ -81,6 +89,7 @@ namespace GhostbaitModelCreator
             this.panel2.SuspendLayout();
             this.groupBoxMesh.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewMesh)).BeginInit();
+            this.panel3.SuspendLayout();
             this.groupBoxClass.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.colliderBindingSource)).BeginInit();
@@ -90,39 +99,40 @@ namespace GhostbaitModelCreator
             // 
             // groupBoxAnimation
             // 
-            this.groupBoxAnimation.Controls.Add(this.animationListBox);
-            this.groupBoxAnimation.Controls.Add(this.animationRemove);
-            this.groupBoxAnimation.Controls.Add(this.animationAdd);
+            this.groupBoxAnimation.AutoSize = true;
+            this.groupBoxAnimation.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.groupBoxAnimation.Controls.Add(this.dataGridViewAnimation);
+            this.groupBoxAnimation.Controls.Add(this.panel4);
             this.groupBoxAnimation.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBoxAnimation.Location = new System.Drawing.Point(0, 828);
+            this.groupBoxAnimation.Location = new System.Drawing.Point(0, 823);
             this.groupBoxAnimation.Name = "groupBoxAnimation";
-            this.groupBoxAnimation.Size = new System.Drawing.Size(305, 183);
+            this.groupBoxAnimation.Size = new System.Drawing.Size(305, 168);
             this.groupBoxAnimation.TabIndex = 9;
             this.groupBoxAnimation.TabStop = false;
             this.groupBoxAnimation.Text = "Animation";
             // 
-            // animationListBox
+            // dataGridViewAnimation
             // 
-            this.animationListBox.FormattingEnabled = true;
-            this.animationListBox.Location = new System.Drawing.Point(3, 65);
-            this.animationListBox.Name = "animationListBox";
-            this.animationListBox.Size = new System.Drawing.Size(299, 95);
-            this.animationListBox.TabIndex = 3;
-            this.animationListBox.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.animationListBox_MouseDoubleClick);
+            this.dataGridViewAnimation.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewAnimation.Dock = System.Windows.Forms.DockStyle.Top;
+            this.dataGridViewAnimation.Location = new System.Drawing.Point(3, 48);
+            this.dataGridViewAnimation.Name = "dataGridViewAnimation";
+            this.dataGridViewAnimation.RowHeadersVisible = false;
+            this.dataGridViewAnimation.Size = new System.Drawing.Size(299, 117);
+            this.dataGridViewAnimation.TabIndex = 11;
             // 
-            // animationRemove
+            // panel4
             // 
-            this.animationRemove.Location = new System.Drawing.Point(96, 28);
-            this.animationRemove.Name = "animationRemove";
-            this.animationRemove.Size = new System.Drawing.Size(84, 22);
-            this.animationRemove.TabIndex = 2;
-            this.animationRemove.Text = "Remove";
-            this.animationRemove.UseVisualStyleBackColor = true;
-            this.animationRemove.Click += new System.EventHandler(this.animationRemove_Click);
+            this.panel4.Controls.Add(this.animationAdd);
+            this.panel4.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel4.Location = new System.Drawing.Point(3, 16);
+            this.panel4.Name = "panel4";
+            this.panel4.Size = new System.Drawing.Size(299, 32);
+            this.panel4.TabIndex = 9;
             // 
             // animationAdd
             // 
-            this.animationAdd.Location = new System.Drawing.Point(6, 28);
+            this.animationAdd.Location = new System.Drawing.Point(3, 3);
             this.animationAdd.Name = "animationAdd";
             this.animationAdd.Size = new System.Drawing.Size(84, 22);
             this.animationAdd.TabIndex = 4;
@@ -137,23 +147,13 @@ namespace GhostbaitModelCreator
             this.className.Size = new System.Drawing.Size(188, 20);
             this.className.TabIndex = 1;
             // 
-            // meshFileRemove
-            // 
-            this.meshFileRemove.Location = new System.Drawing.Point(170, 23);
-            this.meshFileRemove.Name = "meshFileRemove";
-            this.meshFileRemove.Size = new System.Drawing.Size(24, 20);
-            this.meshFileRemove.TabIndex = 2;
-            this.meshFileRemove.Text = "X";
-            this.meshFileRemove.UseVisualStyleBackColor = true;
-            this.meshFileRemove.Click += new System.EventHandler(this.meshFileRemove_Click);
-            // 
             // meshFileGrab
             // 
-            this.meshFileGrab.Location = new System.Drawing.Point(140, 23);
+            this.meshFileGrab.Location = new System.Drawing.Point(3, 6);
             this.meshFileGrab.Name = "meshFileGrab";
-            this.meshFileGrab.Size = new System.Drawing.Size(24, 20);
+            this.meshFileGrab.Size = new System.Drawing.Size(84, 22);
             this.meshFileGrab.TabIndex = 1;
-            this.meshFileGrab.Text = "...";
+            this.meshFileGrab.Text = "Add";
             this.meshFileGrab.UseVisualStyleBackColor = true;
             this.meshFileGrab.Click += new System.EventHandler(this.meshFileGrab_Click);
             // 
@@ -162,6 +162,7 @@ namespace GhostbaitModelCreator
             this.SidePanel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.SidePanel.AutoScroll = true;
             this.SidePanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.SidePanel.Controls.Add(this.groupBox1);
             this.SidePanel.Controls.Add(this.groupBoxAnimation);
             this.SidePanel.Controls.Add(this.groupBoxBindPose);
             this.SidePanel.Controls.Add(this.groupBoxAudio);
@@ -174,13 +175,54 @@ namespace GhostbaitModelCreator
             this.SidePanel.Size = new System.Drawing.Size(322, 637);
             this.SidePanel.TabIndex = 5;
             // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.dataGridViewChildObjects);
+            this.groupBox1.Controls.Add(this.panel5);
+            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.groupBox1.Location = new System.Drawing.Point(0, 991);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(305, 183);
+            this.groupBox1.TabIndex = 10;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Child Object";
+            // 
+            // dataGridViewChildObjects
+            // 
+            this.dataGridViewChildObjects.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewChildObjects.Dock = System.Windows.Forms.DockStyle.Top;
+            this.dataGridViewChildObjects.Location = new System.Drawing.Point(3, 48);
+            this.dataGridViewChildObjects.Name = "dataGridViewChildObjects";
+            this.dataGridViewChildObjects.RowHeadersVisible = false;
+            this.dataGridViewChildObjects.Size = new System.Drawing.Size(299, 125);
+            this.dataGridViewChildObjects.TabIndex = 11;
+            // 
+            // panel5
+            // 
+            this.panel5.Controls.Add(this.ChildObjectsAdd);
+            this.panel5.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel5.Location = new System.Drawing.Point(3, 16);
+            this.panel5.Name = "panel5";
+            this.panel5.Size = new System.Drawing.Size(299, 32);
+            this.panel5.TabIndex = 9;
+            // 
+            // ChildObjectsAdd
+            // 
+            this.ChildObjectsAdd.Location = new System.Drawing.Point(3, 3);
+            this.ChildObjectsAdd.Name = "ChildObjectsAdd";
+            this.ChildObjectsAdd.Size = new System.Drawing.Size(84, 22);
+            this.ChildObjectsAdd.TabIndex = 4;
+            this.ChildObjectsAdd.Text = "Add";
+            this.ChildObjectsAdd.UseVisualStyleBackColor = true;
+            this.ChildObjectsAdd.Click += new System.EventHandler(this.ChildObjectsAdd_Click);
+            // 
             // groupBoxBindPose
             // 
             this.groupBoxBindPose.Controls.Add(this.bindPoseFileRemove);
             this.groupBoxBindPose.Controls.Add(this.bindPoseFileName);
             this.groupBoxBindPose.Controls.Add(this.bindPoseFileGrab);
             this.groupBoxBindPose.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBoxBindPose.Location = new System.Drawing.Point(0, 772);
+            this.groupBoxBindPose.Location = new System.Drawing.Point(0, 767);
             this.groupBoxBindPose.Name = "groupBoxBindPose";
             this.groupBoxBindPose.Size = new System.Drawing.Size(305, 56);
             this.groupBoxBindPose.TabIndex = 6;
@@ -217,45 +259,46 @@ namespace GhostbaitModelCreator
             // 
             // groupBoxAudio
             // 
-            this.groupBoxAudio.Controls.Add(this.audioAdd);
-            this.groupBoxAudio.Controls.Add(this.audioListBox);
-            this.groupBoxAudio.Controls.Add(this.audioRemove);
+            this.groupBoxAudio.AutoSize = true;
+            this.groupBoxAudio.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.groupBoxAudio.Controls.Add(this.dataGridViewAudio);
+            this.groupBoxAudio.Controls.Add(this.panel6);
             this.groupBoxAudio.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBoxAudio.Location = new System.Drawing.Point(0, 594);
             this.groupBoxAudio.Name = "groupBoxAudio";
-            this.groupBoxAudio.Size = new System.Drawing.Size(305, 178);
+            this.groupBoxAudio.Size = new System.Drawing.Size(305, 173);
             this.groupBoxAudio.TabIndex = 7;
             this.groupBoxAudio.TabStop = false;
             this.groupBoxAudio.Text = "Audio";
             // 
+            // dataGridViewAudio
+            // 
+            this.dataGridViewAudio.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewAudio.Dock = System.Windows.Forms.DockStyle.Top;
+            this.dataGridViewAudio.Location = new System.Drawing.Point(3, 48);
+            this.dataGridViewAudio.Name = "dataGridViewAudio";
+            this.dataGridViewAudio.RowHeadersVisible = false;
+            this.dataGridViewAudio.Size = new System.Drawing.Size(299, 122);
+            this.dataGridViewAudio.TabIndex = 13;
+            // 
+            // panel6
+            // 
+            this.panel6.Controls.Add(this.audioAdd);
+            this.panel6.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel6.Location = new System.Drawing.Point(3, 16);
+            this.panel6.Name = "panel6";
+            this.panel6.Size = new System.Drawing.Size(299, 32);
+            this.panel6.TabIndex = 12;
+            // 
             // audioAdd
             // 
-            this.audioAdd.Location = new System.Drawing.Point(3, 118);
+            this.audioAdd.Location = new System.Drawing.Point(3, 3);
             this.audioAdd.Name = "audioAdd";
             this.audioAdd.Size = new System.Drawing.Size(84, 22);
             this.audioAdd.TabIndex = 4;
             this.audioAdd.Text = "Add";
             this.audioAdd.UseVisualStyleBackColor = true;
             this.audioAdd.Click += new System.EventHandler(this.audioAdd_Click);
-            // 
-            // audioListBox
-            // 
-            this.audioListBox.Dock = System.Windows.Forms.DockStyle.Top;
-            this.audioListBox.FormattingEnabled = true;
-            this.audioListBox.Location = new System.Drawing.Point(3, 16);
-            this.audioListBox.Name = "audioListBox";
-            this.audioListBox.Size = new System.Drawing.Size(299, 95);
-            this.audioListBox.TabIndex = 3;
-            // 
-            // audioRemove
-            // 
-            this.audioRemove.Location = new System.Drawing.Point(113, 118);
-            this.audioRemove.Name = "audioRemove";
-            this.audioRemove.Size = new System.Drawing.Size(84, 22);
-            this.audioRemove.TabIndex = 2;
-            this.audioRemove.Text = "Remove";
-            this.audioRemove.UseVisualStyleBackColor = true;
-            this.audioRemove.Click += new System.EventHandler(this.audioRemove_Click);
             // 
             // groupBoxColliders
             // 
@@ -284,7 +327,6 @@ namespace GhostbaitModelCreator
             // panel1
             // 
             this.panel1.Controls.Add(this.colliderAdd);
-            this.panel1.Controls.Add(this.colliderRemove);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(3, 16);
             this.panel1.Name = "panel1";
@@ -301,22 +343,11 @@ namespace GhostbaitModelCreator
             this.colliderAdd.UseVisualStyleBackColor = true;
             this.colliderAdd.Click += new System.EventHandler(this.colliderAdd_Click);
             // 
-            // colliderRemove
-            // 
-            this.colliderRemove.Location = new System.Drawing.Point(93, 3);
-            this.colliderRemove.Name = "colliderRemove";
-            this.colliderRemove.Size = new System.Drawing.Size(84, 22);
-            this.colliderRemove.TabIndex = 2;
-            this.colliderRemove.Text = "Remove";
-            this.colliderRemove.UseVisualStyleBackColor = true;
-            this.colliderRemove.Click += new System.EventHandler(this.colliderRemove_Click);
-            // 
             // groupBoxMaterial
             // 
             this.groupBoxMaterial.AutoSize = true;
             this.groupBoxMaterial.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.groupBoxMaterial.Controls.Add(this.dataGridViewMaterial);
-            this.groupBoxMaterial.Controls.Add(this.materialFileRemove);
             this.groupBoxMaterial.Controls.Add(this.panel2);
             this.groupBoxMaterial.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBoxMaterial.Location = new System.Drawing.Point(0, 241);
@@ -336,16 +367,6 @@ namespace GhostbaitModelCreator
             this.dataGridViewMaterial.Size = new System.Drawing.Size(299, 126);
             this.dataGridViewMaterial.TabIndex = 9;
             // 
-            // materialFileRemove
-            // 
-            this.materialFileRemove.Location = new System.Drawing.Point(170, 23);
-            this.materialFileRemove.Name = "materialFileRemove";
-            this.materialFileRemove.Size = new System.Drawing.Size(24, 20);
-            this.materialFileRemove.TabIndex = 2;
-            this.materialFileRemove.Text = "X";
-            this.materialFileRemove.UseVisualStyleBackColor = true;
-            this.materialFileRemove.Click += new System.EventHandler(this.materialFileRemove_Click);
-            // 
             // panel2
             // 
             this.panel2.Controls.Add(this.materialFileGrab);
@@ -357,11 +378,11 @@ namespace GhostbaitModelCreator
             // 
             // materialFileGrab
             // 
-            this.materialFileGrab.Location = new System.Drawing.Point(137, 7);
+            this.materialFileGrab.Location = new System.Drawing.Point(3, 6);
             this.materialFileGrab.Name = "materialFileGrab";
-            this.materialFileGrab.Size = new System.Drawing.Size(24, 20);
+            this.materialFileGrab.Size = new System.Drawing.Size(84, 22);
             this.materialFileGrab.TabIndex = 1;
-            this.materialFileGrab.Text = "...";
+            this.materialFileGrab.Text = "Add";
             this.materialFileGrab.UseVisualStyleBackColor = true;
             this.materialFileGrab.Click += new System.EventHandler(this.materialFileGrab_Click);
             // 
@@ -370,8 +391,6 @@ namespace GhostbaitModelCreator
             this.groupBoxMesh.AutoSize = true;
             this.groupBoxMesh.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.groupBoxMesh.Controls.Add(this.dataGridViewMesh);
-            this.groupBoxMesh.Controls.Add(this.meshFileRemove);
-            this.groupBoxMesh.Controls.Add(this.meshFileGrab);
             this.groupBoxMesh.Controls.Add(this.panel3);
             this.groupBoxMesh.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBoxMesh.Location = new System.Drawing.Point(0, 52);
@@ -393,6 +412,7 @@ namespace GhostbaitModelCreator
             // 
             // panel3
             // 
+            this.panel3.Controls.Add(this.meshFileGrab);
             this.panel3.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel3.Location = new System.Drawing.Point(3, 16);
             this.panel3.Name = "panel3";
@@ -409,7 +429,6 @@ namespace GhostbaitModelCreator
             this.groupBoxClass.TabIndex = 0;
             this.groupBoxClass.TabStop = false;
             this.groupBoxClass.Text = "Class";
-            this.groupBoxClass.Enter += new System.EventHandler(this.groupBox3_Enter);
             // 
             // menuStrip1
             // 
@@ -421,7 +440,6 @@ namespace GhostbaitModelCreator
             this.menuStrip1.Size = new System.Drawing.Size(884, 24);
             this.menuStrip1.TabIndex = 6;
             this.menuStrip1.Text = "menuStrip1";
-            this.menuStrip1.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.menuStrip1_ItemClicked);
             // 
             // fileToolStripMenuItem
             // 
@@ -488,13 +506,19 @@ namespace GhostbaitModelCreator
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "ModelCreatorForm";
             this.Text = "Ghostbait Model Editor";
-            this.Load += new System.EventHandler(this.ModelCreatorForm_Load);
             this.groupBoxAnimation.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewAnimation)).EndInit();
+            this.panel4.ResumeLayout(false);
             this.SidePanel.ResumeLayout(false);
             this.SidePanel.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewChildObjects)).EndInit();
+            this.panel5.ResumeLayout(false);
             this.groupBoxBindPose.ResumeLayout(false);
             this.groupBoxBindPose.PerformLayout();
             this.groupBoxAudio.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewAudio)).EndInit();
+            this.panel6.ResumeLayout(false);
             this.groupBoxColliders.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewColliders)).EndInit();
             this.panel1.ResumeLayout(false);
@@ -503,6 +527,7 @@ namespace GhostbaitModelCreator
             this.panel2.ResumeLayout(false);
             this.groupBoxMesh.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewMesh)).EndInit();
+            this.panel3.ResumeLayout(false);
             this.groupBoxClass.ResumeLayout(false);
             this.groupBoxClass.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
@@ -518,11 +543,9 @@ namespace GhostbaitModelCreator
         #endregion
 
         private System.Windows.Forms.GroupBox groupBoxAnimation;
-        private System.Windows.Forms.Button meshFileRemove;
         private System.Windows.Forms.Button meshFileGrab;
         private System.Windows.Forms.Panel SidePanel;
         private System.Windows.Forms.GroupBox groupBoxMesh;
-        private System.Windows.Forms.Button materialFileRemove;
         private System.Windows.Forms.Button materialFileGrab;
         private System.Windows.Forms.GroupBox groupBoxMaterial;
         private System.Windows.Forms.MenuStrip menuStrip1;
@@ -535,11 +558,8 @@ namespace GhostbaitModelCreator
         private System.Windows.Forms.TextBox className;
         private System.Windows.Forms.GroupBox groupBoxColliders;
         private System.Windows.Forms.Button colliderAdd;
-        private System.Windows.Forms.Button colliderRemove;
         private System.Windows.Forms.GroupBox groupBoxAudio;
         private System.Windows.Forms.Button audioAdd;
-        private System.Windows.Forms.ListBox audioListBox;
-        private System.Windows.Forms.Button audioRemove;
         private System.Windows.Forms.DataGridView dataGridViewMesh;
         private System.Windows.Forms.DataGridView dataGridViewColliders;
         private System.Windows.Forms.GroupBox groupBoxBindPose;
@@ -549,14 +569,20 @@ namespace GhostbaitModelCreator
         private System.Windows.Forms.DataGridView dataGridViewMaterial;
         private System.Windows.Forms.GroupBox groupBoxClass;
         private System.Windows.Forms.Button animationAdd;
-        private System.Windows.Forms.ListBox animationListBox;
-        private System.Windows.Forms.Button animationRemove;
         private System.Windows.Forms.BindingSource programBindingSource;
         private System.Windows.Forms.BindingSource colliderCreatorFormBindingSource;
         private System.Windows.Forms.BindingSource colliderBindingSource;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Panel panel3;
+        private System.Windows.Forms.DataGridView dataGridViewAnimation;
+        private System.Windows.Forms.Panel panel4;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.DataGridView dataGridViewChildObjects;
+        private System.Windows.Forms.Panel panel5;
+        private System.Windows.Forms.Button ChildObjectsAdd;
+        private System.Windows.Forms.Panel panel6;
+        private System.Windows.Forms.DataGridView dataGridViewAudio;
     }
 }
 

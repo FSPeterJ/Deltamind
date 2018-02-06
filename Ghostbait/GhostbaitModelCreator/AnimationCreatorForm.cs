@@ -3,21 +3,20 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static GhostbaitModelCreator.ModelCreatorForm.ComponentType;
 
 
 namespace GhostbaitModelCreator
 {
     public partial class AnimationCreatorForm : Form
     {
-        internal struct AnimationData
+        internal class AnimationData : ModelCreatorForm.BaseComponent
         {
-            public string filePath;
-            public string name;
+
         }
 
         private bool editing = false;
@@ -42,7 +41,7 @@ namespace GhostbaitModelCreator
             {
                 if (open.FileName.Substring(open.FileName.Length - 4) == ".fbx")
                 {
-                    string animFile = mainForm.GenerateRelativeComponentFilePath(open.FileName, ANIMATION);
+                    string animFile = Path.GetDirectoryName(open.FileName) + Path.GetFileNameWithoutExtension(open.FileName) + ".anim";
                     if (ModelCreatorForm.get_animdata_from_scene(open.FileName, animFile) != -1)
                     {
                         animFile = animFile.Substring(/*Make const*/19);
@@ -58,20 +57,21 @@ namespace GhostbaitModelCreator
 
         private void button3_Click(object sender, EventArgs e)//OK Button
         {
-            if(filePathBox.Text.Length == 0)
+            if (filePathBox.Text.Length == 0)
             {
                 WarningLabel.Text = "No animation loaded!";
                 return;
             }
-            if(nameBox.Text.Length == 0)
+            if (nameBox.Text.Length == 0)
             {
                 WarningLabel.Text = "Animation needs a name!";
                 return;
             }
             newAnim = new AnimationData();
-            newAnim.filePath = filePathBox.Text;
-            newAnim.name = nameBox.Text;
-            if(editing)
+            newAnim.ComponentIdentifier = Path.GetFileName(filePathBox.Text);
+            newAnim.AbsolutePath = filePathBox.Text;
+            newAnim.ComponentTag = nameBox.Text;
+            if (editing)
             {
                 editing = false;
                 mainForm.CreateAnimationPressed(newAnim, editIndex);
@@ -86,8 +86,8 @@ namespace GhostbaitModelCreator
         {
             editing = true;
             editIndex = index;
-            filePathBox.Text = data.filePath;
-            nameBox.Text = data.name;
+            filePathBox.Text = data.AbsolutePath;
+            nameBox.Text = data.ComponentTag;
         }
     }
 }

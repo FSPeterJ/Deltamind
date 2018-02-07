@@ -63,11 +63,13 @@ Gun::Gun() {
 	state = GUN; 
 	SetTag("Gun"); 
 	overheat.parent = this;
+	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
 }
 Gun::Gun(FireType _type, float _fireRate, float _damage) : type(_type), fireRate(_fireRate), damage(_damage) {
 	state = GUN;
 	SetTag("Gun");
 	overheat.parent = this;
+	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
 }
 
 bool Gun::Shoot() {
@@ -77,6 +79,7 @@ bool Gun::Shoot() {
 			//Fire
 			Projectile* obj;
 			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(projectiePrefabID, {0, 0, 0}, (GameObject**) &obj));
+			MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_WEN));
 			obj->position = position;
 			obj->position._41 += obj->position._31 * 0.2f;
 			obj->position._42 += obj->position._32 * 0.2f;
@@ -94,6 +97,7 @@ bool Gun::Shoot() {
 			//Fire
 			Projectile* obj;
 			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(projectiePrefabID, {0, 0, 0}, (GameObject**) &obj));
+			MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_WEN));
 			obj->position = position;
 			obj->position._41 += obj->position._31 * 0.2f;
 			obj->position._42 += obj->position._32 * 0.2f;

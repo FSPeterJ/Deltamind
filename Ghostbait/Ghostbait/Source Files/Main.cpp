@@ -89,22 +89,24 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//=============================
 
 	rendInter = new Renderer();
-	bool isVR = VRManager::GetInstance().Init();
+	audioMan = new AudioManager();
+	bool isVR = VRManager::GetInstance().Init();	
 	if(isVR) {
 		rendInter->Initialize(wnd);
 		inputMan = new InputManager(VR);
+		audioMan->setCamera(&VRManager::GetInstance().GetPlayerPosition());
 	} else {
 		Console::WriteLine << "VR not initialized! Defaulting to 2D";
 		rendInter->Initialize(wnd);
 		inputMan = new InputManager(KEYBOARD);
+		audioMan->setCamera(&(rendInter->getCamera())->position);
 	}
 	animMan = new AnimatorManager(rendInter->getAnimationManager());
 	phyMan = new PhysicsManager();
 	objMan = new ObjectManager(&MemMan);
 	objMan->Initialize(80);
 
-	audioMan = new AudioManager();
-	audioMan->setCamera(rendInter->getCamera());
+
 
 	ObjectFactory::Initialize(objMan);
 	ObjectFactory::RegisterPrefabBase<ControllerObject>(20);

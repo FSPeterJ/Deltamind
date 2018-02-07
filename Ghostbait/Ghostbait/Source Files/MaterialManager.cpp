@@ -13,12 +13,21 @@ void MaterialManager::Initialize(ID3D11Device * deviceIn, ID3D11DeviceContext* c
 	TypeMap::RegisterComponentAlias<Material>("mat");
 	TypeMap::RegisterComponentAlias<Material>("Mat");
 	TypeMap::RegisterComponentAlias<Material>("MAT");
+	nullMaterial = new Material();
+	DirectX::CreateWICTextureFromFile(device, context, L"Assets/NullTex.png", (ID3D11Resource**)&nullMaterial->diffuse.texture, &nullMaterial->diffuse.texView);
+	nullMaterial->diffuse.factor = 1.0f;
+	nullMaterial->emissive.texture = nullptr;
+	nullMaterial->emissive.texView = nullptr;
+	nullMaterial->specular.texture = nullptr;
+	nullMaterial->specular.texView = nullptr;
 }
 
 void MaterialManager::Destroy() {
 	for(size_t i = 0; i < trackedMaterials.GetActiveCount(); ++i) {
 		trackedMaterials[i].release();
 	}
+	nullMaterial->release();
+	delete nullMaterial;
 }
 
 Material* MaterialManager::ConstructMaterial(const char * _materialFilePath) {

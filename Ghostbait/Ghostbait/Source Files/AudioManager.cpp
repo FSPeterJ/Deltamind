@@ -8,6 +8,8 @@
 #include <Ak/Samples/SoundEngine/Win32/AkFilePackageLowLevelIOBlocking.h>
 #include "Wwise_IDs.h"
 
+#include "MessageEvents.h"
+
 #define INIT_BANK "Assets/Soundbanks/Init.bnk"
 #define DEFAULT_BANK "Assets/Soundbanks/TestBank.bnk"
 
@@ -77,13 +79,9 @@ AudioManager::AudioManager() //Thank the lord for SDK documentation
 
 	result = AK::SoundEngine::LoadBank(DEFAULT_BANK, AK_DEFAULT_POOL_ID, wiseIsGood);
 
-	GameObject* pleaseKillThis = new GameObject();
-	DirectX::XMStoreFloat4x4(&pleaseKillThis->position, DirectX::XMMatrixTranslation(0.0f, 0.0f, -10.0f));
-	objects.push_back(pleaseKillThis);
-	AK::SoundEngine::RegisterGameObj((AkGameObjectID)pleaseKillThis);
-	AK::SoundEngine::PostEvent(AK::EVENTS::PLAY_WEN, (AkGameObjectID)pleaseKillThis);
-	//AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::RPM, 1000, (AkGameObjectID)pleaseKillThis);
-	//AK::SoundEngine::SetScalingFactor((AkGameObjectID)pleaseKillThis, 0.1f);
+	MessageEvents::Subscribe(EVENT_RegisterNoisemaker, [this](EventMessageBase * _e) {this->registerObject(_e); });
+	MessageEvents::Subscribe(EVENT_RequestSound, [this](EventMessageBase * _e) {this->playSound(_e); });
+	MessageEvents::Subscribe(EVENT_UnregisterNoisemaker, [this](EventMessageBase * _e) {this->unRegisterObject(_e); });
 }
 
 
@@ -93,15 +91,42 @@ AudioManager::~AudioManager()
 	AK::SoundEngine::Term();
 	AK::IAkStreamMgr::Get()->Destroy();
 	AK::MemoryMgr::Term();
-	delete objects[0];
 }
 
-void AudioManager::setCamera(const Camera * _camera)
+void AudioManager::setCamera(const DirectX::XMFLOAT4X4 * _camera)
 {
 	cam = _camera;
 	AkGameObjectID camId = LISTENER_ID;
 	AK::SoundEngine::RegisterGameObj(LISTENER_ID);
 	AK::SoundEngine::SetDefaultListeners(&camId, 1);
+}
+
+void AudioManager::registerObject(EventMessageBase * e)
+{
+	NewObjectMessage* obj = (NewObjectMessage*)e;
+	objects.push_back(obj->RetrieveObject());
+	AK::SoundEngine::RegisterGameObj((AkGameObjectID)obj->RetrieveObject());
+}
+
+void AudioManager::unRegisterObject(EventMessageBase * e)
+{
+	DestroyMessage* obj = (DestroyMessage*)e;
+	auto iter = objects.begin();
+	for (; iter != objects.end(); iter++)
+	{
+		if (*iter == obj->RetrieveObject())
+		{
+			objects.erase(iter);
+			break;
+		}
+	}
+	AK::SoundEngine::UnregisterGameObj((AkGameObjectID)obj->RetrieveObject());
+}
+
+void AudioManager::playSound(EventMessageBase * e)
+{
+	SoundRequestMessage* mess = (SoundRequestMessage*)e;
+	AK::SoundEngine::PostEvent(mess->RetrieveSound(), (AkGameObjectID)mess->RetrieveObject());
 }
 
 void AudioManager::Update()
@@ -110,21 +135,32 @@ void AudioManager::Update()
 	{
 		AkSoundPosition toSet;
 		AkVector pos;
-		AkVector front;
-		AkVector up;
+		AkVector frontIn;
+		AkVector upIn;
+		DirectX::XMFLOAT3 front;
+		DirectX::XMFLOAT3 up;
 		DirectX::XMFLOAT4X4* matrix = &objects[i]->position;
 		pos.X = matrix->_41;
 		pos.Y = matrix->_42;
 		pos.Z = matrix->_43;
 
-		front.X = matrix->_31;
-		front.Y = matrix->_32;
-		front.Z = matrix->_33;
+		front.x = matrix->_31;
+		front.y = matrix->_32;
+		front.z = matrix->_33;
 
-		up.X = matrix->_21;
-		up.Y = matrix->_22;
-		up.Z = matrix->_23;
-		toSet.Set(pos, front, up);
+		up.x = matrix->_21;
+		up.y = matrix->_22;
+		up.z = matrix->_23;
+		DirectX::XMStoreFloat3(&front, DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&front)));
+		DirectX::XMStoreFloat3(&up, DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&up)));
+		frontIn.X = front.x;
+		frontIn.Y = front.y;
+		frontIn.Z = front.z;
+
+		upIn.X = up.x;
+		upIn.Y = up.y;
+		upIn.Z = up.z;
+		toSet.Set(pos, frontIn, upIn);
 		AK::SoundEngine::SetPosition((AkGameObjectID)objects[i], toSet);
 	}
 
@@ -134,17 +170,17 @@ void AudioManager::Update()
 	AkVector up;
 	if (cam)
 	{
-		pos.X = cam->position._41;
-		pos.Y = cam->position._42;
-		pos.Z = cam->position._43;
+		pos.X = cam->_41;
+		pos.Y = cam->_42;
+		pos.Z = cam->_43;
 
-		front.X = cam->position._31;
-		front.Y = cam->position._32;
-		front.Z = cam->position._33;
+		front.X = cam->_31;
+		front.Y = cam->_32;
+		front.Z = cam->_33;
 
-		up.X = cam->position._21;
-		up.Y = cam->position._22;
-		up.Z = cam->position._23;
+		up.X = cam->_21;
+		up.Y = cam->_22;
+		up.Z = cam->_23;
 	}
 	else
 	{

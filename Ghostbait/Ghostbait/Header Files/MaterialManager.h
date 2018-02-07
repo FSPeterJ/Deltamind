@@ -11,6 +11,7 @@ struct ID3D11DeviceContext;
 class MaterialManager: public IComponentManager {
 	ID3D11Device* device;
 	ID3D11DeviceContext* context;
+	Material* nullMaterial;
 	std::unordered_map<std::string, Material*> materialNames; //Checking for duplicates
 	Pool<Material> trackedMaterials = Pool<Material>(MAX_MATS);
 	//std::vector<Material> trackedMaterials;
@@ -28,4 +29,5 @@ public:
 	Material* CloneComponent(ComponentBase* reference) override;
 	Material* GetReferenceComponent(const char * _FilePath, const char * _data) override;
 	void ResetComponent(ComponentBase * reset) override;
+	Material* GetNullMaterial() { return nullMaterial; }
 };

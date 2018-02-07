@@ -55,6 +55,7 @@ private:
 
 	DirectX::XMFLOAT4X4 roomPos = FLOAT4X4Identity;
 	DirectX::XMFLOAT4X4 hmdPos = FLOAT4X4Identity;
+	DirectX::XMFLOAT4X4 playerPose = FLOAT4X4Identity;
 public:
 	static VRManager& GetInstance();
 
@@ -83,7 +84,7 @@ public:
 	
 	void GetVRMatrices(DirectX::XMFLOAT4X4* leftProj, DirectX::XMFLOAT4X4* rightProj, DirectX::XMFLOAT4X4* leftView, DirectX::XMFLOAT4X4* rightView);
 	void SendToHMD(void* leftTexture, void* rightTexture);
-	DirectX::XMFLOAT4X4 GetPlayerPosition();
+	DirectX::XMFLOAT4X4& GetPlayerPosition();
 	DirectX::XMFLOAT4X4 GetRoomPosition();
 
 };

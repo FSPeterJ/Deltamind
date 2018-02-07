@@ -20,6 +20,7 @@ enum EVENT_TYPES {
 	EVENT_LENGTH,
 	EVENT_RegisterNoisemaker,
 	EVENT_RequestSound,
+	EVENT_UnregisterNoisemaker,
 };
 
 class EventMessageBase;

@@ -18,6 +18,7 @@ public:
 
 	void setCamera(const Camera* _camera);
 	void registerObject(EventMessageBase* e);
+	void unRegisterObject(EventMessageBase* e);
 	void playSound(EventMessageBase* e);
 
 	void Update();

@@ -81,6 +81,7 @@ AudioManager::AudioManager() //Thank the lord for SDK documentation
 
 	MessageEvents::Subscribe(EVENT_RegisterNoisemaker, [this](EventMessageBase * _e) {this->registerObject(_e); });
 	MessageEvents::Subscribe(EVENT_RequestSound, [this](EventMessageBase * _e) {this->playSound(_e); });
+	MessageEvents::Subscribe(EVENT_UnregisterNoisemaker, [this](EventMessageBase * _e) {this->unRegisterObject(_e); });
 }
 
 
@@ -107,6 +108,21 @@ void AudioManager::registerObject(EventMessageBase * e)
 	AK::SoundEngine::RegisterGameObj((AkGameObjectID)obj->RetrieveObject());
 }
 
+void AudioManager::unRegisterObject(EventMessageBase * e)
+{
+	DestroyMessage* obj = (DestroyMessage*)e;
+	auto iter = objects.begin();
+	for (; iter != objects.end(); iter++)
+	{
+		if (*iter == obj->RetrieveObject())
+		{
+			objects.erase(iter);
+			break;
+		}
+	}
+	AK::SoundEngine::UnregisterGameObj((AkGameObjectID)obj->RetrieveObject());
+}
+
 void AudioManager::playSound(EventMessageBase * e)
 {
 	SoundRequestMessage* mess = (SoundRequestMessage*)e;
@@ -119,21 +135,32 @@ void AudioManager::Update()
 	{
 		AkSoundPosition toSet;
 		AkVector pos;
-		AkVector front;
-		AkVector up;
+		AkVector frontIn;
+		AkVector upIn;
+		DirectX::XMFLOAT3 front;
+		DirectX::XMFLOAT3 up;
 		DirectX::XMFLOAT4X4* matrix = &objects[i]->position;
 		pos.X = matrix->_41;
 		pos.Y = matrix->_42;
 		pos.Z = matrix->_43;
 
-		front.X = matrix->_31;
-		front.Y = matrix->_32;
-		front.Z = matrix->_33;
+		front.x = matrix->_31;
+		front.y = matrix->_32;
+		front.z = matrix->_33;
 
-		up.X = matrix->_21;
-		up.Y = matrix->_22;
-		up.Z = matrix->_23;
-		toSet.Set(pos, front, up);
+		up.x = matrix->_21;
+		up.y = matrix->_22;
+		up.z = matrix->_23;
+		DirectX::XMStoreFloat3(&front, DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&front)));
+		DirectX::XMStoreFloat3(&up, DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&up)));
+		frontIn.X = front.x;
+		frontIn.Y = front.y;
+		frontIn.Z = front.z;
+
+		upIn.X = up.x;
+		upIn.Y = up.y;
+		upIn.Z = up.z;
+		toSet.Set(pos, frontIn, upIn);
 		AK::SoundEngine::SetPosition((AkGameObjectID)objects[i], toSet);
 	}
 

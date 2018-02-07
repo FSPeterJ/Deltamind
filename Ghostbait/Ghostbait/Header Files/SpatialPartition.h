@@ -4,6 +4,7 @@
 
 namespace DirectX {
 	struct XMFLOAT3;
+//	struct XMVECTOR;
 }
 
 struct PhysicsComponent;

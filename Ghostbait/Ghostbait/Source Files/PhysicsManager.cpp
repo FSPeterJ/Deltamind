@@ -184,18 +184,59 @@ void PhysicsManager::Update() {
 	TestAllComponentsCollision();
 }
 
-XMVECTOR PhysicsManager::Raycast(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction) {
-	uint32_t currBucketIndex = partitionSpace.GetHashedIndex(origin);
+bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* colPoint) {
+	bool collided = false;
+	uint32_t nextIndex, currBucketIndex = -1;
 	XMVECTOR vecOrigin = XMLoadFloat3(&origin);
-	for (float interval = 0.01f; interval < 100.0f; interval += 0.01f) {
-		
+	XMVECTOR vecNextSeg = vecOrigin;
+	XMVECTOR vecSegInterval = XMVector3Normalize(XMLoadFloat3(&direction)) * 0.01f;
+	XMVECTOR closestCollsion = vecOrigin + (vecSegInterval * 10000);
+	XMVECTOR tempCollidePt;
+	XMFLOAT3 nextSegment;
+	std::vector<PhysicsComponent*> compToTest;
+	std::vector<XMVECTOR> collisionPoints;
+
+	for (int iteration = 0; iteration < 10000; ++iteration) {
+		XMStoreFloat3(&nextSegment, vecNextSeg);
+		nextIndex = partitionSpace.GetHashedIndex(nextSegment);
+		vecNextSeg += vecSegInterval;
+		if (currBucketIndex == nextIndex)
+			continue;
+		currBucketIndex = nextIndex;
+		compToTest = partitionSpace.GetComponentsToTest(currBucketIndex);
+
+		for (int compIndex = 0; compIndex < compToTest.size(); ++compIndex) {
+			if (RaycastCollisionCheck(origin, direction, compToTest[compIndex], &tempCollidePt)) {
+				collisionPoints.push_back(tempCollidePt);
+				collided = true;
+			}
+		}
+
+		if (collided)
+			break;
 	}
+
+	if (collided) {
+		float lastClosestDist = XMVectorGetX(XMVector3LengthSq(closestCollsion - vecOrigin));
+		float nextDist;
+		for (int i = 0; i < (int)collisionPoints.size(); ++i) {
+			nextDist = XMVectorGetX(XMVector3LengthSq(collisionPoints[i] - vecOrigin));
+			if (lastClosestDist > nextDist) {
+				closestCollsion = collisionPoints[i];
+				lastClosestDist = nextDist;
+			}
+		}
+	}
+	XMStoreFloat3(colPoint, closestCollsion);
+
+#if _DEBUG
+
+	DebugRenderer::AddLine(origin, *colPoint, XMFLOAT3(0.0f, 1.0f, 1.0f));
+
+#endif
+
+	return collided;
 }
-
-XMVECTOR PhysicsManager::Raycast(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction, PhysicsComponent* collidingComp) {
-
-}
-
 
 #pragma endregion
 
@@ -306,7 +347,7 @@ bool PhysicsManager::IsVectorZero(XMVECTOR& _toTest) {
 		return true;
 	return false;
 }
-bool PhysicsManager::SphereToSphereCollision(Collider col1, XMVECTOR& pos1, Collider col2, XMVECTOR& pos2) {
+bool PhysicsManager::SphereToSphereCollision(Collider& col1, XMVECTOR& pos1, Collider& col2, XMVECTOR& pos2) {
 	XMVECTOR offset1 = XMLoadFloat3(&col1.centerOffset);
 	XMVECTOR offset2 = XMLoadFloat3(&col2.centerOffset);
 	XMVECTOR position1 = offset1 + pos1;
@@ -321,7 +362,7 @@ bool PhysicsManager::SphereToSphereCollision(Collider col1, XMVECTOR& pos1, Coll
 bool PhysicsManager::BoxToBoxCollision() {
 	return false;
 }
-bool PhysicsManager::CapsuleToCapsuleCollision(Collider col1, XMMATRIX& pos1, Collider col2, XMMATRIX& pos2) {
+bool PhysicsManager::CapsuleToCapsuleCollision(Collider& col1, XMMATRIX& pos1, Collider& col2, XMMATRIX& pos2) {
 	//*** Edge case where tall/long capsules intersect will not collide ***
 	
 	float combineRadiusSq = col1.colliderData->colliderInfo.capsuleCollider.radius + col2.colliderData->colliderInfo.capsuleCollider.radius;
@@ -504,7 +545,7 @@ bool PhysicsManager::CapsuleToCapsuleCollision(Collider col1, XMMATRIX& pos1, Co
 	return dist < combineRadiusSq;   // return the closest distance
 }
 
-bool PhysicsManager::CapsuleToSphereCollision(Collider capCol, DirectX::XMMATRIX& capPos, Collider sphCol, DirectX::XMMATRIX& sphPos) {
+bool PhysicsManager::CapsuleToSphereCollision(Collider& capCol, XMMATRIX& capPos, Collider& sphCol, XMMATRIX& sphPos) {
 	XMVECTOR sphereCenter, closestOnCap, capStart, capEnd;
 
 	XMVECTOR capOffset = XMLoadFloat3(&capCol.centerOffset);
@@ -571,5 +612,40 @@ void PhysicsManager::TestAllComponentsCollision() {
 		}
 	}
 }
+
+bool PhysicsManager::RaycastCollisionCheck(XMFLOAT3& origin, XMFLOAT3& direction, PhysicsComponent* collidingComp, XMVECTOR* colPoint) {
+	bool collided = false;
+	for (int colliderIndex = 0; colliderIndex < collidingComp->colliders.size(); ++colliderIndex) {
+		switch (collidingComp->colliders[colliderIndex].colliderData->colliderType)
+		{
+		case SPHERE:
+			collided = RayToSphere(origin, direction, collidingComp->colliders[colliderIndex], colPoint);
+			break;
+		case CAPSULE:
+			collided = RayToCapsule(origin, direction, collidingComp->colliders[colliderIndex], colPoint);
+			break;
+		case BOX:
+			collided = RayToBox(origin, direction, collidingComp->colliders[colliderIndex], colPoint);
+			break;
+		default:
+			break;
+		}
+		if (collided)
+			break;
+	}
+	return collided;
+}
+
+bool PhysicsManager::RayToSphere(XMFLOAT3& origin, XMFLOAT3& direction, Collider& collidingComp, XMVECTOR* colPoint) {
+	return false;
+}
+bool PhysicsManager::RayToCapsule(XMFLOAT3& origin, XMFLOAT3& direction, Collider& collidingComp, XMVECTOR* colPoint) {
+	return false;
+}
+bool PhysicsManager::RayToBox(XMFLOAT3& origin, XMFLOAT3& direction, Collider& collidingComp, XMVECTOR* colPoint) {
+	return false;
+}
+
+
 
 #pragma endregion

@@ -168,6 +168,13 @@ const std::vector<PhysicsComponent*> SpatialPartition::GetComponentsToTest() {
 }
 
 const std::vector<PhysicsComponent*> SpatialPartition::GetComponentsToTest(uint32_t hashIndex) {
-	return table[hashIndex].components;
+	std::vector<PhysicsComponent*> toReturn; 
+	if(table.find(hashIndex) != table.end())
+		return table[hashIndex].components;
+	return toReturn;
+}
+
+const uint32_t SpatialPartition::GetHashedIndex(DirectX::XMFLOAT3 position) {
+	return Hash(position);
 }
 

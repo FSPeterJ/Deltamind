@@ -26,16 +26,19 @@ class PhysicsManager: public IComponentManager {
 	void UpdateAABB(PhysicsComponent& component);
 	void TestAllComponentsCollision();
 	bool IsVectorZero(DirectX::XMVECTOR& _toTest);
-	bool SphereToSphereCollision(Collider col1, DirectX::XMVECTOR& pos1, Collider col2, DirectX::XMVECTOR& pos2);
-	bool CapsuleToCapsuleCollision(Collider col1, DirectX::XMMATRIX& pos1, Collider col2, DirectX::XMMATRIX& pos2);
-	bool CapsuleToSphereCollision(Collider capCol, DirectX::XMMATRIX& capPos, Collider sphCol, DirectX::XMMATRIX& sphPos);
+	bool SphereToSphereCollision(Collider& col1, DirectX::XMVECTOR& pos1, Collider& col2, DirectX::XMVECTOR& pos2);
+	bool CapsuleToCapsuleCollision(Collider& col1, DirectX::XMMATRIX& pos1, Collider& col2, DirectX::XMMATRIX& pos2);
+	bool CapsuleToSphereCollision(Collider& capCol, DirectX::XMMATRIX& capPos, Collider& sphCol, DirectX::XMMATRIX& sphPos);
 	bool BoxToBoxCollision();
 	void SendCollision(GameObject* obj1, GameObject* obj2);
 	//bool BoxToCapsuleCollision();
 	//bool BoxToSphereCollision();
 	DirectX::XMVECTOR FindClosestPointOnLine(DirectX::XMVECTOR& _lineSegStart, DirectX::XMVECTOR& _lineSegEnd, DirectX::XMVECTOR& _testPoint);
-	DirectX::XMVECTOR Raycast(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction);
-	DirectX::XMVECTOR Raycast(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction, PhysicsComponent* collidingComp);
+	bool RaycastCollisionCheck(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction, PhysicsComponent* collidingComp, DirectX::XMVECTOR* colPoint = nullptr);
+	bool RayToSphere(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction, Collider& collidingComp, DirectX::XMVECTOR* colPoint = nullptr);
+	bool RayToCapsule(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction, Collider& collidingComp, DirectX::XMVECTOR* colPoint = nullptr);
+	bool RayToBox(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction, Collider& collidingComp, DirectX::XMVECTOR* colPoint = nullptr);
+
 
 	static Collider defaultColider;
 	static ColliderData defaultSphereColider;
@@ -54,4 +57,5 @@ public:
 	PhysicsComponent* GetReferenceComponent(const char * _FilePath, const char* _data) override;
 	void ResetComponent(ComponentBase * reset) override;
 	void Update();
+	bool Raycast(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction, DirectX::XMFLOAT3* colPoint = nullptr);
 };

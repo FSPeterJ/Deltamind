@@ -78,12 +78,12 @@ AudioManager::AudioManager() //Thank the lord for SDK documentation
 	result = AK::SoundEngine::LoadBank(DEFAULT_BANK, AK_DEFAULT_POOL_ID, wiseIsGood);
 
 	GameObject* pleaseKillThis = new GameObject();
-	DirectX::XMStoreFloat4x4(&pleaseKillThis->position, DirectX::XMMatrixTranslation(-2.0f, 0.0f, 0.0f));
+	DirectX::XMStoreFloat4x4(&pleaseKillThis->position, DirectX::XMMatrixTranslation(0.0f, 0.0f, -10.0f));
 	objects.push_back(pleaseKillThis);
 	AK::SoundEngine::RegisterGameObj((AkGameObjectID)pleaseKillThis);
-	AK::SoundEngine::PostEvent(AK::EVENTS::PLAY_ENGINE, (AkGameObjectID)pleaseKillThis);
-	AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::RPM, 1000, (AkGameObjectID)pleaseKillThis);
-	AK::SoundEngine::SetScalingFactor((AkGameObjectID)pleaseKillThis, 0.1f);
+	AK::SoundEngine::PostEvent(AK::EVENTS::PLAY_WEN, (AkGameObjectID)pleaseKillThis);
+	//AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::RPM, 1000, (AkGameObjectID)pleaseKillThis);
+	//AK::SoundEngine::SetScalingFactor((AkGameObjectID)pleaseKillThis, 0.1f);
 }
 
 

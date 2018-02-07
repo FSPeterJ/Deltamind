@@ -70,11 +70,9 @@ float4 main(PixelShaderInput input) : SV_TARGET
             float3 dir = normalize(lights[i].dir);
             dir = -dir;
             float lightRatio = saturate(dot(dir, input.norm));
-	        //atten *= atten;
             finalLight += lights[i].color * lightRatio;
         }
     }
-	//finalLight *= atten;
     float4 diffuseColor = diffuse.Sample(sample, input.uv) * diffuseFactor;
 	float4 emissiveColor = emissive.Sample(sample, input.uv) * emissiveFactor;
 

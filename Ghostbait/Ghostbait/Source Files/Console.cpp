@@ -75,7 +75,15 @@ void Console::Allocate() {
 	AllocConsole();
 	FILE* new_std_out;
 	freopen_s(&new_std_out, "CONOUT$", "w", stdout);
+	//freopen_s(&new_std_out, "CONOUT$", "w", stderr);
 	//freopen_s(&new_std_in_out, "CONIN$", "r", stdin);
+	std::wcout.clear();
+	std::cout.clear();
+	std::wcerr.clear();
+	std::cerr.clear();
+	std::wcin.clear();
+	std::cin.clear();
+
 	EnableMenuItem(GetSystemMenu(GetConsoleWindow(), FALSE), SC_CLOSE, MF_GRAYED);
 	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 	std::ios_base::sync_with_stdio(false);

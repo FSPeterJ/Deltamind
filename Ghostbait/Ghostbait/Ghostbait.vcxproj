@@ -200,8 +200,10 @@
     <ClInclude Include="Header Files\GameObject.h" />
     <ClInclude Include="Header Files\GameObjectComponent.h" />
     <ClInclude Include="Header Files\GhostTime.h" />
-    <ClInclude Include="Header Files\Grid.h" />
     <ClInclude Include="Header Files\Gun.h" />
+    <ClInclude Include="Header Files\HexagonalGridLayout.h" />
+    <ClInclude Include="Header Files\HexagonTile.h" />
+    <ClInclude Include="Header Files\HexGrid.h" />
     <ClInclude Include="Header Files\InputManager.h" />
     <ClInclude Include="Header Files\IComponentManager.h" />
     <ClInclude Include="Header Files\Item.h" />
@@ -237,8 +239,10 @@
     <ClInclude Include="Header Files\MessageEvents.h" />
     <ClInclude Include="Header Files\XTime.h" />
     <ClInclude Include="Resource Files\Resource.h" />
+    <ClInclude Include="Source Files\HexagonTile.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Header Files\HexGrid.cpp" />
     <ClCompile Include="Source Files\AABB.cpp" />
     <ClCompile Include="Source Files\AnimationManager.cpp" />
     <ClCompile Include="Source Files\Animator.cpp" />
@@ -252,7 +256,6 @@
     <ClCompile Include="Source Files\EngineStructure.cpp" />
     <ClCompile Include="Source Files\GameObject.cpp" />
     <ClCompile Include="Source Files\GhostTime.cpp" />
-    <ClCompile Include="Source Files\Grid.cpp" />
     <ClCompile Include="Source Files\Gun.cpp">
       <ShowIncludes Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ShowIncludes>
     </ClCompile>

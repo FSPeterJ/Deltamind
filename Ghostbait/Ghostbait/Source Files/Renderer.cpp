@@ -263,7 +263,7 @@ void Renderer::Initialize(Window window, VRManager * vr) {
 	addSpotLight(DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), DirectX::XMFLOAT3(0.0f, 2.0f, 0.0f), DirectX::XMFLOAT3(0.0f, -1.0f, 0.0f), 0.5f, 0.3f);
 	keyboardCamera = new Camera();
 	keyboardCamera->pointCameraAt(DirectX::XMFLOAT3(0.0f, 2.0f, -15.0f), DirectX::XMFLOAT3(0.0f, -2.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
-	XMStoreFloat4x4(&defaultCamera.projection, XMMatrixTranspose(XMMatrixPerspectiveFovLH(60.0f * XM_PI / 180.0f, defaultPipeline.viewport.Width / defaultPipeline.viewport.Height, 0.001f, 300.0f)));
+	XMStoreFloat4x4(&defaultCamera.projection, XMMatrixTranspose(XMMatrixPerspectiveFovLH(60.0f * XM_PI / 180.0f, defaultPipeline.viewport.Width / defaultPipeline.viewport.Height, 0.000001f, 300000.0f)));
 
 	if(VRManagement)
 		setupVRTargets();

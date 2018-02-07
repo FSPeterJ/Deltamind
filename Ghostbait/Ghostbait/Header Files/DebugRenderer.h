@@ -1,8 +1,7 @@
 #pragma once
 #include <d3d11.h>
 #include <VertexTypes.h>
-namespace DirectX { struct XMFLOAT3; }
-namespace DirectX { struct XMFLOAT4X4; }
+namespace DirectX { struct XMFLOAT3;  struct XMFLOAT4X4; }
 struct ColliderData;
 
 #define MAX_VERTS 2048

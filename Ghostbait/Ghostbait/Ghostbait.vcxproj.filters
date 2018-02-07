@@ -186,8 +186,17 @@
     <ClInclude Include="Header Files\PhysicsTestObj.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\Grid.h">
+    <ClInclude Include="Header Files\HexagonTile.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\HexagonalGridLayout.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\HexGrid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source Files\HexagonTile.cpp">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -317,7 +326,7 @@
     <ClCompile Include="Source Files\PhysicsTestObj.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\Grid.cpp">
+    <ClCompile Include="Header Files\HexGrid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

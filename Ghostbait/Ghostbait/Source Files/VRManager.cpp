@@ -140,13 +140,11 @@ void VRManager::Shutdown() {
 void VRManager::GetVRMatrices(DirectX::XMFLOAT4X4* _leftProj, DirectX::XMFLOAT4X4* _rightProj, DirectX::XMFLOAT4X4* _leftView, DirectX::XMFLOAT4X4* _rightView) {
 	UpdateVRPoses();
 
-	DirectX::XMMATRIX mHMDPose;
-	mHMDPose = DirectX::XMLoadFloat4x4(&hmdPose);
+	DirectX::XMMATRIX mHMDWorldPose;
+	mHMDWorldPose = DirectX::XMLoadFloat4x4(&GetPlayerPosition());
 
-	mHMDPose *= DirectX::XMLoadFloat4x4(&world);
-	DirectX::XMMATRIX leftView = DirectX::XMLoadFloat4x4(&leftEyeToHead) * mHMDPose;
-	DirectX::XMMATRIX rightView = DirectX::XMLoadFloat4x4(&rightEyeToHead) * mHMDPose;
-	DirectX::XMStoreFloat4x4(&hmdPose, mHMDPose);
+	DirectX::XMMATRIX leftView = DirectX::XMLoadFloat4x4(&leftEyeToHead) * mHMDWorldPose;
+	DirectX::XMMATRIX rightView = DirectX::XMLoadFloat4x4(&rightEyeToHead) * mHMDWorldPose;
 
 	*_leftProj = leftProj;
 	*_rightProj = rightProj;
@@ -164,11 +162,11 @@ void VRManager::UpdateVRPoses() {
 			switch(pVRHMD->GetTrackedDeviceClass(deviceIndex)) {
 			case vr::TrackedDeviceClass_Controller:
 				if(pVRHMD->GetControllerRoleForTrackedDeviceIndex(deviceIndex) == vr::ETrackedControllerRole::TrackedControllerRole_LeftHand) {
-					DirectX::XMStoreFloat4x4(&leftController.pose, DirectX::XMLoadFloat4x4(&VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking)) * DirectX::XMLoadFloat4x4(&world));
+					DirectX::XMStoreFloat4x4(&leftController.pose, DirectX::XMLoadFloat4x4(&VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking)) * DirectX::XMLoadFloat4x4(&roomPose));
 					leftController.index = deviceIndex;
 					XMStoreFloat4x4(&leftController.obj->position, DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(55)) * DirectX::XMLoadFloat4x4(&leftController.pose));// *DirectX::XMMatrixScaling(0.25f, 0.25f, 0.25f);
 				} else if(pVRHMD->GetControllerRoleForTrackedDeviceIndex(deviceIndex) == vr::ETrackedControllerRole::TrackedControllerRole_RightHand) {
-					DirectX::XMStoreFloat4x4(&rightController.pose, DirectX::XMLoadFloat4x4(&VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking)) * DirectX::XMLoadFloat4x4(&world));
+					DirectX::XMStoreFloat4x4(&rightController.pose, DirectX::XMLoadFloat4x4(&VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking)) * DirectX::XMLoadFloat4x4(&roomPose));
 					rightController.index = deviceIndex;
 					XMStoreFloat4x4(&rightController.obj->position, DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(55)) * DirectX::XMLoadFloat4x4(&rightController.pose));// *DirectX::XMMatrixScaling(0.25f, 0.25f, 0.25f);
 				}
@@ -199,7 +197,16 @@ void VRManager::SendToHMD(void* leftTexture, void* rightTexture) {
 }
 
 DirectX::XMFLOAT4X4 VRManager::GetPlayerPosition() {
-	return hmdPose;
+	DirectX::XMMATRIX mHMDPose, mROOMPose;
+	mHMDPose = DirectX::XMLoadFloat4x4(&hmdPose);
+	mROOMPose = DirectX::XMLoadFloat4x4(&roomPose);
+
+	DirectX::XMFLOAT4X4 result;
+	DirectX::XMStoreFloat4x4(&result, mHMDPose * mROOMPose);
+	return result;
+}
+DirectX::XMFLOAT4X4 VRManager::GetRoomPosition() {
+	return roomPose;
 }
 
 void VRManager::TeleportCast(ControllerObject* controller) {
@@ -230,5 +237,5 @@ void VRManager::TeleportCast(ControllerObject* controller) {
 
 }
 void VRManager::Teleport() {
-
+	DirectX::XMStoreFloat4x4(&roomPose, DirectX::XMLoadFloat4x4(&roomPose) * DirectX::XMMatrixTranslation(1, 0, 0));
 }

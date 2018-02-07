@@ -273,7 +273,6 @@ void ControllerObject::RightUpdate() {
 				VRManager::GetInstance().TeleportCast(this);
 			}
 			if (KeyIsDown(teleportUp)) {
-				//DirectX::XMStoreFloat4x4(&VRManager::world, DirectX::XMLoadFloat4x4(&VRManager::world) * DirectX::XMMatrixTranslation(1, 0, 0));
 				ResetKey(teleportUp);
 				ResetKey(teleportDown);
 				VRManager::GetInstance().Teleport();

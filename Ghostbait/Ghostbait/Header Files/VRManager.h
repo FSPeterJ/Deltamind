@@ -53,6 +53,8 @@ private:
 		}
 	} teleportData;
 
+	DirectX::XMFLOAT4X4 roomPose = FLOAT4X4Identity;
+	DirectX::XMFLOAT4X4 hmdPose = FLOAT4X4Identity;
 public:
 	static VRManager& GetInstance();
 
@@ -62,8 +64,6 @@ public:
 		ControllerObject* obj;
 	};
 
-	DirectX::XMFLOAT4X4 world = FLOAT4X4Identity;;
-	DirectX::XMFLOAT4X4 hmdPose = FLOAT4X4Identity;
 	VRController leftController, rightController;
 
 	vr::IVRSystem *pVRHMD;
@@ -84,4 +84,6 @@ public:
 	void GetVRMatrices(DirectX::XMFLOAT4X4* leftProj, DirectX::XMFLOAT4X4* rightProj, DirectX::XMFLOAT4X4* leftView, DirectX::XMFLOAT4X4* rightView);
 	void SendToHMD(void* leftTexture, void* rightTexture);
 	DirectX::XMFLOAT4X4 GetPlayerPosition();
+	DirectX::XMFLOAT4X4 GetRoomPosition();
+
 };

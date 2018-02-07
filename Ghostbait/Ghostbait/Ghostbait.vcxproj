@@ -97,7 +97,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>openvr\headers;Shaders;Resource Files;Source Files;Header Files;;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\Visual Leak Detector\include;openvr\headers;Shaders;Resource Files;Source Files;Header Files;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\Visual Leak Detector\include;openvr\headers;Shaders;Resource Files;Source Files;Header Files;;Dependencies\Wwise\include;Dependencies\Wwise\SoundEngine\Win32</AdditionalIncludeDirectories>
       <AdditionalUsingDirectories>d3dcompiler.h;directxmath.h;d3d11_1.h;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
       <EnablePREfast>false</EnablePREfast>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -105,8 +105,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;openvr_api.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\Ghostbait\openvr\lib\win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;openvr_api.lib;AkSoundEngine.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Ghostbait\Dependencies\Wwise\$(Configuration);..\Ghostbait\openvr\lib\win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -117,7 +117,7 @@
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>openvr\headers;Shaders;Resource Files;Source Files;Header Files;E:\Program Files (x86)\Visual Leak Detector\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\Visual Leak Detector\include;openvr\headers;Shaders;Resource Files;Source Files;Header Files;E:\Program Files (x86)\Visual Leak Detector\include;E:\Program Files (x86)\Visual Leak Detector\bin\Win64;C:\Program Files %28x86%29\Visual Leak Detector\bin\Win64</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Dependencies\Wwise\Samples\SoundEngine\Win32;Dependencies\Wwise\Samples\SoundEngine\Common;C:\Program Files %28x86%29\Visual Leak Detector\include;openvr\headers;Shaders;Resource Files;Source Files;Header Files;E:\Program Files (x86)\Visual Leak Detector\include;E:\Program Files (x86)\Visual Leak Detector\bin\Win64;C:\Program Files %28x86%29\Visual Leak Detector\bin\Win64;Dependencies\Wwise\include</AdditionalIncludeDirectories>
       <AdditionalUsingDirectories>d3dcompiler.h;directxmath.h;d3d11_1.h;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
       <EnablePREfast>false</EnablePREfast>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -126,8 +126,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;openvr_api.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\Ghostbait\openvr\lib\win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;openvr_api.lib;CommunicationCentral.lib;AkFlangerFX.lib;AkTremoloFX.lib;AkMemoryMgr.lib;AkSineSource.lib;AkSynthOneSource.lib;AkStereoDelayFX.lib;AkGuitarDistortionFX.lib;AkMeterFX.lib;AkSoundEngine.lib;AkSilenceSource.lib;AkSoundSeedImpactFX.lib;AkRoomVerbFX.lib;AkSoundSeedWooshSource.lib;AkSpatialAudio.lib;AkSoundSeedWindSource.lib;AkDelayFX.lib;AkCompressorFX.lib;AkMotionGeneratorSource.lib;AkMusicEngine.lib;AkTimeStretchFX.lib;AkPitchShifterFX.lib;AkToneSource.lib;AkGainFX.lib;AkVorbisDecoder.lib;AkPeakLimiterFX.lib;AkParametricEQFX.lib;AkRecorderFX.lib;AkMatrixReverbFX.lib;AkMotionSink.lib;AkStreamMgr.lib;AkHarmonizerFX.lib;AkAudioInputSource.lib;AkExpanderFX.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Ghostbait\Dependencies\Wwise\LibDebug\lib;..\Ghostbait\openvr\lib\win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -143,7 +143,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>openvr\headers;Shaders;Resource Files;Source Files;Header Files;;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\Visual Leak Detector\include;openvr\headers;Shaders;Resource Files;Source Files;Header Files;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\Visual Leak Detector\include;openvr\headers;Shaders;Resource Files;Source Files;Header Files;;Dependencies\Wwise\include;Dependencies\Wwise\SoundEngine\Win32</AdditionalIncludeDirectories>
       <AdditionalUsingDirectories>d3dcompiler.h;directxmath.h;d3d11_1.h;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
       <EnablePREfast>false</EnablePREfast>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -153,8 +153,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;openvr_api.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\Ghostbait\openvr\lib\win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;openvr_api.lib;AkSoundEngine.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Ghostbait\Dependencies\Wwise\$(Configuration);..\Ghostbait\openvr\lib\win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -167,7 +167,7 @@
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>openvr\headers;Shaders;Resource Files;Source Files;Header Files;;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\Visual Leak Detector\include;openvr\headers;Shaders;Resource Files;Source Files;Header Files;E:\Program Files (x86)\Visual Leak Detector\include;E:\Program Files (x86)\Visual Leak Detector\bin\Win64;C:\Program Files %28x86%29\Visual Leak Detector\bin\Win64</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Dependencies\Wwise\Samples\SoundEngine\Win32;Dependencies\Wwise\Samples\SoundEngine\Common;C:\Program Files %28x86%29\Visual Leak Detector\include;openvr\headers;Shaders;Resource Files;Source Files;Header Files;E:\Program Files (x86)\Visual Leak Detector\include;E:\Program Files (x86)\Visual Leak Detector\bin\Win64;C:\Program Files %28x86%29\Visual Leak Detector\bin\Win64;Dependencies\Wwise\include</AdditionalIncludeDirectories>
       <AdditionalUsingDirectories>d3dcompiler.h;directxmath.h;d3d11_1.h;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
       <EnablePREfast>false</EnablePREfast>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -177,15 +177,20 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;openvr_api.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\Ghostbait\openvr\lib\win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;openvr_api.lib;AkFlangerFX.lib;AkTremoloFX.lib;AkMemoryMgr.lib;AkSineSource.lib;AkSynthOneSource.lib;AkStereoDelayFX.lib;AkGuitarDistortionFX.lib;AkMeterFX.lib;AkSoundEngine.lib;AkSilenceSource.lib;AkSoundSeedImpactFX.lib;AkRoomVerbFX.lib;AkSoundSeedWooshSource.lib;AkSpatialAudio.lib;AkSoundSeedWindSource.lib;AkDelayFX.lib;AkCompressorFX.lib;AkMotionGeneratorSource.lib;AkMusicEngine.lib;AkTimeStretchFX.lib;AkPitchShifterFX.lib;AkToneSource.lib;AkGainFX.lib;AkVorbisDecoder.lib;AkPeakLimiterFX.lib;AkParametricEQFX.lib;AkRecorderFX.lib;AkMatrixReverbFX.lib;AkMotionSink.lib;AkStreamMgr.lib;AkHarmonizerFX.lib;AkAudioInputSource.lib;AkExpanderFX.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Ghostbait\Dependencies\Wwise\LibRelease\lib;..\Ghostbait\openvr\lib\win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Common\AkFileLocationBase.h" />
+    <ClInclude Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Common\AkFilePackage.h" />
+    <ClInclude Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Common\AkFilePackageLUT.h" />
+    <ClInclude Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Win32\AkDefaultIOHookBlocking.h" />
     <ClInclude Include="Header Files\AABB.h" />
     <ClInclude Include="Header Files\AnimationManager.h" />
     <ClInclude Include="Header Files\Animator.h" />
     <ClInclude Include="Header Files\AnimatorManager.h" />
+    <ClInclude Include="Header Files\AudioManager.h" />
     <ClInclude Include="Header Files\Camera.h" />
     <ClInclude Include="Header Files\ComponentBase.h" />
     <ClInclude Include="Header Files\Console.h" />
@@ -237,14 +242,20 @@
     <ClInclude Include="Header Files\WICTextureLoader.h" />
     <ClInclude Include="Header Files\Window.h" />
     <ClInclude Include="Header Files\MessageEvents.h" />
+    <ClInclude Include="Header Files\Wwise_IDs.h" />
     <ClInclude Include="Header Files\XTime.h" />
     <ClInclude Include="Resource Files\Resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Common\AkFileLocationBase.cpp" />
+    <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Common\AkFilePackage.cpp" />
+    <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Common\AkFilePackageLUT.cpp" />
+    <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Win32\AkDefaultIOHookBlocking.cpp" />
     <ClCompile Include="Source Files\AABB.cpp" />
     <ClCompile Include="Source Files\AnimationManager.cpp" />
     <ClCompile Include="Source Files\Animator.cpp" />
     <ClCompile Include="Source Files\AnimatorManager.cpp" />
+    <ClCompile Include="Source Files\AudioManager.cpp" />
     <ClCompile Include="Source Files\Camera.cpp" />
     <ClCompile Include="Source Files\Console.cpp" />
     <ClCompile Include="Source Files\Controlable.cpp" />

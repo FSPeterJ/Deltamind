@@ -34,6 +34,8 @@ class PhysicsManager: public IComponentManager {
 	//bool BoxToCapsuleCollision();
 	//bool BoxToSphereCollision();
 	DirectX::XMVECTOR FindClosestPointOnLine(DirectX::XMVECTOR& _lineSegStart, DirectX::XMVECTOR& _lineSegEnd, DirectX::XMVECTOR& _testPoint);
+	DirectX::XMVECTOR Raycast(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction);
+	DirectX::XMVECTOR Raycast(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction, PhysicsComponent* collidingComp);
 
 	static Collider defaultColider;
 	static ColliderData defaultSphereColider;
@@ -45,6 +47,7 @@ public:
 	//bool CreateSphereCollider(float radius);
 	//bool CreateCapsuleCollider(float radius, float height);
 	//bool CreateBoxCollider(XMFLOAT3 p1, XMFLOAT3 p2);
+
 
 	void AddComponent(GameObject* obj, float veloX = 0.0f, float veloY = 0.0f, float veloZ = 0.0f);
 	PhysicsComponent* CloneComponent(ComponentBase * reference) override;

@@ -166,3 +166,8 @@ const std::vector<PhysicsComponent*> SpatialPartition::GetComponentsToTest() {
 	}
 	return testComps;
 }
+
+const std::vector<PhysicsComponent*> SpatialPartition::GetComponentsToTest(uint32_t hashIndex) {
+	return table[hashIndex].components;
+}
+

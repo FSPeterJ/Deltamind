@@ -184,6 +184,19 @@ void PhysicsManager::Update() {
 	TestAllComponentsCollision();
 }
 
+XMVECTOR PhysicsManager::Raycast(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction) {
+	uint32_t currBucketIndex = partitionSpace.GetHashedIndex(origin);
+	XMVECTOR vecOrigin = XMLoadFloat3(&origin);
+	for (float interval = 0.01f; interval < 100.0f; interval += 0.01f) {
+		
+	}
+}
+
+XMVECTOR PhysicsManager::Raycast(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction, PhysicsComponent* collidingComp) {
+
+}
+
+
 #pragma endregion
 
 #pragma region Private Functions

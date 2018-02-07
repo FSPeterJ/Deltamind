@@ -121,7 +121,6 @@ private:
 	std::vector<const GameObject*> renderedObjects;
 
 	MeshManager* meshManagement = nullptr;
-	VRManager* VRManagement = nullptr;
 	MaterialManager* materialManagement = nullptr;
 	AnimationManager* animationManagement = nullptr;
 
@@ -159,7 +158,7 @@ public:
 	//Parameters: window
 	//[window] Used to initialize the render texture and viewport, among other things.
 	//////////////////////////////////////////////////////////////////////////////////
-	void Initialize(Window window, VRManager * vr);
+	void Initialize(Window window);
 
 	//////////////////////////////////////////////////////////////////////////////////
 	//Destroy

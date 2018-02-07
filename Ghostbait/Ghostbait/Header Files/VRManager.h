@@ -21,6 +21,8 @@ enum class VRControllerType {
 
 class VRManager {
 private:
+	bool isEnabled = false;
+
 	DirectX::XMFLOAT4X4 leftProj;
 	DirectX::XMFLOAT4X4 rightProj;
 	DirectX::XMFLOAT4X4 leftEyeToHead;
@@ -30,37 +32,56 @@ private:
 	DirectX::XMFLOAT4X4 VRMatrix34ToDirectXMatrix44(vr::HmdMatrix34_t m);
 	DirectX::XMFLOAT4X4 VRMatrix44ToDirectXMatrix44(vr::HmdMatrix44_t m);
 
+	vr::IVRRenderModels* pVRRenderModel;
+	vr::IVRCompositor* pVRCompositor;
+
 	void WriteMatrix(DirectX::XMFLOAT4X4 m, int frame);
 
 	void UpdateVRPoses();
-	vr::TrackedDevicePose_t trackedDevicePose[vr::k_unMaxTrackedDeviceCount];
 	void Shutdown();
 
+	struct TeleportData {
+		DirectX::XMFLOAT4X4 telePos;
+		float maxDistance;
+		float maxAngle, minAngle;
+		float castHeight;
+		TeleportData() {
+			telePos = FLOAT4X4Identity;
+			maxDistance = 2;
+			maxAngle = 120;
+			minAngle = 60;
+		}
+	} teleportData;
+
 public:
+	static VRManager& GetInstance();
+
 	struct VRController {
 		int index;
 		DirectX::XMFLOAT4X4 pose = FLOAT4X4Identity;
 		ControllerObject* obj;
 	};
 
-	static DirectX::XMFLOAT4X4 world;
+	DirectX::XMFLOAT4X4 world = FLOAT4X4Identity;;
 	DirectX::XMFLOAT4X4 hmdPose = FLOAT4X4Identity;
-	static VRController leftController, rightController;
+	VRController leftController, rightController;
 
 	vr::IVRSystem *pVRHMD;
-	vr::IVRRenderModels* pVRRenderModel;
-	vr::IVRCompositor* pVRCompositor;
 	uint32_t RecommendedRenderHeight, RecommendedRenderWidth;
 
 	VRManager();
 	~VRManager();
 
 	bool Init();
-
-	void CreateControllers();
+	inline bool IsEnabled() { return isEnabled; };
 
 	void Vibrate(VRControllerType ctrl, unsigned short durationMs);
-
+	void CreateControllers();
+	
+	void TeleportCast(ControllerObject* controller);
+	void Teleport();
+	
 	void GetVRMatrices(DirectX::XMFLOAT4X4* leftProj, DirectX::XMFLOAT4X4* rightProj, DirectX::XMFLOAT4X4* leftView, DirectX::XMFLOAT4X4* rightView);
 	void SendToHMD(void* leftTexture, void* rightTexture);
+	DirectX::XMFLOAT4X4 GetPlayerPosition();
 };

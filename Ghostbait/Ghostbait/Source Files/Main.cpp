@@ -22,7 +22,6 @@
 #include "ProgressBar.h"
 
 Renderer* rendInter;
-VRManager* vrMan;
 Game* game;
 InputManager* inputMan;
 PhysicsManager* phyMan;
@@ -86,15 +85,14 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	}
 	//=============================
 
-	vrMan = new VRManager();
 	rendInter = new Renderer();
-	bool isVR = vrMan->Init();
+	bool isVR = VRManager::GetInstance().Init();
 	if(isVR) {
-		rendInter->Initialize(wnd, vrMan);
-		inputMan = new InputManager(VR, vrMan);
+		rendInter->Initialize(wnd);
+		inputMan = new InputManager(VR);
 	} else {
 		Console::WriteLine << "VR not initialized! Defaulting to 2D";
-		rendInter->Initialize(wnd, nullptr);
+		rendInter->Initialize(wnd);
 		inputMan = new InputManager(KEYBOARD);
 	}
 	animMan = new AnimatorManager(rendInter->getAnimationManager());
@@ -123,7 +121,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<ControllerObject>("ControllerObject");
 	TypeMap::RegisterObjectAlias<ViveController>("ViveController");
 	TypeMap::RegisterObjectAlias<Gun>("Gun");
-	TypeMap::RegisterObjectAlias<ProgressBar>("OverheatBar");
+	TypeMap::RegisterObjectAlias<ProgressBar>("ProgressBar");
 	TypeMap::RegisterObjectAlias<Projectile>("Projectile");
 	TypeMap::RegisterObjectAlias<Spawner>("Spawner");
 	TypeMap::RegisterObjectAlias<EnemyBase>("EnemyBase");
@@ -162,7 +160,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	game = new Game();
 	game->Start();
-	if(isVR) vrMan->CreateControllers();
+	if(VRManager::GetInstance().IsEnabled()) VRManager::GetInstance().CreateControllers();
 	//DirectX::XMFLOAT4X4 roomMatrix;
 	//DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * DirectX::XMMatrixTranslation(0, 3, 0));
 	//MenuCube* startCube;
@@ -184,8 +182,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 0.0f, 2.0f, 0.0f }, &test2));
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 7.0f, 2.0f, 0.0f }, nullptr));
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 0.0f, 2.0f, -7.0f }, nullptr));
-
-
+	
 	dynamic_cast<PhysicsTestObj*>(test1)->isControllable = true;
 	test1->Enable();
 
@@ -215,9 +212,6 @@ void Loop() {
 }
 
 void CleanUp() {
-	if(vrMan) {
-		delete vrMan;
-	}
 	if(rendInter) {
 		rendInter->Destroy();
 		delete rendInter;

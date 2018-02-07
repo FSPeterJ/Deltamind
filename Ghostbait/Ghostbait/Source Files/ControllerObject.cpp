@@ -1,6 +1,7 @@
 #include "ControllerObject.h"
 #include "Console.h"         // for Console, Console::WriteLine, Console::WriteLiner
 #include "MessageEvents.h"
+#include "VRManager.h"
 
 ControllerObject::ControllerObject() {
 	items.resize(4);
@@ -263,8 +264,22 @@ void ControllerObject::RightUpdate() {
 	#pragma endregion
 	#pragma region Current Item Logic
 		if(currentItem) {
+			//Update Current Item
 			currentItem->position = position;
 			currentItem->ActiveUpdate();
+
+			//Handle all Item input
+			if (KeyIsDown(teleportDown)) {
+				VRManager::GetInstance().TeleportCast(this);
+			}
+			if (KeyIsDown(teleportUp)) {
+				//DirectX::XMStoreFloat4x4(&VRManager::world, DirectX::XMLoadFloat4x4(&VRManager::world) * DirectX::XMMatrixTranslation(1, 0, 0));
+				ResetKey(teleportUp);
+				ResetKey(teleportDown);
+				VRManager::GetInstance().Teleport();
+			}
+
+			//Handle Specific Item input
 			switch(currentItem->state) {
 			case Item::State::GUN:
 				if(KeyIsDown(rightAttack)) {

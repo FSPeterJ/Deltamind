@@ -3,6 +3,7 @@
 #include "PhysicsComponent.h"
 #include "MessageEvents.h"
 #include "Console.h"
+#include "Projectile.h"
 
 void EnemyBase::Update() {
 	DirectX::XMVECTOR directionToGoal = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&target), DirectX::XMLoadFloat4x4(&position).r[3]));
@@ -23,9 +24,9 @@ void EnemyBase::OnCollision(GameObject* _other) {
 	DirectX::XMVECTOR incomingDirection = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat4x4(&position).r[3], DirectX::XMLoadFloat4x4(&(_other->position)).r[3]));
 	if(_other->GetTag() == "Bullet") {
 		myPhys->rigidBody.AddForce(0.2f, DirectX::XMVectorGetX(incomingDirection), 0.0f, DirectX::XMVectorGetZ(incomingDirection));
-		health -= 50.0f;
+		AdjustHealth(-(((Projectile*)_other)->damage));
 	}
-	if(health <= 0.0f) {
+	if(!IsAlive()) {
 		//Destroy itself
 		temp++;
 		if(temp > 3) {

@@ -202,6 +202,7 @@
     <ClInclude Include="Header Files\GhostTime.h" />
     <ClInclude Include="Header Files\Grid.h" />
     <ClInclude Include="Header Files\Gun.h" />
+    <ClInclude Include="Header Files\Health.h" />
     <ClInclude Include="Header Files\InputManager.h" />
     <ClInclude Include="Header Files\IComponentManager.h" />
     <ClInclude Include="Header Files\Item.h" />
@@ -257,6 +258,7 @@
     <ClCompile Include="Source Files\Gun.cpp">
       <ShowIncludes Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ShowIncludes>
     </ClCompile>
+    <ClCompile Include="Source Files\Health.cpp" />
     <ClCompile Include="Source Files\InputManager.cpp" />
     <ClCompile Include="Source Files\Item.cpp" />
     <ClCompile Include="Source Files\Main.cpp" />

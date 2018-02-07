@@ -1,6 +1,7 @@
 #pragma once
 #include "Camera.h"
 #include "GameObject.h"
+#include "MessageStructs.h"
 #include <vector>
 
 #ifdef NDEBUG
@@ -16,7 +17,9 @@ public:
 	~AudioManager();
 
 	void setCamera(const Camera* _camera);
-	
+	void registerObject(EventMessageBase* e);
+	void playSound(EventMessageBase* e);
+
 	void Update();
 };
 

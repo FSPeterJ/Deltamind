@@ -187,6 +187,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	DirectX::XMStoreFloat4x4(&test1->position, DirectX::XMLoadFloat4x4(&test1->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
 
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 0.0f, 2.0f, 0.0f }, &test2));
+	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(test2));
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(test2, AK::EVENTS::PLAY_WEN));
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 7.0f, 2.0f, 0.0f }, nullptr));
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 0.0f, 2.0f, -7.0f }, nullptr));
 

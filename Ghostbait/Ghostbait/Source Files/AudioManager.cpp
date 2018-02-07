@@ -8,6 +8,8 @@
 #include <Ak/Samples/SoundEngine/Win32/AkFilePackageLowLevelIOBlocking.h>
 #include "Wwise_IDs.h"
 
+#include "MessageEvents.h"
+
 #define INIT_BANK "Assets/Soundbanks/Init.bnk"
 #define DEFAULT_BANK "Assets/Soundbanks/TestBank.bnk"
 
@@ -77,13 +79,8 @@ AudioManager::AudioManager() //Thank the lord for SDK documentation
 
 	result = AK::SoundEngine::LoadBank(DEFAULT_BANK, AK_DEFAULT_POOL_ID, wiseIsGood);
 
-	GameObject* pleaseKillThis = new GameObject();
-	DirectX::XMStoreFloat4x4(&pleaseKillThis->position, DirectX::XMMatrixTranslation(0.0f, 0.0f, -10.0f));
-	objects.push_back(pleaseKillThis);
-	AK::SoundEngine::RegisterGameObj((AkGameObjectID)pleaseKillThis);
-	AK::SoundEngine::PostEvent(AK::EVENTS::PLAY_WEN, (AkGameObjectID)pleaseKillThis);
-	//AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::RPM, 1000, (AkGameObjectID)pleaseKillThis);
-	//AK::SoundEngine::SetScalingFactor((AkGameObjectID)pleaseKillThis, 0.1f);
+	MessageEvents::Subscribe(EVENT_RegisterNoisemaker, [this](EventMessageBase * _e) {this->registerObject(_e); });
+	MessageEvents::Subscribe(EVENT_RequestSound, [this](EventMessageBase * _e) {this->playSound(_e); });
 }
 
 
@@ -93,7 +90,6 @@ AudioManager::~AudioManager()
 	AK::SoundEngine::Term();
 	AK::IAkStreamMgr::Get()->Destroy();
 	AK::MemoryMgr::Term();
-	delete objects[0];
 }
 
 void AudioManager::setCamera(const Camera * _camera)
@@ -102,6 +98,19 @@ void AudioManager::setCamera(const Camera * _camera)
 	AkGameObjectID camId = LISTENER_ID;
 	AK::SoundEngine::RegisterGameObj(LISTENER_ID);
 	AK::SoundEngine::SetDefaultListeners(&camId, 1);
+}
+
+void AudioManager::registerObject(EventMessageBase * e)
+{
+	NewObjectMessage* obj = (NewObjectMessage*)e;
+	objects.push_back(obj->RetrieveObject());
+	AK::SoundEngine::RegisterGameObj((AkGameObjectID)obj->RetrieveObject());
+}
+
+void AudioManager::playSound(EventMessageBase * e)
+{
+	SoundRequestMessage* mess = (SoundRequestMessage*)e;
+	AK::SoundEngine::PostEvent(mess->RetrieveSound(), (AkGameObjectID)mess->RetrieveObject());
 }
 
 void AudioManager::Update()

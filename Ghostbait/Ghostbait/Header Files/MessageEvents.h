@@ -18,6 +18,8 @@ enum EVENT_TYPES {
 	EVENT_GameLose,
 	EVENT_Late,
 	EVENT_LENGTH,
+	EVENT_RegisterNoisemaker,
+	EVENT_RequestSound,
 };
 
 class EventMessageBase;

@@ -53,14 +53,14 @@ private:
 		}
 	} teleportData;
 
-	DirectX::XMFLOAT4X4 roomPose = FLOAT4X4Identity;
-	DirectX::XMFLOAT4X4 hmdPose = FLOAT4X4Identity;
+	DirectX::XMFLOAT4X4 roomPos = FLOAT4X4Identity;
+	DirectX::XMFLOAT4X4 hmdPos = FLOAT4X4Identity;
 public:
 	static VRManager& GetInstance();
 
 	struct VRController {
 		int index;
-		DirectX::XMFLOAT4X4 pose = FLOAT4X4Identity;
+		DirectX::XMFLOAT4X4 pos = FLOAT4X4Identity;
 		ControllerObject* obj;
 	};
 
@@ -78,7 +78,7 @@ public:
 	void Vibrate(VRControllerType ctrl, unsigned short durationMs);
 	void CreateControllers();
 	
-	void TeleportCast(ControllerObject* controller);
+	DirectX::XMFLOAT3 TeleportArcCast(ControllerObject* controller);
 	void Teleport();
 	
 	void GetVRMatrices(DirectX::XMFLOAT4X4* leftProj, DirectX::XMFLOAT4X4* rightProj, DirectX::XMFLOAT4X4* leftView, DirectX::XMFLOAT4X4* rightView);

@@ -146,6 +146,14 @@ InputPackage InputManager::VRInput::CheckForInput() {
 				}
 				break;
 			case vr::k_EButton_Grip:
+				if (event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
+					input = leftCyclePrefab;
+					amount = 1;
+				}
+				else {
+					input = rightCyclePrefab;
+					amount = 1;
+				}
 				break;
 			case vr::k_EButton_SteamVR_Touchpad:
 				float x, y, rads;

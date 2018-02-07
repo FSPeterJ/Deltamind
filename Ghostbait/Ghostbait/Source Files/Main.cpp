@@ -21,6 +21,7 @@
 #include "PhysicsTestObj.h"
 #include "ProgressBar.h"
 #include "AudioManager.h"
+#include "BuildTool.h"
 
 Renderer* rendInter;
 Game* game;
@@ -106,16 +107,17 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	audioMan->setCamera(rendInter->getCamera());
 
 	ObjectFactory::Initialize(objMan);
-	ObjectFactory::RegisterPrefabBase<ControllerObject>(8);
-	ObjectFactory::RegisterPrefabBase<Gun>(10);
-	ObjectFactory::RegisterPrefabBase<ProgressBar>(10);
-	ObjectFactory::RegisterPrefabBase<ViveController>(8);
+	ObjectFactory::RegisterPrefabBase<ControllerObject>(20);
+	ObjectFactory::RegisterPrefabBase<Gun>(20);
+	ObjectFactory::RegisterPrefabBase<ProgressBar>(20);
+	ObjectFactory::RegisterPrefabBase<ViveController>(20);
 	ObjectFactory::RegisterPrefabBase<GameObject>(512);
 	ObjectFactory::RegisterPrefabBase<Projectile>(512);
 	ObjectFactory::RegisterPrefabBase<Spawner>(16);
 	ObjectFactory::RegisterPrefabBase<EnemyBase>(32);
 	ObjectFactory::RegisterPrefabBase<MenuCube>(5);
 	ObjectFactory::RegisterPrefabBase<CoreCube>(5);
+	ObjectFactory::RegisterPrefabBase<BuildTool>(20);
 	ObjectFactory::RegisterPrefabBase<PhysicsTestObj>(32);
 
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
@@ -134,6 +136,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<CoreCube>("CoreCube");
 	TypeMap::RegisterObjectAlias<GameObject>("GameObject");
 	TypeMap::RegisterObjectAlias<PhysicsTestObj>("PhysicsTestObj");
+	TypeMap::RegisterObjectAlias<BuildTool>("BuildTool");
 
 	//------
 	// Scenemanager would make this
@@ -156,6 +159,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest2.ghost")); //13
 	ObjectFactory::CreatePrefab(&std::string("Assets/PlaneMap.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/OverheatBar.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object"));
 	//ObjectFactory::CreatePrefab(&std::string("SomeCoolObject"));

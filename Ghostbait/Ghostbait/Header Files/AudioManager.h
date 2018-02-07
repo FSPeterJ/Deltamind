@@ -2,6 +2,7 @@
 #include "Camera.h"
 #include "GameObject.h"
 #include "MessageStructs.h"
+#include <DirectXMath.h>
 #include <vector>
 
 #ifdef NDEBUG
@@ -10,13 +11,13 @@
 
 class AudioManager
 {
-	const Camera* cam;
+	const DirectX::XMFLOAT4X4* cam;
 	std::vector<GameObject*> objects;
 public:
 	AudioManager();
 	~AudioManager();
 
-	void setCamera(const Camera* _camera);
+	void setCamera(const DirectX::XMFLOAT4X4* _camera);
 	void registerObject(EventMessageBase* e);
 	void unRegisterObject(EventMessageBase* e);
 	void playSound(EventMessageBase* e);

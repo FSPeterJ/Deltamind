@@ -173,6 +173,11 @@ void VRManager::UpdateVRPoses() {
 				break;
 			case vr::TrackedDeviceClass_HMD:
 				hmdPose = VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking);
+				DirectX::XMMATRIX mHMDPose, mROOMPose;
+				mHMDPose = DirectX::XMLoadFloat4x4(&hmdPose);
+				mROOMPose = DirectX::XMLoadFloat4x4(&roomPose);
+
+				DirectX::XMStoreFloat4x4(&playerPose, mHMDPose * mROOMPose);
 				break;
 			default:
 				break;
@@ -196,14 +201,8 @@ void VRManager::SendToHMD(void* leftTexture, void* rightTexture) {
 	
 }
 
-DirectX::XMFLOAT4X4 VRManager::GetPlayerPosition() {
-	DirectX::XMMATRIX mHMDPose, mROOMPose;
-	mHMDPose = DirectX::XMLoadFloat4x4(&hmdPose);
-	mROOMPose = DirectX::XMLoadFloat4x4(&roomPose);
-
-	DirectX::XMFLOAT4X4 result;
-	DirectX::XMStoreFloat4x4(&result, mHMDPose * mROOMPose);
-	return result;
+DirectX::XMFLOAT4X4& VRManager::GetPlayerPosition() {
+	return playerPose;
 }
 DirectX::XMFLOAT4X4 VRManager::GetRoomPosition() {
 	return roomPose;

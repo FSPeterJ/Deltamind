@@ -93,7 +93,7 @@ AudioManager::~AudioManager()
 	AK::MemoryMgr::Term();
 }
 
-void AudioManager::setCamera(const Camera * _camera)
+void AudioManager::setCamera(const DirectX::XMFLOAT4X4 * _camera)
 {
 	cam = _camera;
 	AkGameObjectID camId = LISTENER_ID;
@@ -170,17 +170,17 @@ void AudioManager::Update()
 	AkVector up;
 	if (cam)
 	{
-		pos.X = cam->position._41;
-		pos.Y = cam->position._42;
-		pos.Z = cam->position._43;
+		pos.X = cam->_41;
+		pos.Y = cam->_42;
+		pos.Z = cam->_43;
 
-		front.X = cam->position._31;
-		front.Y = cam->position._32;
-		front.Z = cam->position._33;
+		front.X = cam->_31;
+		front.Y = cam->_32;
+		front.Z = cam->_33;
 
-		up.X = cam->position._21;
-		up.Y = cam->position._22;
-		up.Z = cam->position._23;
+		up.X = cam->_21;
+		up.Y = cam->_22;
+		up.Z = cam->_23;
 	}
 	else
 	{

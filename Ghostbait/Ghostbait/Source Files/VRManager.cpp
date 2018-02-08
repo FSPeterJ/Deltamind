@@ -3,6 +3,7 @@
 #include "ControllerObject.h"
 #include "MessageEvents.h"
 
+
 VRManager& VRManager::GetInstance() {
 	static VRManager instance;
 	return instance;
@@ -54,7 +55,7 @@ bool VRManager::Init() {
 
 void VRManager::CreateControllers() {
 	//Left
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {0,0,0}, (GameObject**) &leftController.obj));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {0,0,0}, (GameObject**)&leftController.obj));
 	leftController.obj->SetControllerHand(ControllerObject::ControllerHand::LEFT);
 	leftController.obj->AddItem(0, 1);
 	leftController.obj->AddItem(1, 2, Gun::FireType::SEMI, 60, 50);
@@ -177,10 +178,10 @@ void VRManager::UpdateVRPoses() {
 			case vr::TrackedDeviceClass_HMD:
 				hmdPos = VRMatrix34ToDirectXMatrix44(trackedDevicePos[deviceIndex].mDeviceToAbsoluteTracking);
 				DirectX::XMMATRIX mHMDPose, mROOMPose;
-				mHMDPose = DirectX::XMLoadFloat4x4(&hmdPose);
-				mROOMPose = DirectX::XMLoadFloat4x4(&roomPose);
+				mHMDPose = DirectX::XMLoadFloat4x4(&hmdPos);
+				mROOMPose = DirectX::XMLoadFloat4x4(&roomPos);
 
-				DirectX::XMStoreFloat4x4(&playerPose, mHMDPose * mROOMPose);
+				DirectX::XMStoreFloat4x4(&playerPos, mHMDPose * mROOMPose);
 				break;
 			default:
 				break;
@@ -205,40 +206,71 @@ void VRManager::SendToHMD(void* leftTexture, void* rightTexture) {
 }
 
 DirectX::XMFLOAT4X4& VRManager::GetPlayerPosition() {
-	return playerPose;
+	return playerPos;
 }
 DirectX::XMFLOAT4X4 VRManager::GetRoomPosition() {
 	return roomPos;
 }
 
-DirectX::XMFLOAT3 VRManager::TeleportArcCast(ControllerObject* controller) {
-	DirectX::XMFLOAT3 endPos = DirectX::XMFLOAT3(0, 0, 0);
+DirectX::XMFLOAT3 VRManager::ArcCast(ControllerObject* controller, float maxDistance, float minAngle, float maxAngle, float castHeight) {
+	DirectX::XMFLOAT3 endPos = RAYCAST_MISSED;
 	DirectX::XMMATRIX controllerMat = DirectX::XMLoadFloat4x4(&controller->position);
-	DirectX::XMVECTOR planeNormal = DirectX::XMVectorSet(0, 1, 0, 0);
-	DirectX::XMVECTOR forward = DirectX::XMVector3Normalize(controllerMat.r[2]);
-//1	//
-	//-------------------Project Controller forward onto X/Z plane
-	DirectX::XMVECTOR uDOTvDOTn = DirectX::XMVector3Dot(DirectX::XMVector3Dot(forward, planeNormal), planeNormal);
-	DirectX::XMVECTOR projForward = DirectX::XMVectorSubtract(forward, uDOTvDOTn);
-	//-------------------Create new ray going from playerPos in direction of projected vector
-	DirectX::XMFLOAT3 playerPos = DirectX::XMFLOAT3(world._41, world._42, world._43);
-	DirectX::XMFLOAT3 direction; DirectX::XMStoreFloat3(&direction, projForward);
-	Ray horizontalRay = Ray(playerPos, direction);
+	DirectX::XMVECTOR planeNormalVec = DirectX::XMVectorSet(0, 1, 0, 0);
+	DirectX::XMVECTOR forwardVec = DirectX::XMVector3Normalize(controllerMat.r[2]);
+	DirectX::XMVECTOR playerVec = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(playerPos._41, playerPos._42, playerPos._43));
 
-//2
-	//-------------------Calculate current controller angle
+	float maxRaycastDist = 100;
 
-	//-------------------clamp it between min and max
-	//-------------------Calculate distance to use (t of max distance)
-	//-------------------Find point along the horizontal ray
-//3
-	//-------------------Create a vector from castPoint to the point along the horizontal ray
-	//-------------------Cast a rayfrom the cast point along this vector
-//4
-	//-------------------Check anything was hit, that point is the resulting position
+//1	--Get horizontal Line direction from forward vector
+	DirectX::XMVECTOR direction;
+	{
+		//-------------------Project Controller forward onto X/Z plane
+		DirectX::XMVECTOR uDOTvDOTn = DirectX::XMVector3Dot(DirectX::XMVector3Dot(forwardVec, planeNormalVec), planeNormalVec);
+		direction = DirectX::XMVectorSubtract(forwardVec, uDOTvDOTn);
+	}
 
-	return endPos;
+//2 --Find point on Horizontal Line
+	DirectX::XMVECTOR pointOnLine;
+	{
+		//-------------------Calculate current controller angle
+		float controllerAngle = DirectX::XMVectorGetX(DirectX::XMVector3AngleBetweenVectors(DirectX::XMVectorSet(0, -1, 0, 0), forwardVec));
+		//-------------------clamp it between min and max
+		controllerAngle = (controllerAngle < minAngle ? minAngle : (controllerAngle > maxAngle ? maxAngle : controllerAngle));
+		//-------------------Calculate distance to use (t of max distance)
+		float t = (controllerAngle - minAngle) / (maxAngle - minAngle); // Normalized pitch within range
+		float distOnLine = (maxDistance + 1) * t;
+		//-------------------Find point along the horizontal ray
+		pointOnLine = DirectX::XMVectorAdd(playerVec, DirectX::XMVectorScale(direction, distOnLine));
+	}
+
+//3 --Cast ray from cast point to the horizontal line point
+	{
+		//-------------------Create a vector from castPoint to the point along the horizontal ray
+		DirectX::XMFLOAT3 player3; DirectX::XMStoreFloat3(&player3, playerVec);
+		player3.y += castHeight;
+		DirectX::XMVECTOR castPoint = DirectX::XMLoadFloat3(&player3);
+		DirectX::XMVECTOR castDirection = DirectX::XMVectorSubtract(pointOnLine, castPoint);
+		//-------------------Cast a rayfrom the cast point along this vector
+		DirectX::XMFLOAT3 rayStart, rayDirection;
+		DirectX::XMStoreFloat3(&rayStart, castPoint);
+		DirectX::XMStoreFloat3(&rayDirection, castDirection);
+		if(!Raycast(rayStart, rayDirection, &endPos)) {
+			endPos = RAYCAST_MISSED;
+		}
+		//--Find worst case end pos and set it
+	}
+		return endPos;
 }
+bool VRManager::ArcCastMissed(DirectX::XMFLOAT3 pos) {
+	return pos.x == RAYCAST_MISSED.x && pos.y == RAYCAST_MISSED.y && pos.z == RAYCAST_MISSED.z;
+}
+
 void VRManager::Teleport() {
-	DirectX::XMStoreFloat4x4(&roomPos, DirectX::XMLoadFloat4x4(&roomPos) * DirectX::XMMatrixTranslation(1, 0, 0));
+	DirectX::XMFLOAT3 endPos = ArcCast(leftController.obj);
+	if (!ArcCastMissed(endPos)) {
+		float deltaX = endPos.x - playerPos._41;
+		float deltaY = endPos.y - playerPos._42;
+		float deltaZ = endPos.z - playerPos._43;
+		DirectX::XMStoreFloat4x4(&roomPos, DirectX::XMLoadFloat4x4(&roomPos) * DirectX::XMMatrixTranslation(deltaX, deltaY, deltaZ));
+	}
 }

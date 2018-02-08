@@ -47,13 +47,14 @@ void BuildTool::Activate() {
 }
 
 void BuildTool::SpawnProjection(){
-	spawnPos = VRManager::GetInstance().TeleportArcCast(parent);
+	spawnPos = VRManager::GetInstance().ArcCast(parent);
+	if(!VRManager::GetInstance().ArcCastMissed(spawnPos)) {
 	//snap to center of grid
-
-	if (prefabs[currentPrefabIndex].object) {
-		prefabs[currentPrefabIndex].object->position._41 = spawnPos.x;
-		prefabs[currentPrefabIndex].object->position._42 = spawnPos.y;
-		prefabs[currentPrefabIndex].object->position._43 = spawnPos.z;
+		if (prefabs[currentPrefabIndex].object) {
+			prefabs[currentPrefabIndex].object->position._41 = spawnPos.x;
+			prefabs[currentPrefabIndex].object->position._42 = spawnPos.y;
+			prefabs[currentPrefabIndex].object->position._43 = spawnPos.z;
+		}
 	}
 }
 void BuildTool::Spawn() {

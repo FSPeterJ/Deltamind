@@ -181,28 +181,42 @@ void ControllerObject::Update() {
 			currentGameItem->ActiveUpdate();
 			switch (currentGameItem->state) {
 			case Item::State::GUN:
-				if (KeyIsDown(attack)) {
-					if (!((Gun*)currentGameItem)->Shoot())
-						ResetKey(attack);
+				{
+					if (KeyIsDown(attack)) {
+						if (!((Gun*)currentGameItem)->Shoot())
+							ResetKey(attack);
+					}
 				}
 				break;
 			case Item::State::CONTROLLER:
+				{
+				}
 				break;
 			case Item::State::BUILD:
-				if (KeyIsDown(cyclePrefab)) {
-					ResetKey(cyclePrefab);
-					((BuildTool*)currentGameItem)->CycleForward();
-				}
-				
-				if (KeyIsDown(attack)) {
-					((BuildTool*)currentGameItem)->Activate();
-					ResetKey(attack);
-				}
-				else ((BuildTool*)currentGameItem)->Projection();
+				{
+					if (KeyIsDown(cyclePrefab)) {
+						ResetKey(cyclePrefab);
+						((BuildTool*)currentGameItem)->CycleForward();
+					}
 
+					if (KeyIsDown(attack)) {
+						((BuildTool*)currentGameItem)->Activate();
+						ResetKey(attack);
+					}
+					else ((BuildTool*)currentGameItem)->Projection();
+				}
 				break;
 			case Item::State::INVALID:
 				break;
+			}
+			//All states
+			if (KeyIsDown(teleportDown)) {
+				VRManager::GetInstance().ArcCast(this);
+			}
+			if (KeyIsDown(teleportUp)) {
+				ResetKey(teleportUp);
+				ResetKey(teleportDown);
+				VRManager::GetInstance().Teleport();
 			}
 		}
 	#pragma endregion

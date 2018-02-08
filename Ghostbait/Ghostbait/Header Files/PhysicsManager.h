@@ -3,6 +3,7 @@
 #include "PhysicsComponent.h" //This can probably be forward declared with notable effort
 #include "Pool.h"
 #include "SpatialPartition.h"
+#include "PhysicsExtension.h"
 
 class GameObject;
 
@@ -13,10 +14,10 @@ class GameObject;
 #include "IComponentManager.h"
 class PhysicsManager: public IComponentManager {
 	//std::vector<PhysicsComponent> components;
-	SpatialPartition partitionSpace;
 	Pool<PhysicsComponent> components = Pool<PhysicsComponent>(MAX_PHYSICALS);
 	std::vector<ColliderData> colliderDataList;
 	std::vector<PhysicsComponent> prefabComponents;
+	static SpatialPartition partitionSpace;
 
 	ColliderData* AddColliderData(float _radius);
 	ColliderData* AddColliderData(float _radius, float _height);
@@ -33,17 +34,21 @@ class PhysicsManager: public IComponentManager {
 	void SendCollision(GameObject* obj1, GameObject* obj2);
 	//bool BoxToCapsuleCollision();
 	//bool BoxToSphereCollision();
-	DirectX::XMVECTOR FindClosestPointOnLine(DirectX::XMVECTOR& _lineSegStart, DirectX::XMVECTOR& _lineSegEnd, DirectX::XMVECTOR& _testPoint);
-	bool RaycastCollisionCheck(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction, PhysicsComponent* collidingComp, DirectX::XMVECTOR* colPoint = nullptr);
-	bool RayToSphere(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction, Collider& collidingComp, DirectX::XMVECTOR* colPoint = nullptr);
-	bool RayToCapsule(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction, Collider& collidingComp, DirectX::XMVECTOR* colPoint = nullptr);
-	bool RayToBox(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction, Collider& collidingComp, DirectX::XMVECTOR* colPoint = nullptr);
+
+
+	static DirectX::XMVECTOR FindClosestPointOnLine(DirectX::XMVECTOR& _lineSegStart, DirectX::XMVECTOR& _lineSegEnd, DirectX::XMVECTOR& _testPoint);
+	static bool IsRayInCollider(DirectX::XMVECTOR& origin, Collider& collidingComp, DirectX::XMVECTOR& objectPos);
+	static bool RaycastCollisionCheck(DirectX::XMVECTOR& origin, DirectX::XMVECTOR& direction, PhysicsComponent* collidingComp, DirectX::XMVECTOR* colPoint = nullptr, GameObject* colObject = nullptr, float maxCastDistance = 100.0f);
+	static bool RayToSphere(DirectX::XMVECTOR& origin, DirectX::XMVECTOR& direction, Collider& collidingComp, DirectX::XMVECTOR& objectPos, DirectX::XMVECTOR* colPoint = nullptr);
+	static bool RayToCapsule(DirectX::XMVECTOR& origin, DirectX::XMVECTOR& direction, Collider& collidingComp, DirectX::XMVECTOR& objectPos, DirectX::XMVECTOR* colPoint = nullptr);
+	static bool RayToBox(DirectX::XMVECTOR& origin, DirectX::XMVECTOR& direction, Collider& collidingComp, DirectX::XMVECTOR& objectPos, DirectX::XMVECTOR* colPoint = nullptr);
 
 
 	static Collider defaultColider;
 	static ColliderData defaultSphereColider;
 
 public:
+
 	PhysicsManager();
 	~PhysicsManager();
 
@@ -51,11 +56,11 @@ public:
 	//bool CreateCapsuleCollider(float radius, float height);
 	//bool CreateBoxCollider(XMFLOAT3 p1, XMFLOAT3 p2);
 
-
 	void AddComponent(GameObject* obj, float veloX = 0.0f, float veloY = 0.0f, float veloZ = 0.0f);
 	PhysicsComponent* CloneComponent(ComponentBase * reference) override;
 	PhysicsComponent* GetReferenceComponent(const char * _FilePath, const char* _data) override;
 	void ResetComponent(ComponentBase * reset) override;
 	void Update();
-	bool Raycast(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction, DirectX::XMFLOAT3* colPoint = nullptr);
+	static bool Raycast(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction, DirectX::XMFLOAT3* colPoint = nullptr, GameObject* colObject = nullptr, float maxCastDistance = 100.f);
+
 };

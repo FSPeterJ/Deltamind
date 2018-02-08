@@ -215,6 +215,7 @@
     <ClInclude Include="Header Files\ObjectFactory.h" />
     <ClInclude Include="Header Files\ObjectManager.h" />
     <ClInclude Include="Header Files\PhysicsComponent.h" />
+    <ClInclude Include="Header Files\PhysicsExtension.h" />
     <ClInclude Include="Header Files\PhysicsManager.h" />
     <ClInclude Include="Header Files\PhysicsTestObj.h" />
     <ClInclude Include="Header Files\Pool.h" />
@@ -269,6 +270,7 @@
     <ClCompile Include="Source Files\ObjectFactory.cpp" />
     <ClCompile Include="Source Files\ObjectManager.cpp" />
     <ClCompile Include="Source Files\PhysicsComponent.cpp" />
+    <ClCompile Include="Source Files\PhysicsExtension.cpp" />
     <ClCompile Include="Source Files\PhysicsManager.cpp" />
     <ClCompile Include="Source Files\PhysicsTestObj.cpp" />
     <ClCompile Include="Source Files\Pool.cpp" />

@@ -6,6 +6,8 @@
 
 Collider PhysicsManager::defaultColider;
 ColliderData PhysicsManager::defaultSphereColider;
+SpatialPartition PhysicsManager::partitionSpace;
+
 
 using namespace DirectX;
 
@@ -184,17 +186,22 @@ void PhysicsManager::Update() {
 	TestAllComponentsCollision();
 }
 
-bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* colPoint) {
+bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* colPoint, GameObject* colObject, float maxCastDistance) {
 	bool collided = false;
 	uint32_t nextIndex, currBucketIndex = -1;
 	XMVECTOR vecOrigin = XMLoadFloat3(&origin);
+	XMVECTOR vecDirection = XMVector3Normalize(XMLoadFloat3(&direction));
 	XMVECTOR vecNextSeg = vecOrigin;
-	XMVECTOR vecSegInterval = XMVector3Normalize(XMLoadFloat3(&direction)) * 0.01f;
-	XMVECTOR closestCollsion = vecOrigin + (vecSegInterval * 10000);
+	XMVECTOR vecSegInterval = vecDirection * 0.01f;
+	XMVECTOR closestCollision = vecOrigin + (vecDirection * maxCastDistance);
 	XMVECTOR tempCollidePt;
+	GameObject* tempCollideObj = nullptr;
 	XMFLOAT3 nextSegment;
 	std::vector<PhysicsComponent*> compToTest;
 	std::vector<XMVECTOR> collisionPoints;
+	std::vector<GameObject*> collidedObjects;
+
+	colObject = nullptr;
 
 	for (int iteration = 0; iteration < 10000; ++iteration) {
 		XMStoreFloat3(&nextSegment, vecNextSeg);
@@ -206,8 +213,9 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 		compToTest = partitionSpace.GetComponentsToTest(currBucketIndex);
 
 		for (int compIndex = 0; compIndex < compToTest.size(); ++compIndex) {
-			if (RaycastCollisionCheck(origin, direction, compToTest[compIndex], &tempCollidePt)) {
+			if (RaycastCollisionCheck(vecOrigin, vecDirection, compToTest[compIndex], &tempCollidePt, tempCollideObj, maxCastDistance)) {
 				collisionPoints.push_back(tempCollidePt);
+				collidedObjects.push_back(tempCollideObj);
 				collided = true;
 			}
 		}
@@ -217,17 +225,18 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 	}
 
 	if (collided) {
-		float lastClosestDist = XMVectorGetX(XMVector3LengthSq(closestCollsion - vecOrigin));
+		float lastClosestDist = XMVectorGetX(XMVector3LengthSq(closestCollision - vecOrigin));
 		float nextDist;
 		for (int i = 0; i < (int)collisionPoints.size(); ++i) {
 			nextDist = XMVectorGetX(XMVector3LengthSq(collisionPoints[i] - vecOrigin));
 			if (lastClosestDist > nextDist) {
-				closestCollsion = collisionPoints[i];
+				closestCollision = collisionPoints[i];
+				colObject = collidedObjects[i];
 				lastClosestDist = nextDist;
 			}
 		}
 	}
-	XMStoreFloat3(colPoint, closestCollsion);
+	XMStoreFloat3(colPoint, closestCollision);
 
 #if _DEBUG
 
@@ -613,39 +622,107 @@ void PhysicsManager::TestAllComponentsCollision() {
 	}
 }
 
-bool PhysicsManager::RaycastCollisionCheck(XMFLOAT3& origin, XMFLOAT3& direction, PhysicsComponent* collidingComp, XMVECTOR* colPoint) {
+bool PhysicsManager::RaycastCollisionCheck(XMVECTOR& origin, XMVECTOR& direction, PhysicsComponent* collidingComp, XMVECTOR* colPoint, GameObject* colObject, float maxCastDistance) {
 	bool collided = false;
+	bool hasCollidingComp = false;
+	XMVECTOR closestCollision = origin + (direction * maxCastDistance);
+	XMVECTOR tempColPoint = g_XMFltMax;
+	XMVECTOR center = XMVectorSet(collidingComp->parentObject->position._41, collidingComp->parentObject->position._42, collidingComp->parentObject->position._43, collidingComp->parentObject->position._44);
+	std::vector<XMVECTOR> collisionPoints;
+
+	colObject = nullptr;
+
 	for (int colliderIndex = 0; colliderIndex < collidingComp->colliders.size(); ++colliderIndex) {
 		switch (collidingComp->colliders[colliderIndex].colliderData->colliderType)
 		{
 		case SPHERE:
-			collided = RayToSphere(origin, direction, collidingComp->colliders[colliderIndex], colPoint);
+			hasCollidingComp = RayToSphere(origin, direction, collidingComp->colliders[colliderIndex], center, &tempColPoint);
 			break;
 		case CAPSULE:
-			collided = RayToCapsule(origin, direction, collidingComp->colliders[colliderIndex], colPoint);
+			hasCollidingComp = RayToCapsule(origin, direction, collidingComp->colliders[colliderIndex], center, &tempColPoint);
 			break;
 		case BOX:
-			collided = RayToBox(origin, direction, collidingComp->colliders[colliderIndex], colPoint);
+			hasCollidingComp = RayToBox(origin, direction, collidingComp->colliders[colliderIndex], center, &tempColPoint);
 			break;
 		default:
 			break;
 		}
-		if (collided)
-			break;
+
+		if (hasCollidingComp) {
+			collisionPoints.push_back(tempColPoint);
+			colObject = dynamic_cast<GameObject*>(collidingComp->parentObject);
+			collided = true;
+		}
 	}
+
+	if (collided && collidingComp->colliders.size() > 1) {
+		float lastClosestDist = XMVectorGetX(XMVector3LengthSq(closestCollision - origin));
+		float nextDist;
+		for (int i = 0; i < (int)collisionPoints.size(); ++i) {
+			nextDist = XMVectorGetX(XMVector3LengthSq(collisionPoints[i] - origin));
+			if (lastClosestDist > nextDist) {
+				closestCollision = collisionPoints[i];
+				lastClosestDist = nextDist;
+			}
+		}
+	}
+	*colPoint = closestCollision;
+
 	return collided;
 }
 
-bool PhysicsManager::RayToSphere(XMFLOAT3& origin, XMFLOAT3& direction, Collider& collidingComp, XMVECTOR* colPoint) {
+bool PhysicsManager::RayToSphere(XMVECTOR& origin, XMVECTOR& direction, Collider& collidingComp, XMVECTOR& objectPos, XMVECTOR* colPoint) {
+	//If origin is inside the Sphere, it does not test it. 
+	XMVECTOR collCenter = objectPos + XMLoadFloat3(&collidingComp.centerOffset);
+	float radiusSq = collidingComp.colliderData->colliderInfo.sphereCollider.radius;
+	radiusSq *= radiusSq;
+
+	if (!IsRayInCollider(origin, collidingComp, collCenter)) {
+		//Project center onto ray
+		XMVECTOR rayOriginToCenter = collCenter - origin;
+		XMVECTOR centerProjRay = XMVectorGetX(XMVector3Dot(direction, rayOriginToCenter)) * direction;
+		XMVECTOR centerToRay = rayOriginToCenter - centerProjRay;
+		float centerToRayLengthSq = XMVectorGetX(XMVector3LengthSq(centerToRay));
+
+		float distanceSqDiff = radiusSq - centerToRayLengthSq;
+		if (distanceSqDiff < -FLT_EPSILON)
+			return false;
+		if (fabsf(distanceSqDiff) < FLT_EPSILON) {
+			*colPoint = collCenter + centerToRay;
+			return true;
+		}
+		
+		*colPoint = origin + (direction * (XMVectorGetX(XMVector3Length(centerProjRay)) - sqrt(distanceSqDiff)));
+		return true;
+	}
 	return false;
 }
-bool PhysicsManager::RayToCapsule(XMFLOAT3& origin, XMFLOAT3& direction, Collider& collidingComp, XMVECTOR* colPoint) {
+bool PhysicsManager::RayToCapsule(XMVECTOR& origin, XMVECTOR& direction, Collider& collidingComp, XMVECTOR& objectPos, XMVECTOR* colPoint) {
 	return false;
 }
-bool PhysicsManager::RayToBox(XMFLOAT3& origin, XMFLOAT3& direction, Collider& collidingComp, XMVECTOR* colPoint) {
+bool PhysicsManager::RayToBox(XMVECTOR& origin, XMVECTOR& direction, Collider& collidingComp, XMVECTOR& objectPos, XMVECTOR* colPoint) {
 	return false;
 }
 
+bool PhysicsManager::IsRayInCollider(XMVECTOR& origin, Collider& collidingComp, XMVECTOR& colliderCenter) {
+	bool isInside = false;
+
+	switch (collidingComp.colliderData->colliderType)
+	{
+	case SPHERE:
+		isInside = XMVectorGetX(XMVector3LengthSq(colliderCenter - origin)) <
+									(collidingComp.colliderData->colliderInfo.sphereCollider.radius * collidingComp.colliderData->colliderInfo.sphereCollider.radius);
+		break;
+	case CAPSULE:
+		break;
+	case BOX:
+		break;
+	default:
+		break;
+	}
+
+	return isInside;
+}
 
 
 #pragma endregion

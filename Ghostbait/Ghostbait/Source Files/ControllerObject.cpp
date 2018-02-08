@@ -1,6 +1,7 @@
 #include "ControllerObject.h"
 #include "Console.h"         // for Console, Console::WriteLine, Console::WriteLiner
 #include "MessageEvents.h"
+#include "VRManager.h"
 #include "PhysicsExtension.h"
 
 ControllerObject::ControllerObject() {
@@ -75,7 +76,7 @@ void ControllerObject::LeftUpdate() {
 #pragma endregion
 	#pragma region Display Inventory
 		if (KeyIsDown(leftTouch)) {
-		for (int i = 0; i < displayItems.size(); ++i) {
+		for (unsigned int i = 0; i < displayItems.size(); ++i) {
 			if (displayItems[i]) {
 				if (!touchHeld) {
 					MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(displayItems[i]));
@@ -123,7 +124,7 @@ void ControllerObject::LeftUpdate() {
 		touchHeld = true;
 	}
 		else {
-		for (int i = 0; i < displayItems.size(); ++i) {
+		for (unsigned int i = 0; i < displayItems.size(); ++i) {
 			if (displayItems[i]) 
 				MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(displayItems[i]));
 		}
@@ -131,7 +132,7 @@ void ControllerObject::LeftUpdate() {
 	}
 	#pragma endregion
 	#pragma region Update Inactive Items
-		for (int i = 0; i < items.size(); ++i) {
+		for (unsigned int i = 0; i < items.size(); ++i) {
 		if (items[i] && items[i] != currentItem) {
 			items[i]->InactiveUpdate();
 		}
@@ -197,7 +198,7 @@ void ControllerObject::RightUpdate() {
 		//If we are touching the touchpad
 		if (KeyIsDown(rightTouch)) {
 			//for each item in this hands inventory
-			for (int i = 0; i < displayItems.size(); ++i) {
+			for (unsigned int i = 0; i < displayItems.size(); ++i) {
 				//If the slot it filled
 				if (displayItems[i]) {
 					//If its the first time for each item that the touchpad is pressed
@@ -249,7 +250,7 @@ void ControllerObject::RightUpdate() {
 			touchHeld = true;
 		}
 		else {
-			for (int i = 0; i < displayItems.size(); ++i) {
+			for (unsigned int i = 0; i < displayItems.size(); ++i) {
 				if (displayItems[i])
 					MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(displayItems[i]));
 			}
@@ -257,7 +258,7 @@ void ControllerObject::RightUpdate() {
 		}
 	#pragma endregion
 	#pragma region Update Inactive Items
-		for (int i = 0; i < items.size(); ++i) {
+		for (unsigned int i = 0; i < items.size(); ++i) {
 			if (items[i] && items[i] != currentItem) {
 				items[i]->InactiveUpdate();
 			}
@@ -265,8 +266,21 @@ void ControllerObject::RightUpdate() {
 	#pragma endregion
 	#pragma region Current Item Logic
 		if(currentItem) {
+			//Update Current Item
 			currentItem->position = position;
 			currentItem->ActiveUpdate();
+
+			//Handle all Item input
+			if (KeyIsDown(teleportDown)) {
+				VRManager::GetInstance().TeleportCast(this);
+			}
+			if (KeyIsDown(teleportUp)) {
+				ResetKey(teleportUp);
+				ResetKey(teleportDown);
+				VRManager::GetInstance().Teleport();
+			}
+
+			//Handle Specific Item input
 			switch(currentItem->state) {
 			case Item::State::GUN:
 				if(KeyIsDown(rightAttack)) {

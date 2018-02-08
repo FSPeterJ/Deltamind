@@ -20,9 +20,9 @@
 #include "ControllerObject.h"
 #include "PhysicsTestObj.h"
 #include "ProgressBar.h"
+#include "AudioManager.h"
 
 Renderer* rendInter;
-VRManager* vrMan;
 Game* game;
 InputManager* inputMan;
 PhysicsManager* phyMan;
@@ -30,6 +30,7 @@ MemoryManager MemMan;
 ObjectManager* objMan;
 EngineStructure engine;
 AnimatorManager* animMan;
+AudioManager* audioMan;
 
 void ExecuteAsync() {
 	Console::WriteLine << "I am executed asyncly!";
@@ -86,21 +87,25 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	}
 	//=============================
 
-	vrMan = new VRManager();
 	rendInter = new Renderer();
-	bool isVR = vrMan->Init();
+	audioMan = new AudioManager();
+	bool isVR = VRManager::GetInstance().Init();	
 	if(isVR) {
-		rendInter->Initialize(wnd, vrMan);
-		inputMan = new InputManager(VR, vrMan);
+		rendInter->Initialize(wnd);
+		inputMan = new InputManager(VR);
+		audioMan->setCamera(&VRManager::GetInstance().GetPlayerPosition());
 	} else {
 		Console::WriteLine << "VR not initialized! Defaulting to 2D";
-		rendInter->Initialize(wnd, nullptr);
+		rendInter->Initialize(wnd);
 		inputMan = new InputManager(KEYBOARD);
+		audioMan->setCamera(&(rendInter->getCamera())->position);
 	}
 	animMan = new AnimatorManager(rendInter->getAnimationManager());
 	phyMan = new PhysicsManager();
 	objMan = new ObjectManager(&MemMan);
 	objMan->Initialize(80);
+
+
 
 	ObjectFactory::Initialize(objMan);
 	ObjectFactory::RegisterPrefabBase<ControllerObject>(8);
@@ -123,7 +128,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<ControllerObject>("ControllerObject");
 	TypeMap::RegisterObjectAlias<ViveController>("ViveController");
 	TypeMap::RegisterObjectAlias<Gun>("Gun");
-	TypeMap::RegisterObjectAlias<ProgressBar>("OverheatBar");
+	TypeMap::RegisterObjectAlias<ProgressBar>("ProgressBar");
 	TypeMap::RegisterObjectAlias<Projectile>("Projectile");
 	TypeMap::RegisterObjectAlias<Spawner>("Spawner");
 	TypeMap::RegisterObjectAlias<EnemyBase>("EnemyBase");
@@ -159,10 +164,10 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//ObjectFactory::CreatePrefab(&std::string("LeftControllerObject"));
 	//ObjectFactory::CreatePrefab(&std::string("RightControllerObject"));
 	//=============================
-
+	
 	game = new Game();
 	game->Start();
-	if(isVR) vrMan->CreateControllers();
+	if(VRManager::GetInstance().IsEnabled()) VRManager::GetInstance().CreateControllers();
 	//DirectX::XMFLOAT4X4 roomMatrix;
 	//DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * DirectX::XMMatrixTranslation(0, 3, 0));
 	//MenuCube* startCube;
@@ -184,8 +189,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { 0.0f, 2.0f, 0.0f }, &test2));
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { 7.0f, 2.0f, 0.0f }, nullptr));
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { 0.0f, 2.0f, -7.0f }, nullptr));
-
-
+	
 	dynamic_cast<PhysicsTestObj*>(test1)->isControllable = true;
 	test1->Enable();
 
@@ -208,6 +212,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 void Loop() {
 	phyMan->Update();
+	audioMan->Update();
 	inputMan->HandleInput();
 	engine.ExecuteUpdate();
 	engine.ExecuteLateUpdate();
@@ -215,9 +220,6 @@ void Loop() {
 }
 
 void CleanUp() {
-	if(vrMan) {
-		delete vrMan;
-	}
 	if(rendInter) {
 		rendInter->Destroy();
 		delete rendInter;
@@ -229,6 +231,7 @@ void CleanUp() {
 	delete phyMan;
 	delete inputMan;
 	delete animMan;
+	delete audioMan;
 	if(game) {
 		game->Clean();
 		delete game;

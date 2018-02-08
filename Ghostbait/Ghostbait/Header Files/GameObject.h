@@ -1,6 +1,7 @@
 #pragma once
 #include "Object.h"
 #include "Controlable.h"
+#include "Health.h"
 
 class GameObject: public Object {
 	//Until delegate unsubscribe is fixed

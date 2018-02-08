@@ -2,9 +2,11 @@
 #include "Console.h"
 #include "ControllerObject.h"
 #include "MessageEvents.h"
-DirectX::XMFLOAT4X4 VRManager::world = FLOAT4X4Identity;
-VRManager::VRController VRManager::leftController;
-VRManager::VRController VRManager::rightController;
+
+VRManager& VRManager::GetInstance() {
+	static VRManager instance;
+	return instance;
+}
 
 VRManager::VRManager() {}
 
@@ -46,6 +48,7 @@ bool VRManager::Init() {
 	rightProj = VRProjectionToDirectXMatrix(vr::EVREye::Eye_Right, 0.01f, 100.0f);
 	leftEyeToHead = VRMatrix34ToDirectXMatrix44(pVRHMD->GetEyeToHeadTransform(vr::EVREye::Eye_Left));
 	rightEyeToHead = VRMatrix34ToDirectXMatrix44(pVRHMD->GetEyeToHeadTransform(vr::EVREye::Eye_Right));
+	isEnabled = true;
 	return true;
 }
 
@@ -54,15 +57,15 @@ void VRManager::CreateControllers() {
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {0,0,0}, (GameObject**) &leftController.obj));
 	leftController.obj->SetControllerHand(ControllerObject::ControllerHand::LEFT);
 	leftController.obj->AddController(0, 1);
-	leftController.obj->AddGun(1, 2, Gun::FireType::SEMI, 60, 1);
-	leftController.obj->AddGun(2, 2, Gun::FireType::AUTO, 8, 1);
+	leftController.obj->AddGun(1, 2, Gun::FireType::SEMI, 60, 50);
+	leftController.obj->AddGun(2, 2, Gun::FireType::AUTO, 8, 25);
 	leftController.obj->Enable();
 	//Right
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {1,0,1}, (GameObject**) &rightController.obj));
 	rightController.obj->SetControllerHand(ControllerObject::ControllerHand::RIGHT);
 	rightController.obj->AddController(0, 1);
-	rightController.obj->AddGun(1, 2, Gun::FireType::SEMI, 60, 1);
-	rightController.obj->AddGun(2, 2, Gun::FireType::AUTO, 8, 1);
+	rightController.obj->AddGun(1, 2, Gun::FireType::SEMI, 60, 50);
+	rightController.obj->AddGun(2, 2, Gun::FireType::AUTO, 8, 25);
 	rightController.obj->Enable();
 }
 
@@ -137,13 +140,11 @@ void VRManager::Shutdown() {
 void VRManager::GetVRMatrices(DirectX::XMFLOAT4X4* _leftProj, DirectX::XMFLOAT4X4* _rightProj, DirectX::XMFLOAT4X4* _leftView, DirectX::XMFLOAT4X4* _rightView) {
 	UpdateVRPoses();
 
-	DirectX::XMMATRIX mHMDPose;
-	mHMDPose = DirectX::XMLoadFloat4x4(&hmdPose);
+	DirectX::XMMATRIX mHMDWorldPose;
+	mHMDWorldPose = DirectX::XMLoadFloat4x4(&GetPlayerPosition());
 
-	mHMDPose *= DirectX::XMLoadFloat4x4(&world);
-	DirectX::XMMATRIX leftView = DirectX::XMLoadFloat4x4(&leftEyeToHead) * mHMDPose;
-	DirectX::XMMATRIX rightView = DirectX::XMLoadFloat4x4(&rightEyeToHead) * mHMDPose;
-	DirectX::XMStoreFloat4x4(&hmdPose, mHMDPose);
+	DirectX::XMMATRIX leftView = DirectX::XMLoadFloat4x4(&leftEyeToHead) * mHMDWorldPose;
+	DirectX::XMMATRIX rightView = DirectX::XMLoadFloat4x4(&rightEyeToHead) * mHMDWorldPose;
 
 	*_leftProj = leftProj;
 	*_rightProj = rightProj;
@@ -153,7 +154,7 @@ void VRManager::GetVRMatrices(DirectX::XMFLOAT4X4* _leftProj, DirectX::XMFLOAT4X
 
 void VRManager::UpdateVRPoses() {
 	if(!pVRHMD) return;
-
+	vr::TrackedDevicePose_t trackedDevicePose[vr::k_unMaxTrackedDeviceCount];
 	pVRCompositor->WaitGetPoses(trackedDevicePose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
 
 	for(int deviceIndex = 0; deviceIndex < vr::k_unMaxTrackedDeviceCount; ++deviceIndex) {
@@ -161,17 +162,22 @@ void VRManager::UpdateVRPoses() {
 			switch(pVRHMD->GetTrackedDeviceClass(deviceIndex)) {
 			case vr::TrackedDeviceClass_Controller:
 				if(pVRHMD->GetControllerRoleForTrackedDeviceIndex(deviceIndex) == vr::ETrackedControllerRole::TrackedControllerRole_LeftHand) {
-					DirectX::XMStoreFloat4x4(&leftController.pose, DirectX::XMLoadFloat4x4(&VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking)) * DirectX::XMLoadFloat4x4(&world));
+					DirectX::XMStoreFloat4x4(&leftController.pose, DirectX::XMLoadFloat4x4(&VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking)) * DirectX::XMLoadFloat4x4(&roomPose));
 					leftController.index = deviceIndex;
 					XMStoreFloat4x4(&leftController.obj->position, DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(55)) * DirectX::XMLoadFloat4x4(&leftController.pose));// *DirectX::XMMatrixScaling(0.25f, 0.25f, 0.25f);
 				} else if(pVRHMD->GetControllerRoleForTrackedDeviceIndex(deviceIndex) == vr::ETrackedControllerRole::TrackedControllerRole_RightHand) {
-					DirectX::XMStoreFloat4x4(&rightController.pose, DirectX::XMLoadFloat4x4(&VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking)) * DirectX::XMLoadFloat4x4(&world));
+					DirectX::XMStoreFloat4x4(&rightController.pose, DirectX::XMLoadFloat4x4(&VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking)) * DirectX::XMLoadFloat4x4(&roomPose));
 					rightController.index = deviceIndex;
 					XMStoreFloat4x4(&rightController.obj->position, DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(55)) * DirectX::XMLoadFloat4x4(&rightController.pose));// *DirectX::XMMatrixScaling(0.25f, 0.25f, 0.25f);
 				}
 				break;
 			case vr::TrackedDeviceClass_HMD:
 				hmdPose = VRMatrix34ToDirectXMatrix44(trackedDevicePose[deviceIndex].mDeviceToAbsoluteTracking);
+				DirectX::XMMATRIX mHMDPose, mROOMPose;
+				mHMDPose = DirectX::XMLoadFloat4x4(&hmdPose);
+				mROOMPose = DirectX::XMLoadFloat4x4(&roomPose);
+
+				DirectX::XMStoreFloat4x4(&playerPose, mHMDPose * mROOMPose);
 				break;
 			default:
 				break;
@@ -193,4 +199,42 @@ void VRManager::SendToHMD(void* leftTexture, void* rightTexture) {
 	//	Console::Write("Unable to submit right eye texture");
 
 	
+}
+
+DirectX::XMFLOAT4X4& VRManager::GetPlayerPosition() {
+	return playerPose;
+}
+DirectX::XMFLOAT4X4 VRManager::GetRoomPosition() {
+	return roomPose;
+}
+
+void VRManager::TeleportCast(ControllerObject* controller) {
+	//DirectX::XMMATRIX controllerMat = DirectX::XMLoadFloat4x4(&controller->position);
+	//DirectX::XMVECTOR planeNormal = DirectX::XMVectorSet(0, 1, 0, 0);
+	//DirectX::XMVECTOR forward = DirectX::XMVector3Normalize(controllerMat.r[2]);
+//1	//
+	////-------------------Project Controller forward onto X/Z plane
+	//DirectX::XMVECTOR uDOTvDOTn = DirectX::XMVector3Dot(DirectX::XMVector3Dot(forward, planeNormal), planeNormal);
+	//DirectX::XMVECTOR projForward = DirectX::XMVectorSubtract(forward, uDOTvDOTn);
+	////-------------------Create new ray going from playerPos in direction of projected vector
+	//DirectX::XMFLOAT3 playerPos = DirectX::XMFLOAT3(world._41, world._42, world._43);
+	//DirectX::XMFLOAT3 direction; DirectX::XMStoreFloat3(&direction, projForward);
+	//Ray horizontalRay = Ray(playerPos, direction);
+
+//2
+	//-------------------Calculate current controller angle
+
+	//-------------------clamp it between min and max
+	//-------------------Calculate distance to use (t of max distance)
+	//-------------------Find point along the horizontal ray
+//3
+	//-------------------Create a vector from castPoint to the point along the horizontal ray
+	//-------------------Cast a rayfrom the cast point along this vector
+//4
+	//-------------------Check anything was hit, that point is the resulting position
+
+
+}
+void VRManager::Teleport() {
+	DirectX::XMStoreFloat4x4(&roomPose, DirectX::XMLoadFloat4x4(&roomPose) * DirectX::XMMatrixTranslation(1, 0, 0));
 }

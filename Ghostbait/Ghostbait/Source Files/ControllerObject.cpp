@@ -1,6 +1,7 @@
 #include "ControllerObject.h"
 #include "Console.h"         // for Console, Console::WriteLine, Console::WriteLiner
 #include "MessageEvents.h"
+#include "PhysicsExtension.h"
 
 ControllerObject::ControllerObject() {
 	items.resize(4);
@@ -156,6 +157,7 @@ void ControllerObject::LeftUpdate() {
 	#pragma endregion
 }
 void ControllerObject::RightUpdate() {
+	Raycast(DirectX::XMFLOAT3(position._41, position._42, position._43), DirectX::XMFLOAT3(position._31, position._32, position._33));
 	static bool touchHeld = false;
 	#pragma region Switch Controller Item
 		if (KeyIsDown(rightItem1)) {

@@ -233,14 +233,17 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 				closestCollision = collisionPoints[i];
 				colObject = collidedObjects[i];
 				lastClosestDist = nextDist;
+				Console::WriteLine << "RAY HIT";
 			}
 		}
 	}
-	XMStoreFloat3(colPoint, closestCollision);
+	if(colPoint)
+		XMStoreFloat3(colPoint, closestCollision);
 
 #if _DEBUG
-
-	DebugRenderer::AddLine(origin, *colPoint, XMFLOAT3(0.0f, 1.0f, 1.0f));
+	XMFLOAT3 line;
+	XMStoreFloat3(&line, closestCollision);
+	DebugRenderer::AddLine(origin, line, XMFLOAT3(0.0f, 1.0f, 1.0f));
 
 #endif
 
@@ -346,7 +349,7 @@ void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponen
 
 			if (collisionResult) {
 				SendCollision((GameObject*)component1.parentObject, (GameObject*)component2.parentObject);
-				Console::WriteLine << "Collided";
+				//Console::WriteLine << "Collided";
 			}
 		}
 	}
@@ -655,7 +658,7 @@ bool PhysicsManager::RaycastCollisionCheck(XMVECTOR& origin, XMVECTOR& direction
 		}
 	}
 
-	if (collided && collidingComp->colliders.size() > 1) {
+	if (collided) {
 		float lastClosestDist = XMVectorGetX(XMVector3LengthSq(closestCollision - origin));
 		float nextDist;
 		for (int i = 0; i < (int)collisionPoints.size(); ++i) {

@@ -1,7 +1,9 @@
+#include "DebugRenderer.h"
 #include "VRManager.h"
 #include "Console.h"
 #include "ControllerObject.h"
 #include "MessageEvents.h"
+#include "PhysicsExtension.h"
 
 
 VRManager& VRManager::GetInstance() {
@@ -225,8 +227,8 @@ DirectX::XMFLOAT3 VRManager::ArcCast(ControllerObject* controller, float maxDist
 	DirectX::XMVECTOR direction;
 	{
 		//-------------------Project Controller forward onto X/Z plane
-		DirectX::XMVECTOR uDOTvDOTn = DirectX::XMVector3Dot(DirectX::XMVector3Dot(forwardVec, planeNormalVec), planeNormalVec);
-		direction = DirectX::XMVectorSubtract(forwardVec, uDOTvDOTn);
+		DirectX::XMVECTOR temp = DirectX::XMVectorScale(planeNormalVec, DirectX::XMVectorGetX(DirectX::XMVector3Dot(forwardVec, planeNormalVec)));
+		direction = DirectX::XMVectorSubtract(forwardVec, temp);
 	}
 
 //2 --Find point on Horizontal Line
@@ -234,6 +236,7 @@ DirectX::XMFLOAT3 VRManager::ArcCast(ControllerObject* controller, float maxDist
 	{
 		//-------------------Calculate current controller angle
 		float controllerAngle = DirectX::XMVectorGetX(DirectX::XMVector3AngleBetweenVectors(DirectX::XMVectorSet(0, -1, 0, 0), forwardVec));
+		controllerAngle = DirectX::XMConvertToDegrees(controllerAngle);
 		//-------------------clamp it between min and max
 		controllerAngle = (controllerAngle < minAngle ? minAngle : (controllerAngle > maxAngle ? maxAngle : controllerAngle));
 		//-------------------Calculate distance to use (t of max distance)
@@ -257,6 +260,9 @@ DirectX::XMFLOAT3 VRManager::ArcCast(ControllerObject* controller, float maxDist
 		if(!Raycast(rayStart, rayDirection, &endPos)) {
 			endPos = RAYCAST_MISSED;
 		}
+		else {
+			Console::WriteLine << "RAYCAST HIT";
+		}
 		//--Find worst case end pos and set it
 	}
 		return endPos;
@@ -266,7 +272,7 @@ bool VRManager::ArcCastMissed(DirectX::XMFLOAT3 pos) {
 }
 
 void VRManager::Teleport() {
-	DirectX::XMFLOAT3 endPos = ArcCast(leftController.obj);
+	DirectX::XMFLOAT3 endPos = ArcCast(rightController.obj);
 	if (!ArcCastMissed(endPos)) {
 		float deltaX = endPos.x - playerPos._41;
 		float deltaY = endPos.y - playerPos._42;

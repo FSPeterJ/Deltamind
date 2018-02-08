@@ -6,6 +6,8 @@
 
 Collider PhysicsManager::defaultColider;
 ColliderData PhysicsManager::defaultSphereColider;
+SpatialPartition PhysicsManager::partitionSpace;
+
 
 using namespace DirectX;
 
@@ -184,6 +186,70 @@ void PhysicsManager::Update() {
 	TestAllComponentsCollision();
 }
 
+bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* colPoint, GameObject* colObject, float maxCastDistance) {
+	bool collided = false;
+	uint32_t nextIndex, currBucketIndex = -1;
+	XMVECTOR vecOrigin = XMLoadFloat3(&origin);
+	XMVECTOR vecDirection = XMVector3Normalize(XMLoadFloat3(&direction));
+	XMVECTOR vecNextSeg = vecOrigin;
+	XMVECTOR vecSegInterval = vecDirection * 0.01f;
+	XMVECTOR closestCollision = vecOrigin + (vecDirection * maxCastDistance);
+	XMVECTOR tempCollidePt;
+	GameObject* tempCollideObj = nullptr;
+	XMFLOAT3 nextSegment;
+	std::vector<PhysicsComponent*> compToTest;
+	std::vector<XMVECTOR> collisionPoints;
+	std::vector<GameObject*> collidedObjects;
+
+	colObject = nullptr;
+
+	for (int iteration = 0; iteration < 10000; ++iteration) {
+		XMStoreFloat3(&nextSegment, vecNextSeg);
+		nextIndex = partitionSpace.GetHashedIndex(nextSegment);
+		vecNextSeg += vecSegInterval;
+		if (currBucketIndex == nextIndex)
+			continue;
+		currBucketIndex = nextIndex;
+		compToTest = partitionSpace.GetComponentsToTest(currBucketIndex);
+
+		for (int compIndex = 0; compIndex < compToTest.size(); ++compIndex) {
+			if (RaycastCollisionCheck(vecOrigin, vecDirection, compToTest[compIndex], &tempCollidePt, tempCollideObj, maxCastDistance)) {
+				collisionPoints.push_back(tempCollidePt);
+				collidedObjects.push_back(tempCollideObj);
+				collided = true;
+			}
+		}
+
+		if (collided)
+			break;
+	}
+
+	if (collided) {
+		float lastClosestDist = XMVectorGetX(XMVector3LengthSq(closestCollision - vecOrigin));
+		float nextDist;
+		for (int i = 0; i < (int)collisionPoints.size(); ++i) {
+			nextDist = XMVectorGetX(XMVector3LengthSq(collisionPoints[i] - vecOrigin));
+			if (lastClosestDist > nextDist) {
+				closestCollision = collisionPoints[i];
+				colObject = collidedObjects[i];
+				lastClosestDist = nextDist;
+				Console::WriteLine << "RAY HIT";
+			}
+		}
+	}
+	if(colPoint)
+		XMStoreFloat3(colPoint, closestCollision);
+
+#if _DEBUG
+	XMFLOAT3 line;
+	XMStoreFloat3(&line, closestCollision);
+	DebugRenderer::AddLine(origin, line, XMFLOAT3(0.0f, 1.0f, 1.0f));
+
+#endif
+
+	return collided;
+}
+
 #pragma endregion
 
 #pragma region Private Functions
@@ -241,14 +307,14 @@ void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponen
 	for(unsigned int com1 = 0; com1 < component1.colliders.size(); ++com1) {
 		colliderType1 = component1.colliders[com1].colliderData->colliderType;
 
-		for(unsigned int com2 = 0; com2 < component2.colliders.size(); ++com2) {
+		for (unsigned int com2 = 0; com2 < component2.colliders.size(); ++com2) {
 			collisionResult = false;
 			colliderType2 = component2.colliders[com2].colliderData->colliderType;
 
-			switch(colliderType1) {
+			switch (colliderType1) {
 			case SPHERE:
 			{
-				switch(colliderType2) {
+				switch (colliderType2) {
 				case SPHERE:
 					collisionResult = SphereToSphereCollision(component1.colliders[com1], matrixComA.r[3], component2.colliders[com2], matrixComB.r[3]);
 					break;
@@ -262,7 +328,7 @@ void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponen
 
 			case CAPSULE:
 			{
-				switch(colliderType2) {
+				switch (colliderType2) {
 				case SPHERE:
 					collisionResult = CapsuleToSphereCollision(component1.colliders[com1], matrixComA, component2.colliders[com2], matrixComB);
 					break;
@@ -281,8 +347,10 @@ void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponen
 				break;
 			}
 
-			if(collisionResult)
-				SendCollision((GameObject*) component1.parentObject, (GameObject*) component2.parentObject);
+			if (collisionResult) {
+				SendCollision((GameObject*)component1.parentObject, (GameObject*)component2.parentObject);
+				//Console::WriteLine << "Collided";
+			}
 		}
 	}
 }
@@ -291,7 +359,7 @@ bool PhysicsManager::IsVectorZero(XMVECTOR& _toTest) {
 		return true;
 	return false;
 }
-bool PhysicsManager::SphereToSphereCollision(Collider col1, XMVECTOR& pos1, Collider col2, XMVECTOR& pos2) {
+bool PhysicsManager::SphereToSphereCollision(Collider& col1, XMVECTOR& pos1, Collider& col2, XMVECTOR& pos2) {
 	XMVECTOR offset1 = XMLoadFloat3(&col1.centerOffset);
 	XMVECTOR offset2 = XMLoadFloat3(&col2.centerOffset);
 	XMVECTOR position1 = offset1 + pos1;
@@ -306,7 +374,7 @@ bool PhysicsManager::SphereToSphereCollision(Collider col1, XMVECTOR& pos1, Coll
 bool PhysicsManager::BoxToBoxCollision() {
 	return false;
 }
-bool PhysicsManager::CapsuleToCapsuleCollision(Collider col1, XMMATRIX& pos1, Collider col2, XMMATRIX& pos2) {
+bool PhysicsManager::CapsuleToCapsuleCollision(Collider& col1, XMMATRIX& pos1, Collider& col2, XMMATRIX& pos2) {
 	//*** Edge case where tall/long capsules intersect will not collide ***
 	
 	float combineRadiusSq = col1.colliderData->colliderInfo.capsuleCollider.radius + col2.colliderData->colliderInfo.capsuleCollider.radius;
@@ -328,90 +396,168 @@ bool PhysicsManager::CapsuleToCapsuleCollision(Collider col1, XMMATRIX& pos1, Co
 	cap2End = XMVector3TransformCoord(cap2End, pos2);
 	XMVECTOR seg2 = cap2End - cap2Start;
 
-	//XMVECTOR segBetweenStarts = cap1Start - cap2Start;
+//	//XMVECTOR segBetweenStarts = cap1Start - cap2Start;
+//
+//	////Find shortest line between line segments
+//	////Reference: http://paulbourke.net/geometry/pointlineplane/lineline.c
+//	//if (IsVectorZero(seg1) || IsVectorZero(seg2))
+//	//	return false;
+//
+//	//float segTweenDotSeg1, segTweenDotSeg2, seg1DotSeg2, seg2SqLength, seg1SqLength, numer, denom, ratioOnSeg1, ratioOnSeg2;
+//
+//	//segTweenDotSeg1 = XMVectorGetX(XMVector3Dot(segBetweenStarts, seg1));
+//	//segTweenDotSeg2 = XMVectorGetX(XMVector3Dot(segBetweenStarts, seg2));
+//	//seg1DotSeg2 = XMVectorGetX(XMVector3Dot(seg1, seg2));
+//	//seg1SqLength = XMVectorGetX(XMVector3LengthSq(seg1));
+//	//seg2SqLength = XMVectorGetX(XMVector3LengthSq(seg2));
+//
+//	//denom = (seg1SqLength * seg2SqLength) - (seg1DotSeg2 * seg1DotSeg2);
+//
+//	////If Denom is zero, lines are parallel
+//	//if (fabsf(denom) < FLT_EPSILON) {
+//		float closestDistSq, testNextClosestDistSq;
+//		XMVECTOR closestTo1Start, closestTo1End, closestTo2Start, closestTo2End;
+//
+//		closestTo1Start = FindClosestPointOnLine(cap2Start, cap2End, cap1Start);
+//		closestTo1End = FindClosestPointOnLine(cap2Start, cap2End, cap1End);
+//		closestTo2Start = FindClosestPointOnLine(cap1Start, cap1End, cap2Start);
+//		closestTo2End = FindClosestPointOnLine(cap1Start, cap1End, cap2End);
+//
+//#if _DEBUG
+//		XMFLOAT3 start, end;
+//		XMStoreFloat3(&start, cap1Start);
+//		XMStoreFloat3(&end, closestTo1Start);
+//		DebugRenderer::AddLine(start, end, XMFLOAT3(0.0f, 0.0f, 1.0f));
+//		XMStoreFloat3(&start, cap1End);
+//		XMStoreFloat3(&end, closestTo1End);
+//		DebugRenderer::AddLine(start, end, XMFLOAT3(0.0f, 0.0f, 1.0f));
+//		XMStoreFloat3(&start, cap2Start);
+//		XMStoreFloat3(&end, closestTo2Start);
+//		DebugRenderer::AddLine(start, end, XMFLOAT3(0.0f, 0.0f, 1.0f));
+//		XMStoreFloat3(&start, cap2End);
+//		XMStoreFloat3(&end, closestTo2End);
+//		DebugRenderer::AddLine(start, end, XMFLOAT3(0.0f, 0.0f, 1.0f));
+//#endif
+//		closestDistSq = XMVectorGetX(XMVector3LengthSq(closestTo1Start - cap1Start));
+//
+//		testNextClosestDistSq = XMVectorGetX(XMVector3LengthSq(closestTo1End - cap1End));
+//		if (testNextClosestDistSq < closestDistSq) {
+//			closestDistSq = testNextClosestDistSq;
+//		}
+//		testNextClosestDistSq = XMVectorGetX(XMVector3LengthSq(closestTo2Start - cap2Start));
+//		if (testNextClosestDistSq < closestDistSq) {
+//			closestDistSq = testNextClosestDistSq;
+//		}
+//		testNextClosestDistSq = XMVectorGetX(XMVector3LengthSq(closestTo2End - cap2End));
+//		if (testNextClosestDistSq < closestDistSq) {
+//			closestDistSq = testNextClosestDistSq;
+//		}
+//		
+//		XMVECTOR cap2A = cap2Offset + XMVectorSet(0, col2.colliderData->colliderInfo.capsuleCollider.height * 0.5f, 0, 0);
+//		XMVECTOR cap2B = cap2Offset - XMVectorSet(0, col2.colliderData->colliderInfo.capsuleCollider.height * 0.5f, 0, 0);
+//		cap2A = XMVector3TransformCoord(cap2A, pos2);
+//		cap2B = XMVector3TransformCoord(cap2B, pos2);
+//		//XMVECTOR seg2 = cap2A - cap2B;
+//
+//		if (closestDistSq < combineRadiusSq)
+//			return true;
+//
+//		return false;
+//	//}
+//	//numer = (segTweenDotSeg2 * seg1DotSeg2) - (segTweenDotSeg1 * seg2SqLength);
+//
+//	//ratioOnSeg1 = numer / denom;
+//	//ratioOnSeg2 = (segTweenDotSeg2 + (seg1DotSeg2 * ratioOnSeg1)) / seg2SqLength;
+//
+//	//XMVECTOR pointB = (cap2Start + (seg2 * ratioOnSeg2));
+//	//XMVECTOR pointA = (cap1Start + (seg1 * ratioOnSeg1));
+//	//XMVECTOR shortestLine = pointB - pointA;
+//
+//	//if (XMVectorGetX(XMVector3LengthSq(shortestLine)) > combineRadiusSq)
+//	//	return false;
+//
+//	//return true;
 
-	////Find shortest line between line segments
-	////Reference: http://paulbourke.net/geometry/pointlineplane/lineline.c
-	//if (IsVectorZero(seg1) || IsVectorZero(seg2))
-	//	return false;
+//*************** VERSION 2 ************************ (FULLY FUNCTIONAL)
+//http://geomalgorithms.com/a07-_distance.html
 
-	//float segTweenDotSeg1, segTweenDotSeg2, seg1DotSeg2, seg2SqLength, seg1SqLength, numer, denom, ratioOnSeg1, ratioOnSeg2;
+	XMVECTOR u = seg1;
+	XMVECTOR v = seg2;
+	XMVECTOR w = cap1Start - cap2Start;
+	float a = XMVectorGetX(XMVector3Dot(u, u));  // always >= 0
+	float b = XMVectorGetX(XMVector3Dot(u, v));
+	float c = XMVectorGetX(XMVector3Dot(v, v));  // always >= 0
+	float d = XMVectorGetX(XMVector3Dot(u, w));
+	float e = XMVectorGetX(XMVector3Dot(v, w)); 
+	float D = a*c - b*b;        // always >= 0
+	float sc, sN, sD = D;       // sc = sN / sD, default sD = D >= 0
+	float tc, tN, tD = D;       // tc = tN / tD, default tD = D >= 0
 
-	//segTweenDotSeg1 = XMVectorGetX(XMVector3Dot(segBetweenStarts, seg1));
-	//segTweenDotSeg2 = XMVectorGetX(XMVector3Dot(segBetweenStarts, seg2));
-	//seg1DotSeg2 = XMVectorGetX(XMVector3Dot(seg1, seg2));
-	//seg1SqLength = XMVectorGetX(XMVector3LengthSq(seg1));
-	//seg2SqLength = XMVectorGetX(XMVector3LengthSq(seg2));
+								   // compute the line parameters of the two closest points
+	if (D < FLT_EPSILON) { // the lines are almost parallel
+		sN = 0.0f;         // force using point P0 on segment S1
+		sD = 1.0f;         // to prevent possible division by 0.0 later
+		tN = e;
+		tD = c;
+	}
+	else {                 // get the closest points on the infinite lines
+		sN = (b*e - c*d);
+		tN = (a*e - b*d);
+		if (sN < 0.0f) {        // sc < 0 => the s=0 edge is visible
+			sN = 0.0f;
+			tN = e;
+			tD = c;
+		}
+		else if (sN > sD) {  // sc > 1  => the s=1 edge is visible
+			sN = sD;
+			tN = e + b;
+			tD = c;
+		}
+	}
 
-	//denom = (seg1SqLength * seg2SqLength) - (seg1DotSeg2 * seg1DotSeg2);
+	if (tN < 0.0f) {            // tc < 0 => the t=0 edge is visible
+		tN = 0.0f;
+		// recompute sc for this edge
+		if (-d < 0.0f)
+			sN = 0.0f;
+		else if (-d > a)
+			sN = sD;
+		else {
+			sN = -d;
+			sD = a;
+		}
+	}
+	else if (tN > tD) {      // tc > 1  => the t=1 edge is visible
+		tN = tD;
+		// recompute sc for this edge
+		if ((-d + b) < 0.0f)
+			sN = 0.0f;
+		else if ((-d + b) > a)
+			sN = sD;
+		else {
+			sN = (-d + b);
+			sD = a;
+		}
+	}
+	// finally do the division to get sc and tc
+	sc = (abs(sN) < FLT_EPSILON ? 0.0f : sN / sD);
+	tc = (abs(tN) < FLT_EPSILON ? 0.0f : tN / tD);
 
-	////If Denom is zero, lines are parallel
-	//if (fabsf(denom) < FLT_EPSILON) {
-		float closestDistSq, testNextClosestDistSq;
-		XMVECTOR closestTo1Start, closestTo1End, closestTo2Start, closestTo2End;
-
-		closestTo1Start = FindClosestPointOnLine(cap2Start, cap2End, cap1Start);
-		closestTo1End = FindClosestPointOnLine(cap2Start, cap2End, cap1End);
-		closestTo2Start = FindClosestPointOnLine(cap1Start, cap1End, cap2Start);
-		closestTo2End = FindClosestPointOnLine(cap1Start, cap1End, cap2End);
+	// get the difference of the two closest points
+	XMVECTOR dP = w + (sc * u) - (tc * v);  // =  S1(sc) - S2(tc)
+	float dist = XMVectorGetX(XMVector3LengthSq(dP));
 
 #if _DEBUG
 		XMFLOAT3 start, end;
-		XMStoreFloat3(&start, cap1Start);
-		XMStoreFloat3(&end, closestTo1Start);
-		DebugRenderer::AddLine(start, end, XMFLOAT3(0.0f, 0.0f, 1.0f));
-		XMStoreFloat3(&start, cap1End);
-		XMStoreFloat3(&end, closestTo1End);
-		DebugRenderer::AddLine(start, end, XMFLOAT3(0.0f, 0.0f, 1.0f));
-		XMStoreFloat3(&start, cap2Start);
-		XMStoreFloat3(&end, closestTo2Start);
-		DebugRenderer::AddLine(start, end, XMFLOAT3(0.0f, 0.0f, 1.0f));
-		XMStoreFloat3(&start, cap2End);
-		XMStoreFloat3(&end, closestTo2End);
+		XMStoreFloat3(&start, sc * u + cap1Start);
+		XMStoreFloat3(&end, tc * v + cap2Start);
 		DebugRenderer::AddLine(start, end, XMFLOAT3(0.0f, 0.0f, 1.0f));
 #endif
-		closestDistSq = XMVectorGetX(XMVector3LengthSq(closestTo1Start - cap1Start));
 
-		testNextClosestDistSq = XMVectorGetX(XMVector3LengthSq(closestTo1End - cap1End));
-		if (testNextClosestDistSq < closestDistSq) {
-			closestDistSq = testNextClosestDistSq;
-		}
-		testNextClosestDistSq = XMVectorGetX(XMVector3LengthSq(closestTo2Start - cap2Start));
-		if (testNextClosestDistSq < closestDistSq) {
-			closestDistSq = testNextClosestDistSq;
-		}
-		testNextClosestDistSq = XMVectorGetX(XMVector3LengthSq(closestTo2End - cap2End));
-		if (testNextClosestDistSq < closestDistSq) {
-			closestDistSq = testNextClosestDistSq;
-		}
-		
-		XMVECTOR cap2A = cap2Offset + XMVectorSet(0, col2.colliderData->colliderInfo.capsuleCollider.height * 0.5f, 0, 0);
-		XMVECTOR cap2B = cap2Offset - XMVectorSet(0, col2.colliderData->colliderInfo.capsuleCollider.height * 0.5f, 0, 0);
-		cap2A = XMVector3TransformCoord(cap2A, pos2);
-		cap2B = XMVector3TransformCoord(cap2B, pos2);
-		//XMVECTOR seg2 = cap2A - cap2B;
-
-		if (closestDistSq < combineRadiusSq)
-			return true;
-
-		return false;
-	//}
-	//numer = (segTweenDotSeg2 * seg1DotSeg2) - (segTweenDotSeg1 * seg2SqLength);
-
-	//ratioOnSeg1 = numer / denom;
-	//ratioOnSeg2 = (segTweenDotSeg2 + (seg1DotSeg2 * ratioOnSeg1)) / seg2SqLength;
-
-	//XMVECTOR pointB = (cap2Start + (seg2 * ratioOnSeg2));
-	//XMVECTOR pointA = (cap1Start + (seg1 * ratioOnSeg1));
-	//XMVECTOR shortestLine = pointB - pointA;
-
-	//if (XMVectorGetX(XMVector3LengthSq(shortestLine)) > combineRadiusSq)
-	//	return false;
-
-	//return true;
+	return dist < combineRadiusSq;   // return the closest distance
 }
 
-bool PhysicsManager::CapsuleToSphereCollision(Collider capCol, DirectX::XMMATRIX& capPos, Collider sphCol, DirectX::XMMATRIX& sphPos) {
+bool PhysicsManager::CapsuleToSphereCollision(Collider& capCol, XMMATRIX& capPos, Collider& sphCol, XMMATRIX& sphPos) {
 	XMVECTOR sphereCenter, closestOnCap, capStart, capEnd;
 
 	XMVECTOR capOffset = XMLoadFloat3(&capCol.centerOffset);
@@ -478,5 +624,108 @@ void PhysicsManager::TestAllComponentsCollision() {
 		}
 	}
 }
+
+bool PhysicsManager::RaycastCollisionCheck(XMVECTOR& origin, XMVECTOR& direction, PhysicsComponent* collidingComp, XMVECTOR* colPoint, GameObject* colObject, float maxCastDistance) {
+	bool collided = false;
+	bool hasCollidingComp = false;
+	XMVECTOR closestCollision = origin + (direction * maxCastDistance);
+	XMVECTOR tempColPoint = g_XMFltMax;
+	XMVECTOR center = XMVectorSet(collidingComp->parentObject->position._41, collidingComp->parentObject->position._42, collidingComp->parentObject->position._43, collidingComp->parentObject->position._44);
+	std::vector<XMVECTOR> collisionPoints;
+
+	colObject = nullptr;
+
+	for (int colliderIndex = 0; colliderIndex < collidingComp->colliders.size(); ++colliderIndex) {
+		switch (collidingComp->colliders[colliderIndex].colliderData->colliderType)
+		{
+		case SPHERE:
+			hasCollidingComp = RayToSphere(origin, direction, collidingComp->colliders[colliderIndex], center, &tempColPoint);
+			break;
+		case CAPSULE:
+			hasCollidingComp = RayToCapsule(origin, direction, collidingComp->colliders[colliderIndex], center, &tempColPoint);
+			break;
+		case BOX:
+			hasCollidingComp = RayToBox(origin, direction, collidingComp->colliders[colliderIndex], center, &tempColPoint);
+			break;
+		default:
+			break;
+		}
+
+		if (hasCollidingComp) {
+			collisionPoints.push_back(tempColPoint);
+			colObject = dynamic_cast<GameObject*>(collidingComp->parentObject);
+			collided = true;
+		}
+	}
+
+	if (collided) {
+		float lastClosestDist = XMVectorGetX(XMVector3LengthSq(closestCollision - origin));
+		float nextDist;
+		for (int i = 0; i < (int)collisionPoints.size(); ++i) {
+			nextDist = XMVectorGetX(XMVector3LengthSq(collisionPoints[i] - origin));
+			if (lastClosestDist > nextDist) {
+				closestCollision = collisionPoints[i];
+				lastClosestDist = nextDist;
+			}
+		}
+	}
+	*colPoint = closestCollision;
+
+	return collided;
+}
+
+bool PhysicsManager::RayToSphere(XMVECTOR& origin, XMVECTOR& direction, Collider& collidingComp, XMVECTOR& objectPos, XMVECTOR* colPoint) {
+	//If origin is inside the Sphere, it does not test it. 
+	XMVECTOR collCenter = objectPos + XMLoadFloat3(&collidingComp.centerOffset);
+	float radiusSq = collidingComp.colliderData->colliderInfo.sphereCollider.radius;
+	radiusSq *= radiusSq;
+
+	if (!IsRayInCollider(origin, collidingComp, collCenter)) {
+		//Project center onto ray
+		XMVECTOR rayOriginToCenter = collCenter - origin;
+		XMVECTOR centerProjRay = XMVectorGetX(XMVector3Dot(direction, rayOriginToCenter)) * direction;
+		XMVECTOR centerToRay = rayOriginToCenter - centerProjRay;
+		float centerToRayLengthSq = XMVectorGetX(XMVector3LengthSq(centerToRay));
+
+		float distanceSqDiff = radiusSq - centerToRayLengthSq;
+		if (distanceSqDiff < -FLT_EPSILON)
+			return false;
+		if (fabsf(distanceSqDiff) < FLT_EPSILON) {
+			*colPoint = collCenter + centerToRay;
+			return true;
+		}
+		
+		*colPoint = origin + (direction * (XMVectorGetX(XMVector3Length(centerProjRay)) - sqrt(distanceSqDiff)));
+		return true;
+	}
+	return false;
+}
+bool PhysicsManager::RayToCapsule(XMVECTOR& origin, XMVECTOR& direction, Collider& collidingComp, XMVECTOR& objectPos, XMVECTOR* colPoint) {
+	return false;
+}
+bool PhysicsManager::RayToBox(XMVECTOR& origin, XMVECTOR& direction, Collider& collidingComp, XMVECTOR& objectPos, XMVECTOR* colPoint) {
+	return false;
+}
+
+bool PhysicsManager::IsRayInCollider(XMVECTOR& origin, Collider& collidingComp, XMVECTOR& colliderCenter) {
+	bool isInside = false;
+
+	switch (collidingComp.colliderData->colliderType)
+	{
+	case SPHERE:
+		isInside = XMVectorGetX(XMVector3LengthSq(colliderCenter - origin)) <
+									(collidingComp.colliderData->colliderInfo.sphereCollider.radius * collidingComp.colliderData->colliderInfo.sphereCollider.radius);
+		break;
+	case CAPSULE:
+		break;
+	case BOX:
+		break;
+	default:
+		break;
+	}
+
+	return isInside;
+}
+
 
 #pragma endregion

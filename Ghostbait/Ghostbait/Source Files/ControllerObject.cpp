@@ -210,10 +210,11 @@ void ControllerObject::Update() {
 				break;
 			}
 			//All states
-			if (KeyIsDown(teleportDown)) {
-				VRManager::GetInstance().ArcCast(this);
+
+			if (KeyIsDown(teleportDown) && hand == RIGHT) {
+				VRManager::GetInstance().ArcCast(this, 3);
 			}
-			if (KeyIsDown(teleportUp)) {
+			if (KeyIsDown(teleportUp) && hand == RIGHT) {
 				ResetKey(teleportUp);
 				ResetKey(teleportDown);
 				VRManager::GetInstance().Teleport();

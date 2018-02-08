@@ -216,6 +216,9 @@
     <ClInclude Include="Header Files\BuildTool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Header Files\PhysicsExtension.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source Files\Window.cpp">
@@ -369,6 +372,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\BuildTool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\PhysicsExtension.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

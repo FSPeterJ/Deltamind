@@ -77,11 +77,4 @@ public:
 	void SendToHMD(void* leftTexture, void* rightTexture);
 	DirectX::XMFLOAT4X4& GetPlayerPosition();
 	DirectX::XMFLOAT4X4 GetRoomPosition();
-
-
-	bool Raycast(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction, DirectX::XMFLOAT3* colPoint = nullptr, GameObject* colObject = nullptr, float maxCastDistance = 100.0f) {
-		return true;
-	}
-
-
 };

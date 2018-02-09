@@ -27,11 +27,10 @@ const double pi_div_3	  = 1.047197551196597746154214461093167628065723133125;
 const Orientation layout_pointy = Orientation(sqrt_3, sqrt_3_div_2, 0.0, 1.5, sqrt_3_div_3, -_1_div_3, 0.0, _2_div_3, 0.5);
 const Orientation layout_flat = Orientation(1.5, 0.0, sqrt_3_div_2, sqrt_3, _2_div_3, 0.0, -_1_div_3, sqrt_3_div_3, 0.0);
  
+#define OUT
 
 template <typename T>
 struct HexagonTile;
-
-#include <vector>
 
 template <typename T>
 union Point2 {
@@ -55,8 +54,8 @@ struct HexagonalGridLayout {
 	static HexagonTile<double> HexagonalGridLayout::PointToHexagonTile(DirectX::XMFLOAT2 p, HexagonalGridLayout layout);
 
 	//for drawing
-	static DirectX::XMFLOAT2 hex_corner_offset(HexagonalGridLayout layout, int corner);
+	static DirectX::XMFLOAT2 GetHexCornerOffset(HexagonalGridLayout layout, int corner);
 
-	static std::vector<DirectX::XMFLOAT2> polygon_corners(HexagonalGridLayout layout, HexagonTile<int> h);
+	static void GetHexCorners(HexagonTile<int> h, HexagonalGridLayout layout, OUT DirectX::XMFLOAT2* corners);
 };
 

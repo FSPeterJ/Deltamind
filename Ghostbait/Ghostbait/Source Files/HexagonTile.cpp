@@ -17,7 +17,8 @@ DirectX::XMFLOAT2 HexagonTile<int>::Center(HexagonalGridLayout layout) {
 
 template<typename T>
 void HexagonTile<T>::Draw(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset) {
-	auto corners = HexagonalGridLayout::polygon_corners(layout, *this);
+	DirectX::XMFLOAT2 corners[6];
+	HexagonalGridLayout::GetHexCorners(*this, layout, &corners[0]);
 
 	DirectX::XMFLOAT3 line0 = {corners[0].x, corners[0].y, offset};
 	DirectX::XMFLOAT3 line1 = {corners[1].x, corners[1].y, offset};
@@ -36,7 +37,8 @@ void HexagonTile<T>::Draw(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, f
 
 template<typename T>
 void HexagonTile<T>::Cross(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset) {
-	auto corners = HexagonalGridLayout::polygon_corners(layout, *this);
+	DirectX::XMFLOAT2 corners[6];
+	HexagonalGridLayout::GetHexCorners(*this, layout, &corners[0]);
 
 	DirectX::XMFLOAT3 line0 = {corners[1].x, corners[4].y, offset};
 	DirectX::XMFLOAT3 line1 = {corners[4].x, corners[1].y, offset};

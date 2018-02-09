@@ -338,9 +338,6 @@
     <ClCompile Include="Header Files\HexagonalGridLayout.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\Delegate.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resource Files\Ghostbait.ico">

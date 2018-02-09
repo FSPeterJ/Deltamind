@@ -100,7 +100,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	phyMan = new PhysicsManager();
 	objMan = new ObjectManager(&MemMan);
 	objMan->Initialize(80);
-	ObjectFactory::Initialize(objMan, "NOT USED");
+	ObjectFactory::Initialize(objMan, "NOT USED STRING");
 	ObjectFactory::RegisterPrefabBase<ControllerObject>(8);
 	ObjectFactory::RegisterPrefabBase<Gun>(10);
 	ObjectFactory::RegisterPrefabBase<ViveController>(8);
@@ -117,6 +117,11 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterManager<Material, MaterialManager>(rendInter->getMaterialManager());
 	ObjectFactory::RegisterManager<Animator, AnimatorManager>(animMan);
 
+
+	//------
+	// ToDo: Find an appropriate place for these?
+	// You might be able to put the above stuff with it
+	//=========================================================
 	TypeMap::RegisterObjectAlias<ControllerObject>("ControllerObject");
 	TypeMap::RegisterObjectAlias<ViveController>("ViveController");
 	TypeMap::RegisterObjectAlias<Gun>("Gun");
@@ -131,28 +136,25 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//------
 	// Scenemanager would make this
 	//=========================================================
-	//ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer2.ghost"));
-	//ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"), "ViveController", true);
-	//ObjectFactory::CreatePrefab(&std::string("Assets/basicSphere.ghost"));
-	//ObjectFactory::CreatePrefab(&std::string("Assets/ScifiRoom.ghost"));
-	//ObjectFactory::CreatePrefab(&std::string("Assets/ProjectileSphere.ghost"));
-	//ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost"));
-	//ObjectFactory::CreatePrefab(&std::string("Assets/EnemyRobot.ghost"));
-	//ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"), "startCube");
-	//ObjectFactory::CreatePrefab(&std::string("Assets/CoreCube.ghost"));
-	//ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"));
-	//ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"));
-	////ObjectFactory::CreatePrefab(&std::string("Assets/Teddy.ghost"));
-	//ObjectFactory::CreatePrefab(&std::string("Assets/EarthMage.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer2.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"), "ViveController", true);
+	ObjectFactory::CreatePrefab(&std::string("Assets/basicSphere.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/ScifiRoom.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/ProjectileSphere.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/EnemyRobot.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"), "startCube");
+	ObjectFactory::CreatePrefab(&std::string("Assets/CoreCube.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"));
+	//ObjectFactory::CreatePrefab(&std::string("Assets/Teddy.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/EarthMage.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ObjectExportv2.ghost"));
 
-	//ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest1.ghost")); //12
-	//ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest2.ghost")); //13
-	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
-	//ObjectFactory::CreatePrefab(&std::string("Object"));
-	//ObjectFactory::CreatePrefab(&std::string("SomeCoolObject"));
-	//ObjectFactory::CreatePrefab(&std::string("LeftControllerObject"));
-	//ObjectFactory::CreatePrefab(&std::string("RightControllerObject"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest1.ghost")); //12
+	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest2.ghost")); //13
+	ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
+
 	//=============================
 
 	game = new Game();

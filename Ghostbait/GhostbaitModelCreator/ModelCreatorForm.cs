@@ -350,6 +350,16 @@ namespace GhostbaitModelCreator
             }
         }
 
+        private void ResetAll()
+        {
+            meshes.Reset();
+            materials.Reset();
+            bindPose.Reset();
+            colliders.Reset();
+            audio.Reset();
+            animations.Reset();
+            childObjects.Reset();
+        }
 
         //BindPose
         private void bindPoseFileGrab_Click(object sender, EventArgs e)
@@ -371,12 +381,7 @@ namespace GhostbaitModelCreator
         //New
         private void blankToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            meshes.Reset();
-            materials.Reset();
-            bindPose.Reset();
-            colliders.Reset();
-            audio.Reset();
-            animations.Reset();
+            ResetAll();
             className.Text = string.Empty;
         }
 
@@ -394,12 +399,7 @@ namespace GhostbaitModelCreator
             {
                 Settings.Default.fbx_path = Path.GetDirectoryName(open.FileName);
                 Settings.Default.Save();
-                meshes.Reset();
-                materials.Reset();
-                bindPose.Reset();
-                colliders.Reset();
-                audio.Reset();
-                animations.Reset();
+                ResetAll();
 
                 string baseName = Path.GetFileNameWithoutExtension(open.FileName);
                 string path = Path.GetDirectoryName(open.FileName);
@@ -460,7 +460,6 @@ namespace GhostbaitModelCreator
             }
         }
 
-        private void materialFileRemove_Click(object sender, EventArgs e) => materials.Reset();
 
         //Mesh
         private void meshFileGrab_Click(object sender, EventArgs e)
@@ -497,12 +496,7 @@ namespace GhostbaitModelCreator
             {
                 Settings.Default.ghost_path = Path.GetDirectoryName(open.FileName);
                 Settings.Default.Save();
-                meshes.Reset();
-                materials.Reset();
-                bindPose.Reset();
-                colliders.Reset();
-                audio.Reset();
-                animations.Reset();
+                ResetAll();
 
                 //Read .ghost file to fill in data
                 BinaryReader reader = new BinaryReader(open.OpenFile());
@@ -516,17 +510,16 @@ namespace GhostbaitModelCreator
                     int size = reader.ReadInt32();
                     if (size > 0) //if normal string
                     {
+                        BaseComponent component = new BaseComponent();
                         string data = new string(reader.ReadChars(size));
                         data = data.Remove(data.Length - 1);
                         if (Path.GetExtension(data).ToLower() == ".mesh")
                         {
-                            BaseComponent component = new BaseComponent();
                             component.ComponentIdentifier = data;
                             meshes.Add(component);
                         }
                         else if (Path.GetExtension(data).ToLower() == ".mat")
                         {
-                            BaseComponent component = new BaseComponent();
                             component.ComponentIdentifier = data;
                             materials.Add(component);
                         }
@@ -536,21 +529,24 @@ namespace GhostbaitModelCreator
                         }
                         else if (Path.GetExtension(data).ToLower() == ".mp3" || Path.GetExtension(data).ToLower() == ".wav")
                         {
-                            BaseComponent component = new BaseComponent();
                             component.ComponentIdentifier = data;
                             audio.Add(component);
                         }
                         else if (Path.GetExtension(data).ToLower() == ".anim")
                         {
-                            int len = reader.ReadInt32();
-                            String name = new string(reader.ReadChars(len));
-                            AnimationCreatorForm.AnimationData toPush = new AnimationCreatorForm.AnimationData();
-                            toPush.ComponentIdentifier = Path.GetFileName(data);
-                            toPush.AbsolutePath = data; // I am making an assumption about pathing here
-                            toPush.ComponentTag = name;
-                            animations.Add(toPush);
+                            component = new AnimationCreatorForm.AnimationData();
+                            component.ComponentIdentifier = data;
+                            component.AbsolutePath = Path.GetPathRoot(open.FileName) + data; // I am making an assumption about pathing here
+                            animations.Add((AnimationCreatorForm.AnimationData) component);
                         }
-                        continue;
+                        //Getting the tag (if any)
+                        size = reader.ReadInt32();
+                        if (size > 0)
+                        {
+                            string tag = new string(reader.ReadChars(size));
+                            component.ComponentTag = tag;
+
+                        }
                     }
                     else
                     {

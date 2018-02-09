@@ -198,6 +198,9 @@
     <ClInclude Include="Source Files\HexagonTile.cpp">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Header Files\HexagonTileSpecializer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source Files\Window.cpp">
@@ -327,6 +330,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Header Files\HexGrid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\HexagonTile-Impl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Header Files\HexagonalGridLayout.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\Delegate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

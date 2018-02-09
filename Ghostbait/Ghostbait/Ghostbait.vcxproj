@@ -203,6 +203,7 @@
     <ClInclude Include="Header Files\Gun.h" />
     <ClInclude Include="Header Files\HexagonalGridLayout.h" />
     <ClInclude Include="Header Files\HexagonTile.h" />
+    <ClInclude Include="Header Files\HexagonTileSpecializer.h" />
     <ClInclude Include="Header Files\HexGrid.h" />
     <ClInclude Include="Header Files\InputManager.h" />
     <ClInclude Include="Header Files\IComponentManager.h" />
@@ -242,6 +243,7 @@
     <ClInclude Include="Source Files\HexagonTile.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Header Files\HexagonalGridLayout.cpp" />
     <ClCompile Include="Header Files\HexGrid.cpp" />
     <ClCompile Include="Source Files\AABB.cpp" />
     <ClCompile Include="Source Files\AnimationManager.cpp" />
@@ -252,6 +254,7 @@
     <ClCompile Include="Source Files\Controlable.cpp" />
     <ClCompile Include="Source Files\ControllerObject.cpp" />
     <ClCompile Include="Source Files\DebugRenderer.cpp" />
+    <ClCompile Include="Source Files\Delegate.cpp" />
     <ClCompile Include="Source Files\EnemyBase.cpp" />
     <ClCompile Include="Source Files\EngineStructure.cpp" />
     <ClCompile Include="Source Files\GameObject.cpp" />
@@ -259,6 +262,7 @@
     <ClCompile Include="Source Files\Gun.cpp">
       <ShowIncludes Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ShowIncludes>
     </ClCompile>
+    <ClCompile Include="Source Files\HexagonTile-Impl.cpp" />
     <ClCompile Include="Source Files\InputManager.cpp" />
     <ClCompile Include="Source Files\Item.cpp" />
     <ClCompile Include="Source Files\Main.cpp" />

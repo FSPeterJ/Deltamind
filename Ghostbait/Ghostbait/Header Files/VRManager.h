@@ -10,9 +10,11 @@
 //	struct HmdMatrix34_t;
 ////	class TrackedDevicePose_t;
 //}
+
+class GameObject;
 class ControllerObject;
 
-#define FLOAT4X4Identity DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+#define FLOAT4X4Identity DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
 
 enum class VRControllerType {
 	Left,
@@ -40,28 +42,15 @@ private:
 	void UpdateVRPoses();
 	void Shutdown();
 
-	struct TeleportData {
-		DirectX::XMFLOAT4X4 telePos;
-		float maxDistance;
-		float maxAngle, minAngle;
-		float castHeight;
-		TeleportData() {
-			telePos = FLOAT4X4Identity;
-			maxDistance = 2;
-			maxAngle = 120;
-			minAngle = 60;
-		}
-	} teleportData;
-
-	DirectX::XMFLOAT4X4 roomPose = FLOAT4X4Identity;
-	DirectX::XMFLOAT4X4 hmdPose = FLOAT4X4Identity;
-	DirectX::XMFLOAT4X4 playerPose = FLOAT4X4Identity;
+	DirectX::XMFLOAT4X4 roomPos = FLOAT4X4Identity;
+	DirectX::XMFLOAT4X4 hmdPos = FLOAT4X4Identity;
+	DirectX::XMFLOAT4X4 playerPos = FLOAT4X4Identity;
 public:
 	static VRManager& GetInstance();
 
 	struct VRController {
 		int index;
-		DirectX::XMFLOAT4X4 pose = FLOAT4X4Identity;
+		DirectX::XMFLOAT4X4 pos = FLOAT4X4Identity;
 		ControllerObject* obj;
 	};
 
@@ -79,12 +68,11 @@ public:
 	void Vibrate(VRControllerType ctrl, unsigned short durationMs);
 	void CreateControllers();
 	
-	void TeleportCast(ControllerObject* controller);
+	bool ArcCast(ControllerObject* controller, DirectX::XMFLOAT3* outPos, float maxDistance = 3, float minAngle = 60, float maxAngle = 120, float castHeight = 1);
 	void Teleport();
 	
 	void GetVRMatrices(DirectX::XMFLOAT4X4* leftProj, DirectX::XMFLOAT4X4* rightProj, DirectX::XMFLOAT4X4* leftView, DirectX::XMFLOAT4X4* rightView);
 	void SendToHMD(void* leftTexture, void* rightTexture);
 	DirectX::XMFLOAT4X4& GetPlayerPosition();
 	DirectX::XMFLOAT4X4 GetRoomPosition();
-
 };

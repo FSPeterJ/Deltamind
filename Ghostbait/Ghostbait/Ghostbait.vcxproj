@@ -191,6 +191,7 @@
     <ClInclude Include="Header Files\Animator.h" />
     <ClInclude Include="Header Files\AnimatorManager.h" />
     <ClInclude Include="Header Files\AudioManager.h" />
+    <ClInclude Include="Header Files\BuildTool.h" />
     <ClInclude Include="Header Files\Camera.h" />
     <ClInclude Include="Header Files\ComponentBase.h" />
     <ClInclude Include="Header Files\Console.h" />
@@ -221,6 +222,7 @@
     <ClInclude Include="Header Files\ObjectFactory.h" />
     <ClInclude Include="Header Files\ObjectManager.h" />
     <ClInclude Include="Header Files\PhysicsComponent.h" />
+    <ClInclude Include="Header Files\PhysicsExtension.h" />
     <ClInclude Include="Header Files\PhysicsManager.h" />
     <ClInclude Include="Header Files\PhysicsTestObj.h" />
     <ClInclude Include="Header Files\Pool.h" />
@@ -256,6 +258,7 @@
     <ClCompile Include="Source Files\Animator.cpp" />
     <ClCompile Include="Source Files\AnimatorManager.cpp" />
     <ClCompile Include="Source Files\AudioManager.cpp" />
+    <ClCompile Include="Source Files\BuildTool.cpp" />
     <ClCompile Include="Source Files\Camera.cpp" />
     <ClCompile Include="Source Files\Console.cpp" />
     <ClCompile Include="Source Files\Controlable.cpp" />
@@ -282,6 +285,7 @@
     <ClCompile Include="Source Files\ObjectFactory.cpp" />
     <ClCompile Include="Source Files\ObjectManager.cpp" />
     <ClCompile Include="Source Files\PhysicsComponent.cpp" />
+    <ClCompile Include="Source Files\PhysicsExtension.cpp" />
     <ClCompile Include="Source Files\PhysicsManager.cpp" />
     <ClCompile Include="Source Files\PhysicsTestObj.cpp" />
     <ClCompile Include="Source Files\Pool.cpp" />

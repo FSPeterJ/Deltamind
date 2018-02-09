@@ -21,6 +21,7 @@
 #include "PhysicsTestObj.h"
 #include "ProgressBar.h"
 #include "AudioManager.h"
+#include "BuildTool.h"
 
 Renderer* rendInter;
 Game* game;
@@ -108,16 +109,17 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 
 	ObjectFactory::Initialize(objMan);
-	ObjectFactory::RegisterPrefabBase<ControllerObject>(8);
-	ObjectFactory::RegisterPrefabBase<Gun>(10);
-	ObjectFactory::RegisterPrefabBase<ProgressBar>(10);
-	ObjectFactory::RegisterPrefabBase<ViveController>(8);
+	ObjectFactory::RegisterPrefabBase<ControllerObject>(20);
+	ObjectFactory::RegisterPrefabBase<Gun>(20);
+	ObjectFactory::RegisterPrefabBase<ProgressBar>(20);
+	ObjectFactory::RegisterPrefabBase<ViveController>(20);
 	ObjectFactory::RegisterPrefabBase<GameObject>(512);
 	ObjectFactory::RegisterPrefabBase<Projectile>(512);
 	ObjectFactory::RegisterPrefabBase<Spawner>(16);
 	ObjectFactory::RegisterPrefabBase<EnemyBase>(32);
 	ObjectFactory::RegisterPrefabBase<MenuCube>(5);
 	ObjectFactory::RegisterPrefabBase<CoreCube>(5);
+	ObjectFactory::RegisterPrefabBase<BuildTool>(20);
 	ObjectFactory::RegisterPrefabBase<PhysicsTestObj>(32);
 
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
@@ -136,28 +138,31 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<CoreCube>("CoreCube");
 	TypeMap::RegisterObjectAlias<GameObject>("GameObject");
 	TypeMap::RegisterObjectAlias<PhysicsTestObj>("PhysicsTestObj");
+	TypeMap::RegisterObjectAlias<BuildTool>("BuildTool");
 
 	//------
 	// Scenemanager would make this
 	//=========================================================
-	ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer2.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer2.ghost")); //0
 	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"), "ViveController", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/basicSphere.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ScifiRoom.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ProjectileSphere.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost")); //5
 	ObjectFactory::CreatePrefab(&std::string("Assets/EnemyRobot.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"), "startCube");
 	ObjectFactory::CreatePrefab(&std::string("Assets/CoreCube.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost")); //10
 	//ObjectFactory::CreatePrefab(&std::string("Assets/Teddy.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/EarthMage.ghost"));
 
-	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest1.ghost")); //12
-	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest2.ghost")); //13
+	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest1.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest2.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/PlaneMap.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/OverheatBar.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/OverheatBar.ghost")); //15
+	ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost"));
+	//ObjectFactory::CreatePrefab(&std::string("Assets/TeleportSphere.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object"));
 	//ObjectFactory::CreatePrefab(&std::string("SomeCoolObject"));
@@ -186,9 +191,13 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 0.0f, 2.0f, -1.0f }, &test1));
 	DirectX::XMStoreFloat4x4(&test1->position, DirectX::XMLoadFloat4x4(&test1->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
 
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 0.0f, 2.0f, 0.0f }, &test2));
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 7.0f, 2.0f, 0.0f }, nullptr));
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 0.0f, 2.0f, -7.0f }, nullptr));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { 0.0f, 1.0f, 0.0f }, &test2));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { 7.0f, 2.0f, 0.0f }, nullptr));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { 0.0f, 2.0f, -7.0f }, nullptr));
+
+	//TestArc
+	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(17, { 3.0f, -1.0f, 0.0f }, nullptr));
+
 	
 	dynamic_cast<PhysicsTestObj*>(test1)->isControllable = true;
 	test1->Enable();

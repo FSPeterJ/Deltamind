@@ -7,6 +7,7 @@ public:
 		INVALID,
 		GUN,
 		CONTROLLER,
+		BUILD,
 		HAND,
 	};
 	State state;

@@ -4,6 +4,7 @@
 
 namespace DirectX {
 	struct XMFLOAT3;
+//	struct XMVECTOR;
 }
 
 struct PhysicsComponent;
@@ -19,7 +20,6 @@ class SpatialPartition {
 		bool AddComponent(PhysicsComponent* comp);
 		bool RemoveComponent(PhysicsComponent* comp);
 	};
-
 	enum PositionOption {
 		Both,
 		Current,
@@ -42,4 +42,7 @@ public:
 	void UpdateComponent(PhysicsComponent* component);
 
 	const std::vector<PhysicsComponent*> GetComponentsToTest();
+	const std::vector<PhysicsComponent*> GetComponentsToTest(uint32_t _hashIndex);
+	const uint32_t GetHashedIndex(DirectX::XMFLOAT3 position);
+
 };

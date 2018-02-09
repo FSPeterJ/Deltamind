@@ -31,8 +31,6 @@ private:
 	unsigned projectiePrefabID = 4;
 
 	//Main Stats
-
-	GameObject* bulletPrefab;
 	FireType type = AUTO;
 	float fireRate = 2; //shotsPerSecond
 	float damage = 1;

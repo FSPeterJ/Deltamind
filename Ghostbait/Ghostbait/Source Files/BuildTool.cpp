@@ -47,8 +47,7 @@ void BuildTool::Activate() {
 }
 
 void BuildTool::SpawnProjection(){
-	spawnPos = VRManager::GetInstance().ArcCast(parent);
-	if(!VRManager::GetInstance().ArcCastMissed(spawnPos)) {
+	if(VRManager::GetInstance().ArcCast(parent, &spawnPos)) {
 	//snap to center of grid
 		if (prefabs[currentPrefabIndex].object) {
 			prefabs[currentPrefabIndex].object->position._41 = spawnPos.x;

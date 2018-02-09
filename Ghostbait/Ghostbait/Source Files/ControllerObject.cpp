@@ -179,6 +179,8 @@ void ControllerObject::Update() {
 		if (currentGameItem) {
 			currentGameItem->position = position;
 			currentGameItem->ActiveUpdate();
+
+			//Specific States
 			switch (currentGameItem->state) {
 			case Item::State::GUN:
 				{
@@ -209,10 +211,10 @@ void ControllerObject::Update() {
 			case Item::State::INVALID:
 				break;
 			}
-			//All states
 
+			//All states
 			if (KeyIsDown(teleportDown) && hand == RIGHT) {
-				VRManager::GetInstance().ArcCast(this, 3);
+				VRManager::GetInstance().ArcCast(this, {});
 			}
 			if (KeyIsDown(teleportUp) && hand == RIGHT) {
 				ResetKey(teleportUp);

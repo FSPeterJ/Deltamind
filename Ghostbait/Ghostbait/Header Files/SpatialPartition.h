@@ -20,7 +20,6 @@ class SpatialPartition {
 		bool AddComponent(PhysicsComponent* comp);
 		bool RemoveComponent(PhysicsComponent* comp);
 	};
-
 	enum PositionOption {
 		Both,
 		Current,

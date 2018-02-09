@@ -14,7 +14,6 @@
 class GameObject;
 class ControllerObject;
 
-#define RAYCAST_MISSED DirectX::XMFLOAT3(4.08756f, 78.463486f, -9.5713576f)
 #define FLOAT4X4Identity DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
 
 enum class VRControllerType {
@@ -69,8 +68,7 @@ public:
 	void Vibrate(VRControllerType ctrl, unsigned short durationMs);
 	void CreateControllers();
 	
-	DirectX::XMFLOAT3 ArcCast(ControllerObject* controller, float maxDistance = 1, float minAngle = 60, float maxAngle = 120, float castHeight = 1);
-	bool ArcCastMissed(DirectX::XMFLOAT3 pos);
+	bool ArcCast(ControllerObject* controller, DirectX::XMFLOAT3* outPos, float maxDistance = 3, float minAngle = 60, float maxAngle = 120, float castHeight = 1);
 	void Teleport();
 	
 	void GetVRMatrices(DirectX::XMFLOAT4X4* leftProj, DirectX::XMFLOAT4X4* rightProj, DirectX::XMFLOAT4X4* leftView, DirectX::XMFLOAT4X4* rightView);

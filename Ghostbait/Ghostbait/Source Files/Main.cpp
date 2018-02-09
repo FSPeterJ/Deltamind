@@ -143,25 +143,26 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//------
 	// Scenemanager would make this
 	//=========================================================
-	ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer2.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer2.ghost")); //0
 	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"), "ViveController", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/basicSphere.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ScifiRoom.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ProjectileSphere.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost")); //5
 	ObjectFactory::CreatePrefab(&std::string("Assets/EnemyRobot.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"), "startCube");
 	ObjectFactory::CreatePrefab(&std::string("Assets/CoreCube.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost")); //10
 	//ObjectFactory::CreatePrefab(&std::string("Assets/Teddy.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/EarthMage.ghost"));
 
-	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest1.ghost")); //12
-	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest2.ghost")); //13
+	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest1.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest2.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/PlaneMap.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/OverheatBar.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/OverheatBar.ghost")); //15
 	ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost"));
+	//ObjectFactory::CreatePrefab(&std::string("Assets/TeleportSphere.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object"));
 	//ObjectFactory::CreatePrefab(&std::string("SomeCoolObject"));
@@ -193,6 +194,10 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { 0.0f, 1.0f, 0.0f }, &test2));
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { 7.0f, 2.0f, 0.0f }, nullptr));
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { 0.0f, 2.0f, -7.0f }, nullptr));
+
+	//TestArc
+	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(17, { 3.0f, -1.0f, 0.0f }, nullptr));
+
 	
 	dynamic_cast<PhysicsTestObj*>(test1)->isControllable = true;
 	test1->Enable();

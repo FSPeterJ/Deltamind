@@ -214,8 +214,7 @@ DirectX::XMFLOAT4X4 VRManager::GetRoomPosition() {
 	return roomPos;
 }
 
-DirectX::XMFLOAT3 VRManager::ArcCast(ControllerObject* controller, float maxDistance, float minAngle, float maxAngle, float castHeight) {
-	DirectX::XMFLOAT3 endPos = RAYCAST_MISSED;
+bool VRManager::ArcCast(ControllerObject* controller, DirectX::XMFLOAT3* outPos, float maxDistance, float minAngle, float maxAngle, float castHeight) {
 	DirectX::XMMATRIX controllerMat = DirectX::XMLoadFloat4x4(&controller->position);
 	DirectX::XMVECTOR planeNormalVec = DirectX::XMVectorSet(0, 1, 0, 0);
 	DirectX::XMVECTOR forwardVec = DirectX::XMVector3Normalize(controllerMat.r[2]);
@@ -257,23 +256,16 @@ DirectX::XMFLOAT3 VRManager::ArcCast(ControllerObject* controller, float maxDist
 		DirectX::XMFLOAT3 rayStart, rayDirection;
 		DirectX::XMStoreFloat3(&rayStart, castPoint);
 		DirectX::XMStoreFloat3(&rayDirection, castDirection);
-		if(!Raycast(rayStart, rayDirection, &endPos)) {
-			endPos = RAYCAST_MISSED;
-		}
-		else {
-			Console::WriteLine << "RAYCAST HIT";
-		}
-		//--Find worst case end pos and set it
+		if (Raycast(rayStart, rayDirection, outPos))
+			return true;
+		else
+			return false;
 	}
-		return endPos;
-}
-bool VRManager::ArcCastMissed(DirectX::XMFLOAT3 pos) {
-	return pos.x == RAYCAST_MISSED.x && pos.y == RAYCAST_MISSED.y && pos.z == RAYCAST_MISSED.z;
 }
 
 void VRManager::Teleport() {
-	DirectX::XMFLOAT3 endPos = ArcCast(rightController.obj);
-	if (!ArcCastMissed(endPos)) {
+	DirectX::XMFLOAT3 endPos;
+	if(ArcCast(rightController.obj, &endPos)) {
 		float deltaX = endPos.x - playerPos._41;
 		float deltaY = endPos.y - playerPos._42;
 		float deltaZ = endPos.z - playerPos._43;

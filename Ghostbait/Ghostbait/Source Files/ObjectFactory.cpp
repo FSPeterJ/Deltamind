@@ -2,6 +2,7 @@
 #include "GameObject.h"         // for GameObject
 #include "ObjectManager.h"      // for ObjectManager
 #include "MessageEvents.h"
+#include "Console.h"
 
 #define MAX_NAME_LENGTH 512
 #define MAX_EXTENSION_LENGTH 64
@@ -104,6 +105,10 @@ void ObjectFactory::CreatePrefab(std::string *_filename, char* DEBUG_STRING_NAME
 			max_fget = ++nameLength < MAX_NAME_LENGTH ? nameLength : MAX_NAME_LENGTH;
 			fgets(className, max_fget, file);
 			prefab->objectTypeID = TypeMap::GetObjectNameID(std::string(className));
+			if(prefab->objectTypeID == 0) {
+				Console::ErrorOutLine << "ObjectFactory: An unrecognized object class of '" << className << "' was referenced by object '" << _filename->c_str() << "' and was not able to be loaded.  This may cause serious issues.";
+				Console::ErrorLine << "ObjectFactory: An unrecognized object class of '" << className << "' was referenced by object '" << _filename->c_str() << "' and was not able to be loaded.  This may cause serious issues.";
+			}
 			prefab->object = registeredConstructors[prefab->objectTypeID]();
 			int dataNameLen;
 
@@ -120,43 +125,56 @@ void ObjectFactory::CreatePrefab(std::string *_filename, char* DEBUG_STRING_NAME
 					ext = componentIdentifier;
 				}
 				int componentTypeID = TypeMap::GetComponentNameID(std::string(ext));
+				if(componentTypeID) {
 
-				// Check for a tag
-				int tagNameLength;
-				fread(&tagNameLength, sizeof(int), 1, file);
-				if(tagNameLength) {
+					// Check for a tag
+					int tagNameLength;
+					fread(&tagNameLength, sizeof(int), 1, file);
 					char componentTag[MAX_TAG_LENGTH];
-					max_fget = tagNameLength < MAX_NAME_LENGTH ? tagNameLength : MAX_NAME_LENGTH;
-					fgets(componentTag, max_fget, file);
-				}
-				//Check for special data flag
-				char* componentData = nullptr;
-				if(dataNameLen < 0) {
-					int componentDataLength = 0;
-					fread(&componentDataLength, sizeof(int), 1, file);
-					componentData = new char[componentDataLength];
-					fread(componentData, componentDataLength, 1, file);
-				}
+					if(tagNameLength) {
+						max_fget = tagNameLength < MAX_NAME_LENGTH ? tagNameLength : MAX_NAME_LENGTH;
+						fgets(componentTag, max_fget, file);
+					}
+					//Check for special data flag
+					char* componentData = nullptr;
+					if(dataNameLen < 0) {
+						int componentDataLength = 0;
+						fread(&componentDataLength, sizeof(int), 1, file);
+						componentData = new char[componentDataLength];
+						fread(componentData, componentDataLength, 1, file);
+					}
 
-				//I do not know where I want this in the end, I just know I do not want it in the binary file.
-				static const char* directory = "Assets/";
-				static const size_t length = strlen(directory);
-				memmove_s(componentIdentifier + length, MAX_NAME_LENGTH, componentIdentifier, MAX_NAME_LENGTH - length);
-				memcpy(componentIdentifier, directory, length);
+					//I do not know where I want this in the end, I just know I do not want it in the binary file.
+					static const char* directory = "Assets/";
+					static const size_t length = strlen(directory);
+					memmove_s(componentIdentifier + length, MAX_NAME_LENGTH, componentIdentifier, MAX_NAME_LENGTH - length);
+					memcpy(componentIdentifier, directory, length);
 
-				// The manager is expected to check if componentData is null
-				ComponentBase * component = managers[componentTypeID]->GetReferenceComponent(componentIdentifier, componentData);
-				prefab->instantiatedComponents[componentTypeID] = component;
-				prefab->fastclone[componentTypeID] = component->singleInstance;
-				if(component->singleInstance) {
-					//This assign's the component parent object if the component is unique per object
-					((InstantiatedCompBase *)prefab->instantiatedComponents[componentTypeID])->parentObject = prefab->object;
+					// The manager is expected to check if componentData is null
+					ComponentBase * component = managers[componentTypeID]->GetReferenceComponent(componentIdentifier, componentData);
+					prefab->instantiatedComponents[componentTypeID] = component;
+					prefab->fastclone[componentTypeID] = component->singleInstance;
+					if(component->singleInstance) {
+						//This assign's the component parent object if the component is unique per object
+						((InstantiatedCompBase *)prefab->instantiatedComponents[componentTypeID])->parentObject = prefab->object;
+					}
+					prefab->object->SetComponent(component, componentTypeID);
+					delete[] componentData;
 				}
-				prefab->object->SetComponent(component, componentTypeID);
-				delete[] componentData;
+				else {
+					Console::ErrorOutLine << "ObjectFactory: An unrecognized component of '" << componentIdentifier << "' on '" << _filename->c_str() << "' was not able to be loaded.  This may cause serious issues.";
+					Console::WarningLine << "ObjectFactory: An unrecognized component of '" << componentIdentifier << "' on '" << _filename->c_str() << "' was not able to be loaded.  This may cause serious issues.";
+				}
 			}
 		}
-		fclose(file);
+		if(file != nullptr) {
+			fclose(file);
+		}
+		else {
+			Console::ErrorOut << "ObjectFactory: Failed to load the file '" << _filename->c_str() << "'.  This may cause serious issues. \n";
+			Console::WarningLine << "ObjectFactory: Failed to load the file '" << _filename->c_str() << "'.  This may cause serious issues.";
+
+		}
 		if(objectPrefabOverride) {
 			Object2Prefab[prefab->objectTypeID] = prefabID;
 		}

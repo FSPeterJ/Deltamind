@@ -481,8 +481,6 @@ namespace GhostbaitModelCreator
             }
         }
 
-        private void meshFileRemove_Click(object sender, EventArgs e) => meshes.Reset();
-
         //Save/Load
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -503,16 +501,15 @@ namespace GhostbaitModelCreator
 
                 //Class
                 className.Text = new string(reader.ReadChars(reader.ReadInt32()));
-                //className.Text = className.Text.Remove(className.Text.Length - 1);
 
                 while (reader.BaseStream.Position != reader.BaseStream.Length)
                 {
-                    int size = reader.ReadInt32();
-                    if (size > 0) //if normal string
+                    int tagsize = reader.ReadInt32();
+                    if (tagsize > 0) //if normal string
                     {
                         BaseComponent component = new BaseComponent();
-                        string data = new string(reader.ReadChars(size));
-                        data = data.Remove(data.Length - 1);
+                        string data = new string(reader.ReadChars(tagsize));
+                        data = data.Trim('\0');
                         if (Path.GetExtension(data).ToLower() == ".mesh")
                         {
                             component.ComponentIdentifier = data;
@@ -537,29 +534,40 @@ namespace GhostbaitModelCreator
                             component = new AnimationCreatorForm.AnimationData();
                             component.ComponentIdentifier = data;
                             component.AbsolutePath = Path.GetPathRoot(open.FileName) + data; // I am making an assumption about pathing here
-                            animations.Add((AnimationCreatorForm.AnimationData) component);
+                            animations.Add((AnimationCreatorForm.AnimationData)component);
                         }
                         //Getting the tag (if any)
-                        size = reader.ReadInt32();
-                        if (size > 0)
+                        tagsize = reader.ReadInt32();
+                        if (tagsize > 0)
                         {
-                            string tag = new string(reader.ReadChars(size));
+                            string tag = new string(reader.ReadChars(tagsize));
                             component.ComponentTag = tag;
-
                         }
                     }
                     else
                     {
-                        string componentName = new string(reader.ReadChars(reader.ReadInt32()));
-                        componentName = componentName.Remove(componentName.Length - 1);
+                        string componentName = new string(reader.ReadChars(-tagsize));
+                        componentName = componentName.Trim('\0');
                         if (componentName == "Physical")
                         {
+                            int tagleng = reader.ReadInt32();
+                            string tagstringg = null;
+                            if (tagleng > 0)
+                            {
+                                tagstringg = new string(reader.ReadChars(tagleng));
+                                tagstringg = tagstringg.Trim('\0');
+                            }
+                            int byteCount = reader.ReadInt32();
                             int colCount = reader.ReadInt32();
-                            ColliderCreatorForm.ColliderData colData = new ColliderCreatorForm.ColliderData();
                             for (int i = 0; i < colCount; ++i)
                             {
+                                ColliderCreatorForm.ColliderData colData = new ColliderCreatorForm.ColliderData();
+                                // !!! Problem!  The first tag is written to all colliders.  This is due to a confusion between colliders / Physicals where
+                                // the actual system should have colliders be a subcomponent of a Physical.  There is currently no fix for this planned but it can be done.
+                                // The current system doesn't actually implement tags for colliders in the form ui, so technically a non-issue until it becomes one
+                                colData.ComponentTag = tagstringg;
                                 var stringCol = new string(reader.ReadChars(reader.ReadInt32()));
-                                stringCol = stringCol.Remove(stringCol.Length - 1);
+                                stringCol = stringCol.Trim('\0');
                                 ColliderCreatorForm.ColliderType temp;
                                 if (!Enum.TryParse(stringCol, out temp))
                                 {
@@ -599,24 +607,32 @@ namespace GhostbaitModelCreator
                             }
                         }
                         //Is this an error? 
+                        // We look at anims up top but there's an Animate tag down here.  I do not fully understand our system for this.
                         else if (componentName == "Animate")
                         {
                             int bindLen = reader.ReadInt32();
                             string bindName = new string(reader.ReadChars(bindLen));
-                            bindName = bindName.Remove(bindName.Length - 1);
+                            bindName = bindName.Trim('\0');
+
                             bindPose.FilePath = bindName;
+                            tagsize = reader.ReadInt32();
+                            if (tagsize > 0)
+                            {
+                                string tag = new string(reader.ReadChars(tagsize));
+                            }
                             int animCount = reader.ReadInt32();
 
                             for (int i = 0; i < animCount; ++i)
                             {
                                 var stringAnim = new string(reader.ReadChars(reader.ReadInt32()));
-                                stringAnim = stringAnim.Remove(stringAnim.Length - 1);
+                                stringAnim = stringAnim.Trim('\0');
                                 var stringName = new string(reader.ReadChars(reader.ReadInt32()));
-                                stringName = stringName.Remove(stringName.Length - 1);
+                                stringName = stringName.Trim('\0');
+
                                 AnimationCreatorForm.AnimationData toPush = new AnimationCreatorForm.AnimationData();
-                                toPush.ComponentIdentifier = Path.GetFileName(stringAnim);
-                                toPush.AbsolutePath = stringAnim; // I am making an assumption about pathing here
-                                toPush.ComponentTag = stringName;
+                                toPush.ComponentIdentifier = stringAnim;
+                                //toPush.AbsolutePath = ; // I am making an assumption about pathing here
+                                //toPush.ComponentTag = tag;
                                 animations.Add(toPush);
                             }
                         }
@@ -677,7 +693,7 @@ namespace GhostbaitModelCreator
                                 outstr = component.ComponentIdentifier + '\0';
                                 writer.Write(outstr.Length);
                                 writer.Write(outstr.ToCharArray());
-                                if (component.ComponentTag == null)
+                                if (string.IsNullOrWhiteSpace(component.ComponentTag))
                                 {
                                     writer.Write(0);
                                 }
@@ -705,7 +721,7 @@ namespace GhostbaitModelCreator
                         outstr = colliders.Get(0).ComponentIdentifier + '\0';
                         writer.Write(-outstr.Length);
                         writer.Write(outstr.ToCharArray());
-                        if (colliders.Get(0).ComponentTag == null)
+                        if (string.IsNullOrWhiteSpace(colliders.Get(0).ComponentTag))
                         {
                             writer.Write(0);
                         }
@@ -741,24 +757,29 @@ namespace GhostbaitModelCreator
                         outstr = audio.Get(i).ComponentIdentifier + '\0';
                         writer.Write(outstr.Length);
                         writer.Write(outstr.ToCharArray());
+
                     }
                     //Animations
                     if (animations.Count > 0)
                     {
                         int animDataSize = sizeof(Int32);
                         string animName = "Animate\0";
+
+
+
                         //This is an error?
                         animDataSize += sizeof(Int32) + bindPoseFileName.Text.Length + 1;
                         for (int i = 0; i < animations.Count; ++i)
                         {
                             animDataSize += sizeof(Int32) + animations.Get(i).ComponentIdentifier.Length + 1;
-                            animDataSize += sizeof(Int32) + animations.Get(i).ComponentTag.Length + 1;// ERROR COMPONENT TAG IS NULL
+                            animDataSize += sizeof(Int32) + animations.Get(i).ComponentTag.Length + 1;
                         }
                         //Writer Animation Header
-                        writer.Write(-animDataSize);
-                        writer.Write(animName.Length);
+                        writer.Write(-animName.Length);
                         writer.Write(animName.ToCharArray());
+                        writer.Write(0); // Until a new pass of this system is put in for component components, just leave it like this for now.
 
+                        writer.Write(animDataSize);
                         outstr = bindPose.FilePath + '\0';
                         writer.Write(outstr.Length);
                         writer.Write(outstr.ToCharArray());

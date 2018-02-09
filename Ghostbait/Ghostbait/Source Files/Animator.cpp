@@ -53,7 +53,10 @@ void Animator::Destroy() {
 
 void Animator::Initialize(AnimationManager* animManIn) {
 	animMan = animManIn;
-	updateID = EngineStructure::Update.Add([=]() {this->Update(); });
+	updateID = EngineStructure::Update.Add([=]()
+	{
+		this->Update();
+	});
 }
 
 void Animator::Update() {

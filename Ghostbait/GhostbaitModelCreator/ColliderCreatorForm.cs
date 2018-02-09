@@ -33,8 +33,8 @@ namespace GhostbaitModelCreator
 
             public ColliderType colliderType { get; set; }
 
-
-            public override MemoryStream SpecialDataBlock()
+            //I'm hoping this just works
+            public override MemoryStream GetSpecializedDataBlock()
             {
 
                 MemoryStream stream = new MemoryStream();
@@ -216,6 +216,7 @@ namespace GhostbaitModelCreator
             if (edit)
             {
                 edit = false;
+                newCol.ComponentIdentifier = "Physical";
                 mainForm.CreateColliderPressed(newCol, editingIndex);
                 editingIndex = -1;
             }

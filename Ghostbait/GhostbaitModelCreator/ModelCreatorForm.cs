@@ -35,7 +35,7 @@ namespace GhostbaitModelCreator
             public string ComponentTag { get; set; }
             public string AbsolutePath { get; set; }
 
-            public virtual MemoryStream SpecialDataBlock()
+            public virtual MemoryStream GetSpecializedDataBlock()
             {
                 throw new NotImplementedException();
             }
@@ -49,7 +49,7 @@ namespace GhostbaitModelCreator
             protected int blankTagCount = 0;
 
 
-            protected ModelCreatorForm thisForm; // This is extremely bad programming lol, but I don't care at this point.  Too much time spent on this already
+            protected ModelCreatorForm thisForm;
 
 
             public BaseComponentGroup(DataGridView _DataGridView, ModelCreatorForm form)
@@ -694,6 +694,7 @@ namespace GhostbaitModelCreator
                             }
                         }
                     }
+                    //TODO : Investigate usage
                     //BindPose
                     //if (bindPose.FilePath != string.Empty) {
                     //    outstr = bindPose.FilePath + '\0';
@@ -703,35 +704,11 @@ namespace GhostbaitModelCreator
                     //Colliders
                     if (colliders.Count > 0)
                     {
-                        //Find ColliderDataSize
-                        //int colliderDataSize = sizeof(Int32);
-                        //for (int i = 0; i < colliders.Count; ++i)
-                        //{
-                        //    //Type
-                        //    colliderDataSize += sizeof(Int32) + colliders.Get(i).colliderType.ToString().Length + 1;
-                        //    //Offset
-                        //    colliderDataSize += sizeof(float) * 3;
-                        //    //Custom Data
-                        //    switch (colliders.Get(i).colliderType)
-                        //    {
-                        //        case ColliderCreatorForm.ColliderType.SPHERE:
-                        //            colliderDataSize += sizeof(float);
-                        //            break;
 
-                        //        case ColliderCreatorForm.ColliderType.CAPSULE:
-                        //            colliderDataSize += sizeof(float) * 2;
-                        //            break;
-
-                        //        case ColliderCreatorForm.ColliderType.BOX:
-                        //            colliderDataSize += sizeof(float) * 6;
-                        //            break;
-
-                        //        default: break;
-                        //    }
-                        //}
                         //Writer Collider Header
-                        writer.Write(-colliders.Get(0).ComponentIdentifier.Length);
-                        writer.Write(colliders.Get(0).ComponentIdentifier.ToCharArray());
+                        outstr = colliders.Get(0).ComponentIdentifier + '\0';
+                        writer.Write(-outstr.Length);
+                        writer.Write(outstr.ToCharArray());
                         if (colliders.Get(0).ComponentTag == null)
                         {
                             writer.Write(0);
@@ -743,19 +720,22 @@ namespace GhostbaitModelCreator
                             writer.Write(outstr.ToCharArray());
                         }
 
-                        MemoryStream specialData;
+                        //Investigate a way to prevent double looping.
+                        MemoryStream[] specializedData = new MemoryStream[colliders.Count];
+                        int specialdatasize = 0;
                         for (int i = 0; i < colliders.Count; ++i)
                         {
-                            colliders.Get(0).SpecialDataBlock();
+                            specializedData[i] = colliders.Get(i).GetSpecializedDataBlock();
+                            specialdatasize += (int)specializedData[i].Length;
                         }
 
-                        writer.Write(colliderDataSize);
+                        specialdatasize += sizeof(int);
+                        writer.Write(specialdatasize);
+                        writer.Write(colliders.Count); //This line of data prevents generlization.  Investigate possible alternatives
                         //Write ColliderData
-                        writer.Write(colliders.Count);
                         for (int i = 0; i < colliders.Count; ++i)
                         {
-                            
-                            
+                            writer.Write(specializedData[i].ToArray());
                         }
                     }
                     //Audio
@@ -771,6 +751,7 @@ namespace GhostbaitModelCreator
                     {
                         int animDataSize = sizeof(Int32);
                         string animName = "Animate\0";
+                        //This is an error?
                         animDataSize += sizeof(Int32) + bindPoseFileName.Text.Length + 1;
                         for (int i = 0; i < animations.Count; ++i)
                         {

@@ -3,6 +3,10 @@
 #include "ObjectManager.h"      // for ObjectManager
 #include "MessageEvents.h"
 
+#define MAX_NAME_LENGTH 512
+#define MAX_EXTENSION_LENGTH 64
+#define MAX_TAG_LENGTH 64
+
 std::unordered_map<unsigned, std::function<Object*(void)>> ObjectFactory::registeredConstructors;
 
 ObjectManager* ObjectFactory::objMan;
@@ -15,8 +19,11 @@ std::vector<IComponentManager*> ObjectFactory::managers;
 
 std::vector<ObjectFactory::Prefab> ObjectFactory::prefabs;
 
-void ObjectFactory::Initialize(ObjectManager* _objMan) {
+void ObjectFactory::Initialize(ObjectManager* _objMan, const char* object) {
 	objMan = _objMan;
+	//assetsFolder = new char[MAX_NAME_LENGTH];
+	//strcpy_s(assetsFolder, strlen(object) > MAX_NAME_LENGTH ? MAX_NAME_LENGTH : strlen(object), object);
+	//assetsFolderLength = strlen(assetsFolder);
 	//int r = TypeMap::GetTypeId<std::result_of<decltype(&MeshManager::GetElement)(int&)>>();
 	MessageEvents::Subscribe(EVENT_InstantiateRequest, Instantiate);
 	MessageEvents::Subscribe(EVENT_InstantiateRequestByType, InstantiateByType);
@@ -24,7 +31,7 @@ void ObjectFactory::Initialize(ObjectManager* _objMan) {
 }
 
 void ObjectFactory::Instantiate(EventMessageBase *e) {
-	InstantiateMessage* instantiate = (InstantiateMessage*) e;
+	InstantiateMessage* instantiate = (InstantiateMessage*)e;
 	GameObject* newobject = ActivateObject(instantiate->GetPrefabId());
 	if(instantiate->obj != nullptr) {
 		*instantiate->obj = newobject;
@@ -34,7 +41,7 @@ void ObjectFactory::Instantiate(EventMessageBase *e) {
 }
 
 void ObjectFactory::InstantiateByType(EventMessageBase *e) {
-	InstantiateMessage* instantiate = (InstantiateMessage*) e;
+	InstantiateMessage* instantiate = (InstantiateMessage*)e;
 	GameObject* newobject = ActivateObject(Object2Prefab[instantiate->GetPrefabId()]);
 	if(instantiate->obj != nullptr) {
 		*instantiate->obj = newobject;
@@ -45,7 +52,7 @@ void ObjectFactory::InstantiateByType(EventMessageBase *e) {
 }
 
 void ObjectFactory::InstantiateByName(EventMessageBase *e) {
-	InstantiateMessage* instantiate = (InstantiateMessage*) e;
+	InstantiateMessage* instantiate = (InstantiateMessage*)e;
 	GameObject* newobject = ActivateObject(Object2Prefab[instantiate->GetPrefabId()]);
 	if(instantiate->obj != nullptr) {
 		*instantiate->obj = newobject;
@@ -61,8 +68,9 @@ GameObject* ObjectFactory::ActivateObject(PrefabId pid) {
 	for(int i = 0; i < 64; i++) {
 		if(prefabs[pid].fastclone[i]) {
 			newobject->SetComponent(prefabs[pid].instantiatedComponents[i], i);
-		} else if(prefabs[pid].instantiatedComponents[i] != nullptr) {
-			InstantiatedCompBase* comptemp = (InstantiatedCompBase *) managers[i]->CloneComponent(prefabs[pid].instantiatedComponents[i]);
+		}
+		else if(prefabs[pid].instantiatedComponents[i] != nullptr) {
+			InstantiatedCompBase* comptemp = (InstantiatedCompBase *)managers[i]->CloneComponent(prefabs[pid].instantiatedComponents[i]);
 			comptemp->parentObject = newobject; // This will crash if this is not an InstantiatedCompBase
 			newobject->SetComponent(comptemp, i);
 			newobject->DestroyComponents.Add([=]() {
@@ -78,8 +86,9 @@ void ObjectFactory::CreatePrefab(std::string *_filename, char* DEBUG_STRING_NAME
 	int prefabID = prefabNames[*_filename];
 	if(prefabID) {
 		//This Prefab already exists.
-	} else {
-		prefabID = (int) prefabs.size();
+	}
+	else {
+		prefabID = (int)prefabs.size();
 		prefabs.push_back(Prefab());
 		Prefab* prefab = &prefabs[prefabID];
 		FILE* file = nullptr;
@@ -90,66 +99,71 @@ void ObjectFactory::CreatePrefab(std::string *_filename, char* DEBUG_STRING_NAME
 			//Read ClassName
 			int nameLength;
 			fread(&nameLength, sizeof(int), 1, file);
-			char className[512];
-			max_fget = 512;
-			fgets(className, nameLength + 1, file); //TODO: possible buffer overrun with fgets, nameLength is used without being checked
+			char className[MAX_NAME_LENGTH];
+			// Note the intentional offset by 1
+			max_fget = ++nameLength < MAX_NAME_LENGTH ? nameLength : MAX_NAME_LENGTH;
+			fgets(className, max_fget, file);
 			prefab->objectTypeID = TypeMap::GetObjectNameID(std::string(className));
 			prefab->object = registeredConstructors[prefab->objectTypeID]();
 			int dataNameLen;
+
 			while(fread(&dataNameLen, sizeof(int), 1, file)) {
-				//Check for special flag
-				if(dataNameLen > 0) {
-					char dataName[512];
-					fgets(dataName, dataNameLen + 1, file);//TODO: possible buffer overrun with fgets, nameLength is used without being checked
-					//Handle specific file extension
-					char* ext;
-					GetFileExtension(dataName, dataNameLen, (char**) &ext);
-					if(ext == nullptr) {
-						strcpy_s(ext, 64, dataName);
-					}
-					int componentTypeID = TypeMap::GetComponentNameID(std::string(ext));
+				char componentIdentifier[MAX_NAME_LENGTH] = { 0 };
+				max_fget = abs(dataNameLen) + 1;
+				max_fget = max_fget < MAX_NAME_LENGTH ? max_fget : MAX_NAME_LENGTH;
+				fgets(componentIdentifier, max_fget, file);
 
-					ComponentBase * component = managers[componentTypeID]->GetReferenceComponent(dataName, nullptr);
-					prefab->instantiatedComponents[componentTypeID] = component;
-					prefab->fastclone[componentTypeID] = component->singleInstance;
-					prefab->object->SetComponent(component, componentTypeID);
-				} else {
-					int compNameLen;
-					fread(&compNameLen, sizeof(int), 1, file);
-					//Get component to send data to
-					char componentName[512];
-					fgets(componentName, compNameLen + 1, file); //TODO: possible buffer overrun with fgets, compNameLen is used without being checked
-
-					char* ext;
-					GetFileExtension(componentName, compNameLen, (char**) &ext);
-					unsigned componentTypeID;// = TypeMap::GetComponentNameID(std::string(ext)); //TODO: above, ext is used as a null in/out variable, so it is possible for it to become null when passed into std::string
-					if(ext == nullptr)
-						componentTypeID = TypeMap::GetComponentNameID(std::string(componentName));
-					else
-						componentTypeID = TypeMap::GetComponentNameID(std::string(ext));
-
-					//Get data to send
-					char* compData = new char[-dataNameLen];
-					fread(compData, -dataNameLen, 1, file);
-					ComponentBase * component = managers[componentTypeID]->GetReferenceComponent(componentName, compData);
-
-					prefab->instantiatedComponents[componentTypeID] = component;
-					prefab->fastclone[componentTypeID] = component->singleInstance;
-					if(component->singleInstance) {
-						((InstantiatedCompBase *) prefab->instantiatedComponents[componentTypeID])->parentObject = prefab->object;
-					}
-					prefab->object->SetComponent(prefab->instantiatedComponents[componentTypeID], componentTypeID);
-					delete[] compData; //TODO: Not sure if delete[] or delete
+				//Handle specific file extension
+				char* ext;
+				GetFileExtension(componentIdentifier, dataNameLen, (char**)&ext);
+				if(ext == nullptr) {
+					ext = componentIdentifier;
 				}
+				int componentTypeID = TypeMap::GetComponentNameID(std::string(ext));
+
+				// Check for a tag
+				int tagNameLength;
+				fread(&tagNameLength, sizeof(int), 1, file);
+				if(tagNameLength) {
+					char componentTag[MAX_TAG_LENGTH];
+					max_fget = tagNameLength < MAX_NAME_LENGTH ? tagNameLength : MAX_NAME_LENGTH;
+					fgets(componentTag, max_fget, file);
+				}
+				//Check for special data flag
+				char* componentData = nullptr;
+				if(dataNameLen < 0) {
+					int componentDataLength = 0;
+					fread(&componentDataLength, sizeof(int), 1, file);
+					componentData = new char[componentDataLength];
+					fread(componentData, componentDataLength, 1, file);
+				}
+
+				//I do not know where I want this in the end, I just know I do not want it in the binary file.
+				static const char* directory = "Assets/";
+				static const size_t length = strlen(directory);
+				memmove_s(componentIdentifier + length, MAX_NAME_LENGTH, componentIdentifier, MAX_NAME_LENGTH - length);
+				memcpy(componentIdentifier, directory, length);
+
+				// The manager is expected to check if componentData is null
+				ComponentBase * component = managers[componentTypeID]->GetReferenceComponent(componentIdentifier, componentData);
+				prefab->instantiatedComponents[componentTypeID] = component;
+				prefab->fastclone[componentTypeID] = component->singleInstance;
+				if(component->singleInstance) {
+					//This assign's the component parent object if the component is unique per object
+					((InstantiatedCompBase *)prefab->instantiatedComponents[componentTypeID])->parentObject = prefab->object;
+				}
+				prefab->object->SetComponent(component, componentTypeID);
+				delete[] componentData;
 			}
-			fclose(file);
-			if(objectPrefabOverride) {
-				Object2Prefab[prefab->objectTypeID] = prefabID;
-			}
-			prefabNames[*_filename] = prefabID;
-			if(DEBUG_STRING_NAME) {
-				prefabNames[std::string(DEBUG_STRING_NAME)] = prefabID;
-			}
+		}
+		fclose(file);
+		if(objectPrefabOverride) {
+			Object2Prefab[prefab->objectTypeID] = prefabID;
+		}
+		prefabNames[*_filename] = prefabID;
+		if(DEBUG_STRING_NAME) {
+			prefabNames[std::string(DEBUG_STRING_NAME)] = prefabID;
 		}
 	}
 }
+

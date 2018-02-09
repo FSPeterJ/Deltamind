@@ -9,6 +9,7 @@ Animation * AnimationManager::LoadAnimation(const char * _animationFilePath, con
 		reader.read((char*) &toPush->duration, sizeof(toPush->duration));
 		int length;
 		reader.read((char*) &length, sizeof(length));
+		char name[512];
 		for(int i = 0; i < length; ++i) {
 			keyframe temp;
 			reader.read((char*) &temp.endTime, sizeof(temp.endTime));
@@ -19,6 +20,11 @@ Animation * AnimationManager::LoadAnimation(const char * _animationFilePath, con
 				reader.read((char*) &joint.parent_index, sizeof(joint.parent_index));
 				for(int almostThere = 0; almostThere < 4; ++almostThere)
 					reader.read((char*) &joint.transform.m[almostThere], sizeof(joint.transform.m[almostThere]));
+
+				int nameLen;
+				reader.read((char*)&nameLen, sizeof(nameLen));
+				reader.read(name, nameLen);
+				joint.name = name;
 				temp.joints.push_back(joint);
 			}
 			toPush->keyframes.push_back(temp);
@@ -42,6 +48,7 @@ bindpose * AnimationManager::LoadBindpose(const char * _bindposeFilePath) {
 	std::ifstream reader;
 	reader.open(_bindposeFilePath, std::ios_base::binary);
 	int len;
+	char name[512];
 	reader.read((char*) &len, sizeof(len));
 	for(int i = 0; i < len; ++i) {
 		animJoint alright;
@@ -50,6 +57,10 @@ bindpose * AnimationManager::LoadBindpose(const char * _bindposeFilePath) {
 			reader.read((char*) &alright.transform.m[almostThere], sizeof(alright.transform.m[almostThere]));
 
 		XMStoreFloat4x4(&alright.transform, XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat4x4(&alright.transform)), XMLoadFloat4x4(&alright.transform)));
+		int nameLen;
+		reader.read((char*)&nameLen, sizeof(nameLen));
+		reader.read(name, nameLen);
+		alright.name = name;
 		toPush->joints.push_back(alright);
 	}
 	reader.close();

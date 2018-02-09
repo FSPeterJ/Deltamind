@@ -150,8 +150,9 @@ void Renderer::renderObjectDefaultState(Object * obj) {
 	Animator* anim = obj->GetComponent<Animator>();
 	if(anim) {
 		const std::vector<animJoint>* joints = anim->getTweens();
+		const std::vector<animJoint>* bindPose = &anim->getCurrentAnimation()->bPose->joints;
 		for(size_t i = 0; i < joints->size(); ++i) {
-			DirectX::XMStoreFloat4x4(&cpuAnimationData.cpu_side_joints[i], XMLoadFloat4x4(&joints->operator[](i).transform));
+			DirectX::XMStoreFloat4x4(&cpuAnimationData.cpu_side_joints[i], XMLoadFloat4x4(&bindPose->operator[](i).transform) * XMLoadFloat4x4(&joints->operator[](i).transform));
 		}
 		cpuAnimationData.willAnimate = true;
 	} else

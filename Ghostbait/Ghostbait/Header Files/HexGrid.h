@@ -44,7 +44,7 @@ public:
 
 	std::vector<HexTile*> DijkstraSearch(HexTile* start, HexTile* goal);
 
-	std::vector<HexTile*> GetTilesNStepsAway(HexTile* tile, size_t n);
+	HexRegion GetTilesNStepsAway(HexTile* tile, int n);
 
 	std::vector<HexTile*> GetIntersectingTilesRanges(HexagonalGridLayout* layout, HexTile* fixedCenter, int fixedN, HexTile* b, int bn);
 

@@ -22,26 +22,19 @@ void HexGrid::step() {
 	std::advance(iter, 1);
 }
 
-std::vector<HexTile*> HexGrid::GetTilesNStepsAway(HexTile* tile, size_t n) {
-	std::vector<HexTile*> results = {};
+HexGrid::HexRegion HexGrid::GetTilesNStepsAway(HexTile* tile, int n) {
+	int x = tile->q, y = tile->r, z = tile->s;
 
-	//std::vector<HexTile*> breadthSearch = breadthFirstSearch(tile, )
+	HexRegion region = GetRegion(x-n, x+n, y-n, y+n, z-n, z+n);
 
-	for(const auto& curTile : map) {
-		if(tile->DistanceFrom(curTile) <= n) {
-			results.push_back(curTile);
-		}
-	}
-
-	//std::vector<HexTile*> tiles = grid.
-
-	return results;
+	return region;
 }
 
 HexGrid::HexRegion HexGrid::GetRegion(int xmin, int xmax, int ymin, int ymax, int zmin, int zmax) {
 	std::vector<HexTile> results = {};
+
 	for(int x = xmin; x <= xmax; ++x) {
-		for(int y = max(ymin, -x - zmax); y <=min(ymax, -x - zmin); ++y) {
+		for(int y = max(ymin, -x - zmax); y <= min(ymax, -x - zmin); ++y) {
 			results.push_back(HexTile(x, y));
 		}
 	}
@@ -215,12 +208,14 @@ void HexGrid::SetUpDrawingPaths() {
 		HexTile* _start = *iter;
 
 		HexTile* realStart = const_cast<HexTile*&>(_start);
-		std::vector<HexTile*> path = GetTilesNStepsAway(realStart, 2);
+		HexRegion range = GetTilesNStepsAway(realStart, 2);
 
-		for(auto& e : path) {
-			e->Draw(*layout, {1,0,0});
-			e->Cross(*layout, {1,0,0});
-		}
+		//for(auto& e : path) {
+		//	e->Draw(*layout, {1,0,0});
+		//	e->Cross(*layout, {1,0,0});
+		//}
+
+		ColorRegion(range, layout, {1,0,0}, 0.2f);
 
 		realStart->Draw(*layout, {0,0,1}, 0.1f);
 
@@ -273,7 +268,7 @@ void HexGrid::Display(HexagonalGridLayout layout) {
 		realT->Draw(layout, {1,1,1});
 	}
 
-	DrawIntersect(&layout);
+	DrawRange(&layout);
 }
 
 HexGrid::~HexGrid() {

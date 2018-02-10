@@ -1,7 +1,6 @@
 #pragma once
 #include "Object.h"
 #include "Controlable.h"
-#include "Health.h"
 
 class GameObject: public Object {
 	friend class ObjectFactory;

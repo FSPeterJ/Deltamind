@@ -3,6 +3,7 @@
 #include "MessageEvents.h"
 #include "Console.h"
 #include "VRManager.h"
+#include "ProgressBar.h"
 
 
 BuildTool::BuildTool() { 
@@ -82,7 +83,7 @@ void BuildTool::CycleForward() {
 	}
 
 	if (prefabs[tempIndex].ID < 0)
-		currentMode = Mode::REMOVE;
+		currentMode = Mode::REMOVE; // Unreachable code
 	else
 		currentMode = Mode::SPAWN;
 

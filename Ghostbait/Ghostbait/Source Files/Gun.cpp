@@ -38,6 +38,7 @@ void Gun::Overheat::Update(bool active) {
 		currentEnergy = 0;
 	}
 
+	// This seems weird but I have no better ideas at the moment
 	if (active) {
 		//Update Bar itself
 		bar->position = parent->position;

@@ -1,9 +1,15 @@
 #pragma once
 #include <vector>
-#include "PhysicsComponent.h" //This can probably be forward declared with notable effort
+#include "PhysicsComponent.h" //This can probably be forward declared with notable effort?  I think the Collider Data vector prevents this.
 #include "Pool.h"
 #include "SpatialPartition.h"
 #include "PhysicsExtension.h"
+
+namespace DirectX
+{
+	struct XMVECTOR;
+	struct XMMATRIX;
+}
 
 class GameObject;
 

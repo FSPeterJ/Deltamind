@@ -1,10 +1,16 @@
 #pragma once
 #include "StdHeader.h"
-#include "DirectXMath.h" //todo get rid
-#include "Wwise_IDs.h" //forgive me
 
 #undef GetObject
 
+//Please do this next time
+typedef unsigned long		AkUInt32;
+typedef AkUInt32			AkUniqueID;
+
+namespace DirectX
+{
+	struct XMFLOAT4X4;
+}
 class GameObject;
 
 enum Control {

@@ -77,6 +77,7 @@ void ObjectFactory::CreatePrefab(std::string *_filename, char* DEBUG_STRING_NAME
 	int prefabID = prefabNames[*_filename];
 	if(prefabID) {
 		//This Prefab already exists.
+		return;
 	} else {
 		prefabID = (int) prefabs.size();
 		prefabs.push_back(Prefab());

@@ -12,13 +12,71 @@
 
 #include <queue>
 
+void HexGrid::step() {
+	curPos++;
+	if(curPos >= map.size() - 1) {
+		curPos = 0;
+		iter = map.begin();
+	}
+
+	std::advance(iter, 1);
+}
+
 std::vector<HexTile*> HexGrid::GetTilesNStepsAway(HexTile* tile, size_t n) {
 	std::vector<HexTile*> results = {};
 
+	//std::vector<HexTile*> breadthSearch = breadthFirstSearch(tile, )
 
-
+	for(const auto& curTile : map) {
+		if(tile->DistanceFrom(curTile) <= n) {
+			results.push_back(curTile);
+		}
+	}
 
 	//std::vector<HexTile*> tiles = grid.
+
+	return results;
+}
+
+HexGrid::HexRegion HexGrid::GetRegion(int xmin, int xmax, int ymin, int ymax, int zmin, int zmax) {
+	std::vector<HexTile> results = {};
+	for(int x = xmin; x <= xmax; ++x) {
+		for(int y = max(ymin, -x - zmax); y <=min(ymax, -x - zmin); ++y) {
+			results.push_back(HexTile(x, y));
+		}
+	}
+
+	HexRegion r;
+	r.tiles = results;
+	return r;
+}
+
+void HexGrid::ColorRegion(HexRegion region, HexagonalGridLayout* layout, DirectX::XMFLOAT3 color, float offset) {
+	for(auto& e : region.tiles) {
+		e.Cross(*layout, color, offset);
+	}
+}
+
+
+std::vector<HexTile*> HexGrid::GetIntersectingTilesRanges(HexagonalGridLayout* layout, HexTile* a, int aN, HexTile* b, int bN) {
+	std::vector<HexTile*> results = {};
+
+	int ax = a->q, ay = a->r, az = a->s;
+	int bx = b->q, by = b->r, bz = b->s;
+
+	HexRegion regionA = GetRegion(ax - aN, ax + aN, ay - aN, ay + aN, az - aN, az + aN);
+	ColorRegion(regionA, layout, {0,1,0}, 0);
+
+	HexRegion regionB = GetRegion(bx - bN, bx + bN, by - bN, by + bN, bz - bN, bz + bN);
+	ColorRegion(regionB, layout, {0,0,1}, 0.01f);
+
+	HexRegion intersection = GetRegion(
+		max(ax - aN, bx - bN),	min(ax+aN, bx + bN),
+		max(ay - aN, by - bN),	min(ay+aN, by + bN),
+		max(az - aN, bz - bN),	min(az+aN, bz + bN)
+	);
+
+	ColorRegion(intersection, layout, {1, 0, 0}, 0.22f);
 
 	return results;
 }
@@ -113,11 +171,17 @@ std::vector<HexTile*> HexGrid::DijkstraSearch(HexTile * start, HexTile * goal) {
 }
 
 void HexGrid::SetUpDrawingPaths() {
-	iter = map.begin();
 
+	iter = map.begin();
 	HexTile* start = *iter;
 
-	Draw += [=](HexagonalGridLayout* layout) {
+
+	std::advance(iter, 8);
+	HexTile* istart = *iter;
+	iter = map.begin();
+
+	
+	DrawLine += [=](HexagonalGridLayout* layout) {
 		HexTile* end = *iter;
 
 		HexTile* realStart = const_cast<HexTile*&>(start);
@@ -130,8 +194,8 @@ void HexGrid::SetUpDrawingPaths() {
 
 		std::vector<HexTile> path = realStart->DrawSmoothLineTo(realend);
 
-		Console::WriteLine << "The path has " << path.size() << " elements.";
-
+		//Console::WriteLine << "The path has " << path.size() << " elements.";
+ 
 		for(auto& e : path) {
 			e.Draw(*layout, {1,0,0});
 			e.Cross(*layout, {1,0,0});
@@ -140,16 +204,55 @@ void HexGrid::SetUpDrawingPaths() {
 		realStart->Draw(*layout, {0,0,1}, 0.1f);
 		realend->Draw(*layout, {0,1,0}, 0.1f);
 
-		curPos++;
-		if(curPos >= map.size() - 1) {
-			curPos = 0;
-			iter = map.begin();
+		if(KeyIsDown(TestInputO)) {
+			step();
+			ResetKey(TestInputO);
+			Console::WriteLine << "Current index is " << curPos;
+		}
+	};
+	
+	DrawRange += [=](HexagonalGridLayout* layout) {
+		HexTile* _start = *iter;
+
+		HexTile* realStart = const_cast<HexTile*&>(_start);
+		std::vector<HexTile*> path = GetTilesNStepsAway(realStart, 2);
+
+		for(auto& e : path) {
+			e->Draw(*layout, {1,0,0});
+			e->Cross(*layout, {1,0,0});
 		}
 
-		std::advance(iter, 1);
+		realStart->Draw(*layout, {0,0,1}, 0.1f);
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		if(KeyIsDown(TestInputO)) {
+			step();
+			ResetKey(TestInputO);
+			Console::WriteLine << "Current index is " << curPos;
+		}
 	};
+
+	DrawIntersect += [=](HexagonalGridLayout* layout) {
+		 
+		HexTile* end = *iter;
+
+		HexTile* realend = const_cast<HexTile*&>(end);
+
+		HexTile* realStart = const_cast<HexTile*&>(istart);
+
+		auto sc = realStart->Center(*layout);
+		auto se = realend->Center(*layout);
+
+		DebugRenderer::AddLine({sc.x, sc.y, 0}, {se.x, se.y, 0}, {0,0,0});
+
+		GetIntersectingTilesRanges(layout, realStart, 2, realend, 2);
+
+		if(KeyIsDown(TestInputO)) {
+			step();
+			ResetKey(TestInputO);
+			Console::WriteLine << "Current index is " << curPos;
+		}
+	};
+
 }
 
 void HexGrid::Fill() {
@@ -170,7 +273,7 @@ void HexGrid::Display(HexagonalGridLayout layout) {
 		realT->Draw(layout, {1,1,1});
 	}
 
-	Draw(&layout);
+	DrawIntersect(&layout);
 }
 
 HexGrid::~HexGrid() {

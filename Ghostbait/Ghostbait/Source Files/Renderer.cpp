@@ -137,9 +137,12 @@ void Renderer::setupVRTargets() {
 
 void Renderer::renderObjectDefaultState(Object * obj) {
 	UINT stride = sizeof(VertexPositionTextureNormalAnim);
+	//UINT stride = 0;
 	UINT offset = 0;
+	Mesh* y= obj->GetComponent<Mesh>();
+	ID3D11Buffer* x = y->vertexBuffer;
 
-	context->IASetVertexBuffers(0, 1, &obj->GetComponent<Mesh>()->vertexBuffer, &stride, &offset);
+	context->IASetVertexBuffers(0, 1, &x, &stride, &offset);
 	context->IASetIndexBuffer(obj->GetComponent<Mesh>()->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(XMLoadFloat4x4(&obj->position)), 0, 0);
 	obj->GetComponent<Material>()->bindToShader(context, factorBuffer);

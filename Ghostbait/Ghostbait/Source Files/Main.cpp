@@ -161,27 +161,27 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	DirectX::XMFLOAT4X4 roomMatrix;
 	DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * DirectX::XMMatrixTranslation(0, 3, 0));
 	//MenuCube* startCube;
-	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(3, roomMatrix));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(3, roomMatrix));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(7, {0, 1.5f, 0.0f}, (GameObject**)&startCube));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage("startCube", {4, 1.5f, 0.0f}, (GameObject**)&startCube));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(11, { 0, 0, 0 }, nullptr));
-	//GameObject* teddy;
-	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(11, {0, 0, 0}, &teddy));
-	//teddy->GetComponent<Animator>()->setState("Walk");
+	GameObject* teddy;
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(11, {0, 0, 0}, &teddy));
+	teddy->GetComponent<Animator>()->setState("Run");
 
 	//DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
 	//startCube->Enable();
 
-	//GameObject *test1, *test2;
-	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 0.0f, 2.0f, -1.0f }, &test1));
+	GameObject *test1, *test2;
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 0.0f, 2.0f, -1.0f }, &test1));
 	//DirectX::XMStoreFloat4x4(&test1->position, DirectX::XMLoadFloat4x4(&test1->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
 
-	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 0.0f, 2.0f, 0.0f }, &test2));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 0.0f, 2.0f, 0.0f }, &test2));
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 7.0f, 2.0f, 0.0f }, nullptr));
-	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 0.0f, 2.0f, -7.0f }, nullptr));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 0.0f, 2.0f, -7.0f }, nullptr));
 
 
-	//dynamic_cast<PhysicsTestObj*>(test1)->isControllable = true;
+	dynamic_cast<PhysicsTestObj*>(test1)->isControllable = true;
 	//test1->Enable();
 
 	//	Object* cube1, *cube2;

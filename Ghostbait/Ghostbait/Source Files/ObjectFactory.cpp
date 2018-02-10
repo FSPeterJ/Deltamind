@@ -152,9 +152,9 @@ void ObjectFactory::CreatePrefab(std::string *_filename, char* DEBUG_STRING_NAME
 
 					// The manager is expected to check if componentData is null
 					ComponentBase * component = managers[componentTypeID]->GetReferenceComponent(componentIdentifier, componentData);
-					prefab->instantiatedComponents[componentTypeID] = component;
 					prefab->fastclone[componentTypeID] = component->singleInstance;
-					if(component->singleInstance) {
+					prefab->instantiatedComponents[componentTypeID] = component;
+					if(!component->singleInstance) {
 						//This assign's the component parent object if the component is unique per object
 						((InstantiatedCompBase *)prefab->instantiatedComponents[componentTypeID])->parentObject = prefab->object;
 					}

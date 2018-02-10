@@ -137,32 +137,55 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<Spawner>("Spawner");
 	TypeMap::RegisterObjectAlias<EnemyBase>("EnemyBase");
 	TypeMap::RegisterObjectAlias<MenuCube>("MenuCube");
-	TypeMap::RegisterObjectAlias<CoreCube>("CoreCube");
+	TypeMap::RegisterObjectAlias<CoreCube>("CoreCube
 	TypeMap::RegisterObjectAlias<GameObject>("GameObject");
 	TypeMap::RegisterObjectAlias<PhysicsTestObj>("PhysicsTestObj");
 	TypeMap::RegisterObjectAlias<BuildTool>("BuildTool");
 
 	//------
 	// Scenemanager would make this
+	//
+	//	
+	//
+	//   PLEASE STOP INSTANTIATING USING A PREFAB ID AND WEIRD MANUAL COUNTING UNLESS ASSIGNED PROGRAMATICALLY
+	//   PLEASE STOP INSTANTIATING USING A PREFAB ID AND WEIRD MANUAL COUNTING UNLESS ASSIGNED PROGRAMATICALLY
+	//   PLEASE STOP INSTANTIATING USING A PREFAB ID AND WEIRD MANUAL COUNTING UNLESS ASSIGNED PROGRAMATICALLY
+	//
+	//	 Use this:
+	//																						v String Identifier
+	//			ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"), "VController", true);
+	//																										^ Base Class Type Default Override 
+	//																						(only set this if you want the class default for EVENT_InstantiateRequestByType, stomps out previous class asignment)
+	//   Then use this:
+	//			
+	//			MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage("TheObjectNAme", { 0,0,0 }, (GameObject**)&leftController.obj));
+	//	Or This:
+	//			MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateMessage(TypeMap::GetObjectTypeID<ControllerObject>(), {1,0,1}, (GameObject**) &rightController.obj));
+	//
+	//
 	//=========================================================
-	ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer2.ghost")); //0
+	ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer2.ghost")); //0 // stop using magic number prefab ID
 	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"), "ViveController", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/basicSphere.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ScifiRoom.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ProjectileSphere.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost")); //5
+	ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost")); //5 // stop using magic number prefab ID
+
+	// PLEASE LOOK UP
 	ObjectFactory::CreatePrefab(&std::string("Assets/EnemyRobot.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"), "startCube");
 	ObjectFactory::CreatePrefab(&std::string("Assets/CoreCube.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost")); //10
+
+	// PLEASE LOOK UP
+	ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost")); //10 // stop using magic number prefab ID
 	//ObjectFactory::CreatePrefab(&std::string("Assets/Teddy.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/EarthMage.ghost"));
 
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest1.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest2.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/PlaneMap.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/OverheatBar.ghost")); //15
+	ObjectFactory::CreatePrefab(&std::string("Assets/OverheatBar.ghost")); //15 // stop using magic number prefab ID
 	ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Assets/TeleportSphere.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
@@ -178,7 +201,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//DirectX::XMFLOAT4X4 roomMatrix;
 	//DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * DirectX::XMMatrixTranslation(0, 3, 0));
 	//MenuCube* startCube;
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(14, { 0, 0, 0 }/*roomMatrix*/));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(14, { 0, 0, 0 }/*roomMatrix*/));// stop using magic number prefab ID
 	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(7, {0, 1.5f, 0.0f}, (GameObject**)&startCube));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage("startCube", {4, 1.5f, 0.0f}, (GameObject**)&startCube));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(11, { 0, 0, 0 }, nullptr));
@@ -190,12 +213,12 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//startCube->Enable();
 
 	GameObject *test1, *test2;
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 0.0f, 2.0f, -1.0f }, &test1));
-	DirectX::XMStoreFloat4x4(&test1->position, DirectX::XMLoadFloat4x4(&test1->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 0.0f, 2.0f, -1.0f }, &test1));// stop using magic number prefab ID
+	DirectX::XMStoreFloat4x4(&test1->position, DirectX::XMLoadFloat4x4(&test1->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));// stop using prefab ID
 
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { 0.0f, 1.0f, 0.0f }, &test2));
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { 7.0f, 2.0f, 0.0f }, nullptr));
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { 0.0f, 2.0f, -7.0f }, nullptr));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { 0.0f, 1.0f, 0.0f }, &test2));// stop using magic number prefab ID
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { 7.0f, 2.0f, 0.0f }, nullptr));// stop using magic number prefab ID
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { 0.0f, 2.0f, -7.0f }, nullptr));// stop using magic number prefab ID
 
 	//TestArc
 	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(17, { 3.0f, -1.0f, 0.0f }, nullptr));

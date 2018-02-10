@@ -1,6 +1,5 @@
 #include "PhysicsComponent.h"
 #include <DirectXMath.h>
-#include "AABB.h"
 #include "RigidBody.h"
 
 bool PhysicsComponent::AddCollider(ColliderData * _colData, float _offsetX, float _offsetY, float _offsetZ, bool _isTrigger) {

@@ -57,7 +57,7 @@ bool VRManager::Init() {
 
 void VRManager::CreateControllers() {
 	//Left
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {0,0,0}, (GameObject**)&leftController.obj));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateMessage(TypeMap::GetObjectTypeID<ControllerObject>(), {0,0,0}, (GameObject**)&leftController.obj));
 	leftController.obj->SetControllerHand(ControllerObject::ControllerHand::LEFT);
 	leftController.obj->AddItem(0, 1);
 	leftController.obj->AddItem(1, 2, Gun::FireType::SEMI, 60, 50);
@@ -65,7 +65,7 @@ void VRManager::CreateControllers() {
 	leftController.obj->AddItem(3, 16, {1, 2, 5});
 	leftController.obj->Enable();
 	//Right
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {1,0,1}, (GameObject**) &rightController.obj));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateMessage(TypeMap::GetObjectTypeID<ControllerObject>(), {1,0,1}, (GameObject**) &rightController.obj));
 	rightController.obj->SetControllerHand(ControllerObject::ControllerHand::RIGHT);
 	rightController.obj->AddItem(0, 1);
 	rightController.obj->AddItem(1, 2, Gun::FireType::SEMI, 60, 50);

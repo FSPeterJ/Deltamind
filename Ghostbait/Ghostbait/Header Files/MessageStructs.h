@@ -1,5 +1,6 @@
 #pragma once
 #include "StdHeader.h"
+#include "DirectXMath.h"
 
 #undef GetObject
 
@@ -7,10 +8,7 @@
 typedef unsigned long		AkUInt32;
 typedef AkUInt32			AkUniqueID;
 
-namespace DirectX
-{
-	struct XMFLOAT4X4;
-}
+
 class GameObject;
 
 enum Control {
@@ -72,7 +70,7 @@ class InstantiateMessage: public EventMessageBase {
 	PrefabId pid;
 	DirectX::XMFLOAT4X4 position;
 public:
-	GameObject * * obj;
+	GameObject** obj;
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="InstantiateMessage"/> class.
@@ -91,7 +89,7 @@ class InstantiateNameMessage: public EventMessageBase {
 	DirectX::XMFLOAT4X4 position;
 public:
 	char* debug_name;
-	GameObject * * obj;
+	GameObject** obj;
 	/// <summary>
 	/// Initializes a new instance of the <see cref="InstantiateMessage"/> class.
 	/// </summary>

@@ -7,7 +7,6 @@
 
 namespace DirectX
 {
-	struct XMVECTOR;
 	struct XMMATRIX;
 }
 

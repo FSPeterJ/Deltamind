@@ -70,12 +70,12 @@ void MenuCube::Update() {
 void MenuCube::OnCollision(GameObject* other) {
 	if(other->GetTag() == "Bullet") {
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, {10, 0, 0}));
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, {-10, 0, 0}));
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, {0, 0, 10}));
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, {0, 0, -10}));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, {10, 0, 0}));// stop using magic number prefab ID
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, {-10, 0, 0}));// stop using magic number prefab ID
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, {0, 0, 10}));// stop using magic number prefab ID
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, {0, 0, -10}));// stop using magic number prefab ID
 		GameObject* obj;
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(8/*Core*/, {0, 1.5f, 0}, &obj));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(8/*Core*/, {0, 1.5f, 0}, &obj));// stop using magic number prefab ID
 		DirectX::XMStoreFloat4x4(&obj->position,
 			DirectX::XMLoadFloat4x4(&obj->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
 	}
@@ -87,7 +87,7 @@ void CoreCube::OnCollision(GameObject* other) {
 		Console::OutLine << "YOU LOSE!";
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 		GameObject* temper;
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(10/*LoseCube*/, {0, 0.75f, 0}, &temper));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(10/*LoseCube*/, {0, 0.75f, 0}, &temper));// stop using magic number prefab ID
 		DirectX::XMStoreFloat4x4(&temper->position, DirectX::XMLoadFloat4x4(&temper->position) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));
 	}
 }

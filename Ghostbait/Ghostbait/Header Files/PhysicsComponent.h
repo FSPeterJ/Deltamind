@@ -1,10 +1,9 @@
 #pragma once
-//#include "RigidBody.h" // DirectXMath, vector
+#include "AABB.h" // DirectXMath, vector
+#include "RigidBody.h" // DirectXMath, vector
 #include "ComponentBase.h"
 #include <vector>
 
-class AABB;
-class RigidBody;
 
 //class PhysicsManager;
 

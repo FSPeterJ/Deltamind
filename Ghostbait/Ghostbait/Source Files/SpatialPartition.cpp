@@ -161,10 +161,6 @@ const std::vector<PhysicsComponent*> SpatialPartition::GetComponentsToTest() {
 
 	std::vector<PhysicsComponent*> testComps;
 
-	if(table["somefake "])
-	{
-		
-	}
 
 	for each (auto bucket in table)
 	{

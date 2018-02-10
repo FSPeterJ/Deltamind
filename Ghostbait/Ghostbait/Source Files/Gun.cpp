@@ -4,12 +4,14 @@
 #include "GhostTime.h"
 #include "MessageEvents.h"
 #include "Console.h"
+#include "Wwise_IDs.h"
+
 
 Gun::Overheat::Overheat() {
 
 }
 void Gun::Overheat::CreateBar() {
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(15, { 0.0f, 0.0f, 0.0f }, (GameObject**)&bar));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(15, { 0.0f, 0.0f, 0.0f }, (GameObject**)&bar)); // stop using magic number prefab ID
 }
 bool Gun::Overheat::CanShoot(float fireRate) {
 	return timeSinceLastShot > (1 / fireRate) && !energyOverheatDelayTimeLeft;

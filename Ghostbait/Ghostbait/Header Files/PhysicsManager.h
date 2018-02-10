@@ -30,11 +30,13 @@ class PhysicsManager: public IComponentManager {
 	bool SphereToSphereCollision(Collider& col1, DirectX::XMVECTOR& pos1, Collider& col2, DirectX::XMVECTOR& pos2);
 	bool CapsuleToCapsuleCollision(Collider& col1, DirectX::XMMATRIX& pos1, Collider& col2, DirectX::XMMATRIX& pos2);
 	bool CapsuleToSphereCollision(Collider& capCol, DirectX::XMMATRIX& capPos, Collider& sphCol, DirectX::XMMATRIX& sphPos);
-	bool BoxToBoxCollision();
-	void SendCollision(GameObject* obj1, GameObject* obj2);
-	//bool BoxToCapsuleCollision();
-	//bool BoxToSphereCollision();
+	bool BoxToBoxCollision(Collider& boxCol1, DirectX::XMMATRIX& boxPos1, Collider& boxCol2, DirectX::XMMATRIX& boxPos2);
+	bool BoxToSphereCollision(Collider& boxCol, DirectX::XMMATRIX& boxPos, Collider& sphCol, DirectX::XMMATRIX& sphPos);
+	bool BoxToCapsuleCollision(Collider& boxCol, DirectX::XMMATRIX& boxPos, Collider& capCol, DirectX::XMMATRIX& capPos);
+	std::vector<DirectX::XMVECTOR> GetSATAxis(std::vector<DirectX::XMVECTOR>& boxCorners);
+	std::vector<DirectX::XMVECTOR> GetBoxCorners(Collider& boxCol, DirectX::XMMATRIX& boxPos);
 
+	void SendCollision(GameObject* obj1, GameObject* obj2);
 
 	static DirectX::XMVECTOR FindClosestPointOnLine(DirectX::XMVECTOR& _lineSegStart, DirectX::XMVECTOR& _lineSegEnd, DirectX::XMVECTOR& _testPoint);
 	static bool IsRayInCollider(DirectX::XMVECTOR& origin, Collider& collidingComp, DirectX::XMVECTOR& objectPos);

@@ -162,6 +162,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/PlaneMap.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/OverheatBar.ghost")); //15
 	ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest3.ghost"));
+
 	//ObjectFactory::CreatePrefab(&std::string("Assets/TeleportSphere.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object"));
@@ -188,12 +190,12 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//startCube->Enable();
 
 	GameObject *test1, *test2;
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 0.0f, 2.0f, -1.0f }, &test1));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(17, { 0.0f, 2.0f, -1.0f }, &test1));
 	DirectX::XMStoreFloat4x4(&test1->position, DirectX::XMLoadFloat4x4(&test1->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
 
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { 0.0f, 1.0f, 0.0f }, &test2));
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { 7.0f, 2.0f, 0.0f }, nullptr));
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { 0.0f, 2.0f, -7.0f }, nullptr));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(17, { 0.0f, 1.0f, 0.0f }, &test2));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(17, { 7.0f, 2.0f, 0.0f }, nullptr));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(17, { 0.0f, 2.0f, -7.0f }, nullptr));
 
 	//TestArc
 	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(17, { 3.0f, -1.0f, 0.0f }, nullptr));

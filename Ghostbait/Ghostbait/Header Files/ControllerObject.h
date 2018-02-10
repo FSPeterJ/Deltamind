@@ -12,17 +12,17 @@ public:
 		RIGHT,
 	};
 private:
-
 	ControllerHand hand = LEFT;
 	std::vector<Item*> items;
-	Item* currentItem = nullptr;
-	void LeftUpdate();
-	void RightUpdate();
+	std::vector<Item*> displayItems;
+	Item* currentGameItem = nullptr;
+	bool touchHeld = false;
 public:
 
 	ControllerObject();
-	void AddGun(int itemSlot, int prefabID, Gun::FireType _fireType, float _fireRate, float _damage);
-	void AddController(int itemSlot, int prefabID);
+	void AddItem(int itemSlot, int prefabID);
+	void AddItem(int itemSlot, int prefabID, std::vector<unsigned> prefabIDs);
+	void AddItem(int itemSlot, int prefabID, Gun::FireType _fireType, float _fireRate, float _damage);
 	inline void SetControllerHand(ControllerHand _hand) { hand = _hand; };
 	void Update();
 };

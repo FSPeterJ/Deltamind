@@ -4,5 +4,6 @@
 class ViveController: public Item {
 public:
 	ViveController();
-	void Update();
+	void ActiveUpdate();
+	void InactiveUpdate();
 };

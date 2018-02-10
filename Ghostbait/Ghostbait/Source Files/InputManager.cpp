@@ -2,7 +2,7 @@
 #include "Messagebox.h"
 #include "VRManager.h"    // for VRManager, VRManager::VRController, VRManager::leftController
 #include "MessageEvents.h"
-
+#include "Console.h"
 #include "MessageStructs.h"  // for Control
 
 #define RAD_PI 3.14159265359
@@ -25,11 +25,9 @@ struct InputManager::InputBridge {
 	virtual InputPackage CheckForInput() = 0;
 };
 struct InputManager::VRInput: public InputBridge {
-	VRManager* vrMan;
 	float rightTPX = 0, rightTPY = 0;
 	float leftTPX = 0, leftTPY = 0;
-	VRInput() {};
-	VRInput(VRManager* vrManager);
+	VRInput();
 	bool MapKey(Control control, int key) override;
 	InputPackage CheckForInput() override;
 };
@@ -47,25 +45,27 @@ struct InputManager::ControllerInput: public InputBridge {
 InputManager::~InputManager() {
 	delete bridge; delete inputPoll;
 };
-InputManager::InputManager(InputType type, VRManager* vrManager) {
-	vrMan = vrManager;
+InputManager::InputManager(InputType type) {
 	SetInputType(type);
 	inputPoll = new InputPackage();
 };
 inline InputType InputManager::GetInputType() { return inputType; };
 
 //VR
-InputManager::VRInput::VRInput(VRManager* vrManager) {
-	vrMan = vrManager;
+InputManager::VRInput::VRInput() {
 	MapKey(none, 0);
 	MapKey(forward, 1);
 	MapKey(backward, 2);
 	MapKey(left, 3);
 	MapKey(right, 4);
-	MapKey(teleport, 5);
-	MapKey(leftAttack, 6);
-	MapKey(rightAttack, 7);
-	MapKey(menu, 8);
+	MapKey(teleportDown, 5);
+	MapKey(teleportUp, 6);
+	MapKey(leftAttack, 7);
+	MapKey(rightAttack, 8);
+	MapKey(menu, 9);
+	MapKey(leftTouch, 10);
+	MapKey(rightTouch, 11);
+
 }
 bool InputManager::VRInput::MapKey(Control control, int key) {
 	if(keyBind.find(control) != keyBind.end()) {
@@ -74,24 +74,47 @@ bool InputManager::VRInput::MapKey(Control control, int key) {
 	} else { return false; }
 }
 InputPackage InputManager::VRInput::CheckForInput() {
+	static bool leftTouchpadTouched = false;
+	static bool rightTouchpadTouched = false;
+
 	Control input = none;
 	float amount = 0;
-
+	vr::VRControllerState_t state;
 	vr::VREvent_t event;
-	while(vrMan->pVRHMD->PollNextEvent(&event, sizeof(event))) {
+	
+	
+	if (leftTouchpadTouched) {
+		VRManager::GetInstance().pVRHMD->GetControllerState(VRManager::GetInstance().leftController.index, &state, sizeof(state));
+		leftTPX = state.rAxis[0].x;
+		leftTPY = state.rAxis[0].y;
+	}
+	if (rightTouchpadTouched) {
+		VRManager::GetInstance().pVRHMD->GetControllerState(VRManager::GetInstance().rightController.index, &state, sizeof(state));
+		rightTPX = state.rAxis[0].x;
+		rightTPY = state.rAxis[0].y;
+	}
+
+	while(VRManager::GetInstance().pVRHMD->PollNextEvent(&event, sizeof(event))) {
 		switch(event.eventType) {
 		case vr::VREvent_ButtonTouch:
 		{
 			if(event.data.controller.button == vr::k_EButton_SteamVR_Touchpad) {
-				vr::VRControllerState_t state;
-				if(event.trackedDeviceIndex == vrMan->leftController.index) {
-					vrMan->pVRHMD->GetControllerState(vrMan->leftController.index, &state, sizeof(state));
+				if(event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
+					leftTouchpadTouched = true;
+					VRManager::GetInstance().pVRHMD->GetControllerState(VRManager::GetInstance().leftController.index, &state, sizeof(state));
 					leftTPX = state.rAxis[0].x;
 					leftTPY = state.rAxis[0].y;
-				} else {
-					vrMan->pVRHMD->GetControllerState(vrMan->rightController.index, &state, sizeof(state));
+					Console::WriteLine << "Touched!!";
+					input = leftTouch;
+					amount = 1.0f;
+				} 
+				else {
+					rightTouchpadTouched = true;
+					VRManager::GetInstance().pVRHMD->GetControllerState(VRManager::GetInstance().rightController.index, &state, sizeof(state));
 					rightTPX = state.rAxis[0].x;
 					rightTPY = state.rAxis[0].y;
+					input = rightTouch;
+					amount = 1.0f;
 				}
 			}
 			break;
@@ -99,6 +122,16 @@ InputPackage InputManager::VRInput::CheckForInput() {
 		case vr::VREvent_ButtonUntouch:
 		{
 			if(event.data.controller.button == vr::k_EButton_SteamVR_Touchpad) {
+				if (event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
+					leftTouchpadTouched = false;
+					input = leftTouch;
+					amount = 0.0f;
+				}
+				else {
+					rightTouchpadTouched = false;
+					input = rightTouch;
+					amount = 0.0f;
+				}
 			}
 			break;
 		}
@@ -106,18 +139,25 @@ InputPackage InputManager::VRInput::CheckForInput() {
 		{
 			switch(event.data.controller.button) {
 			case vr::k_EButton_ApplicationMenu:
-				if(event.trackedDeviceIndex == vrMan->leftController.index) {
+				if(event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
 				} else {
-					input = teleport;
+					input = teleportDown;
 					amount = 1;
-					DirectX::XMStoreFloat4x4(&vrMan->world, DirectX::XMLoadFloat4x4(&vrMan->world) * DirectX::XMMatrixTranslation(vrMan->hmdPose._31, 0, vrMan->hmdPose._33));
 				}
 				break;
 			case vr::k_EButton_Grip:
+				if (event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
+					input = leftCyclePrefab;
+					amount = 1;
+				}
+				else {
+					input = rightCyclePrefab;
+					amount = 1;
+				}
 				break;
 			case vr::k_EButton_SteamVR_Touchpad:
 				float x, y, rads;
-				if(event.trackedDeviceIndex == vrMan->leftController.index) {
+				if(event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
 					x = leftTPX;
 					y = leftTPY;
 				} else {
@@ -129,24 +169,26 @@ InputPackage InputManager::VRInput::CheckForInput() {
 				rads = atan2(x, y);
 				if(rads < 0) rads += (float) (2 * RAD_PI);
 				if(rads >= RAD_PI_4 && rads < RAD_3PI_4) {
-					input = event.trackedDeviceIndex == vrMan->leftController.index ? leftItem3 : rightItem3;
+					input = event.trackedDeviceIndex == VRManager::GetInstance().leftController.index ? leftItem3 : rightItem3;
 					amount = 1;
 				} else if(rads >= RAD_3PI_4 && rads < RAD_5PI_4) {
-					input = event.trackedDeviceIndex == vrMan->leftController.index ? leftItem4 : rightItem4;
+					input = event.trackedDeviceIndex == VRManager::GetInstance().leftController.index ? leftItem4 : rightItem4;
 					amount = 1;
 				} else if(rads >= RAD_5PI_4 && rads < RAD_7PI_4) {
-					input = event.trackedDeviceIndex == vrMan->leftController.index ? leftItem2 : rightItem2;
+					input = event.trackedDeviceIndex == VRManager::GetInstance().leftController.index ? leftItem2 : rightItem2;
 					amount = 1;
 				} else {
-					input = event.trackedDeviceIndex == vrMan->leftController.index ? leftItem1 : rightItem1;
+					input = event.trackedDeviceIndex == VRManager::GetInstance().leftController.index ? leftItem1 : rightItem1;
 					amount = 1;
 				}
 				break;
 			case vr::k_EButton_SteamVR_Trigger:
-				if(event.trackedDeviceIndex == VRManager::leftController.index) {
+				if(event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
+					VRManager::GetInstance().Vibrate(VRControllerType::Left, 500);
 					input = leftAttack;
 					amount = 1.0f;
 				} else {
+					VRManager::GetInstance().Vibrate(VRControllerType::Right, 500);
 					input = rightAttack;
 					amount = 1.0f;
 				}
@@ -158,16 +200,23 @@ InputPackage InputManager::VRInput::CheckForInput() {
 		{
 			switch(event.data.controller.button) {
 			case vr::k_EButton_ApplicationMenu:
+				if (event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
+				}
+				else {
+					input = teleportUp;
+					amount = 1;
+					//DirectX::XMStoreFloat4x4(&vrMan->world, DirectX::XMLoadFloat4x4(&vrMan->world) * DirectX::XMMatrixTranslation(vrMan->hmdPose._31, 0, vrMan->hmdPose._33));
+				}
 				break;
 			case vr::k_EButton_Grip:
 				break;
 			case vr::k_EButton_SteamVR_Touchpad:
 				break;
 			case vr::k_EButton_SteamVR_Trigger:
-				if(event.trackedDeviceIndex == vrMan->leftController.index) {
+				if(event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
 					input = leftAttack;
 					amount = 0.0f;
-				} else if(event.trackedDeviceIndex == vrMan->rightController.index) {
+				} else if(event.trackedDeviceIndex == VRManager::GetInstance().rightController.index) {
 					input = rightAttack;
 					amount = 0.0f;
 				}
@@ -177,8 +226,8 @@ InputPackage InputManager::VRInput::CheckForInput() {
 		}
 		}
 	}
+	
 	InputPackage message(input, amount);
-
 	return message;
 }
 
@@ -188,7 +237,7 @@ InputManager::KeyboardInput::KeyboardInput() {
 	MapKey(backward, 'S');
 	MapKey(left, 'A');
 	MapKey(right, 'D');
-	MapKey(teleport, 'T');
+	MapKey(teleportUp, 'T');
 	MapKey(leftAttack, 'Q');
 	MapKey(rightAttack, 'E');
 	MapKey(TestInputX, 'X');
@@ -252,7 +301,7 @@ void InputManager::SetInputType(InputType type) {
 	inputType = type;
 	switch(type) {
 	case InputType::VR:
-		this->bridge = new VRInput(vrMan);
+		this->bridge = new VRInput();
 		break;
 	case InputType::KEYBOARD:
 		bridge = new KeyboardInput();

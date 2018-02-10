@@ -54,3 +54,12 @@ struct PhysicsComponent: public InstantiatedCompBase {
 
 	bool AddCollider(ColliderData* _colData, float _offsetX = 0.0f, float _offsetY = 0.0f, float _offsetZ = 0.0f, bool _isTrigger = false);
 };
+
+struct Ray {
+	DirectX::XMFLOAT3 origin;
+	DirectX::XMFLOAT3 direction;
+	float currCastTime;
+
+	Ray() {};
+	Ray(DirectX::XMFLOAT3 _origin, DirectX::XMFLOAT3 _direction) : origin(_origin), direction(_direction) {};
+};

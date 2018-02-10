@@ -1,6 +1,7 @@
 #pragma once
 #include "Object.h"
 #include "Controlable.h"
+#include "Health.h"
 
 class GameObject: public Object {
 	friend class ObjectFactory;
@@ -32,7 +33,7 @@ public:
 class MenuCube: public GameObject {
 	void Update();
 public:
-	void OnCollision(GameObject* other);;
+	void OnCollision(GameObject* other);
 };
 class CoreCube: public GameObject {
 public:

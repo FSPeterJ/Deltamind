@@ -7,8 +7,12 @@ public:
 		INVALID,
 		GUN,
 		CONTROLLER,
+		BUILD,
 		HAND,
 	};
 	State state;
 	Item();
+
+	virtual void InactiveUpdate() {};
+	virtual void ActiveUpdate() {};
 };

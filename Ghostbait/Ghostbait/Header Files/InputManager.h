@@ -28,7 +28,7 @@ private:
 
 public:
 	InputManager() {};
-	InputManager(InputType type, VRManager* vrManager = nullptr);
+	InputManager(InputType type);
 	~InputManager();
 
 	static void AddToQueue(uint64_t key) { inputQueue.push(key); };

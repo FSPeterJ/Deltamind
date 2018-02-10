@@ -1,6 +1,7 @@
 #pragma once
 #include "StdHeader.h"
 #include "DirectXMath.h" //todo get rid
+#include "Wwise_IDs.h" //forgive me
 
 #undef GetObject
 
@@ -12,18 +13,25 @@ enum Control {
 	backward,
 	left,
 	right,
-	teleport,
+	teleportDown,
+	teleportUp,
 	menu,
+	leftCyclePrefab,
+	rightCyclePrefab,
+
 	rightItem1,
 	rightItem2,
 	rightItem3,
 	rightItem4,
 	rightAttack,
+	rightTouch,
 	leftItem1,
 	leftItem2,
 	leftItem3,
 	leftItem4,
 	leftAttack,
+	leftTouch,
+
 	TestInputU,
 	TestInputI,
 	TestInputO,
@@ -115,4 +123,13 @@ public:
 	NewObjectMessage(GameObject* _obj) : obj(_obj) {}
 
 	GameObject* RetrieveObject() const { return obj; }
+};
+
+class SoundRequestMessage : public EventMessageBase {
+	GameObject* obj;
+	AkUniqueID sound;
+public:
+	SoundRequestMessage(GameObject* _obj, AkUniqueID _sound) : obj(_obj), sound(_sound)	{}
+	GameObject* RetrieveObject() const { return obj; }
+	AkUniqueID RetrieveSound() const { return sound; }
 };

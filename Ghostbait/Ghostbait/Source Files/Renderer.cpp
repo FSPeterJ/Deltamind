@@ -71,16 +71,16 @@ bool Renderer::LoadShaderFromCSO(char ** szByteCode, size_t & szByteCodeSize, co
 
 void Renderer::setupVRTargets() {
 	leftEye.renderInfo.viewport = D3D11_VIEWPORT();
-	leftEye.renderInfo.viewport.Height = (float) VRManagement->RecommendedRenderHeight;
-	leftEye.renderInfo.viewport.Width = (float) VRManagement->RecommendedRenderWidth;
+	leftEye.renderInfo.viewport.Height = (float)VRManager::GetInstance().RecommendedRenderHeight;
+	leftEye.renderInfo.viewport.Width = (float)VRManager::GetInstance().RecommendedRenderWidth;
 	leftEye.renderInfo.viewport.MaxDepth = 1.0f;
 	leftEye.renderInfo.viewport.MinDepth = 0.0f;
 	leftEye.renderInfo.viewport.TopLeftX = 0.0f;
 	leftEye.renderInfo.viewport.TopLeftY = 0.0f;
 
 	rightEye.renderInfo.viewport = D3D11_VIEWPORT();
-	rightEye.renderInfo.viewport.Height = (float) VRManagement->RecommendedRenderHeight;
-	rightEye.renderInfo.viewport.Width = (float) VRManagement->RecommendedRenderWidth;
+	rightEye.renderInfo.viewport.Height = (float)VRManager::GetInstance().RecommendedRenderHeight;
+	rightEye.renderInfo.viewport.Width = (float)VRManager::GetInstance().RecommendedRenderWidth;
 	rightEye.renderInfo.viewport.MaxDepth = 1.0f;
 	rightEye.renderInfo.viewport.MinDepth = 0.0f;
 	rightEye.renderInfo.viewport.TopLeftX = 0.0f;
@@ -91,8 +91,8 @@ void Renderer::setupVRTargets() {
 	sampleDesc.Quality = 0;
 
 	D3D11_TEXTURE2D_DESC texDesc;
-	texDesc.Height = VRManagement->RecommendedRenderHeight;
-	texDesc.Width = VRManagement->RecommendedRenderWidth;
+	texDesc.Height = VRManager::GetInstance().RecommendedRenderHeight;
+	texDesc.Width = VRManager::GetInstance().RecommendedRenderWidth;
 	texDesc.Usage = D3D11_USAGE_DEFAULT;
 	texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 	texDesc.MipLevels = 1;
@@ -145,7 +145,11 @@ void Renderer::renderObjectDefaultState(Object * obj) {
 	context->IASetVertexBuffers(0, 1, &x, &stride, &offset);
 	context->IASetIndexBuffer(obj->GetComponent<Mesh>()->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(XMLoadFloat4x4(&obj->position)), 0, 0);
-	obj->GetComponent<Material>()->bindToShader(context, factorBuffer);
+	Material* mat = obj->GetComponent<Material>();
+	if (mat)
+		obj->GetComponent<Material>()->bindToShader(context, factorBuffer);
+	else
+		materialManagement->GetNullMaterial()->bindToShader(context, factorBuffer);
 	Animator* anim = obj->GetComponent<Animator>();
 	if(anim) {
 		const std::vector<animJoint>* joints = anim->getTweens();
@@ -219,8 +223,7 @@ Renderer::Renderer() {}
 
 Renderer::~Renderer() {}
 
-void Renderer::Initialize(Window window, VRManager * vr) {
-	VRManagement = vr;
+void Renderer::Initialize(Window window) {
 
 	createDeviceContextAndSwapchain(window);
 	RECT windRect;
@@ -268,7 +271,7 @@ void Renderer::Initialize(Window window, VRManager * vr) {
 	keyboardCamera->pointCameraAt(DirectX::XMFLOAT3(0.0f, 2.0f, -15.0f), DirectX::XMFLOAT3(0.0f, -2.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
 	XMStoreFloat4x4(&defaultCamera.projection, XMMatrixTranspose(XMMatrixPerspectiveFovLH(60.0f * XM_PI / 180.0f, defaultPipeline.viewport.Width / defaultPipeline.viewport.Height, 0.001f, 300.0f)));
 
-	if(VRManagement)
+	if(VRManager::GetInstance().IsEnabled())
 		setupVRTargets();
 
 	MessageEvents::Subscribe(EVENT_Instantiated, [this](EventMessageBase * _e) {this->registerObject(_e); });
@@ -300,7 +303,7 @@ void Renderer::Destroy() {
 	device->Release();
 	defaultPipeline.render_target_view->Release();
 	clearPipelineMemory(&defaultPipeline);
-	if(VRManagement) {
+	if(VRManager::GetInstance().IsEnabled()) {
 		clearTextureMemory(&leftEye.renderInfo);
 		clearTextureMemory(&rightEye.renderInfo);
 	}
@@ -391,8 +394,8 @@ void Renderer::Render() {
 	context->UpdateSubresource(lightBuffer, NULL, NULL, lightManager.getLightBuffer(), 0, 0);
 	XMMATRIX cameraObj = XMMatrixTranspose(XMLoadFloat4x4(&keyboardCamera->position));
 	XMStoreFloat4x4(&defaultCamera.view, XMMatrixInverse(&XMMatrixDeterminant(cameraObj), cameraObj));
-	if(VRManagement) {
-		VRManagement->GetVRMatrices(&leftEye.camera.projection, &rightEye.camera.projection, &leftEye.camera.view, &rightEye.camera.view);
+	if(VRManager::GetInstance().IsEnabled()) {
+		VRManager::GetInstance().GetVRMatrices(&leftEye.camera.projection, &rightEye.camera.projection, &leftEye.camera.view, &rightEye.camera.view);
 
 		//XMStoreFloat4x4(&leftEye.camera.projection, (XMLoadFloat4x4(&defaultCamera.projection)));
 		//XMStoreFloat4x4(&rightEye.camera.projection, (XMLoadFloat4x4(&defaultCamera.projection)));
@@ -404,7 +407,7 @@ void Renderer::Render() {
 
 		renderToEye(&leftEye);
 		renderToEye(&rightEye);
-		VRManagement->SendToHMD((void*) leftEye.renderInfo.texture, (void*) rightEye.renderInfo.texture);
+		VRManager::GetInstance().SendToHMD((void*) leftEye.renderInfo.texture, (void*) rightEye.renderInfo.texture);
 		context->UpdateSubresource(cameraBuffer, 0, NULL, &(leftEye.camera), 0, 0);
 	} else context->UpdateSubresource(cameraBuffer, 0, NULL, &defaultCamera, 0, 0);
 	float color[] = {0.5f, 0.5f, 1.0f, 1.0f};

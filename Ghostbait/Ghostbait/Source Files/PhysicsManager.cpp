@@ -348,6 +348,7 @@ void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponen
 					collisionResult = CapsuleToSphereCollision(component2.colliders[com2], matrixComB, component1.colliders[com1], matrixComA);
 					break;
 				case BOX:
+					collisionResult = BoxToSphereCollision(component2.colliders[com2], matrixComB, component1.colliders[com1], matrixComA);
 					break;
 				default:
 					break;
@@ -374,6 +375,7 @@ void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponen
 			{
 				switch (colliderType2) {
 				case SPHERE:
+					collisionResult = BoxToSphereCollision(component1.colliders[com1], matrixComA, component2.colliders[com2], matrixComB);
 					break;
 				case CAPSULE:
 					break;
@@ -610,40 +612,181 @@ bool PhysicsManager::CapsuleToSphereCollision(Collider& capCol, XMMATRIX& capPos
 }
 
 bool PhysicsManager::BoxToBoxCollision(Collider& boxCol1, XMMATRIX& boxPos1, Collider& boxCol2, XMMATRIX& boxPos2) {
-	std::vector<XMVECTOR> box1Corners, box2Corners, testAxis;
-	box1Corners = GetBoxCorners(boxCol1, boxPos1);
-	box2Corners = GetBoxCorners(boxCol2, boxPos2);
-	testAxis = GetSATAxis(box1Corners);
+	//std::vector<XMVECTOR> box1Corners, box2Corners, testAxis;
+	//box1Corners = GetBoxCorners(boxCol1, boxPos1);
+	//box2Corners = GetBoxCorners(boxCol2, boxPos2);
+	//testAxis = GetSATAxis(box1Corners, box2Corners);
 
-	float box1AxisMax, box1AxisMin, box2AxisMax, box2AxisMin;
-	float tempPoint1, tempPoint2;
+//#if _DEBUG
+//	XMFLOAT3 start(0.0f, 0.0f, 0.0f);
+//	XMFLOAT3 end;
+//	for (unsigned int i = 0; i < testAxis.size(); ++i) {
+//		XMStoreFloat3(&end, testAxis[i]);
+//		DebugRenderer::AddLine(start, end, XMFLOAT3(0.0f, 0.0f, 1.0f));
+//	}
+//#endif
 
-	for (unsigned int axisIndex = 0; axisIndex < testAxis.size(); ++axisIndex) {
-		box1AxisMax = -FLT_MAX;
-		box1AxisMin = FLT_MAX;
-		box2AxisMax = -FLT_MAX;
-		box2AxisMin = FLT_MAX;
-		for (unsigned testIndex = 0; testIndex < box1Corners.size(); ++testIndex) {
-			tempPoint1 = XMVectorGetX(XMVector3Dot(testAxis[axisIndex], box1Corners[testIndex]));
-			tempPoint2 = XMVectorGetX(XMVector3Dot(testAxis[axisIndex], box2Corners[testIndex]));
+//	float box1AxisMax, box1AxisMin, box2AxisMax, box2AxisMin;
+//	float tempPoint1, tempPoint2;
+//
+//	for (unsigned int axisIndex = 0; axisIndex < testAxis.size(); ++axisIndex) {
+//		box1AxisMax = -FLT_MAX;
+//		box1AxisMin = FLT_MAX;
+//		box2AxisMax = -FLT_MAX;
+//		box2AxisMin = FLT_MAX;
+//		for (unsigned testIndex = 0; testIndex < box1Corners.size(); ++testIndex) {
+//			tempPoint1 = XMVectorGetX(XMVector3Dot(testAxis[axisIndex], box1Corners[testIndex]));
+//			tempPoint2 = XMVectorGetX(XMVector3Dot(testAxis[axisIndex], box2Corners[testIndex]));
+//
+//			if (box1AxisMax < tempPoint1) box1AxisMax = tempPoint1;
+//			if (box1AxisMin > tempPoint1) box1AxisMin = tempPoint1;
+//			if (box2AxisMax < tempPoint2) box2AxisMax = tempPoint2;
+//			if (box2AxisMin > tempPoint2) box2AxisMin = tempPoint2;
+//
+//#if _DEBUG
+//			if (axisIndex == 4) {
+//				XMFLOAT3 start1, start2, end1, end2;
+//				XMStoreFloat3(&start1, box1Corners[testIndex]);
+//				XMStoreFloat3(&start2, box2Corners[testIndex]);
+//				XMStoreFloat3(&end1, testAxis[axisIndex] * tempPoint1);
+//				XMStoreFloat3(&end2, testAxis[axisIndex] * tempPoint2);
+//
+//				DebugRenderer::AddLine(start1, end1, XMFLOAT3(1.0f, 0.0f, 1.0f));
+//				DebugRenderer::AddLine(start2, end2, XMFLOAT3(0.0f, 0.0f, 1.0f));
+//			}
+//#endif 
+//
+//		}
+//		if (box1AxisMax < box2AxisMin) return false;
+//		if (box1AxisMin > box2AxisMax) return false;
+//	}
+//	return true;
 
-			if (box1AxisMax < tempPoint1) box1AxisMax = tempPoint1;
-			if (box1AxisMin > tempPoint1) box1AxisMin = tempPoint1;
-			if (box2AxisMax < tempPoint2) box2AxisMax = tempPoint2;
-			if (box2AxisMin > tempPoint2) box2AxisMin = tempPoint2;
-		}
-		if (box1AxisMax < box2AxisMin) return false;
-		if (box1AxisMin > box2AxisMax) return false;
+
+	////*************************** VERSION 2 *************************************
+	//XMVECTOR ext1, ext2, box1ToBox2; 
+	//std::vector<XMVECTOR> testAxis = GetSATAxis(boxPos1, boxPos2);
+	//XMMATRIX box1Rotation = { boxPos1.r[0], boxPos1.r[1], boxPos1.r[2], XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f) };
+	//XMMATRIX box2Rotation = { boxPos2.r[0], boxPos2.r[1], boxPos2.r[2], XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f) };
+
+	//box1ToBox2 = (boxPos2.r[3] + XMLoadFloat3(&boxCol2.centerOffset)) - (boxPos1.r[3] + XMLoadFloat3(&boxCol1.centerOffset));
+	//ext1 = XMVector3TransformCoord((XMLoadFloat3(&boxCol1.colliderData->colliderInfo.boxCollider.topRightFrontCorner) - XMLoadFloat3(&boxCol1.colliderData->colliderInfo.boxCollider.bottLeftBackCorner)) * 0.5f, box1Rotation);
+	//ext2 = XMVector3TransformCoord((XMLoadFloat3(&boxCol2.colliderData->colliderInfo.boxCollider.topRightFrontCorner) - XMLoadFloat3(&boxCol2.colliderData->colliderInfo.boxCollider.bottLeftBackCorner)) * 0.5f, box2Rotation);
+
+	//float ext1Proj, ext2Proj, centerProj;
+	//
+	//for (unsigned int axisIndex = 0; axisIndex < testAxis.size(); ++axisIndex) {
+	//	ext1Proj = XMVectorGetX(XMVector3Dot(testAxis[axisIndex], ext1));
+	//	ext2Proj = XMVectorGetX(XMVector3Dot(testAxis[axisIndex], ext2));
+	//	centerProj = XMVectorGetX(XMVector3Dot(testAxis[axisIndex], box1ToBox2));
+
+	//	if (fabsf(centerProj) > fabsf(ext1Proj) + fabsf(ext2Proj)) return false;
+	//}
+	//return true;
+
+//**************************** VERSION 3 *****************************************
+	XMFLOAT3 *max, *min;
+
+	max = &boxCol1.colliderData->colliderInfo.boxCollider.topRightFrontCorner;
+	min = &boxCol1.colliderData->colliderInfo.boxCollider.bottLeftBackCorner;
+	float ext1[] = { (max->x - min->x) * 0.5f, (max->y - min->y) * 0.5f, (max->z - min->z) * 0.5f };
+	max = &boxCol2.colliderData->colliderInfo.boxCollider.topRightFrontCorner;
+	min = &boxCol2.colliderData->colliderInfo.boxCollider.bottLeftBackCorner;
+	float ext2[] = { (max->x - min->x) * 0.5f, (max->y - min->y) * 0.5f, (max->z - min->z) * 0.5f };
+
+	float ra, rb;
+	XMFLOAT3X3 R, AbsR;
+	//Computerotationmatrixexpressingb ina’scoordinateframe
+	for (int i = 0; i < 3; i++)
+		for (int j = 0; j < 3; j++)
+			R.m[i][j] = XMVectorGetX(XMVector3Dot(boxPos1.r[i], boxPos2.r[j]));
+
+	//Computetranslationvectort
+	XMVECTOR t = (boxPos2.r[3] + XMLoadFloat3(&boxCol2.centerOffset)) - (boxPos1.r[3] + XMLoadFloat3(&boxCol1.centerOffset));
+	//Bringtranslation intoa’scoordinateframe
+	t = XMVectorSet(XMVectorGetX(XMVector3Dot(t, boxPos1.r[0])), XMVectorGetX(XMVector3Dot(t, boxPos1.r[1])), XMVectorGetX(XMVector3Dot(t, boxPos1.r[2])), 1.0f);
+	
+	float between[] = { XMVectorGetX(t), XMVectorGetY(t), XMVectorGetZ(t) };
+	//Computecommonsubexpressions. Addinanepsilontermto
+	//counteractarithmeticerrorswhentwoedgesareparallel and
+	//theircrossproduct is(near) null(seetextfordetails)
+	for (int i = 0; i < 3; i++)
+		for (int j = 0; j < 3; j++)
+			AbsR.m[i][j] = fabsf(R.m[i][j]) + FLT_EPSILON;
+	//TestaxesL=A0, L=A1, L=A2
+	for (int i = 0; i < 3; i++) {
+		ra = ext1[i];
+		rb = ext2[0] * AbsR.m[i][0] + ext2[1] * AbsR.m[i][1] + ext2[2] * AbsR.m[i][2];
+		if (fabsf(between[i]) > ra + rb) return false;
 	}
+	//TestaxesL=B0, L=B1, L=B2
+	for (int i = 0; i < 3; i++) {
+		ra = ext1[0] * AbsR.m[0][i] + ext1[1] * AbsR.m[1][i] + ext1[2] * AbsR.m[2][i];
+		rb = ext2[i];
+		if (fabsf(between[0] * R.m[0][i] + between[1] * R.m[1][i] + between[2] * R.m[2][i]) > ra + rb) return false;
+	}
+	//TestaxisL=A0xB0
+	ra = ext1[1] * AbsR.m[2][0] + ext1[2] * AbsR.m[1][0];
+	rb = ext2[1] * AbsR.m[0][2] + ext2[2] * AbsR.m[0][1];
+	if (fabsf(between[2] * R.m[1][0] - between[1] * R.m[2][0]) > ra + rb) return false;
+	//TestaxisL=A0xB1
+	ra = ext1[1] * AbsR.m[2][1] + ext1[2] * AbsR.m[1][1];
+	rb = ext2[0] * AbsR.m[0][2] + ext2[2] * AbsR.m[0][0];
+	if (fabsf(between[2] * R.m[1][1] - between[1] * R.m[2][1]) > ra + rb) return false;
+	//TestaxisL=A0xB2
+	ra = ext1[1] * AbsR.m[2][2] + ext1[2] * AbsR.m[1][2];
+	rb = ext2[0] * AbsR.m[0][1] + ext2[1] * AbsR.m[0][0];
+	if (fabsf(between[2] * R.m[1][2] - between[1] * R.m[2][2]) > ra + rb) return false;
+	//TestaxisL=A1xB0
+	ra = ext1[0] * AbsR.m[2][0] + ext1[2] * AbsR.m[0][0];
+	rb = ext2[1] * AbsR.m[1][2] + ext2[2] * AbsR.m[1][1];
+	if (fabsf(between[0] * R.m[2][0] - between[2] * R.m[0][0]) > ra + rb) return false;
+	//TestaxisL=A1xB1
+	ra = ext1[0] * AbsR.m[2][1] + ext1[2] * AbsR.m[0][1];
+	rb = ext2[0] * AbsR.m[1][2] + ext2[2] * AbsR.m[1][0];
+	if (fabsf(between[0] * R.m[2][1] - between[2] * R.m[0][1]) > ra + rb) return false;
+	//TestaxisL=A1xB2
+	ra = ext1[0] * AbsR.m[2][2] + ext1[2] * AbsR.m[0][2];
+	rb = ext2[0] * AbsR.m[1][1] + ext2[1] * AbsR.m[1][0];
+	if (fabsf(between[0] * R.m[2][2] - between[2] * R.m[0][2]) > ra + rb) return false;
+	//TestaxisL=A2xB0
+	ra = ext1[0] * AbsR.m[1][0] + ext1[1] * AbsR.m[0][0];
+	rb = ext2[1] * AbsR.m[2][2] + ext2[2] * AbsR.m[2][1];
+	if (fabsf(between[1] * R.m[0][0] - between[0] * R.m[1][0]) > ra + rb) return false;
+	//TestaxisL=A2xB1
+	ra = ext1[0] * AbsR.m[1][1] + ext1[1] * AbsR.m[0][1];
+	rb = ext2[0] * AbsR.m[2][2] + ext2[2] * AbsR.m[2][0];
+	if (fabsf(between[1] * R.m[0][1] - between[0] * R.m[1][1]) > ra + rb) return false;
+	//TestaxisL=A2xB2
+	ra = ext1[0] * AbsR.m[1][2] + ext1[1] * AbsR.m[0][2];
+	rb = ext2[0] * AbsR.m[2][1] + ext2[1] * AbsR.m[2][0];
+	if (fabsf(between[1] * R.m[0][2] - between[0] * R.m[1][2]) > ra + rb) return false;
+	//Sincenoseparatingaxis isfound, theOBBsmustbe intersecting
+
 	return true;
 }
 
 bool PhysicsManager::BoxToSphereCollision(Collider& boxCol, XMMATRIX& boxPos, Collider& sphCol, XMMATRIX& sphPos) {
-	std::vector<XMVECTOR> boxCorners, testAxis;
-	boxCorners = GetBoxCorners(boxCol, boxPos);
-	testAxis = GetSATAxis(boxCorners);
+	XMFLOAT3 *max, *min;
 
-	return false;
+	max = &boxCol.colliderData->colliderInfo.boxCollider.topRightFrontCorner;
+	min = &boxCol.colliderData->colliderInfo.boxCollider.bottLeftBackCorner;
+	float ext1[] = { (max->x - min->x) * 0.5f, (max->y - min->y) * 0.5f, (max->z - min->z) * 0.5f };
+
+	XMVECTOR t = (sphPos.r[3] + XMLoadFloat3(&sphCol.centerOffset)) - (boxPos.r[3] + XMLoadFloat3(&boxCol.centerOffset));
+	//Bringtranslation intoa’scoordinateframe
+	t = XMVectorSet(XMVectorGetX(XMVector3Dot(t, boxPos.r[0])), XMVectorGetX(XMVector3Dot(t, boxPos.r[1])), XMVectorGetX(XMVector3Dot(t, boxPos.r[2])), 1.0f);
+
+	float between[] = { XMVectorGetX(t), XMVectorGetY(t), XMVectorGetZ(t) };
+	float ra, rb;
+	rb = sphCol.colliderData->colliderInfo.sphereCollider.radius;
+
+	for (int i = 0; i < 3; i++) {
+		ra = ext1[i];
+		if (fabsf(between[i]) > ra + rb) return false;
+	}
+
+	return true;
 }
 
 bool PhysicsManager::BoxToCapsuleCollision(Collider& boxCol, XMMATRIX& boxPos, Collider& capCol, XMMATRIX& capPos) {
@@ -660,6 +803,40 @@ std::vector<XMVECTOR> PhysicsManager::GetSATAxis(std::vector<XMVECTOR>& boxCorne
 	axisToTest.push_back(XMVector3Normalize(boxCorners[2] - boxCorners[0])); //"X" axis
 	axisToTest.push_back(XMVector3Normalize(boxCorners[4] - boxCorners[0])); //"Y" axis
 	axisToTest.push_back(XMVector3Normalize(boxCorners[1] - boxCorners[0])); //"Z" axis
+
+	return axisToTest;
+}
+
+std::vector<XMVECTOR> PhysicsManager::GetSATAxis(std::vector<XMVECTOR>& box1Corners, std::vector<XMVECTOR>& box2Corners) {
+	std::vector<XMVECTOR> axisToTest;
+	//Box 1
+	axisToTest.push_back(XMVector3Normalize(box1Corners[2] - box1Corners[0])); //"X" axis
+	axisToTest.push_back(XMVector3Normalize(box1Corners[4] - box1Corners[0])); //"Y" axis
+	axisToTest.push_back(XMVector3Normalize(box1Corners[1] - box1Corners[0])); //"Z" axis
+	//Box 2
+	axisToTest.push_back(XMVector3Normalize(box2Corners[2] - box2Corners[0])); //"X" axis
+	axisToTest.push_back(XMVector3Normalize(box2Corners[4] - box2Corners[0])); //"Y" axis
+	axisToTest.push_back(XMVector3Normalize(box2Corners[1] - box2Corners[0])); //"Z" axis
+
+	return axisToTest;
+}
+
+std::vector<XMVECTOR> PhysicsManager::GetSATAxis(XMMATRIX& box1Pos, XMMATRIX& box2Pos) {
+	std::vector<XMVECTOR> axisToTest;
+	//Box 1
+	axisToTest.push_back(box1Pos.r[0]); //"X" axis
+	axisToTest.push_back(box1Pos.r[1]); //"Y" axis
+	axisToTest.push_back(box1Pos.r[2]); //"Z" axis
+	//Box 2
+	axisToTest.push_back(box2Pos.r[0]); //"X" axis
+	axisToTest.push_back(box2Pos.r[1]); //"Y" axis
+	axisToTest.push_back(box2Pos.r[2]); //"Z" axis
+
+	//for (int i = 0; i < 3; ++i) {
+	//	for (int j = 0; j < 3; ++j) {
+	//		axisToTest.push_back((XMVector3Cross(box1Pos.r[i], box2Pos.r[j]))); //Cross axis
+	//	}
+	//}
 
 	return axisToTest;
 }

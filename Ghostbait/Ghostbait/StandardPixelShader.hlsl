@@ -39,6 +39,7 @@ struct PixelShaderInput
 
 float4 calcLight(int i, PixelShaderInput input)
 {
+    float4 ret = float4(0.0f, 0.0f, 0.0f, 0.0f);
     if (lights[i].radius > 0.0f)
     {
         if (lights[i].outerRadius > 0.0f)
@@ -50,20 +51,19 @@ float4 calcLight(int i, PixelShaderInput input)
             float lightRatio = saturate(dot(dir, input.norm) * spotFactor);
             float atten = 1.0f - saturate((lights[i].radius - surfaceRatio) / (lights[i].radius - lights[i].outerRadius));
             atten *= atten;
-            
-            return (lights[i].color * lightRatio) * atten;
+            ret = (lights[i].color * lightRatio) * atten;
         }
         else
         {
             float3 dir = lights[i].pos - input.worldPos;
-            if (length(dir) > lights[i].radius)
-                return float4(0.0f, 0.0f, 0.0f, 0.0f);
-
-            dir = normalize(dir);
-            float lightRatio = saturate(dot(dir, input.norm));
-            float atten = 1.0f - saturate(length(lights[i].pos - input.worldPos) / lights[i].radius);
-            atten *= atten;
-            return (lights[i].color * lightRatio) * atten;
+            if (length(dir) < lights[i].radius)
+            {
+                dir = normalize(dir);
+                float lightRatio = saturate(dot(dir, input.norm));
+                float atten = 1.0f - saturate(length(lights[i].pos - input.worldPos) / lights[i].radius);
+                atten *= atten;
+                ret = (lights[i].color * lightRatio) * atten;
+            }
         }
     }
     else
@@ -71,17 +71,17 @@ float4 calcLight(int i, PixelShaderInput input)
         float3 dir = normalize(lights[i].dir);
         dir = -dir;
         float lightRatio = saturate(dot(dir, input.norm));
-        return lights[i].color * lightRatio;
+        ret = lights[i].color * lightRatio;
     }
+    return ret;
 }
 
 float4 calcSpec(int i, PixelShaderInput input)
 {
+    float4 ret = float4(0.0f, 0.0f, 0.0f, 0.0f);
     //I would prefer to not have to do a lot of these calculations but hlsl doesn't do pointers or globals
-    if (specularFactor == 0)
-        return float4(0.0f, 0.0f, 0.0f, 0.0f);
     
-    if (lights[i].radius > 0.0f)
+    if (lights[i].radius > 0.0f && specularFactor != 0.0f)
     {
         if (lights[i].outerRadius > 0.0f)
         {
@@ -91,7 +91,7 @@ float4 calcSpec(int i, PixelShaderInput input)
             float3 dirToCam = normalize(cameraPos - input.worldPos);
             float specScale = 3.0f * pow(saturate(dot(reflectionDir, dirToCam)), 25.0f);
             float specIntense = specular.Sample(sample, input.uv).x * specularFactor;
-            return specIntense * specScale * lights[i].color;
+            ret = specIntense * specScale * lights[i].color;
         }
         else
         {
@@ -100,7 +100,7 @@ float4 calcSpec(int i, PixelShaderInput input)
             float3 dirToCam = normalize(cameraPos - input.worldPos);
             float specScale = 3.0f * pow(saturate(dot(reflectionDir, dirToCam)), 25.0f);
             float specIntense = specular.Sample(sample, input.uv).x * specularFactor;
-            return specIntense * specScale * lights[i].color;
+            ret = specIntense * specScale * lights[i].color;
         }
     }
     else
@@ -110,8 +110,9 @@ float4 calcSpec(int i, PixelShaderInput input)
         float3 dirToCam = normalize(cameraPos - input.worldPos);
         float specScale = 3.0f * pow(saturate(dot(reflectionDir, dirToCam)), 25.0f);
         float specIntense = specular.Sample(sample, input.uv).x * specularFactor;
-        return specIntense * specScale * lights[i].color;
+        ret = specIntense * specScale * lights[i].color;
     }
+    return ret;
 }
 
 float4 main(PixelShaderInput input) : SV_TARGET

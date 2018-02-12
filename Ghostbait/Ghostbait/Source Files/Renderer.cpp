@@ -7,7 +7,7 @@
 #include "MaterialManager.h"
 #include "Camera.h"
 #include "Animator.h"
-
+#include "LightManager.h"
 using namespace DirectX;
 
 void Renderer::createDeviceContextAndSwapchain(Window window) {
@@ -231,6 +231,7 @@ void Renderer::Initialize(Window window) {
 	initDepthStencilState(&defaultPipeline);
 	initDepthStencilView(&defaultPipeline);
 	initRasterState(&defaultPipeline);
+	lightManager = new LightManager();
 	initShaders();
 	defaultPipeline.vertex_shader = StandardVertexShader;
 	defaultPipeline.pixel_shader = StandardPixelShader;
@@ -314,6 +315,7 @@ void Renderer::Destroy() {
 	animationManagement->Destroy();
 	delete animationManagement;
 	delete keyboardCamera;
+	delete lightManager;
 #if _DEBUG
 	DebugRenderer::Destroy();
 #endif
@@ -343,7 +345,7 @@ void Renderer::addDirectionalLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 di
 	genericLight toManager;
 	toManager.color = DirectX::XMFLOAT4(color.x, color.y, color.z, 1.0f);
 	toManager.dir = dir;
-	lightManager.addLight(toManager);
+	lightManager->addLight(toManager);
 }
 
 void Renderer::addPointLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, float radius) {
@@ -351,7 +353,7 @@ void Renderer::addPointLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, flo
 	toManager.color = DirectX::XMFLOAT4(color.x, color.y, color.z, 1.0f);
 	toManager.pos = pos;
 	toManager.radius = radius;
-	lightManager.addLight(toManager);
+	lightManager->addLight(toManager);
 }
 
 void Renderer::addSpotLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir, float radius, float outerRadius) {
@@ -361,11 +363,11 @@ void Renderer::addSpotLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, Dire
 	toManager.dir = dir;
 	toManager.radius = radius;
 	toManager.outerRadius = outerRadius;
-	lightManager.addLight(toManager);
+	lightManager->addLight(toManager);
 }
 
 void Renderer::setAmbient(DirectX::XMFLOAT3 color, float factor) {
-	lightManager.setAmbient(color, factor);
+	lightManager->setAmbient(color, factor);
 }
 
 XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
@@ -406,11 +408,11 @@ void Renderer::Render() {
 		XMStoreFloat4x4(&leftEye.camera.view, XMMatrixTranspose(XMMatrixInverse(&XMVectorSet(0, 0, 0, 0), XMLoadFloat4x4(&leftEye.camera.view))));
 		XMStoreFloat4x4(&rightEye.camera.view, XMMatrixTranspose(XMMatrixInverse(&XMVectorSet(0, 0, 0, 0), XMLoadFloat4x4(&rightEye.camera.view))));
 
-		lightManager.getLightBuffer()->cameraPos = leftEye.camPos;
-		context->UpdateSubresource(lightBuffer, NULL, NULL, lightManager.getLightBuffer(), 0, 0);
+		lightManager->getLightBuffer()->cameraPos = leftEye.camPos;
+		context->UpdateSubresource(lightBuffer, NULL, NULL, lightManager->getLightBuffer(), 0, 0);
 		renderToEye(&leftEye);
-		lightManager.getLightBuffer()->cameraPos = rightEye.camPos;
-		context->UpdateSubresource(lightBuffer, NULL, NULL, lightManager.getLightBuffer(), 0, 0);
+		lightManager->getLightBuffer()->cameraPos = rightEye.camPos;
+		context->UpdateSubresource(lightBuffer, NULL, NULL, lightManager->getLightBuffer(), 0, 0);
 		renderToEye(&rightEye);
 		VRManager::GetInstance().SendToHMD((void*) leftEye.renderInfo.texture, (void*) rightEye.renderInfo.texture);
 		context->UpdateSubresource(cameraBuffer, 0, NULL, &(leftEye.camera), 0, 0);
@@ -422,10 +424,10 @@ void Renderer::Render() {
 	context->RSSetViewports(1, &defaultPipeline.viewport);
 
 	if (VRManager::GetInstance().IsEnabled())
-		lightManager.getLightBuffer()->cameraPos = leftEye.camPos;
+		lightManager->getLightBuffer()->cameraPos = leftEye.camPos;
 	else
-		lightManager.getLightBuffer()->cameraPos = DirectX::XMFLOAT3(keyboardCamera->position._41, keyboardCamera->position._42, keyboardCamera->position._43);
-	context->UpdateSubresource(lightBuffer, NULL, NULL, lightManager.getLightBuffer(), 0, 0);
+		lightManager->getLightBuffer()->cameraPos = DirectX::XMFLOAT3(keyboardCamera->position._41, keyboardCamera->position._42, keyboardCamera->position._43);
+	context->UpdateSubresource(lightBuffer, NULL, NULL, lightManager->getLightBuffer(), 0, 0);
 	for(size_t i = 0; i < renderedObjects.size(); ++i) {
 		renderObjectDefaultState((Object*) renderedObjects[i]);
 	}

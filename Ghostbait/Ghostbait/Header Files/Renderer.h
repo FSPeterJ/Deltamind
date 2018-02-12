@@ -51,6 +51,7 @@ private:
 	struct eye {
 		renderTargetInfo renderInfo;
 		viewProjectionConstantBuffer camera;
+		DirectX::XMFLOAT3 camPos;
 	};
 
 	struct genericLight {
@@ -65,6 +66,8 @@ private:
 		genericLight cpu_side_lights[MAX_LIGHTS];
 		DirectX::XMFLOAT3 ambientColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 		float ambientIntensity = 0.5f;
+		DirectX::XMFLOAT3 cameraPos;
+		float padding;
 	};
 
 	struct animDataBufferStruct {

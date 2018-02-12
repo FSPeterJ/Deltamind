@@ -94,8 +94,8 @@ struct HexagonTile {
 
 	std::vector<HexTile> Neighbors() {
 		std::vector<HexTile> neighbors = {};
-
-		for(size_t i = 0; i < 5; ++i) {
+		//todo
+		for(size_t i = 0; i < 6; ++i) {//5
 			neighbors.push_back(*this + Direction((DIRECTION) i));
 		}
 
@@ -107,6 +107,7 @@ struct HexagonTile {
 	void Draw(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset = 0);
 
 	void Cross(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset = 0);
+	void Star(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset = 0);
 
 	HexTile Round(HexDTile h) {
 		int _q = (int) std::round(h.q);
@@ -150,9 +151,8 @@ struct HexagonTile {
 };
 
 template<typename T>
-inline HexagonTile<T> operator+(HexagonTile<T>& a, const HexagonTile<T>& b) {
-	a += b;
-	return a;
+inline HexagonTile<T> operator+(const HexagonTile<T>& a, const HexagonTile<T>& b) {
+	return HexagonTile<T>(a.q + b.q, a.r + b.r, a.s + b.s);
 }
 
 inline HexDTile plus(const HexDTile& a, HexTile& b) {
@@ -160,19 +160,19 @@ inline HexDTile plus(const HexDTile& a, HexTile& b) {
 }
 
 template<typename T>
-inline HexagonTile<T> operator-(HexagonTile<T>& a, const HexagonTile<T>& b) {
-	return a -= b, a;
+inline HexagonTile<T> operator-(const HexagonTile<T>& a, const HexagonTile<T>& b) {
+	return HexagonTile<T>(a.q - b.q, a.r - b.r, a.s - b.s);
 }
 
 template<typename T>
-inline HexagonTile<T> operator*(HexagonTile<T>& a, const float& b) {
-	a *= b;
-	return a;
+inline HexagonTile<T> operator*(const HexagonTile<T>& a, const float& b) {
+	return HexagonTile<T>(a.q *b, a.r *b, a.s *b);
+
 }
 
 template<typename T>
 inline bool operator ==(const HexagonTile<T>& a, const HexagonTile<T>& b) {
-	return a.q == b.q && a.r == b.r && a.s == b.s;
+	return a.q == b.q && a.r == b.r;// && a.s == b.s;
 }
 
 template<typename T>
@@ -190,9 +190,10 @@ const std::vector<HexTile> diagonals = {
    HexTile(-2, 1, 1), HexTile(-1, 2, -1), HexTile(1, 1, -2)
 };
 
-//struct CostComparator {
-//	bool operator()(const HexTile& lhs, const HexTile& rhs) const ;
-//	bool operator()(const HexTile* lhs, const HexTile* rhs) const ;
-//};
+struct CostComparator {
+	bool operator()(const HexTile& lhs, const HexTile& rhs) const ;
+	bool operator()(const HexTile* lhs, const HexTile* rhs) const ;
+};
+
 
 const HexDTile HexEpsilon(1e-6, 1e-6, -2e-6);

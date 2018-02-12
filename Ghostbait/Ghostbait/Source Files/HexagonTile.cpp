@@ -4,9 +4,10 @@
 #include <algorithm>
 #include "HexagonalGridLayout.h"
 
-//bool CostComparator::operator()(const HexTile& lhs, const HexTile& rhs) const { return lhs.cost < rhs.cost; }
-//bool CostComparator::operator()(const HexTile* lhs, const HexTile* rhs) const { return lhs->cost < rhs->cost; }
- 
+bool CostComparator::operator()(const HexTile& lhs, const HexTile& rhs) const { return lhs.cost < rhs.cost; }
+bool CostComparator::operator()(const HexTile* lhs, const HexTile* rhs) const { return lhs->cost < rhs->cost; }
+
+
 
 DirectX::XMFLOAT2 HexagonTile<int>::Center(HexagonalGridLayout layout) {
 	const Orientation& M = layout.orientation;
@@ -44,6 +45,20 @@ void HexagonTile<T>::Cross(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, 
 	DirectX::XMFLOAT3 line1 = {corners[4].x, corners[1].y, offset};
 	DirectX::XMFLOAT3 line2 = {corners[2].x, corners[5].y, offset};
 	DirectX::XMFLOAT3 line3 = {corners[5].x, corners[2].y, offset};
+
+	DebugRenderer::AddLine(line0, line1, color);
+	DebugRenderer::AddLine(line2, line3, color);
+}
+
+template<typename T>
+void HexagonTile<T>::Star(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset) {
+	DirectX::XMFLOAT2 corners[6];
+	HexagonalGridLayout::GetHexCorners(*this, layout, &corners[0]);
+
+	DirectX::XMFLOAT3 line0 = {corners[2].x, corners[5].y, offset};
+	DirectX::XMFLOAT3 line1 = {corners[5].x, corners[2].y, offset};
+	DirectX::XMFLOAT3 line2 = {corners[3].x, corners[0].y, offset};
+	DirectX::XMFLOAT3 line3 = {corners[0].x, corners[3].y, offset};
 
 	DebugRenderer::AddLine(line0, line1, color);
 	DebugRenderer::AddLine(line2, line3, color);

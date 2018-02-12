@@ -17,11 +17,15 @@ private:
 	std::vector<Item*> displayItems;
 	Item* currentGameItem = nullptr;
 	bool touchHeld = false;
+
+	void SetPhysicsComponent(GameObject* obj, bool active);
+
+	void AddToInventory(int itemSlot, int prefabID);
 public:
 
 	ControllerObject();
 	void AddItem(int itemSlot, int prefabID);
-	void AddItem(int itemSlot, int prefabID, std::vector<unsigned> prefabIDs);
+	void AddItem(int itemSlot, int prefabID, std::vector<int> prefabIDs);
 	void AddItem(int itemSlot, int prefabID, Gun::FireType _fireType, float _fireRate, float _damage);
 	inline void SetControllerHand(ControllerHand _hand) { hand = _hand; };
 	void Update();

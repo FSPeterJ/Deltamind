@@ -3,39 +3,46 @@
 #include "MessageEvents.h"
 #include "VRManager.h"
 #include "BuildTool.h"
+#include "PhysicsComponent.h"
 
 ControllerObject::ControllerObject() {
 	items.resize(4);
 	displayItems.resize(4);
 	hand = INVALID;
 }
-
-void ControllerObject::AddItem(int itemSlot, int prefabID) {
-	//Add Item to Inventory
+void ControllerObject::SetPhysicsComponent(GameObject* obj, bool active) {
+	PhysicsComponent* physComp = obj->GetComponent<PhysicsComponent>();
+	if (physComp) physComp->isActive = active;
+}
+void ControllerObject::AddToInventory(int itemSlot, int prefabID) {
+	//Actual Inventory
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0 }, (GameObject**)&items[itemSlot]));
 	if (!currentGameItem) currentGameItem = items[itemSlot];
-	else MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(items[itemSlot]));
-
-	//Add Item to display Inventory
+	else {
+		MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(items[itemSlot]));
+		PhysicsComponent* physComp = items[itemSlot]->GetComponent<PhysicsComponent>();
+		if (physComp) physComp->isActive = false;
+	}
+	
+	//Inventory Display
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0 }, (GameObject**)&displayItems[itemSlot]));
 	MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(displayItems[itemSlot]));
+
+	PhysicsComponent* physComp = displayItems[itemSlot]->GetComponent<PhysicsComponent>(); 
+	if (physComp) physComp->isActive = false;
+}
+
+void ControllerObject::AddItem(int itemSlot, int prefabID) {
+	AddToInventory(itemSlot, prefabID);
 
 	Gun* gun = dynamic_cast<Gun*>(items[itemSlot]);
 	if (gun) {
 		gun->Init();
 		gun->SetStats(Gun::FireType::SEMI, 60, 1);
 	}
-
 }
-void ControllerObject::AddItem(int itemSlot, int prefabID, std::vector<unsigned> prefabIDs) {
-	//Add Item to Inventory
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0 }, (GameObject**)&items[itemSlot]));
-	if (!currentGameItem) currentGameItem = items[itemSlot];
-	else MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(items[itemSlot]));
-
-	//Add Item to display Inventory
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0 }, (GameObject**)&displayItems[itemSlot]));
-	MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(displayItems[itemSlot]));
+void ControllerObject::AddItem(int itemSlot, int prefabID, std::vector<int> prefabIDs) {
+	AddToInventory(itemSlot, prefabID);
 
 	Gun* gun = dynamic_cast<Gun*>(items[itemSlot]);
 	BuildTool* buildTool = dynamic_cast<BuildTool*>(items[itemSlot]);
@@ -49,14 +56,7 @@ void ControllerObject::AddItem(int itemSlot, int prefabID, std::vector<unsigned>
 	}
 }
 void ControllerObject::AddItem(int itemSlot, int prefabID, Gun::FireType _fireType, float _fireRate, float _damage) {
-	//Add Item to Inventory
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0 }, (GameObject**)&items[itemSlot]));
-	if (!currentGameItem) currentGameItem = items[itemSlot];
-	else MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(items[itemSlot]));
-
-	//Add Item to display Inventory
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0 }, (GameObject**)&displayItems[itemSlot]));
-	MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(displayItems[itemSlot]));
+	AddToInventory(itemSlot, prefabID);
 
 	Gun* gun = dynamic_cast<Gun*>(items[itemSlot]);
 	if (gun) {
@@ -69,46 +69,55 @@ void ControllerObject::Update() {
 	if(hand == INVALID) return;
 	
 	//Seperate controller Values
+	Control item0  = (hand == LEFT ? leftItem0 : rightItem0);
 	Control item1  = (hand == LEFT ? leftItem1 : rightItem1);
 	Control item2  = (hand == LEFT ? leftItem2 : rightItem2);
 	Control item3  = (hand == LEFT ? leftItem3 : rightItem3);
-	Control item4  = (hand == LEFT ? leftItem4 : rightItem4);
 	Control touch  = (hand == LEFT ? leftTouch : rightTouch);
 	Control attack = (hand == LEFT ? leftAttack : rightAttack);
 	Control cyclePrefab = (hand == LEFT ? leftCyclePrefab : rightCyclePrefab);
 
 	#pragma region Switch Controller Item
-		if (KeyIsDown(item1)) {
+		if (KeyIsDown(item0)) {
 			if (items[0]) {
 				MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentGameItem));
+				SetPhysicsComponent(currentGameItem, false);
 				currentGameItem = items[0];
 				MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentGameItem));
+				SetPhysicsComponent(currentGameItem, true);
+
+			}
+			ResetKey(item0);
+		}
+		else if (KeyIsDown(item1)) {
+			if (items[1]) {
+				MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentGameItem));
+				SetPhysicsComponent(currentGameItem, false);
+				currentGameItem = items[1];
+				MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentGameItem));
+				SetPhysicsComponent(currentGameItem, true);
 			}
 			ResetKey(item1);
 		}
 		else if (KeyIsDown(item2)) {
-			if (items[1]) {
+			if (items[2]) {
 				MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentGameItem));
-				currentGameItem = items[1];
+				SetPhysicsComponent(currentGameItem, false);
+				currentGameItem = items[2];
 				MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentGameItem));
+				SetPhysicsComponent(currentGameItem, true);
 			}
 			ResetKey(item2);
 		}
 		else if (KeyIsDown(item3)) {
-			if (items[2]) {
-				MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentGameItem));
-				currentGameItem = items[2];
-				MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentGameItem));
-			}
-			ResetKey(item3);
-		}
-		else if (KeyIsDown(item4)) {
 			if (items[3]) {
 				MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentGameItem));
+				SetPhysicsComponent(currentGameItem, false);
 				currentGameItem = items[3];
 				MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentGameItem));
+				SetPhysicsComponent(currentGameItem, true);
 			}
-			ResetKey(item4);
+			ResetKey(item3);
 		}
 	#pragma endregion
 	#pragma region Display Inventory

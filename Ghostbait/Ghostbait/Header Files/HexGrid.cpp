@@ -62,7 +62,7 @@ public:
 	template<class T = TileType>
 	void Color(HexagonalGridLayout *const layout, DirectX::XMFLOAT3 color, float offset, typename std::enable_if<std::is_pointer<T>::value >::type* = 0) {
 		//pointer
-		for(auto& e : data) { e->Cross(*layout, color, offset); }
+		for(auto& e : data) { e->Star(*layout, color, offset); }
 	}
 
 	template<class T = TileType>
@@ -89,27 +89,48 @@ public:
 };
 
 HexPath HexGrid::CalculatePathWithinXSteps(HexTile *const start, HexTile *const goal, size_t steps, HexagonalGridLayout *const layout) {
-	BreadthTraversalResult search = breadthFirstTraverse(goal, steps, steps);
-
-	for(auto& vec : search.reachableTiles) {
-		vec.Color(layout, {0,1,0}, 0.3f);
-	}
-
 	HexRegion blocked;
 	for(auto& _t : map) {
 		if(_t->cost == 0) { blocked.push_back(*_t); }
 	}
-	blocked.Color(layout, {0,0,0}, 0.2f);
-
-	HexRegion shadow;
-	for(auto& t : search.cost_so_far) {
-		if(t.second > steps) { shadow.push_back(*t.first); }
-	}
-	shadow.Color(layout, {1,0,1}, 0.2f);
+	blocked.Color(layout, {0,0,0}, 0.1f);
 
 	HexPath path;
-	path.BuildPath(start, goal, search.came_from);
-	path.Color(layout, {1,0,0}, 0.1f);
+	if(goal->cost == 0) {
+		Console::WriteLine << "Goal is blocked!";
+		return path;
+	}
+
+	BreadthTraversalResult search = breadthFirstTraverse(goal, steps, steps);
+
+	//for(auto& vec : search.reachableTiles) {
+	//	vec.Color(layout, {0,1,0}, 0.3f);
+	//}
+
+
+
+	//HexRegion shadow;
+	//for(auto& t : search.cost_so_far) {
+	//	if(t.second > steps) { shadow.push_back(*t.first); }
+	//}
+	//shadow.Color(layout, {1,0,1}, 0.2f);
+
+
+	int distance = start->DistanceFrom(goal);
+	//Console::WriteLine << "Distance is " << distance << "  steps is " << steps;
+
+	if(distance >= steps) {
+		Console::WriteLine << "Path is too far!";
+	} else {
+		path.BuildPath(start, goal, search.came_from);
+
+		 if(path.size() == 1 && distance > 1) {
+			 Console::WriteLine << "Path is not reachable or too far!";
+		 } else {
+			Console::WriteLine << "Path has: " << path.size() << " elements.";
+			 path.Color(layout, {1,0,0}, 0.0f);
+		 }
+	}
 
 	return path;
 }
@@ -289,6 +310,7 @@ HexPath HexGrid::DijkstraSearch(HexTile *const start, HexTile *const goal) {
 void HexGrid::SetUpDrawingPaths() {
 	iter = map.begin();
 	HexTile* start = *iter;
+	start->cost = 1.0f;
 
 	std::advance(iter, 8);
 	HexTile* istart = *iter;
@@ -377,15 +399,15 @@ void HexGrid::SetUpDrawingPaths() {
 		auto se = realend->Center(*layout);
 
 		DebugRenderer::AddLine({sc.x, sc.y, 0}, {se.x, se.y, 0}, {0,0,0});
-		realStart->Star(*layout, {1,1,1}, 1);
-		realend->Star(*layout, {1,1,1}, 1);
+		realStart->Star(*layout, {1,1,1}, 0.08f);
+		realend->Star(*layout, {1,1,1}, 0.08f);
 
-		CalculatePathWithinXSteps(realStart, realend, 10, layout);
+		CalculatePathWithinXSteps(realStart, realend, 8, layout);
 
 		if(KeyIsDown(TestInputO)) {
 			step();
 			ResetKey(TestInputO);
-			Console::WriteLine << "Current index is " << curPos;
+		//	Console::WriteLine << "Current index is " << curPos;
 		}
 	};
 }
@@ -397,7 +419,7 @@ void HexGrid::Fill() {
 		int r2 = (int) min(map_radius, -q + map_radius);
 		for(int r = r1; r <= r2; r++) {
 			HexTile* t = new HexTile(q, r);
-			if(rand() % 100 < 30) {
+			if(rand() % 100 < 28) {
 				t->cost = 0.0f;
 			} else {
 				t->cost = 1.0f;

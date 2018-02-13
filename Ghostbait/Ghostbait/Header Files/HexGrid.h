@@ -34,7 +34,7 @@ struct BreadthTraversalResult {
 class HexGrid: public Controlable {
 	using GridContainer = std::unordered_set<HexTile*, std::hash<HexTile*>, EqualComparator>;
 
-	int map_radius = 0;
+	float map_radius = 0;
 
 	GridContainer map;
 	GridContainer::iterator iter;
@@ -52,7 +52,7 @@ class HexGrid: public Controlable {
 	HexRegion GetRegion(int xmin, int xmax, int ymin, int ymax, int zmin, int zmax);
 
 public:
-	HexGrid(int _radius) : map_radius(_radius) {}
+	HexGrid(float _radius) : map_radius(_radius) {}
 	~HexGrid();
 
 	HexPath breadthFirstSearch(HexTile *const start, HexTile *const goal);
@@ -61,7 +61,7 @@ public:
 
 	HexPath DijkstraSearch(HexTile *const start, HexTile *const goal);
 
-	HexPath AStarSearch(HexTile *const start, HexTile *const goal);
+	//HexPath AStarSearch(HexTile *const start, HexTile *const goal);
 
 	HexRegion GetTilesNStepsAway(HexTile *const tile, int n);
 

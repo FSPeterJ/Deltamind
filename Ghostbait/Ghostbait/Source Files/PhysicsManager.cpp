@@ -365,6 +365,7 @@ void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponen
 					collisionResult = CapsuleToCapsuleCollision(component1.colliders[com1], matrixComA, component2.colliders[com2], matrixComB);
 					break;
 				case BOX:
+					collisionResult = BoxToCapsuleCollision(component2.colliders[com2], matrixComB, component1.colliders[com1], matrixComA);
 					break;
 				default:
 					break;
@@ -378,6 +379,7 @@ void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponen
 					collisionResult = BoxToSphereCollision(component1.colliders[com1], matrixComA, component2.colliders[com2], matrixComB);
 					break;
 				case CAPSULE:
+					collisionResult = BoxToCapsuleCollision(component1.colliders[com1], matrixComA, component2.colliders[com2], matrixComB);
 					break;
 				case BOX:
 					collisionResult = BoxToBoxCollision(component1.colliders[com1], matrixComA, component2.colliders[com2], matrixComB);
@@ -781,6 +783,12 @@ bool PhysicsManager::BoxToSphereCollision(Collider& boxCol, XMMATRIX& boxPos, Co
 	float ra, rb;
 	rb = sphCol.colliderData->colliderInfo.sphereCollider.radius;
 
+#ifdef _DEBUG
+	XMFLOAT3 temp;
+	XMStoreFloat3(&temp, sphPos.r[3] + XMLoadFloat3(&sphCol.centerOffset));
+	DebugRenderer::AddSphere(temp, rb, XMFLOAT3(1.0f, 1.0f, 0.0f));
+#endif // DEBUG
+
 	for (int i = 0; i < 3; i++) {
 		ra = ext1[i];
 		if (fabsf(between[i]) > ra + rb) return false;
@@ -790,9 +798,25 @@ bool PhysicsManager::BoxToSphereCollision(Collider& boxCol, XMMATRIX& boxPos, Co
 }
 
 bool PhysicsManager::BoxToCapsuleCollision(Collider& boxCol, XMMATRIX& boxPos, Collider& capCol, XMMATRIX& capPos) {
-	std::vector<XMVECTOR> boxCorners, testAxis;
-	boxCorners = GetBoxCorners(boxCol, boxPos);
-	testAxis = GetSATAxis(boxCorners);
+	XMVECTOR capStart = XMVectorSet(0, capCol.colliderData->colliderInfo.capsuleCollider.height * 0.5f, 0, 0);
+	XMVECTOR capEnd =  - XMVectorSet(0, capCol.colliderData->colliderInfo.capsuleCollider.height * 0.5f, 0, 0);
+	capStart = XMVector3TransformCoord(capStart, capPos);
+	capEnd = XMVector3TransformCoord(capEnd, capPos);
+	XMVECTOR seg1 = capEnd - capStart;
+
+	XMMATRIX currSphereMat = capPos;
+	float height = capCol.colliderData->colliderInfo.capsuleCollider.height;
+	float halfRadius = capCol.colliderData->colliderInfo.capsuleCollider.radius * 0.5f;
+	XMVECTOR interval = XMVector3Normalize(seg1) * halfRadius;
+
+	currSphereMat.r[3] = capEnd;
+	if (BoxToSphereCollision(boxCol, boxPos, capCol, currSphereMat)) return true;
+	
+	currSphereMat.r[3] = capStart;
+	for (float current = 0; current < height; current += halfRadius) {
+		if (BoxToSphereCollision(boxCol, boxPos, capCol, currSphereMat)) return true;
+		currSphereMat.r[3] += interval;
+	}
 
 	return false;
 }

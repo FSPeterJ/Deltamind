@@ -4,10 +4,49 @@
 #include <algorithm>
 #include "HexagonalGridLayout.h"
 
+#define max(a,b) (((a) > (b)) ? (a) : (b))
+
 bool CostComparator::operator()(const HexTile& lhs, const HexTile& rhs) const { return lhs.cost < rhs.cost; }
 bool CostComparator::operator()(const HexTile* lhs, const HexTile* rhs) const { return lhs->cost < rhs->cost; }
 
+template<typename T>
+const std::vector<HexTile> HexagonTile<T>::directions = {
+	HexTile(1, 0, -1), HexTile(1, -1, 0), HexTile(0, -1, 1),
+	HexTile(-1, 0, 1), HexTile(-1, 1, 0), HexTile(0, 1, -1)
+};
 
+template<typename T>
+const std::vector<HexTile> HexagonTile<T>::diagonals = {
+	HexTile(2, -1, -1), HexTile(1, -2, 1), HexTile(-1, -1, 2),
+	HexTile(-2, 1, 1), HexTile(-1, 2, -1), HexTile(1, 1, -2)
+};
+
+template<typename T>
+HexagonTile<T>& HexagonTile<T>::operator=(HexagonTile<T> b) {
+	swap(b);
+	return *this;
+}
+
+template<typename T>
+HexagonTile<T> HexagonTile<T>::operator+=(const HexagonTile<T>& b) {
+	q += b.q; r += b.r; s += b.s;
+	return *this;
+}
+
+template<typename T>
+HexagonTile<T> HexagonTile<T>::operator-=(const HexagonTile<T>& b) {
+	q -= b.q; r -= b.r; s -= b.s;
+	return *this;
+}
+
+template<typename T>
+HexagonTile<T> HexagonTile<T>::operator*=(const T& b) {
+	q *= b; r *= b; s *= b;
+	return *this;
+}
+
+template<typename T>
+inline const float HexagonTile<T>::Length() const { return ((int) (abs(q) + abs(r) + abs(s)))*0.5f; }
 
 DirectX::XMFLOAT2 HexagonTile<int>::Center(HexagonalGridLayout layout) {
 	const Orientation& M = layout.orientation;
@@ -17,8 +56,18 @@ DirectX::XMFLOAT2 HexagonTile<int>::Center(HexagonalGridLayout layout) {
 }
 
 template<typename T>
+std::vector<HexTile> HexagonTile<T>::Neighbors() {
+	std::vector<HexTile> neighbors = {};
+	for(size_t i = 0; i < Hexagon::NUMBER_OF_SIDES; ++i) {
+		neighbors.push_back(*this + Direction((NEIGHBOR_DIRECTION) i));
+	}
+
+	return neighbors;
+}
+
+template<typename T>
 void HexagonTile<T>::Draw(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset) {
-	DirectX::XMFLOAT2 corners[6];
+	DirectX::XMFLOAT2 corners[Hexagon::NUMBER_OF_SIDES];
 	HexagonalGridLayout::GetHexCorners(*this, layout, &corners[0]);
 
 	DirectX::XMFLOAT3 line0 = {corners[0].x, corners[0].y, offset};
@@ -38,7 +87,7 @@ void HexagonTile<T>::Draw(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, f
 
 template<typename T>
 void HexagonTile<T>::Cross(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset) {
-	DirectX::XMFLOAT2 corners[6];
+	DirectX::XMFLOAT2 corners[Hexagon::NUMBER_OF_SIDES];
 	HexagonalGridLayout::GetHexCorners(*this, layout, &corners[0]);
 
 	DirectX::XMFLOAT3 line0 = {corners[1].x, corners[4].y, offset};
@@ -52,11 +101,14 @@ void HexagonTile<T>::Cross(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, 
 
 template<typename T>
 void HexagonTile<T>::Star(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset) {
-	DirectX::XMFLOAT2 corners[6];
+	DirectX::XMFLOAT2 corners[Hexagon::NUMBER_OF_SIDES];
 	HexagonalGridLayout::GetHexCorners(*this, layout, &corners[0]);
 
-	DirectX::XMFLOAT3 line0 = {corners[2].x, corners[5].y, offset};
-	DirectX::XMFLOAT3 line1 = {corners[5].x, corners[2].y, offset};
+	auto x = 0.5f*(corners[2].x + corners[1].x);
+
+	DirectX::XMFLOAT3 line0 = {x, corners[2].y, offset};
+	DirectX::XMFLOAT3 line1 = {x, corners[4].y, offset};
+
 	DirectX::XMFLOAT3 line2 = {corners[3].x, corners[0].y, offset};
 	DirectX::XMFLOAT3 line3 = {corners[0].x, corners[3].y, offset};
 
@@ -65,17 +117,44 @@ void HexagonTile<T>::Star(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, f
 }
 
 template<typename T>
-std::vector<HexTile> HexagonTile<T>::DrawLineTo(HexTile* b) {
-		int N = (int) DistanceFrom(b);
-		std::vector<HexTile> results = {};
-		double step = 1.0 / max(N, 1); //if b is this, N = 0
-		for(int i = 0; i <= N; ++i) {
-			results.push_back(Round(Lerp(*this, *b, step * i)));
-		}
-		return results;
+HexTile HexagonTile<T>::Round(HexDTile h) {
+	int _q = (int) std::round(h.q);
+	int _r = (int) std::round(h.r);
+	int _s = (int) std::round(h.s);
+	double q_diff = abs(_q - h.q);
+	double r_diff = abs(_r - h.r);
+	double s_diff = abs(_s - h.s);
+	if(q_diff > r_diff && q_diff > s_diff) {
+		_q = -_r - _s;
+	} else if(r_diff > s_diff) {
+		_r = -_q - _s;
+	} else {
+		_s = -_q - _r;
+	}
+	return HexTile(_q, _r, _s);
 }
 
-//use this if it's lerping to edges a lot
+template<typename T>
+inline HexDTile HexagonTile<T>::Lerp(HexTile a, HexTile b, double t) {
+	return HexDTile(lerp(a.q, b.q, t), lerp(a.r, b.r, t), lerp(a.s, b.s, t));
+}
+
+template<typename T>
+inline HexDTile HexagonTile<T>::Lerp(HexDTile a, HexDTile b, double t) {
+	return HexDTile(lerp(a.q, b.q, t), lerp(a.r, b.r, t), lerp(a.s, b.s, t));
+}
+
+template<typename T>
+std::vector<HexTile> HexagonTile<T>::DrawLineTo(HexTile* b) {
+	int N = (int) DistanceFrom(b);
+	std::vector<HexTile> results = {};
+	double step = 1.0 / max(N, 1); //if b is this, N = 0
+	for(int i = 0; i <= N; ++i) {
+		results.push_back(Round(Lerp(*this, *b, step * i)));
+	}
+	return results;
+}
+
 template<typename T>
 std::vector<HexTile> HexagonTile<T>::DrawSmoothLineTo(HexTile* b) {
 	int N = (int) DistanceFrom(b);
@@ -122,4 +201,10 @@ std::vector<HexTile> HexagonTile<T>::SuperCover(HexTile* b) {
 }
 
 template<typename T>
-T HexagonTile<T>::DistanceFrom(HexTile* b) { return (T) (std::max)({abs(q - b->q), abs(r - b->r), abs(s - b->s)}); } //length of this - b
+inline void HexagonTile<T>::RotateLeft() { *this = HexagonTile<T>(-s, -q, -r); } //use a swap?
+
+template<typename T>
+inline void HexagonTile<T>::RotateRight() { *this = HexagonTile<T>(-r, -s, -q); } //use a swap?
+
+template<typename T>
+T HexagonTile<T>::DistanceFrom(HexTile* b) { return (T) (std::max)({abs(q - b->q), abs(r - b->r), abs(s - b->s)}); } // = length of this - b

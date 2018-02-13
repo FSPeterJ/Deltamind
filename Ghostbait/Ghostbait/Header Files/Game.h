@@ -4,7 +4,6 @@
 #include "HexGrid.h"
 
 class Game {
-	HexagonalGridLayout flat = HexagonalGridLayout(layout_flat, DirectX::XMFLOAT2(1, 1), DirectX::XMFLOAT2(0, 0));
 	HexGrid hexGrid = HexGrid(4);
 public:
 	Game() {
@@ -33,7 +32,7 @@ public:
 	
 	void Update() {
 		//mygrid.Draw();
-		hexGrid.Display(flat);
+		hexGrid.Display(HexagonalGridLayout::FlatLayout);
 	}
 	void Clean() {}
 };

@@ -6,17 +6,15 @@ struct HexagonalGridLayout;
 template<typename T>
 struct HexagonTile;
 
-class HexGrid;
-
 typedef HexagonTile<int> HexTile;
 typedef HexagonTile<double> HexDTile;
-//typedef HexagonTile<float> HexFTile;
 
 typedef unsigned char uint8;
 
 namespace DirectX { struct XMFLOAT2;  struct XMFLOAT3; }
+namespace Hexagon { const unsigned NUMBER_OF_SIDES = 6; }
 
-enum DIRECTION {
+enum class NEIGHBOR_DIRECTION {
 	Right = 0,
 	TopRight,
 	TopLeft,
@@ -25,7 +23,7 @@ enum DIRECTION {
 	BottomRight
 };
 
-enum DIAGONAL {
+enum class NEIGHBOR_DIAGONAL {
 	MidTopRight = 0,
 	Top,
 	MidTopLeft,
@@ -34,10 +32,32 @@ enum DIAGONAL {
 	MidBottomRight
 };
 
-#define max(a,b) (((a) > (b)) ? (a) : (b))
-
 template<typename T>
 struct HexagonTile {
+private:
+	friend class HexGrid;
+	void * operator new (size_t sz) { return ::operator new(sz); }
+	void * operator new (size_t sz, void* ad) { return ::operator new(sz, ad); }
+	void * operator new[](size_t sz) { return ::operator new[](sz); }
+	void   operator delete (void * ad) { return ::operator delete(ad); }
+	void   operator delete[](void* ad) { return ::operator delete[](ad); }
+
+	float lerp(int a, int b, double t) { return float(a * (1 - t) + b * t); } //gives better floating point precision than a + (b - a) * t
+
+	float lerp(double a, double b, double t) { return float(a * (1 - t) + b * t); }
+
+	void swap(HexagonTile<T>& b) {
+		std::swap(q, b.q);
+		std::swap(r, b.r);
+		std::swap(s, b.s);
+		std::swap(v, b.v); //needed?
+		std::swap(cost, b.cost);
+	}
+
+	static const std::vector<HexTile> directions;
+	static const std::vector<HexTile> diagonals;
+
+public:
 	union {
 		T v[3];
 		struct { T q, r, s; };
@@ -51,92 +71,35 @@ struct HexagonTile {
 
 	HexagonTile(const T& q_, const T& r_, const T& s_) : v {q_, r_, s_} {}
 
-	void swap(HexagonTile<T>& b) {
-		std::swap(q, b.q);
-		std::swap(r, b.r);
-		std::swap(s, b.s);
-		std::swap(v, b.v);
-		std::swap(cost, b.cost);
-	}
+	HexagonTile<T>& operator=(HexagonTile<T> b);
 
-	HexagonTile<T>& operator=(HexagonTile<T> b) {
-		swap(b);
-		return *this;
-	}
+	HexagonTile<T> operator+=(const HexagonTile<T>& b);
 
-	HexagonTile<T> operator+=(const HexagonTile<T>& b) {
-		q += b.q; r += b.r; s += b.s;
-		return *this;
-	}
+	HexagonTile<T> operator-=(const HexagonTile<T>& b);
 
-	HexDTile plus_equal(const HexDTile& b) {
-		return HexDTile(q + b.q, r + b.r, s + b.s);
-	}
+	HexagonTile<T> operator*=(const T& b);
 
-	HexagonTile<T> operator-=(const HexagonTile<T>& b) {
-		q -= b.q; r -= b.r; s -= b.s;
-		return *this;
-	}
-	HexagonTile<T> operator*=(const T& b) {
-		q *= b; r *= b; s *= b;
-		return *this;
-	}
-
-	float Length() { return ((int) (abs(q) + abs(r) + abs(s)))*0.5f; }
+	const float Length() const;
 
 	DirectX::XMFLOAT2 Center(HexagonalGridLayout layout);
 
 	T DistanceFrom(HexTile* b);
 
-	inline HexTile Direction(DIRECTION dir) { return directions[(int) dir]; }
+	inline HexTile Direction(NEIGHBOR_DIRECTION dir) { return directions[(int) dir]; }
 
-	HexTile Neighbor(DIRECTION dir) { return *this + Direction(dir); }
+	inline HexTile Diagonal(NEIGHBOR_DIAGONAL dir) { return diagonals[(int) dir]; }
 
-	std::vector<HexTile> Neighbors() {
-		std::vector<HexTile> neighbors = {};
-		//todo
-		for(size_t i = 0; i < 6; ++i) {//5
-			neighbors.push_back(*this + Direction((DIRECTION) i));
-		}
+	HexTile Neighbor(NEIGHBOR_DIRECTION dir) { return *this + Direction(dir); }
 
-		return neighbors;
-	}
+	HexTile DiagonalNeighbor(NEIGHBOR_DIAGONAL dir) { return *this + Diagonal(dir); }
 
-	HexTile DiagonalNeighbor(DIAGONAL dir) { return *this + diagonals[dir]; }
+	std::vector<HexTile> Neighbors();
 
-	void Draw(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset = 0);
+	void RotateLeft();
 
-	void Cross(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset = 0);
-	void Star(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset = 0);
+	void RotateRight();
 
-	HexTile Round(HexDTile h) {
-		int _q = (int) std::round(h.q);
-		int _r = (int) std::round(h.r);
-		int _s = (int) std::round(h.s);
-		double q_diff = abs(_q - h.q);
-		double r_diff = abs(_r - h.r);
-		double s_diff = abs(_s - h.s);
-		if(q_diff > r_diff && q_diff > s_diff) {
-			_q = -_r - _s;
-		} else if(r_diff > s_diff) {
-			_r = -_q - _s;
-		} else {
-			_s = -_q - _r;
-		}
-		return HexTile(_q, _r, _s);
-	}
-
-	float lerp(int a, int b, double t) { return float(a * (1 - t) + b * t); } //gives better floating point precision than a + (b - a) * t
-
-	float lerp(double a, double b, double t) { return float(a * (1 - t) + b * t); }
-
-	HexDTile Lerp(HexTile a, HexTile b, double t) {
-		return HexDTile(lerp(a.q, b.q, t), lerp(a.r, b.r, t), lerp(a.s, b.s, t));
-	}
-
-	HexDTile Lerp(HexDTile a, HexDTile b, double t) {
-		return HexDTile(lerp(a.q, b.q, t), lerp(a.r, b.r, t), lerp(a.s, b.s, t));
-	}
+	HexTile Round(HexDTile h);
 
 	std::vector<HexTile> DrawLineTo(HexTile* b);
 
@@ -145,9 +108,26 @@ struct HexagonTile {
 
 	std::vector<HexTile> SuperCover(HexTile* b);
 
-	void RotateLeft() { *this = HexagonTile<T>(-s, -q, -r); } //use a swap?
+	void Draw(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset = 0);
 
-	void RotateRight() { *this = HexagonTile<T>(-r, -s, -q); }
+	void Cross(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset = 0);
+
+	void Star(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset = 0);
+
+	inline HexDTile Lerp(HexTile a, HexTile b, double t);
+
+	inline HexDTile Lerp(HexDTile a, HexDTile b, double t);
+
+	HexDTile plus_equal(const HexDTile& b) { //u g l y
+		return HexDTile(q + b.q, r + b.r, s + b.s);
+	}
+};
+
+static const HexDTile HexEpsilon(1e-6, 1e-6, -2e-6);
+
+struct CostComparator {
+	bool operator()(const HexTile& lhs, const HexTile& rhs) const;
+	bool operator()(const HexTile* lhs, const HexTile* rhs) const;
 };
 
 template<typename T>
@@ -167,7 +147,6 @@ inline HexagonTile<T> operator-(const HexagonTile<T>& a, const HexagonTile<T>& b
 template<typename T>
 inline HexagonTile<T> operator*(const HexagonTile<T>& a, const float& b) {
 	return HexagonTile<T>(a.q *b, a.r *b, a.s *b);
-
 }
 
 template<typename T>
@@ -179,21 +158,3 @@ template<typename T>
 inline bool operator != (const HexagonTile<T>& a, const HexagonTile<T>& b) {
 	return !(a == b);
 }
-
-const std::vector<HexTile> directions = {
-   HexTile(1, 0, -1), HexTile(1, -1, 0), HexTile(0, -1, 1),
-   HexTile(-1, 0, 1), HexTile(-1, 1, 0), HexTile(0, 1, -1)
-};
-
-const std::vector<HexTile> diagonals = {
-   HexTile(2, -1, -1), HexTile(1, -2, 1), HexTile(-1, -1, 2),
-   HexTile(-2, 1, 1), HexTile(-1, 2, -1), HexTile(1, 1, -2)
-};
-
-struct CostComparator {
-	bool operator()(const HexTile& lhs, const HexTile& rhs) const ;
-	bool operator()(const HexTile* lhs, const HexTile* rhs) const ;
-};
-
-
-const HexDTile HexEpsilon(1e-6, 1e-6, -2e-6);

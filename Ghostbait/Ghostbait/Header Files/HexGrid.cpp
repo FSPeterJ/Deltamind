@@ -14,6 +14,20 @@
 
 #include <vector>
 
+
+namespace std {
+	size_t hash<HexTile*>::operator()(const argument_type& data) const noexcept {
+		std::hash<int> int_hash;
+		size_t hq = int_hash(data->q);
+		size_t hr = int_hash(data->r);
+		//uses the magic number from boost::hash_combine.
+		//it's essentially a number with an equal likelyhood of 1s and 0s to give 32 'random' bits
+		//also it's the inverse of the golden ratio
+		//the idea is, for each tile, consecutive values will be far apart, thus ensuring an even spread, even for small ranges
+		return hq ^ (hr + 0x9e3779b9 + (hq << 6) + (hq >> 2));
+	}
+}
+
 bool EqualComparator::operator()(const HexTile* lhs, const HexTile* rhs) const {
 	return *lhs == *rhs;
 }
@@ -207,6 +221,10 @@ BreadthTraversalResult HexGrid::breadthFirstTraverse(HexTile *const tile, size_t
 			for(size_t n = 0; n < 6; ++n) {
 				HexTile _calcNeighbor = *_this + directions[n];
 				HexTile* neighbor = nullptr;
+
+
+				auto it = map.find(&_calcNeighbor);
+			
 
 				for(auto& t : map) {
 					if(*t == _calcNeighbor) {

@@ -2,6 +2,7 @@
 #include <unordered_set>
 #include "Delegate.h"
 #include "Controlable.h"
+#include "HexagonTileSpecializer.h"
 
 struct HexagonalGridLayout;
 

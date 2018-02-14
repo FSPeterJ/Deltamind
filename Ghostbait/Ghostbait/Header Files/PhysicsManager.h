@@ -43,9 +43,9 @@ class PhysicsManager: public IComponentManager {
 	static DirectX::XMVECTOR FindClosestPointOnLine(DirectX::XMVECTOR& _lineSegStart, DirectX::XMVECTOR& _lineSegEnd, DirectX::XMVECTOR& _testPoint);
 	static bool IsRayInCollider(DirectX::XMVECTOR& origin, Collider& collidingComp, DirectX::XMVECTOR& objectPos);
 	static bool RaycastCollisionCheck(DirectX::XMVECTOR& origin, DirectX::XMVECTOR& direction, PhysicsComponent* collidingComp, DirectX::XMVECTOR* colPoint = nullptr, GameObject* colObject = nullptr, float maxCastDistance = 100.0f);
-	static bool RayToSphere(DirectX::XMVECTOR& origin, DirectX::XMVECTOR& direction, Collider& collidingComp, DirectX::XMVECTOR& objectPos, DirectX::XMVECTOR* colPoint = nullptr);
-	static bool RayToCapsule(DirectX::XMVECTOR& origin, DirectX::XMVECTOR& direction, Collider& collidingComp, DirectX::XMVECTOR& objectPos, DirectX::XMVECTOR* colPoint = nullptr);
-	static bool RayToBox(DirectX::XMVECTOR& origin, DirectX::XMVECTOR& direction, Collider& collidingComp, DirectX::XMVECTOR& objectPos, DirectX::XMVECTOR* colPoint = nullptr);
+	static bool RayToSphere(DirectX::XMVECTOR& origin, DirectX::XMVECTOR& direction, Collider& collidingComp, DirectX::XMVECTOR& objectPos, DirectX::XMVECTOR* colPoint = nullptr, bool* isInside = nullptr);
+	static bool RayToCapsule(DirectX::XMVECTOR& origin, DirectX::XMVECTOR& direction, Collider& collidingComp, DirectX::XMMATRIX& objectPos, DirectX::XMVECTOR* colPoint = nullptr);
+	static bool RayToBox(DirectX::XMVECTOR& origin, DirectX::XMVECTOR& direction, Collider& collidingComp, DirectX::XMMATRIX& objectPos, DirectX::XMVECTOR* colPoint = nullptr);
 
 
 	static Collider defaultColider;

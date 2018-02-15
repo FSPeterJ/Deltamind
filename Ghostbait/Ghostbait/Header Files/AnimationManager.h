@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <map>
+#include <string>
 #include <DirectXMath.h> //todo get rid
 
 //namespace DirectX {
@@ -12,6 +13,7 @@ class ComponentBase;
 struct animJoint {
 	DirectX::XMFLOAT4X4 transform;
 	int parent_index;
+	std::string name;
 };
 
 struct keyframe {

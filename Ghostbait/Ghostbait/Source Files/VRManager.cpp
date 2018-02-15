@@ -58,21 +58,18 @@ bool VRManager::Init() {
 void VRManager::CreateControllers() {
 	//Left
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {0,0,0}, (GameObject**)&leftController.obj));
-	leftController.obj->SetControllerHand(ControllerObject::ControllerHand::LEFT);
+	leftController.obj->Init(ControllerObject::ControllerHand::LEFT);
 	leftController.obj->AddItem(0, 1);
 	leftController.obj->AddItem(1, 2, Gun::FireType::SEMI, 60, 50);
 	leftController.obj->AddItem(2, 2, Gun::FireType::AUTO, 8, 25);
 	leftController.obj->AddItem(3, 16, {1, 2, 5});
-	leftController.obj->Enable();
 	//Right
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(0, {1,0,1}, (GameObject**) &rightController.obj));
-	rightController.obj->SetControllerHand(ControllerObject::ControllerHand::RIGHT);
+	rightController.obj->Init(ControllerObject::ControllerHand::RIGHT);
 	rightController.obj->AddItem(0, 1);
 	rightController.obj->AddItem(1, 2, Gun::FireType::SEMI, 60, 50);
 	rightController.obj->AddItem(2, 2, Gun::FireType::AUTO, 8, 25);
 	rightController.obj->AddItem(3, 16, { 1, 2, 5});
-
-	rightController.obj->Enable();
 }
 
 DirectX::XMFLOAT4X4 VRManager::VRProjectionToDirectXMatrix(vr::EVREye eye, float nearPlane, float farPlane) {

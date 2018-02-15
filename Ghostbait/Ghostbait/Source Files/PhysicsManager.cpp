@@ -138,6 +138,7 @@ void PhysicsManager::Update() {
 	const int activeCount = (int) components.GetActiveCount();
 	for(int i = 0; i < activeCount; ++i) {
 		//This seems absurd, are we sure we can't use XMVECTOR and XMMATRIX in a more manageable manner?
+		if (!components[i].isActive) continue;
 		XMFLOAT4* objectPosition = (XMFLOAT4*) &components[i].parentObject->position.m[3];
 		XMVECTOR newposition = XMLoadFloat4(objectPosition);
 		components[i].rigidBody.Update();
@@ -211,7 +212,7 @@ void PhysicsManager::Update() {
 	TestAllComponentsCollision();
 }
 
-bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* colPoint, GameObject* colObject, float maxCastDistance) {
+bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* colPoint, GameObject const** colObject, float maxCastDistance) {
 	bool collided = false;
 	uint32_t nextIndex, currBucketIndex = -1;
 	XMVECTOR vecOrigin = XMLoadFloat3(&origin);
@@ -225,8 +226,8 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 	std::vector<PhysicsComponent*> compToTest;
 	std::vector<XMVECTOR> collisionPoints;
 	std::vector<GameObject*> collidedObjects;
-
-	colObject = nullptr;
+	if(colObject)
+		*colObject = nullptr;
 
 	for (int iteration = 0; iteration < 10000; ++iteration) {
 		XMStoreFloat3(&nextSegment, vecNextSeg);
@@ -238,7 +239,8 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 		compToTest = partitionSpace.GetComponentsToTest(currBucketIndex);
 
 		for (int compIndex = 0; compIndex < compToTest.size(); ++compIndex) {
-			if (RaycastCollisionCheck(vecOrigin, vecDirection, compToTest[compIndex], &tempCollidePt, tempCollideObj, maxCastDistance)) {
+			if (!compToTest[compIndex]->isActive) continue;
+			if (RaycastCollisionCheck(vecOrigin, vecDirection, compToTest[compIndex], &tempCollidePt, &tempCollideObj, maxCastDistance)) {
 				collisionPoints.push_back(tempCollidePt);
 				collidedObjects.push_back(tempCollideObj);
 				collided = true;
@@ -256,7 +258,8 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 			nextDist = XMVectorGetX(XMVector3LengthSq(collisionPoints[i] - vecOrigin));
 			if (lastClosestDist > nextDist) {
 				closestCollision = collisionPoints[i];
-				colObject = collidedObjects[i];
+				if (colObject)
+					*colObject = collidedObjects[i];
 				lastClosestDist = nextDist;
 				Console::WriteLine << "RAY HIT";
 			}
@@ -939,15 +942,15 @@ void PhysicsManager::TestAllComponentsCollision() {
 	}
 }
 
-bool PhysicsManager::RaycastCollisionCheck(XMVECTOR& origin, XMVECTOR& direction, PhysicsComponent* collidingComp, XMVECTOR* colPoint, GameObject* colObject, float maxCastDistance) {
+bool PhysicsManager::RaycastCollisionCheck(XMVECTOR& origin, XMVECTOR& direction, PhysicsComponent* collidingComp, XMVECTOR* colPoint, GameObject** colObject, float maxCastDistance) {
 	bool collided = false;
 	bool hasCollidingComp = false;
 	XMVECTOR closestCollision = origin + (direction * maxCastDistance);
 	XMVECTOR tempColPoint = g_XMFltMax;
 	XMMATRIX objMatrix = XMLoadFloat4x4(&(collidingComp->parentObject->position));
 	std::vector<XMVECTOR> collisionPoints;
-
-	colObject = nullptr;
+	if (colObject)
+		*colObject = nullptr;
 
 	for (int colliderIndex = 0; colliderIndex < collidingComp->colliders.size(); ++colliderIndex) {
 		switch (collidingComp->colliders[colliderIndex].colliderData->colliderType)
@@ -967,7 +970,8 @@ bool PhysicsManager::RaycastCollisionCheck(XMVECTOR& origin, XMVECTOR& direction
 
 		if (hasCollidingComp) {
 			collisionPoints.push_back(tempColPoint);
-			colObject = dynamic_cast<GameObject*>(collidingComp->parentObject);
+			if (colObject)
+				*colObject = dynamic_cast<GameObject*>(collidingComp->parentObject);
 			collided = true;
 		}
 	}

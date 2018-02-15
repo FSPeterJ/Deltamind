@@ -1,21 +1,17 @@
 #include "Spawner.h"
 #include "GhostTime.h"
 #include "MessageEvents.h"
-
-Spawner::Spawner() {
-	timeSinceLastSpawn = runSpawnDelay - startSpawnDelay;
+#include "PhysicsComponent.h"
+void Spawner::Awake() {
 	SetTag("Spawner");
+	MessageEvents::SendMessage(EVENT_SpawnerCreated, SpawnerCreatedMessage(this));
 }
-void Spawner::SpawnObject() {
+Spawner::Spawner() {
+}
+void Spawner::SpawnObject(int prefabID) {
 	GameObject* obj;
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, {0, 0, 0}, &obj));
 	obj->position = position;
-	timeSinceLastSpawn = 0;
-	++spawnCount;
-}
-void Spawner::Update() {
-	timeSinceLastSpawn += (float) GhostTime::DeltaTime();
-	if(timeSinceLastSpawn >= runSpawnDelay && spawnCount < objectsToSpawn) {
-		SpawnObject();
-	}
+	obj->Enable();
+	obj->GetComponent<PhysicsComponent>()->rigidBody.AddForce(100);
 }

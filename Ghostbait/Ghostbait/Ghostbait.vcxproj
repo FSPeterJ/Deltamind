@@ -186,6 +186,7 @@
     <ClInclude Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Common\AkFilePackage.h" />
     <ClInclude Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Common\AkFilePackageLUT.h" />
     <ClInclude Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Win32\AkDefaultIOHookBlocking.h" />
+    <ClInclude Include="Dependencies\XML_Library\irrXML.h" />
     <ClInclude Include="Header Files\AABB.h" />
     <ClInclude Include="Header Files\AnimationManager.h" />
     <ClInclude Include="Header Files\Animator.h" />
@@ -212,9 +213,12 @@
     <ClInclude Include="Header Files\InputManager.h" />
     <ClInclude Include="Header Files\IComponentManager.h" />
     <ClInclude Include="Header Files\Item.h" />
+    <ClInclude Include="Header Files\LightManager.h" />
     <ClInclude Include="Header Files\Material.h" />
     <ClInclude Include="Header Files\MaterialManager.h" />
     <ClInclude Include="Header Files\MemoryManager.h" />
+    <ClInclude Include="Header Files\Menu.h" />
+    <ClInclude Include="Header Files\MenuControllerItem.h" />
     <ClInclude Include="Header Files\MeshManager.h" />
     <ClInclude Include="Header Files\Messagebox.h" />
     <ClInclude Include="Header Files\MessageStructs.h" />
@@ -253,6 +257,7 @@
     <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Common\AkFilePackage.cpp" />
     <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Common\AkFilePackageLUT.cpp" />
     <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Win32\AkDefaultIOHookBlocking.cpp" />
+    <ClCompile Include="Dependencies\XML_Library\irrXML.cpp" />
     <ClCompile Include="Source Files\AABB.cpp" />
     <ClCompile Include="Source Files\AnimationManager.cpp" />
     <ClCompile Include="Source Files\Animator.cpp" />
@@ -266,6 +271,7 @@
     <ClCompile Include="Source Files\DebugRenderer.cpp" />
     <ClCompile Include="Source Files\EnemyBase.cpp" />
     <ClCompile Include="Source Files\EngineStructure.cpp" />
+    <ClCompile Include="Source Files\Game.cpp" />
     <ClCompile Include="Source Files\GameObject.cpp" />
     <ClCompile Include="Source Files\GhostTime.cpp" />
     <ClCompile Include="Source Files\Grid.cpp" />
@@ -275,10 +281,13 @@
     <ClCompile Include="Source Files\Health.cpp" />
     <ClCompile Include="Source Files\InputManager.cpp" />
     <ClCompile Include="Source Files\Item.cpp" />
+    <ClCompile Include="Source Files\LightManager.cpp" />
     <ClCompile Include="Source Files\Main.cpp" />
     <ClCompile Include="Source Files\Material.cpp" />
     <ClCompile Include="Source Files\MaterialManager.cpp" />
     <ClCompile Include="Source Files\MemoryManager.cpp" />
+    <ClCompile Include="Source Files\Menu.cpp" />
+    <ClCompile Include="Source Files\MenuControllerItem.cpp" />
     <ClCompile Include="Source Files\MeshManager.cpp" />
     <ClCompile Include="Source Files\MessageEvents.cpp" />
     <ClCompile Include="Source Files\Object.cpp" />

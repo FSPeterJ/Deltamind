@@ -19,16 +19,16 @@ enum Control {
 	leftCyclePrefab,
 	rightCyclePrefab,
 
+	rightItem0,
 	rightItem1,
 	rightItem2,
 	rightItem3,
-	rightItem4,
 	rightAttack,
 	rightTouch,
+	leftItem0,
 	leftItem1,
 	leftItem2,
 	leftItem3,
-	leftItem4,
 	leftAttack,
 	leftTouch,
 
@@ -107,6 +107,19 @@ public:
 	/// </summary>
 	/// <param name="_obj">The object.</param>
 	DestroyMessage(GameObject* _obj) : obj(_obj) {}
+
+	GameObject* RetrieveObject() const { return obj; }
+};
+
+class SpawnerCreatedMessage : public EventMessageBase {
+	GameObject* obj;
+public:
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="DestroyMessage"/> class.
+	/// </summary>
+	/// <param name="_obj">The object.</param>
+	SpawnerCreatedMessage(GameObject* _obj) : obj(_obj) {}
 
 	GameObject* RetrieveObject() const { return obj; }
 };

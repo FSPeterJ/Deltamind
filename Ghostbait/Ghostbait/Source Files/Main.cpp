@@ -189,31 +189,33 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
 	startCube->Enable();
 
-	GameObject *test1, *test2;
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { 0.0f, 2.0f, -1.0f }, &test1));
-	//DirectX::XMStoreFloat4x4(&test1->position, DirectX::XMLoadFloat4x4(&test1->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(11, { 0.0f, 2.0f, 0.0f }));
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(17, { 0.0f, 1.0f, 0.0f }, &test2));
-	DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
 	GameObject *spawner1, *spawner2;
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5, { 5.0f, 5.0f, 5.0f }, &spawner1));
 	spawner1->Enable();
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5, { -5.0f, 5.0f, -5.0f }, &spawner2));
 	spawner2->Enable();
 
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 2.0f, 2.0f, 0.0f }, &test2));
-	DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
-
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { -2.0f, 2.0f, 0.0f }, nullptr));
-
 	//TestArc
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(14, { 3.0f, -1.0f, 0.0f }, nullptr));
 
 	
+	//********************* PHYSICS TEST CODE **********************************
+	GameObject *test1, *test2;
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { 0.0f, 2.0f, -1.0f }, &test1));
+	//DirectX::XMStoreFloat4x4(&test1->position, DirectX::XMLoadFloat4x4(&test1->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(17, { 0.0f, 1.0f, 0.0f }, &test2));
+	DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 2.0f, 2.0f, 0.0f }, &test2));
+	DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { -2.0f, 2.0f, 0.0f }, nullptr));
+
 	dynamic_cast<PhysicsTestObj*>(test1)->isControllable = true;
 	dynamic_cast<PhysicsTestObj*>(test1)->isRayCasting = true;
 
 	test1->Enable();
+
+	//***************************************************************************
+
 
 	//	Object* cube1, *cube2;
 

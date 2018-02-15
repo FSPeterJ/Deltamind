@@ -187,7 +187,7 @@ void PhysicsManager::Update() {
 	TestAllComponentsCollision();
 }
 
-bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* colPoint, GameObject** colObject, float maxCastDistance) {
+bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* colPoint, GameObject const** colObject, float maxCastDistance) {
 	bool collided = false;
 	uint32_t nextIndex, currBucketIndex = -1;
 	XMVECTOR vecOrigin = XMLoadFloat3(&origin);

@@ -10,6 +10,12 @@ ControllerObject::ControllerObject() {
 	displayItems.resize(4);
 	hand = INVALID;
 }
+
+void ControllerObject::Init(ControllerHand _hand, int menuControllerPrefabID) {
+	SetControllerHand(_hand);
+	Enable();
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(menuControllerPrefabID, { 0,0,0 }, (GameObject**)&menuController));
+}
 void ControllerObject::SetPhysicsComponent(GameObject* obj, bool active) {
 	PhysicsComponent* physComp = obj->GetComponent<PhysicsComponent>();
 	if (physComp) physComp->isActive = active;
@@ -67,6 +73,10 @@ void ControllerObject::AddItem(int itemSlot, int prefabID, Gun::FireType _fireTy
 
 void ControllerObject::Update() {
 	if(hand == INVALID) return;
+	if (menuControllerVisible) {
+		MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(menuController));
+		menuControllerVisible = false;
+	}
 	
 	//Seperate controller Values
 	Control item0  = (hand == LEFT ? leftItem0 : rightItem0);
@@ -85,7 +95,6 @@ void ControllerObject::Update() {
 				currentGameItem = items[0];
 				MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentGameItem));
 				SetPhysicsComponent(currentGameItem, true);
-
 			}
 			ResetKey(item0);
 		}
@@ -232,4 +241,19 @@ void ControllerObject::Update() {
 			}
 		}
 	#pragma endregion
+}
+void ControllerObject::PausedUpdate() {
+	if (!menuControllerVisible) {
+		MessageEvents::SendMessage(EVENT_Addrender,  DestroyMessage(menuController));
+		menuControllerVisible = true;
+	}
+	Control attack = (hand == LEFT ? leftAttack : rightAttack);
+	
+	menuController->position = position;
+	
+	if (KeyIsDown(attack)) {
+		menuController->Activate();
+		ResetKey(attack);
+	}
+	else menuController->UpdateRay();
 }

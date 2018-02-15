@@ -140,6 +140,7 @@ InputPackage InputManager::VRInput::CheckForInput() {
 			switch(event.data.controller.button) {
 			case vr::k_EButton_ApplicationMenu:
 				if(event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
+					MessageEvents::SendMessage(EVENT_GamePause, EventMessageBase());
 				} else {
 					input = teleportDown;
 					amount = 1;

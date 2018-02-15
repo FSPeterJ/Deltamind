@@ -111,6 +111,19 @@ public:
 	GameObject* RetrieveObject() const { return obj; }
 };
 
+class SpawnerCreatedMessage : public EventMessageBase {
+	GameObject* obj;
+public:
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="DestroyMessage"/> class.
+	/// </summary>
+	/// <param name="_obj">The object.</param>
+	SpawnerCreatedMessage(GameObject* _obj) : obj(_obj) {}
+
+	GameObject* RetrieveObject() const { return obj; }
+};
+
 //Duplicate is unnessessary
 class NewObjectMessage: public EventMessageBase {
 	GameObject* obj;

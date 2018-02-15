@@ -17,8 +17,6 @@ void EnemyBase::Update() {
 	}
 }
 
-// TODO: Get Rid Of Temp
-static int temp = 0;
 void EnemyBase::OnCollision(GameObject* _other) {
 	PhysicsComponent* myPhys = GetComponent<PhysicsComponent>();
 	DirectX::XMVECTOR incomingDirection = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat4x4(&position).r[3], DirectX::XMLoadFloat4x4(&(_other->position)).r[3]));
@@ -28,12 +26,12 @@ void EnemyBase::OnCollision(GameObject* _other) {
 	}
 	if(!IsAlive()) {
 		//Destroy itself
-		temp++;
-		if(temp > 3) {
-			MessageEvents::SendMessage(EVENT_GameWin, EventMessageBase());
-			Console::WriteLine << "GAME WAS WON";
-			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(9/*WinCube*/, {0, 0.75f, 0}));
-		}
+		//if(temp > 3) {
+		//	MessageEvents::SendMessage(EVENT_GameWin, EventMessageBase());
+		//	Console::WriteLine << "GAME WAS WON";
+		//	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(9/*WinCube*/, {0, 0.75f, 0}));
+		//}
+		MessageEvents::SendMessage(EVENT_EnemyDied, EventMessageBase());
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 	}
 }

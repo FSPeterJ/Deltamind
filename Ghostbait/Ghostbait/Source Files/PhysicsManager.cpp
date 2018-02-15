@@ -698,20 +698,20 @@ bool PhysicsManager::BoxToBoxCollision(Collider& boxCol1, XMMATRIX& boxPos1, Col
 
 	float ra, rb;
 	XMFLOAT3X3 R, AbsR;
-	//Computerotationmatrixexpressingb ina’scoordinateframe
+	//Compute rotation matrix expressing b in a’s coordinate frame
 	for (int i = 0; i < 3; i++)
 		for (int j = 0; j < 3; j++)
 			R.m[i][j] = XMVectorGetX(XMVector3Dot(boxPos1.r[i], boxPos2.r[j]));
 
-	//Computetranslationvectort
+	//Compute translation vector t
 	XMVECTOR t = (boxPos2.r[3] + XMLoadFloat3(&boxCol2.centerOffset)) - (boxPos1.r[3] + XMLoadFloat3(&boxCol1.centerOffset));
-	//Bringtranslation intoa’scoordinateframe
+	//Bring translation into a’s coordinate frame
 	t = XMVectorSet(XMVectorGetX(XMVector3Dot(t, boxPos1.r[0])), XMVectorGetX(XMVector3Dot(t, boxPos1.r[1])), XMVectorGetX(XMVector3Dot(t, boxPos1.r[2])), 1.0f);
 	
 	float between[] = { XMVectorGetX(t), XMVectorGetY(t), XMVectorGetZ(t) };
-	//Computecommonsubexpressions. Addinanepsilontermto
-	//counteractarithmeticerrorswhentwoedgesareparallel and
-	//theircrossproduct is(near) null(seetextfordetails)
+	//Compute common subexpressions. Add in an epsilon term to
+	//counteract arithmetic errors when two edgesare parallel and
+	//their cross product is(near) null
 	for (int i = 0; i < 3; i++)
 		for (int j = 0; j < 3; j++)
 			AbsR.m[i][j] = fabsf(R.m[i][j]) + FLT_EPSILON;
@@ -1002,7 +1002,10 @@ bool PhysicsManager::RayToSphere(XMVECTOR& origin, XMVECTOR& direction, Collider
 	if (!IsRayInCollider(origin, collidingComp, collCenter)) {
 		//Project center onto ray
 		XMVECTOR rayOriginToCenter = collCenter - origin;
-		XMVECTOR centerProjRay = XMVectorGetX(XMVector3Dot(direction, rayOriginToCenter)) * direction;
+		float centerProjRatio = XMVectorGetX(XMVector3Dot(direction, rayOriginToCenter));
+		if (centerProjRatio < -FLT_EPSILON) return false;
+		
+		XMVECTOR centerProjRay =  centerProjRatio * direction;
 		XMVECTOR centerToRay = rayOriginToCenter - centerProjRay;
 		float centerToRayLengthSq = XMVectorGetX(XMVector3LengthSq(centerToRay));
 
@@ -1067,7 +1070,55 @@ bool PhysicsManager::RayToCapsule(XMVECTOR& origin, XMVECTOR& direction, Collide
 	return true;
 }
 bool PhysicsManager::RayToBox(XMVECTOR& origin, XMVECTOR& direction, Collider& collidingComp, XMMATRIX& objectPos, XMVECTOR* colPoint) {
-	return false;
+	//Point p, Vector d, AABB a, float& tmin, Point& q
+	float tmin = 0.0f;	//set to -FLT_MAX to get first hit on line
+	float tmax = FLT_MAX;	//set to max distance ray can travel (forsegment)
+
+	XMMATRIX inverseObjPos = objectPos;
+	inverseObjPos.r[3] += XMLoadFloat3(&collidingComp.centerOffset); //Get actual position of collider
+	inverseObjPos = XMMatrixInverse(nullptr, inverseObjPos);
+
+	XMVECTOR tranlatedOrigin = XMVector3TransformCoord(origin, inverseObjPos);
+	if (IsRayInCollider(tranlatedOrigin, collidingComp, XMVectorZero())) return false;
+
+	XMVECTOR rotationDirection = XMVector3TransformNormal(direction, inverseObjPos);
+	XMFLOAT3* colMin = &collidingComp.colliderData->colliderInfo.boxCollider.bottLeftBackCorner;
+	XMFLOAT3* colMax = &collidingComp.colliderData->colliderInfo.boxCollider.topRightFrontCorner;
+	
+	float originPoint[] = { XMVectorGetX(tranlatedOrigin), XMVectorGetY(tranlatedOrigin), XMVectorGetZ(tranlatedOrigin) };
+	float dir[] = { XMVectorGetX(rotationDirection), XMVectorGetY(rotationDirection), XMVectorGetZ(rotationDirection) };
+	float boxMin[] = {colMin->x, colMin->y, colMin->z};
+	float boxMax[] = {colMax->x, colMax->y, colMax->z};
+	
+	//For all threeslabs
+	for (int i = 0; i < 3; i++) {
+		if (fabsf(dir[i]) < FLT_EPSILON) {
+			//Ray is parallel to slab. No hit if origin not within slab
+			if (originPoint[i] < boxMin[i] || originPoint[i] > boxMax[i]) return false;
+		}
+		else {
+			//Compute intersection t value of ray with near and far plane of slab
+			float ood = 1.0f / dir[i];
+			float t1 = (boxMin[i] - originPoint[i]) * ood;
+			float t2 = (boxMax[i] - originPoint[i]) * ood;
+			//Make t1 be intersection with near plane, t2 with far plane
+			if (t1 > t2) {
+				float temp = t1;
+				t1 = t2;
+				t2 = temp;
+			}
+			//Compute the intersection of slab intersection intervals
+			if (t1 > tmin) tmin = t1;
+			if (t2 < tmax) tmax = t2;
+			//Exit with no collision as soon as slab intersection becomes empty
+			if (tmin > tmax) return false;
+		}
+	}
+	//Ray intersectsall3slabs. Returnpoint(q) andintersectiontvalue(tmin)
+	if (colPoint) {
+		*colPoint = origin + direction * tmin;
+	}
+	return true;
 }
 
 bool PhysicsManager::IsRayInCollider(XMVECTOR& origin, Collider& collidingComp, XMVECTOR& colliderCenter) {
@@ -1084,6 +1135,20 @@ bool PhysicsManager::IsRayInCollider(XMVECTOR& origin, Collider& collidingComp, 
 									(collidingComp.colliderData->colliderInfo.capsuleCollider.radius * collidingComp.colliderData->colliderInfo.capsuleCollider.radius);
 		break;
 	case BOX:
+		//Assumes box is at origin and not rotated
+		{
+			XMFLOAT3 point;
+			XMStoreFloat3(&point, origin);
+			XMFLOAT3 *min = &collidingComp.colliderData->colliderInfo.boxCollider.bottLeftBackCorner;
+			XMFLOAT3 *max = &collidingComp.colliderData->colliderInfo.boxCollider.topRightFrontCorner;
+			if (point.x >= min->x && point.x <= max->x) {
+				if (point.y >= min->y && point.y <= max->y) {
+					if (point.z >= min->z && point.z <= max->z) {
+						isInside = true;
+					}
+				}
+			}
+		}
 		break;
 	default:
 		break;

@@ -8,6 +8,7 @@
 #include "Camera.h"
 #include "Animator.h"
 
+#define BG_COLOR { 0.5f,0.5f,1.0f,1.0f}
 using namespace DirectX;
 
 void Renderer::createDeviceContextAndSwapchain(Window window) {
@@ -158,7 +159,7 @@ void Renderer::renderObjectDefaultState(Object * obj) {
 }
 
 void Renderer::renderToEye(eye * eyeTo) {
-	float color[] = {0.5f, 0.5f, 1.0f, 1.0f};
+	float color[] = BG_COLOR;
 	context->ClearRenderTargetView(eyeTo->renderInfo.rtv, color);
 	context->ClearDepthStencilView(eyeTo->renderInfo.dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	context->OMSetRenderTargets(1, &eyeTo->renderInfo.rtv, eyeTo->renderInfo.dsv);
@@ -404,7 +405,7 @@ void Renderer::Render() {
 		VRManagement->SendToHMD((void*) leftEye.renderInfo.texture, (void*) rightEye.renderInfo.texture);
 		context->UpdateSubresource(cameraBuffer, 0, NULL, &(leftEye.camera), 0, 0);
 	} else context->UpdateSubresource(cameraBuffer, 0, NULL, &defaultCamera, 0, 0);
-	float color[] = {0.5f, 0.5f, 1.0f, 1.0f};
+	float color[] = BG_COLOR;
 	context->ClearRenderTargetView(defaultPipeline.render_target_view, color);
 	context->ClearDepthStencilView(defaultPipeline.depth_stencil_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	context->OMSetRenderTargets(1, &defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view);

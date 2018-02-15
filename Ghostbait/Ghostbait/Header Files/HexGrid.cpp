@@ -1,19 +1,13 @@
 #include "HexGrid.h"
-
-#include "HexagonalGridLayout.h"
-#include "HexagonTile.h"
-
-#include <unordered_map>
 #include "Console.h"
 #include "DebugRenderer.h"
-
+#include "HexagonTile.h"
 #include <chrono>
-#include <thread>
-
 #include <queue>
-
-#include <vector>
+#include <thread>
 #include <type_traits>
+#include <unordered_map>
+#include <vector>
 
 namespace std {
 	size_t hash<HexTile*>::operator()(const argument_type& data) const noexcept {
@@ -31,6 +25,12 @@ namespace std {
 bool EqualComparator::operator()(const HexTile* lhs, const HexTile* rhs) const { return *lhs == *rhs; }
 bool EqualComparator::operator()(const HexTile& lhs, const HexTile& rhs) const { return lhs == rhs; }
 
+enum class ColorType {
+	__X,
+	__T,
+	__mX,
+	__CheapFill,
+};
 template <typename TileType>
 class GridTileVector {
 	std::vector<TileType> data;
@@ -59,14 +59,58 @@ public:
 
 	size_t size() const noexcept { return data.size(); }
 
+	float cost() const {
+		float c = 0;
+		for(auto& t : data) {
+			c += t->weight;
+		}
+		return c;
+	}
+
 	template<class T = TileType>
-	void Color(HexagonalGridLayout *const layout, DirectX::XMFLOAT3 color, float offset, typename std::enable_if<std::is_pointer<T>::value >::type* = 0) {
+	void Color(HexagonalGridLayout *const layout, DirectX::XMFLOAT3 color, float offset, ColorType c, typename std::enable_if<std::is_pointer<T>::value >::type* = 0) {
 		//pointer
-		for(auto& e : data) { e->Star(*layout, color, offset); }
+		switch(c) {
+		case ColorType::__X:
+			for(auto& e : data) {
+				e->DrawX(*layout, color, offset);
+			}
+			break;
+		case ColorType::__T:
+			for(auto& e : data) {
+				e->DrawT(*layout, color, offset);
+			}
+			break;
+		case ColorType::__mX:
+			for(auto& e : data) {
+				e->DrawmX(*layout, color, offset);
+			}
+			break;
+		case ColorType::__CheapFill:
+			for(auto& e : data) {
+				e->DrawCheapFill(*layout, color, offset);
+			}
+			break;
+		}
 	}
 
 	template<class T = TileType>
 	void BuildPath(T start, T goal, VisitedMap& came_from, typename std::enable_if<std::is_pointer<T>::value >::type* = 0) {
+		//pointer
+
+		T current = goal;
+
+		while(current != start && current) {
+			data.push_back(current);
+			current = came_from[current];
+		}
+
+		data.push_back(start);
+		std::reverse(data.begin(), data.end());
+	}
+
+	template<class T = TileType>
+	void BuildPathReverse(T start, T goal, VisitedMap& came_from, typename std::enable_if<std::is_pointer<T>::value >::type* = 0) {
 		//pointer
 
 		T current = start;
@@ -76,61 +120,143 @@ public:
 			current = came_from[current];
 		}
 
-		//data.push_back(start);
-		//data.reverse();
+		data.push_back(goal);
+		//std::reverse(data.begin(), data.end());
 	}
 
 	template<class T = TileType>
-	void Color(HexagonalGridLayout *const layout, DirectX::XMFLOAT3 color, float offset, typename std::enable_if<!std::is_pointer<T>::value >::type* = 0) {
+	void Filter(HexGrid& grid, typename std::enable_if<!std::is_pointer<T>::value >::type* = 0) {
 		//non-pointer
-		for(auto& e : data) { e.Cross(*layout, color, offset); }
+		//should this be a function in hexgrid that gets passed a region?
+		if(data.size())
+			data.erase(std::remove_if(data.begin(), data.end(), [grid](HexTile& x) {
+			HexTile* t = grid.GetTile(x);
+			return !t;// || t->weight == grid.Blocked;
+		}));
 	}
 
+	template<class T = TileType>
+	void Color(HexagonalGridLayout *const layout, DirectX::XMFLOAT3 color, float offset, ColorType c, typename std::enable_if<!std::is_pointer<T>::value >::type* = 0) {
+		//non-pointer
+
+		switch(c) {
+		case ColorType::__X:
+			for(auto& e : data) {
+				e.DrawX(*layout, color, offset);
+			}
+			break;
+		case ColorType::__T:
+			for(auto& e : data) {
+				e.DrawT(*layout, color, offset);
+			}
+			break;
+		case ColorType::__mX:
+			for(auto& e : data) {
+				e.DrawmX(*layout, color, offset);
+			}
+			break;
+		case ColorType::__CheapFill:
+			for(auto& e : data) {
+				e.DrawCheapFill(*layout, color, offset);
+			}
+			break;
+		}
+	}
 };
 
-HexPath HexGrid::CalculatePathWithinXSteps(HexTile *const start, HexTile *const goal, size_t steps, HexagonalGridLayout *const layout) {
-	HexRegion blocked;
-	for(auto& _t : map) {
-		if(_t->cost == 0) { blocked.push_back(*_t); }
-	}
-	blocked.Color(layout, {0,0,0}, 0.1f);
+bool operator<(const HexPath&p, const HexPath&p2) { return p.cost()<p2.cost(); } //in case of a cost tie, std::pair will compare the second element so this is needed to satisfy it
 
-	HexPath path;
-	if(goal->cost == 0) {
+template<typename T, typename priority_t>
+struct PriorityQueue {
+	typedef std::pair<priority_t, T> PQElement;
+	std::priority_queue<PQElement, std::vector<PQElement>, std::greater<PQElement>> elements;
+
+	inline bool empty() const { return elements.empty(); }
+
+	inline void push(T item, priority_t priority) { elements.emplace(priority, item); }
+
+	T pop_back() {
+		T best_item = elements.top().second;
+		elements.pop();
+		return best_item;
+	}
+};
+
+HexGrid::HexGrid(float _radius, const HexagonalGridLayout& _layout) : map_radius(_radius), layout(_layout) {}
+
+HexTile* HexGrid::PointToTile(const DirectX::XMFLOAT2& p) {
+	return GetTile(HexTile::Round(HexagonalGridLayout::PointToHexagonTile(p, layout)));
+}
+
+bool HexGrid::Snap(const DirectX::XMFLOAT2& p, OUT DirectX::XMFLOAT2& snapPoint) {
+	HexTile* snapTile = PointToTile(p);
+	if(snapTile) {
+		snapPoint = snapTile->Center(layout);
+		return true;
+	}
+	return false;
+}
+
+HexPath HexGrid::CalculatePathWithinXSteps(HexTile *const start, HexTile *const goal, size_t steps) {
+	if(goal->weight == Blocked) {
 		Console::WriteLine << "Goal is blocked!";
-		return path;
+		return HexPath();
 	}
 
-	BreadthTraversalResult search = breadthFirstTraverse(goal, steps, steps);
+	TraversalResult search = breadthFirstTraverse(goal, steps, steps);
 
-	//for(auto& vec : search.reachableTiles) {
-	//	vec.Color(layout, {0,1,0}, 0.3f);
-	//}
+	for(auto& vec : search.reachableTiles) {
+		vec.Color(&layout, {1,0,0}, 0, ColorType::__X);
+	}
 
-
-
-	//HexRegion shadow;
-	//for(auto& t : search.cost_so_far) {
-	//	if(t.second > steps) { shadow.push_back(*t.first); }
-	//}
-	//shadow.Color(layout, {1,0,1}, 0.2f);
-
+	HexRegion shadow;
+	for(auto& t : search.costMap) {
+		if(t.second > steps) { shadow.push_back(*t.first); }
+	}
+	shadow.Color(&layout, {0,0,1}, 0, ColorType::__T);
 
 	int distance = start->DistanceFrom(goal);
 	//Console::WriteLine << "Distance is " << distance << "  steps is " << steps;
+	HexPath path;
 
 	if(distance >= steps) {
 		Console::WriteLine << "Path is too far!";
 	} else {
-		path.BuildPath(start, goal, search.came_from);
+		path.BuildPathReverse(start, goal, search.visitedMap);
 
-		 if(path.size() == 1 && distance > 1) {
-			 Console::WriteLine << "Path is not reachable or too far!";
-		 } else {
-			Console::WriteLine << "Path has: " << path.size() << " elements.";
-			 path.Color(layout, {1,0,0}, 0.0f);
-		 }
+		//if(path.size() == 2 && distance > 1) {
+		//	Console::WriteLine << "Path is not reachable or too far!";
+		//} else {
+		Console::WriteLine << "Path has: " << path.size() << " elements.";
+		path.Color(&layout, {0,1,0}, 0.0f, ColorType::__mX);
+		//}
 	}
+
+	return path;
+}
+
+HexPath HexGrid::CalculatePathWithinXCost(HexTile *const start, HexTile *const goal, size_t cost) {
+	if(goal->weight == Blocked) {
+		Console::WriteLine << "Goal is blocked!";
+		return HexPath();
+	}
+
+	TraversalResult search = DijkstraTraverse(goal, cost, cost);
+
+	for(auto& t : map) {
+		t->DrawmX(layout, {t->weight/4.0f, 0, 1}, 0);  //weights are 1-4 in fill
+	}
+
+	for(auto& vec : search.reachableTiles) {
+		vec.Color(&layout, {0,1,1}, 0, ColorType::__X);
+	}
+
+	HexPath path;
+
+	path.BuildPathReverse(start, goal, search.visitedMap);
+
+	Console::WriteLine << "Path has: " << path.size() << " elements.";
+	path.Color(&layout, {0,1,0}, 0.0f, ColorType::__mX);
 
 	return path;
 }
@@ -149,6 +275,7 @@ HexRegion HexGrid::GetTilesNStepsAway(HexTile *const tile, int n) {
 	int x = tile->q, y = tile->r, z = tile->s;
 
 	HexRegion region = GetRegion(x - n, x + n, y - n, y + n, z - n, z + n);
+	region.Filter(*this);
 
 	return region;
 }
@@ -165,15 +292,15 @@ HexRegion HexGrid::GetRegion(int xmin, int xmax, int ymin, int ymax, int zmin, i
 	return results;
 }
 
-HexRegion HexGrid::GetIntersectingTilesRanges(HexagonalGridLayout *const layout, HexTile *const a, int aRadius, HexTile *const b, int bRadius) {
+HexRegion HexGrid::GetIntersectingTilesRanges(HexTile *const a, int aRadius, HexTile *const b, int bRadius) {
 	int ax = a->q, ay = a->r, az = a->s;
 	int bx = b->q, by = b->r, bz = b->s;
 
 	HexRegion regionA = GetRegion(ax - aRadius, ax + aRadius, ay - aRadius, ay + aRadius, az - aRadius, az + aRadius);
-	regionA.Color(layout, {0,1,0}, 0);
+	regionA.Color(&layout, {0,1,0}, 0, ColorType::__X);
 
 	HexRegion regionB = GetRegion(bx - bRadius, bx + bRadius, by - bRadius, by + bRadius, bz - bRadius, bz + bRadius);
-	regionB.Color(layout, {0,0,1}, 0.01f);
+	regionB.Color(&layout, {0,0,1}, 0.01f, ColorType::__X);
 
 	HexRegion intersection = GetRegion(
 		max(ax - aRadius, bx - bRadius), min(ax + aRadius, bx + bRadius),
@@ -181,7 +308,9 @@ HexRegion HexGrid::GetIntersectingTilesRanges(HexagonalGridLayout *const layout,
 		max(az - aRadius, bz - bRadius), min(az + aRadius, bz + bRadius)
 	);
 
-	intersection.Color(layout, {1, 0, 0}, 0.22f);
+	//intersection.Filter(*this);
+
+	intersection.Color(&layout, {1, 0, 0}, 0, ColorType::__CheapFill);
 
 	return intersection;
 }
@@ -197,9 +326,7 @@ HexPath HexGrid::breadthFirstSearch(HexTile *const start, HexTile *const goal) {
 		HexTile* current = Q.front();
 		Q.pop();
 
-		if(current == goal) {
-			break;
-		}
+		if(current == goal) { break; }
 
 		for(auto& neighbor : current->Neighbors()) {
 			if(!visited.count(&neighbor)) {
@@ -215,115 +342,179 @@ HexPath HexGrid::breadthFirstSearch(HexTile *const start, HexTile *const goal) {
 	return path;
 }
 
-BreadthTraversalResult HexGrid::breadthFirstTraverse(HexTile *const tile, size_t steps, size_t maxMovement) {
-	VisitedMap came_from;
-	came_from[tile] = nullptr;
+TraversalResult HexGrid::breadthFirstTraverse(HexTile *const tile, size_t steps, size_t maxMovement) {
+	VisitedMap visited;
+	visited[tile] = nullptr;
 
-	CostMap step_cost_so_far;
-	step_cost_so_far[tile] = 0;
+	CostMap stepCost;
+	stepCost[tile] = 0;
 
 	std::vector<HexPath> reachableTiles = {};
-	reachableTiles.resize(steps);
+	reachableTiles.resize(maxMovement);
 	reachableTiles[0].push_back(tile);
 
-	for(size_t i = 0; i < steps - 1 && reachableTiles[i].size(); ++i) {
+	for(size_t i = 0; i < maxMovement - 1 && reachableTiles[i].size(); ++i) {
 		for(size_t j = 0; j < reachableTiles[i].size(); ++j) {
 			const HexTile* _this = reachableTiles[i][j];
 			HexTile* _this_ = const_cast<HexTile*>(_this);
 
 			for(auto& n : _this_->Neighbors()) {
-				auto it = map.find(&n);
-				if(it == map.end()) { continue; }
+				HexTile* neighbor = GetTile(n);
+				if(!neighbor || neighbor->weight == Blocked) { continue; }
 
-				HexTile* neighbor = *it;
-
-				bool contain = step_cost_so_far.count(neighbor) > 0;
+				bool notContain = !stepCost.count(neighbor);
 				bool withinReach = tile->DistanceFrom(neighbor) <= steps;
-				bool notBlocked = neighbor->cost;
 
-				if(!contain && notBlocked && withinReach) {
-					step_cost_so_far[neighbor] = int(i + 1);
+				if(notContain && withinReach) {
+					stepCost[neighbor] = float(i + 1);
 					reachableTiles[i + 1].push_back(neighbor);
-					came_from[neighbor] = _this_;
+					visited[neighbor] = _this_;
 				}
 			}
 		}
 	}
 
-	BreadthTraversalResult res;
-	res.came_from = came_from;
-	res.cost_so_far = step_cost_so_far;
+	TraversalResult res;
+	res.visitedMap = visited;
+	res.costMap = stepCost;
+	res.reachableTiles = reachableTiles;
+
+	return res;
+}
+
+TraversalResult HexGrid::DijkstraTraverse(HexTile *const tile, size_t cost, size_t maxMovement) {
+	PriorityQueue<HexPath, float> Q;
+	HexPath p; p.push_back(tile);
+	Q.push(p, 0);
+
+	VisitedMap visited;
+	visited[tile] = tile;
+
+	CostMap weightCost;
+	weightCost[tile] = 0;
+
+	std::vector<HexPath> reachableTiles = {};
+	reachableTiles.resize(maxMovement);
+
+	for(size_t i = 0; i < maxMovement - 1 && !Q.empty(); ++i) {
+		while(!Q.empty()) {
+			HexPath current = Q.pop_back();
+			reachableTiles.push_back(current);
+			HexPath build;
+			for(size_t j = 0; j < current.size(); ++j) {
+				for(auto& n : current[j]->Neighbors()) {
+					HexTile* neighbor = GetTile(n);
+					if(!neighbor || neighbor->weight == Blocked) { continue; }
+
+					float new_cost = weightCost[current[j]] + neighbor->weight;
+
+					if(!weightCost.count(neighbor) || new_cost < weightCost[neighbor] ) {
+						if(new_cost > cost) continue;
+						build.push_back(neighbor);
+						weightCost[neighbor] = new_cost;
+						Q.push(build, new_cost);
+						visited[neighbor] = current[j];
+					}
+				}
+			}
+		}
+	}
+
+	TraversalResult res;
+	res.visitedMap = visited;
+	res.costMap = weightCost;
 	res.reachableTiles = reachableTiles;
 
 	return res;
 }
 
 HexPath HexGrid::DijkstraSearch(HexTile *const start, HexTile *const goal) {
-	//	std::priority_queue<HexTile*, std::vector<HexTile*>, CostComparator> Q;
-	//	std::unordered_map<HexTile*, HexTile*> visited;
-	//	std::unordered_map<HexTile*, float> cumulativeCost;
-	//
-	//	Q.push(start);
-	//	visited[start] = nullptr;
-	//	cumulativeCost[start] = 0;
-	//
-	//	while(!Q.empty()) {
-	//		HexTile* current = Q.top();
-	//		Q.pop();
-	//
-	//		if(current == goal) {
-	//			break;
-	//		}
-	//
-	//		std::vector<HexTile> curNeighbors = current->Neighbors();
-	//
-	//		for( auto&   neighbor : curNeighbors) {
-	//			float curCost = cumulativeCost[current] + neighbor.cost;
-	//
-	//			if(cumulativeCost.count(&neighbor) <= 0 || curCost < cumulativeCost[&neighbor]) {
-	//				cumulativeCost[&neighbor] = curCost;
-	//
-	//				HexTile* tmp = &neighbor;
-	//				tmp->cost = curCost;
-	//				Q.push(tmp);
-	//
-	//				visited[&neighbor] = current;
-	//			}
-	//		}
-	//	}
-	//
-	std::vector<HexTile*> path;
-	//
-	//	HexTile* current = goal;
-	//
-	//	while(current != start) {
-	//		path.push_back(current);
-	//		current = visited[current];
-	//	}
-	//
-	//	//path.push_back(start);
-	//	//path.reverse();
-	//
+	if(goal->weight == Blocked) return HexPath();
+
+	PriorityQueue<HexTile*, float> Q;
+	VisitedMap visited;
+	CostMap cumulativeCost;
+
+	Q.push(start, 0);
+	visited[start] = start;
+	cumulativeCost[start] = 0;
+
+	while(!Q.empty()) {
+		HexTile* current = Q.pop_back();
+
+		if(current == goal) { break; }
+
+		for(auto& _n : current->Neighbors()) {
+			HexTile* neighbor = GetTile(_n);
+			if(!neighbor || neighbor->weight == Blocked) { continue; }
+			neighbor->DrawT(layout, {0,1,0});
+
+			float new_cost = cumulativeCost[current] + neighbor->weight;
+			if(!cumulativeCost.count(neighbor) || new_cost < cumulativeCost[neighbor]) {
+				cumulativeCost[neighbor] = new_cost;
+				visited[neighbor] = current;
+				Q.push(neighbor, new_cost);
+			}
+		}
+	}
+
+	HexPath path;
+	path.BuildPath(start, goal, visited);
+
+	return path;
+}
+
+HexPath HexGrid::AStarSearch(HexTile *const start, HexTile *const goal, std::function<float(HexTile*, HexTile*)> Heuristic, const float heuristicWeight) {
+	if(goal->weight == Blocked) return HexPath();
+
+	PriorityQueue<HexTile*, float> Q;
+	VisitedMap visited;
+	CostMap cumulativeCost;
+
+	Q.push(start, 0);
+	visited[start] = start;
+	cumulativeCost[start] = 0;
+
+	while(!Q.empty()) {
+		HexTile* current = Q.pop_back();
+
+		if(current == goal) { break; }
+
+		for(auto& _n : current->Neighbors()) {
+			HexTile* neighbor = GetTile(_n);
+			if(!neighbor || neighbor->weight == Blocked) { continue; }
+			neighbor->DrawX(layout, {0,1,0});
+
+			float new_cost = cumulativeCost[current] + neighbor->weight;
+			if(cumulativeCost.find(neighbor) == cumulativeCost.end() || new_cost < cumulativeCost[neighbor]) {
+				cumulativeCost[neighbor] = new_cost;
+				float priority = new_cost + Heuristic(neighbor, goal) * heuristicWeight;
+				Q.push(neighbor, priority);
+				visited[neighbor] = current;
+			}
+		}
+	}
+
+	HexPath path;
+	path.BuildPath(start, goal, visited);
+
 	return path;
 }
 
 void HexGrid::SetUpDrawingPaths() {
 	iter = map.begin();
 	HexTile* start = *iter;
-	start->cost = 1.0f;
 
-	std::advance(iter, 8);
-	HexTile* istart = *iter;
-	iter = map.begin();
+	HexTile* istart = GetTile(HexTile(0, 0));
 
-	DrawLine += [=](HexagonalGridLayout* layout) {
+	DrawLine += [=]() {
 		HexTile* end = *iter;
 
 		HexTile* realStart = const_cast<HexTile*&>(start);
 		HexTile* realend = const_cast<HexTile*&>(end);
 
-		auto sc = realStart->Center(*layout);
-		auto se = realend->Center(*layout);
+		auto sc = realStart->Center(layout);
+		auto se = realend->Center(layout);
 
 		DebugRenderer::AddLine({sc.x, sc.y,0}, {se.x, se.y,0}, {0,0,0});
 
@@ -332,12 +523,12 @@ void HexGrid::SetUpDrawingPaths() {
 		//Console::WriteLine << "The path has " << path.size() << " elements.";
 
 		for(auto& e : path) {
-			e.Draw(*layout, {1,0,0});
-			e.Cross(*layout, {1,0,0});
+			e.Draw(layout, {1,0,0});
+			e.DrawX(layout, {1,0,0});
 		}
 
-		realStart->Draw(*layout, {0,0,1}, 0.1f);
-		realend->Draw(*layout, {0,1,0}, 0.1f);
+		realStart->Draw(layout, {0,0,1}, 0.1f);
+		realend->Draw(layout, {0,1,0}, 0.1f);
 
 		if(KeyIsDown(TestInputO)) {
 			step();
@@ -346,12 +537,12 @@ void HexGrid::SetUpDrawingPaths() {
 		}
 	};
 
-	DrawRange += [=](HexagonalGridLayout* layout) {
+	DrawRange += [=]() {
 		HexTile* _start = *iter;
 
 		HexTile* realStart = const_cast<HexTile*&>(_start);
 		HexRegion range = GetTilesNStepsAway(realStart, 2);
-
+		range.Filter(*this);
 		//for(auto& e : path) {
 		//	e->Draw(*layout, {1,0,0});
 		//	e->Cross(*layout, {1,0,0});
@@ -359,7 +550,7 @@ void HexGrid::SetUpDrawingPaths() {
 
 		//range.Color(layout, {1,0,0}, 0.2f);
 
-		realStart->Draw(*layout, {0,0,1}, 0.1f);
+		realStart->Draw(layout, {0,0,1}, 0.1f);
 
 		if(KeyIsDown(TestInputO)) {
 			step();
@@ -368,19 +559,19 @@ void HexGrid::SetUpDrawingPaths() {
 		}
 	};
 
-	DrawIntersect += [=](HexagonalGridLayout* layout) {
+	DrawIntersect += [=]() {
 		HexTile* end = *iter;
 
 		HexTile* realend = const_cast<HexTile*&>(end);
 
 		HexTile* realStart = const_cast<HexTile*&>(istart);
 
-		auto sc = realStart->Center(*layout);
-		auto se = realend->Center(*layout);
+		auto sc = realStart->Center(layout);
+		auto se = realend->Center(layout);
 
 		DebugRenderer::AddLine({sc.x, sc.y, 0}, {se.x, se.y, 0}, {0,0,0});
 
-		GetIntersectingTilesRanges(layout, realStart, 2, realend, 2);
+		GetIntersectingTilesRanges(realStart, 4, realend, 4);
 
 		if(KeyIsDown(TestInputO)) {
 			step();
@@ -389,55 +580,91 @@ void HexGrid::SetUpDrawingPaths() {
 		}
 	};
 
-	DrawXStepsPath += [=](HexagonalGridLayout* layout) {
+	DrawXStepsPath += [=]() {
+		HexTile* end = *iter;
+
+		HexTile* realend = const_cast<HexTile*&>(end);
+		HexTile* realStart = const_cast<HexTile*&>(istart);
+
+		auto sc = realStart->Center(layout);
+		auto se = realend->Center(layout);
+
+		DebugRenderer::AddLine({sc.x, sc.y, 0}, {se.x, se.y, 0}, {0,0,0});
+		realStart->DrawT(layout, {1,1,1}, 0.08f);
+		realend->DrawT(layout, {1,1,1}, 0.08f);
+
+		//CalculatePathWithinXSteps(realStart, realend, 8);
+		CalculatePathWithinXCost(realStart, realend, 8);
+
+		if(KeyIsHit(TestInputO)) {
+			step();
+			//	Console::WriteLine << "Current index is " << curPos;
+		}
+	};
+
+	DrawAIPath += [=]() {
 		HexTile* end = *iter;
 
 		HexTile* realend = const_cast<HexTile*&>(end);
 		HexTile* realStart = const_cast<HexTile*&>(start);
 
-		auto sc = realStart->Center(*layout);
-		auto se = realend->Center(*layout);
+		auto sc = realStart->Center(layout);
+		auto se = realend->Center(layout);
 
 		DebugRenderer::AddLine({sc.x, sc.y, 0}, {se.x, se.y, 0}, {0,0,0});
-		realStart->Star(*layout, {1,1,1}, 0.08f);
-		realend->Star(*layout, {1,1,1}, 0.08f);
+		realStart->DrawT(layout, {1,1,1}, 0);
+		realend->DrawT(layout, {1,1,1}, 0);
 
-		CalculatePathWithinXSteps(realStart, realend, 8, layout);
+		//HexPath d = DijkstraSearch(realStart, realend);
+		HexPath p = AStarSearch(realStart, realend, Heuristics::GetDistance, 1.2f);
+		p.Color(&layout, {1,0,0}, 0, ColorType::__CheapFill);
+		//Console::WriteLine << "Path contains " << p.size() << " elements.";
 
-		if(KeyIsDown(TestInputO)) {
+		if(KeyIsHit(TestInputO)) {
 			step();
-			ResetKey(TestInputO);
-		//	Console::WriteLine << "Current index is " << curPos;
+			//	Console::WriteLine << "Current index is " << curPos;
 		}
 	};
 }
 
 void HexGrid::Fill() {
 	srand((unsigned) time(0));
-	for(int q = (int) -map_radius; q <= map_radius; q++) {
+	for(int q = (int) -map_radius; q <= map_radius; ++q) {
 		int r1 = (int) max(-map_radius, -q - map_radius);
 		int r2 = (int) min(map_radius, -q + map_radius);
-		for(int r = r1; r <= r2; r++) {
+		for(int r = r1; r <= r2; ++r) {
 			HexTile* t = new HexTile(q, r);
-			if(rand() % 100 < 28) {
-				t->cost = 0.0f;
+			if(rand() % 100 < 20) {
+				t->weight = (float) Blocked;
 			} else {
-				t->cost = 1.0f;
+				t->weight = float(rand() % 4) +1;
 			}
 			map.insert(t);
 		}
 	}
+
+	HexTile* start = GetTile(0,0);
+	start->weight = 1.0f;
+
+	for(auto& t : map) {
+		if(t->weight == Blocked)
+			blocked.push_back(*t);
+	}
+
 	SetUpDrawingPaths();
 }
 
-void HexGrid::Display(HexagonalGridLayout layout) {
+HexRegion HexGrid::blocked;
+
+void HexGrid::Display() {
 	for(const auto& t : map) {
 		auto realT = const_cast<HexTile*&>(t);
-
 		realT->Draw(layout, {1,1,1});
 	}
 
-	DrawXStepsPath(&layout);
+	blocked.Color(&layout, {0,0,0}, 0, ColorType::__CheapFill);
+
+	DrawXStepsPath();
 }
 
 HexGrid::~HexGrid() {
@@ -446,4 +673,14 @@ HexGrid::~HexGrid() {
 		t = nullptr;
 	}
 	map.clear();
+}
+
+HexTile* HexGrid::GetTile(const int x, const int y) {
+	auto it = map.find(&HexTile(x, y));
+	return it == map.end() ? nullptr : *it;
+}
+
+HexTile* HexGrid::GetTile(HexTile& t) const {
+	auto it = map.find(&t);
+	return it == map.end() ? nullptr : *it;
 }

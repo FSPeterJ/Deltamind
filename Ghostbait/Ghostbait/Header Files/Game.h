@@ -4,7 +4,7 @@
 #include "HexGrid.h"
 
 class Game {
-	HexGrid hexGrid = HexGrid(4);
+	HexGrid hexGrid = HexGrid(16, HexagonalGridLayout::FlatLayout);
 public:
 	Game() {
 		EngineStructure::Update += [=]() {
@@ -32,7 +32,7 @@ public:
 	
 	void Update() {
 		//mygrid.Draw();
-		hexGrid.Display(HexagonalGridLayout::FlatLayout);
+		hexGrid.Display();
 	}
 	void Clean() {}
 };

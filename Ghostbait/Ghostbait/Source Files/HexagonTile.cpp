@@ -6,9 +6,6 @@
 
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 
-bool CostComparator::operator()(const HexTile& lhs, const HexTile& rhs) const { return lhs.cost < rhs.cost; }
-bool CostComparator::operator()(const HexTile* lhs, const HexTile* rhs) const { return lhs->cost < rhs->cost; }
-
 template<typename T>
 const std::vector<HexTile> HexagonTile<T>::directions = {
 	HexTile(1, 0, -1), HexTile(1, -1, 0), HexTile(0, -1, 1),
@@ -86,7 +83,7 @@ void HexagonTile<T>::Draw(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, f
 }
 
 template<typename T>
-void HexagonTile<T>::Cross(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset) {
+void HexagonTile<T>::DrawX(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset) {
 	DirectX::XMFLOAT2 corners[Hexagon::NUMBER_OF_SIDES];
 	HexagonalGridLayout::GetHexCorners(*this, layout, &corners[0]);
 
@@ -100,7 +97,107 @@ void HexagonTile<T>::Cross(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, 
 }
 
 template<typename T>
-void HexagonTile<T>::Star(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset) {
+void HexagonTile<T>::DrawmX(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset) {
+	DirectX::XMFLOAT2 corners[Hexagon::NUMBER_OF_SIDES];
+	HexagonalGridLayout::GetHexCorners(*this, layout, &corners[0]);
+
+	auto x1 = 0.5f*(corners[2].x + corners[3].x);
+	auto x2 = 0.5f*(corners[1].x + corners[0].x);
+
+	auto y1 = 0.5f*(corners[3].y + corners[4].y);
+	auto y2 = 0.5f*(corners[1].y + corners[0].y);
+
+	DirectX::XMFLOAT3 point0 = {x1, y2, offset};
+	DirectX::XMFLOAT3 point1 = {x2, y2, offset};
+	DirectX::XMFLOAT3 point2 = {x1, y1, offset};
+	DirectX::XMFLOAT3 point3 = {x2, y1, offset};
+
+	DebugRenderer::AddLine(point0, point3, color);
+	DebugRenderer::AddLine(point1, point2, color);
+}
+
+template<typename T>
+void HexagonTile<T>::DrawCheapFill(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset) {
+	DrawX(layout, color, offset);
+	DrawT(layout, color, offset);
+	DrawmX(layout, color, offset);
+}
+
+template<typename T>
+void HexagonTile<T>::DrawExpensiveFill(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset) {
+	DirectX::XMFLOAT2 corners[Hexagon::NUMBER_OF_SIDES];
+	HexagonalGridLayout::GetHexCorners(*this, layout, &corners[0]);
+
+	auto x1 = 0.5f*(corners[2].x + corners[3].x);
+	auto x2 = 0.5f*(corners[1].x + corners[0].x);
+
+	auto y1 = 0.5f*(corners[3].y + corners[4].y);
+	auto y2 = 0.5f*(corners[1].y + corners[0].y);
+
+	auto x = 0.5f*(corners[2].x + corners[1].x);
+
+	DirectX::XMFLOAT3 topmid = {x, corners[2].y, offset};
+	DirectX::XMFLOAT3 bottommid = {x, corners[4].y, offset};
+
+	DirectX::XMFLOAT3 midtopleftmid = {x1, y2, offset};
+	DirectX::XMFLOAT3 midtoprightmid = {x2, y2, offset};
+	DirectX::XMFLOAT3 midbottomleftmid = {x1, y1, offset};
+	DirectX::XMFLOAT3 midbottomrightmid = {x2, y1, offset};
+
+	DirectX::XMFLOAT3 right = {corners[0].x, corners[0].y, offset};
+	DirectX::XMFLOAT3 topright = {corners[1].x, corners[1].y, offset};
+	DirectX::XMFLOAT3 topleft = {corners[2].x, corners[2].y, offset};
+	DirectX::XMFLOAT3 left = {corners[3].x, corners[3].y, offset};
+	DirectX::XMFLOAT3 bottomleft = {corners[4].x, corners[4].y, offset};
+	DirectX::XMFLOAT3 bottomright = {corners[5].x, corners[5].y, offset};
+
+
+	DebugRenderer::AddLine(right, midtoprightmid, color);
+	DebugRenderer::AddLine(right, topright, color);
+	DebugRenderer::AddLine(right, topmid, color);
+	DebugRenderer::AddLine(right, midtopleftmid, color);
+	DebugRenderer::AddLine(right, topleft, color);
+	DebugRenderer::AddLine(right, left, color);
+	DebugRenderer::AddLine(right, midbottomleftmid, color);
+	DebugRenderer::AddLine(right, bottomleft, color);
+	DebugRenderer::AddLine(right, bottommid, color);
+	DebugRenderer::AddLine(right, bottomright, color);
+	DebugRenderer::AddLine(right, midbottomrightmid, color);
+
+	DebugRenderer::AddLine(left, midtoprightmid, color);
+	DebugRenderer::AddLine(left, topright, color);
+	DebugRenderer::AddLine(left, topmid, color);
+	DebugRenderer::AddLine(left, topleft, color);
+	DebugRenderer::AddLine(left, midtopleftmid, color);
+	DebugRenderer::AddLine(left, midbottomleftmid, color);
+	DebugRenderer::AddLine(left, bottomleft, color);
+	DebugRenderer::AddLine(left, bottommid, color);
+	DebugRenderer::AddLine(left, bottomright, color);
+	DebugRenderer::AddLine(left, midbottomrightmid, color);
+
+	DebugRenderer::AddLine(bottommid, midtoprightmid, color);
+	DebugRenderer::AddLine(bottommid, topright, color);
+	DebugRenderer::AddLine(bottommid, topmid, color);
+	DebugRenderer::AddLine(bottommid, topleft, color);
+	DebugRenderer::AddLine(bottommid, midtopleftmid, color);
+	DebugRenderer::AddLine(bottommid, midbottomleftmid, color);
+	DebugRenderer::AddLine(bottommid, bottomleft, color);
+	DebugRenderer::AddLine(bottommid, bottomright, color);
+	DebugRenderer::AddLine(bottommid, midbottomrightmid, color);
+
+	DebugRenderer::AddLine(topmid, midtoprightmid, color);
+	DebugRenderer::AddLine(topmid, topright, color);
+	DebugRenderer::AddLine(topmid, topleft, color);
+	DebugRenderer::AddLine(topmid, midtopleftmid, color);
+	DebugRenderer::AddLine(topmid, midbottomleftmid, color);
+	DebugRenderer::AddLine(topmid, bottomleft, color);
+	DebugRenderer::AddLine(topmid, bottomright, color);
+	DebugRenderer::AddLine(topmid, midbottomrightmid, color);
+}
+
+
+template<typename T>
+void HexagonTile<T>::DrawT(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset) {
 	DirectX::XMFLOAT2 corners[Hexagon::NUMBER_OF_SIDES];
 	HexagonalGridLayout::GetHexCorners(*this, layout, &corners[0]);
 

@@ -43,6 +43,8 @@ protected:
 	/// <returns>true if the key is down, false otherwise</returns>
 	inline bool KeyIsDown(Control key) { return Amount(key) > 0; }
 
+	inline bool KeyIsHit(Control key) { bool hit = Amount(key) > 0; ResetKey(key); return hit; }
+
 	inline void ResetKey(Control key) { inputReceivedEvent.SetState(key, 0); }
 public:
 	/// <summary>

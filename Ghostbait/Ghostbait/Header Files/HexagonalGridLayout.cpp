@@ -13,7 +13,7 @@ const double pi_div_3 = 1.047197551196597746154214461093167628065723133125;
 const Orientation Orientation::Pointy = Orientation(sqrt_3, sqrt_3_div_2, 0.0, 1.5, sqrt_3_div_3, -_1_div_3, 0.0, _2_div_3, 0.5);
 const Orientation Orientation::Flat = Orientation(1.5, 0.0, sqrt_3_div_2, sqrt_3, _2_div_3, 0.0, -_1_div_3, sqrt_3_div_3, 0.0);
 
-const HexagonalGridLayout HexagonalGridLayout::FlatLayout = HexagonalGridLayout(Orientation::Flat, DirectX::XMFLOAT2(1, 1), DirectX::XMFLOAT2(0, 0));
+const HexagonalGridLayout HexagonalGridLayout::FlatLayout = HexagonalGridLayout(Orientation::Flat, DirectX::XMFLOAT2(0.3f, 0.3f), DirectX::XMFLOAT2(0, 0));
 const HexagonalGridLayout HexagonalGridLayout::PointyLayout = HexagonalGridLayout(Orientation::Pointy, DirectX::XMFLOAT2(1, 1), DirectX::XMFLOAT2(0, 0));
 
 Orientation::Orientation(double _f0, double _f1, double _f2, double _f3, double _b0, double _b1, double _b2, double _b3, double _start_angle) :
@@ -39,6 +39,7 @@ HexagonTile<double> HexagonalGridLayout::PointToHexagonTile(DirectX::XMFLOAT2 p,
 }
 
 DirectX::XMFLOAT2 HexagonalGridLayout::GetHexCornerOffset(HexagonalGridLayout layout, int corner) {
+	//this doesn't work so well if you only want to draw certain edges. it won't line up with neighbors
 	Point2<float> size = layout.size;
 	double angle = pi_div_3 * (layout.orientation.start_angle + corner);
 	return DirectX::XMFLOAT2(float(size.x * cos(angle)), float(size.y * sin(angle)));

@@ -51,7 +51,7 @@ private:
 		std::swap(r, b.r);
 		std::swap(s, b.s);
 		std::swap(v, b.v); //needed?
-		std::swap(cost, b.cost);
+		std::swap(weight, b.weight);
 	}
 
 	static const std::vector<HexTile> directions;
@@ -63,7 +63,7 @@ public:
 		struct { T q, r, s; };
 	};
 
-	float cost = 0;
+	float weight = 0.0f;
 
 	HexagonTile() : v {0,0,0} {}
 
@@ -99,7 +99,7 @@ public:
 
 	void RotateRight();
 
-	HexTile Round(HexDTile h);
+	static HexTile Round(HexDTile h);
 
 	std::vector<HexTile> DrawLineTo(HexTile* b);
 
@@ -110,9 +110,12 @@ public:
 
 	void Draw(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset = 0);
 
-	void Cross(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset = 0);
+	void DrawX(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset = 0);
+	void DrawmX(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset = 0);
+	void DrawCheapFill(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset = 0);
+	void DrawExpensiveFill(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset = 0);
 
-	void Star(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset = 0);
+	void DrawT(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset = 0);
 
 	inline HexDTile Lerp(HexTile a, HexTile b, double t);
 
@@ -123,12 +126,14 @@ public:
 	}
 };
 
-static const HexDTile HexEpsilon(1e-6, 1e-6, -2e-6);
 
-struct CostComparator {
-	bool operator()(const HexTile& lhs, const HexTile& rhs) const;
-	bool operator()(const HexTile* lhs, const HexTile* rhs) const;
-};
+namespace Heuristics { //put this in grid maybe?
+	inline static float GetDistance(HexTile* a, HexTile* b) { return (float) std::abs(a->q - b->q) + std::abs(a->r - b->r); }
+}
+
+
+
+static const HexDTile HexEpsilon(1e-6, 1e-6, -2e-6);
 
 template<typename T>
 inline HexagonTile<T> operator+(const HexagonTile<T>& a, const HexagonTile<T>& b) {

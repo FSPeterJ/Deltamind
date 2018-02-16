@@ -1,15 +1,14 @@
 #pragma once
 #include "Object.h"
 #include "Controlable.h"
-#include "Health.h"
 
 class GameObject: public Object {
-	//Until delegate unsubscribe is fixed
-
+	friend class ObjectFactory;
+	virtual void GameObject::SetData(char* data) {};
 protected:
-
 	std::string tag = "none";
-	unsigned updateID = 0;
+	unsigned typeID = 0;
+	unsigned updateID = 0;  //Update Delegate ID
 
 	virtual void RestartGame() {};
 
@@ -28,6 +27,7 @@ public:
 
 	inline const std::string GetTag() const { return tag; };
 	inline void SetTag(std::string _tag) { tag = _tag; };
+	virtual void PassObject(GameObject* obj, char* tag);
 };
 
 //Other

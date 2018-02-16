@@ -94,7 +94,7 @@ void BuildTool::CycleForward() {
 	}
 
 	if (prefabs[tempIndex].ID < 0)
-		currentMode = Mode::REMOVE;
+		currentMode = Mode::REMOVE; // Unreachable code
 	else
 		currentMode = Mode::SPAWN;
 

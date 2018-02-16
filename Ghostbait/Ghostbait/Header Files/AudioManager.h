@@ -2,12 +2,17 @@
 #include "Camera.h"
 #include "GameObject.h"
 #include "MessageStructs.h"
-#include <DirectXMath.h>
 #include <vector>
 
 #ifdef NDEBUG
 #define AK_OPTIMIZED
 #endif // !NDEBUG
+
+
+namespace DirectX
+{
+	struct XMFLOAT4X4;
+}
 
 class AudioManager
 {

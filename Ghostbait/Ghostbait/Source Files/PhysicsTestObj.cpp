@@ -9,6 +9,7 @@ PhysicsTestObj::PhysicsTestObj() {
 
 
 PhysicsTestObj::~PhysicsTestObj() {
+	int x = 00;
 }
 
 void PhysicsTestObj::Update() {

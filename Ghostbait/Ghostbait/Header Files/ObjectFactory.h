@@ -15,6 +15,8 @@ class EventMessageBase;
 /// </summary>
 class ObjectFactory {
 	static ObjectManager* objMan;
+	static char* assetsFolder;
+	static int assetsFolderLength;
 
 	struct Prefab {
 	private:
@@ -45,6 +47,7 @@ class ObjectFactory {
 
 	//map Names to prefabs
 	static std::unordered_map<std::string, unsigned> prefabNames;
+	static std::unordered_map<unsigned, std::string> prefabNamesReverse;
 	static std::unordered_map<unsigned, unsigned> Object2Prefab;
 
 	//static std::unordered_map<int,GameObject*> prefabs;
@@ -63,7 +66,7 @@ public:
 	/// <summary>
 	/// Initializes the Object Factory and hands off the managers it needs to access
 	/// </summary>
-	static void Initialize(ObjectManager* _objMan);
+	static void Initialize(ObjectManager* _objMan, const char* object);
 
 	~ObjectFactory() {};
 

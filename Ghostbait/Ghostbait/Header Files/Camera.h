@@ -16,5 +16,7 @@ public:
 	void pointCameraAt(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 up);
 	void turnCameraTowards(DirectX::XMFLOAT3 target, float speed);
 	void moveCameraAlongForward(float speed);
+	void moveCameraAlongUp(float speed);
+	void moveCameraAlongSide(float speed);
 	void Update();
 };

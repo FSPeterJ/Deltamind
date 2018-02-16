@@ -18,4 +18,3 @@ int Object::SetComponent(ComponentBase* _component, const int _id) {
 	return Components.AddComponent(_component, _id);
 }
 
-int Object::GetTypeId() { return 0; };

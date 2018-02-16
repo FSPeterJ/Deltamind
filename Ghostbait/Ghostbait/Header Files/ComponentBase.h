@@ -8,8 +8,6 @@ class Object;
 class ComponentBase {
 public:
 	bool singleInstance = true;
-	//If you are creating this base, you are doing something wrong.
-	//to prevent creation of this class, mark its ctor protected. now it can't exist on its own
 protected:
 	ComponentBase() {}
 };

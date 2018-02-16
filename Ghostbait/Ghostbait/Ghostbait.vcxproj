@@ -207,9 +207,12 @@
     <ClInclude Include="Header Files\GameObject.h" />
     <ClInclude Include="Header Files\GameObjectComponent.h" />
     <ClInclude Include="Header Files\GhostTime.h" />
-    <ClInclude Include="Header Files\Grid.h" />
     <ClInclude Include="Header Files\Gun.h" />
     <ClInclude Include="Header Files\Health.h" />
+    <ClInclude Include="Header Files\HexagonalGridLayout.h" />
+    <ClInclude Include="Header Files\HexagonTile.h" />
+    <ClInclude Include="Header Files\HexagonTileSpecializer.h" />
+    <ClInclude Include="Header Files\HexGrid.h" />
     <ClInclude Include="Header Files\InputManager.h" />
     <ClInclude Include="Header Files\IComponentManager.h" />
     <ClInclude Include="Header Files\Item.h" />
@@ -239,6 +242,7 @@
     <ClInclude Include="Header Files\Spawner.h" />
     <ClInclude Include="Header Files\StdHeader.h" />
     <ClInclude Include="Header Files\targetver.h" />
+    <ClInclude Include="Header Files\TestObject.h" />
     <ClInclude Include="Header Files\ThreadPool.h" />
     <ClInclude Include="Header Files\TypeContainer.h" />
     <ClInclude Include="Header Files\TypeMapping.h" />
@@ -274,11 +278,14 @@
     <ClCompile Include="Source Files\Game.cpp" />
     <ClCompile Include="Source Files\GameObject.cpp" />
     <ClCompile Include="Source Files\GhostTime.cpp" />
-    <ClCompile Include="Source Files\Grid.cpp" />
     <ClCompile Include="Source Files\Gun.cpp">
       <ShowIncludes Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ShowIncludes>
     </ClCompile>
     <ClCompile Include="Source Files\Health.cpp" />
+    <ClCompile Include="Source Files\HexagonalGridLayout.cpp" />
+    <ClCompile Include="Source Files\HexagonTile-Impl.cpp" />
+    <ClCompile Include="Source Files\HexagonTile.cpp" />
+    <ClCompile Include="Source Files\HexGrid.cpp" />
     <ClCompile Include="Source Files\InputManager.cpp" />
     <ClCompile Include="Source Files\Item.cpp" />
     <ClCompile Include="Source Files\LightManager.cpp" />

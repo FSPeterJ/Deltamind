@@ -22,16 +22,20 @@ struct lightBufferStruct {
 
 class LightManager
 {
-	int numLights = 0;
-	int nextID = 0;
-	lightBufferStruct cpu_light_info;
-	int IDList[MAX_LIGHTS];
+	static int numLights;
+	static int nextID;
+	static lightBufferStruct cpu_light_info;
+	static int IDList[MAX_LIGHTS];
 public:
-	int addLight(genericLight toAdd);
-	void setAmbient(DirectX::XMFLOAT3 color, float factor);
-	lightBufferStruct* getLightBuffer() { return &cpu_light_info; };
-	genericLight* getLight(int ID);
-	void removeLight(int ID);
+	static int addLight(genericLight toAdd);
+	static void setAmbient(DirectX::XMFLOAT3 color, float factor);
+	static lightBufferStruct* getLightBuffer() { return &cpu_light_info; };
+	static genericLight* getLight(int ID);
+	static void removeLight(int ID);
+	
+	static int addDirectionalLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 dir);
+	static int addPointLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, float radius);
+	static int addSpotLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir, float radius, float outerRadius);
 
 	LightManager();
 	~LightManager();

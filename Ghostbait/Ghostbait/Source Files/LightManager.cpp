@@ -1,6 +1,9 @@
 #include "LightManager.h"
 
-
+int LightManager::numLights = 0;
+int LightManager::nextID = 0;
+lightBufferStruct LightManager::cpu_light_info;
+int LightManager::IDList[MAX_LIGHTS];
 
 int LightManager::addLight(genericLight toAdd)
 {
@@ -49,6 +52,34 @@ void LightManager::removeLight(int ID)
 			break;
 		}
 	}
+}
+
+int LightManager::addDirectionalLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 dir)
+{
+	genericLight toManager;
+	toManager.color = DirectX::XMFLOAT4(color.x, color.y, color.z, 1.0f);
+	toManager.dir = dir;
+	return addLight(toManager);
+}
+
+int LightManager::addPointLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, float radius)
+{
+	genericLight toManager;
+	toManager.color = DirectX::XMFLOAT4(color.x, color.y, color.z, 1.0f);
+	toManager.pos = pos;
+	toManager.radius = radius;
+	return addLight(toManager);
+}
+
+int LightManager::addSpotLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir, float radius, float outerRadius)
+{
+	genericLight toManager;
+	toManager.color = DirectX::XMFLOAT4(color.x, color.y, color.z, 1.0f);
+	toManager.pos = pos;
+	toManager.dir = dir;
+	toManager.radius = radius;
+	toManager.outerRadius = outerRadius;
+	return addLight(toManager);
 }
 
 LightManager::LightManager()

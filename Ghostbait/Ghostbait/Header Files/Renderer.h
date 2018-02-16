@@ -85,7 +85,6 @@ private:
 	viewProjectionConstantBuffer defaultCamera;
 	animDataBufferStruct cpuAnimationData;
 
-	LightManager* lightManager;
 	//eye leftEye;
 	//eye rightEye;
 
@@ -160,15 +159,10 @@ public:
 	void unregisterObject(EventMessageBase* e);
 
 	//////////////////////////////////////////////////////////////////////////////////
-	void addDirectionalLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 dir);
-	void addPointLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, float radius);
-	void addSpotLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir, float radius, float outerRadius);
-	void setAmbient(DirectX::XMFLOAT3 color, float factor);
 
 	MeshManager* getMeshManager();
 	MaterialManager* getMaterialManager();
 	AnimationManager* getAnimationManager();
-	LightManager* getLightManager() { return lightManager; }
 	Camera* getCamera();
 	void Render();
 };

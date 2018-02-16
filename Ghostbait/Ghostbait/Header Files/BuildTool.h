@@ -7,15 +7,16 @@ class ControllerObject;
 class BuildTool : public Item {
 	struct BuildItem {
 		GameObject* object;
-		unsigned ID;
+		int ID;
 	};
 	enum Mode {
 		SPAWN,
 		REMOVE,
 	};
 
-	unsigned currentPrefabIndex = 0;
+	int currentPrefabIndex = 0;
 	std::vector<BuildItem> prefabs;
+	std::vector<GameObject*> builtItems;
 	Mode currentMode = SPAWN;
 	DirectX::XMFLOAT3 spawnPos;
 	GameObject* currentlySelectedItem = nullptr;
@@ -27,9 +28,9 @@ class BuildTool : public Item {
 	void Remove();
 public:
 	BuildTool();
-	BuildTool(std::vector<unsigned> prefabIDs);
+	BuildTool(std::vector<int> prefabIDs);
 
-	void SetPrefabs(std::vector<unsigned> prefabIDs);
+	void SetPrefabs(std::vector<int> prefabIDs);
 	void SetParent(ControllerObject* _parent);
 
 	void Projection();

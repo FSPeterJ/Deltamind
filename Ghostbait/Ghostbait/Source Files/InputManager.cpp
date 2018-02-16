@@ -140,6 +140,7 @@ InputPackage InputManager::VRInput::CheckForInput() {
 			switch(event.data.controller.button) {
 			case vr::k_EButton_ApplicationMenu:
 				if(event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
+					MessageEvents::SendMessage(EVENT_GamePause, EventMessageBase());
 				} else {
 					input = teleportDown;
 					amount = 1;
@@ -169,16 +170,16 @@ InputPackage InputManager::VRInput::CheckForInput() {
 				rads = atan2(x, y);
 				if(rads < 0) rads += (float) (2 * RAD_PI);
 				if(rads >= RAD_PI_4 && rads < RAD_3PI_4) {
-					input = event.trackedDeviceIndex == VRManager::GetInstance().leftController.index ? leftItem3 : rightItem3;
-					amount = 1;
-				} else if(rads >= RAD_3PI_4 && rads < RAD_5PI_4) {
-					input = event.trackedDeviceIndex == VRManager::GetInstance().leftController.index ? leftItem4 : rightItem4;
-					amount = 1;
-				} else if(rads >= RAD_5PI_4 && rads < RAD_7PI_4) {
 					input = event.trackedDeviceIndex == VRManager::GetInstance().leftController.index ? leftItem2 : rightItem2;
 					amount = 1;
-				} else {
+				} else if(rads >= RAD_3PI_4 && rads < RAD_5PI_4) {
+					input = event.trackedDeviceIndex == VRManager::GetInstance().leftController.index ? leftItem3 : rightItem3;
+					amount = 1;
+				} else if(rads >= RAD_5PI_4 && rads < RAD_7PI_4) {
 					input = event.trackedDeviceIndex == VRManager::GetInstance().leftController.index ? leftItem1 : rightItem1;
+					amount = 1;
+				} else {
+					input = event.trackedDeviceIndex == VRManager::GetInstance().leftController.index ? leftItem0 : rightItem0;
 					amount = 1;
 				}
 				break;

@@ -7,7 +7,7 @@
 #include "MaterialManager.h"
 #include "Camera.h"
 #include "Animator.h"
-
+#include "LightManager.h"
 using namespace DirectX;
 
 void Renderer::createDeviceContextAndSwapchain(Window window) {
@@ -153,8 +153,9 @@ void Renderer::renderObjectDefaultState(Object * obj) {
 	Animator* anim = obj->GetComponent<Animator>();
 	if(anim) {
 		const std::vector<animJoint>* joints = anim->getTweens();
+		const std::vector<animJoint>* bindPose = &anim->getCurrentAnimation()->bPose->joints;
 		for(size_t i = 0; i < joints->size(); ++i) {
-			DirectX::XMStoreFloat4x4(&cpuAnimationData.cpu_side_joints[i], XMLoadFloat4x4(&joints->operator[](i).transform));
+			DirectX::XMStoreFloat4x4(&cpuAnimationData.cpu_side_joints[i], XMLoadFloat4x4(&bindPose->operator[](i).transform) * XMLoadFloat4x4(&joints->operator[](i).transform));
 		}
 		cpuAnimationData.willAnimate = true;
 	} else
@@ -264,9 +265,7 @@ void Renderer::Initialize(Window window) {
 	device->CreateSamplerState(&sampleDesc, &OnlySamplerState);
 	context->PSSetSamplers(0, 1, &OnlySamplerState);
 #pragma endregion
-
-	setAmbient(DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), 0.4f);
-	addSpotLight(DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), DirectX::XMFLOAT3(0.0f, 2.0f, 0.0f), DirectX::XMFLOAT3(0.0f, -1.0f, 0.0f), 0.5f, 0.3f);
+	
 	keyboardCamera = new Camera();
 	keyboardCamera->pointCameraAt(DirectX::XMFLOAT3(0.0f, 2.0f, -15.0f), DirectX::XMFLOAT3(0.0f, -2.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
 	XMStoreFloat4x4(&defaultCamera.projection, XMMatrixTranspose(XMMatrixPerspectiveFovLH(60.0f * XM_PI / 180.0f, defaultPipeline.viewport.Width / defaultPipeline.viewport.Height, 0.001f, 300.0f)));
@@ -339,35 +338,6 @@ void Renderer::unregisterObject(EventMessageBase* e) {
 	}
 }
 
-void Renderer::addDirectionalLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 dir) {
-	genericLight toManager;
-	toManager.color = DirectX::XMFLOAT4(color.x, color.y, color.z, 1.0f);
-	toManager.dir = dir;
-	lightManager.addLight(toManager);
-}
-
-void Renderer::addPointLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, float radius) {
-	genericLight toManager;
-	toManager.color = DirectX::XMFLOAT4(color.x, color.y, color.z, 1.0f);
-	toManager.pos = pos;
-	toManager.radius = radius;
-	lightManager.addLight(toManager);
-}
-
-void Renderer::addSpotLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir, float radius, float outerRadius) {
-	genericLight toManager;
-	toManager.color = DirectX::XMFLOAT4(color.x, color.y, color.z, 1.0f);
-	toManager.pos = pos;
-	toManager.dir = dir;
-	toManager.radius = radius;
-	toManager.outerRadius = outerRadius;
-	lightManager.addLight(toManager);
-}
-
-void Renderer::setAmbient(DirectX::XMFLOAT3 color, float factor) {
-	lightManager.setAmbient(color, factor);
-}
-
 XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 	XMFLOAT4X4 mat;
 	mat._11 = arr[0];
@@ -391,7 +361,6 @@ XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 
 void Renderer::Render() {
 	loadPipelineState(&defaultPipeline);
-	context->UpdateSubresource(lightBuffer, NULL, NULL, lightManager.getLightBuffer(), 0, 0);
 	XMMATRIX cameraObj = XMMatrixTranspose(XMLoadFloat4x4(&keyboardCamera->position));
 	XMStoreFloat4x4(&defaultCamera.view, XMMatrixInverse(&XMMatrixDeterminant(cameraObj), cameraObj));
 	if(VRManager::GetInstance().IsEnabled()) {
@@ -402,10 +371,16 @@ void Renderer::Render() {
 
 		XMStoreFloat4x4(&leftEye.camera.projection, XMMatrixTranspose(XMLoadFloat4x4(&leftEye.camera.projection)));
 		XMStoreFloat4x4(&rightEye.camera.projection, XMMatrixTranspose(XMLoadFloat4x4(&rightEye.camera.projection)));
+		leftEye.camPos = DirectX::XMFLOAT3(leftEye.camera.view._41, leftEye.camera.view._42, leftEye.camera.view._43);
+		rightEye.camPos = DirectX::XMFLOAT3(rightEye.camera.view._41, rightEye.camera.view._42, rightEye.camera.view._43);
 		XMStoreFloat4x4(&leftEye.camera.view, XMMatrixTranspose(XMMatrixInverse(&XMVectorSet(0, 0, 0, 0), XMLoadFloat4x4(&leftEye.camera.view))));
 		XMStoreFloat4x4(&rightEye.camera.view, XMMatrixTranspose(XMMatrixInverse(&XMVectorSet(0, 0, 0, 0), XMLoadFloat4x4(&rightEye.camera.view))));
 
+		LightManager::getLightBuffer()->cameraPos = leftEye.camPos;
+		context->UpdateSubresource(lightBuffer, NULL, NULL, LightManager::getLightBuffer(), 0, 0);
 		renderToEye(&leftEye);
+		LightManager::getLightBuffer()->cameraPos = rightEye.camPos;
+		context->UpdateSubresource(lightBuffer, NULL, NULL, LightManager::getLightBuffer(), 0, 0);
 		renderToEye(&rightEye);
 		VRManager::GetInstance().SendToHMD((void*) leftEye.renderInfo.texture, (void*) rightEye.renderInfo.texture);
 		context->UpdateSubresource(cameraBuffer, 0, NULL, &(leftEye.camera), 0, 0);
@@ -416,6 +391,11 @@ void Renderer::Render() {
 	context->OMSetRenderTargets(1, &defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view);
 	context->RSSetViewports(1, &defaultPipeline.viewport);
 
+	if (VRManager::GetInstance().IsEnabled())
+		LightManager::getLightBuffer()->cameraPos = leftEye.camPos;
+	else
+		LightManager::getLightBuffer()->cameraPos = DirectX::XMFLOAT3(keyboardCamera->position._41, keyboardCamera->position._42, keyboardCamera->position._43);
+	context->UpdateSubresource(lightBuffer, NULL, NULL, LightManager::getLightBuffer(), 0, 0);
 	for(size_t i = 0; i < renderedObjects.size(); ++i) {
 		renderObjectDefaultState((Object*) renderedObjects[i]);
 	}

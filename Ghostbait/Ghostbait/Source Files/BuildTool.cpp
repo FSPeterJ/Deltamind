@@ -3,8 +3,8 @@
 #include "MessageEvents.h"
 #include "Console.h"
 #include "VRManager.h"
-#include "ProgressBar.h"
-
+#include "PhysicsComponent.h"
+#include "PhysicsExtension.h"
 
 BuildTool::BuildTool() { 
 	//std::vector<unsigned> prefabIDs;
@@ -15,12 +15,12 @@ BuildTool::BuildTool() {
 	//SetPrefabs(prefabIDs);
 	state = BUILD;
 }
-BuildTool::BuildTool(std::vector<unsigned> prefabIDs) {
+BuildTool::BuildTool(std::vector<int> prefabIDs) {
 	SetPrefabs(prefabIDs);
 	state = BUILD;
 }
 
-void BuildTool::SetPrefabs(std::vector<unsigned> prefabIDs) {
+void BuildTool::SetPrefabs(std::vector<int> prefabIDs) {
 	prefabs.empty();
 	prefabs.resize(prefabIDs.size() + 1);
 
@@ -28,10 +28,14 @@ void BuildTool::SetPrefabs(std::vector<unsigned> prefabIDs) {
 		prefabs[i] = BuildItem();
 		prefabs[i].ID = prefabIDs[i];
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabIDs[i], { 0, 0, 0 }, &prefabs[i].object));
-		MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(prefabs[i].object));
+		if(i) MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(prefabs[i].object));
+		PhysicsComponent* physComp = prefabs[i].object->GetComponent<PhysicsComponent>();
+		if(physComp) physComp->isActive = false;
 		//Set objects shader to be semi-transparent solid color
 	}
 	//Add removal tool
+	prefabs[prefabs.size() - 1] = BuildItem();
+	prefabs[prefabs.size() - 1].ID = -1;
 }
 void BuildTool::SetParent(ControllerObject* _parent) {
 	parent = _parent;
@@ -60,16 +64,23 @@ void BuildTool::SpawnProjection(){
 void BuildTool::Spawn() {
 	//Instantiate a stationary copy at this position to stay
 	//Only spawn if grid position is empty
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabs[currentPrefabIndex].ID, spawnPos));
+	GameObject* newObj;
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabs[currentPrefabIndex].ID, spawnPos, &newObj));
+	builtItems.push_back(newObj);
 }
 void BuildTool::RemoveProjection() {
-	//Ray cast to object
-	currentlySelectedItem = nullptr; //Raycasted object
+	DirectX::XMFLOAT3 endPos;
+	Raycast(DirectX::XMFLOAT3(position._41, position._42, position._43), DirectX::XMFLOAT3(position._31, position._32, position._33), &endPos, (GameObject const**)&currentlySelectedItem, 4);
 	//Set shader to transparent thing
 }
 void BuildTool::Remove() {
-	if (currentlySelectedItem)
-		MessageEvents::SendMessage(EVENT_Destroy, DestroyMessage(currentlySelectedItem));
+	for (int i = 0; i < builtItems.size(); ++i) {
+		if (currentlySelectedItem == builtItems[i]) {
+			MessageEvents::SendQueueMessage(EVENT_Late, [=] { currentlySelectedItem->Destroy(); });
+			builtItems.erase(builtItems.begin() + i);
+			break;
+		}
+	}
 }
 
 void BuildTool::CycleForward() {

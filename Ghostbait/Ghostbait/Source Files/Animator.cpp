@@ -32,7 +32,7 @@ Animator::~Animator() {}
 
 void Animator::Copy(const Animator * that) {
 	if(this != that) {
-		//All pointer copies in this operator are not shallow; animators do not manage the memory they point to and should all point to the same places
+		//Most pointer copies in this operator are not shallow; animators do not manage the memory they point to and should all point to the same places
 		this->animMan = that->animMan;
 		for(auto i = that->animations.begin(); i != that->animations.end(); ++i) {
 			std::string name = i->first;
@@ -42,9 +42,16 @@ void Animator::Copy(const Animator * that) {
 		this->timePos = that->timePos;
 		this->currAnim = that->currAnim;
 		for(size_t i = 0; i < that->tweens.size(); ++i) {
-			this->tweens.push_back(that->tweens[i]);
+			animJoint jointToPush = that->tweens[i];
+			this->tweens.push_back(jointToPush);
+			this->jointPointers[jointToPush.name] = (int)i;
 		}
 	}
+}
+
+const std::vector<animJoint>* Animator::getTweens()
+{
+	return &tweens;
 }
 
 void Animator::Destroy() {
@@ -107,7 +114,6 @@ void Animator::Update() {
 		tweens[i].transform._31 = interpolatedMat._31;
 		tweens[i].transform._32 = interpolatedMat._32;
 		tweens[i].transform._33 = interpolatedMat._33;
-		DirectX::XMStoreFloat4x4(&tweens[i].transform, DirectX::XMLoadFloat4x4(&currAnim->bPose->joints[i].transform) * DirectX::XMLoadFloat4x4(&tweens[i].transform));
 	}
 }
 
@@ -116,6 +122,10 @@ void Animator::addAnim(const char * animFilePath, const char * bindposeFilePath,
 	if(!currAnim) {
 		currAnim = animations[std::string(animName)];
 		tweens = animations[std::string(animName)]->keyframes[0].joints;
+		for (size_t i = 0; i < tweens.size(); ++i)
+		{
+			jointPointers[tweens[i].name] = (int)i;
+		}
 	}
 }
 

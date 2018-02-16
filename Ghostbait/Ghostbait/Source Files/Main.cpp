@@ -22,6 +22,7 @@
 #include "ProgressBar.h"
 #include "AudioManager.h"
 #include "BuildTool.h"
+#include "EngineStructure.h"
 
 Renderer* rendInter;
 Game* game;
@@ -106,13 +107,17 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	objMan = new ObjectManager(&MemMan);
 	objMan->Initialize(80);
 	ObjectFactory::Initialize(objMan, "NOT USED STRING");
+
+	game = new Game();
+	game->Start(&engine);
+
 	ObjectFactory::RegisterPrefabBase<ControllerObject>(20);
 	ObjectFactory::RegisterPrefabBase<Gun>(20);
 	ObjectFactory::RegisterPrefabBase<ProgressBar>(20);
 	ObjectFactory::RegisterPrefabBase<ViveController>(20);
 	ObjectFactory::RegisterPrefabBase<GameObject>(512);
 	ObjectFactory::RegisterPrefabBase<Projectile>(512);
-	ObjectFactory::RegisterPrefabBase<Spawner>(16);
+	ObjectFactory::RegisterPrefabBase<Spawner>(24);
 	ObjectFactory::RegisterPrefabBase<EnemyBase>(32);
 	ObjectFactory::RegisterPrefabBase<MenuCube>(5);
 	ObjectFactory::RegisterPrefabBase<CoreCube>(5);
@@ -187,6 +192,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/PlaneMap.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/OverheatBar.ghost")); //15 // stop using magic number prefab ID
 	ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest3.ghost"));
+
 	//ObjectFactory::CreatePrefab(&std::string("Assets/TeleportSphere.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object"));
@@ -194,38 +201,49 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//ObjectFactory::CreatePrefab(&std::string("LeftControllerObject"));
 	//ObjectFactory::CreatePrefab(&std::string("RightControllerObject"));
 	//=============================
-
-	game = new Game();
-	game->Start();
+	
 	if(VRManager::GetInstance().IsEnabled()) VRManager::GetInstance().CreateControllers();
 	//DirectX::XMFLOAT4X4 roomMatrix;
 	//DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * DirectX::XMMatrixTranslation(0, 3, 0));
-	//MenuCube* startCube;
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(14, { 0, 0, 0 }/*roomMatrix*/));// stop using magic number prefab ID
-	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(7, {0, 1.5f, 0.0f}, (GameObject**)&startCube));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(14, { 0, 0, 0 }/*roomMatrix*/));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage("startCube", {4, 1.5f, 0.0f}, (GameObject**)&startCube));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(11, { 0, 0, 0 }, nullptr));
 	//GameObject* teddy;
 	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(11, {0, 0, 0}, &teddy));
 	//teddy->GetComponent<Animator>()->setState("Walk");
 
-	//DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
-	//startCube->Enable();
+	MenuCube* startCube;
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(7, {0, 1.5f, 0.0f}, (GameObject**)&startCube));
+	DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
+	startCube->Enable();
 
-	GameObject *test1, *test2;
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 0.0f, 2.0f, -1.0f }, &test1));// stop using magic number prefab ID
-	DirectX::XMStoreFloat4x4(&test1->position, DirectX::XMLoadFloat4x4(&test1->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));// stop using prefab ID
-
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { 0.0f, 1.0f, 0.0f }, &test2));// stop using magic number prefab ID
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { 7.0f, 2.0f, 0.0f }, nullptr));// stop using magic number prefab ID
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { 0.0f, 2.0f, -7.0f }, nullptr));// stop using magic number prefab ID
+	GameObject *spawner1, *spawner2;
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5, { 5.0f, 5.0f, 5.0f }, &spawner1));
+	spawner1->Enable();
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5, { -5.0f, 5.0f, -5.0f }, &spawner2));
+	spawner2->Enable();
 
 	//TestArc
-	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(17, { 3.0f, -1.0f, 0.0f }, nullptr));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(14, { 3.0f, -1.0f, 0.0f }, nullptr));
 
 	
+	//********************* PHYSICS TEST CODE **********************************
+	GameObject *test1, *test2;
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { 0.0f, 2.0f, -1.0f }, &test1));
+	//DirectX::XMStoreFloat4x4(&test1->position, DirectX::XMLoadFloat4x4(&test1->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(17, { 0.0f, 1.0f, 0.0f }, &test2));
+	DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 2.0f, 2.0f, 0.0f }, &test2));
+	DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { -2.0f, 2.0f, 0.0f }, nullptr));
+
 	dynamic_cast<PhysicsTestObj*>(test1)->isControllable = true;
+	dynamic_cast<PhysicsTestObj*>(test1)->isRayCasting = true;
+
 	test1->Enable();
+
+	//***************************************************************************
+
 
 	//	Object* cube1, *cube2;
 
@@ -245,11 +263,18 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 }
 
 void Loop() {
-	phyMan->Update();
-	audioMan->Update();
+	GhostTime::Tick();
+	if (!game->IsPaused()) {
+		phyMan->Update();
+		audioMan->Update();
+
+	}
+	else {
+		VRManager::GetInstance().leftController.obj->PausedUpdate();
+		VRManager::GetInstance().rightController.obj->PausedUpdate();
+	}
+	game->Update();
 	inputMan->HandleInput();
-	engine.ExecuteUpdate();
-	engine.ExecuteLateUpdate();
 	rendInter->Render();
 }
 

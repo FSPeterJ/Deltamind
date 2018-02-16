@@ -1,6 +1,7 @@
 #include "PhysicsTestObj.h"
 #include "GhostTime.h"
 #include "Console.h"
+#include "PhysicsExtension.h"
 
 PhysicsTestObj::PhysicsTestObj() {
 	SetTag("PhysicsTestObj");
@@ -14,6 +15,8 @@ PhysicsTestObj::~PhysicsTestObj() {
 void PhysicsTestObj::Update() {
 	float dt = (float)GhostTime::DeltaTime();
 	if (!isControllable) return;
+	if (isRayCasting)
+		Raycast(DirectX::XMFLOAT3(position._41, position._42, position._43), DirectX::XMFLOAT3(position._31, position._32, position._33));
 
 	if (KeyIsDown(Control::TestInputU))
 	{

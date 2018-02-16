@@ -12,6 +12,7 @@ void GameObject::OnCollision(GameObject* obj) {}
 
 
 void GameObject::Enable() {
+	Awake();
 	//This is potentially dangerous if used incorrectly.
 	//Double Enable emplaces a second update delegate that can never be removed.
 	//If check was added to prevent user error, but may be unecessary
@@ -70,14 +71,11 @@ void MenuCube::Update() {
 void MenuCube::OnCollision(GameObject* other) {
 	if(other->GetTag() == "Bullet") {
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, {10, 0, 0}));// stop using magic number prefab ID
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, {-10, 0, 0}));// stop using magic number prefab ID
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, {0, 0, 10}));// stop using magic number prefab ID
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5/*Spawner*/, {0, 0, -10}));// stop using magic number prefab ID
-		GameObject* obj;
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(8/*Core*/, {0, 1.5f, 0}, &obj));// stop using magic number prefab ID
-		DirectX::XMStoreFloat4x4(&obj->position,
-			DirectX::XMLoadFloat4x4(&obj->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
+		MessageEvents::SendMessage(EVENT_StartWave, EventMessageBase());
+		//GameObject* obj;
+		//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(8/*Core*/, {0, 1.5f, 0}, &obj));
+		//DirectX::XMStoreFloat4x4(&obj->position,
+		//	DirectX::XMLoadFloat4x4(&obj->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
 	}
 }
 

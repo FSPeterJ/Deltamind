@@ -7,6 +7,7 @@ class Animator: public InstantiatedCompBase {
 	unsigned int updateID;
 	AnimationManager* animMan;
 	std::map<std::string, Animation*> animations;
+	std::map<std::string, int> jointPointers; //Used for quick searches for named joints
 	Animation* currAnim = nullptr;
 	double timePos = 0.0f;
 	std::vector<animJoint> tweens = std::vector<animJoint>();
@@ -26,6 +27,7 @@ public:
 	void Copy(const Animator* that);
 	double getTimePos() { return timePos; }
 	std::map<std::string, Animation*>* getAnimations() { return &animations; }
-	const std::vector<animJoint>* getTweens() { return &tweens; }
+	const std::vector<animJoint>* getTweens();
 	Animation* getCurrentAnimation() { return currAnim; }
+	DirectX::XMFLOAT4X4* getJointByName(std::string name) { return &tweens[jointPointers[name]].transform; }
 };

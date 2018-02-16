@@ -23,7 +23,7 @@ struct lightBufferStruct {
 class LightManager
 {
 	int numLights = 0;
-	int nextID = 1;
+	int nextID = 0;
 	lightBufferStruct cpu_light_info;
 	int IDList[MAX_LIGHTS];
 public:
@@ -31,6 +31,7 @@ public:
 	void setAmbient(DirectX::XMFLOAT3 color, float factor);
 	lightBufferStruct* getLightBuffer() { return &cpu_light_info; };
 	genericLight* getLight(int ID);
+	void removeLight(int ID);
 
 	LightManager();
 	~LightManager();

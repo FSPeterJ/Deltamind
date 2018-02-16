@@ -13,6 +13,7 @@ std::unordered_map<unsigned, std::function<Object*(void)>> ObjectFactory::regist
 ObjectManager* ObjectFactory::objMan;
 
 std::unordered_map<std::string, unsigned> ObjectFactory::prefabNames;
+std::unordered_map<unsigned, std::string> ObjectFactory::prefabNamesReverse; // For Debugging
 
 std::unordered_map<unsigned, unsigned> ObjectFactory::Object2Prefab;
 
@@ -33,33 +34,54 @@ void ObjectFactory::Initialize(ObjectManager* _objMan, const char* object) {
 
 void ObjectFactory::Instantiate(EventMessageBase *e) {
 	InstantiateMessage* instantiate = (InstantiateMessage*)e;
-	GameObject* newobject = ActivateObject(instantiate->GetPrefabId());
+	GameObject* newobject = ActivateObject(instantiate->pid);
 	if(instantiate->obj != nullptr) {
 		*instantiate->obj = newobject;
 	}
-	memcpy(&newobject->position, &instantiate->GetPosition(), sizeof(DirectX::XMFLOAT4X4));
+	memcpy(&newobject->position, &instantiate->position, sizeof(DirectX::XMFLOAT4X4));
 	MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
 }
 
 void ObjectFactory::InstantiateByType(EventMessageBase *e) {
-	InstantiateMessage* instantiate = (InstantiateMessage*)e;
-	GameObject* newobject = ActivateObject(Object2Prefab[instantiate->GetPrefabId()]);
-	if(instantiate->obj != nullptr) {
-		*instantiate->obj = newobject;
+	InstantiateTypeMessage<GameObject>* instantiate = (InstantiateTypeMessage<GameObject>*)e;
+	GameObject* newobject;
+	if(instantiate->pid) {
+		if(prefabs[instantiate->pid].objectTypeID != instantiate->tid) {
+			Console::ErrorOutLine << "ObjectFactory: Type Mismatch!  Instantiate Request of " << prefabNamesReverse[instantiate->pid].c_str()  << " has a requesting typeID of " << TypeMap::GetObjectNameFromID(instantiate->tid) << " Which does not match the prefab typeID of " << TypeMap::GetObjectNameFromID(prefabs[instantiate->pid].objectTypeID);
+			Console::WarningLine << "ObjectFactory: Type Mismatch!  Instantiate Request of " << prefabNamesReverse[instantiate->pid].c_str() << " has a requesting typeID of " << TypeMap::GetObjectNameFromID(instantiate->tid) << " Which does not match the prefab typeID of " << TypeMap::GetObjectNameFromID(prefabs[instantiate->pid].objectTypeID);
+		}
+		newobject = ActivateObject(instantiate->pid);
+		if(instantiate->obj != nullptr) {
+			*instantiate->obj = newobject;
+		}
+		memcpy(&newobject->position, &instantiate->position, sizeof(DirectX::XMFLOAT4X4));
+		MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
 	}
+	else {
+		newobject = ActivateObject(Object2Prefab[instantiate->tid]);
+		if(instantiate->obj != nullptr) {
+			*instantiate->obj = newobject;
+		}
 
+	}
 	memcpy(&newobject->position, &instantiate->GetPosition(), sizeof(DirectX::XMFLOAT4X4));
 	MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
 }
 
 void ObjectFactory::InstantiateByName(EventMessageBase *e) {
-	InstantiateMessage* instantiate = (InstantiateMessage*)e;
-	GameObject* newobject = ActivateObject(Object2Prefab[instantiate->GetPrefabId()]);
+	InstantiateNameMessage<GameObject>* instantiate = (InstantiateNameMessage<GameObject>*)e;
+	PrefabId selectedPrefab = prefabNames[std::string(instantiate->debug_name)];
+	if(prefabs[selectedPrefab].objectTypeID != instantiate->tid) {
+		Console::ErrorOutLine << "ObjectFactory: Type Mismatch!  Instantiate Request of " << prefabNamesReverse[selectedPrefab].c_str() << " has a requesting typeID of " << TypeMap::GetObjectNameFromID(instantiate->tid) << " Which does not match the prefab typeID of " << TypeMap::GetObjectNameFromID(prefabs[selectedPrefab].objectTypeID);
+		Console::WarningLine << "ObjectFactory: Type Mismatch!  Instantiate Request of " << prefabNamesReverse[selectedPrefab].c_str() << " has a requesting typeID of " << TypeMap::GetObjectNameFromID(instantiate->tid)<< " Which does not match the prefab typeID of " << TypeMap::GetObjectNameFromID(prefabs[selectedPrefab].objectTypeID);
+	}
+
+	GameObject* newobject = ActivateObject(prefabNames[std::string(instantiate->debug_name)]);
 	if(instantiate->obj != nullptr) {
 		*instantiate->obj = newobject;
 	}
 
-	memcpy(&newobject->position, &instantiate->GetPosition(), sizeof(DirectX::XMFLOAT4X4));
+	memcpy(&newobject->position, &instantiate->position, sizeof(DirectX::XMFLOAT4X4));
 	MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
 }
 
@@ -179,7 +201,9 @@ void ObjectFactory::CreatePrefab(std::string *_filename, char* DEBUG_STRING_NAME
 			Object2Prefab[prefab->objectTypeID] = prefabID;
 		}
 		prefabNames[*_filename] = prefabID;
+		prefabNamesReverse[prefabID] = *_filename;
 		if(DEBUG_STRING_NAME) {
+			prefabNamesReverse[prefabID] = std::string(DEBUG_STRING_NAME);
 			prefabNames[std::string(DEBUG_STRING_NAME)] = prefabID;
 		}
 	}

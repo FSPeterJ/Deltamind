@@ -11,7 +11,7 @@ Gun::Overheat::Overheat() {
 
 }
 void Gun::Overheat::CreateBar() {
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(15, { 0.0f, 0.0f, 0.0f }, (GameObject**)&bar)); // stop using magic number prefab ID
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ProgressBar>(15, { 0.0f, 0.0f, 0.0f },&bar)); // stop using magic number prefab ID
 }
 bool Gun::Overheat::CanShoot(float fireRate) {
 	return timeSinceLastShot > (1 / fireRate) && !energyOverheatDelayTimeLeft;
@@ -81,7 +81,7 @@ bool Gun::Shoot() {
 		if(overheat.CanShoot(fireRate)) {
 			//Fire
 			Projectile* obj;
-			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(projectiePrefabID, {0, 0, 0}, (GameObject**) &obj));
+			MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Projectile>(projectiePrefabID, {0, 0, 0}, &obj));
 			MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_WEN));
 			obj->position = position;
 			obj->position._41 += obj->position._31 * 0.2f;
@@ -99,7 +99,7 @@ bool Gun::Shoot() {
 		if(overheat.CanShoot(fireRate)) {
 			//Fire
 			Projectile* obj;
-			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(projectiePrefabID, {0, 0, 0}, (GameObject**) &obj));
+			MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Projectile>(projectiePrefabID, {0, 0, 0}, &obj));
 			MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_WEN));
 			obj->position = position;
 			obj->position._41 += obj->position._31 * 0.2f;

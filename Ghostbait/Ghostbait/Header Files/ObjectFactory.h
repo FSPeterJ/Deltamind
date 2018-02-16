@@ -47,6 +47,7 @@ class ObjectFactory {
 
 	//map Names to prefabs
 	static std::unordered_map<std::string, unsigned> prefabNames;
+	static std::unordered_map<unsigned, std::string> prefabNamesReverse;
 	static std::unordered_map<unsigned, unsigned> Object2Prefab;
 
 	//static std::unordered_map<int,GameObject*> prefabs;

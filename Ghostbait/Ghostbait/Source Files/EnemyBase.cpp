@@ -29,7 +29,7 @@ void EnemyBase::OnCollision(GameObject* _other) {
 		//if(temp > 3) {
 		//	MessageEvents::SendMessage(EVENT_GameWin, EventMessageBase());
 		//	Console::WriteLine << "GAME WAS WON";
-		//	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(9/*WinCube*/, {0, 0.75f, 0}));
+		//	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(9/*WinCube*/, {0, 0.75f, 0}));
 		//}
 		MessageEvents::SendMessage(EVENT_EnemyDied, EventMessageBase());
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });

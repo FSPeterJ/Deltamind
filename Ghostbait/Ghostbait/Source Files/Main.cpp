@@ -142,7 +142,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<Spawner>("Spawner");
 	TypeMap::RegisterObjectAlias<EnemyBase>("EnemyBase");
 	TypeMap::RegisterObjectAlias<MenuCube>("MenuCube");
-	TypeMap::RegisterObjectAlias<CoreCube>("CoreCube
+	TypeMap::RegisterObjectAlias<CoreCube>("CoreCube");
 	TypeMap::RegisterObjectAlias<GameObject>("GameObject");
 	TypeMap::RegisterObjectAlias<PhysicsTestObj>("PhysicsTestObj");
 	TypeMap::RegisterObjectAlias<BuildTool>("BuildTool");
@@ -165,34 +165,34 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//			
 	//			MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage("TheObjectNAme", { 0,0,0 }, (GameObject**)&leftController.obj));
 	//	Or This:
-	//			MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateMessage(TypeMap::GetObjectTypeID<ControllerObject>(), {1,0,1}, (GameObject**) &rightController.obj));
+	//			MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(TypeMap::GetObjectTypeID<ControllerObject>(), {1,0,1}, (GameObject**) &rightController.obj));
 	//
 	//
 	//=========================================================
-	ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer2.ghost")); //0 // stop using magic number prefab ID
+	ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer2.ghost"), "SomeEmptyContainer"); //0 // stop using magic number prefab ID
 	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"), "ViveController", true);
-	ObjectFactory::CreatePrefab(&std::string("Assets/basicSphere.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/ScifiRoom.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/ProjectileSphere.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost")); //5 // stop using magic number prefab ID
+	ObjectFactory::CreatePrefab(&std::string("Assets/basicSphere.ghost"), "BasicSphere");
+	ObjectFactory::CreatePrefab(&std::string("Assets/ScifiRoom.ghost"), "MainRoom");
+	ObjectFactory::CreatePrefab(&std::string("Assets/ProjectileSphere.ghost"), "Projectile");
+	ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost"), "Spawner"); //5 // stop using magic number prefab ID
 
 	// PLEASE LOOK UP
-	ObjectFactory::CreatePrefab(&std::string("Assets/EnemyRobot.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/EnemyRobot.ghost"), "TestEnemy");
 	ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"), "startCube");
-	ObjectFactory::CreatePrefab(&std::string("Assets/CoreCube.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/CoreCube.ghost"), "CoreCube");
+	ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"), "WinCube");
 
 	// PLEASE LOOK UP
-	ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost")); //10 // stop using magic number prefab ID
+	ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"), "LoseCube"); //10 // stop using magic number prefab ID
 	//ObjectFactory::CreatePrefab(&std::string("Assets/Teddy.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/EarthMage.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/EarthMage.ghost"), "EarthMage");
 
-	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest1.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest2.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/PlaneMap.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/OverheatBar.ghost")); //15 // stop using magic number prefab ID
-	ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest3.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest1.ghost"), "PhyTest1");
+	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest2.ghost"), "PhyTest2");
+	ObjectFactory::CreatePrefab(&std::string("Assets/PlaneMap.ghost"), "Plane");
+	ObjectFactory::CreatePrefab(&std::string("Assets/OverheatBar.ghost"), "GUIOverheatTest"); //15 // stop using magic number prefab ID
+	ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost"), "BuildTool");
+	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest3.ghost"), "PhyTest3");
 
 	//ObjectFactory::CreatePrefab(&std::string("Assets/TeleportSphere.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
@@ -205,37 +205,36 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	if(VRManager::GetInstance().IsEnabled()) VRManager::GetInstance().CreateControllers();
 	//DirectX::XMFLOAT4X4 roomMatrix;
 	//DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * DirectX::XMMatrixTranslation(0, 3, 0));
-	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(14, { 0, 0, 0 }/*roomMatrix*/));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(14, { 0, 0, 0 }/*roomMatrix*/));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage("startCube", {4, 1.5f, 0.0f}, (GameObject**)&startCube));
-	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(11, { 0, 0, 0 }, nullptr));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(11, { 0, 0, 0 }, nullptr));
 	//GameObject* teddy;
-	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(11, {0, 0, 0}, &teddy));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(11, {0, 0, 0}, &teddy));
 	//teddy->GetComponent<Animator>()->setState("Walk");
 
 	MenuCube* startCube;
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(7, {0, 1.5f, 0.0f}, (GameObject**)&startCube));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("startCube", {0, 1.5f, 0.0f}, (GameObject**)&startCube));
 	DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
 	startCube->Enable();
 
 	GameObject *spawner1, *spawner2;
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5, { 5.0f, 5.0f, 5.0f }, &spawner1));
-	spawner1->Enable();
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(5, { -5.0f, 5.0f, -5.0f }, &spawner2));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<GameObject>( "Spawner", { 5.0f, 5.0f, 5.0f }, &spawner1));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<GameObject>( "Spawner", { -5.0f, 5.0f, -5.0f }, &spawner2));
 	spawner2->Enable();
 
 	//TestArc
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(14, { 3.0f, -1.0f, 0.0f }, nullptr));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<GameObject>("Plane", { 3.0f, -1.0f, 0.0f }, nullptr));
 
 	
 	//********************* PHYSICS TEST CODE **********************************
 	GameObject *test1, *test2;
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { 0.0f, 2.0f, -1.0f }, &test1));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<GameObject>("PhyTest1", { 0.0f, 2.0f, -1.0f }, &test1));
 	//DirectX::XMStoreFloat4x4(&test1->position, DirectX::XMLoadFloat4x4(&test1->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(17, { 0.0f, 1.0f, 0.0f }, &test2));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<GameObject>("PhyTest3", { 0.0f, 1.0f, 0.0f }, &test2));
 	DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 2.0f, 2.0f, 0.0f }, &test2));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<GameObject>("PhyTest2", { 2.0f, 2.0f, 0.0f }, &test2));
 	DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(12, { -2.0f, 2.0f, 0.0f }, nullptr));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<GameObject>("PhyTest1", { -2.0f, 2.0f, 0.0f }, nullptr));
 
 	dynamic_cast<PhysicsTestObj*>(test1)->isControllable = true;
 	dynamic_cast<PhysicsTestObj*>(test1)->isRayCasting = true;
@@ -247,8 +246,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	//	Object* cube1, *cube2;
 
-	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(2, { 0,1,0 }, (Object**)&gunthing));
-	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(4, { 0,1,4 }, (Object**)&cube2));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(2, { 0,1,0 }, (Object**)&gunthing));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(4, { 0,1,4 }, (Object**)&cube2));
 
 	//Object* cube1 = Object::Create<Object>({0,-1,0,1}, 1);
 	//SomeCoolObject* cube2 = Object::Create<SomeCoolObject>({0,-3,0,1}, 2);

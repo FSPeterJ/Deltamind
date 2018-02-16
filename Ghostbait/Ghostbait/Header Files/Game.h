@@ -42,6 +42,8 @@ class Game {
 		std::vector<Spawner*> spawners;
 		int enemiesLeftAlive = 0;
 		WaveManager waveManager;
+
+		void Reset();
 	} gameData;
 	
 	EngineStructure* engine;
@@ -50,9 +52,10 @@ class Game {
 	//Personal
 	void ChangeState(State newState);
 	void LoadLevel(char* fileName);
+	void StartNextWave();
+
 	void PauseGame();
 	void ResumeGame();
-	void StartNextWave();
 	void Lose();
 	void Win();
 	
@@ -61,13 +64,14 @@ class Game {
 	void EnemyDiedEvent();
 	void StartPressedEvent();
 	void PausePressedEvent();
+	void RestartGameEvent();
 
 public:
 	Grid mygrid = Grid(20, 20, 1, 1, 0, 0);
 	
 	Game();
 
-	void Start(EngineStructure* _engine);
+	void Start(EngineStructure* _engine, char* level = "Game Files/level0.xml");
 	void Update();
 	void Clean();
 

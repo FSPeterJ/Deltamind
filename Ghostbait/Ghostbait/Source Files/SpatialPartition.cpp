@@ -40,7 +40,7 @@ bool SpatialPartition::Unit::RemoveComponent(PhysicsComponent* comp) {
 
 SpatialPartition::SpatialPartition() {
 	bucketCount = 1024;
-	unitSize = 3;
+	unitSize = 300;
 }
 SpatialPartition::SpatialPartition(uint32_t _bucketCount, float _unitSize) : bucketCount(_bucketCount), unitSize(_unitSize) {
 }

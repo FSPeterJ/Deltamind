@@ -74,7 +74,7 @@ void ControllerObject::AddItem(int itemSlot, int prefabID, Gun::FireType _fireTy
 void ControllerObject::Update() {
 	if(hand == INVALID) return;
 	if (menuControllerVisible) {
-		MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage((GameObject*)menuController));
+		MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(menuController));
 		menuControllerVisible = false;
 	}
 	

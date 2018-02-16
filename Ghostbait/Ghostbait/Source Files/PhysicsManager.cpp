@@ -212,7 +212,7 @@ void PhysicsManager::Update() {
 	TestAllComponentsCollision();
 }
 
-bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* colPoint, GameObject const** colObject, float maxCastDistance) {
+bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* colPoint, GameObject** colObject, float maxCastDistance) {
 	bool collided = false;
 	uint32_t nextIndex, currBucketIndex = -1;
 	XMVECTOR vecOrigin = XMLoadFloat3(&origin);
@@ -264,7 +264,7 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 				Console::WriteLine << "RAY HIT";
 			}
 		}
-	}
+	
 	if(colPoint)
 		XMStoreFloat3(colPoint, closestCollision);
 
@@ -274,7 +274,7 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 	DebugRenderer::AddLine(origin, line, XMFLOAT3(0.0f, 1.0f, 1.0f));
 
 #endif
-
+}
 	return collided;
 }
 
@@ -395,7 +395,7 @@ void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponen
 
 			if (collisionResult) {
 				SendCollision((GameObject*)component1.parentObject, (GameObject*)component2.parentObject);
-				Console::WriteLine << "Collided";
+				//Console::WriteLine << "Collided";
 			}
 		}
 	}

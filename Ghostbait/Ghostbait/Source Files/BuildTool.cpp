@@ -70,7 +70,7 @@ void BuildTool::Spawn() {
 }
 void BuildTool::RemoveProjection() {
 	DirectX::XMFLOAT3 endPos;
-	Raycast(DirectX::XMFLOAT3(position._41, position._42, position._43), DirectX::XMFLOAT3(position._31, position._32, position._33), &endPos, (GameObject const**)&currentlySelectedItem, 4);
+	Raycast(DirectX::XMFLOAT3(position._41, position._42, position._43), DirectX::XMFLOAT3(position._31, position._32, position._33), &endPos, (GameObject**)&currentlySelectedItem, 4);
 	//Set shader to transparent thing
 }
 void BuildTool::Remove() {

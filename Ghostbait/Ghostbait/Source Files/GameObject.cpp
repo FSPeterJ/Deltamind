@@ -15,6 +15,7 @@ void GameObject::Enable() {
 	Awake();
 	//This is potentially dangerous if used incorrectly.
 	//Double Enable emplaces a second update delegate that can never be removed.
+	MessageEvents::Subscribe(EVENT_RestartGame, [=](EventMessageBase* e) {this->RestartGame(); });
 	//If check was added to prevent user error, but may be unecessary
 	if(!updateID) {
 		//Profile for if adding a delegate has any performance impact +/-

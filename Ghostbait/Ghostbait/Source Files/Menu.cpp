@@ -1,10 +1,14 @@
 #include "Menu.h"
 #include "MessageEvents.h"
-
 void MenuOption::Select() {
 
 }
+void MenuOption::UnHighlight() {
 
+}
+void MenuOption::Highlight() {
+
+}
 
 Menu::Menu() {
 	AssignPrefabIDs();
@@ -14,7 +18,6 @@ Menu::Menu(Template t, std::vector<Button> buttons) {
 	AssignPrefabIDs();
 	Create(t, buttons);
 }
-
 void Menu::AssignPrefabIDs() {
 	buttonPrefabMap[BUTTON_Resume] = 1;
 	buttonPrefabMap[BUTTON_Restart] = 1;
@@ -23,14 +26,12 @@ void Menu::AssignPrefabIDs() {
 	buttonPrefabMap[BUTTON_StartGame] = 1;
 	buttonPrefabMap[BUTTON_SelectLevel] = 1;
 }
-
 void Menu::GamePauseEvent() {
 	if (active)
 		Hide();
 	else
 		Show();
 }
-
 float Menu::FindDistanceFromCenter(int optionNumber, int optionCount, float optionHeight, float gapHeight) {
 	optionNumber += 1;
 	float center = (optionCount * 0.5f) + 0.5f;
@@ -49,7 +50,6 @@ float Menu::FindDistanceFromCenter(int optionNumber, int optionCount, float opti
 	}
 	return (optionNumber < center ? center + distanceFromCenter : center - distanceFromCenter);
 }
-
 void Menu::Create(Template t, std::vector<Button> _buttons) {
 	switch (t) {
 		case MENU_Main:
@@ -75,7 +75,6 @@ void Menu::Create(Template t, std::vector<Button> _buttons) {
 			break;
 	}
 }
-
 void Menu::Show() {
 	active = true;
 	options.resize(buttons.size());
@@ -84,14 +83,41 @@ void Menu::Show() {
 		float distFromCenter = FindDistanceFromCenter(i, (int)options.size(), 0.25f, 0.15f);
 		//TODO: Need to spawn this in the correct place based off of the previous function
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(buttonPrefabMap[buttons[i]], { 0, 1, 0 }, (GameObject**)&newOption));
+		newOption->SetMenu(this);
 		options[i] = newOption;
 	}
 }
-
 void Menu::Hide() {
 	active = false;
 	for (int i = 0; i < options.size(); ++i) {
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {options[i]->Destroy(); });
 	}
 	options.empty();
+}
+
+void ResumeButton::Select() {
+	MenuOption::Select();
+	menu->Hide();
+}
+void RestartButton::Select() {
+	MenuOption::Select();
+	MenuOption::Select();
+	menu->Hide();
+}
+void QuitButton::Select() {
+	MenuOption::Select();
+
+}
+
+void OptionsButton::Select() {
+	MenuOption::Select();
+
+}
+void StartGameButton::Select() {
+	MenuOption::Select();
+
+}
+void SelectLevelButton::Select() {
+	MenuOption::Select();
+
 }

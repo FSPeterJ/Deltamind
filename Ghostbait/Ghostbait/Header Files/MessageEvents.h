@@ -21,6 +21,7 @@ enum EVENT_TYPES {
 	EVENT_UnregisterNoisemaker,
 	
 	//Game Events
+	EVENT_RestartGame,
 	EVENT_SpawnerCreated,
 	EVENT_EnemyDied,
 	EVENT_StartWave,

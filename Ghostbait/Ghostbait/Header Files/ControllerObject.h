@@ -27,7 +27,7 @@ public:
 
 	ControllerObject();
 
-	void Init(ControllerHand _hand, int menuControllerPrefabID = 1);
+	void Init(ControllerHand _hand, int menuControllerPrefabID = 18);
 	void AddItem(int itemSlot, int prefabID);
 	void AddItem(int itemSlot, int prefabID, std::vector<int> prefabIDs);
 	void AddItem(int itemSlot, int prefabID, Gun::FireType _fireType, float _fireRate, float _damage);

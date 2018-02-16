@@ -10,6 +10,8 @@ protected:
 	unsigned typeID = 0;
 	unsigned updateID = 0;  //Update Delegate ID
 
+	virtual void RestartGame() {};
+
 public:
 	GameObject();
 

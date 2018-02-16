@@ -27,7 +27,7 @@ public:
 
 	inline const std::string GetTag() const { return tag; };
 	inline void SetTag(std::string _tag) { tag = _tag; };
-
+	virtual void PassObject(GameObject* obj, char* tag);
 };
 
 //Other

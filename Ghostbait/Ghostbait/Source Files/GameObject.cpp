@@ -55,12 +55,9 @@ void GameObject::Destroy() {
 }
 
 
-
-
-
-
-
-
+void GameObject::PassObject(GameObject* obj, char* tag)
+{
+}
 
 void MenuCube::Update() {
 	position.m[3][1] += 0.4f * (float) GhostTime::DeltaTime();

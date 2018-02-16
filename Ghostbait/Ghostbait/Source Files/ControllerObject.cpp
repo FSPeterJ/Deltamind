@@ -180,8 +180,8 @@ void ControllerObject::Update() {
 		}
 		else {
 			for (unsigned int i = 0; i < displayItems.size(); ++i) {
-				if (displayItems[i])
-					MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(displayItems[i]));
+				/*if (displayItems[i])
+					MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(displayItems[i]));*/
 			}
 			touchHeld = false;
 		}

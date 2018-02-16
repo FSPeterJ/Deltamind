@@ -70,19 +70,19 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//Multithreading Test
 	//=============================
 
-	//ThreadPool::Start();
-	//auto temp = ThreadPool::MakeJob(ExecuteAsync);
+	ThreadPool::Start();
+	auto temp = ThreadPool::MakeJob(ExecuteAsync);
 
 	// check future for errors and / or completion
 	// This is a proof of concept, thread decoupling with .get is still uncertain.
-	//try {
-	//	temp.get();
-	//} catch(const std::exception& e) {
-	//std::rethrow_exception(e);
-	// handle it
+	try {
+		temp.get();
+	} catch(const std::exception& e) {
+		//std::rethrow_exception(e);
+		// handle it
 
-	//	Console::Write << e.what();
-	//}
+		Console::Write << e.what();
+	}
 	//=============================
 
 	vrMan = new VRManager();
@@ -101,54 +101,54 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	objMan = new ObjectManager(&MemMan);
 	objMan->Initialize(80);
 
-	//ObjectFactory::Initialize(objMan);
-	//ObjectFactory::RegisterPrefabBase<ControllerObject>(8);
-	//ObjectFactory::RegisterPrefabBase<Gun>(10);
-	//ObjectFactory::RegisterPrefabBase<ViveController>(8);
-	//ObjectFactory::RegisterPrefabBase<GameObject>(512);
-	//ObjectFactory::RegisterPrefabBase<Projectile>(512);
-	//ObjectFactory::RegisterPrefabBase<Spawner>(16);
-	//ObjectFactory::RegisterPrefabBase<EnemyBase>(32);
-	//ObjectFactory::RegisterPrefabBase<MenuCube>(5);
-	//ObjectFactory::RegisterPrefabBase<CoreCube>(5);
-	//ObjectFactory::RegisterPrefabBase<PhysicsTestObj>(32);
-	//
-	//ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
-	//ObjectFactory::RegisterManager<PhysicsComponent, PhysicsManager>(phyMan);
-	//ObjectFactory::RegisterManager<Material, MaterialManager>(rendInter->getMaterialManager());
-	//ObjectFactory::RegisterManager<Animator, AnimatorManager>(animMan);
-	//
-	//TypeMap::RegisterObjectAlias<ControllerObject>("ControllerObject");
-	//TypeMap::RegisterObjectAlias<ViveController>("ViveController");
-	//TypeMap::RegisterObjectAlias<Gun>("Gun");
-	//TypeMap::RegisterObjectAlias<Projectile>("Projectile");
-	//TypeMap::RegisterObjectAlias<Spawner>("Spawner");
-	//TypeMap::RegisterObjectAlias<EnemyBase>("EnemyBase");
-	//TypeMap::RegisterObjectAlias<MenuCube>("MenuCube");
-	//TypeMap::RegisterObjectAlias<CoreCube>("CoreCube");
-	//TypeMap::RegisterObjectAlias<GameObject>("GameObject");
-	//TypeMap::RegisterObjectAlias<PhysicsTestObj>("PhysicsTestObj");
+	ObjectFactory::Initialize(objMan);
+	ObjectFactory::RegisterPrefabBase<ControllerObject>(8);
+	ObjectFactory::RegisterPrefabBase<Gun>(10);
+	ObjectFactory::RegisterPrefabBase<ViveController>(8);
+	ObjectFactory::RegisterPrefabBase<GameObject>(512);
+	ObjectFactory::RegisterPrefabBase<Projectile>(512);
+	ObjectFactory::RegisterPrefabBase<Spawner>(16);
+	ObjectFactory::RegisterPrefabBase<EnemyBase>(32);
+	ObjectFactory::RegisterPrefabBase<MenuCube>(5);
+	ObjectFactory::RegisterPrefabBase<CoreCube>(5);
+	ObjectFactory::RegisterPrefabBase<PhysicsTestObj>(32);
+
+	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
+	ObjectFactory::RegisterManager<PhysicsComponent, PhysicsManager>(phyMan);
+	ObjectFactory::RegisterManager<Material, MaterialManager>(rendInter->getMaterialManager());
+	ObjectFactory::RegisterManager<Animator, AnimatorManager>(animMan);
+
+	TypeMap::RegisterObjectAlias<ControllerObject>("ControllerObject");
+	TypeMap::RegisterObjectAlias<ViveController>("ViveController");
+	TypeMap::RegisterObjectAlias<Gun>("Gun");
+	TypeMap::RegisterObjectAlias<Projectile>("Projectile");
+	TypeMap::RegisterObjectAlias<Spawner>("Spawner");
+	TypeMap::RegisterObjectAlias<EnemyBase>("EnemyBase");
+	TypeMap::RegisterObjectAlias<MenuCube>("MenuCube");
+	TypeMap::RegisterObjectAlias<CoreCube>("CoreCube");
+	TypeMap::RegisterObjectAlias<GameObject>("GameObject");
+	TypeMap::RegisterObjectAlias<PhysicsTestObj>("PhysicsTestObj");
 
 	//------
 	// Scenemanager would make this
 	//=========================================================
-	//ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer2.ghost"));
-	//ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"), "ViveController", true);
-	//ObjectFactory::CreatePrefab(&std::string("Assets/basicSphere.ghost"));
-	//ObjectFactory::CreatePrefab(&std::string("Assets/ScifiRoom.ghost"));
-	//ObjectFactory::CreatePrefab(&std::string("Assets/ProjectileSphere.ghost"));
-	//ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost"));
-	//ObjectFactory::CreatePrefab(&std::string("Assets/EnemyRobot.ghost"));
-	//ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"), "startCube");
-	//ObjectFactory::CreatePrefab(&std::string("Assets/CoreCube.ghost"));
-	//ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"));
-	//ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"));
-	////ObjectFactory::CreatePrefab(&std::string("Assets/Teddy.ghost"));
-	//ObjectFactory::CreatePrefab(&std::string("Assets/EarthMage.ghost"));
-	//
-	//ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest1.ghost")); //12
-	//ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest2.ghost")); //13
-	//ObjectFactory::CreatePrefab(&std::string("Assets/PlaneMap.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer2.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"), "ViveController", true);
+	ObjectFactory::CreatePrefab(&std::string("Assets/basicSphere.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/ScifiRoom.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/ProjectileSphere.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/EnemyRobot.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"), "startCube");
+	ObjectFactory::CreatePrefab(&std::string("Assets/CoreCube.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"));
+	//ObjectFactory::CreatePrefab(&std::string("Assets/Teddy.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/EarthMage.ghost"));
+
+	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest1.ghost")); //12
+	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest2.ghost")); //13
+	ObjectFactory::CreatePrefab(&std::string("Assets/PlaneMap.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object"));
 	//ObjectFactory::CreatePrefab(&std::string("SomeCoolObject"));
@@ -162,7 +162,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//DirectX::XMFLOAT4X4 roomMatrix;
 	//DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * DirectX::XMMatrixTranslation(0, 3, 0));
 	//MenuCube* startCube;
-	//	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(14, { 0, 0, 0 }/*roomMatrix*/));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(14, {0, 0, 0}/*roomMatrix*/));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(7, {0, 1.5f, 0.0f}, (GameObject**)&startCube));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage("startCube", {4, 1.5f, 0.0f}, (GameObject**)&startCube));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(11, { 0, 0, 0 }, nullptr));
@@ -173,17 +173,17 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
 	//startCube->Enable();
 
-	//GameObject *test1, *test2;
-	///MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 0.0f, 2.0f, -1.0f }, &test1));
-	//DirectX::XMStoreFloat4x4(&test1->position, DirectX::XMLoadFloat4x4(&test1->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
+	GameObject *test1, *test2;
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, {0.0f, 2.0f, -1.0f}, &test1));
+	DirectX::XMStoreFloat4x4(&test1->position, DirectX::XMLoadFloat4x4(&test1->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
 
-	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 0.0f, 2.0f, 0.0f }, &test2));
-	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 7.0f, 2.0f, 0.0f }, nullptr));
-	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, { 0.0f, 2.0f, -7.0f }, nullptr));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, {0.0f, 2.0f, 0.0f}, &test2));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, {7.0f, 2.0f, 0.0f}, nullptr));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(13, {0.0f, 2.0f, -7.0f}, nullptr));
 
 
-	//dynamic_cast<PhysicsTestObj*>(test1)->isControllable = true;
-	//test1->Enable();
+	dynamic_cast<PhysicsTestObj*>(test1)->isControllable = true;
+	test1->Enable();
 
 	//	Object* cube1, *cube2;
 
@@ -203,7 +203,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 }
 
 void Loop() {
-	//phyMan->Update();
+	phyMan->Update();
 	inputMan->HandleInput();
 	engine.ExecuteUpdate();
 	engine.ExecuteLateUpdate();

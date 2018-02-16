@@ -26,9 +26,9 @@ bool SpatialPartition::Unit::AddComponent(PhysicsComponent* comp) {
 }
 bool SpatialPartition::Unit::RemoveComponent(PhysicsComponent* comp) {
 	int64_t index = FindComponent(comp);
-	if(index >= 0) {
+	if(index >= 0LL) {
 		//TODO: Does this work like I expect?
-		components.erase(components.begin() + index);
+		components.erase(components.begin() + (int)index);
 		return true;
 	}
 	return false;
@@ -159,7 +159,7 @@ const std::vector<PhysicsComponent*> SpatialPartition::GetComponentsToTest() {
 
 	for each (auto bucket in table)
 	{
-		for (int i = 0; i < bucket.second.components.size(); ++i) {
+		for (size_t i = 0; i < bucket.second.components.size(); ++i) {
 			testComps.push_back(bucket.second.components[i]);
 		}
 		testComps.push_back(nullptr);

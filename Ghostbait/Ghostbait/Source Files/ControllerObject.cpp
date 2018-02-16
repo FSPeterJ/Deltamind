@@ -69,7 +69,7 @@ void ControllerObject::LeftUpdate() {
 #pragma endregion
 	#pragma region Display Inventory
 		if (KeyIsDown(leftTouch)) {
-		for (int i = 0; i < displayItems.size(); ++i) {
+		for (size_t i = 0; i < displayItems.size(); ++i) {
 			if (displayItems[i]) {
 				if (!touchHeld) {
 					MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(displayItems[i]));
@@ -117,7 +117,7 @@ void ControllerObject::LeftUpdate() {
 		touchHeld = true;
 	}
 		else {
-		for (int i = 0; i < displayItems.size(); ++i) {
+		for (size_t i = 0; i < displayItems.size(); ++i) {
 			if (displayItems[i]) 
 				MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(displayItems[i]));
 		}
@@ -184,7 +184,7 @@ void ControllerObject::RightUpdate() {
 #pragma endregion
 	#pragma region Display Inventory
 		if (KeyIsDown(rightTouch)) {
-			for (int i = 0; i < displayItems.size(); ++i) {
+			for (size_t i = 0; i < displayItems.size(); ++i) {
 				if (displayItems[i]) {
 					if (!touchHeld) {
 						MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(displayItems[i]));
@@ -232,7 +232,7 @@ void ControllerObject::RightUpdate() {
 			touchHeld = true;
 		}
 		else {
-			for (int i = 0; i < displayItems.size(); ++i) {
+			for (size_t i = 0; i < displayItems.size(); ++i) {
 				if (displayItems[i])
 					MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(displayItems[i]));
 			}

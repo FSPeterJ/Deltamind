@@ -58,10 +58,7 @@ private:
 	static const std::vector<HexTile> diagonals;
 
 public:
-	union {
-		T v[3];
-		struct { T q, r, s; };
-	};
+	union { T v[3]; struct { T q, r, s; }; };
 
 	float weight = 0.0f;
 
@@ -126,12 +123,37 @@ public:
 	}
 };
 
+const double sqrt_2 = 1.414213562373095048801688724209698078569671875377;
+#define min(a,b) (((a) < (b)) ? (a) : (b))
 
 namespace Heuristics { //put this in grid maybe?
-	inline static float GetDistance(HexTile* a, HexTile* b) { return (float) std::abs(a->q - b->q) + std::abs(a->r - b->r); }
+	const float heuristicWeight = 1.2f;
+
+	static float fast_sqrt(float x) {
+		//http://bits.stephan-brumme.com/squareRoot.html
+		unsigned int i = *(unsigned int*) &x;
+		i += 127 << 23;
+		i >>= 1;
+		return *(float*) &i;
+	}
+
+
+	inline static float ManhattanDistance(HexTile* a, HexTile* b) { return (float(std::abs(a->q - b->q)) + float(std::abs(a->r - b->r))) * heuristicWeight; }
+
+	inline static float ChebyshevDistance(HexTile* a, HexTile* b) {
+		float dx = float(std::abs(a->q - b->q)), dy = float(std::abs(a->r - b->r));
+		return float(heuristicWeight * (dx + dy) - heuristicWeight * min(dx, dy));
+	}
+	inline static float OctileDistance(HexTile* a, HexTile* b) {
+		float dx = float(std::abs(a->q - b->q)), dy = float(std::abs(a->r - b->r));
+		return float(heuristicWeight * (dx + dy) + (sqrt_2 - 2 *heuristicWeight) * min(dx, dy));
+	}
+	inline static float EuclideanDistance(HexTile* a, HexTile* b) {
+		float dx = float(std::abs(a->q - b->q)), dy = float(std::abs(a->r - b->r));
+		return float(heuristicWeight * fast_sqrt(dx * dx + dy * dy));
+	}
+
 }
-
-
 
 static const HexDTile HexEpsilon(1e-6, 1e-6, -2e-6);
 

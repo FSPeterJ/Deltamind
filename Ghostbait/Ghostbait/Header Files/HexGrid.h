@@ -52,7 +52,7 @@ class HexGrid: public Controlable {
 
 	static HexRegion blocked;
 
-	int curPos = 0;
+	std::size_t curPos = 0;
 	void SetUpDrawingPaths();
 
 	void step();
@@ -91,7 +91,7 @@ public:
 	HexPath DijkstraSearch(HexTile *const start, HexTile *const goal);
 	TraversalResult DijkstraTraverse(HexTile *const tile, size_t cost, size_t maxMovement);
 
-	HexPath AStarSearch(HexTile *const start, HexTile *const goal, std::function<float(HexTile*, HexTile*)> Heuristic, const float heuristicWeight = 1.2f);
+	HexPath AStarSearch(HexTile *const start, HexTile *const goal, std::function<float(HexTile*, HexTile*)> Heuristic);
 
 	HexRegion GetTilesNStepsAway(HexTile *const tile, int n);
 

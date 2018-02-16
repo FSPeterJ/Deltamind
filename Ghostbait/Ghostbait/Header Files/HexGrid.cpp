@@ -168,6 +168,8 @@ bool operator<(const HexPath&p, const HexPath&p2) { return p.cost()<p2.cost(); }
 
 template<typename T, typename priority_t>
 struct PriorityQueue {
+	//we should profile and check if this is a bottle neck.
+	//it uses a binary heap behind the scenes but may be worth it to switch to a deque if it is slow with large/complex paths
 	typedef std::pair<priority_t, T> PQElement;
 	std::priority_queue<PQElement, std::vector<PQElement>, std::greater<PQElement>> elements;
 
@@ -211,7 +213,7 @@ HexPath HexGrid::CalculatePathWithinXSteps(HexTile *const start, HexTile *const 
 
 	HexRegion shadow;
 	for(auto& t : search.costMap) {
-		if(t.second > steps) { shadow.push_back(*t.first); }
+		if(t.second > (int)steps) { shadow.push_back(*t.first); }
 	}
 	shadow.Color(&layout, {0,0,1}, 0, ColorType::__T);
 
@@ -219,7 +221,7 @@ HexPath HexGrid::CalculatePathWithinXSteps(HexTile *const start, HexTile *const 
 	//Console::WriteLine << "Distance is " << distance << "  steps is " << steps;
 	HexPath path;
 
-	if(distance >= steps) {
+	if(distance >= (int)steps) {
 		Console::WriteLine << "Path is too far!";
 	} else {
 		path.BuildPathReverse(start, goal, search.visitedMap);
@@ -363,7 +365,7 @@ TraversalResult HexGrid::breadthFirstTraverse(HexTile *const tile, size_t steps,
 				if(!neighbor || neighbor->weight == Blocked) { continue; }
 
 				bool notContain = !stepCost.count(neighbor);
-				bool withinReach = tile->DistanceFrom(neighbor) <= steps;
+				bool withinReach = tile->DistanceFrom(neighbor) <= (int)steps;
 
 				if(notContain && withinReach) {
 					stepCost[neighbor] = float(i + 1);
@@ -464,10 +466,14 @@ HexPath HexGrid::DijkstraSearch(HexTile *const start, HexTile *const goal) {
 	return path;
 }
 
-HexPath HexGrid::AStarSearch(HexTile *const start, HexTile *const goal, std::function<float(HexTile*, HexTile*)> Heuristic, const float heuristicWeight) {
+HexPath HexGrid::AStarSearch(HexTile *const start, HexTile *const goal, std::function<float(HexTile*, HexTile*)> Heuristic) {
 	if(goal->weight == Blocked) return HexPath();
 
 	PriorityQueue<HexTile*, float> Q;
+	//we could possibly not even use a priority queue here if we hash the tiles into buckets
+	//say we know in advance what our weight range will be, we can make each of those a bucket and not need 
+	//to do any sorting in the first place
+
 	VisitedMap visited;
 	CostMap cumulativeCost;
 
@@ -480,15 +486,19 @@ HexPath HexGrid::AStarSearch(HexTile *const start, HexTile *const goal, std::fun
 
 		if(current == goal) { break; }
 
-		for(auto& _n : current->Neighbors()) {
+		for(auto& _n : current->Neighbors()) { //the call to Neighbors() can be optimized if instead I preallocate space to store the neighbors and pass it in to be filled out
 			HexTile* neighbor = GetTile(_n);
 			if(!neighbor || neighbor->weight == Blocked) { continue; }
 			neighbor->DrawX(layout, {0,1,0});
 
 			float new_cost = cumulativeCost[current] + neighbor->weight;
+			//you may have noticed I don't check for a node in the Q that has a high cost
+			//This can result in duplicated elements in the Q, but the speed benefit is worth it
+			//It has the possiblity to revisit some locations more than neccessary, but seldom happens
+			//the priority Q doesnt need to support decrease-key (like we did in AI class) which makes it faster
 			if(cumulativeCost.find(neighbor) == cumulativeCost.end() || new_cost < cumulativeCost[neighbor]) {
 				cumulativeCost[neighbor] = new_cost;
-				float priority = new_cost + Heuristic(neighbor, goal) * heuristicWeight;
+				float priority = new_cost + Heuristic(neighbor, goal);
 				Q.push(neighbor, priority);
 				visited[neighbor] = current;
 			}
@@ -616,7 +626,7 @@ void HexGrid::SetUpDrawingPaths() {
 		realend->DrawT(layout, {1,1,1}, 0);
 
 		//HexPath d = DijkstraSearch(realStart, realend);
-		HexPath p = AStarSearch(realStart, realend, Heuristics::GetDistance, 1.2f);
+		HexPath p = AStarSearch(realStart, realend, Heuristics::ManhattanDistance);
 		p.Color(&layout, {1,0,0}, 0, ColorType::__CheapFill);
 		//Console::WriteLine << "Path contains " << p.size() << " elements.";
 

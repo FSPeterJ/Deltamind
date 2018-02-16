@@ -14,6 +14,7 @@ void GameObject::OnCollision(GameObject* obj) {}
 //Double Enable emplaces an update delegate that can never be removed.
 void GameObject::Enable() {
 	Awake();
+	MessageEvents::Subscribe(EVENT_RestartGame, [=](EventMessageBase* e) {this->RestartGame(); });
 	//If check was added to prevent user error, but may be unecessary
 	if(!updateID) {
 		//Profile for if adding a delegate has any performance impact +/-

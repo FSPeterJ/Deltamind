@@ -5,6 +5,10 @@
 #include "Console.h"
 #include "Projectile.h"
 
+void EnemyBase::RestartGame() {
+	MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
+}
+
 void EnemyBase::Update() {
 	DirectX::XMVECTOR directionToGoal = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&target), DirectX::XMLoadFloat4x4(&position).r[3]));
 	PhysicsComponent* myPhys = GetComponent<PhysicsComponent>();

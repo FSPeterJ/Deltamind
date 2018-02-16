@@ -11,6 +11,8 @@ protected:
 	std::string tag = "none";
 	unsigned updateID = 0;
 
+	virtual void RestartGame() {};
+
 public:
 	GameObject();
 

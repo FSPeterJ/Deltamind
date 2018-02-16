@@ -14,7 +14,7 @@ ControllerObject::ControllerObject() {
 void ControllerObject::Init(ControllerHand _hand, int menuControllerPrefabID) {
 	SetControllerHand(_hand);
 	Enable();
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(menuControllerPrefabID, { 0,0,0 }, (GameObject**)&menuController));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuControllerItem>(menuControllerPrefabID, { 0,0,0 }, &menuController));
 }
 void ControllerObject::SetPhysicsComponent(GameObject* obj, bool active) {
 	PhysicsComponent* physComp = obj->GetComponent<PhysicsComponent>();
@@ -22,7 +22,7 @@ void ControllerObject::SetPhysicsComponent(GameObject* obj, bool active) {
 }
 void ControllerObject::AddToInventory(int itemSlot, int prefabID) {
 	//Actual Inventory
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0 }, (GameObject**)&items[itemSlot]));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Item>(prefabID, { 0,0,0 }, &items[itemSlot]));
 	if (!currentGameItem) currentGameItem = items[itemSlot];
 	else {
 		MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(items[itemSlot]));
@@ -31,7 +31,7 @@ void ControllerObject::AddToInventory(int itemSlot, int prefabID) {
 	}
 	
 	//Inventory Display
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0,0,0 }, (GameObject**)&displayItems[itemSlot]));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Item>(prefabID, { 0,0,0 }, &displayItems[itemSlot]));
 	MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(displayItems[itemSlot]));
 
 	PhysicsComponent* physComp = displayItems[itemSlot]->GetComponent<PhysicsComponent>(); 

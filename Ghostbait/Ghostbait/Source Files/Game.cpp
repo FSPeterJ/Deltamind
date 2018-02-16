@@ -83,7 +83,7 @@ void Game::ChangeState(State newState) {
 			else if (gameData.prevState == GAMESTATE_InWave) {
 				//Spawn start cube
 				MenuCube* startCube;
-				MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(7, { 0, 1.5f, 0.0f }, (GameObject**)&startCube));
+				MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(7, { 0, 1.5f, 0.0f }, &startCube));
 				DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
 				startCube->Enable();
 			}

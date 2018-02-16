@@ -1,9 +1,16 @@
 #pragma once
+#include "AABB.h" // DirectXMath, vector
 #include "RigidBody.h" // DirectXMath, vector
-#include"AABB.h"
 #include "ComponentBase.h"
+#include <vector>
+
 
 //class PhysicsManager;
+
+namespace DirectX
+{
+	struct XMFLOAT3;
+}
 
 enum ColliderType {
 	SPHERE,

@@ -2,7 +2,7 @@
 #include "DebugRenderer.h"
 #include "GameObject.h"
 #include "Console.h"
-//#include <DirectXMath.h>
+#include <DirectXMath.h>
 
 Collider PhysicsManager::defaultColider;
 ColliderData PhysicsManager::defaultSphereColider;

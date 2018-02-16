@@ -1,8 +1,13 @@
 #include "AnimatorManager.h"
 
 #include "TypeMapping.h"        // for TypeMap
+
+
+#define DIRECTORY_PATH "Assets/"
+
+
 AnimatorManager::~AnimatorManager() {}
-AnimatorManager::AnimatorManager(AnimationManager* animManIn) : animMan(animManIn) {
+AnimatorManager::AnimatorManager(AnimationManager* animManIn): animMan(animManIn) {
 	TypeMap::RegisterComponentAlias<Animator>("Animate");
 };
 Animator* AnimatorManager::GetReferenceComponent(const char * _FilePath, const char* _data) {
@@ -14,9 +19,9 @@ Animator* AnimatorManager::GetReferenceComponent(const char * _FilePath, const c
 	int strLength = 0;
 	memcpy(&strLength, &_data[currIndex], sizeof(strLength));
 	currIndex += sizeof(strLength);
-	char* bindposePath;
-	bindposePath = new char[strLength];
-	memcpy(&bindposePath[0], &_data[currIndex], strLength);
+	char* bindposePath = new char[strLength + strlen(DIRECTORY_PATH)];
+	memcpy(bindposePath, DIRECTORY_PATH, strlen(DIRECTORY_PATH));
+	memcpy(bindposePath + strlen(DIRECTORY_PATH), &_data[currIndex], strLength);
 	currIndex += strLength;
 	memcpy(&numOfAnims, &_data[currIndex], sizeof(numOfAnims));
 	currIndex += sizeof(numOfAnims);
@@ -24,14 +29,16 @@ Animator* AnimatorManager::GetReferenceComponent(const char * _FilePath, const c
 		char* filePath, *name;
 		memcpy(&strLength, &_data[currIndex], sizeof(strLength));
 		currIndex += sizeof(strLength);
-		filePath = new char[strLength];
-		memcpy(&filePath[0], &_data[currIndex], strLength);
+		filePath = new char[strLength + strlen(DIRECTORY_PATH)];
+		memcpy(filePath, DIRECTORY_PATH, strlen(DIRECTORY_PATH));
+		memcpy(filePath + strlen(DIRECTORY_PATH), &_data[currIndex], strLength);
 		currIndex += strLength;
 		memcpy(&strLength, &_data[currIndex], sizeof(strLength));
 		currIndex += sizeof(strLength);
-		name = new char[strLength];
-		memcpy(&name[0], &_data[currIndex], strLength);
-		currIndex += strLength;
+		name = new char[strLength + +strlen(DIRECTORY_PATH)];
+		memcpy(name, DIRECTORY_PATH, strlen(DIRECTORY_PATH));
+		memcpy(name + strlen(DIRECTORY_PATH), &_data[currIndex], strLength);
+			currIndex += strLength;
 		toReturn->addAnim(filePath, bindposePath, name);
 		delete[] filePath;
 		delete[] name;
@@ -43,12 +50,12 @@ Animator* AnimatorManager::GetReferenceComponent(const char * _FilePath, const c
 
 Animator * AnimatorManager::CloneComponent(ComponentBase * reference) {
 	Animator* toReturn = animators.ActivateMemory();
-	toReturn->Copy(((Animator*) reference));
+	toReturn->Copy(((Animator*)reference));
 	toReturn->Initialize(animMan);
 	return toReturn;
 }
 
 void AnimatorManager::ResetComponent(ComponentBase * reset) {
-	((Animator*) reset)->Destroy();
+	((Animator*)reset)->Destroy();
 	animators.DeactivateMemory(reset);
 }

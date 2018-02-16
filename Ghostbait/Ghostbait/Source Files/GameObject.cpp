@@ -10,10 +10,11 @@ GameObject::GameObject() {
 
 void GameObject::OnCollision(GameObject* obj) {}
 
-//This is potentially dangerous if used incorrectly.
-//Double Enable emplaces an update delegate that can never be removed.
+
 void GameObject::Enable() {
 	Awake();
+	//This is potentially dangerous if used incorrectly.
+	//Double Enable emplaces a second update delegate that can never be removed.
 	MessageEvents::Subscribe(EVENT_RestartGame, [=](EventMessageBase* e) {this->RestartGame(); });
 	//If check was added to prevent user error, but may be unecessary
 	if(!updateID) {
@@ -53,6 +54,14 @@ void GameObject::Destroy() {
 	Disable();
 }
 
+
+
+
+
+
+
+
+
 void MenuCube::Update() {
 	position.m[3][1] += 0.4f * (float) GhostTime::DeltaTime();
 	if(position.m[3][1] > 1.5f) {
@@ -65,7 +74,7 @@ void MenuCube::OnCollision(GameObject* other) {
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 		MessageEvents::SendMessage(EVENT_StartWave, EventMessageBase());
 		//GameObject* obj;
-		//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(8/*Core*/, {0, 1.5f, 0}, &obj));
+		//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(8/*Core*/, {0, 1.5f, 0}, &obj));
 		//DirectX::XMStoreFloat4x4(&obj->position,
 		//	DirectX::XMLoadFloat4x4(&obj->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
 	}
@@ -77,7 +86,7 @@ void CoreCube::OnCollision(GameObject* other) {
 		Console::OutLine << "YOU LOSE!";
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 		GameObject* temper;
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(10/*LoseCube*/, {0, 0.75f, 0}, &temper));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(10, {0, 0.75f, 0}, &temper));// stop using magic number prefab ID
 		DirectX::XMStoreFloat4x4(&temper->position, DirectX::XMLoadFloat4x4(&temper->position) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));
 	}
 }

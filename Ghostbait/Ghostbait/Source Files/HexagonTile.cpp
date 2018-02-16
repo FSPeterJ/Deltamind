@@ -45,7 +45,9 @@ HexagonTile<T> HexagonTile<T>::operator*=(const T& b) {
 template<typename T>
 inline const float HexagonTile<T>::Length() const { return ((int) (abs(q) + abs(r) + abs(s)))*0.5f; }
 
-DirectX::XMFLOAT2 HexagonTile<int>::Center(HexagonalGridLayout layout) {
+template<typename T>
+DirectX::XMFLOAT2 HexagonTile<T>::Center(HexagonalGridLayout layout)
+{
 	const Orientation& M = layout.orientation;
 	double x = (M.f0 * q + M.f1 * r) * layout.size.x;
 	double y = (M.f2 * q + M.f3 * r) * layout.size.y;

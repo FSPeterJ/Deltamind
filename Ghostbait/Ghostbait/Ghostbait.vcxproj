@@ -242,6 +242,7 @@
     <ClInclude Include="Header Files\Spawner.h" />
     <ClInclude Include="Header Files\StdHeader.h" />
     <ClInclude Include="Header Files\targetver.h" />
+    <ClInclude Include="Header Files\TestObject.h" />
     <ClInclude Include="Header Files\ThreadPool.h" />
     <ClInclude Include="Header Files\TypeContainer.h" />
     <ClInclude Include="Header Files\TypeMapping.h" />
@@ -254,7 +255,6 @@
     <ClInclude Include="Header Files\Wwise_IDs.h" />
     <ClInclude Include="Header Files\XTime.h" />
     <ClInclude Include="Resource Files\Resource.h" />
-    <ClInclude Include="Source Files\HexagonTile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Common\AkFileLocationBase.cpp" />
@@ -262,8 +262,6 @@
     <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Common\AkFilePackageLUT.cpp" />
     <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Win32\AkDefaultIOHookBlocking.cpp" />
     <ClCompile Include="Dependencies\XML_Library\irrXML.cpp" />
-    <ClCompile Include="Header Files\HexagonalGridLayout.cpp" />
-    <ClCompile Include="Header Files\HexGrid.cpp" />
     <ClCompile Include="Source Files\AABB.cpp" />
     <ClCompile Include="Source Files\AnimationManager.cpp" />
     <ClCompile Include="Source Files\Animator.cpp" />
@@ -284,7 +282,10 @@
       <ShowIncludes Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ShowIncludes>
     </ClCompile>
     <ClCompile Include="Source Files\Health.cpp" />
+    <ClCompile Include="Source Files\HexagonalGridLayout.cpp" />
     <ClCompile Include="Source Files\HexagonTile-Impl.cpp" />
+    <ClCompile Include="Source Files\HexagonTile.cpp" />
+    <ClCompile Include="Source Files\HexGrid.cpp" />
     <ClCompile Include="Source Files\InputManager.cpp" />
     <ClCompile Include="Source Files\Item.cpp" />
     <ClCompile Include="Source Files\LightManager.cpp" />

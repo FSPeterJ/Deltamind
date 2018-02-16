@@ -159,11 +159,6 @@ void Game::Start(EngineStructure* _engine, char* level) {
 	engine = _engine;
 	LoadLevel(level);
 	gameData.state = GAMESTATE_BetweenWaves;
-
-	MenuCube* startCube;
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(7, { 0, 1.5f, 0.0f }, (GameObject**)&startCube));
-	DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
-	startCube->Enable();
 }
 void Game::Update() {
 	float dt = (float)GhostTime::DeltaTime();

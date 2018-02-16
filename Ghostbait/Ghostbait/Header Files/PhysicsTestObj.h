@@ -5,6 +5,7 @@
 class PhysicsTestObj : public GameObject, public Controlable {
 public:
 	bool isControllable = false;
+	bool isRayCasting = false;
 
 	PhysicsTestObj();
 	~PhysicsTestObj();

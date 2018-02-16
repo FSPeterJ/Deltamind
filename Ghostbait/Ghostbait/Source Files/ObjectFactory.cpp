@@ -2,6 +2,7 @@
 #include "GameObject.h"         // for GameObject
 #include "ObjectManager.h"      // for ObjectManager
 #include "MessageEvents.h"
+#include "Console.h"
 
 std::unordered_map<unsigned, std::function<Object*(void)>> ObjectFactory::registeredConstructors;
 
@@ -25,6 +26,22 @@ void ObjectFactory::Initialize(ObjectManager* _objMan) {
 
 void ObjectFactory::Instantiate(EventMessageBase *e) {
 	InstantiateMessage* instantiate = (InstantiateMessage*) e;
+
+	if (instantiate->obj) {
+		unsigned t = prefabs[instantiate->GetPrefabId()].objectTypeID;
+
+		//auto o = registeredConstructors[t];
+		//
+		//auto f = o();
+
+		//if (!dynamic_cast<decltype(f)>(*(instantiate->obj)))
+		//{
+		//	Console::ErrorLine << "Type MissMatch on instantiation call!";
+		//	Console::ErrorOutLine << "Type MissMatch on instantiation call!";
+		//	throw "Type MissMatch on instantiation call!";
+		//}
+	}
+
 	GameObject* newobject = ActivateObject(instantiate->GetPrefabId());
 	if(instantiate->obj != nullptr) {
 		*instantiate->obj = newobject;
@@ -131,7 +148,7 @@ void ObjectFactory::CreatePrefab(std::string *_filename, char* DEBUG_STRING_NAME
 
 					prefab->instantiatedComponents[componentTypeID] = component;
 					prefab->fastclone[componentTypeID] = component->singleInstance;
-					if(component->singleInstance) {
+					if(!component->singleInstance) {
 						((InstantiatedCompBase *) prefab->instantiatedComponents[componentTypeID])->parentObject = prefab->object;
 					}
 					prefab->object->SetComponent(prefab->instantiatedComponents[componentTypeID], componentTypeID);

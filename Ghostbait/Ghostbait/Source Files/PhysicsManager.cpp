@@ -100,8 +100,8 @@ PhysicsComponent* PhysicsManager::GetReferenceComponent(const char * _FilePath, 
 			currIndex += sizeof(float) * 3;
 			colDataHolder = AddColliderData(incomingMax.x, incomingMax.y, incomingMax.z, incomingMin.x, incomingMin.y, incomingMin.z);
 
-			incomingMax = { incomingMax.x + radiusHolder, incomingMax.y + radiusHolder, incomingMax.z + radiusHolder };
-			incomingMin = { incomingMin.x - radiusHolder, incomingMin.y - radiusHolder, incomingMin.z - radiusHolder };
+			//incomingMax = { incomingMax.x + radiusHolder, incomingMax.y + radiusHolder, incomingMax.z + radiusHolder };
+			//incomingMin = { incomingMin.x - radiusHolder, incomingMin.y - radiusHolder, incomingMin.z - radiusHolder };
 		}
 
 		//Update AABB
@@ -171,8 +171,33 @@ void PhysicsManager::Update() {
 				DebugRenderer::AddSphere(capStart, components[i].colliders[colInd].colliderData->colliderInfo.capsuleCollider.radius, XMFLOAT3(1.0f, 0.0f, 0.0f));
 				DebugRenderer::AddSphere(capEnd, components[i].colliders[colInd].colliderData->colliderInfo.capsuleCollider.radius, XMFLOAT3(1.0f, 0.0f, 0.0f));
 				DebugRenderer::AddLine(capStart, capEnd, XMFLOAT3(1.0f, 0.0f, 0.0f));
-			}
-			break;
+			} break;
+			case BOX:
+			{
+				std::vector<XMVECTOR> corners = GetBoxCorners(components[i].colliders[colInd], XMLoadFloat4x4(&(components[i].parentObject->position)));
+				std::vector<XMFLOAT3> cornersStored;
+				XMFLOAT3 temp;
+				for (unsigned int i = 0; i < corners.size(); ++i) {
+					XMStoreFloat3(&temp, corners[i]);
+					cornersStored.push_back(temp);
+				}
+				
+				DebugRenderer::AddLine(cornersStored[0], cornersStored[1], XMFLOAT3(1.0f, 0.0f, 0.0f));
+				DebugRenderer::AddLine(cornersStored[1], cornersStored[3], XMFLOAT3(1.0f, 0.0f, 0.0f));
+				DebugRenderer::AddLine(cornersStored[3], cornersStored[2], XMFLOAT3(1.0f, 0.0f, 0.0f));
+				DebugRenderer::AddLine(cornersStored[2], cornersStored[0], XMFLOAT3(1.0f, 0.0f, 0.0f));
+									  
+				DebugRenderer::AddLine(cornersStored[4], cornersStored[5], XMFLOAT3(1.0f, 0.0f, 0.0f));
+				DebugRenderer::AddLine(cornersStored[5], cornersStored[7], XMFLOAT3(1.0f, 0.0f, 0.0f));
+				DebugRenderer::AddLine(cornersStored[7], cornersStored[6], XMFLOAT3(1.0f, 0.0f, 0.0f));
+				DebugRenderer::AddLine(cornersStored[6], cornersStored[4], XMFLOAT3(1.0f, 0.0f, 0.0f));
+									   
+				DebugRenderer::AddLine(cornersStored[4], cornersStored[0], XMFLOAT3(1.0f, 0.0f, 0.0f));
+				DebugRenderer::AddLine(cornersStored[5], cornersStored[1], XMFLOAT3(1.0f, 0.0f, 0.0f));
+				DebugRenderer::AddLine(cornersStored[6], cornersStored[2], XMFLOAT3(1.0f, 0.0f, 0.0f));
+				DebugRenderer::AddLine(cornersStored[7], cornersStored[3], XMFLOAT3(1.0f, 0.0f, 0.0f));
+
+			} break;
 			default:
 				break;
 			}
@@ -187,7 +212,7 @@ void PhysicsManager::Update() {
 	TestAllComponentsCollision();
 }
 
-bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* colPoint, GameObject const** colObject, float maxCastDistance) {
+bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* colPoint, GameObject** colObject, float maxCastDistance) {
 	bool collided = false;
 	uint32_t nextIndex, currBucketIndex = -1;
 	XMVECTOR vecOrigin = XMLoadFloat3(&origin);
@@ -239,7 +264,7 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 				Console::WriteLine << "RAY HIT";
 			}
 		}
-	}
+	
 	if(colPoint)
 		XMStoreFloat3(colPoint, closestCollision);
 
@@ -249,7 +274,7 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 	DebugRenderer::AddLine(origin, line, XMFLOAT3(0.0f, 1.0f, 1.0f));
 
 #endif
-
+}
 	return collided;
 }
 
@@ -292,6 +317,7 @@ ColliderData* PhysicsManager::AddColliderData(float trfX, float trfY, float trfZ
 	return nullptr;
 }
 void PhysicsManager::UpdateAABB(PhysicsComponent& component) {
+	//DOES NOT ACCOUNT FOR ROTATION!
 	component.currentAABB.max.x = component.baseAABB.max.x + component.parentObject->position._41;
 	component.currentAABB.max.y = component.baseAABB.max.y + component.parentObject->position._42;
 	component.currentAABB.max.z = component.baseAABB.max.z + component.parentObject->position._43;
@@ -324,6 +350,9 @@ void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponen
 				case CAPSULE:
 					collisionResult = CapsuleToSphereCollision(component2.colliders[com2], matrixComB, component1.colliders[com1], matrixComA);
 					break;
+				case BOX:
+					collisionResult = BoxToSphereCollision(component2.colliders[com2], matrixComB, component1.colliders[com1], matrixComA);
+					break;
 				default:
 					break;
 				}
@@ -338,16 +367,30 @@ void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponen
 				case CAPSULE:
 					collisionResult = CapsuleToCapsuleCollision(component1.colliders[com1], matrixComA, component2.colliders[com2], matrixComB);
 					break;
+				case BOX:
+					collisionResult = BoxToCapsuleCollision(component2.colliders[com2], matrixComB, component1.colliders[com1], matrixComA);
+					break;
 				default:
 					break;
 				}
-			}
-			break;
+			} break;
 
 			case BOX:
-				break;
-			default:
-				break;
+			{
+				switch (colliderType2) {
+				case SPHERE:
+					collisionResult = BoxToSphereCollision(component1.colliders[com1], matrixComA, component2.colliders[com2], matrixComB);
+					break;
+				case CAPSULE:
+					collisionResult = BoxToCapsuleCollision(component1.colliders[com1], matrixComA, component2.colliders[com2], matrixComB);
+					break;
+				case BOX:
+					collisionResult = BoxToBoxCollision(component1.colliders[com1], matrixComA, component2.colliders[com2], matrixComB);
+					break;
+				default:
+					break;
+				}
+			} break;
 			}
 
 			if (collisionResult) {
@@ -374,11 +417,7 @@ bool PhysicsManager::SphereToSphereCollision(Collider& col1, XMVECTOR& pos1, Col
 	if(sqrDist < (combinedRad*combinedRad)) return true;
 	return false;
 }
-bool PhysicsManager::BoxToBoxCollision() {
-	return false;
-}
 bool PhysicsManager::CapsuleToCapsuleCollision(Collider& col1, XMMATRIX& pos1, Collider& col2, XMMATRIX& pos2) {
-	//*** Edge case where tall/long capsules intersect will not collide ***
 	
 	float combineRadiusSq = col1.colliderData->colliderInfo.capsuleCollider.radius + col2.colliderData->colliderInfo.capsuleCollider.radius;
 	combineRadiusSq *= combineRadiusSq;
@@ -577,6 +616,281 @@ bool PhysicsManager::CapsuleToSphereCollision(Collider& capCol, XMMATRIX& capPos
 	return !(XMVectorGetX(XMVector3Dot(sphCenterToClosest, sphCenterToClosest)) > (radii * radii));
 }
 
+bool PhysicsManager::BoxToBoxCollision(Collider& boxCol1, XMMATRIX& boxPos1, Collider& boxCol2, XMMATRIX& boxPos2) {
+	//std::vector<XMVECTOR> box1Corners, box2Corners, testAxis;
+	//box1Corners = GetBoxCorners(boxCol1, boxPos1);
+	//box2Corners = GetBoxCorners(boxCol2, boxPos2);
+	//testAxis = GetSATAxis(box1Corners, box2Corners);
+
+//#if _DEBUG
+//	XMFLOAT3 start(0.0f, 0.0f, 0.0f);
+//	XMFLOAT3 end;
+//	for (unsigned int i = 0; i < testAxis.size(); ++i) {
+//		XMStoreFloat3(&end, testAxis[i]);
+//		DebugRenderer::AddLine(start, end, XMFLOAT3(0.0f, 0.0f, 1.0f));
+//	}
+//#endif
+
+//	float box1AxisMax, box1AxisMin, box2AxisMax, box2AxisMin;
+//	float tempPoint1, tempPoint2;
+//
+//	for (unsigned int axisIndex = 0; axisIndex < testAxis.size(); ++axisIndex) {
+//		box1AxisMax = -FLT_MAX;
+//		box1AxisMin = FLT_MAX;
+//		box2AxisMax = -FLT_MAX;
+//		box2AxisMin = FLT_MAX;
+//		for (unsigned testIndex = 0; testIndex < box1Corners.size(); ++testIndex) {
+//			tempPoint1 = XMVectorGetX(XMVector3Dot(testAxis[axisIndex], box1Corners[testIndex]));
+//			tempPoint2 = XMVectorGetX(XMVector3Dot(testAxis[axisIndex], box2Corners[testIndex]));
+//
+//			if (box1AxisMax < tempPoint1) box1AxisMax = tempPoint1;
+//			if (box1AxisMin > tempPoint1) box1AxisMin = tempPoint1;
+//			if (box2AxisMax < tempPoint2) box2AxisMax = tempPoint2;
+//			if (box2AxisMin > tempPoint2) box2AxisMin = tempPoint2;
+//
+//#if _DEBUG
+//			if (axisIndex == 4) {
+//				XMFLOAT3 start1, start2, end1, end2;
+//				XMStoreFloat3(&start1, box1Corners[testIndex]);
+//				XMStoreFloat3(&start2, box2Corners[testIndex]);
+//				XMStoreFloat3(&end1, testAxis[axisIndex] * tempPoint1);
+//				XMStoreFloat3(&end2, testAxis[axisIndex] * tempPoint2);
+//
+//				DebugRenderer::AddLine(start1, end1, XMFLOAT3(1.0f, 0.0f, 1.0f));
+//				DebugRenderer::AddLine(start2, end2, XMFLOAT3(0.0f, 0.0f, 1.0f));
+//			}
+//#endif 
+//
+//		}
+//		if (box1AxisMax < box2AxisMin) return false;
+//		if (box1AxisMin > box2AxisMax) return false;
+//	}
+//	return true;
+
+
+	////*************************** VERSION 2 *************************************
+	//XMVECTOR ext1, ext2, box1ToBox2; 
+	//std::vector<XMVECTOR> testAxis = GetSATAxis(boxPos1, boxPos2);
+	//XMMATRIX box1Rotation = { boxPos1.r[0], boxPos1.r[1], boxPos1.r[2], XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f) };
+	//XMMATRIX box2Rotation = { boxPos2.r[0], boxPos2.r[1], boxPos2.r[2], XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f) };
+
+	//box1ToBox2 = (boxPos2.r[3] + XMLoadFloat3(&boxCol2.centerOffset)) - (boxPos1.r[3] + XMLoadFloat3(&boxCol1.centerOffset));
+	//ext1 = XMVector3TransformCoord((XMLoadFloat3(&boxCol1.colliderData->colliderInfo.boxCollider.topRightFrontCorner) - XMLoadFloat3(&boxCol1.colliderData->colliderInfo.boxCollider.bottLeftBackCorner)) * 0.5f, box1Rotation);
+	//ext2 = XMVector3TransformCoord((XMLoadFloat3(&boxCol2.colliderData->colliderInfo.boxCollider.topRightFrontCorner) - XMLoadFloat3(&boxCol2.colliderData->colliderInfo.boxCollider.bottLeftBackCorner)) * 0.5f, box2Rotation);
+
+	//float ext1Proj, ext2Proj, centerProj;
+	//
+	//for (unsigned int axisIndex = 0; axisIndex < testAxis.size(); ++axisIndex) {
+	//	ext1Proj = XMVectorGetX(XMVector3Dot(testAxis[axisIndex], ext1));
+	//	ext2Proj = XMVectorGetX(XMVector3Dot(testAxis[axisIndex], ext2));
+	//	centerProj = XMVectorGetX(XMVector3Dot(testAxis[axisIndex], box1ToBox2));
+
+	//	if (fabsf(centerProj) > fabsf(ext1Proj) + fabsf(ext2Proj)) return false;
+	//}
+	//return true;
+
+//**************************** VERSION 3 *****************************************
+	XMFLOAT3 *max, *min;
+
+	max = &boxCol1.colliderData->colliderInfo.boxCollider.topRightFrontCorner;
+	min = &boxCol1.colliderData->colliderInfo.boxCollider.bottLeftBackCorner;
+	float ext1[] = { (max->x - min->x) * 0.5f, (max->y - min->y) * 0.5f, (max->z - min->z) * 0.5f };
+	max = &boxCol2.colliderData->colliderInfo.boxCollider.topRightFrontCorner;
+	min = &boxCol2.colliderData->colliderInfo.boxCollider.bottLeftBackCorner;
+	float ext2[] = { (max->x - min->x) * 0.5f, (max->y - min->y) * 0.5f, (max->z - min->z) * 0.5f };
+
+	float ra, rb;
+	XMFLOAT3X3 R, AbsR;
+	//Compute rotation matrix expressing b in a’s coordinate frame
+	for (int i = 0; i < 3; i++)
+		for (int j = 0; j < 3; j++)
+			R.m[i][j] = XMVectorGetX(XMVector3Dot(boxPos1.r[i], boxPos2.r[j]));
+
+	//Compute translation vector t
+	XMVECTOR t = (boxPos2.r[3] + XMLoadFloat3(&boxCol2.centerOffset)) - (boxPos1.r[3] + XMLoadFloat3(&boxCol1.centerOffset));
+	//Bring translation into a’s coordinate frame
+	t = XMVectorSet(XMVectorGetX(XMVector3Dot(t, boxPos1.r[0])), XMVectorGetX(XMVector3Dot(t, boxPos1.r[1])), XMVectorGetX(XMVector3Dot(t, boxPos1.r[2])), 1.0f);
+	
+	float between[] = { XMVectorGetX(t), XMVectorGetY(t), XMVectorGetZ(t) };
+	//Compute common subexpressions. Add in an epsilon term to
+	//counteract arithmetic errors when two edgesare parallel and
+	//their cross product is(near) null
+	for (int i = 0; i < 3; i++)
+		for (int j = 0; j < 3; j++)
+			AbsR.m[i][j] = fabsf(R.m[i][j]) + FLT_EPSILON;
+	//TestaxesL=A0, L=A1, L=A2
+	for (int i = 0; i < 3; i++) {
+		ra = ext1[i];
+		rb = ext2[0] * AbsR.m[i][0] + ext2[1] * AbsR.m[i][1] + ext2[2] * AbsR.m[i][2];
+		if (fabsf(between[i]) > ra + rb) return false;
+	}
+	//TestaxesL=B0, L=B1, L=B2
+	for (int i = 0; i < 3; i++) {
+		ra = ext1[0] * AbsR.m[0][i] + ext1[1] * AbsR.m[1][i] + ext1[2] * AbsR.m[2][i];
+		rb = ext2[i];
+		if (fabsf(between[0] * R.m[0][i] + between[1] * R.m[1][i] + between[2] * R.m[2][i]) > ra + rb) return false;
+	}
+	//TestaxisL=A0xB0
+	ra = ext1[1] * AbsR.m[2][0] + ext1[2] * AbsR.m[1][0];
+	rb = ext2[1] * AbsR.m[0][2] + ext2[2] * AbsR.m[0][1];
+	if (fabsf(between[2] * R.m[1][0] - between[1] * R.m[2][0]) > ra + rb) return false;
+	//TestaxisL=A0xB1
+	ra = ext1[1] * AbsR.m[2][1] + ext1[2] * AbsR.m[1][1];
+	rb = ext2[0] * AbsR.m[0][2] + ext2[2] * AbsR.m[0][0];
+	if (fabsf(between[2] * R.m[1][1] - between[1] * R.m[2][1]) > ra + rb) return false;
+	//TestaxisL=A0xB2
+	ra = ext1[1] * AbsR.m[2][2] + ext1[2] * AbsR.m[1][2];
+	rb = ext2[0] * AbsR.m[0][1] + ext2[1] * AbsR.m[0][0];
+	if (fabsf(between[2] * R.m[1][2] - between[1] * R.m[2][2]) > ra + rb) return false;
+	//TestaxisL=A1xB0
+	ra = ext1[0] * AbsR.m[2][0] + ext1[2] * AbsR.m[0][0];
+	rb = ext2[1] * AbsR.m[1][2] + ext2[2] * AbsR.m[1][1];
+	if (fabsf(between[0] * R.m[2][0] - between[2] * R.m[0][0]) > ra + rb) return false;
+	//TestaxisL=A1xB1
+	ra = ext1[0] * AbsR.m[2][1] + ext1[2] * AbsR.m[0][1];
+	rb = ext2[0] * AbsR.m[1][2] + ext2[2] * AbsR.m[1][0];
+	if (fabsf(between[0] * R.m[2][1] - between[2] * R.m[0][1]) > ra + rb) return false;
+	//TestaxisL=A1xB2
+	ra = ext1[0] * AbsR.m[2][2] + ext1[2] * AbsR.m[0][2];
+	rb = ext2[0] * AbsR.m[1][1] + ext2[1] * AbsR.m[1][0];
+	if (fabsf(between[0] * R.m[2][2] - between[2] * R.m[0][2]) > ra + rb) return false;
+	//TestaxisL=A2xB0
+	ra = ext1[0] * AbsR.m[1][0] + ext1[1] * AbsR.m[0][0];
+	rb = ext2[1] * AbsR.m[2][2] + ext2[2] * AbsR.m[2][1];
+	if (fabsf(between[1] * R.m[0][0] - between[0] * R.m[1][0]) > ra + rb) return false;
+	//TestaxisL=A2xB1
+	ra = ext1[0] * AbsR.m[1][1] + ext1[1] * AbsR.m[0][1];
+	rb = ext2[0] * AbsR.m[2][2] + ext2[2] * AbsR.m[2][0];
+	if (fabsf(between[1] * R.m[0][1] - between[0] * R.m[1][1]) > ra + rb) return false;
+	//TestaxisL=A2xB2
+	ra = ext1[0] * AbsR.m[1][2] + ext1[1] * AbsR.m[0][2];
+	rb = ext2[0] * AbsR.m[2][1] + ext2[1] * AbsR.m[2][0];
+	if (fabsf(between[1] * R.m[0][2] - between[0] * R.m[1][2]) > ra + rb) return false;
+	//Sincenoseparatingaxis isfound, theOBBsmustbe intersecting
+
+	return true;
+}
+
+bool PhysicsManager::BoxToSphereCollision(Collider& boxCol, XMMATRIX& boxPos, Collider& sphCol, XMMATRIX& sphPos) {
+	XMFLOAT3 *max, *min;
+
+	max = &boxCol.colliderData->colliderInfo.boxCollider.topRightFrontCorner;
+	min = &boxCol.colliderData->colliderInfo.boxCollider.bottLeftBackCorner;
+	float ext1[] = { (max->x - min->x) * 0.5f, (max->y - min->y) * 0.5f, (max->z - min->z) * 0.5f };
+
+	XMVECTOR t = (sphPos.r[3] + XMLoadFloat3(&sphCol.centerOffset)) - (boxPos.r[3] + XMLoadFloat3(&boxCol.centerOffset));
+	//Bringtranslation intoa’scoordinateframe
+	t = XMVectorSet(XMVectorGetX(XMVector3Dot(t, boxPos.r[0])), XMVectorGetX(XMVector3Dot(t, boxPos.r[1])), XMVectorGetX(XMVector3Dot(t, boxPos.r[2])), 1.0f);
+
+	float between[] = { XMVectorGetX(t), XMVectorGetY(t), XMVectorGetZ(t) };
+	float ra, rb;
+	rb = sphCol.colliderData->colliderInfo.sphereCollider.radius;
+
+#ifdef _DEBUG
+	XMFLOAT3 temp;
+	XMStoreFloat3(&temp, sphPos.r[3] + XMLoadFloat3(&sphCol.centerOffset));
+	DebugRenderer::AddSphere(temp, rb, XMFLOAT3(1.0f, 1.0f, 0.0f));
+#endif // DEBUG
+
+	for (int i = 0; i < 3; i++) {
+		ra = ext1[i];
+		if (fabsf(between[i]) > ra + rb) return false;
+	}
+
+	return true;
+}
+
+bool PhysicsManager::BoxToCapsuleCollision(Collider& boxCol, XMMATRIX& boxPos, Collider& capCol, XMMATRIX& capPos) {
+	XMVECTOR capStart = XMVectorSet(0, capCol.colliderData->colliderInfo.capsuleCollider.height * 0.5f, 0, 0);
+	XMVECTOR capEnd =  - XMVectorSet(0, capCol.colliderData->colliderInfo.capsuleCollider.height * 0.5f, 0, 0);
+	capStart = XMVector3TransformCoord(capStart, capPos);
+	capEnd = XMVector3TransformCoord(capEnd, capPos);
+	XMVECTOR seg1 = capEnd - capStart;
+
+	XMMATRIX currSphereMat = capPos;
+	float height = capCol.colliderData->colliderInfo.capsuleCollider.height;
+	float halfRadius = capCol.colliderData->colliderInfo.capsuleCollider.radius * 0.5f;
+	XMVECTOR interval = XMVector3Normalize(seg1) * halfRadius;
+
+	currSphereMat.r[3] = capEnd;
+	if (BoxToSphereCollision(boxCol, boxPos, capCol, currSphereMat)) return true;
+	
+	currSphereMat.r[3] = capStart;
+	for (float current = 0; current < height; current += halfRadius) {
+		if (BoxToSphereCollision(boxCol, boxPos, capCol, currSphereMat)) return true;
+		currSphereMat.r[3] += interval;
+	}
+
+	return false;
+}
+
+std::vector<XMVECTOR> PhysicsManager::GetSATAxis(std::vector<XMVECTOR>& boxCorners) {
+	std::vector<XMVECTOR> axisToTest;
+
+	axisToTest.push_back(XMVector3Normalize(boxCorners[2] - boxCorners[0])); //"X" axis
+	axisToTest.push_back(XMVector3Normalize(boxCorners[4] - boxCorners[0])); //"Y" axis
+	axisToTest.push_back(XMVector3Normalize(boxCorners[1] - boxCorners[0])); //"Z" axis
+
+	return axisToTest;
+}
+
+std::vector<XMVECTOR> PhysicsManager::GetSATAxis(std::vector<XMVECTOR>& box1Corners, std::vector<XMVECTOR>& box2Corners) {
+	std::vector<XMVECTOR> axisToTest;
+	//Box 1
+	axisToTest.push_back(XMVector3Normalize(box1Corners[2] - box1Corners[0])); //"X" axis
+	axisToTest.push_back(XMVector3Normalize(box1Corners[4] - box1Corners[0])); //"Y" axis
+	axisToTest.push_back(XMVector3Normalize(box1Corners[1] - box1Corners[0])); //"Z" axis
+	//Box 2
+	axisToTest.push_back(XMVector3Normalize(box2Corners[2] - box2Corners[0])); //"X" axis
+	axisToTest.push_back(XMVector3Normalize(box2Corners[4] - box2Corners[0])); //"Y" axis
+	axisToTest.push_back(XMVector3Normalize(box2Corners[1] - box2Corners[0])); //"Z" axis
+
+	return axisToTest;
+}
+
+std::vector<XMVECTOR> PhysicsManager::GetSATAxis(XMMATRIX& box1Pos, XMMATRIX& box2Pos) {
+	std::vector<XMVECTOR> axisToTest;
+	//Box 1
+	axisToTest.push_back(box1Pos.r[0]); //"X" axis
+	axisToTest.push_back(box1Pos.r[1]); //"Y" axis
+	axisToTest.push_back(box1Pos.r[2]); //"Z" axis
+	//Box 2
+	axisToTest.push_back(box2Pos.r[0]); //"X" axis
+	axisToTest.push_back(box2Pos.r[1]); //"Y" axis
+	axisToTest.push_back(box2Pos.r[2]); //"Z" axis
+
+	//for (int i = 0; i < 3; ++i) {
+	//	for (int j = 0; j < 3; ++j) {
+	//		axisToTest.push_back((XMVector3Cross(box1Pos.r[i], box2Pos.r[j]))); //Cross axis
+	//	}
+	//}
+
+	return axisToTest;
+}
+
+std::vector<XMVECTOR> PhysicsManager::GetBoxCorners(Collider& boxCol, XMMATRIX& boxPos) {
+	std::vector<XMVECTOR> corners;
+	XMVECTOR offset = XMLoadFloat3(&boxCol.centerOffset);
+	XMFLOAT3 min = boxCol.colliderData->colliderInfo.boxCollider.bottLeftBackCorner;
+	XMFLOAT3 max = boxCol.colliderData->colliderInfo.boxCollider.topRightFrontCorner;
+
+	corners.push_back(XMVectorSet(min.x, min.y, min.z, 1.0f)); //Bottom Left Back
+	corners.push_back(XMVectorSet(min.x, min.y, max.z, 1.0f)); //Bottom Left Front
+	corners.push_back(XMVectorSet(max.x, min.y, min.z, 1.0f)); //Bottom Right Back
+	corners.push_back(XMVectorSet(max.x, min.y, max.z, 1.0f)); //Bottom Right Front
+
+	corners.push_back(XMVectorSet(min.x, max.y, min.z, 1.0f)); //Top Left Back
+	corners.push_back(XMVectorSet(min.x, max.y, max.z, 1.0f)); //Top Left Front
+	corners.push_back(XMVectorSet(max.x, max.y, min.z, 1.0f)); //Top Right Back
+	corners.push_back(XMVectorSet(max.x, max.y, max.z, 1.0f)); //Top Right Front
+
+	for (unsigned int i = 0; i < corners.size(); ++i) {
+		corners[i] = XMVector3TransformCoord((corners[i] + offset), boxPos);
+	}
+	
+	return corners;
+}
+
 XMVECTOR PhysicsManager::FindClosestPointOnLine(XMVECTOR& _lineSegStart, XMVECTOR& _lineSegEnd, XMVECTOR& _testPoint) {
 	XMVECTOR lineSegment, lineToPoint, closest;
 	lineSegment = _lineSegEnd - _lineSegStart;
@@ -633,7 +947,7 @@ bool PhysicsManager::RaycastCollisionCheck(XMVECTOR& origin, XMVECTOR& direction
 	bool hasCollidingComp = false;
 	XMVECTOR closestCollision = origin + (direction * maxCastDistance);
 	XMVECTOR tempColPoint = g_XMFltMax;
-	XMVECTOR center = XMVectorSet(collidingComp->parentObject->position._41, collidingComp->parentObject->position._42, collidingComp->parentObject->position._43, collidingComp->parentObject->position._44);
+	XMMATRIX objMatrix = XMLoadFloat4x4(&(collidingComp->parentObject->position));
 	std::vector<XMVECTOR> collisionPoints;
 	if (colObject)
 		*colObject = nullptr;
@@ -642,13 +956,13 @@ bool PhysicsManager::RaycastCollisionCheck(XMVECTOR& origin, XMVECTOR& direction
 		switch (collidingComp->colliders[colliderIndex].colliderData->colliderType)
 		{
 		case SPHERE:
-			hasCollidingComp = RayToSphere(origin, direction, collidingComp->colliders[colliderIndex], center, &tempColPoint);
+			hasCollidingComp = RayToSphere(origin, direction, collidingComp->colliders[colliderIndex], objMatrix.r[3], &tempColPoint);
 			break;
 		case CAPSULE:
-			hasCollidingComp = RayToCapsule(origin, direction, collidingComp->colliders[colliderIndex], center, &tempColPoint);
+			hasCollidingComp = RayToCapsule(origin, direction, collidingComp->colliders[colliderIndex], objMatrix, &tempColPoint);
 			break;
 		case BOX:
-			hasCollidingComp = RayToBox(origin, direction, collidingComp->colliders[colliderIndex], center, &tempColPoint);
+			hasCollidingComp = RayToBox(origin, direction, collidingComp->colliders[colliderIndex], objMatrix, &tempColPoint);
 			break;
 		default:
 			break;
@@ -678,16 +992,24 @@ bool PhysicsManager::RaycastCollisionCheck(XMVECTOR& origin, XMVECTOR& direction
 	return collided;
 }
 
-bool PhysicsManager::RayToSphere(XMVECTOR& origin, XMVECTOR& direction, Collider& collidingComp, XMVECTOR& objectPos, XMVECTOR* colPoint) {
+bool PhysicsManager::RayToSphere(XMVECTOR& origin, XMVECTOR& direction, Collider& collidingComp, XMVECTOR& objectPos, XMVECTOR* colPoint, bool* isInside) {
 	//If origin is inside the Sphere, it does not test it. 
 	XMVECTOR collCenter = objectPos + XMLoadFloat3(&collidingComp.centerOffset);
 	float radiusSq = collidingComp.colliderData->colliderInfo.sphereCollider.radius;
+#ifdef _DEBUG
+	DebugRenderer::AddSphere(XMFLOAT3(XMVectorGetX(objectPos), XMVectorGetY(objectPos), XMVectorGetZ(objectPos)), radiusSq, XMFLOAT3(1.0f, 1.0f, 0.0f));
+#endif
 	radiusSq *= radiusSq;
+	if(isInside)
+		*isInside = false;
 
 	if (!IsRayInCollider(origin, collidingComp, collCenter)) {
 		//Project center onto ray
 		XMVECTOR rayOriginToCenter = collCenter - origin;
-		XMVECTOR centerProjRay = XMVectorGetX(XMVector3Dot(direction, rayOriginToCenter)) * direction;
+		float centerProjRatio = XMVectorGetX(XMVector3Dot(direction, rayOriginToCenter));
+		if (centerProjRatio < -FLT_EPSILON) return false;
+		
+		XMVECTOR centerProjRay =  centerProjRatio * direction;
 		XMVECTOR centerToRay = rayOriginToCenter - centerProjRay;
 		float centerToRayLengthSq = XMVectorGetX(XMVector3LengthSq(centerToRay));
 
@@ -695,20 +1017,112 @@ bool PhysicsManager::RayToSphere(XMVECTOR& origin, XMVECTOR& direction, Collider
 		if (distanceSqDiff < -FLT_EPSILON)
 			return false;
 		if (fabsf(distanceSqDiff) < FLT_EPSILON) {
-			*colPoint = collCenter + centerToRay;
+			if(colPoint)
+				*colPoint = collCenter + centerToRay;
 			return true;
 		}
 		
-		*colPoint = origin + (direction * (XMVectorGetX(XMVector3Length(centerProjRay)) - sqrt(distanceSqDiff)));
+		if(colPoint)
+			*colPoint = origin + (direction * (XMVectorGetX(XMVector3Length(centerProjRay)) - sqrt(distanceSqDiff)));
 		return true;
 	}
+	
+	if(isInside)
+		*isInside = true;
 	return false;
 }
-bool PhysicsManager::RayToCapsule(XMVECTOR& origin, XMVECTOR& direction, Collider& collidingComp, XMVECTOR& objectPos, XMVECTOR* colPoint) {
-	return false;
+bool PhysicsManager::RayToCapsule(XMVECTOR& origin, XMVECTOR& direction, Collider& collidingComp, XMMATRIX& objectPos, XMVECTOR* colPoint) {
+	std::vector<XMVECTOR> contactPoints;
+	XMVECTOR capStart = XMVectorSet(0, collidingComp.colliderData->colliderInfo.capsuleCollider.height * 0.5f, 0, 0);
+	XMVECTOR capEnd = -XMVectorSet(0, collidingComp.colliderData->colliderInfo.capsuleCollider.height * 0.5f, 0, 0);
+	capStart = XMVector3TransformCoord(capStart, objectPos);
+	capEnd = XMVector3TransformCoord(capEnd, objectPos);
+	XMVECTOR seg1 = capEnd - capStart;
+
+	float height = collidingComp.colliderData->colliderInfo.capsuleCollider.height;
+	float halfRadius = collidingComp.colliderData->colliderInfo.capsuleCollider.radius * 0.5f;
+	XMVECTOR interval = XMVector3Normalize(seg1) * halfRadius;
+
+	XMVECTOR testPoint = capEnd;
+	XMVECTOR tempContactPoint;
+	bool isInside = false;
+
+	if(RayToSphere(origin, direction, collidingComp, testPoint, &tempContactPoint, &isInside))
+		contactPoints.push_back(tempContactPoint);
+	else if(isInside) return false;
+
+	testPoint = capStart;
+	for (float current = 0; current < height; current += halfRadius) {
+		if (RayToSphere(origin, direction, collidingComp, testPoint, &tempContactPoint, &isInside))
+			contactPoints.push_back(tempContactPoint);
+		else if (isInside) return false;
+		testPoint += interval;
+	}
+
+	if (contactPoints.size() < 1)
+		return false;
+
+	if (colPoint) {
+		float nextClosest = 0.0f, lastClosest = FLT_MAX;
+		for (unsigned int i = 0; i < contactPoints.size(); ++i) {
+			nextClosest = XMVectorGetX(XMVector3LengthSq(contactPoints[i] - origin));
+			if (nextClosest - lastClosest < FLT_EPSILON) {
+				*colPoint = contactPoints[i];
+			}
+		}
+	}
+	return true;
 }
-bool PhysicsManager::RayToBox(XMVECTOR& origin, XMVECTOR& direction, Collider& collidingComp, XMVECTOR& objectPos, XMVECTOR* colPoint) {
-	return false;
+bool PhysicsManager::RayToBox(XMVECTOR& origin, XMVECTOR& direction, Collider& collidingComp, XMMATRIX& objectPos, XMVECTOR* colPoint) {
+	//Point p, Vector d, AABB a, float& tmin, Point& q
+	float tmin = 0.0f;	//set to -FLT_MAX to get first hit on line
+	float tmax = FLT_MAX;	//set to max distance ray can travel (forsegment)
+
+	XMMATRIX inverseObjPos = objectPos;
+	inverseObjPos.r[3] += XMLoadFloat3(&collidingComp.centerOffset); //Get actual position of collider
+	inverseObjPos = XMMatrixInverse(nullptr, inverseObjPos);
+
+	XMVECTOR tranlatedOrigin = XMVector3TransformCoord(origin, inverseObjPos);
+	if (IsRayInCollider(tranlatedOrigin, collidingComp, XMVectorZero())) return false;
+
+	XMVECTOR rotationDirection = XMVector3TransformNormal(direction, inverseObjPos);
+	XMFLOAT3* colMin = &collidingComp.colliderData->colliderInfo.boxCollider.bottLeftBackCorner;
+	XMFLOAT3* colMax = &collidingComp.colliderData->colliderInfo.boxCollider.topRightFrontCorner;
+	
+	float originPoint[] = { XMVectorGetX(tranlatedOrigin), XMVectorGetY(tranlatedOrigin), XMVectorGetZ(tranlatedOrigin) };
+	float dir[] = { XMVectorGetX(rotationDirection), XMVectorGetY(rotationDirection), XMVectorGetZ(rotationDirection) };
+	float boxMin[] = {colMin->x, colMin->y, colMin->z};
+	float boxMax[] = {colMax->x, colMax->y, colMax->z};
+	
+	//For all threeslabs
+	for (int i = 0; i < 3; i++) {
+		if (fabsf(dir[i]) < FLT_EPSILON) {
+			//Ray is parallel to slab. No hit if origin not within slab
+			if (originPoint[i] < boxMin[i] || originPoint[i] > boxMax[i]) return false;
+		}
+		else {
+			//Compute intersection t value of ray with near and far plane of slab
+			float ood = 1.0f / dir[i];
+			float t1 = (boxMin[i] - originPoint[i]) * ood;
+			float t2 = (boxMax[i] - originPoint[i]) * ood;
+			//Make t1 be intersection with near plane, t2 with far plane
+			if (t1 > t2) {
+				float temp = t1;
+				t1 = t2;
+				t2 = temp;
+			}
+			//Compute the intersection of slab intersection intervals
+			if (t1 > tmin) tmin = t1;
+			if (t2 < tmax) tmax = t2;
+			//Exit with no collision as soon as slab intersection becomes empty
+			if (tmin > tmax) return false;
+		}
+	}
+	//Ray intersectsall3slabs. Returnpoint(q) andintersectiontvalue(tmin)
+	if (colPoint) {
+		*colPoint = origin + direction * tmin;
+	}
+	return true;
 }
 
 bool PhysicsManager::IsRayInCollider(XMVECTOR& origin, Collider& collidingComp, XMVECTOR& colliderCenter) {
@@ -721,8 +1135,24 @@ bool PhysicsManager::IsRayInCollider(XMVECTOR& origin, Collider& collidingComp, 
 									(collidingComp.colliderData->colliderInfo.sphereCollider.radius * collidingComp.colliderData->colliderInfo.sphereCollider.radius);
 		break;
 	case CAPSULE:
+		isInside = XMVectorGetX(XMVector3LengthSq(colliderCenter - origin)) <
+									(collidingComp.colliderData->colliderInfo.capsuleCollider.radius * collidingComp.colliderData->colliderInfo.capsuleCollider.radius);
 		break;
 	case BOX:
+		//Assumes box is at origin and not rotated
+		{
+			XMFLOAT3 point;
+			XMStoreFloat3(&point, origin);
+			XMFLOAT3 *min = &collidingComp.colliderData->colliderInfo.boxCollider.bottLeftBackCorner;
+			XMFLOAT3 *max = &collidingComp.colliderData->colliderInfo.boxCollider.topRightFrontCorner;
+			if (point.x >= min->x && point.x <= max->x) {
+				if (point.y >= min->y && point.y <= max->y) {
+					if (point.z >= min->z && point.z <= max->z) {
+						isInside = true;
+					}
+				}
+			}
+		}
 		break;
 	default:
 		break;

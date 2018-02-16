@@ -230,14 +230,26 @@ namespace GhostbaitModelCreator
             // 
             // boxPoint2Z
             // 
+            this.boxPoint2Z.DecimalPlaces = 3;
             this.boxPoint2Z.Location = new System.Drawing.Point(240, 30);
+            this.boxPoint2Z.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
             this.boxPoint2Z.Name = "boxPoint2Z";
             this.boxPoint2Z.Size = new System.Drawing.Size(33, 20);
             this.boxPoint2Z.TabIndex = 12;
             // 
             // boxPoint1Z
             // 
+            this.boxPoint1Z.DecimalPlaces = 3;
             this.boxPoint1Z.Location = new System.Drawing.Point(240, 3);
+            this.boxPoint1Z.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
             this.boxPoint1Z.Name = "boxPoint1Z";
             this.boxPoint1Z.Size = new System.Drawing.Size(33, 20);
             this.boxPoint1Z.TabIndex = 12;
@@ -253,14 +265,26 @@ namespace GhostbaitModelCreator
             // 
             // boxPoint2Y
             // 
+            this.boxPoint2Y.DecimalPlaces = 3;
             this.boxPoint2Y.Location = new System.Drawing.Point(189, 30);
+            this.boxPoint2Y.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
             this.boxPoint2Y.Name = "boxPoint2Y";
             this.boxPoint2Y.Size = new System.Drawing.Size(33, 20);
             this.boxPoint2Y.TabIndex = 12;
             // 
             // boxPoint1Y
             // 
+            this.boxPoint1Y.DecimalPlaces = 3;
             this.boxPoint1Y.Location = new System.Drawing.Point(189, 3);
+            this.boxPoint1Y.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
             this.boxPoint1Y.Name = "boxPoint1Y";
             this.boxPoint1Y.Size = new System.Drawing.Size(33, 20);
             this.boxPoint1Y.TabIndex = 12;
@@ -276,14 +300,26 @@ namespace GhostbaitModelCreator
             // 
             // boxPoint2X
             // 
+            this.boxPoint2X.DecimalPlaces = 3;
             this.boxPoint2X.Location = new System.Drawing.Point(138, 30);
+            this.boxPoint2X.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
             this.boxPoint2X.Name = "boxPoint2X";
             this.boxPoint2X.Size = new System.Drawing.Size(33, 20);
             this.boxPoint2X.TabIndex = 12;
             // 
             // boxPoint1X
             // 
+            this.boxPoint1X.DecimalPlaces = 3;
             this.boxPoint1X.Location = new System.Drawing.Point(138, 3);
+            this.boxPoint1X.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
             this.boxPoint1X.Name = "boxPoint1X";
             this.boxPoint1X.Size = new System.Drawing.Size(33, 20);
             this.boxPoint1X.TabIndex = 12;

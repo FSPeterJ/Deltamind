@@ -22,7 +22,7 @@ class ObjectFactory {
 	public:
 		ComponentBase * instantiatedComponents[MAX_DATA] = {};
 		unsigned managers[MAX_DATA] = {};
-		Object* object = nullptr;
+		 Object* object = nullptr;
 		std::bitset<MAX_DATA> fastclone;
 		unsigned objectTypeID = UINT_MAX;
 	};

@@ -138,12 +138,14 @@ void PhysicsManager::Update() {
 	std::vector<PhysicsComponent*>*temp = components.GetActiveList();
 	const int activeCount = (int) components.GetActiveCount();
 	for(int i = 0; i < activeCount; ++i) {
+		float delta = (float)GhostTime::DeltaTime();
+
 		//This seems absurd, are we sure we can't use XMVECTOR and XMMATRIX in a more manageable manner?
 		if (!components[i].isActive) continue;
 		XMFLOAT4* objectPosition = (XMFLOAT4*) &components[i].parentObject->position.m[3];
 		XMVECTOR newposition = XMLoadFloat4(objectPosition);
 		components[i].rigidBody.Update();
-		newposition += components[i].rigidBody.GetVelocity() * (float)GhostTime::DeltaTime();
+		newposition += components[i].rigidBody.GetVelocity() * delta;
 		XMStoreFloat4(objectPosition, newposition);
 		UpdateAABB(components[i]);
 		partitionSpace.UpdateComponent(&components[i]);

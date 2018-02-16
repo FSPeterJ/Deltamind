@@ -159,8 +159,10 @@ void Game::Start(EngineStructure* _engine, char* level) {
 	engine = _engine;
 	LoadLevel(level);
 	gameData.state = GAMESTATE_BetweenWaves;
+	hexGrid.Fill();
 }
 void Game::Update() {
+	hexGrid.Display();
 	float dt = (float)GhostTime::DeltaTime();
 	switch (gameData.state) {
 		case GAMESTATE_Paused:

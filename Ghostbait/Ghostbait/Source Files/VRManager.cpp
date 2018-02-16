@@ -60,15 +60,15 @@ void VRManager::CreateControllers() {
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 0,0,0 }, &leftController.obj));
 	leftController.obj->SetControllerHand(ControllerObject::ControllerHand::LEFT);
 	leftController.obj->AddItem(0, 1);
-	leftController.obj->AddItem(1, 2, Gun::FireType::SEMI, 60, 50);
-	leftController.obj->AddItem(2, 2, Gun::FireType::AUTO, 8, 25);
+	leftController.obj->AddItem(1, 19, Gun::FireType::SEMI, 60, 50);
+	leftController.obj->AddItem(2, 19, Gun::FireType::AUTO, 8, 25);
 	leftController.obj->AddItem(3, 16, { 1, 2, 5 });
 	//Right
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 1,0,1 }, &rightController.obj));
 	rightController.obj->SetControllerHand(ControllerObject::ControllerHand::RIGHT);
 	rightController.obj->AddItem(0, 1);
-	rightController.obj->AddItem(1, 2, Gun::FireType::SEMI, 60, 50);
-	rightController.obj->AddItem(2, 2, Gun::FireType::AUTO, 8, 25);
+	rightController.obj->AddItem(1, 19, Gun::FireType::SEMI, 60, 50);
+	rightController.obj->AddItem(2, 19, Gun::FireType::AUTO, 8, 25);
 	rightController.obj->AddItem(3, 16, { 1, 2, 5 });
 }
 

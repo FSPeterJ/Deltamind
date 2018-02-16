@@ -207,9 +207,12 @@
     <ClInclude Include="Header Files\GameObject.h" />
     <ClInclude Include="Header Files\GameObjectComponent.h" />
     <ClInclude Include="Header Files\GhostTime.h" />
-    <ClInclude Include="Header Files\Grid.h" />
     <ClInclude Include="Header Files\Gun.h" />
     <ClInclude Include="Header Files\Health.h" />
+    <ClInclude Include="Header Files\HexagonalGridLayout.h" />
+    <ClInclude Include="Header Files\HexagonTile.h" />
+    <ClInclude Include="Header Files\HexagonTileSpecializer.h" />
+    <ClInclude Include="Header Files\HexGrid.h" />
     <ClInclude Include="Header Files\InputManager.h" />
     <ClInclude Include="Header Files\IComponentManager.h" />
     <ClInclude Include="Header Files\Item.h" />
@@ -251,6 +254,7 @@
     <ClInclude Include="Header Files\Wwise_IDs.h" />
     <ClInclude Include="Header Files\XTime.h" />
     <ClInclude Include="Resource Files\Resource.h" />
+    <ClInclude Include="Source Files\HexagonTile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Common\AkFileLocationBase.cpp" />
@@ -258,6 +262,8 @@
     <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Common\AkFilePackageLUT.cpp" />
     <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Win32\AkDefaultIOHookBlocking.cpp" />
     <ClCompile Include="Dependencies\XML_Library\irrXML.cpp" />
+    <ClCompile Include="Header Files\HexagonalGridLayout.cpp" />
+    <ClCompile Include="Header Files\HexGrid.cpp" />
     <ClCompile Include="Source Files\AABB.cpp" />
     <ClCompile Include="Source Files\AnimationManager.cpp" />
     <ClCompile Include="Source Files\Animator.cpp" />
@@ -274,11 +280,11 @@
     <ClCompile Include="Source Files\Game.cpp" />
     <ClCompile Include="Source Files\GameObject.cpp" />
     <ClCompile Include="Source Files\GhostTime.cpp" />
-    <ClCompile Include="Source Files\Grid.cpp" />
     <ClCompile Include="Source Files\Gun.cpp">
       <ShowIncludes Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ShowIncludes>
     </ClCompile>
     <ClCompile Include="Source Files\Health.cpp" />
+    <ClCompile Include="Source Files\HexagonTile-Impl.cpp" />
     <ClCompile Include="Source Files\InputManager.cpp" />
     <ClCompile Include="Source Files\Item.cpp" />
     <ClCompile Include="Source Files\LightManager.cpp" />

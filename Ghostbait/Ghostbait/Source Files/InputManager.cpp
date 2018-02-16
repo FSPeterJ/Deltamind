@@ -248,6 +248,9 @@ InputManager::KeyboardInput::KeyboardInput() {
 	MapKey(TestInputJ, 'J');
 	MapKey(TestInputK, 'K');
 	MapKey(TestInputL, 'L');
+	MapKey(leftItem0, '1');
+	MapKey(leftItem1, '2');
+	MapKey(leftItem2, '3');
 }
 InputPackage InputManager::KeyboardInput::CheckForInput() {
 	Control input = none;

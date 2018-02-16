@@ -29,7 +29,6 @@ public:
 	};
 private:
 	unsigned projectiePrefabID = 4;
-
 	//Main Stats
 	FireType type = AUTO;
 	float fireRate = 2; //shotsPerSecond
@@ -44,4 +43,9 @@ public:
 	bool Shoot();
 	void InactiveUpdate();
 	void ActiveUpdate();
+	void PassObject(unsigned pid, char* tag) {
+		if(strcmp(tag, "projectile")) {
+			projectiePrefabID = pid;
+		}
+	}
 };

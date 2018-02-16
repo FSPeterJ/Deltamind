@@ -3,6 +3,7 @@
 #include "GameObject.h"
 #include "Console.h"
 #include <DirectXMath.h>
+#include "GhostTime.h"
 
 Collider PhysicsManager::defaultColider;
 ColliderData PhysicsManager::defaultSphereColider;
@@ -142,7 +143,7 @@ void PhysicsManager::Update() {
 		XMFLOAT4* objectPosition = (XMFLOAT4*) &components[i].parentObject->position.m[3];
 		XMVECTOR newposition = XMLoadFloat4(objectPosition);
 		components[i].rigidBody.Update();
-		newposition += components[i].rigidBody.GetVelocity();
+		newposition += components[i].rigidBody.GetVelocity() * (float)GhostTime::DeltaTime();
 		XMStoreFloat4(objectPosition, newposition);
 		UpdateAABB(components[i]);
 		partitionSpace.UpdateComponent(&components[i]);
@@ -264,9 +265,10 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 				Console::WriteLine << "RAY HIT";
 			}
 		}
-	
-	if(colPoint)
-		XMStoreFloat3(colPoint, closestCollision);
+
+		if (colPoint)
+			XMStoreFloat3(colPoint, closestCollision);
+	}
 
 #if _DEBUG
 	XMFLOAT3 line;
@@ -274,7 +276,6 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 	DebugRenderer::AddLine(origin, line, XMFLOAT3(0.0f, 1.0f, 1.0f));
 
 #endif
-}
 	return collided;
 }
 
@@ -318,13 +319,22 @@ ColliderData* PhysicsManager::AddColliderData(float trfX, float trfY, float trfZ
 }
 void PhysicsManager::UpdateAABB(PhysicsComponent& component) {
 	//DOES NOT ACCOUNT FOR ROTATION!
-	component.currentAABB.max.x = component.baseAABB.max.x + component.parentObject->position._41;
-	component.currentAABB.max.y = component.baseAABB.max.y + component.parentObject->position._42;
-	component.currentAABB.max.z = component.baseAABB.max.z + component.parentObject->position._43;
-	component.currentAABB.min.x = component.baseAABB.min.x + component.parentObject->position._41;
-	component.currentAABB.min.y = component.baseAABB.min.y + component.parentObject->position._42;
-	component.currentAABB.min.z = component.baseAABB.min.z + component.parentObject->position._43;
+	std::vector<XMVECTOR> corners = GetBoxCorners(component.baseAABB, XMLoadFloat4x4(&component.parentObject->position));
+	XMFLOAT3* newMax = &component.currentAABB.max;
+	XMFLOAT3* newMin = &component.currentAABB.min;
+	*newMax = { -FLT_MAX, -FLT_MAX , -FLT_MAX };
+	*newMin = { FLT_MAX, FLT_MAX , FLT_MAX };
 
+	XMFLOAT3 temp;
+	for (unsigned int i = 0; i < corners.size(); ++i) {
+		XMStoreFloat3(&temp, corners[i]);
+		if (temp.x > newMax->x) newMax->x = temp.x;
+		if (temp.y > newMax->y) newMax->y = temp.y;
+		if (temp.z > newMax->z) newMax->z = temp.z;
+		if (temp.x < newMin->x) newMin->x = temp.x;
+		if (temp.y < newMin->y) newMin->y = temp.y;
+		if (temp.z < newMin->z) newMin->z = temp.z;
+	}
 }
 void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponent component2) {
 	bool collisionResult = false;
@@ -866,6 +876,28 @@ std::vector<XMVECTOR> PhysicsManager::GetSATAxis(XMMATRIX& box1Pos, XMMATRIX& bo
 	//}
 
 	return axisToTest;
+}
+
+std::vector<XMVECTOR> PhysicsManager::GetBoxCorners(AABB& _aabbBox, XMMATRIX& boxPos) {
+	std::vector<XMVECTOR> corners;
+	XMFLOAT3 min = _aabbBox.min;
+	XMFLOAT3 max = _aabbBox.max;
+
+	corners.push_back(XMVectorSet(min.x, min.y, min.z, 1.0f)); //Bottom Left Back
+	corners.push_back(XMVectorSet(min.x, min.y, max.z, 1.0f)); //Bottom Left Front
+	corners.push_back(XMVectorSet(max.x, min.y, min.z, 1.0f)); //Bottom Right Back
+	corners.push_back(XMVectorSet(max.x, min.y, max.z, 1.0f)); //Bottom Right Front
+
+	corners.push_back(XMVectorSet(min.x, max.y, min.z, 1.0f)); //Top Left Back
+	corners.push_back(XMVectorSet(min.x, max.y, max.z, 1.0f)); //Top Left Front
+	corners.push_back(XMVectorSet(max.x, max.y, min.z, 1.0f)); //Top Right Back
+	corners.push_back(XMVectorSet(max.x, max.y, max.z, 1.0f)); //Top Right Front
+
+	for (unsigned int i = 0; i < corners.size(); ++i) {
+		corners[i] = XMVector3TransformCoord(corners[i], boxPos);
+	}
+
+	return corners;
 }
 
 std::vector<XMVECTOR> PhysicsManager::GetBoxCorners(Collider& boxCol, XMMATRIX& boxPos) {

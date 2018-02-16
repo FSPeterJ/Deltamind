@@ -42,6 +42,7 @@ class PhysicsManager: public IComponentManager {
 	std::vector<DirectX::XMVECTOR> GetSATAxis(std::vector<DirectX::XMVECTOR>& box1Corners, std::vector<DirectX::XMVECTOR>& box2Corners);
 	std::vector<DirectX::XMVECTOR> GetSATAxis(DirectX::XMMATRIX& box1Pos, DirectX::XMMATRIX& box2Pos);
 	std::vector<DirectX::XMVECTOR> GetBoxCorners(Collider& boxCol, DirectX::XMMATRIX& boxPos);
+	std::vector<DirectX::XMVECTOR> GetBoxCorners(AABB& boxCol, DirectX::XMMATRIX& boxPos);
 
 	void SendCollision(GameObject* obj1, GameObject* obj2);
 

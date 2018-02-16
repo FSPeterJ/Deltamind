@@ -23,3 +23,7 @@ void Projectile::OnCollision(GameObject* object) {
 
 	timeSinceShot = 0;
 }
+
+void Projectile::SetDamage(float _damage) {
+	damage = _damage;
+}

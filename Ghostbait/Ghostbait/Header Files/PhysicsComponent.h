@@ -1,9 +1,16 @@
 #pragma once
+#include "AABB.h" // DirectXMath, vector
 #include "RigidBody.h" // DirectXMath, vector
-#include"AABB.h"
 #include "ComponentBase.h"
+#include <vector>
+
 
 //class PhysicsManager;
+
+namespace DirectX
+{
+	struct XMFLOAT3;
+}
 
 enum ColliderType {
 	SPHERE,
@@ -40,6 +47,7 @@ struct Collider {
 };
 
 struct PhysicsComponent: public InstantiatedCompBase {
+	bool isActive = true;
 	RigidBody rigidBody;
 	std::vector<Collider> colliders;
 	AABB baseAABB;
@@ -53,4 +61,13 @@ struct PhysicsComponent: public InstantiatedCompBase {
 	//}
 
 	bool AddCollider(ColliderData* _colData, float _offsetX = 0.0f, float _offsetY = 0.0f, float _offsetZ = 0.0f, bool _isTrigger = false);
+};
+
+struct Ray {
+	DirectX::XMFLOAT3 origin;
+	DirectX::XMFLOAT3 direction;
+	float currCastTime;
+
+	Ray() {};
+	Ray(DirectX::XMFLOAT3 _origin, DirectX::XMFLOAT3 _direction) : origin(_origin), direction(_direction) {};
 };

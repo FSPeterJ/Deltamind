@@ -67,12 +67,12 @@ void HexagonTile<T>::Draw(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, f
 	DirectX::XMFLOAT2 corners[Hexagon::NUMBER_OF_SIDES];
 	HexagonalGridLayout::GetHexCorners(*this, layout, &corners[0]);
 
-	DirectX::XMFLOAT3 line0 = {corners[0].x, corners[0].y, offset};
-	DirectX::XMFLOAT3 line1 = {corners[1].x, corners[1].y, offset};
-	DirectX::XMFLOAT3 line2 = {corners[2].x, corners[2].y, offset};
-	DirectX::XMFLOAT3 line3 = {corners[3].x, corners[3].y, offset};
-	DirectX::XMFLOAT3 line4 = {corners[4].x, corners[4].y, offset};
-	DirectX::XMFLOAT3 line5 = {corners[5].x, corners[5].y, offset};
+	DirectX::XMFLOAT3 line0 = {corners[0].x, offset, corners[0].y};
+	DirectX::XMFLOAT3 line1 = {corners[1].x, offset, corners[1].y};
+	DirectX::XMFLOAT3 line2 = {corners[2].x, offset, corners[2].y};
+	DirectX::XMFLOAT3 line3 = {corners[3].x, offset, corners[3].y};
+	DirectX::XMFLOAT3 line4 = {corners[4].x, offset, corners[4].y};
+	DirectX::XMFLOAT3 line5 = {corners[5].x, offset, corners[5].y};
 
 	DebugRenderer::AddLine(line0, line1, color);
 	DebugRenderer::AddLine(line1, line2, color);
@@ -87,10 +87,10 @@ void HexagonTile<T>::DrawX(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, 
 	DirectX::XMFLOAT2 corners[Hexagon::NUMBER_OF_SIDES];
 	HexagonalGridLayout::GetHexCorners(*this, layout, &corners[0]);
 
-	DirectX::XMFLOAT3 line0 = {corners[1].x, corners[4].y, offset};
-	DirectX::XMFLOAT3 line1 = {corners[4].x, corners[1].y, offset};
-	DirectX::XMFLOAT3 line2 = {corners[2].x, corners[5].y, offset};
-	DirectX::XMFLOAT3 line3 = {corners[5].x, corners[2].y, offset};
+	DirectX::XMFLOAT3 line0 = {corners[1].x,offset ,corners[4].y};
+	DirectX::XMFLOAT3 line1 = {corners[4].x,offset ,corners[1].y};
+	DirectX::XMFLOAT3 line2 = {corners[2].x,offset ,corners[5].y};
+	DirectX::XMFLOAT3 line3 = {corners[5].x,offset ,corners[2].y};
 
 	DebugRenderer::AddLine(line0, line1, color);
 	DebugRenderer::AddLine(line2, line3, color);
@@ -107,10 +107,10 @@ void HexagonTile<T>::DrawmX(HexagonalGridLayout layout, DirectX::XMFLOAT3 color,
 	auto y1 = 0.5f*(corners[3].y + corners[4].y);
 	auto y2 = 0.5f*(corners[1].y + corners[0].y);
 
-	DirectX::XMFLOAT3 point0 = {x1, y2, offset};
-	DirectX::XMFLOAT3 point1 = {x2, y2, offset};
-	DirectX::XMFLOAT3 point2 = {x1, y1, offset};
-	DirectX::XMFLOAT3 point3 = {x2, y1, offset};
+	DirectX::XMFLOAT3 point0 = {x1, offset,y2 };
+	DirectX::XMFLOAT3 point1 = {x2, offset,y2 };
+	DirectX::XMFLOAT3 point2 = {x1, offset,y1 };
+	DirectX::XMFLOAT3 point3 = {x2, offset,y1 };
 
 	DebugRenderer::AddLine(point0, point3, color);
 	DebugRenderer::AddLine(point1, point2, color);
@@ -136,20 +136,20 @@ void HexagonTile<T>::DrawExpensiveFill(HexagonalGridLayout layout, DirectX::XMFL
 
 	auto x = 0.5f*(corners[2].x + corners[1].x);
 
-	DirectX::XMFLOAT3 topmid = {x, corners[2].y, offset};
-	DirectX::XMFLOAT3 bottommid = {x, corners[4].y, offset};
+	DirectX::XMFLOAT3 topmid =					{x,			  offset, corners[2].y };
+	DirectX::XMFLOAT3 bottommid =				{x,			  offset, corners[4].y };
 
-	DirectX::XMFLOAT3 midtopleftmid = {x1, y2, offset};
-	DirectX::XMFLOAT3 midtoprightmid = {x2, y2, offset};
-	DirectX::XMFLOAT3 midbottomleftmid = {x1, y1, offset};
-	DirectX::XMFLOAT3 midbottomrightmid = {x2, y1, offset};
-
-	DirectX::XMFLOAT3 right = {corners[0].x, corners[0].y, offset};
-	DirectX::XMFLOAT3 topright = {corners[1].x, corners[1].y, offset};
-	DirectX::XMFLOAT3 topleft = {corners[2].x, corners[2].y, offset};
-	DirectX::XMFLOAT3 left = {corners[3].x, corners[3].y, offset};
-	DirectX::XMFLOAT3 bottomleft = {corners[4].x, corners[4].y, offset};
-	DirectX::XMFLOAT3 bottomright = {corners[5].x, corners[5].y, offset};
+	DirectX::XMFLOAT3 midtopleftmid =			{x1,			offset,		 y2 };
+	DirectX::XMFLOAT3 midtoprightmid =			{x2,			offset,		 y2 };
+	DirectX::XMFLOAT3 midbottomleftmid =		{x1,			offset,		 y1 };
+	DirectX::XMFLOAT3 midbottomrightmid =		{x2,			offset,		 y1 };
+																		
+	DirectX::XMFLOAT3 right =					{corners[0].x,offset, corners[0].y };
+	DirectX::XMFLOAT3 topright =				{corners[1].x,offset, corners[1].y };
+	DirectX::XMFLOAT3 topleft =					{corners[2].x,offset, corners[2].y };
+	DirectX::XMFLOAT3 left =					{corners[3].x,offset, corners[3].y };
+	DirectX::XMFLOAT3 bottomleft =				{corners[4].x,offset, corners[4].y };
+	DirectX::XMFLOAT3 bottomright =				{corners[5].x,offset, corners[5].y };
 
 
 	DebugRenderer::AddLine(right, midtoprightmid, color);
@@ -203,11 +203,11 @@ void HexagonTile<T>::DrawT(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, 
 
 	auto x = 0.5f*(corners[2].x + corners[1].x);
 
-	DirectX::XMFLOAT3 line0 = {x, corners[2].y, offset};
-	DirectX::XMFLOAT3 line1 = {x, corners[4].y, offset};
-
-	DirectX::XMFLOAT3 line2 = {corners[3].x, corners[0].y, offset};
-	DirectX::XMFLOAT3 line3 = {corners[0].x, corners[3].y, offset};
+	DirectX::XMFLOAT3 line0 = {x, offset, corners[2].y};
+	DirectX::XMFLOAT3 line1 = {x, offset, corners[4].y};
+								 
+	DirectX::XMFLOAT3 line2 = {corners[3].x, offset, corners[0].y};
+	DirectX::XMFLOAT3 line3 = {corners[0].x, offset, corners[3].y};
 
 	DebugRenderer::AddLine(line0, line1, color);
 	DebugRenderer::AddLine(line2, line3, color);

@@ -95,6 +95,9 @@ public:
 
 	HexRegion GetTilesNStepsAway(HexTile *const tile, int n);
 
+	bool AddObstacle(const DirectX::XMFLOAT2& obstaclePosition);
+	bool RemoveObstacle(const DirectX::XMFLOAT2& obstaclePosition);
+
 	HexPath CalculatePathWithinXSteps(HexTile *const start, HexTile *const goal, size_t steps);
 	HexPath CalculatePathWithinXCost(HexTile *const start, HexTile *const goal, size_t cost);
 

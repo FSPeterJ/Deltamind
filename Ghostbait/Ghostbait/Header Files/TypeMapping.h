@@ -11,6 +11,7 @@ class TypeMap {
 protected:
 	static std::unordered_map<std::string, unsigned> mapname;
 	static std::unordered_map<std::string, unsigned> mapnameObject;
+	static std::unordered_map<unsigned, std::string> mapnameObjectReverse;
 	static std::unordered_map<std::string, unsigned> mapnameComponent;
 public:
 	template <class Type>
@@ -43,11 +44,17 @@ public:
 	template <typename ComponentType>
 	static void RegisterAlias(const std::string _name) {
 		mapname[_name] = GetTypeId<ComponentType>();
+
+	}
+
+	static const char* GetObjectNameFromID(unsigned id) {
+		return mapnameObjectReverse[id].c_str();
 	}
 
 	template <typename ComponentType>
 	static void RegisterObjectAlias(const std::string _name) {
 		mapnameObject[_name] = GetObjectTypeID<ComponentType>();
+		mapnameObjectReverse[GetObjectTypeID<ComponentType>()] = _name;
 	}
 
 	template <typename ComponentType>

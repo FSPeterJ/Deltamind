@@ -8,6 +8,7 @@
 #include <type_traits>
 #include <unordered_map>
 #include <vector>
+#include <algorithm>
 
 namespace std {
 	size_t hash<HexTile*>::operator()(const argument_type& data) const noexcept {
@@ -49,13 +50,17 @@ public:
 		return *this;
 	}
 
-	void push_back(const TileType& _Val) { data.emplace_back(_Val); }
+	void remove(const TileType& v) {
+		data.erase(std::remove(data.begin(), data.end(), v), data.end());
+	}
 
-	void push_back(TileType&& _Val) { data.emplace_back(_STD move(_Val)); }
+	void push_back(const TileType& v) { data.emplace_back(v); }
 
-	TileType& operator[](const size_t _Pos) { return data[_Pos]; }
+	void push_back(TileType&& v) { data.emplace_back(_STD move(v)); }
 
-	const TileType& operator[](const size_t _Pos) const { return data[_Pos]; }
+	TileType& operator[](const size_t i) { return data[i]; }
+
+	const TileType& operator[](const size_t i) const { return data[i]; }
 
 	size_t size() const noexcept { return data.size(); }
 
@@ -188,6 +193,28 @@ HexGrid::HexGrid(float _radius, const HexagonalGridLayout& _layout) : map_radius
 
 HexTile* HexGrid::PointToTile(const DirectX::XMFLOAT2& p) {
 	return GetTile(HexTile::Round(HexagonalGridLayout::PointToHexagonTile(p, layout)));
+}
+
+bool HexGrid::AddObstacle(const DirectX::XMFLOAT2& obstaclePosition) {
+	auto t = PointToTile(obstaclePosition);
+	if(t) {
+		t->weight = Blocked;
+		blocked.push_back(*t);
+		return true;
+	}
+		
+	return false;
+}
+
+bool HexGrid::RemoveObstacle(const DirectX::XMFLOAT2& obstaclePosition) {
+	auto t = PointToTile(obstaclePosition);
+	if(t) {
+		t->weight = 1;
+		blocked.remove(*t);
+		return true;
+	}
+
+	return false;
 }
 
 bool HexGrid::Snap(const DirectX::XMFLOAT2& p, OUT DirectX::XMFLOAT2& snapPoint) {
@@ -644,24 +671,25 @@ void HexGrid::Fill() {
 		int r2 = (int) min(map_radius, -q + map_radius);
 		for(int r = r1; r <= r2; ++r) {
 			HexTile* t = new HexTile(q, r);
-			if(rand() % 100 < 20) {
-				t->weight = (float) Blocked;
-			} else {
-				t->weight = float(rand() % 4) +1;
-			}
+			t->weight = 1;
+			//if(rand() % 100 < 20) {
+			//	t->weight = (float) Blocked;
+			//} else {
+			//	t->weight = float(rand() % 4) +1;
+			//}
 			map.insert(t);
 		}
 	}
 
-	HexTile* start = GetTile(0,0);
-	start->weight = 1.0f;
+	//HexTile* start = GetTile(0,0);
+	//start->weight = 1.0f;
+	//
+	//for(auto& t : map) {
+	//	if(t->weight == Blocked)
+	//		blocked.push_back(*t);
+	//}
 
-	for(auto& t : map) {
-		if(t->weight == Blocked)
-			blocked.push_back(*t);
-	}
-
-	SetUpDrawingPaths();
+//	SetUpDrawingPaths();
 }
 
 HexRegion HexGrid::blocked;
@@ -674,7 +702,7 @@ void HexGrid::Display() {
 
 	blocked.Color(&layout, {0,0,0}, 0, ColorType::__CheapFill);
 
-	DrawXStepsPath();
+	//DrawXStepsPath();
 }
 
 HexGrid::~HexGrid() {

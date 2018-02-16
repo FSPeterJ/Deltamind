@@ -1,7 +1,7 @@
 #pragma once
-#include <functional>		//can probably be moved to header if nested classes move
-#include <unordered_map>	//can probably be moved to header if nested classes move
-#include "MessageStructs.h"	//can probably be moved to header if nested classes move
+#include <functional>		//can probably be moved to cpp if nested classes move
+#include <unordered_map>	//can probably be moved to cpp if nested classes move
+#include "MessageStructs.h"	//can probably be moved to cpp if nested classes move
 
 //This becomes some sort of component add-on?
 class Controlable {

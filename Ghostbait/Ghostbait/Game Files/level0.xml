@@ -1,0 +1,12 @@
+<level0>
+  <!-- Wave0 -->
+  <Wave reward="100">
+    <Spawner spawnerID="1" enemyID="6" spawnCount="2" initialDelay="0" runDelay="4"/>
+    <Spawner spawnerID="0" enemyID="6" spawnCount="2" initialDelay="0" runDelay="4"/>
+  </Wave>
+  <!-- Wave1 -->
+  <Wave reward="200">
+    <Spawner spawnerID="1" enemyID="6" spawnCount="2"  initialDelay="1" runDelay="5"/>
+    <Spawner spawnerID="0" enemyID="6" spawnCount="2"  initialDelay="1" runDelay="5"/>
+  </Wave>
+</level0>

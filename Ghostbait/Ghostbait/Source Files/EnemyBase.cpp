@@ -3,6 +3,11 @@
 #include "PhysicsComponent.h"
 #include "MessageEvents.h"
 #include "Console.h"
+#include "Projectile.h"
+
+void EnemyBase::RestartGame() {
+	MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
+}
 
 void EnemyBase::Update() {
 	DirectX::XMVECTOR directionToGoal = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&target), DirectX::XMLoadFloat4x4(&position).r[3]));
@@ -16,23 +21,21 @@ void EnemyBase::Update() {
 	}
 }
 
-// TODO: Get Rid Of Temp
-static int temp = 0;
 void EnemyBase::OnCollision(GameObject* _other) {
 	PhysicsComponent* myPhys = GetComponent<PhysicsComponent>();
 	DirectX::XMVECTOR incomingDirection = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat4x4(&position).r[3], DirectX::XMLoadFloat4x4(&(_other->position)).r[3]));
 	if(_other->GetTag() == "Bullet") {
 		myPhys->rigidBody.AddForce(0.2f, DirectX::XMVectorGetX(incomingDirection), 0.0f, DirectX::XMVectorGetZ(incomingDirection));
-		health -= 50.0f;
+		AdjustHealth(-(((Projectile*)_other)->damage));
 	}
-	if(health <= 0.0f) {
+	if(!IsAlive()) {
 		//Destroy itself
-		temp++;
-		if(temp > 3) {
-			MessageEvents::SendMessage(EVENT_GameWin, EventMessageBase());
-			Console::WriteLine << "GAME WAS WON";
-			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(9/*WinCube*/, {0, 0.75f, 0}));
-		}
+		//if(temp > 3) {
+		//	MessageEvents::SendMessage(EVENT_GameWin, EventMessageBase());
+		//	Console::WriteLine << "GAME WAS WON";
+		//	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(9/*WinCube*/, {0, 0.75f, 0}));
+		//}
+		MessageEvents::SendMessage(EVENT_EnemyDied, EventMessageBase());
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 	}
 }

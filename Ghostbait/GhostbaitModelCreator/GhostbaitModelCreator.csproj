@@ -33,6 +33,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\Ghostbait.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -87,7 +90,14 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="Properties\DataSources\AnimationCreatorForm.datasource" />
+    <None Include="Properties\DataSources\ColliderCreatorForm.datasource" />
+    <None Include="Properties\DataSources\Extensions.datasource" />
     <None Include="Properties\DataSources\Form2.ColliderType.datasource" />
+    <None Include="Properties\DataSources\ModelCreatorForm.Collider.datasource" />
+    <None Include="Properties\DataSources\ModelCreatorForm.ComponentType.datasource" />
+    <None Include="Properties\DataSources\ModelCreatorForm.datasource" />
+    <None Include="Properties\DataSources\Program.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

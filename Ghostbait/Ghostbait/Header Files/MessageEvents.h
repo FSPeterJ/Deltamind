@@ -14,10 +14,21 @@ enum EVENT_TYPES {
 	EVENT_Destroy,
 	EVENT_Unrender,
 	EVENT_Addrender,
-	EVENT_GameWin,
-	EVENT_GameLose,
 	EVENT_Late,
 	EVENT_LENGTH,
+	EVENT_RegisterNoisemaker,
+	EVENT_RequestSound,
+	EVENT_UnregisterNoisemaker,
+	
+	//Game Events
+	EVENT_RestartGame,
+	EVENT_SpawnerCreated,
+	EVENT_EnemyDied,
+	EVENT_StartWave,
+	EVENT_GameWin,
+	EVENT_GameLose,
+	EVENT_GamePause,
+	EVENT_GameResume,
 };
 
 class EventMessageBase;

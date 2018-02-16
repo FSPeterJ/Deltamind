@@ -9,6 +9,8 @@ SpatialPartition::Unit::Unit(PhysicsComponent* comp) {
 int64_t SpatialPartition::Unit::FindComponent(PhysicsComponent* comp) {
 	for(uint32_t i = 0; i < (uint32_t) components.size(); ++i) {
 		//TODO Does this comparison work?
+		// pointer comparison is fine
+		// std::find would probably be better than int interation
 		if(comp == components[i]) {
 			return i;
 		}
@@ -26,8 +28,10 @@ bool SpatialPartition::Unit::AddComponent(PhysicsComponent* comp) {
 }
 bool SpatialPartition::Unit::RemoveComponent(PhysicsComponent* comp) {
 	int64_t index = FindComponent(comp);
-	if(index >= 0LL) {
+	if(index >= 0) {
 		//TODO: Does this work like I expect?
+		// Note: This means it will be impossible to call RemoveComponent while iterating components in this context, which is probably not an issue
+		// Swap and pop is a faster method of removal, as vector by default memmoves the entire array down one.
 		components.erase(components.begin() + (int)index);
 		return true;
 	}
@@ -36,7 +40,7 @@ bool SpatialPartition::Unit::RemoveComponent(PhysicsComponent* comp) {
 
 SpatialPartition::SpatialPartition() {
 	bucketCount = 1024;
-	unitSize = 3;
+	unitSize = 300;
 }
 SpatialPartition::SpatialPartition(uint32_t _bucketCount, float _unitSize) : bucketCount(_bucketCount), unitSize(_unitSize) {
 }
@@ -157,12 +161,25 @@ const std::vector<PhysicsComponent*> SpatialPartition::GetComponentsToTest() {
 
 	std::vector<PhysicsComponent*> testComps;
 
+
 	for each (auto bucket in table)
 	{
-		for (size_t i = 0; i < bucket.second.components.size(); ++i) {
+		for (unsigned int i = 0; i < bucket.second.components.size(); ++i) {
 			testComps.push_back(bucket.second.components[i]);
 		}
 		testComps.push_back(nullptr);
 	}
 	return testComps;
 }
+
+const std::vector<PhysicsComponent*> SpatialPartition::GetComponentsToTest(uint32_t hashIndex) {
+	std::vector<PhysicsComponent*> toReturn; 
+	if(table.find(hashIndex) != table.end())
+		return table[hashIndex].components;
+	return toReturn;
+}
+
+const uint32_t SpatialPartition::GetHashedIndex(DirectX::XMFLOAT3 position) {
+	return Hash(position);
+}
+

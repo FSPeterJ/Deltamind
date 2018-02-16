@@ -131,7 +131,7 @@ void ObjectFactory::CreatePrefab(std::string *_filename, char* DEBUG_STRING_NAME
 
 					prefab->instantiatedComponents[componentTypeID] = component;
 					prefab->fastclone[componentTypeID] = component->singleInstance;
-					if(component->singleInstance) {
+					if(!component->singleInstance) {
 						((InstantiatedCompBase *) prefab->instantiatedComponents[componentTypeID])->parentObject = prefab->object;
 					}
 					prefab->object->SetComponent(prefab->instantiatedComponents[componentTypeID], componentTypeID);

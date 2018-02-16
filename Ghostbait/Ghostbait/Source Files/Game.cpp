@@ -7,12 +7,23 @@
 #include "Menu.h"
 #include "../Dependencies/XML_Library/irrXML.h"
 
+void Game::GameData::Reset() {
+	state = GAMESTATE_BetweenWaves;
+	prevState = GAMESTATE_BetweenWaves;
+	currentScene = nullptr;
+	spawners.empty();
+	enemiesLeftAlive = 0;
+	waveManager.currentWave = -1;
+	waveManager.waves.empty();
+}
+
 Game::Game() {
 	pauseMenu = new Menu(MENU_Pause);
 	MessageEvents::Subscribe(EVENT_SpawnerCreated, [=](EventMessageBase* e) {this->SpawnerCreatedEvent(e); });
 	MessageEvents::Subscribe(EVENT_EnemyDied, [=](EventMessageBase* e) {this->EnemyDiedEvent(); });
 	MessageEvents::Subscribe(EVENT_StartWave, [=](EventMessageBase* e) {this->StartPressedEvent(); });
 	MessageEvents::Subscribe(EVENT_GamePause, [=](EventMessageBase* e) {this->PausePressedEvent(); });
+	MessageEvents::Subscribe(EVENT_RestartGame, [=](EventMessageBase* e) {this->RestartGameEvent(); });
 	//EngineStructure::Update += [=]() {
 	//	this->Update();
 	//};
@@ -43,6 +54,10 @@ void Game::PausePressedEvent() {
 		ChangeState(GAMESTATE_Paused);
 		Console::WriteLine << "Game is Paused";
 	}
+}
+void Game::RestartGameEvent() {
+	gameData.Reset();
+	Start(engine);
 }
 
 void Game::ChangeState(State newState) {
@@ -83,6 +98,7 @@ void Game::ChangeState(State newState) {
 	}
 }
 void Game::LoadLevel(char* fileName) {
+	gameData.Reset();
 	irr::io::IrrXMLReader *xmlReader = irr::io::createIrrXMLReader(fileName);
 	WaveManager::Wave* newWave = nullptr;
 	while (xmlReader->read()) {
@@ -138,10 +154,10 @@ void Game::Win() {
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(9/*WinCube*/, { 0, 0.75f, 0 }));
 }
 
-void Game::Start(EngineStructure* _engine) {
+void Game::Start(EngineStructure* _engine, char* level) {
 	srand((unsigned int)time(NULL));
 	engine = _engine;
-	LoadLevel("Game Files/level0.xml");
+	LoadLevel(level);
 	gameData.state = GAMESTATE_BetweenWaves;
 }
 void Game::Update() {

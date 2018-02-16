@@ -264,7 +264,7 @@ void VRManager::Teleport() {
 	DirectX::XMFLOAT3 endPos;
 	if(ArcCast(rightController.obj, &endPos)) {
 		float deltaX = endPos.x - playerPos._41;
-		float deltaY = endPos.y - playerPos._42;
+		float deltaY = endPos.y - roomPos._42;
 		float deltaZ = endPos.z - playerPos._43;
 		DirectX::XMStoreFloat4x4(&roomPos, DirectX::XMLoadFloat4x4(&roomPos) * DirectX::XMMatrixTranslation(deltaX, deltaY, deltaZ));
 	}

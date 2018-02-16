@@ -1,8 +1,12 @@
 #pragma once
 #include "Item.h"
 
+class MenuOption;
+
 class MenuControllerItem : public Item {
-	GameObject* currentlySelectedItem = nullptr;
+	GameObject* currentlySelectedObject = nullptr;
+	MenuOption* currentMenuItem = nullptr;
+
 public:
 	MenuControllerItem();
 

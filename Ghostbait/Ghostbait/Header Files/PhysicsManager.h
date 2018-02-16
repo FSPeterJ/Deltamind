@@ -65,6 +65,6 @@ public:
 	PhysicsComponent* GetReferenceComponent(const char * _FilePath, const char* _data) override;
 	void ResetComponent(ComponentBase * reset) override;
 	void Update();
-	static bool Raycast(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction, DirectX::XMFLOAT3* colPoint = nullptr, GameObject const** colObject = nullptr, float maxCastDistance = 100.f);
+	static bool Raycast(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction, DirectX::XMFLOAT3* colPoint = nullptr, GameObject** colObject = nullptr, float maxCastDistance = 100.f);
 
 };

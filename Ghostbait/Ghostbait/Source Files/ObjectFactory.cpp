@@ -51,11 +51,7 @@ void ObjectFactory::InstantiateByType(EventMessageBase *e) {
 			Console::WarningLine << "ObjectFactory: Type Mismatch!  Instantiate Request of " << prefabNamesReverse[instantiate->pid].c_str() << " has a requesting typeID of " << TypeMap::GetObjectNameFromID(instantiate->tid) << " Which does not match the prefab typeID of " << TypeMap::GetObjectNameFromID(prefabs[instantiate->pid].objectTypeID);
 		}
 		newobject = ActivateObject(instantiate->pid);
-		if(instantiate->obj != nullptr) {
-			*instantiate->obj = newobject;
-		}
-		memcpy(&newobject->position, &instantiate->position, sizeof(DirectX::XMFLOAT4X4));
-		MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
+
 	}
 	else {
 		newobject = ActivateObject(Object2Prefab[instantiate->tid]);
@@ -64,6 +60,11 @@ void ObjectFactory::InstantiateByType(EventMessageBase *e) {
 		}
 
 	}
+	if(instantiate->obj != nullptr) {
+		*instantiate->obj = newobject;
+	}		if(instantiate->obj != nullptr) {
+			*instantiate->obj = newobject;
+		}
 	memcpy(&newobject->position, &instantiate->GetPosition(), sizeof(DirectX::XMFLOAT4X4));
 	MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
 }

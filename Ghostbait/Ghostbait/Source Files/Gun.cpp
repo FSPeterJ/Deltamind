@@ -26,6 +26,8 @@ bool Gun::Overheat::AddEnergy(float energy) {
 	return true;
 }
 void Gun::Overheat::Update(bool active) {
+
+	
 	//Update Overheat Stats
 	float dt = (float)GhostTime::DeltaTime();
 	timeSinceLastShot += dt;

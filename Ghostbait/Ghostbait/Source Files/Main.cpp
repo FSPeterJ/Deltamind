@@ -23,6 +23,7 @@
 #include "AudioManager.h"
 #include "BuildTool.h"
 #include "EngineStructure.h"
+#include "Menu.h"
 
 Renderer* rendInter;
 Game* game;
@@ -124,6 +125,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<CoreCube>(5);
 	ObjectFactory::RegisterPrefabBase<BuildTool>(20);
 	ObjectFactory::RegisterPrefabBase<PhysicsTestObj>(32);
+	ObjectFactory::RegisterPrefabBase<ResumeButton>(32);
 
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
 	ObjectFactory::RegisterManager<PhysicsComponent, PhysicsManager>(phyMan);
@@ -143,6 +145,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<GameObject>("GameObject");
 	TypeMap::RegisterObjectAlias<PhysicsTestObj>("PhysicsTestObj");
 	TypeMap::RegisterObjectAlias<BuildTool>("BuildTool");
+	TypeMap::RegisterObjectAlias<BuildTool>("ResumeButton");
 
 	//------
 	// Scenemanager would make this
@@ -168,6 +171,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest3.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/MenuControllerItem.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/ResumeButton.ghost"));
 
 	//ObjectFactory::CreatePrefab(&std::string("Assets/TeleportSphere.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));

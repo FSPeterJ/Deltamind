@@ -94,23 +94,33 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	bool isVR = VRManager::GetInstance().Init();	
 	if(isVR) {
 		rendInter->Initialize(wnd);
+		Console::WriteLine << "Renderer initialized......";
 		inputMan = new InputManager(VR);
+		if(inputMan) Console::WriteLine << "Input Manager initialized......";
 		audioMan->setCamera(&VRManager::GetInstance().GetPlayerPosition());
 	} else {
 		Console::WriteLine << "VR not initialized! Defaulting to 2D";
 		rendInter->Initialize(wnd);
+		Console::WriteLine << "Renderer initialized......";
 		inputMan = new InputManager(KEYBOARD);
+		if(inputMan) Console::WriteLine << "Input Manager initialized......";
 		audioMan->setCamera(&(rendInter->getCamera())->position);
 	}
+	Console::WriteLine << "Nothing's wrong here......";
+
 	animMan = new AnimatorManager(rendInter->getAnimationManager());
+	if(animMan) Console::WriteLine << "Animation Manager initialized......";
 	phyMan = new PhysicsManager();
+	if(phyMan) Console::WriteLine << "Physics Manager initialized......";
 	objMan = new ObjectManager(&MemMan);
+	if(objMan) Console::WriteLine << "Object Manager initialized......";
 	objMan->Initialize(80);
 
 	game = new Game();
 	game->Start(&engine);
 
 	ObjectFactory::Initialize(objMan);
+	Console::WriteLine << "Object Factory Initialized......";
 	ObjectFactory::RegisterPrefabBase<ControllerObject>(20);
 	ObjectFactory::RegisterPrefabBase<Gun>(20);
 	ObjectFactory::RegisterPrefabBase<ProgressBar>(20);
@@ -123,11 +133,13 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<CoreCube>(5);
 	ObjectFactory::RegisterPrefabBase<BuildTool>(20);
 	ObjectFactory::RegisterPrefabBase<PhysicsTestObj>(32);
+	Console::WriteLine << "Prefab base registered......";
 
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
 	ObjectFactory::RegisterManager<PhysicsComponent, PhysicsManager>(phyMan);
 	ObjectFactory::RegisterManager<Material, MaterialManager>(rendInter->getMaterialManager());
 	ObjectFactory::RegisterManager<Animator, AnimatorManager>(animMan);
+	Console::WriteLine << "Managers registered......";
 
 	TypeMap::RegisterObjectAlias<ControllerObject>("ControllerObject");
 	TypeMap::RegisterObjectAlias<ViveController>("ViveController");
@@ -141,6 +153,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<GameObject>("GameObject");
 	TypeMap::RegisterObjectAlias<PhysicsTestObj>("PhysicsTestObj");
 	TypeMap::RegisterObjectAlias<BuildTool>("BuildTool");
+	Console::WriteLine << "Object Alias registered......";
 
 	//------
 	// Scenemanager would make this
@@ -172,6 +185,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//ObjectFactory::CreatePrefab(&std::string("SomeCoolObject"));
 	//ObjectFactory::CreatePrefab(&std::string("LeftControllerObject"));
 	//ObjectFactory::CreatePrefab(&std::string("RightControllerObject"));
+
+	Console::WriteLine << "Prefabs created......";
 	//=============================
 	
 	if(VRManager::GetInstance().IsEnabled()) VRManager::GetInstance().CreateControllers();
@@ -232,6 +247,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	GhostTime::Initalize();
 	MessageEvents::Initilize();
+
+	Console::WriteLine << "Starting Game Loop......";
 }
 
 void Loop() {

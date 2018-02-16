@@ -7,7 +7,6 @@
 #include "Menu.h"
 #include "../Dependencies/XML_Library/irrXML.h"
 
-
 Game::Game() {
 	pauseMenu = new Menu(MENU_Pause);
 	MessageEvents::Subscribe(EVENT_SpawnerCreated, [=](EventMessageBase* e) {this->SpawnerCreatedEvent(e); });

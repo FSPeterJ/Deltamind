@@ -90,7 +90,7 @@ bool Gun::Shoot() {
 			obj->position._42 += obj->position._32 * 0.2f;
 			obj->position._43 += obj->position._33 * 0.2f;
 			obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
-			obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 0.1f, position._32 * 0.1f, position._33 * 0.1f);
+			obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 10.0f, position._32 * 10.0f, position._33 * 10.0f);
 			obj->SetDamage(damage);
 			obj->Enable();
 			overheat.AddEnergy(overheat.energyBulletCost);
@@ -108,7 +108,7 @@ bool Gun::Shoot() {
 			obj->position._42 += obj->position._32 * 0.2f;
 			obj->position._43 += obj->position._33 * 0.2f;
 			obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
-			obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 0.1f, position._32 * 0.1f, position._33 * 0.1f);
+			obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 10.0f, position._32 * 10.0f, position._33 * 10.0f);
 			obj->SetDamage(damage);
 			obj->Enable();
 			overheat.AddEnergy(overheat.energyBulletCost);

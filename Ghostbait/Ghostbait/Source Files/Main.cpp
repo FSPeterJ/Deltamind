@@ -207,22 +207,14 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/EarthMage.ghost"), "EarthMage");
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest1.ghost"), "PhyTest1");
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest2.ghost"), "PhyTest2");
-	ObjectFactory::CreatePrefab(&std::string("Assets/PlaneMap.ghost"), "Plane");
+	ObjectFactory::CreatePrefab(&std::string("Assets/PlaneMap1.ghost"), "Plane");
 	ObjectFactory::CreatePrefab(&std::string("Assets/OverheatBar.ghost"), "GUIOverheatTest"); //15 // stop using magic number prefab ID
 	ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost"), "BuildTool");
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest3.ghost"), "PhyTest3");
 	ObjectFactory::CreatePrefab(&std::string("Assets/MenuControllerItem.ghost"), "MenuController");
 	ObjectFactory::CreatePrefab(&std::string("Assets/Gun.ghost"), "GunTest", true);
 	//ObjectFactory::CreatePrefab(&std::string("Assets/Teddy.ghost"));
-
-	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest1.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest2.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/PlaneMap1.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/OverheatBar.ghost")); //15
-	ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest3.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/MenuControllerItem.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/ResumeButton.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/ResumeButton.ghost")); //20
 
 	//ObjectFactory::CreatePrefab(&std::string("Assets/TeleportSphere.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));

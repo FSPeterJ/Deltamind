@@ -21,7 +21,7 @@ Menu::Menu(Template t, std::vector<Button> buttons) {
 	Create(t, buttons);
 }
 void Menu::AssignPrefabIDs() {
-	buttonPrefabMap[BUTTON_Resume] = 19;
+	buttonPrefabMap[BUTTON_Resume] = 20;
 	buttonPrefabMap[BUTTON_Restart] = 1;
 	buttonPrefabMap[BUTTON_Options] = 1;
 	buttonPrefabMap[BUTTON_Quit] = 1;

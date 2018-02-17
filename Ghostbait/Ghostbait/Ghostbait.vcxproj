@@ -191,6 +191,7 @@
     <ClInclude Include="Header Files\AnimationManager.h" />
     <ClInclude Include="Header Files\Animator.h" />
     <ClInclude Include="Header Files\AnimatorManager.h" />
+    <ClInclude Include="Header Files\AStarEnemy.h" />
     <ClInclude Include="Header Files\AudioManager.h" />
     <ClInclude Include="Header Files\BuildTool.h" />
     <ClInclude Include="Header Files\Camera.h" />
@@ -209,6 +210,7 @@
     <ClInclude Include="Header Files\GhostTime.h" />
     <ClInclude Include="Header Files\Gun.h" />
     <ClInclude Include="Header Files\Health.h" />
+    <ClInclude Include="Header Files\Heuristics.h" />
     <ClInclude Include="Header Files\HexagonalGridLayout.h" />
     <ClInclude Include="Header Files\HexagonTile.h" />
     <ClInclude Include="Header Files\HexagonTileSpecializer.h" />
@@ -266,6 +268,7 @@
     <ClCompile Include="Source Files\AnimationManager.cpp" />
     <ClCompile Include="Source Files\Animator.cpp" />
     <ClCompile Include="Source Files\AnimatorManager.cpp" />
+    <ClCompile Include="Source Files\AStarEnemy.cpp" />
     <ClCompile Include="Source Files\AudioManager.cpp" />
     <ClCompile Include="Source Files\BuildTool.cpp" />
     <ClCompile Include="Source Files\Camera.cpp" />
@@ -282,6 +285,7 @@
       <ShowIncludes Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ShowIncludes>
     </ClCompile>
     <ClCompile Include="Source Files\Health.cpp" />
+    <ClCompile Include="Source Files\Heuristics.cpp" />
     <ClCompile Include="Source Files\HexagonalGridLayout.cpp" />
     <ClCompile Include="Source Files\HexagonTile-Impl.cpp" />
     <ClCompile Include="Source Files\HexagonTile.cpp" />

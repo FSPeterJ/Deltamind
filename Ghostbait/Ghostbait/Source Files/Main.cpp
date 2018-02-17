@@ -23,6 +23,8 @@
 #include "AudioManager.h"
 #include "BuildTool.h"
 #include "EngineStructure.h"
+#include "Menu.h"
+#include "AStarEnemy.h"
 
 Renderer* rendInter;
 Game* game;
@@ -117,9 +119,6 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	objMan->Initialize(80);
 	ObjectFactory::Initialize(objMan, "NOT USED STRING");
 
-	game = new Game();
-	game->Start(&engine);
-
 	Console::WriteLine << "Object Factory Initialized......";
 	ObjectFactory::RegisterPrefabBase<ControllerObject>(20);
 	ObjectFactory::RegisterPrefabBase<Gun>(20);
@@ -134,6 +133,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<CoreCube>(5);
 	ObjectFactory::RegisterPrefabBase<BuildTool>(20);
 	ObjectFactory::RegisterPrefabBase<PhysicsTestObj>(32);
+	ObjectFactory::RegisterPrefabBase<ResumeButton>(32);
+	ObjectFactory::RegisterPrefabBase<AStarEnemy>(10);
 	Console::WriteLine << "Prefab base registered......";
 
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
@@ -161,6 +162,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<GameObject>("ghost");
 	TypeMap::RegisterObjectAlias<PhysicsTestObj>("PhysicsTestObj");
 	TypeMap::RegisterObjectAlias<BuildTool>("BuildTool");
+	TypeMap::RegisterObjectAlias<ResumeButton>("ResumeButton");
+	TypeMap::RegisterObjectAlias<AStarEnemy>("AStarEnemy");
 	Console::WriteLine << "Object Alias registered......";
 
 	//------
@@ -205,7 +208,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/EarthMage.ghost"), "EarthMage");
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest1.ghost"), "PhyTest1");
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest2.ghost"), "PhyTest2");
-	ObjectFactory::CreatePrefab(&std::string("Assets/PlaneMap.ghost"), "Plane");
+	ObjectFactory::CreatePrefab(&std::string("Assets/PlaneMap1.ghost"), "Plane");
 	ObjectFactory::CreatePrefab(&std::string("Assets/OverheatBar.ghost"), "GUIOverheatTest"); //15 // stop using magic number prefab ID
 	ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost"), "BuildTool");
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest3.ghost"), "PhyTest3");
@@ -213,7 +216,9 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/Gun2.ghost"), "GunTest2");
 	ObjectFactory::CreatePrefab(&std::string("Assets/Gun.ghost"), "GunTest", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/TestProjectile.ghost"), "TestProjectile");
+	ObjectFactory::CreatePrefab(&std::string("Assets/AStarEnemy.ghost"), "AStarEnemy");
 	//ObjectFactory::CreatePrefab(&std::string("Assets/Teddy.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/ResumeButton.ghost")); //20
 
 	//ObjectFactory::CreatePrefab(&std::string("Assets/TeleportSphere.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
@@ -251,7 +256,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//spawner2->Enable();
 
 	//TestArc
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<GameObject>("Plane", { 3.0f, -1.0f, 0.0f }, nullptr));
+//	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<GameObject>("Plane", { 3.0f, -1.0f, 0.0f }, nullptr));
 
 	
 	//********************* PHYSICS TEST CODE **********************************
@@ -270,7 +275,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//test1->Enable();
 
 	//***************************************************************************
-	
+
 	
 	//------
 	// Test Gun
@@ -287,6 +292,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	MessageEvents::Initilize();
 
 	Console::WriteLine << "Starting Game Loop......";
+	game = new Game();
+	game->Start(&engine);
 }
 
 void Loop() {

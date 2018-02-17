@@ -35,7 +35,10 @@ public:
 		if(typeID < poolListCount) {
 			// HATE HATE HATE
 			Pool<PoolType>* data = new ((char*) poolList + (sizeof(Pool<size_t>) * typeID)) Pool<PoolType>((unsigned) size);
-			Delete += [data]() { data->~Pool<PoolType>(); };
+			Delete += [data]()
+			{
+				data->~Pool<PoolType>();
+			};
 			/*Update_Delegate += [data]() {
 			std::vector<PoolType*>* lst = data->GetActiveList();
 			for(size_t i = 0; i < data->GetActiveCount(); ++i) {

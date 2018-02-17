@@ -158,6 +158,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<MenuCube>("MenuCube");
 	TypeMap::RegisterObjectAlias<CoreCube>("CoreCube");
 	TypeMap::RegisterObjectAlias<GameObject>("GameObject");
+	TypeMap::RegisterObjectAlias<GameObject>("ghost");
 	TypeMap::RegisterObjectAlias<PhysicsTestObj>("PhysicsTestObj");
 	TypeMap::RegisterObjectAlias<BuildTool>("BuildTool");
 	Console::WriteLine << "Object Alias registered......";
@@ -209,7 +210,9 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost"), "BuildTool");
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest3.ghost"), "PhyTest3");
 	ObjectFactory::CreatePrefab(&std::string("Assets/MenuControllerItem.ghost"), "MenuController");
+	ObjectFactory::CreatePrefab(&std::string("Assets/Gun2.ghost"), "GunTest2");
 	ObjectFactory::CreatePrefab(&std::string("Assets/Gun.ghost"), "GunTest", true);
+	ObjectFactory::CreatePrefab(&std::string("Assets/TestProjectile.ghost"), "TestProjectile");
 	//ObjectFactory::CreatePrefab(&std::string("Assets/Teddy.ghost"));
 
 	//ObjectFactory::CreatePrefab(&std::string("Assets/TeleportSphere.ghost"));
@@ -273,10 +276,10 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	// Test Gun
 	//=========================================================
 	ControllerObject *debugController;
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 0,0,0 }, &debugController));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 0,4,0 }, &debugController));
 	debugController->SetControllerHand(ControllerObject::ControllerHand::LEFT);
 	debugController->AddItem(0, 1);
-	debugController->AddItem(1, 19, Gun::FireType::SEMI, 60, 50);
+	debugController->AddItem(1, 21, Gun::FireType::SEMI, 60, 50);
 	debugController->AddItem(2, 19, Gun::FireType::AUTO, 8, 25);
 	debugController->AddItem(3, 16, { 1, 2, 5 });
 

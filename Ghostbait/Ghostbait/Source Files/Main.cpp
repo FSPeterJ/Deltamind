@@ -23,6 +23,7 @@
 #include "AudioManager.h"
 #include "BuildTool.h"
 #include "EngineStructure.h"
+#include "AStarEnemy.h"
 
 Renderer* rendInter;
 Game* game;
@@ -117,8 +118,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	objMan->Initialize(80);
 	ObjectFactory::Initialize(objMan, "NOT USED STRING");
 
-	game = new Game();
-	game->Start(&engine);
+
 
 	Console::WriteLine << "Object Factory Initialized......";
 	ObjectFactory::RegisterPrefabBase<ControllerObject>(20);
@@ -134,6 +134,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<CoreCube>(5);
 	ObjectFactory::RegisterPrefabBase<BuildTool>(20);
 	ObjectFactory::RegisterPrefabBase<PhysicsTestObj>(32);
+	ObjectFactory::RegisterPrefabBase<AStarEnemy>(10);
 	Console::WriteLine << "Prefab base registered......";
 
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
@@ -160,6 +161,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<GameObject>("GameObject");
 	TypeMap::RegisterObjectAlias<PhysicsTestObj>("PhysicsTestObj");
 	TypeMap::RegisterObjectAlias<BuildTool>("BuildTool");
+	TypeMap::RegisterObjectAlias<AStarEnemy>("AStarEnemy");
 	Console::WriteLine << "Object Alias registered......";
 
 	//------
@@ -210,6 +212,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest3.ghost"), "PhyTest3");
 	ObjectFactory::CreatePrefab(&std::string("Assets/MenuControllerItem.ghost"), "MenuController");
 	ObjectFactory::CreatePrefab(&std::string("Assets/Gun.ghost"), "GunTest", true);
+	ObjectFactory::CreatePrefab(&std::string("Assets/AStarEnemy.ghost"), "AStarEnemy");
 	//ObjectFactory::CreatePrefab(&std::string("Assets/Teddy.ghost"));
 
 	//ObjectFactory::CreatePrefab(&std::string("Assets/TeleportSphere.ghost"));
@@ -248,7 +251,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//spawner2->Enable();
 
 	//TestArc
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<GameObject>("Plane", { 3.0f, -1.0f, 0.0f }, nullptr));
+//	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<GameObject>("Plane", { 3.0f, -1.0f, 0.0f }, nullptr));
 
 	
 	//********************* PHYSICS TEST CODE **********************************
@@ -267,7 +270,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//test1->Enable();
 
 	//***************************************************************************
-	
+
 	
 	//------
 	// Test Gun
@@ -284,6 +287,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	MessageEvents::Initilize();
 
 	Console::WriteLine << "Starting Game Loop......";
+	game = new Game();
+	game->Start(&engine);
 }
 
 void Loop() {

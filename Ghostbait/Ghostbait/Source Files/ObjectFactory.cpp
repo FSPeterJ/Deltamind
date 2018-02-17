@@ -102,7 +102,7 @@ GameObject* ObjectFactory::ActivateObject(PrefabId pid) {
 			});
 		}
 	}
-	newobject->Enable();
+	//newobject->Enable();
 	return newobject;
 }
 

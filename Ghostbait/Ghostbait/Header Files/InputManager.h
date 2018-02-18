@@ -1,5 +1,8 @@
 #pragma once
 #include <queue>
+#include <bitset>
+#include "MessageStructs.h"  // for Control
+
 enum InputType {
 	VR,
 	KEYBOARD,
@@ -11,6 +14,13 @@ struct InputPackage;
 class VRManager;
 
 class InputManager {
+public:
+	struct IncomingKey {
+		uint64_t key;
+		bool isDown;
+		IncomingKey() {};
+		IncomingKey(uint64_t _key, bool _isDown) : key(_key), isDown(_isDown) {};
+	};
 private:
 
 	struct InputBridge;
@@ -18,28 +28,29 @@ private:
 	struct KeyboardInput;
 	struct ControllerInput;
 
-	static std::queue<uint64_t> inputQueue;
-
+	static std::queue<IncomingKey> inputQueue;
+	static std::queue<InputPackage> inputPoll;
+	static std::bitset<(size_t)Control::Total> keyStates;
+	
 	InputType inputType = KEYBOARD;
 	InputBridge* bridge = nullptr;
 
 	VRManager* vrMan;
-	InputPackage* inputPoll;
 
 public:
+
 	InputManager() {};
 	InputManager(InputType type);
 	~InputManager();
 
-	static void AddToQueue(uint64_t key) { inputQueue.push(key); };
+	static void AddToQueue(IncomingKey key) { inputQueue.push(key); };
 
 	/// <summary>
 	/// Called to check input devices for new user input.
 	/// Should be called every frame.
 	/// Results in a message sent with respective input.
 	/// </summary>
-	/// <returns>The control currently selected.</returns>
-	InputPackage* HandleInput();
+	void HandleInput();
 
 	/// <summary>
 	/// Retreive the current input method (Ex. VR, Keyboard, Controller, etc.)

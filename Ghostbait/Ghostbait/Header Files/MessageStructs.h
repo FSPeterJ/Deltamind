@@ -44,6 +44,10 @@ enum Control {
 	TestInputK,
 	TestInputL,
 	TestInputX,
+	TestInputZ,
+	TestInputC,
+
+	Total,
 };
 
 class EventMessageBase {

@@ -27,8 +27,9 @@ public:
 		AUTO,
 		SEMI,
 	};
-private:
+protected:
 	unsigned projectiePrefabID = 4;
+private:
 	//Main Stats
 	FireType type = AUTO;
 	float fireRate = 2; //shotsPerSecond
@@ -38,11 +39,13 @@ public:
 	Overheat overheat;
 	Gun();
 	Gun(FireType _type, float _fireRate, float _damage);
+	void GivePID(unsigned pid, char* tag);
 	inline void Init() { overheat.CreateBar(); };
 	void SetStats(FireType _type, float _fireRate, float _damage) { type = _type; fireRate = _fireRate; damage = _damage; };
 	bool Shoot();
 	void InactiveUpdate();
 	void ActiveUpdate();
+	void CloneData(Object* obj);
 	void PassObject(unsigned pid, char* tag) {
 		if(strcmp(tag, "projectile")) {
 			projectiePrefabID = pid;

@@ -79,6 +79,9 @@ public:
 	~HexGrid();
 
 	HexTile* PointToTile(const DirectX::XMFLOAT2& p);
+
+	DirectX::XMFLOAT2 TileToWorld(const DirectX::XMFLOAT2& p);
+
 	bool Snap(const DirectX::XMFLOAT2& p, OUT DirectX::XMFLOAT2& snapPoint);
 
 	HexTile* GetTile(const int x, const int y);
@@ -92,6 +95,8 @@ public:
 	TraversalResult DijkstraTraverse(HexTile *const tile, size_t cost, size_t maxMovement);
 
 	HexPath AStarSearch(HexTile *const start, HexTile *const goal, std::function<float(HexTile*, HexTile*)> Heuristic);
+
+	std::vector<DirectX::XMFLOAT2> AStarSearch(const DirectX::XMFLOAT2& start, const DirectX::XMFLOAT2& goal, std::function<float(HexTile*, HexTile*)> Heuristic);
 
 	HexRegion GetTilesNStepsAway(HexTile *const tile, int n);
 
@@ -107,3 +112,4 @@ public:
 
 	void Display();
 };
+

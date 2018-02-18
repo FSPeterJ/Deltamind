@@ -5,6 +5,7 @@
 class Menu;
 
 class MenuOption : public GameObject {
+	//0.5 X 0.1 X 0.1
 protected:
 	Menu* menu;
 public:
@@ -35,7 +36,7 @@ class Menu {
 	std::map<Button, int> buttonPrefabMap;
 	std::vector<Button> buttons;
 	std::vector<MenuOption*> options;
-
+	DirectX::XMFLOAT4X4 FindCenter(float distFromPlayer = 1);
 	float FindDistanceFromCenter(int optionNumber, int optionCount, float optionHeight, float gapHeight);
 	void AssignPrefabIDs();
 

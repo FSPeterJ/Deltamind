@@ -35,7 +35,7 @@ void BuildTool::SetPrefabs(std::vector<unsigned> prefabIDs) {
 	}
 	//Add removal tool
 	prefabs[prefabs.size() - 1] = BuildItem();
-	prefabs[prefabs.size() - 1].ID = -1;
+	prefabs[prefabs.size() - 1].ID = 0;
 }
 void BuildTool::SetParent(ControllerObject* _parent) {
 	parent = _parent;

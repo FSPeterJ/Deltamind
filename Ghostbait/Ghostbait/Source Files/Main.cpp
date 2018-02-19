@@ -283,7 +283,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//=========================================================
 	ControllerObject *debugController;
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 0,4,0 }, &debugController));
-	debugController->SetControllerHand(ControllerObject::ControllerHand::LEFT);
+	debugController->Init(ControllerObject::ControllerHand::LEFT);
 	debugController->AddItem(0, 1);
 	debugController->AddItem(1, 21, Gun::FireType::SEMI, 60, 50);
 	debugController->AddItem(2, 19, Gun::FireType::AUTO, 8, 25);

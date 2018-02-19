@@ -81,13 +81,15 @@ void ControllerObject::SwitchCurrentItem(int itemIndex) {
 	}
 }
 void ControllerObject::DisplayInventory() {
-	static bool touchHeld = false;
-	
+	static bool leftJustTouched = false, rightJustTouched = false;
+
+	bool* justTouched = (hand == HAND_Left ? &leftJustTouched : &rightJustTouched);
 	Control touch = (hand == HAND_Left ? leftTouch : rightTouch);
+
 	if (KeyIsDown(touch)) {
 		for (unsigned int i = 0; i < displayItems.size(); ++i) {
 			if (displayItems[i]) {
-				if (!touchHeld) displayItems[i]->Render(true);
+				if (!*justTouched) displayItems[i]->Render(true);
 
 				displayItems[i]->position._11 = position._11 * 0.5f;
 				displayItems[i]->position._12 = position._12 * 0.5f;
@@ -129,13 +131,15 @@ void ControllerObject::DisplayInventory() {
 				}
 			}
 		}
-		touchHeld = true;
+		*justTouched = true;
 	}
 	else {
-		for (unsigned int i = 0; i < displayItems.size(); ++i) {
-			if (displayItems[i]) displayItems[i]->Render(false);
+		if (*justTouched) {
+			for (unsigned int i = 0; i < displayItems.size(); ++i) {
+				if (displayItems[i]) displayItems[i]->Render(false);
+			}
+			*justTouched = false;
 		}
-		touchHeld = false;
 	}
 }
 

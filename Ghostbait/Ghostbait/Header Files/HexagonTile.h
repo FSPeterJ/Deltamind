@@ -50,7 +50,9 @@ private:
 		std::swap(q, b.q);
 		std::swap(r, b.r);
 		std::swap(s, b.s);
-		std::swap(v, b.v); //needed?
+		std::swap(v[0], b.v[0]);
+		std::swap(v[1], b.v[1]);
+		std::swap(v[2], b.v[2]);
 		std::swap(weight, b.weight);
 	}
 

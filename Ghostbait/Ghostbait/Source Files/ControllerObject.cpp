@@ -8,34 +8,135 @@
 ControllerObject::ControllerObject() {
 	items.resize(4);
 	displayItems.resize(4);
-	hand = INVALID;
+	hand = HAND_Invalid;
 }
 
 void ControllerObject::Init(ControllerHand _hand, int menuControllerPrefabID) {
 	SetControllerHand(_hand);
 	Enable();
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuControllerItem>(menuControllerPrefabID, { 0,0,0 }, &menuController));
+	int temp = sizeof(MenuControllerItem);
 }
-void ControllerObject::SetPhysicsComponent(GameObject* obj, bool active) {
+void ControllerObject::SetPhysicsComponent(const GameObject* obj, bool active) {
 	PhysicsComponent* physComp = obj->GetComponent<PhysicsComponent>();
 	if (physComp) physComp->isActive = active;
 }
 void ControllerObject::AddToInventory(int itemSlot, int prefabID) {
 	//Actual Inventory
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Item>(prefabID, { 0,0,0 }, &items[itemSlot]));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Gun>(prefabID, { 0,0,0 }, (Gun**)&items[itemSlot]));
 	if (!currentGameItem) currentGameItem = items[itemSlot];
 	else {
-		MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(items[itemSlot]));
-		PhysicsComponent* physComp = items[itemSlot]->GetComponent<PhysicsComponent>();
-		if (physComp) physComp->isActive = false;
+		items[itemSlot]->Render(false);
+		SetPhysicsComponent(items[itemSlot], false);
 	}
 	
 	//Inventory Display
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Item>(prefabID, { 0,0,0 }, &displayItems[itemSlot]));
-	MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(displayItems[itemSlot]));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Gun>(prefabID, { 0,0,0 }, (Gun**)&displayItems[itemSlot]));
+	displayItems[itemSlot]->Render(false);
+	SetPhysicsComponent(displayItems[itemSlot], false);
+}
 
-	PhysicsComponent* physComp = displayItems[itemSlot]->GetComponent<PhysicsComponent>(); 
-	if (physComp) physComp->isActive = false;
+void ControllerObject::SwitchCurrentItem(int itemIndex) {
+	if (itemIndex == -1) {
+		Control item0 = (hand == HAND_Left ? leftItem0 : rightItem0);
+		Control item1 = (hand == HAND_Left ? leftItem1 : rightItem1);
+		Control item2 = (hand == HAND_Left ? leftItem2 : rightItem2);
+		Control item3 = (hand == HAND_Left ? leftItem3 : rightItem3);
+		if (KeyIsDown(item0)) {
+			if (items[0]) {
+				SwitchCurrentItem(0);
+				ResetKey(item0);
+				return;
+			}
+		}
+		if (KeyIsDown(item1)) {
+			if (items[1]) {
+				SwitchCurrentItem(1);
+				ResetKey(item1);
+				return;
+			}
+		}
+		if (KeyIsDown(item2)) {
+			if (items[2]) {
+				SwitchCurrentItem(2);
+				ResetKey(item2);
+				return;
+			}
+		}
+		if (KeyIsDown(item3)) {
+			if (items[3]) {
+				SwitchCurrentItem(3);
+				ResetKey(item3);
+				return;
+			}
+		}
+	}
+	else {
+		currentGameItem->Render(false);
+		SetPhysicsComponent(currentGameItem, false);
+		currentGameItem = items[itemIndex];
+		currentGameItem->Render(true);
+		SetPhysicsComponent(currentGameItem, true);
+		return;
+	}
+}
+void ControllerObject::DisplayInventory() {
+	static bool touchHeld = false;
+	
+	Control touch = (hand == HAND_Left ? leftTouch : rightTouch);
+	if (KeyIsDown(touch)) {
+		for (unsigned int i = 0; i < displayItems.size(); ++i) {
+			if (displayItems[i]) {
+				if (!touchHeld) displayItems[i]->Render(true);
+
+				displayItems[i]->position._11 = position._11 * 0.5f;
+				displayItems[i]->position._12 = position._12 * 0.5f;
+				displayItems[i]->position._13 = position._13 * 0.5f;
+				displayItems[i]->position._14 = position._14;
+				displayItems[i]->position._21 = position._21 * 0.5f;
+				displayItems[i]->position._22 = position._22 * 0.5f;
+				displayItems[i]->position._23 = position._23 * 0.5f;
+				displayItems[i]->position._24 = position._24;
+				displayItems[i]->position._31 = position._31 * 0.5f;
+				displayItems[i]->position._32 = position._32 * 0.5f;
+				displayItems[i]->position._33 = position._33 * 0.5f;
+				displayItems[i]->position._34 = position._34;
+				displayItems[i]->position._41 = position._41;
+				displayItems[i]->position._42 = position._42;
+				displayItems[i]->position._43 = position._43;
+				displayItems[i]->position._44 = position._44;
+				switch (i) {
+					case 0:
+						displayItems[i]->position._41 += ((position._21 * 0.2f) + (position._31 * 0.1f));
+						displayItems[i]->position._42 += ((position._22 * 0.2f) + (position._32 * 0.1f));
+						displayItems[i]->position._43 += ((position._23 * 0.2f) + (position._33 * 0.1f));
+						break;
+					case 1:
+						displayItems[i]->position._41 += ((-position._11 * 0.2f) + (position._31 * 0.1f));
+						displayItems[i]->position._42 += ((-position._12 * 0.2f) + (position._32 * 0.1f));
+						displayItems[i]->position._43 += ((-position._13 * 0.2f) + (position._33 * 0.1f));
+						break;
+					case 2:
+						displayItems[i]->position._41 += ((position._11 * 0.2f) + (position._31 * 0.1f));
+						displayItems[i]->position._42 += ((position._12 * 0.2f) + (position._32 * 0.1f));
+						displayItems[i]->position._43 += ((position._13 * 0.2f) + (position._33 * 0.1f));
+						break;
+					case 3:
+						displayItems[i]->position._41 += ((-position._21 * 0.2f) + (position._31 * 0.1f));
+						displayItems[i]->position._42 += ((-position._22 * 0.2f) + (position._32 * 0.1f));
+						displayItems[i]->position._43 += ((-position._23 * 0.2f) + (position._33 * 0.1f));
+						break;
+				}
+			}
+		}
+		touchHeld = true;
+	}
+	else {
+		for (unsigned int i = 0; i < displayItems.size(); ++i) {
+			if (displayItems[i]) displayItems[i]->Render(false);
+		}
+		touchHeld = false;
+	}
 }
 
 void ControllerObject::AddItem(int itemSlot, int prefabID) {
@@ -72,120 +173,18 @@ void ControllerObject::AddItem(int itemSlot, int prefabID, Gun::FireType _fireTy
 }
 
 void ControllerObject::Update() {
-	if(hand == INVALID) return;
-	if (menuControllerVisible) {
-		MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(menuController));
-		menuControllerVisible = false;
-	}
+	if(hand == HAND_Invalid) return;
+	menuController->Render(false);
 	
 	//Seperate controller Values
-	Control item0  = (hand == LEFT ? leftItem0 : rightItem0);
-	Control item1  = (hand == LEFT ? leftItem1 : rightItem1);
-	Control item2  = (hand == LEFT ? leftItem2 : rightItem2);
-	Control item3  = (hand == LEFT ? leftItem3 : rightItem3);
-	Control touch  = (hand == LEFT ? leftTouch : rightTouch);
-	Control attack = (hand == LEFT ? leftAttack : rightAttack);
-	Control cyclePrefab = (hand == LEFT ? leftCyclePrefab : rightCyclePrefab);
+	Control attack = (hand == HAND_Left ? leftAttack : rightAttack);
+	Control cyclePrefab = (hand == HAND_Left ? leftCyclePrefab : rightCyclePrefab);
 
-	#pragma region Switch Controller Item
-		if (KeyIsDown(item0)) {
-			if (items[0]) {
-				MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentGameItem));
-				SetPhysicsComponent(currentGameItem, false);
-				currentGameItem = items[0];
-				MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentGameItem));
-				SetPhysicsComponent(currentGameItem, true);
-			}
-			ResetKey(item0);
-		}
-		else if (KeyIsDown(item1)) {
-			if (items[1]) {
-				MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentGameItem));
-				SetPhysicsComponent(currentGameItem, false);
-				currentGameItem = items[1];
-				MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentGameItem));
-				SetPhysicsComponent(currentGameItem, true);
-			}
-			ResetKey(item1);
-		}
-		else if (KeyIsDown(item2)) {
-			if (items[2]) {
-				MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentGameItem));
-				SetPhysicsComponent(currentGameItem, false);
-				currentGameItem = items[2];
-				MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentGameItem));
-				SetPhysicsComponent(currentGameItem, true);
-			}
-			ResetKey(item2);
-		}
-		else if (KeyIsDown(item3)) {
-			if (items[3]) {
-				MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(currentGameItem));
-				SetPhysicsComponent(currentGameItem, false);
-				currentGameItem = items[3];
-				MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(currentGameItem));
-				SetPhysicsComponent(currentGameItem, true);
-			}
-			ResetKey(item3);
-		}
-	#pragma endregion
-	#pragma region Display Inventory
-		if (KeyIsDown(touch)) {
-			for (unsigned int i = 0; i < displayItems.size(); ++i) {
-				if (displayItems[i]) {
-					if (!touchHeld) {
-						MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(displayItems[i]));
-					}
-					displayItems[i]->position._11 = position._11 * 0.5f;
-					displayItems[i]->position._12 = position._12 * 0.5f;
-					displayItems[i]->position._13 = position._13 * 0.5f;
-					displayItems[i]->position._14 = position._14;
-					displayItems[i]->position._21 = position._21 * 0.5f;
-					displayItems[i]->position._22 = position._22 * 0.5f;
-					displayItems[i]->position._23 = position._23 * 0.5f;
-					displayItems[i]->position._24 = position._24;
-					displayItems[i]->position._31 = position._31 * 0.5f;
-					displayItems[i]->position._32 = position._32 * 0.5f;
-					displayItems[i]->position._33 = position._33 * 0.5f;
-					displayItems[i]->position._34 = position._34;
-					displayItems[i]->position._41 = position._41;
-					displayItems[i]->position._42 = position._42;
-					displayItems[i]->position._43 = position._43;
-					displayItems[i]->position._44 = position._44;
-					switch (i) {
-					case 0:
-						displayItems[i]->position._41 += ((position._21 * 0.2f) + (position._31 * 0.1f));
-						displayItems[i]->position._42 += ((position._22 * 0.2f) + (position._32 * 0.1f));
-						displayItems[i]->position._43 += ((position._23 * 0.2f) + (position._33 * 0.1f));
-						break;
-					case 1:
-						displayItems[i]->position._41 += ((-position._11 * 0.2f) + (position._31 * 0.1f));
-						displayItems[i]->position._42 += ((-position._12 * 0.2f) + (position._32 * 0.1f));
-						displayItems[i]->position._43 += ((-position._13 * 0.2f) + (position._33 * 0.1f));
-						break;
-					case 2:
-						displayItems[i]->position._41 += ((position._11 * 0.2f) + (position._31 * 0.1f));
-						displayItems[i]->position._42 += ((position._12 * 0.2f) + (position._32 * 0.1f));
-						displayItems[i]->position._43 += ((position._13 * 0.2f) + (position._33 * 0.1f));
-						break;
-					case 3:
-						displayItems[i]->position._41 += ((-position._21 * 0.2f) + (position._31 * 0.1f));
-						displayItems[i]->position._42 += ((-position._22 * 0.2f) + (position._32 * 0.1f));
-						displayItems[i]->position._43 += ((-position._23 * 0.2f) + (position._33 * 0.1f));
-						break;
-					}
-				}
-			}
-			touchHeld = true;
-		}
-		else {
-			for (unsigned int i = 0; i < displayItems.size(); ++i) {
-				/*if (displayItems[i])
-					MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(displayItems[i]));*/
-			}
-			touchHeld = false;
-		}
-	#pragma endregion
+	//Handle Inventory
+	SwitchCurrentItem();
+	DisplayInventory();
+
+	//Update Items
 	#pragma region Update Inactive Items
 		for (unsigned int i = 0; i < items.size(); ++i) {
 			if (items[i] && items[i] != currentGameItem) {
@@ -214,46 +213,59 @@ void ControllerObject::Update() {
 				break;
 			case Item::State::BUILD:
 				{
-					if (KeyIsDown(cyclePrefab)) {
-						ResetKey(cyclePrefab);
+					//static bool leftCycled = false, rightCycled = false;
+					if (/*!(hand == HAND_Left ? leftCycled : rightCycled) && */KeyIsDown(cyclePrefab)) {
 						((BuildTool*)currentGameItem)->CycleForward();
+						ResetKey(cyclePrefab);
+						//if(hand == HAND_Left) leftCycled = true;
+						//else if (hand == HAND_Right) rightCycled = true;
 					}
+					//if (!KeyIsDown(cyclePrefab)) {
+					//	if (hand == HAND_Left) leftCycled = false;
+					//	else if (hand == HAND_Right) rightCycled = false;
+					//}
 
-					if (KeyIsDown(attack)) {
+					//static bool leftAttacked = false, rightAttacked = false;
+					if (/*!(hand == HAND_Left ? leftAttacked : rightAttacked) && */KeyIsDown(attack)) {
 						((BuildTool*)currentGameItem)->Activate();
+						//if (hand == HAND_Left) leftAttacked = true;
+						//else if (hand == HAND_Right) rightAttacked = true;
 						ResetKey(attack);
 					}
-					else ((BuildTool*)currentGameItem)->Projection();
+					if (!KeyIsDown(attack)) {
+						((BuildTool*)currentGameItem)->Projection();
+					//	if (hand == HAND_Left) leftAttacked = false;
+					//	else if (hand == HAND_Right) rightAttacked = false;
+					}
 				}
 				break;
 			case Item::State::INVALID:
 				break;
 			}
 
+			static bool teleport = false;
 			//All states
-			if (KeyIsDown(teleportDown) && hand == RIGHT) {
+			if (KeyIsDown(teleportDown) && hand == HAND_Right) {
 				VRManager::GetInstance().ArcCast(this, {});
+				teleport = true;
 			}
-			if (KeyIsDown(teleportUp) && hand == RIGHT) {
-				ResetKey(teleportUp);
-				ResetKey(teleportDown);
+			if (teleport && !KeyIsDown(teleportDown) && hand == HAND_Right) {
 				VRManager::GetInstance().Teleport();
+				teleport = false;
 			}
 		}
 	#pragma endregion
 }
 void ControllerObject::PausedUpdate() {
-	if (!menuControllerVisible) {
-		MessageEvents::SendMessage(EVENT_Addrender,  DestroyMessage(menuController));
-		menuControllerVisible = true;
-	}
-	Control attack = (hand == LEFT ? leftAttack : rightAttack);
+	if (hand == HAND_Invalid) return;
+	Control attack = (hand == HAND_Left ? leftAttack : rightAttack);
 	
+	menuController->Render(true);
 	menuController->position = position;
 	
 	if (KeyIsDown(attack)) {
 		menuController->Activate();
-		ResetKey(attack);
+		//ResetKey(attack);
 	}
 	else menuController->UpdateRay();
 }

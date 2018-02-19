@@ -29,6 +29,9 @@ enum EVENT_TYPES {
 	EVENT_GameLose,
 	EVENT_GamePause,
 	EVENT_GameResume,
+	EVENT_SnapRequest,
+	EVENT_AddObstacle,
+	EVENT_RemoveObstacle,
 };
 
 class EventMessageBase;

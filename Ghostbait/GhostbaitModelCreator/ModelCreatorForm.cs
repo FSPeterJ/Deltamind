@@ -520,6 +520,11 @@ namespace GhostbaitModelCreator
                             component.ComponentIdentifier = data;
                             materials.Add(component);
                         }
+                        else if (Path.GetExtension(data).ToLower() == ".ghost")
+                        {
+                            component.ComponentIdentifier = data;
+                            childObjects.Add(component);
+                        }
                         else if (Path.GetExtension(data).ToLower() == ".bind")
                         {
                             bindPose.FilePath = data;

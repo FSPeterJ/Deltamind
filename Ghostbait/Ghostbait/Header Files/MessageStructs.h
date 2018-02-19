@@ -30,6 +30,7 @@ enum Control {
 	rightItem3,
 	rightAttack,
 	rightTouch,
+
 	leftItem0,
 	leftItem1,
 	leftItem2,
@@ -44,6 +45,10 @@ enum Control {
 	TestInputK,
 	TestInputL,
 	TestInputX,
+	TestInputZ,
+	TestInputC,
+
+	Total,
 };
 
 class EventMessageBase {

@@ -213,30 +213,45 @@ void ControllerObject::Update() {
 				break;
 			case Item::State::BUILD:
 				{
-					if (KeyIsDown(cyclePrefab)) {
-						ResetKey(cyclePrefab);
+					//static bool leftCycled = false, rightCycled = false;
+					if (/*!(hand == HAND_Left ? leftCycled : rightCycled) && */KeyIsDown(cyclePrefab)) {
 						((BuildTool*)currentGameItem)->CycleForward();
+						ResetKey(cyclePrefab);
+						//if(hand == HAND_Left) leftCycled = true;
+						//else if (hand == HAND_Right) rightCycled = true;
 					}
+					//if (!KeyIsDown(cyclePrefab)) {
+					//	if (hand == HAND_Left) leftCycled = false;
+					//	else if (hand == HAND_Right) rightCycled = false;
+					//}
 
-					if (KeyIsDown(attack)) {
+					//static bool leftAttacked = false, rightAttacked = false;
+					if (/*!(hand == HAND_Left ? leftAttacked : rightAttacked) && */KeyIsDown(attack)) {
 						((BuildTool*)currentGameItem)->Activate();
+						//if (hand == HAND_Left) leftAttacked = true;
+						//else if (hand == HAND_Right) rightAttacked = true;
 						ResetKey(attack);
 					}
-					else ((BuildTool*)currentGameItem)->Projection();
+					if (!KeyIsDown(attack)) {
+						((BuildTool*)currentGameItem)->Projection();
+					//	if (hand == HAND_Left) leftAttacked = false;
+					//	else if (hand == HAND_Right) rightAttacked = false;
+					}
 				}
 				break;
 			case Item::State::INVALID:
 				break;
 			}
 
+			static bool teleport = false;
 			//All states
 			if (KeyIsDown(teleportDown) && hand == HAND_Right) {
 				VRManager::GetInstance().ArcCast(this, {});
+				teleport = true;
 			}
-			if (KeyIsDown(teleportUp) && hand == HAND_Right) {
-				ResetKey(teleportUp);
-				ResetKey(teleportDown);
+			if (teleport && !KeyIsDown(teleportDown) && hand == HAND_Right) {
 				VRManager::GetInstance().Teleport();
+				teleport = false;
 			}
 		}
 	#pragma endregion
@@ -250,7 +265,7 @@ void ControllerObject::PausedUpdate() {
 	
 	if (KeyIsDown(attack)) {
 		menuController->Activate();
-		ResetKey(attack);
+		//ResetKey(attack);
 	}
 	else menuController->UpdateRay();
 }

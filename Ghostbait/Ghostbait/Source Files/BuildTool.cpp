@@ -98,7 +98,7 @@ void BuildTool::Spawn() {
 			GameObject* newObj;
 			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabs[currentPrefabIndex].ID, spawnPos, &newObj));
 			builtItems.push_back(newObj);
-			Console::WriteLine << newObj << "was built at position (" << newObj->position._41 << ", " << newObj->position._42 << ", " << newObj->position._43 << ")!";
+			//Console::WriteLine << newObj << "was built at position (" << newObj->position._41 << ", " << newObj->position._42 << ", " << newObj->position._43 << ")!";
 		}
 	}
 }
@@ -116,7 +116,7 @@ void BuildTool::Remove() {
 			if (SetObstacle(pos, false)) {
 				MessageEvents::SendQueueMessage(EVENT_Late, [=] { currentlySelectedItem->Destroy(); });
 				builtItems.erase(builtItems.begin() + i);
-				Console::WriteLine << currentlySelectedItem << "was removed at position (" << currentlySelectedItem->position._41 << ", " << currentlySelectedItem->position._42 << ", " << currentlySelectedItem->position._43 << ")!";
+				//Console::WriteLine << currentlySelectedItem << "was removed at position (" << currentlySelectedItem->position._41 << ", " << currentlySelectedItem->position._42 << ", " << currentlySelectedItem->position._43 << ")!";
 			}
 			break;
 		}

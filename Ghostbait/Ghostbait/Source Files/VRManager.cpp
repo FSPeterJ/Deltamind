@@ -64,10 +64,11 @@ void VRManager::CreateControllers() {
 	leftController.obj->AddItem(2, 19, Gun::FireType::AUTO, 8, 25);
 	leftController.obj->AddItem(3, 16, { 1, 2, 5 });
 	//Right
+	// Need to investigate a way to set these add items to be less hard coded numbers
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 1,0,1 }, &rightController.obj));
 	rightController.obj->Init(ControllerObject::ControllerHand::HAND_Right);
 	rightController.obj->AddItem(0, 1);
-	rightController.obj->AddItem(1, 19, Gun::FireType::SEMI, 60, 50);
+	rightController.obj->AddItem(1, 19, Gun::FireType::SEMI, 60, 50); // quick test of different projectile loading
 	rightController.obj->AddItem(2, 19, Gun::FireType::AUTO, 8, 25);
 	rightController.obj->AddItem(3, 16, { 1, 2, 5 });
 }

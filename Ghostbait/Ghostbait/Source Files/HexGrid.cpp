@@ -36,6 +36,8 @@ template <typename TileType>
 class GridTileVector {
 	std::vector<TileType> data;
 public:
+	auto getData() const { return &data[0]; }
+
 	GridTileVector() {}
 
 	GridTileVector(std::vector<TileType>& that) { data.swap(that); }
@@ -174,7 +176,7 @@ public:
 	}
 };
 
-bool operator<(const HexPath&p, const HexPath&p2) { return p.cost()<p2.cost(); } //in case of a cost tie, std::pair will compare the second element so this is needed to satisfy it
+bool operator<(const HexPath&p, const HexPath&p2) { return p.cost() < p2.cost(); } //in case of a cost tie, std::pair will compare the second element so this is needed to satisfy it
 
 template<typename T, typename priority_t>
 struct PriorityQueue {
@@ -200,6 +202,13 @@ HexTile* HexGrid::PointToTile(const DirectX::XMFLOAT2& p) {
 	return GetTile(HexTile::Round(HexagonalGridLayout::PointToHexagonTile(p, layout)));
 }
 
+DirectX::XMFLOAT2 HexGrid::TileToWorld(const DirectX::XMFLOAT2& p) {
+	auto t = PointToTile(p);
+	if(t)
+	return t->Center(layout);
+	return DirectX::XMFLOAT2(0, 0);
+}
+
 bool HexGrid::AddObstacle(const DirectX::XMFLOAT2& obstaclePosition) {
 	auto t = PointToTile(obstaclePosition);
 	if(t) {
@@ -207,7 +216,7 @@ bool HexGrid::AddObstacle(const DirectX::XMFLOAT2& obstaclePosition) {
 		blocked.push_back(*t);
 		return true;
 	}
-		
+
 	return false;
 }
 
@@ -245,7 +254,7 @@ HexPath HexGrid::CalculatePathWithinXSteps(HexTile *const start, HexTile *const 
 
 	HexRegion shadow;
 	for(auto& t : search.costMap) {
-		if(t.second > (int)steps) { shadow.push_back(*t.first); }
+		if(t.second > (int) steps) { shadow.push_back(*t.first); }
 	}
 	shadow.Color(&layout, {0,0,1}, 0, ColorType::__T);
 
@@ -253,7 +262,7 @@ HexPath HexGrid::CalculatePathWithinXSteps(HexTile *const start, HexTile *const 
 	//Console::WriteLine << "Distance is " << distance << "  steps is " << steps;
 	HexPath path;
 
-	if(distance >= (int)steps) {
+	if(distance >= (int) steps) {
 		Console::WriteLine << "Path is too far!";
 	} else {
 		path.BuildPathReverse(start, goal, search.visitedMap);
@@ -278,7 +287,7 @@ HexPath HexGrid::CalculatePathWithinXCost(HexTile *const start, HexTile *const g
 	TraversalResult search = DijkstraTraverse(goal, cost, cost);
 
 	for(auto& t : map) {
-		t->DrawmX(layout, {t->weight/4.0f, 0, 1}, 0);  //weights are 1-4 in fill
+		t->DrawmX(layout, {t->weight / 4.0f, 0, 1}, 0);  //weights are 1-4 in fill
 	}
 
 	for(auto& vec : search.reachableTiles) {
@@ -397,7 +406,7 @@ TraversalResult HexGrid::breadthFirstTraverse(HexTile *const tile, size_t steps,
 				if(!neighbor || neighbor->weight == Blocked) { continue; }
 
 				bool notContain = !stepCost.count(neighbor);
-				bool withinReach = tile->DistanceFrom(neighbor) <= (int)steps;
+				bool withinReach = tile->DistanceFrom(neighbor) <= (int) steps;
 
 				if(notContain && withinReach) {
 					stepCost[neighbor] = float(i + 1);
@@ -442,7 +451,7 @@ TraversalResult HexGrid::DijkstraTraverse(HexTile *const tile, size_t cost, size
 
 					float new_cost = weightCost[current[j]] + neighbor->weight;
 
-					if(!weightCost.count(neighbor) || new_cost < weightCost[neighbor] ) {
+					if(!weightCost.count(neighbor) || new_cost < weightCost[neighbor]) {
 						if(new_cost > cost) continue;
 						build.push_back(neighbor);
 						weightCost[neighbor] = new_cost;
@@ -498,12 +507,32 @@ HexPath HexGrid::DijkstraSearch(HexTile *const start, HexTile *const goal) {
 	return path;
 }
 
+std::vector<DirectX::XMFLOAT2> HexGrid::AStarSearch(const DirectX::XMFLOAT2& start, const DirectX::XMFLOAT2& goal, std::function<float(HexTile*, HexTile*)> Heuristic) {
+	HexTile* s = GetTile((int) start.x, (int) start.y);
+	HexTile* e = GetTile((int) goal.x, (int) goal.y);
+	if(s && e) {
+		HexPath path = AStarSearch(s, e, Heuristic);
+		std::vector<DirectX::XMFLOAT2> positions;
+
+		if(path.size()) {
+		positions.reserve(path.size());
+
+		auto data = path.getData();
+		for(size_t i = 0; i < path.size(); ++i) {
+			positions.push_back(data[i]->Center(layout));
+		}
+		}
+		return positions;
+	}
+	return std::vector<DirectX::XMFLOAT2>();
+}
+
 HexPath HexGrid::AStarSearch(HexTile *const start, HexTile *const goal, std::function<float(HexTile*, HexTile*)> Heuristic) {
 	if(goal->weight == Blocked) return HexPath();
 
 	PriorityQueue<HexTile*, float> Q;
 	//we could possibly not even use a priority queue here if we hash the tiles into buckets
-	//say we know in advance what our weight range will be, we can make each of those a bucket and not need 
+	//say we know in advance what our weight range will be, we can make each of those a bucket and not need
 	//to do any sorting in the first place
 
 	VisitedMap visited;
@@ -658,8 +687,8 @@ void HexGrid::SetUpDrawingPaths() {
 		realend->DrawT(layout, {1,1,1}, 0);
 
 		//HexPath d = DijkstraSearch(realStart, realend);
-		HexPath p = AStarSearch(realStart, realend, Heuristics::ManhattanDistance);
-		p.Color(&layout, {1,0,0}, 0, ColorType::__CheapFill);
+	//	HexPath p = AStarSearch(realStart, realend, Heuristics::ManhattanDistance);
+		//p.Color(&layout, {1,0,0}, 0, ColorType::__CheapFill);
 		//Console::WriteLine << "Path contains " << p.size() << " elements.";
 
 		if(KeyIsHit(TestInputO)) {
@@ -687,23 +716,23 @@ void HexGrid::Fill() {
 		int r2 = (int) min(map_radius, -q + map_radius);
 		for(int r = r1; r <= r2; ++r) {
 			HexTile* t = new HexTile(q, r);
-			t->weight = 1;
-			//if(rand() % 100 < 20) {
-			//	t->weight = (float) Blocked;
-			//} else {
-			//	t->weight = float(rand() % 4) +1;
-			//}
+			//t->weight = 1;
+			if(rand() % 100 < 40) {
+				t->weight = (float) Blocked;
+			} else {
+				t->weight = float(rand() % 4) +1;
+			}
 			map.insert(t);
 		}
 	}
 
-	//HexTile* start = GetTile(0,0);
-	//start->weight = 1.0f;
-	//
-	//for(auto& t : map) {
-	//	if(t->weight == Blocked)
-	//		blocked.push_back(*t);
-	//}
+	HexTile* start = GetTile(0,0);
+	start->weight = 1.0f;
+	
+	for(auto& t : map) {
+		if(t->weight == Blocked)
+			blocked.push_back(*t);
+	}
 
 //	SetUpDrawingPaths();
 }

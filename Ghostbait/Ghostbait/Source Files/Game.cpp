@@ -6,6 +6,7 @@
 #include "EngineStructure.h"
 #include "Menu.h"
 #include "../Dependencies/XML_Library/irrXML.h"
+#include "AStarEnemy.h"
 
 void Game::GameData::Reset() {
 	state = GAMESTATE_BetweenWaves;
@@ -104,7 +105,7 @@ void Game::ChangeState(State newState) {
 				MenuCube* startCube;
 				MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(7, { 0, 1.5f, 0.0f }, &startCube));
 				DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
-				startCube->Enable();
+				//startCube->Enable();
 			}
 		}
 		break;
@@ -179,6 +180,15 @@ void Game::Start(EngineStructure* _engine, char* level) {
 	LoadLevel(level);
 	gameData.state = GAMESTATE_BetweenWaves;
 	hexGrid.Fill();
+
+
+	AStarEnemy* fred;
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<AStarEnemy>("AStarEnemy", {0,0,0}, &fred));
+
+	fred->SetGrid(&hexGrid);
+
+	fred->Enable();
+
 }
 void Game::Update() {
 	hexGrid.Display();

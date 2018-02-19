@@ -307,3 +307,4 @@ inline void HexagonTile<T>::RotateRight() { *this = HexagonTile<T>(-r, -s, -q); 
 
 template<typename T>
 T HexagonTile<T>::DistanceFrom(HexTile* b) { return (T) (std::max)({abs(q - b->q), abs(r - b->r), abs(s - b->s)}); } // = length of this - b
+

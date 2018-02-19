@@ -72,6 +72,7 @@ void ParticleManager::RenderParticlesTo(ID3D11RenderTargetView * rtv, ID3D11Dept
 	context->IASetVertexBuffers(0, 1, &vertBuff, &stride, &offset);
 	context->Draw(pCount, 0);
 	context->GSSetShader(nullptr, NULL, NULL);
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void ParticleManager::Destroy()

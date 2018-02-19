@@ -184,6 +184,12 @@ void Renderer::renderToEye(eye * eyeTo) {
 	context->PSSetShader(StandardPixelShader, NULL, NULL);
 	context->IASetInputLayout(ILStandard);
 #endif
+
+	ParticleManager::RenderParticlesTo(eyeTo->renderInfo.rtv, eyeTo->renderInfo.dsv, eyeTo->renderInfo.viewport, eyeTo->camera.view, eyeTo->camera.projection);
+	context->VSSetConstantBuffers(0, 1, &cameraBuffer);
+	context->VSSetShader(StandardVertexShader, NULL, NULL);
+	context->PSSetShader(StandardPixelShader, NULL, NULL);
+	context->IASetInputLayout(ILStandard);
 }
 
 void Renderer::loadPipelineState(pipeline_state_t * pipeline) {
@@ -406,7 +412,18 @@ void Renderer::Render() {
 	for(size_t i = 0; i < renderedObjects.size(); ++i) {
 		renderObjectDefaultState((Object*) renderedObjects[i]);
 	}
-	ParticleManager::RenderParticlesTo(defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport, defaultCamera.view, defaultCamera.projection);
+	DirectX::XMFLOAT4X4 view, proj;
+	if (VRManager::GetInstance().IsEnabled())
+	{
+		view = leftEye.camera.view;
+		proj = leftEye.camera.projection;
+	}
+	else
+	{
+		view = defaultCamera.view;
+		proj = defaultCamera.projection;
+	}
+	ParticleManager::RenderParticlesTo(defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport, view, proj);
 	context->VSSetConstantBuffers(0, 1, &cameraBuffer);
 #if _DEBUG
 	DebugRenderer::flushTo(defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport);

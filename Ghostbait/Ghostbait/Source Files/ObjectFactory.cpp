@@ -134,10 +134,12 @@ unsigned ObjectFactory::CreatePrefab(std::string* _filename, char* DEBUG_STRING_
 		if(file) {
 			//Read ClassName
 			int nameLength;
+
 			fread(&nameLength, sizeof(int), 1, file);
 			char className[MAX_NAME_LENGTH];
+			max_fget = abs(nameLength) + 1;
 			// Note the intentional offset by 1
-			max_fget = ++nameLength < MAX_NAME_LENGTH ? nameLength : MAX_NAME_LENGTH;
+			max_fget = max_fget < MAX_NAME_LENGTH ? max_fget : MAX_NAME_LENGTH;
 			fgets(className, max_fget, file);
 			prefab->objectTypeID = TypeMap::GetObjectNameID(std::string(className));
 			if(prefab->objectTypeID == 0) {

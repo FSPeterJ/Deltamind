@@ -31,6 +31,9 @@
     <Filter Include="Header Files\System\Physics">
       <UniqueIdentifier>{25115749-ff5e-4820-8ca0-7d93c122c5cc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\Geometry Shaders">
+      <UniqueIdentifier>{452371f5-8428-4b41-8487-04901d448313}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Console.h">
@@ -264,6 +267,12 @@
     <ClInclude Include="Header Files\Turret.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Header Files\ParticleManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\ParticleTextureManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source Files\Window.cpp">
@@ -458,6 +467,12 @@
     <ClCompile Include="Source Files\Turret.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source Files\ParticleManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\ParticleTextureManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resource Files\Ghostbait.ico">
@@ -484,6 +499,15 @@
     </FxCompile>
     <FxCompile Include="StandardVertexShader.hlsl">
       <Filter>Shaders\Vertex Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="ParticlePS.hlsl">
+      <Filter>Shaders\Pixel Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="ParticleVS.hlsl">
+      <Filter>Shaders\Vertex Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="ParticleGS.hlsl">
+      <Filter>Shaders\Geometry Shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

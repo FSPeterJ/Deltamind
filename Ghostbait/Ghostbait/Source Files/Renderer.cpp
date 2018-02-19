@@ -8,6 +8,7 @@
 #include "Camera.h"
 #include "Animator.h"
 #include "LightManager.h"
+#include "ParticleManager.h"
 using namespace DirectX;
 
 void Renderer::createDeviceContextAndSwapchain(Window window) {
@@ -183,6 +184,12 @@ void Renderer::renderToEye(eye * eyeTo) {
 	context->PSSetShader(StandardPixelShader, NULL, NULL);
 	context->IASetInputLayout(ILStandard);
 #endif
+
+	ParticleManager::RenderParticlesTo(eyeTo->renderInfo.rtv, eyeTo->renderInfo.dsv, eyeTo->renderInfo.viewport, eyeTo->camera.view, eyeTo->camera.projection);
+	context->VSSetConstantBuffers(0, 1, &cameraBuffer);
+	context->VSSetShader(StandardVertexShader, NULL, NULL);
+	context->PSSetShader(StandardPixelShader, NULL, NULL);
+	context->IASetInputLayout(ILStandard);
 }
 
 void Renderer::loadPipelineState(pipeline_state_t * pipeline) {
@@ -235,6 +242,7 @@ void Renderer::Initialize(Window window) {
 	initDepthStencilView(&defaultPipeline);
 	initRasterState(&defaultPipeline);
 	initShaders();
+	ParticleManager::Initialize(device, context, ParticleVS, ParticleGS, ParticlePS, ILParticle);
 	defaultPipeline.vertex_shader = StandardVertexShader;
 	defaultPipeline.pixel_shader = StandardPixelShader;
 	defaultPipeline.input_layout = ILStandard;
@@ -292,10 +300,14 @@ void Renderer::Destroy() {
 	animDataBuffer->Release();
 	ILPositionColor->Release();
 	ILStandard->Release();
+	ILParticle->Release();
 	PassThroughPositionColorVS->Release();
 	PassThroughPS->Release();
 	StandardVertexShader->Release();
 	StandardPixelShader->Release();
+	ParticleVS->Release();
+	ParticleGS->Release();
+	ParticlePS->Release();
 	backBuffer->Release();
 	swapchain->Release();
 	context->Release();
@@ -311,6 +323,7 @@ void Renderer::Destroy() {
 	materialManagement->Destroy();
 	delete materialManagement;
 	animationManagement->Destroy();
+	ParticleManager::Destroy();
 	delete animationManagement;
 	delete keyboardCamera;
 #if _DEBUG
@@ -399,7 +412,19 @@ void Renderer::Render() {
 	for(size_t i = 0; i < renderedObjects.size(); ++i) {
 		renderObjectDefaultState((Object*) renderedObjects[i]);
 	}
-
+	DirectX::XMFLOAT4X4 view, proj;
+	if (VRManager::GetInstance().IsEnabled())
+	{
+		view = leftEye.camera.view;
+		proj = leftEye.camera.projection;
+	}
+	else
+	{
+		view = defaultCamera.view;
+		proj = defaultCamera.projection;
+	}
+	ParticleManager::RenderParticlesTo(defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport, view, proj);
+	context->VSSetConstantBuffers(0, 1, &cameraBuffer);
 #if _DEBUG
 	DebugRenderer::flushTo(defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport);
 #endif
@@ -490,12 +515,35 @@ void Renderer::initShaders() {
 	device->CreateInputLayout(standardVSDesc, ARRAYSIZE(standardVSDesc), byteCode, byteCodeSize, &ILStandard);
 	delete[] byteCode;
 	byteCode = nullptr;
-
+	
 	LoadShaderFromCSO(&byteCode, byteCodeSize, "StandardPixelShader.cso");
 	device->CreatePixelShader(byteCode, byteCodeSize, NULL, &StandardPixelShader);
 	delete[] byteCode;
 	byteCode = nullptr;
 
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "ParticleVS.cso");
+	device->CreateVertexShader(byteCode, byteCodeSize, NULL, &ParticleVS);
+
+	D3D11_INPUT_ELEMENT_DESC particleVSDesc[] =
+	{
+		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	{"PSIZE", 0, DXGI_FORMAT_R32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	{"TEXCOORD", 0, DXGI_FORMAT_R32_SINT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+	};
+
+	device->CreateInputLayout(particleVSDesc, ARRAYSIZE(particleVSDesc), byteCode, byteCodeSize, &ILParticle);
+	delete[] byteCode;
+	byteCode = nullptr;
+
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "ParticleGS.cso");
+	device->CreateGeometryShader(byteCode, byteCodeSize, NULL, &ParticleGS);
+	delete[] byteCode;
+	byteCode = nullptr;
+
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "ParticlePS.cso");
+	device->CreatePixelShader(byteCode, byteCodeSize, NULL, &ParticlePS);
+	delete[] byteCode;
+	byteCode = nullptr;
 	CD3D11_BUFFER_DESC constantBufferDesc(sizeof(viewProjectionConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
 	device->CreateBuffer(&constantBufferDesc, nullptr, &cameraBuffer);
 

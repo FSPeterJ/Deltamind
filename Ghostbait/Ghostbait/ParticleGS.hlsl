@@ -24,10 +24,10 @@ void main(
 {
     float4 verts[4] = { { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f } };
     float2 uvs[4];
-    verts[0] = float4(-1.0f, 1.0f, 0.0f, 1.0f);
-    verts[1] = float4(1.0f, 1.0f, 0.0f, 1.0f);
-    verts[2] = float4(-1.0f, -1.0f, 0.0f, 1.0f);
-    verts[3] = float4(1.0f, -1.0f, 0.0f, 1.0f);
+    verts[0] = float4(-input[0].size, input[0].size, 0.0f, 1.0f);
+    verts[1] = float4(input[0].size, input[0].size, 0.0f, 1.0f);
+    verts[2] = float4(-input[0].size, -input[0].size, 0.0f, 1.0f);
+    verts[3] = float4(input[0].size, -input[0].size, 0.0f, 1.0f);
     uvs[0] = float2(0.0f, 0.0f);
     uvs[1] = float2(1.0f, 0.0f);
     uvs[2] = float2(0.0f, 1.0f);

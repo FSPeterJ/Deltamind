@@ -72,9 +72,13 @@ private:
 	ID3D11PixelShader* PassThroughPS;
 	ID3D11VertexShader* StandardVertexShader;
 	ID3D11PixelShader* StandardPixelShader;
+	ID3D11VertexShader* ParticleVS;
+	ID3D11GeometryShader* ParticleGS;
+	ID3D11PixelShader* ParticlePS;
 
 	ID3D11InputLayout* ILPositionColor;
 	ID3D11InputLayout* ILStandard;
+	ID3D11InputLayout* ILParticle;
 	ID3D11Buffer* cameraBuffer;
 	ID3D11Buffer* modelBuffer;
 	ID3D11Buffer* factorBuffer;

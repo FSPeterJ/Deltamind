@@ -6,14 +6,14 @@ cbuffer viewBuffer : register(b0)
 struct VSInput
 {
     float3 pos : POSITION;
-    float size : SIZE;
+    float size : PSIZE0;
     int tex : TEXCOORD0;
 };
 
 struct VSOutput
 {
     float4 pos : SV_POSITION;
-    float size : SIZE;
+    float size : PSIZE0;
     int tex : TEXCOORD0;
 };
 

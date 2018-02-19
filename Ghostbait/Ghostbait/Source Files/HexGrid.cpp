@@ -51,7 +51,12 @@ public:
 	}
 
 	void remove(const TileType& v) {
-		data.erase(std::remove(data.begin(), data.end(), v), data.end());
+		for (std::vector<TileType>::iterator a = data.begin(); a != data.end(); ++a) {
+			if (*a == v) {
+				data.erase(a);
+				break;
+			}
+		}
 	}
 
 	void push_back(const TileType& v) { data.emplace_back(v); }
@@ -662,6 +667,17 @@ void HexGrid::SetUpDrawingPaths() {
 			//	Console::WriteLine << "Current index is " << curPos;
 		}
 	};
+}
+
+bool HexGrid::IsBlocked(HexTile* tile){
+	return tile->weight == Blocked;
+}
+bool HexGrid::IsBlocked(const DirectX::XMFLOAT2& pos) {
+	HexTile* tile = PointToTile(pos);
+	return IsBlocked(tile);
+}
+bool HexGrid::IsBlocked(const float x, const float z) {
+	return IsBlocked(DirectX::XMFLOAT2(x, z));
 }
 
 void HexGrid::Fill() {

@@ -103,6 +103,10 @@ public:
 
 	HexRegion GetIntersectingTilesRanges(HexTile *const fixedCenter, int fixedN, HexTile *const b, int bn);
 
+	bool IsBlocked(HexTile* tile);
+	bool IsBlocked(const DirectX::XMFLOAT2& pos);
+	bool IsBlocked(const float x, const float z);
+
 	void Fill();
 
 	void Display();

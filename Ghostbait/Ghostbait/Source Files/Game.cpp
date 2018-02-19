@@ -24,9 +24,9 @@ Game::Game() {
 	MessageEvents::Subscribe(EVENT_StartWave, [=](EventMessageBase* e) {this->StartPressedEvent(); });
 	MessageEvents::Subscribe(EVENT_GamePause, [=](EventMessageBase* e) {this->PausePressedEvent(); });
 	MessageEvents::Subscribe(EVENT_RestartGame, [=](EventMessageBase* e) {this->RestartGameEvent(); });
-	//EngineStructure::Update += [=]() {
-	//	this->Update();
-	//};
+	MessageEvents::Subscribe(EVENT_SnapRequest, [=](EventMessageBase* e) {this->SnapRequestEvent(e); });
+	MessageEvents::Subscribe(EVENT_AddObstacle, [=](EventMessageBase* e) {this->AddObstacleEvent(e); });
+	MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {this->RemoveObstacleEvent(e); });
 }
 
 void Game::SpawnerCreatedEvent(EventMessageBase* e) {
@@ -58,6 +58,25 @@ void Game::PausePressedEvent() {
 void Game::RestartGameEvent() {
 	gameData.Reset();
 	Start(engine);
+}
+void Game::SnapRequestEvent(EventMessageBase* e) {
+	SnapMessage* message = (SnapMessage*)e;
+	DirectX::XMFLOAT2 givenPos = *message->position;
+	(*message->success) = hexGrid.Snap(givenPos, *message->position);
+}
+void Game::AddObstacleEvent(EventMessageBase* e) {
+	SnapMessage* message = (SnapMessage*)e;
+	*message->success = false;
+	if (!hexGrid.IsBlocked(*message->position)) {
+		*message->success = hexGrid.AddObstacle(*message->position);
+	}
+}
+void Game::RemoveObstacleEvent(EventMessageBase* e) {
+	SnapMessage* message = (SnapMessage*)e;
+	*message->success = false;
+	if (hexGrid.IsBlocked(*message->position)) {
+		(*message->success) = hexGrid.RemoveObstacle(*message->position);
+	}
 }
 
 void Game::ChangeState(State newState) {

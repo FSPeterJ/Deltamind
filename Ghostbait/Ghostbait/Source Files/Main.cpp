@@ -122,7 +122,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	game->Start(&engine);
 
 	Console::WriteLine << "Object Factory Initialized......";
-	ObjectFactory::RegisterPrefabBase<ControllerObject>(20);
+	ObjectFactory::RegisterPrefabBase<ControllerObject>(3);
 	ObjectFactory::RegisterPrefabBase<Gun>(20);
 	ObjectFactory::RegisterPrefabBase<ProgressBar>(20);
 	ObjectFactory::RegisterPrefabBase<ViveController>(20);
@@ -276,13 +276,13 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//------
 	// Test Gun
 	//=========================================================
-	ControllerObject *debugController;
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 0,0,0 }, &debugController));
-	debugController->SetControllerHand(ControllerObject::ControllerHand::LEFT);
-	debugController->AddItem(0, 1);
-	debugController->AddItem(1, 19, Gun::FireType::SEMI, 60, 50);
-	debugController->AddItem(2, 19, Gun::FireType::AUTO, 8, 25);
-	debugController->AddItem(3, 16, { 1, 2, 5 });
+	//ControllerObject *debugController;
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 0,0,0 }, &debugController));
+	//debugController->Init(ControllerObject::ControllerHand::LEFT);
+	//debugController->AddItem(0, 1);
+	//debugController->AddItem(1, 19, Gun::FireType::SEMI, 60, 50);
+	//debugController->AddItem(2, 19, Gun::FireType::AUTO, 8, 25);
+	//debugController->AddItem(3, 16, { 1, 2, 5 });
 
 	GhostTime::Initalize();
 	MessageEvents::Initilize();

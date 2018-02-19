@@ -173,6 +173,13 @@ public:
 	GameObject* RetrieveObject() const { return obj; }
 };
 
+class SnapMessage : public EventMessageBase {
+public:
+	DirectX::XMFLOAT2* position;
+	bool* success;
+	SnapMessage(DirectX::XMFLOAT2* _position, bool* _success) : position(_position), success(_success) {}
+};
+
 //Duplicate is unnessessary
 class NewObjectMessage: public EventMessageBase {
 	GameObject* obj;

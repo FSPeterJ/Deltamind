@@ -2,6 +2,7 @@
 #include "GameObject.h"
 
 class Item: public GameObject {
+	bool isRendered = true;
 public:
 	enum State {
 		INVALID,
@@ -13,6 +14,7 @@ public:
 	State state;
 	Item();
 
+	void Render(bool render = true);
 	virtual void InactiveUpdate() {};
 	virtual void ActiveUpdate() {};
 };

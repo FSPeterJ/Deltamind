@@ -9,6 +9,8 @@ ID3D11InputLayout* ParticleManager::InputLayout;
 ID3D11Buffer* ParticleManager::projBuff;
 ID3D11Buffer* ParticleManager::viewBuff;
 
+ParticleTextureManager* ParticleManager::texMan;
+
 ID3D11Buffer* ParticleManager::vertBuff;
 int ParticleManager::pCount;
 ParticleManager::ParticleShaderInfo ParticleManager::cpu_side_particles[MAX_PARTICLES];
@@ -23,6 +25,7 @@ void ParticleManager::Initialize(ID3D11Device * _device, ID3D11DeviceContext * _
 	InputLayout = _il;
 	pCount = 0;
 
+	texMan = new ParticleTextureManager(device, context);
 	D3D11_SUBRESOURCE_DATA vertexBufferData = { 0 };
 	vertexBufferData.pSysMem = cpu_side_particles;
 	vertexBufferData.SysMemPitch = 0;
@@ -41,11 +44,13 @@ void ParticleManager::Initialize(ID3D11Device * _device, ID3D11DeviceContext * _
 	device->CreateBuffer(&constantBufferDesc, nullptr, &projBuff);
 	//TEMP CODE YOU DUMMY GET THIS OUT OF HERE
 	ParticleShaderInfo temp;
-	temp.pos = { 3.0f, 0.0f, 0.0f };
+	temp.pos = { 3.0f, 2.0f, 0.0f };
 	temp.size = 0.5f;
-	temp.tex = 0;
+	temp.tex = 1;
 	cpu_side_particles[0] = temp;
 	pCount++;
+	texMan->AddTexture("HELLO.png");
+	texMan->AddTexture("NullTex.png");
 }
 
 void ParticleManager::RenderParticlesTo(ID3D11RenderTargetView * rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport, DirectX::XMFLOAT4X4 & view, DirectX::XMFLOAT4X4 & proj)
@@ -67,6 +72,7 @@ void ParticleManager::RenderParticlesTo(ID3D11RenderTargetView * rtv, ID3D11Dept
 	context->UpdateSubresource(projBuff, 0, NULL, &proj, 0, 0);
 	context->VSSetConstantBuffers(0, 1, &viewBuff);
 	context->GSSetConstantBuffers(0, 1, &projBuff);
+	texMan->bindToShader();
 	UINT stride = sizeof(ParticleShaderInfo);
 	UINT offset = 0;
 	context->IASetVertexBuffers(0, 1, &vertBuff, &stride, &offset);
@@ -80,4 +86,5 @@ void ParticleManager::Destroy()
 	vertBuff->Release();
 	viewBuff->Release();
 	projBuff->Release();
+	delete texMan;
 }

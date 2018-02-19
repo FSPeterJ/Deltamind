@@ -70,28 +70,54 @@ uint32_t SpatialPartition::Hash(DirectX::XMFLOAT3 point) {
 	return Hash(point.x, point.y, point.z);
 }
 std::vector<uint32_t> SpatialPartition::Hash(const AABB aabb) {
+	using namespace DirectX;
+
 	std::vector<uint32_t> indicies;
-	std::vector<DirectX::XMFLOAT3> points;
+	std::vector<XMFLOAT3> points;
 	points.resize(8);
 	points[0] = aabb.min;
-	points[1] = DirectX::XMFLOAT3(aabb.min.x, aabb.min.y, aabb.max.z);
-	points[2] = DirectX::XMFLOAT3(aabb.min.x, aabb.max.y, aabb.min.z);
-	points[3] = DirectX::XMFLOAT3(aabb.min.x, aabb.max.y, aabb.max.z);
-	points[4] = DirectX::XMFLOAT3(aabb.max.x, aabb.min.y, aabb.min.z);
-	points[5] = DirectX::XMFLOAT3(aabb.max.x, aabb.min.y, aabb.max.z);
-	points[6] = DirectX::XMFLOAT3(aabb.max.x, aabb.max.y, aabb.min.z);
+	points[1] = XMFLOAT3(aabb.min.x, aabb.min.y, aabb.max.z);
+	points[2] = XMFLOAT3(aabb.min.x, aabb.max.y, aabb.min.z);
+	points[3] = XMFLOAT3(aabb.min.x, aabb.max.y, aabb.max.z);
+	points[4] = XMFLOAT3(aabb.max.x, aabb.min.y, aabb.min.z);
+	points[5] = XMFLOAT3(aabb.max.x, aabb.min.y, aabb.max.z);
+	points[6] = XMFLOAT3(aabb.max.x, aabb.max.y, aabb.min.z);
 	points[7] = aabb.max;
+
+	DirectX::XMFLOAT3 toStore;
+	DirectX::XMVECTOR width = XMLoadFloat3(&points[4]) - XMLoadFloat3(&points[0]), 
+					 height = XMLoadFloat3(&points[2]) - XMLoadFloat3(&points[0]), 
+					 length = XMLoadFloat3(&points[1]) - XMLoadFloat3(&points[0]); 
+	float widthSq = XMVectorGetX(XMVector3LengthSq(width)),
+		 heightSq = XMVectorGetX(XMVector3LengthSq(height)),
+		 lengthSq = XMVectorGetX(XMVector3LengthSq(length));
+	float unitSizeSq = unitSize * unitSize;
+
+	float widthRatio = 1.0f, heightRatio = 1.0f, lengthRatio = 1.0f;
+
+	if (widthSq > unitSizeSq) {
+		float width = sqrtf(widthSq);
+		for(float i = 0.0f; i < widthSq; )
+
+	}
+	if (heightSq > unitSizeSq) {
+
+	}
+	if (lengthSq > unitSizeSq) {
+
+	}
+
 	int index;
-	for(int point = 0; point < 8; ++point) {
+	for(int point = 0; point < points.size(); ++point) {
 		index = Hash(points[point]);
 		bool found = false;
-		for (unsigned int exist = 0; exist < indicies.size(); ++exist) {
-			if (index == indicies[exist]) {
-				found = true;
-				break;
-			}
-		}
-		if(!found) indicies.push_back(index);
+		//for (unsigned int exist = 0; exist < indicies.size(); ++exist) {
+		//	if (index == indicies[exist]) {
+		//		found = true;
+		//		break;
+		//	}
+		//}
+		if(std::find(indicies.begin(), indicies.end(), index) == indicies.end()) indicies.push_back(index);
 	}
 	return indicies;
 }

@@ -219,6 +219,35 @@ void InputManager::VRInput::CheckForInput() {
 				}
 				break;
 			case vr::k_EButton_SteamVR_Touchpad:
+				float x, y, rads;
+				if (event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
+					x = leftTPX;
+					y = leftTPY;
+				}
+				else {
+					x = rightTPX;
+					y = rightTPY;
+				}
+				if (x == 0 && y == 0) break;
+
+				rads = atan2(x, y);
+				if (rads < 0) rads += (float)(2 * RAD_PI);
+				if (rads >= RAD_PI_4 && rads < RAD_3PI_4) {
+					input = event.trackedDeviceIndex == VRManager::GetInstance().leftController.index ? leftItem2 : rightItem2;
+					amount = 0;
+				}
+				else if (rads >= RAD_3PI_4 && rads < RAD_5PI_4) {
+					input = event.trackedDeviceIndex == VRManager::GetInstance().leftController.index ? leftItem3 : rightItem3;
+					amount = 0;
+				}
+				else if (rads >= RAD_5PI_4 && rads < RAD_7PI_4) {
+					input = event.trackedDeviceIndex == VRManager::GetInstance().leftController.index ? leftItem1 : rightItem1;
+					amount = 0;
+				}
+				else {
+					input = event.trackedDeviceIndex == VRManager::GetInstance().leftController.index ? leftItem0 : rightItem0;
+					amount = 0;
+				}
 				break;
 			case vr::k_EButton_SteamVR_Trigger:
 				if(event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {

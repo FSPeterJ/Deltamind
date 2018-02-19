@@ -8,21 +8,23 @@
 class ControllerObject: public GameObject, public Controlable {
 public:
 	enum ControllerHand {
-		INVALID,
-		LEFT,
-		RIGHT,
+		HAND_Invalid,
+		HAND_Left,
+		HAND_Right,
 	};
 private:
-	bool menuControllerVisible = false;
 	MenuControllerItem* menuController;
-	ControllerHand hand = LEFT;
+	ControllerHand hand = HAND_Invalid;
 	std::vector<Item*> items;
 	std::vector<Item*> displayItems;
 	Item* currentGameItem = nullptr;
-	bool touchHeld = false;
 
-	void SetPhysicsComponent(GameObject* obj, bool active);
+	void SetPhysicsComponent(const GameObject* obj, bool active);
 	void AddToInventory(int itemSlot, unsigned prefabID);
+	inline void SetControllerHand(ControllerHand _hand) { hand = _hand; };
+
+	void SwitchCurrentItem(int itemIndex = -1);
+	void DisplayInventory();
 public:
 
 	ControllerObject();
@@ -30,7 +32,6 @@ public:
 	void Init(ControllerHand _hand, unsigned menuControllerPrefabID = 18);
 	void AddItem(int itemSlot, unsigned prefabID);
 	void AddItem(int itemSlot, unsigned prefabID, std::vector<unsigned> prefabIDs);
-	inline void SetControllerHand(ControllerHand _hand) { hand = _hand; };
 	void AddItem(int itemSlot, unsigned prefabID, Gun::FireType _fireType, float _fireRate, float _damage);
 	void Update();
 	void PausedUpdate();

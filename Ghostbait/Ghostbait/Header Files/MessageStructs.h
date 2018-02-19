@@ -30,6 +30,7 @@ enum Control {
 	rightItem3,
 	rightAttack,
 	rightTouch,
+
 	leftItem0,
 	leftItem1,
 	leftItem2,
@@ -175,6 +176,13 @@ public:
 	SpawnerCreatedMessage(GameObject* _obj): obj(_obj) {}
 
 	GameObject* RetrieveObject() const { return obj; }
+};
+
+class SnapMessage : public EventMessageBase {
+public:
+	DirectX::XMFLOAT2* position;
+	bool* success;
+	SnapMessage(DirectX::XMFLOAT2* _position, bool* _success) : position(_position), success(_success) {}
 };
 
 //Duplicate is unnessessary

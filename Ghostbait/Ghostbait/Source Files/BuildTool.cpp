@@ -51,9 +51,35 @@ void BuildTool::Activate() {
 	else Remove();
 }
 
+bool BuildTool::Snap(GameObject** obj) {
+	DirectX::XMFLOAT2 pos = { (*obj)->position._41, (*obj)->position._43 };
+	if (Snap(&pos)) {
+		(*obj)->position._41 = pos.x;
+		(*obj)->position._43 = pos.y;
+		return true;
+	}
+	return false;
+}
+bool BuildTool::Snap(DirectX::XMFLOAT2* pos) {
+	bool occupied;
+	MessageEvents::SendMessage(EVENT_SnapRequest, SnapMessage(pos, &occupied));
+	return occupied;
+}
+bool BuildTool::SetObstacle(DirectX::XMFLOAT2 pos, bool active) {
+	bool success;
+	if(active)MessageEvents::SendMessage(EVENT_AddObstacle, SnapMessage(&pos, &success));
+	else MessageEvents::SendMessage(EVENT_RemoveObstacle, SnapMessage(&pos, &success));
+	return success;
+}
+
 void BuildTool::SpawnProjection(){
 	if(VRManager::GetInstance().ArcCast(parent, &spawnPos)) {
-	//snap to center of grid
+		//snap to center of grid
+		DirectX::XMFLOAT2 newPos = DirectX::XMFLOAT2(spawnPos.x, spawnPos.z);
+		Snap(&newPos);
+		spawnPos.x = newPos.x;
+		spawnPos.z = newPos.y;
+		//Move Object
 		if (prefabs[currentPrefabIndex].object) {
 			prefabs[currentPrefabIndex].object->position._41 = spawnPos.x;
 			prefabs[currentPrefabIndex].object->position._42 = spawnPos.y;
@@ -64,20 +90,34 @@ void BuildTool::SpawnProjection(){
 void BuildTool::Spawn() {
 	//Instantiate a stationary copy at this position to stay
 	//Only spawn if grid position is empty
-	GameObject* newObj;
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabs[currentPrefabIndex].ID, spawnPos, &newObj));
-	builtItems.push_back(newObj);
+	DirectX::XMFLOAT2 pos = DirectX::XMFLOAT2(spawnPos.x, spawnPos.z);
+	if (Snap(&pos)) {
+		if (SetObstacle(pos, true)) {
+			spawnPos.x = pos.x;
+			spawnPos.z = pos.y;
+			GameObject* newObj;
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabs[currentPrefabIndex].ID, spawnPos, &newObj));
+			builtItems.push_back(newObj);
+			//Console::WriteLine << newObj << "was built at position (" << newObj->position._41 << ", " << newObj->position._42 << ", " << newObj->position._43 << ")!";
+		}
+	}
 }
 void BuildTool::RemoveProjection() {
 	DirectX::XMFLOAT3 endPos;
-	Raycast(DirectX::XMFLOAT3(position._41, position._42, position._43), DirectX::XMFLOAT3(position._31, position._32, position._33), &endPos, (GameObject**)&currentlySelectedItem, 4);
+	if (!Raycast(DirectX::XMFLOAT3(position._41, position._42, position._43), DirectX::XMFLOAT3(position._31, position._32, position._33), &endPos, &currentlySelectedItem, 4)) {
+		currentlySelectedItem = nullptr;
+	}
 	//Set shader to transparent thing
 }
 void BuildTool::Remove() {
 	for (int i = 0; i < builtItems.size(); ++i) {
 		if (currentlySelectedItem == builtItems[i]) {
-			MessageEvents::SendQueueMessage(EVENT_Late, [=] { currentlySelectedItem->Destroy(); });
-			builtItems.erase(builtItems.begin() + i);
+			DirectX::XMFLOAT2 pos = DirectX::XMFLOAT2(currentlySelectedItem->position._41, currentlySelectedItem->position._43);
+			if (SetObstacle(pos, false)) {
+				MessageEvents::SendQueueMessage(EVENT_Late, [=] { currentlySelectedItem->Destroy(); });
+				builtItems.erase(builtItems.begin() + i);
+				//Console::WriteLine << currentlySelectedItem << "was removed at position (" << currentlySelectedItem->position._41 << ", " << currentlySelectedItem->position._42 << ", " << currentlySelectedItem->position._43 << ")!";
+			}
 			break;
 		}
 	}

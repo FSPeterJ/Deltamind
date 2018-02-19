@@ -274,7 +274,7 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 				if (colObject)
 					*colObject = collidedObjects[i];
 				lastClosestDist = nextDist;
-				Console::WriteLine << "RAY HIT";
+				//Console::WriteLine << "RAY HIT";
 			}
 		}
 

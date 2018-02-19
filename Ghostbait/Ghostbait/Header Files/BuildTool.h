@@ -26,6 +26,10 @@ class BuildTool : public Item {
 	void Spawn();
 	void RemoveProjection();
 	void Remove();
+
+	bool Snap(GameObject** obj);
+	bool Snap(DirectX::XMFLOAT2* pos);
+	bool SetObstacle(DirectX::XMFLOAT2 pos, bool active);
 public:
 	BuildTool();
 	BuildTool(std::vector<unsigned> prefabIDs);

@@ -2,9 +2,17 @@
 #include "GameObject.h"
 #include <map>
 
+class Menu;
+
 class MenuOption : public GameObject {
+	//0.5 X 0.1 X 0.1
+protected:
+	Menu* menu;
 public:
-	void Select();
+	inline void SetMenu(Menu* _menu) { menu = _menu; };
+	virtual void Select() = 0;
+	void Highlight();
+	void UnHighlight();
 };
 
 enum Template {
@@ -28,7 +36,7 @@ class Menu {
 	std::map<Button, int> buttonPrefabMap;
 	std::vector<Button> buttons;
 	std::vector<MenuOption*> options;
-
+	DirectX::XMFLOAT4X4 FindCenter(float distFromPlayer = 1);
 	float FindDistanceFromCenter(int optionNumber, int optionCount, float optionHeight, float gapHeight);
 	void AssignPrefabIDs();
 
@@ -43,25 +51,25 @@ public:
 };
 
 
-class ResumeCube : public MenuOption {
-
+class ResumeButton : public MenuOption {
+	void Select() override;
 };
 
-class RestartCube : public MenuOption {
-
+class RestartButton : public MenuOption {
+	void Select() override;
 };
 
-class OptionsCube : public MenuOption {
-
+class OptionsButton : public MenuOption {
+	void Select() override;
 };
 
-class QuitCube : public MenuOption {
-
+class QuitButton : public MenuOption {
+	void Select() override;
 };
 
-class StartGameCube : public MenuOption {
-
+class StartGameButton : public MenuOption {
+	void Select() override;
 };
-class SelectLevelCube : public MenuOption {
-
+class SelectLevelButton : public MenuOption {
+	void Select() override;
 };

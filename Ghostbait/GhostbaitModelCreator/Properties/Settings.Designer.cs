@@ -8,22 +8,96 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace GhostbaitModelCreator.Properties
-{
-
-
+namespace GhostbaitModelCreator.Properties {
+    
+    
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "11.0.0.0")]
-    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase
-    {
-
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.5.0.0")]
+    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
+        
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
+        
+        public static Settings Default {
+            get {
+                return defaultInstance;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("@\"C:\\\"")]
+        public string fbx_path {
+            get {
+                return ((string)(this["fbx_path"]));
+            }
+            set {
+                this["fbx_path"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("@\"C:\\\"")]
+        public string mesh_path {
+            get {
+                return ((string)(this["mesh_path"]));
+            }
+            set {
+                this["mesh_path"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("@\"C:\\\"")]
+        public string material_path {
+            get {
+                return ((string)(this["material_path"]));
+            }
+            set {
+                this["material_path"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("@\"C:\\\"")]
+        public string animation_path {
+            get {
+                return ((string)(this["animation_path"]));
+            }
+            set {
+                this["animation_path"] = value;
+            }
+        }
 
-        public static Settings Default
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("@\"C:\\\"")]
+        public string audio_path
         {
             get
             {
-                return defaultInstance;
+                return ((string)(this["audio_path"]));
+            }
+            set
+            {
+                this["audio_path"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("@\"C:\\\"")]
+        public string ghost_path
+        {
+            get
+            {
+                return ((string)(this["ghost_path"]));
+            }
+            set
+            {
+                this["ghost_path"] = value;
             }
         }
     }

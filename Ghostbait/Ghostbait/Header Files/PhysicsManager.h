@@ -1,9 +1,14 @@
 #pragma once
 #include <vector>
-#include "PhysicsComponent.h" //This can probably be forward declared with notable effort
+#include "PhysicsComponent.h" //This can probably be forward declared with notable effort?  I think the Collider Data vector prevents this.
 #include "Pool.h"
 #include "SpatialPartition.h"
 #include "PhysicsExtension.h"
+
+namespace DirectX
+{
+	struct XMMATRIX;
+}
 
 class GameObject;
 
@@ -37,6 +42,7 @@ class PhysicsManager: public IComponentManager {
 	std::vector<DirectX::XMVECTOR> GetSATAxis(std::vector<DirectX::XMVECTOR>& box1Corners, std::vector<DirectX::XMVECTOR>& box2Corners);
 	std::vector<DirectX::XMVECTOR> GetSATAxis(DirectX::XMMATRIX& box1Pos, DirectX::XMMATRIX& box2Pos);
 	std::vector<DirectX::XMVECTOR> GetBoxCorners(Collider& boxCol, DirectX::XMMATRIX& boxPos);
+	std::vector<DirectX::XMVECTOR> GetBoxCorners(AABB& boxCol, DirectX::XMMATRIX& boxPos);
 
 	void SendCollision(GameObject* obj1, GameObject* obj2);
 
@@ -65,6 +71,6 @@ public:
 	PhysicsComponent* GetReferenceComponent(const char * _FilePath, const char* _data) override;
 	void ResetComponent(ComponentBase * reset) override;
 	void Update();
-	static bool Raycast(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction, DirectX::XMFLOAT3* colPoint = nullptr, GameObject const** colObject = nullptr, float maxCastDistance = 100.f);
+	static bool Raycast(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction, DirectX::XMFLOAT3* colPoint = nullptr, GameObject** colObject = nullptr, float maxCastDistance = 100.f);
 
 };

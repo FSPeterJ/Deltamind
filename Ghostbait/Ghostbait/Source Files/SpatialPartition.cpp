@@ -9,6 +9,8 @@ SpatialPartition::Unit::Unit(PhysicsComponent* comp) {
 int64_t SpatialPartition::Unit::FindComponent(PhysicsComponent* comp) {
 	for(uint32_t i = 0; i < (uint32_t) components.size(); ++i) {
 		//TODO Does this comparison work?
+		// pointer comparison is fine
+		// std::find would probably be better than int interation
 		if(comp == components[i]) {
 			return i;
 		}
@@ -28,6 +30,8 @@ bool SpatialPartition::Unit::RemoveComponent(PhysicsComponent* comp) {
 	int64_t index = FindComponent(comp);
 	if(index >= 0) {
 		//TODO: Does this work like I expect?
+		// Note: This means it will be impossible to call RemoveComponent while iterating components in this context, which is probably not an issue
+		// Swap and pop is a faster method of removal, as vector by default memmoves the entire array down one.
 		components.erase(components.begin() + (int)index);
 		return true;
 	}
@@ -36,7 +40,7 @@ bool SpatialPartition::Unit::RemoveComponent(PhysicsComponent* comp) {
 
 SpatialPartition::SpatialPartition() {
 	bucketCount = 1024;
-	unitSize = 3;
+	unitSize = 300;
 }
 SpatialPartition::SpatialPartition(uint32_t _bucketCount, float _unitSize) : bucketCount(_bucketCount), unitSize(_unitSize) {
 }
@@ -156,6 +160,7 @@ const std::vector<PhysicsComponent*> SpatialPartition::GetComponentsToTest() {
 	//return testComps;
 
 	std::vector<PhysicsComponent*> testComps;
+
 
 	for each (auto bucket in table)
 	{

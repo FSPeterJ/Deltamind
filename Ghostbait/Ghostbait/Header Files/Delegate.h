@@ -33,7 +33,7 @@ public:
 		}
 		//Process the delegate further if more things were added to the current delegate by previous delegate calls in this update
 		if(delsize < delegates.size()) {
-			for(delegate_iteration = delsize; delegate_iteration < delegates.size(); delegate_iteration++) {
+			for(delegate_iteration = delsize; delegate_iteration < delegates.size(); ++delegate_iteration) {
 				delegates[delegate_iteration].function(e...);
 			}
 		}

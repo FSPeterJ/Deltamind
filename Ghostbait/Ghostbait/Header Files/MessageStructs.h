@@ -1,9 +1,14 @@
 #pragma once
 #include "StdHeader.h"
-#include "DirectXMath.h" //todo get rid
-#include "Wwise_IDs.h" //forgive me
+#include "DirectXMath.h"
 
 #undef GetObject
+
+class ObjectFactory;
+//Please do this next time
+typedef unsigned long		AkUInt32;
+typedef AkUInt32			AkUniqueID;
+
 
 class GameObject;
 
@@ -39,6 +44,10 @@ enum Control {
 	TestInputK,
 	TestInputL,
 	TestInputX,
+	TestInputZ,
+	TestInputC,
+
+	Total,
 };
 
 class EventMessageBase {
@@ -56,44 +65,88 @@ public:
 	/// </summary>
 	/// <param name="_ctrl">The control.</param>
 	/// <param name="_amount">The amount.</param>
-	InputMessage(const Control _ctrl, const float _amount) : ctrl(_ctrl), amount(_amount) {}
+	InputMessage(const Control _ctrl, const float _amount): ctrl(_ctrl), amount(_amount) {}
 
 	const float GetAmount() const { return amount; }
 	const Control GetControl() const { return ctrl; }
 };
 
 class InstantiateMessage: public EventMessageBase {
+	friend ObjectFactory;
 	PrefabId pid;
 	DirectX::XMFLOAT4X4 position;
 public:
-	GameObject * * obj;
+	GameObject** obj;
 
 	/// <summary>
-	/// Initializes a new instance of the <see cref="InstantiateMessage"/> class.
+	/// Initializes a new instance of the <see cref="InstantiateTypeMessage"/> class.
 	/// </summary>
 	/// <param name="_pid">The object's Prefab id.</param>
 	/// <param name="_position">Where to instantiate</param>
 	/// <param name="_obj"> return pointer reference of the object (optional)</param>
-	InstantiateMessage(const PrefabId _pid, const DirectX::XMFLOAT3 _position, GameObject**  _obj = nullptr) : pid(_pid), obj(_obj) { DirectX::XMStoreFloat4x4(&position, DirectX::XMMatrixTranslation(_position.x, _position.y, _position.z)); }
-	InstantiateMessage(const PrefabId _pid, const DirectX::XMFLOAT4X4 _position, GameObject**  _obj = nullptr) : pid(_pid), position(_position), obj(_obj) {}
+	InstantiateMessage(const PrefabId _pid, const DirectX::XMFLOAT3 _position, GameObject**  _obj = nullptr): pid(_pid), obj(_obj) { DirectX::XMStoreFloat4x4(&position, DirectX::XMMatrixTranslation(_position.x, _position.y, _position.z)); }
+	InstantiateMessage(const PrefabId _pid, const DirectX::XMFLOAT4X4 _position, GameObject**  _obj = nullptr): pid(_pid), position(_position), obj(_obj) {}
 
-	PrefabId GetPrefabId() const { return pid; }
 	DirectX::XMFLOAT4X4 GetPosition() const { return position; }
+	PrefabId GetPrefabId() { return pid; };
 };
 
-class InstantiateNameMessage: public EventMessageBase {
+template <typename ObjectType>
+class InstantiateTypeMessage: public EventMessageBase {
+	friend ObjectFactory;
+	PrefabId pid = 0;
+	unsigned tid = 0; //Object Type ID
 	DirectX::XMFLOAT4X4 position;
 public:
-	char* debug_name;
-	GameObject * * obj;
+	ObjectType** obj;
+
 	/// <summary>
-	/// Initializes a new instance of the <see cref="InstantiateMessage"/> class.
+	/// Initializes a new instance of the <see cref="InstantiateTypeMessage"/> class.
 	/// </summary>
 	/// <param name="_pid">The object's Prefab id.</param>
 	/// <param name="_position">Where to instantiate</param>
 	/// <param name="_obj"> return pointer reference of the object (optional)</param>
-	InstantiateNameMessage(char* const name_Debug, const DirectX::XMFLOAT3 _position, GameObject**  _obj = nullptr) : debug_name(name_Debug), obj(_obj) { DirectX::XMStoreFloat4x4(&position, DirectX::XMMatrixTranslation(_position.x, _position.y, _position.z)); }
-	InstantiateNameMessage(char* const name_Debug, const DirectX::XMFLOAT4X4 _position, GameObject**  _obj = nullptr) : debug_name(name_Debug), position(_position), obj(_obj) {}
+	InstantiateTypeMessage(const PrefabId _pid, const DirectX::XMFLOAT3 _position, ObjectType**  _obj = nullptr): pid(_pid), obj(_obj) {
+		DirectX::XMStoreFloat4x4(&position, DirectX::XMMatrixTranslation(_position.x, _position.y, _position.z));
+		tid = TypeMap::GetObjectTypeID<ObjectType>();
+	}
+	InstantiateTypeMessage(const DirectX::XMFLOAT3 _position, ObjectType**  _obj = nullptr): obj(_obj) {
+		DirectX::XMStoreFloat4x4(&position, DirectX::XMMatrixTranslation(_position.x, _position.y, _position.z));
+		tid = TypeMap::GetObjectTypeID<ObjectType>();
+	}
+	InstantiateTypeMessage(const PrefabId _pid, const DirectX::XMFLOAT4X4 _position, ObjectType**  _obj = nullptr): pid(_pid), position(_position), obj(_obj) {
+		tid = TypeMap::GetObjectTypeID<ObjectType>();
+	}
+	InstantiateTypeMessage(const DirectX::XMFLOAT4X4 _position, ObjectType**  _obj = nullptr): position(_position), obj(_obj) {
+		tid = TypeMap::GetObjectTypeID<ObjectType>();
+	}
+	DirectX::XMFLOAT4X4 GetPosition() const { return position; }
+	PrefabId GetPrefabId() { return pid; };
+
+};
+
+
+template <typename ObjectType>
+class InstantiateNameMessage: public EventMessageBase {
+	friend ObjectFactory;
+	DirectX::XMFLOAT4X4 position;
+	unsigned tid = 0; //Object Type ID
+public:
+	char* debug_name;
+	ObjectType** obj;
+	/// <summary>
+	/// Initializes a new instance of the <see cref="InstantiateTypeMessage"/> class.
+	/// </summary>
+	/// <param name="_pid">The object's Prefab id.</param>
+	/// <param name="_position">Where to instantiate</param>
+	/// <param name="_obj"> return pointer reference of the object (optional)</param>
+	InstantiateNameMessage(char* const name_Debug, const DirectX::XMFLOAT3 _position, ObjectType**  _obj = nullptr): debug_name(name_Debug), obj(_obj) {
+		DirectX::XMStoreFloat4x4(&position, DirectX::XMMatrixTranslation(_position.x, _position.y, _position.z));
+		tid = TypeMap::GetObjectTypeID<ObjectType>();
+	}
+	InstantiateNameMessage(char* const name_Debug, const DirectX::XMFLOAT4X4 _position, ObjectType**  _obj = nullptr): debug_name(name_Debug), position(_position), obj(_obj) {
+		tid = TypeMap::GetObjectTypeID<ObjectType>();
+	}
 
 	DirectX::XMFLOAT4X4 GetPosition() const { return position; }
 };
@@ -106,12 +159,12 @@ public:
 	/// Initializes a new instance of the <see cref="DestroyMessage"/> class.
 	/// </summary>
 	/// <param name="_obj">The object.</param>
-	DestroyMessage(GameObject* _obj) : obj(_obj) {}
+	DestroyMessage(GameObject* _obj): obj(_obj) {}
 
 	GameObject* RetrieveObject() const { return obj; }
 };
 
-class SpawnerCreatedMessage : public EventMessageBase {
+class SpawnerCreatedMessage: public EventMessageBase {
 	GameObject* obj;
 public:
 
@@ -119,7 +172,7 @@ public:
 	/// Initializes a new instance of the <see cref="DestroyMessage"/> class.
 	/// </summary>
 	/// <param name="_obj">The object.</param>
-	SpawnerCreatedMessage(GameObject* _obj) : obj(_obj) {}
+	SpawnerCreatedMessage(GameObject* _obj): obj(_obj) {}
 
 	GameObject* RetrieveObject() const { return obj; }
 };
@@ -133,16 +186,16 @@ public:
 	/// Initializes a new instance of the <see cref="NewObjectMessage"/> class.
 	/// </summary>
 	/// <param name="_obj">The object.</param>
-	NewObjectMessage(GameObject* _obj) : obj(_obj) {}
+	NewObjectMessage(GameObject* _obj): obj(_obj) {}
 
 	GameObject* RetrieveObject() const { return obj; }
 };
 
-class SoundRequestMessage : public EventMessageBase {
+class SoundRequestMessage: public EventMessageBase {
 	GameObject* obj;
 	AkUniqueID sound;
 public:
-	SoundRequestMessage(GameObject* _obj, AkUniqueID _sound) : obj(_obj), sound(_sound)	{}
+	SoundRequestMessage(GameObject* _obj, AkUniqueID _sound): obj(_obj), sound(_sound) {}
 	GameObject* RetrieveObject() const { return obj; }
 	AkUniqueID RetrieveSound() const { return sound; }
 };

@@ -192,9 +192,6 @@
     <ClInclude Include="Header Files\ProgressBar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\Grid.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Header Files\Health.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -232,6 +229,27 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\MenuControllerItem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\HexagonalGridLayout.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\HexagonTile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\HexagonTileSpecializer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\HexGrid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\TestObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\AStarEnemy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Heuristics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -365,9 +383,6 @@
     <ClCompile Include="Source Files\ProgressBar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\Grid.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source Files\Health.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -405,6 +420,24 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\MenuControllerItem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\HexagonalGridLayout.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\HexagonTile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\HexagonTile-Impl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\HexGrid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\AStarEnemy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\Heuristics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

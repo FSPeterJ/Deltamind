@@ -31,7 +31,7 @@ public:
 	static T* Create(DirectX::XMFLOAT4 position, const PrefabId id) {
 		//T* newObject = nullptr;
 		//how to get id from type??
-		//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(id, position, &newObject));
+		//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(id, position, &newObject));
 		//return newObject;
 	}
 
@@ -57,6 +57,8 @@ public:
 	//	return Components.GetComponent<>(componentname);
 	//};
 
-	//always return 0?
-	static int GetTypeId();
+
+	virtual void GivePID(unsigned pid, char* tag);
+	virtual void CloneData(Object* obj);
+
 };

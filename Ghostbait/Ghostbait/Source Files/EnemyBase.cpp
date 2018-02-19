@@ -5,6 +5,10 @@
 #include "Console.h"
 #include "Projectile.h"
 
+void EnemyBase::RestartGame() {
+	MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
+}
+
 void EnemyBase::Update() {
 	DirectX::XMVECTOR directionToGoal = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&target), DirectX::XMLoadFloat4x4(&position).r[3]));
 	PhysicsComponent* myPhys = GetComponent<PhysicsComponent>();
@@ -29,7 +33,7 @@ void EnemyBase::OnCollision(GameObject* _other) {
 		//if(temp > 3) {
 		//	MessageEvents::SendMessage(EVENT_GameWin, EventMessageBase());
 		//	Console::WriteLine << "GAME WAS WON";
-		//	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(9/*WinCube*/, {0, 0.75f, 0}));
+		//	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(9/*WinCube*/, {0, 0.75f, 0}));
 		//}
 		MessageEvents::SendMessage(EVENT_EnemyDied, EventMessageBase());
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });

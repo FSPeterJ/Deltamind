@@ -7,6 +7,8 @@
 #include <AK/Tools/Common/AkPlatformFuncs.h>
 #include <Ak/Samples/SoundEngine/Win32/AkFilePackageLowLevelIOBlocking.h>
 #include "Wwise_IDs.h"
+#include <DirectXMath.h>
+
 
 #include "MessageEvents.h"
 

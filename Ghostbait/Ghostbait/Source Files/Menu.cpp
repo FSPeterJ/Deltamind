@@ -1,15 +1,16 @@
 #include "Menu.h"
 #include "MessageEvents.h"
 #include "VRManager.h"
+#include "Console.h"
 
 void MenuOption::Select() {
-
+	Console::WriteLine << "Menu Option: " << this << " was selected!";
 }
 void MenuOption::UnHighlight() {
-
+	Console::WriteLine << "Menu Option: " << this << " was Un-highlighted!";
 }
 void MenuOption::Highlight() {
-
+	Console::WriteLine << "Menu Option: " << this << " was highlighted!";
 }
 
 Menu::Menu() {
@@ -131,12 +132,11 @@ void Menu::Hide() {
 
 void ResumeButton::Select() {
 	MenuOption::Select();
-	menu->Hide();
+	//menu->Hide();
 }
 void RestartButton::Select() {
 	MenuOption::Select();
-	MenuOption::Select();
-	menu->Hide();
+	//menu->Hide();
 }
 void QuitButton::Select() {
 	MenuOption::Select();

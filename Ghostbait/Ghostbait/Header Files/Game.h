@@ -70,6 +70,10 @@ class Game {
 	void StartPressedEvent();
 	void PausePressedEvent();
 	void RestartGameEvent();
+	void SnapRequestEvent(EventMessageBase* e);
+	void AddObstacleEvent(EventMessageBase* e);
+	void RemoveObstacleEvent(EventMessageBase* e);
+
 
 public:
 

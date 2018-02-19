@@ -65,7 +65,7 @@ std::vector<HexTile> HexagonTile<T>::Neighbors() {
 }
 
 template<typename T>
-void HexagonTile<T>::Draw(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset) {
+void HexagonTile<T>::Draw(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset, bool blocked) {
 	DirectX::XMFLOAT2 corners[Hexagon::NUMBER_OF_SIDES];
 	HexagonalGridLayout::GetHexCorners(*this, layout, &corners[0]);
 
@@ -82,6 +82,10 @@ void HexagonTile<T>::Draw(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, f
 	DebugRenderer::AddLine(line3, line4, color);
 	DebugRenderer::AddLine(line4, line5, color);
 	DebugRenderer::AddLine(line5, line0, color);
+
+	if(blocked) {
+		DrawX(layout, color, offset);
+	}
 }
 
 template<typename T>

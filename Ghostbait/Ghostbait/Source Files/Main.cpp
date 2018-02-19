@@ -36,6 +36,9 @@ EngineStructure engine;
 AnimatorManager* animMan;
 AudioManager* audioMan;
 
+MenuCube* startCube;
+
+
 void ExecuteAsync() {
 	Console::WriteLine << "I am executed asyncly!";
 	throw std::invalid_argument("ERROR: This is a test showing we can know if a thread throws an exception on its work.\n");
@@ -120,7 +123,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::Initialize(objMan, "NOT USED STRING");
 
 	Console::WriteLine << "Object Factory Initialized......";
-	ObjectFactory::RegisterPrefabBase<ControllerObject>(20);
+	ObjectFactory::RegisterPrefabBase<ControllerObject>(3);
 	ObjectFactory::RegisterPrefabBase<Gun>(20);
 	ObjectFactory::RegisterPrefabBase<ProgressBar>(20);
 	ObjectFactory::RegisterPrefabBase<ViveController>(20);
@@ -214,11 +217,11 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest3.ghost"), "PhyTest3");
 	ObjectFactory::CreatePrefab(&std::string("Assets/MenuControllerItem.ghost"), "MenuController");
 	ObjectFactory::CreatePrefab(&std::string("Assets/Gun2.ghost"), "GunTest2");
-	ObjectFactory::CreatePrefab(&std::string("Assets/Gun.ghost"), "GunTest", true);
+	ObjectFactory::CreatePrefab(&std::string("Assets/Gun.ghost"), "GunTest", true); //20
 	ObjectFactory::CreatePrefab(&std::string("Assets/TestProjectile.ghost"), "TestProjectile");
 	ObjectFactory::CreatePrefab(&std::string("Assets/AStarEnemy.ghost"), "AStarEnemy");
 	//ObjectFactory::CreatePrefab(&std::string("Assets/Teddy.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/ResumeButton.ghost")); //20
+	ObjectFactory::CreatePrefab(&std::string("Assets/ResumeButton.ghost"));
 
 	//ObjectFactory::CreatePrefab(&std::string("Assets/TeleportSphere.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
@@ -233,7 +236,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	if(VRManager::GetInstance().IsEnabled()) VRManager::GetInstance().CreateControllers();
 	//DirectX::XMFLOAT4X4 roomMatrix;
 	//DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * DirectX::XMMatrixTranslation(0, 3, 0));
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(14, { 0, 0, 0 }/*roomMatrix*/));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(14, { 0, 0, 0 }));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage("startCube", {4, 1.5f, 0.0f}, (GameObject**)&startCube));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(11, { 0, 0, 0 }, nullptr));
 	//GameObject* teddy;
@@ -243,10 +246,10 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	////********* TEMPORARY Start Cube ************
 	////TODO: Should move this to games start eventually when it is supported
-	//MenuCube* startCube;
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("startCube", {0, 1.5f, 0.0f}, &startCube));
-	//DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
-	//startCube->Enable();
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("startCube", {0, 1.5f, 0.0f}, &startCube));
+	DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
+	startCube->Enable();
+
 	////*******************************************
 
 
@@ -280,13 +283,13 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//------
 	// Test Gun
 	//=========================================================
-	ControllerObject *debugController;
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 0,4,0 }, &debugController));
-	debugController->SetControllerHand(ControllerObject::ControllerHand::LEFT);
-	debugController->AddItem(0, 1);
-	debugController->AddItem(1, 21, Gun::FireType::SEMI, 60, 50);
-	debugController->AddItem(2, 19, Gun::FireType::AUTO, 8, 25);
-	debugController->AddItem(3, 16, { 1, 2, 5 });
+	//ControllerObject *debugController;
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 0,0,0 }, &debugController));
+	//debugController->Init(ControllerObject::ControllerHand::LEFT);
+	//debugController->AddItem(0, 1);
+	//debugController->AddItem(1, 19, Gun::FireType::SEMI, 60, 50);
+	//debugController->AddItem(2, 19, Gun::FireType::AUTO, 8, 25);
+	//debugController->AddItem(3, 16, { 1, 2, 5 });
 
 	GhostTime::Initalize();
 	MessageEvents::Initilize();
@@ -297,6 +300,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 }
 
 void Loop() {
+	startCube->position = VRManager::GetInstance().GetPlayerPosition();
 	GhostTime::Tick();
 	if (!game->IsPaused()) {
 		phyMan->Update();

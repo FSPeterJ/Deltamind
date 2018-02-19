@@ -47,10 +47,15 @@ private:
 	float lerp(double a, double b, double t) { return float(a * (1 - t) + b * t); }
 
 	void swap(HexagonTile<T>& b) {
+		v[0] = b.v[0];
+		v[1] = b.v[1];
+		v[2] = b.v[2];
 		std::swap(q, b.q);
 		std::swap(r, b.r);
 		std::swap(s, b.s);
-		std::swap(v, b.v); //needed?
+		std::swap(v[0], b.v[0]);
+		std::swap(v[1], b.v[1]);
+		std::swap(v[2], b.v[2]);
 		std::swap(weight, b.weight);
 	}
 
@@ -105,7 +110,7 @@ public:
 
 	std::vector<HexTile> SuperCover(HexTile* b);
 
-	void Draw(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset = 0);
+	void Draw(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset = 0, bool blocked = false);
 
 	void DrawX(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset = 0);
 	void DrawmX(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset = 0);

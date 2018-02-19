@@ -73,7 +73,7 @@ class HexGrid: public Controlable {
 	
 	HexagonalGridLayout layout;
 public:
-	const float Blocked = float(0xDEAD);
+	static const float Blocked;
 
 	HexGrid(float _radius, const HexagonalGridLayout& _layout);
 	~HexGrid();
@@ -108,8 +108,12 @@ public:
 
 	HexRegion GetIntersectingTilesRanges(HexTile *const fixedCenter, int fixedN, HexTile *const b, int bn);
 
+	bool IsBlocked(HexTile* tile);
+	bool IsBlocked(const DirectX::XMFLOAT2& pos);
+	bool IsBlocked(const float x, const float z);
+
 	void Fill();
 
-	void Display();
+	void Display(DirectX::XMFLOAT2& player);
 };
 

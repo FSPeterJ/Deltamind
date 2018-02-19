@@ -202,12 +202,21 @@ void InputManager::VRInput::CheckForInput() {
 				if (event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
 				}
 				else {
-					input = teleportUp;
-					amount = 1;
+					input = teleportDown;
+					amount = 0.0f;
+
 					//DirectX::XMStoreFloat4x4(&vrMan->world, DirectX::XMLoadFloat4x4(&vrMan->world) * DirectX::XMMatrixTranslation(vrMan->hmdPose._31, 0, vrMan->hmdPose._33));
 				}
 				break;
 			case vr::k_EButton_Grip:
+				if (event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
+					input = leftCyclePrefab;
+					amount = 0;
+				}
+				else {
+					input = rightCyclePrefab;
+					amount = 0;
+				}
 				break;
 			case vr::k_EButton_SteamVR_Touchpad:
 				break;
@@ -247,6 +256,8 @@ InputManager::KeyboardInput::KeyboardInput() {
 	MapKey(TestInputO, 'O');
 	MapKey(TestInputJ, 'J');
 	MapKey(TestInputK, 'K');
+	MapKey(TestInputZ, 'Z');
+	MapKey(TestInputC, 'C');
 	MapKey(TestInputL, 'L');
 	MapKey(leftItem0, '1');
 	MapKey(leftItem1, '2');
@@ -300,6 +311,7 @@ void InputManager::HandleInput() {
 
 	while (inputPoll.size() > 0) {
 		MessageEvents::SendMessage(EVENT_Input, InputMessage(inputPoll.front().control, inputPoll.front().amount));
+
 		inputPoll.pop();
 	}
 }

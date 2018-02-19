@@ -28,9 +28,10 @@ class BuildTool : public Item {
 	void Remove();
 public:
 	BuildTool();
+	BuildTool(std::vector<unsigned> prefabIDs);
 	BuildTool(std::vector<int> prefabIDs);
 
-	void SetPrefabs(std::vector<int> prefabIDs);
+	void SetPrefabs(std::vector<unsigned> prefabIDs);
 	void SetParent(ControllerObject* _parent);
 
 	void Projection();

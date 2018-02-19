@@ -25,6 +25,7 @@
 #include "EngineStructure.h"
 #include "Menu.h"
 #include "AStarEnemy.h"
+#include "Turret.h"
 
 Renderer* rendInter;
 Game* game;
@@ -135,6 +136,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<PhysicsTestObj>(32);
 	ObjectFactory::RegisterPrefabBase<ResumeButton>(32);
 	ObjectFactory::RegisterPrefabBase<AStarEnemy>(10);
+	ObjectFactory::RegisterPrefabBase<Turret>(35);
 	Console::WriteLine << "Prefab base registered......";
 
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
@@ -164,6 +166,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<BuildTool>("BuildTool");
 	TypeMap::RegisterObjectAlias<ResumeButton>("ResumeButton");
 	TypeMap::RegisterObjectAlias<AStarEnemy>("AStarEnemy");
+	TypeMap::RegisterObjectAlias<Turret>("Turret");
+
 	Console::WriteLine << "Object Alias registered......";
 
 	//------
@@ -189,11 +193,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//
 	//=========================================================
 	
-	
-	
-	
-	
-	
+
 	ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer2.ghost"), "SomeEmptyContainer"); //0 // stop using magic number prefab ID
 	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"), "ViveController", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/basicSphere.ghost"), "BasicSphere");
@@ -218,7 +218,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/TestProjectile.ghost"), "TestProjectile");
 	ObjectFactory::CreatePrefab(&std::string("Assets/AStarEnemy.ghost"), "AStarEnemy");
 	//ObjectFactory::CreatePrefab(&std::string("Assets/Teddy.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/ResumeButton.ghost")); //20
+	ObjectFactory::CreatePrefab(&std::string("Assets/ResumeButton.ghost"), "ResumeButton"); //20
+	unsigned basicTurret =  ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost"), "TestTurret", true);
 
 	//ObjectFactory::CreatePrefab(&std::string("Assets/TeleportSphere.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
@@ -286,7 +287,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	debugController->AddItem(0, 1);
 	debugController->AddItem(1, 21, Gun::FireType::SEMI, 60, 50);
 	debugController->AddItem(2, 19, Gun::FireType::AUTO, 8, 25);
-	debugController->AddItem(3, 16, { 1, 2, 5 });
+	debugController->AddItem(3, 16, { basicTurret });
 
 	GhostTime::Initalize();
 	MessageEvents::Initilize();

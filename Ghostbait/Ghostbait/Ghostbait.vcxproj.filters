@@ -22,6 +22,15 @@
     <Filter Include="Shaders\Pixel Shaders">
       <UniqueIdentifier>{096598a1-d81e-44fc-9a94-94cc9aecffb9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Items">
+      <UniqueIdentifier>{6c807185-40a0-4104-ac7c-0b8ff728f2f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\System">
+      <UniqueIdentifier>{a49318c4-2c6d-429e-b6f5-494e90e5b488}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\System\Physics">
+      <UniqueIdentifier>{25115749-ff5e-4820-8ca0-7d93c122c5cc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Console.h">
@@ -48,9 +57,6 @@
     <ClInclude Include="Header Files\VRManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\ComponentBase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Header Files\Messagebox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -73,9 +79,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\ObjectManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\AABB.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\ThreadPool.h">
@@ -159,9 +162,6 @@
     <ClInclude Include="Header Files\ViveController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\Gun.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Header Files\Item.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -210,9 +210,6 @@
     <ClInclude Include="Header Files\Wwise_IDs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\BuildTool.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Header Files\PhysicsExtension.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -247,6 +244,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\Heuristics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\PhysicsRegistry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\BuildTool.h">
+      <Filter>Header Files\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\AABB.h">
+      <Filter>Header Files\System\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\ComponentBase.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Gun.h">
+      <Filter>Header Files\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Turret.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -435,6 +450,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\Heuristics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\PhysicsRegistry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\Turret.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

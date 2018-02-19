@@ -134,6 +134,16 @@ void PhysicsManager::ResetComponent(ComponentBase * reset) {
 	partitionSpace.RemoveComponent((PhysicsComponent*)reset);
 }
 
+void PhysicsManager::ActivateComponent(ComponentBase* component)
+{
+
+}
+
+void PhysicsManager::DeactivateComponent(ComponentBase* component)
+{
+
+}
+
 void PhysicsManager::Update() {
 	std::vector<PhysicsComponent*>*temp = components.GetActiveList();
 	const int activeCount = (int) components.GetActiveCount();

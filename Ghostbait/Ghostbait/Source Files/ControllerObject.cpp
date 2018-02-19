@@ -11,7 +11,7 @@ ControllerObject::ControllerObject() {
 	hand = INVALID;
 }
 
-void ControllerObject::Init(ControllerHand _hand, int menuControllerPrefabID) {
+void ControllerObject::Init(ControllerHand _hand, unsigned menuControllerPrefabID) {
 	SetControllerHand(_hand);
 	Enable();
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuControllerItem>(menuControllerPrefabID, { 0,0,0 }, &menuController));
@@ -20,7 +20,7 @@ void ControllerObject::SetPhysicsComponent(GameObject* obj, bool active) {
 	PhysicsComponent* physComp = obj->GetComponent<PhysicsComponent>();
 	if (physComp) physComp->isActive = active;
 }
-void ControllerObject::AddToInventory(int itemSlot, int prefabID) {
+void ControllerObject::AddToInventory(int itemSlot, unsigned prefabID) {
 	//Actual Inventory
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Item>(prefabID, { 0,0,0 }, &items[itemSlot]));
 	if (!currentGameItem) currentGameItem = items[itemSlot];
@@ -38,7 +38,7 @@ void ControllerObject::AddToInventory(int itemSlot, int prefabID) {
 	if (physComp) physComp->isActive = false;
 }
 
-void ControllerObject::AddItem(int itemSlot, int prefabID) {
+void ControllerObject::AddItem(int itemSlot, unsigned prefabID) {
 	AddToInventory(itemSlot, prefabID);
 
 	Gun* gun = dynamic_cast<Gun*>(items[itemSlot]);
@@ -47,7 +47,7 @@ void ControllerObject::AddItem(int itemSlot, int prefabID) {
 		gun->SetStats(Gun::FireType::SEMI, 60, 1);
 	}
 }
-void ControllerObject::AddItem(int itemSlot, int prefabID, std::vector<int> prefabIDs) {
+void ControllerObject::AddItem(int itemSlot, unsigned prefabID, std::vector<unsigned> prefabIDs) {
 	AddToInventory(itemSlot, prefabID);
 
 	Gun* gun = dynamic_cast<Gun*>(items[itemSlot]);
@@ -61,7 +61,7 @@ void ControllerObject::AddItem(int itemSlot, int prefabID, std::vector<int> pref
 		buildTool->SetParent(this);
 	}
 }
-void ControllerObject::AddItem(int itemSlot, int prefabID, Gun::FireType _fireType, float _fireRate, float _damage) {
+void ControllerObject::AddItem(int itemSlot, unsigned prefabID, Gun::FireType _fireType, float _fireRate, float _damage) {
 	AddToInventory(itemSlot, prefabID);
 
 	Gun* gun = dynamic_cast<Gun*>(items[itemSlot]);

@@ -30,4 +30,6 @@ public:
 	Material* GetReferenceComponent(const char * _FilePath, const char * _data) override;
 	void ResetComponent(ComponentBase * reset) override;
 	Material* GetNullMaterial() { return nullMaterial; }
+	void ActivateComponent(ComponentBase* component) override;
+	void DeactivateComponent(ComponentBase* component) override;
 };

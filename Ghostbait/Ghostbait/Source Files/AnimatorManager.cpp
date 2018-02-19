@@ -59,3 +59,11 @@ void AnimatorManager::ResetComponent(ComponentBase * reset) {
 	((Animator*)reset)->Destroy();
 	animators.DeactivateMemory(reset);
 }
+
+void AnimatorManager::ActivateComponent(ComponentBase* component)
+{
+}
+
+void AnimatorManager::DeactivateComponent(ComponentBase* component)
+{
+}

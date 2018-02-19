@@ -15,12 +15,12 @@ BuildTool::BuildTool() {
 	//SetPrefabs(prefabIDs);
 	state = BUILD;
 }
-BuildTool::BuildTool(std::vector<int> prefabIDs) {
+BuildTool::BuildTool(std::vector<unsigned> prefabIDs) {
 	SetPrefabs(prefabIDs);
 	state = BUILD;
 }
 
-void BuildTool::SetPrefabs(std::vector<int> prefabIDs) {
+void BuildTool::SetPrefabs(std::vector<unsigned> prefabIDs) {
 	prefabs.empty();
 	prefabs.resize(prefabIDs.size() + 1);
 

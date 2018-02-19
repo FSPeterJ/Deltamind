@@ -15,4 +15,6 @@ public:
 	Animator* GetReferenceComponent(const char * _FilePath, const char* _data) override;
 	Animator* CloneComponent(ComponentBase* reference) override;
 	void ResetComponent(ComponentBase* reset) override;
+	void ActivateComponent(ComponentBase* component) override;
+	void DeactivateComponent(ComponentBase* component) override;
 };

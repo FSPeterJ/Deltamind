@@ -22,16 +22,16 @@ private:
 	bool touchHeld = false;
 
 	void SetPhysicsComponent(GameObject* obj, bool active);
-	void AddToInventory(int itemSlot, int prefabID);
+	void AddToInventory(int itemSlot, unsigned prefabID);
 public:
 
 	ControllerObject();
 
-	void Init(ControllerHand _hand, int menuControllerPrefabID = 18);
-	void AddItem(int itemSlot, int prefabID);
-	void AddItem(int itemSlot, int prefabID, std::vector<int> prefabIDs);
-	void AddItem(int itemSlot, int prefabID, Gun::FireType _fireType, float _fireRate, float _damage);
+	void Init(ControllerHand _hand, unsigned menuControllerPrefabID = 18);
+	void AddItem(int itemSlot, unsigned prefabID);
+	void AddItem(int itemSlot, unsigned prefabID, std::vector<unsigned> prefabIDs);
 	inline void SetControllerHand(ControllerHand _hand) { hand = _hand; };
+	void AddItem(int itemSlot, unsigned prefabID, Gun::FireType _fireType, float _fireRate, float _damage);
 	void Update();
 	void PausedUpdate();
 };

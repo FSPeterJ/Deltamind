@@ -22,4 +22,6 @@ public:
 	virtual ComponentBase* GetReferenceComponent(const char * _FilePath, const char * _data) = 0;
 	virtual ComponentBase* CloneComponent(ComponentBase* reference) = 0;
 	virtual void ResetComponent(ComponentBase* reset) = 0;
+	virtual void ActivateComponent(ComponentBase* component) = 0;
+	virtual void DeactivateComponent(ComponentBase* component) = 0;
 };

@@ -197,8 +197,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//=========================================================
 	
 
-	ObjectFactory::CreatePrefab(&std::string("Assets/EmptyContainer2.ghost"), "SomeEmptyContainer"); //0 // stop using magic number prefab ID
-	ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"), "ViveController", true);
+	ObjectFactory::CreatePrefab(&std::string("Assets/DevController.ghost"), "DevController", true); //0 // stop using magic number prefab ID
 	ObjectFactory::CreatePrefab(&std::string("Assets/basicSphere.ghost"), "BasicSphere");
 	ObjectFactory::CreatePrefab(&std::string("Assets/ScifiRoom.ghost"), "MainRoom");
 	ObjectFactory::CreatePrefab(&std::string("Assets/ProjectileSphere.ghost"), "Projectile");
@@ -216,7 +215,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost"), "BuildTool");
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest3.ghost"), "PhyTest3");
 	ObjectFactory::CreatePrefab(&std::string("Assets/MenuControllerItem.ghost"), "MenuController");
-	ObjectFactory::CreatePrefab(&std::string("Assets/Gun2.ghost"), "GunTest2");
+	unsigned Gun1 = ObjectFactory::CreatePrefab(&std::string("Assets/Gun2.ghost"), "GunTest2");
+	unsigned Gun2 = ObjectFactory::CreatePrefab(&std::string("Assets/Gun2.ghost"), "GunTest2");
 	ObjectFactory::CreatePrefab(&std::string("Assets/Gun.ghost"), "GunTest", true); //20
 	ObjectFactory::CreatePrefab(&std::string("Assets/TestProjectile.ghost"), "TestProjectile");
 	ObjectFactory::CreatePrefab(&std::string("Assets/AStarEnemy.ghost"), "AStarEnemy");
@@ -288,8 +288,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 0,4,0 }, &debugController));
 	debugController->Init(ControllerObject::ControllerHand::HAND_Left);
 	debugController->AddItem(0, 1);
-	debugController->AddItem(1, 21, Gun::FireType::SEMI, 60, 50);
-	debugController->AddItem(2, 19, Gun::FireType::AUTO, 8, 25);
+	debugController->AddItem(1, Gun1, Gun::FireType::SEMI, 60, 50);
+	debugController->AddItem(2, Gun2, Gun::FireType::AUTO, 8, 25);
 	debugController->AddItem(3, 16, { basicTurret });
 
 	GhostTime::Initalize();

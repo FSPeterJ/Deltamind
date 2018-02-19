@@ -1,25 +1,28 @@
 #include "SpatialPartition.h"
 #include "PhysicsComponent.h"
+#include "Console.h"
 
 SpatialPartition::Unit::Unit() {
 }
 SpatialPartition::Unit::Unit(PhysicsComponent* comp) {
 	AddComponent(comp);
 }
-int64_t SpatialPartition::Unit::FindComponent(PhysicsComponent* comp) {
-	for(uint32_t i = 0; i < (uint32_t) components.size(); ++i) {
-		//TODO Does this comparison work?
-		// pointer comparison is fine
-		// std::find would probably be better than int interation
-		if(comp == components[i]) {
-			return i;
-		}
-	}
-	return -1;
+std::vector<PhysicsComponent*>::iterator SpatialPartition::Unit::FindComponent(PhysicsComponent* comp) {
+	//for(uint32_t i = 0; i < (uint32_t) components.size(); ++i) {
+	//	//TODO Does this comparison work?
+	//	// pointer comparison is fine
+	//	// std::find would probably be better than int interation
+	//	if(comp == components[i]) {
+	//		return i;
+	//	}
+	//}
+	//return -1;
+
+	return std::find(components.begin(), components.end(), comp);
 }
 bool SpatialPartition::Unit::AddComponent(PhysicsComponent* comp) {
 	//Is component in here already?
-	if(FindComponent(comp) < 0) {
+	if(FindComponent(comp) == components.end()) {
 		//Add it
 		components.push_back(comp);
 		return true;
@@ -27,20 +30,25 @@ bool SpatialPartition::Unit::AddComponent(PhysicsComponent* comp) {
 	return false;
 }
 bool SpatialPartition::Unit::RemoveComponent(PhysicsComponent* comp) {
-	int64_t index = FindComponent(comp);
-	if(index >= 0) {
-		//TODO: Does this work like I expect?
-		// Note: This means it will be impossible to call RemoveComponent while iterating components in this context, which is probably not an issue
-		// Swap and pop is a faster method of removal, as vector by default memmoves the entire array down one.
-		components.erase(components.begin() + (int)index);
-		return true;
-	}
-	return false;
+	//if(index >= 0) {
+	//	//TODO: Does this work like I expect?
+	//	// Note: This means it will be impossible to call RemoveComponent while iterating components in this context, which is probably not an issue
+	//	// Swap and pop is a faster method of removal, as vector by default memmoves the entire array down one.
+	//	components.erase(components.begin() + (int)index);
+	//	return true;
+	//}
+	//return false;
+	std::vector<PhysicsComponent*>::iterator index = FindComponent(comp);
+	if (index == components.end()) return false;
+
+	std::iter_swap(index, components.end() - 1);
+	components.pop_back();
+	return true;
 }
 
 SpatialPartition::SpatialPartition() {
 	bucketCount = 1024;
-	unitSize = 300;
+	unitSize = 3;
 }
 SpatialPartition::SpatialPartition(uint32_t _bucketCount, float _unitSize) : bucketCount(_bucketCount), unitSize(_unitSize) {
 }
@@ -161,11 +169,11 @@ const std::vector<PhysicsComponent*> SpatialPartition::GetComponentsToTest() {
 
 	std::vector<PhysicsComponent*> testComps;
 
-
 	for each (auto bucket in table)
 	{
 		for (unsigned int i = 0; i < bucket.second.components.size(); ++i) {
 			testComps.push_back(bucket.second.components[i]);
+			Console::WriteLine << "Bucket: " << bucket.first << "  Size: " << bucket.second.components.size();
 		}
 		testComps.push_back(nullptr);
 	}

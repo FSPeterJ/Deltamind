@@ -4,7 +4,6 @@
 
 namespace DirectX {
 	struct XMFLOAT3;
-//	struct XMVECTOR;
 }
 
 struct PhysicsComponent;
@@ -16,7 +15,7 @@ class SpatialPartition {
 
 		Unit();
 		Unit(PhysicsComponent* comp);
-		int64_t FindComponent(PhysicsComponent* comp);
+		std::vector<PhysicsComponent*>::iterator FindComponent(PhysicsComponent* comp);
 		bool AddComponent(PhysicsComponent* comp);
 		bool RemoveComponent(PhysicsComponent* comp);
 	};

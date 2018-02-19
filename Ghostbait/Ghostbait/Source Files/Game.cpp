@@ -7,6 +7,7 @@
 #include "Menu.h"
 #include "../Dependencies/XML_Library/irrXML.h"
 #include "AStarEnemy.h"
+#include "VRManager.h"
 
 void Game::GameData::Reset() {
 	state = GAMESTATE_BetweenWaves;
@@ -191,7 +192,8 @@ void Game::Start(EngineStructure* _engine, char* level) {
 
 }
 void Game::Update() {
-	hexGrid.Display();
+	auto playerPos = VRManager::GetInstance().GetPlayerPosition();
+	hexGrid.Display(DirectX::XMFLOAT2(playerPos._41, playerPos._43));
 	float dt = (float)GhostTime::DeltaTime();
 	switch (gameData.state) {
 		case GAMESTATE_Paused:

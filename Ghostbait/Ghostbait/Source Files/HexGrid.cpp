@@ -10,6 +10,8 @@
 #include <vector>
 #include <algorithm>
 
+const float HexGrid::Blocked = float(0xDEAD);
+
 namespace std {
 	size_t hash<HexTile*>::operator()(const argument_type& data) const noexcept {
 		std::hash<int> int_hash;
@@ -31,6 +33,7 @@ enum class ColorType {
 	__T,
 	__mX,
 	__CheapFill,
+	__Outline,
 };
 template <typename TileType>
 class GridTileVector {
@@ -53,12 +56,12 @@ public:
 	}
 
 	void remove(const TileType& v) {
-		for (std::vector<TileType>::iterator a = data.begin(); a != data.end(); ++a) {
-			if (*a == v) {
-				data.erase(a);
-				break;
-			}
-		}
+		//for (std::vector<TileType>::iterator a = data.begin(); a != data.end(); ++a) {
+		//	if (*a == v) {
+		//		data.erase(a);
+		//		break;
+		//	}
+		//}
 	}
 
 	void push_back(const TileType& v) { data.emplace_back(v); }
@@ -103,6 +106,11 @@ public:
 				e->DrawCheapFill(*layout, color, offset);
 			}
 			break;
+		case ColorType::__Outline:
+			for(auto& e : data) {
+				e->Draw(*layout, color, offset, e->weight == HexGrid::Blocked);
+			}
+			break;
 		}
 	}
 
@@ -140,11 +148,16 @@ public:
 	void Filter(HexGrid& grid, typename std::enable_if<!std::is_pointer<T>::value >::type* = 0) {
 		//non-pointer
 		//should this be a function in hexgrid that gets passed a region?
-		if(data.size())
-			data.erase(std::remove_if(data.begin(), data.end(), [grid](HexTile& x) {
-			HexTile* t = grid.GetTile(x);
-			return !t;// || t->weight == grid.Blocked;
-		}));
+		if(data.size()) {
+			for(auto it = data.begin(); it < data.end();) {
+				HexTile* t = grid.GetTile(*it);
+				if(!t) {
+					remove(*it);
+				} else {
+					++it;
+				}
+			}
+		}
 	}
 
 	template<class T = TileType>
@@ -170,6 +183,11 @@ public:
 		case ColorType::__CheapFill:
 			for(auto& e : data) {
 				e.DrawCheapFill(*layout, color, offset);
+			}
+			break;
+		case ColorType::__Outline:
+			for(auto& e : data) {
+				e.Draw(*layout, color, offset, e.weight == HexGrid::Blocked);
 			}
 			break;
 		}
@@ -205,7 +223,7 @@ HexTile* HexGrid::PointToTile(const DirectX::XMFLOAT2& p) {
 DirectX::XMFLOAT2 HexGrid::TileToWorld(const DirectX::XMFLOAT2& p) {
 	auto t = PointToTile(p);
 	if(t)
-	return t->Center(layout);
+		return t->Center(layout);
 	return DirectX::XMFLOAT2(0, 0);
 }
 
@@ -315,10 +333,11 @@ void HexGrid::step() {
 }
 
 HexRegion HexGrid::GetTilesNStepsAway(HexTile *const tile, int n) {
+	if (!tile) return HexRegion();
 	int x = tile->q, y = tile->r, z = tile->s;
 
 	HexRegion region = GetRegion(x - n, x + n, y - n, y + n, z - n, z + n);
-	region.Filter(*this);
+	//region.Filter(*this);
 
 	return region;
 }
@@ -515,12 +534,12 @@ std::vector<DirectX::XMFLOAT2> HexGrid::AStarSearch(const DirectX::XMFLOAT2& sta
 		std::vector<DirectX::XMFLOAT2> positions;
 
 		if(path.size()) {
-		positions.reserve(path.size());
+			positions.reserve(path.size());
 
-		auto data = path.getData();
-		for(size_t i = 0; i < path.size(); ++i) {
-			positions.push_back(data[i]->Center(layout));
-		}
+			auto data = path.getData();
+			for(size_t i = 0; i < path.size(); ++i) {
+				positions.push_back(data[i]->Center(layout));
+			}
 		}
 		return positions;
 	}
@@ -720,32 +739,37 @@ void HexGrid::Fill() {
 			if(rand() % 100 < 40) {
 				t->weight = (float) Blocked;
 			} else {
-				t->weight = float(rand() % 4) +1;
+				t->weight = float(rand() % 4) + 1;
 			}
 			map.insert(t);
 		}
 	}
 
-	HexTile* start = GetTile(0,0);
+	HexTile* start = GetTile(0, 0);
 	start->weight = 1.0f;
-	
+
 	for(auto& t : map) {
 		if(t->weight == Blocked)
 			blocked.push_back(*t);
 	}
 
-//	SetUpDrawingPaths();
+	//	SetUpDrawingPaths();
 }
 
 HexRegion HexGrid::blocked;
 
-void HexGrid::Display() {
-	for(const auto& t : map) {
-		auto realT = const_cast<HexTile*&>(t);
-		realT->Draw(layout, {1,1,1});
-	}
+void HexGrid::Display(DirectX::XMFLOAT2& player) {
 
-	blocked.Color(&layout, {0,0,0}, 0, ColorType::__CheapFill);
+	HexRegion playerView = GetTilesNStepsAway(GetTile((int)player.x, (int)player.y), 3);
+	playerView.Color(&layout, {1,1,1}, 0, ColorType::__Outline);
+
+	//for(const auto& t : map) {
+	//	auto realT = const_cast<HexTile*&>(t);
+	//	realT->Draw(layout, {1,1,1});
+	//}
+
+	
+	//blocked.Color(&layout, {0,0,0}, 0, ColorType::__CheapFill);
 
 	//DrawXStepsPath();
 }

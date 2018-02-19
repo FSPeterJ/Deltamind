@@ -36,6 +36,9 @@ EngineStructure engine;
 AnimatorManager* animMan;
 AudioManager* audioMan;
 
+MenuCube* startCube;
+
+
 void ExecuteAsync() {
 	Console::WriteLine << "I am executed asyncly!";
 	throw std::invalid_argument("ERROR: This is a test showing we can know if a thread throws an exception on its work.\n");
@@ -243,10 +246,10 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	////********* TEMPORARY Start Cube ************
 	////TODO: Should move this to games start eventually when it is supported
-	MenuCube* startCube;
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("startCube", {0, 1.5f, 0.0f}, &startCube));
 	DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
 	startCube->Enable();
+
 	////*******************************************
 
 
@@ -297,6 +300,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 }
 
 void Loop() {
+	startCube->position = VRManager::GetInstance().GetPlayerPosition();
 	GhostTime::Tick();
 	if (!game->IsPaused()) {
 		phyMan->Update();

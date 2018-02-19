@@ -256,6 +256,8 @@ InputManager::KeyboardInput::KeyboardInput() {
 	MapKey(TestInputO, 'O');
 	MapKey(TestInputJ, 'J');
 	MapKey(TestInputK, 'K');
+	MapKey(TestInputZ, 'Z');
+	MapKey(TestInputC, 'C');
 	MapKey(TestInputL, 'L');
 	MapKey(leftItem0, '1');
 	MapKey(leftItem1, '2');

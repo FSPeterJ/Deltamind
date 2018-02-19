@@ -48,7 +48,7 @@ bool SpatialPartition::Unit::RemoveComponent(PhysicsComponent* comp) {
 
 SpatialPartition::SpatialPartition() {
 	bucketCount = 1024;
-	unitSize = 3;
+	unitSize = 3.0f;
 }
 SpatialPartition::SpatialPartition(uint32_t _bucketCount, float _unitSize) : bucketCount(_bucketCount), unitSize(_unitSize) {
 }
@@ -84,8 +84,8 @@ std::vector<uint32_t> SpatialPartition::Hash(const AABB aabb) {
 	points[6] = XMFLOAT3(aabb.max.x, aabb.max.y, aabb.min.z);
 	points[7] = aabb.max;
 
-	DirectX::XMFLOAT3 toStore;
-	DirectX::XMVECTOR width = XMLoadFloat3(&points[4]) - XMLoadFloat3(&points[0]), 
+	XMFLOAT3 toStore;
+	XMVECTOR width = XMLoadFloat3(&points[4]) - XMLoadFloat3(&points[0]), 
 					 height = XMLoadFloat3(&points[2]) - XMLoadFloat3(&points[0]), 
 					 length = XMLoadFloat3(&points[1]) - XMLoadFloat3(&points[0]); 
 	float widthSq = XMVectorGetX(XMVector3LengthSq(width)),
@@ -95,18 +95,31 @@ std::vector<uint32_t> SpatialPartition::Hash(const AABB aabb) {
 
 	float widthRatio = 1.0f, heightRatio = 1.0f, lengthRatio = 1.0f;
 
-	if (widthSq > unitSizeSq) {
-		float width = sqrtf(widthSq);
-		for(float i = 0.0f; i < widthSq; )
+	if (widthSq > unitSizeSq) widthRatio = unitSize / sqrtf(widthSq);
+	if (heightSq > unitSizeSq) heightRatio = unitSize / sqrtf(heightSq);
+	if (lengthSq > unitSizeSq) lengthRatio = unitSize / sqrtf(lengthSq);
 
+	if (widthRatio < 1.0f || heightRatio < 1.0f || lengthRatio < 1.0f) {
+		points.reserve(64);
+		XMVECTOR currY, currZ;
+		for (float yChange = 0.0f - heightRatio; yChange < 1.0f;) {
+			yChange += heightRatio;
+			if (yChange >= 1.0f) yChange = 1.0f;
+			currY = XMLoadFloat3(&points[0]) + (height * yChange);
+			for (float zChange = 0.0f - lengthRatio; zChange < 1.0f;) {
+				zChange += lengthRatio;
+				if (zChange >= 1.0f) zChange = 1.0f;
+				currZ = currY + (length * zChange);
+				for (float xChange = 0.0f - widthRatio; xChange < 1.0f;) {
+					xChange += widthRatio;
+					if (xChange >= 1.0f) xChange = 1.0f;
+					XMStoreFloat3(&toStore, currZ + (width * xChange));
+					points.push_back(toStore);
+				}
+			}
+		}
 	}
-	if (heightSq > unitSizeSq) {
-
-	}
-	if (lengthSq > unitSizeSq) {
-
-	}
-
+	
 	int index;
 	for(int point = 0; point < points.size(); ++point) {
 		index = Hash(points[point]);
@@ -125,6 +138,7 @@ std::vector<uint32_t> SpatialPartition::Hash(const AABB aabb) {
 bool SpatialPartition::AddComponent(PhysicsComponent* component) {
 	bool anythingAdded = false;
 	std::vector<uint32_t> indicies = Hash(component->currentAABB);
+	Console::WriteLine << component->parentObject << " occupies " << indicies.size() << " buckets";
 	for (unsigned int i = 0; i < indicies.size(); ++i) {
 		if (table.find(indicies[i]) != table.end()) {
 			if (table[indicies[i]].AddComponent(component)) {
@@ -199,7 +213,7 @@ const std::vector<PhysicsComponent*> SpatialPartition::GetComponentsToTest() {
 	{
 		for (unsigned int i = 0; i < bucket.second.components.size(); ++i) {
 			testComps.push_back(bucket.second.components[i]);
-			Console::WriteLine << "Bucket: " << bucket.first << "  Size: " << bucket.second.components.size();
+			//Console::WriteLine << "Bucket: " << bucket.first << "  Size: " << bucket.second.components.size();
 		}
 		testComps.push_back(nullptr);
 	}

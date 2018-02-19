@@ -26,7 +26,7 @@ class SpatialPartition {
 	};
 
 	uint32_t bucketCount = 1024;
-	float unitSize = 0;
+	float unitSize = 3.0;
 	std::unordered_map<uint32_t, Unit> table;
 	uint32_t Hash(const float x, const float y, const float z);
 	uint32_t Hash(DirectX::XMFLOAT3 point);

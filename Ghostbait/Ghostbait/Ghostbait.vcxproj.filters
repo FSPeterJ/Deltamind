@@ -22,6 +22,9 @@
     <Filter Include="Shaders\Pixel Shaders">
       <UniqueIdentifier>{096598a1-d81e-44fc-9a94-94cc9aecffb9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\Geometry Shaders">
+      <UniqueIdentifier>{452371f5-8428-4b41-8487-04901d448313}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\Console.h">
@@ -430,6 +433,15 @@
     </FxCompile>
     <FxCompile Include="StandardVertexShader.hlsl">
       <Filter>Shaders\Vertex Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="ParticlePS.hlsl">
+      <Filter>Shaders\Pixel Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="ParticleVS.hlsl">
+      <Filter>Shaders\Vertex Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="ParticleGS.hlsl">
+      <Filter>Shaders\Geometry Shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

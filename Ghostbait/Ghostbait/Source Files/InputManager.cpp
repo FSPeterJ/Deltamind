@@ -3,7 +3,6 @@
 #include "VRManager.h"    // for VRManager, VRManager::VRController, VRManager::leftController
 #include "MessageEvents.h"
 #include "Console.h"
-#include "MessageStructs.h"  // for Control
 
 #define RAD_PI 3.14159265359
 
@@ -20,34 +19,33 @@ struct InputPackage {
 };
 
 struct InputManager::InputBridge {
-	std::unordered_map<Control, int> keyBind;
-	virtual bool MapKey(Control control, int key) = 0;
-	virtual InputPackage CheckForInput() = 0;
+	std::unordered_map<uint64_t, Control> keyBind;
+	virtual bool MapKey(Control control, uint64_t key) = 0;
+	virtual void CheckForInput() = 0;
 };
 struct InputManager::VRInput: public InputBridge {
 	float rightTPX = 0, rightTPY = 0;
 	float leftTPX = 0, leftTPY = 0;
 	VRInput();
-	bool MapKey(Control control, int key) override;
-	InputPackage CheckForInput() override;
+	bool MapKey(Control control, uint64_t key) override;
+	void CheckForInput() override;
 };
 struct InputManager::KeyboardInput: public InputBridge {
 	KeyboardInput();
-	bool MapKey(Control control, int key);
-	InputPackage CheckForInput();
+	bool MapKey(Control control, uint64_t key);
+	void CheckForInput();
 };
 struct InputManager::ControllerInput: public InputBridge {
 	ControllerInput();
-	bool MapKey(Control control, int key);
-	InputPackage CheckForInput();
+	bool MapKey(Control control, uint64_t key);
+	void CheckForInput();
 };
 
 InputManager::~InputManager() {
-	delete bridge; delete inputPoll;
+	delete bridge;
 };
 InputManager::InputManager(InputType type) {
 	SetInputType(type);
-	inputPoll = new InputPackage();
 };
 inline InputType InputManager::GetInputType() { return inputType; };
 
@@ -67,13 +65,13 @@ InputManager::VRInput::VRInput() {
 	MapKey(rightTouch, 11);
 
 }
-bool InputManager::VRInput::MapKey(Control control, int key) {
-	if(keyBind.find(control) != keyBind.end()) {
-		keyBind[control] = key;
+bool InputManager::VRInput::MapKey(Control control, uint64_t key) {
+	if(keyBind.find(key) == keyBind.end()) {
+		keyBind[key] = control;
 		return true;
 	} else { return false; }
 }
-InputPackage InputManager::VRInput::CheckForInput() {
+void InputManager::VRInput::CheckForInput() {
 	static bool leftTouchpadTouched = false;
 	static bool rightTouchpadTouched = false;
 
@@ -226,10 +224,12 @@ InputPackage InputManager::VRInput::CheckForInput() {
 			break;
 		}
 		}
+
+		if (keyStates[input] != amount > 0.0f ? 1 : 0) {
+			keyStates[input] = amount > 0.0f ? 1 : 0;
+			inputPoll.push(InputPackage(input, amount));
+		}
 	}
-	
-	InputPackage message(input, amount);
-	return message;
 }
 
 //Keyboard
@@ -252,52 +252,56 @@ InputManager::KeyboardInput::KeyboardInput() {
 	MapKey(leftItem1, '2');
 	MapKey(leftItem2, '3');
 }
-InputPackage InputManager::KeyboardInput::CheckForInput() {
+void InputManager::KeyboardInput::CheckForInput() {
 	Control input = none;
 	float amount = 0;
 
 	while(inputQueue.size() > 0) {
-		int j = 0;
-		for(auto &value : keyBind) {
-			if(value.second == inputQueue.front()) {
-				input = value.first;
-				amount = 1;
-			}
+		input = keyBind[inputQueue.front().key];
+		inputQueue.front().isDown ? amount = 1.0f : amount = 0.0f;
+		
+		if (keyStates[input] != amount > 0.0f ? 1 : 0) {
+			keyStates[input] = amount > 0.0f ? 1 : 0;
+			inputPoll.push(InputPackage(input, amount));
 		}
 		inputQueue.pop();
 	}
 
 	InputPackage message(input, amount);
-	return message;
 }
-bool InputManager::KeyboardInput::MapKey(Control control, int key) {
-	keyBind[control] = key;
-	return true;
+bool InputManager::KeyboardInput::MapKey(Control control, uint64_t key) {
+	if (keyBind.find(key) == keyBind.end()) {
+		keyBind[key] = control;
+		return true;
+	}
+	else { return false; };
 }
 
 //Controller
 InputManager::ControllerInput::ControllerInput() {}
-InputPackage InputManager::ControllerInput::CheckForInput() {
-	InputPackage message(none, 1);
-	return message;
+void InputManager::ControllerInput::CheckForInput() {
+
+	inputPoll.push(InputPackage(none, 1));
 }
-bool InputManager::ControllerInput::MapKey(Control control, int key) {
-	if(keyBind.find(control) != keyBind.end()) {
-		keyBind[control] = key;
+bool InputManager::ControllerInput::MapKey(Control control, uint64_t key) {
+	if(keyBind.find(key) == keyBind.end()) {
+		keyBind[key] = control;
 		return true;
 	} else { return false; };
 }
 
 //Input Manager
-std::queue<uint64_t> InputManager::inputQueue;
+std::queue<InputManager::IncomingKey> InputManager::inputQueue;
+std::queue<InputPackage> InputManager::inputPoll;
+std::bitset<(size_t)Control::Total> InputManager::keyStates;
 
-InputPackage* InputManager::HandleInput() {
-	*inputPoll = bridge->CheckForInput();
+void InputManager::HandleInput() {
+	bridge->CheckForInput();
 
-	if(inputPoll->control != Control::none)
-		MessageEvents::SendMessage(EVENT_Input, InputMessage(inputPoll->control, inputPoll->amount));
-
-	return inputPoll;
+	while (inputPoll.size() > 0) {
+		MessageEvents::SendMessage(EVENT_Input, InputMessage(inputPoll.front().control, inputPoll.front().amount));
+		inputPoll.pop();
+	}
 }
 void InputManager::SetInputType(InputType type) {
 	if(bridge)

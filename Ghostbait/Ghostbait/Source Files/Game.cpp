@@ -86,7 +86,7 @@ void Game::ChangeState(State newState) {
 				MenuCube* startCube;
 				MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(7, { 0, 1.5f, 0.0f }, &startCube));
 				DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
-				startCube->Enable();
+				//startCube->Enable();
 			}
 		}
 		break;

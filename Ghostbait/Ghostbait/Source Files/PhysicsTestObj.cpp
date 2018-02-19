@@ -20,33 +20,33 @@ void PhysicsTestObj::Update() {
 
 	if (KeyIsDown(Control::TestInputU))
 	{
-		position._42 += 10.0f * dt;
-		ResetKey(Control::TestInputU);
+		position._42 += dt;
+		//ResetKey(Control::TestInputU);
 	}
 	if (KeyIsDown(Control::TestInputO))
 	{
-		position._42 -= 10.0f * dt;
-		ResetKey(Control::TestInputO);
+		position._42 -= dt;
+		//ResetKey(Control::TestInputO);
 	}
 	if (KeyIsDown(Control::TestInputI))
 	{
-		position._43 += 10.0f * dt;
-		ResetKey(Control::TestInputI);
+		position._43 += dt;
+		//ResetKey(Control::TestInputI);
 	}
 	if (KeyIsDown(Control::TestInputK))
 	{
-		position._43 -= 10.0f * dt;
-		ResetKey(Control::TestInputK);
+		position._43 -= dt;
+		//ResetKey(Control::TestInputK);
 	}
 	if (KeyIsDown(Control::TestInputJ))
 	{
-		position._41 -= 10.0f * dt;
-		ResetKey(Control::TestInputJ);
+		position._41 -= dt;
+		//ResetKey(Control::TestInputJ);
 	}
 	if (KeyIsDown(Control::TestInputL))
 	{
-		position._41 += 10.0f * dt;
-		ResetKey(Control::TestInputL);
+		position._41 += dt;
+		//ResetKey(Control::TestInputL);
 	}
 	
 }

@@ -24,22 +24,29 @@ class ObjectFactory {
 	public:
 		ComponentBase * instantiatedComponents[MAX_DATA] = {};
 		unsigned managers[MAX_DATA] = {};
-		 Object* object = nullptr;
+		Object* object = nullptr;
 		std::bitset<MAX_DATA> fastclone;
 		unsigned objectTypeID = UINT_MAX;
+		unsigned size;
 	};
 
 	/// <summary>
 	/// Translates a typename's constructor for Objects
 	/// </summary>
 	template <typename T>
-	static GameObject* ConstructorFunc() {
+	static GameObject* ConstructorFunction() {
 		return new T;
+	}
+
+	template <typename T>
+	static auto CastorFunction(Object* object) {
+		return ((T*)object);
 	}
 
 	ObjectFactory() {};
 
 	static std::unordered_map<unsigned, std::function<Object*(void)>> registeredConstructors;
+	static std::unordered_map<unsigned, std::function<Object*(Object*)>> registeredCasters;
 
 	static std::vector<IComponentManager*> managers;
 
@@ -53,6 +60,7 @@ class ObjectFactory {
 	//static std::unordered_map<int,GameObject*> prefabs;
 	//pointer storage for prefabs, access by Prefab ID
 	static std::vector<Prefab> prefabs;
+	static std::vector<unsigned> objectSize;
 
 	// managers
 public:
@@ -79,8 +87,16 @@ public:
 	/// </param>
 	template <typename ObjectType>
 	static void RegisterPrefabBase(unsigned size) {
-		registeredConstructors[TypeMap::GetObjectTypeID<ObjectType>()] = &ConstructorFunc<ObjectType>;
+		const int tid = TypeMap::GetObjectTypeID<ObjectType>();
+
+		registeredConstructors[tid] = &ConstructorFunction<ObjectType>;
+		registeredCasters[tid] = &CastorFunction<ObjectType>;
 		objMan->CreatePool<ObjectType>(size);
+		if((int)objectSize.size() <= tid) {
+			objectSize.resize(tid + 1);
+		}
+		objectSize[tid] = sizeof(ObjectType);
+
 	}
 
 	template <typename ComponentType, typename ManagerType>
@@ -110,7 +126,7 @@ public:
 		return extSize;
 	}
 
-	static void CreatePrefab(std::string *_filename, char* DEBUG_STRING_NAME = nullptr, bool objectPrefabOverride = false);
+	static unsigned CreatePrefab(std::string* _filename, char* DEBUG_STRING_NAME = nullptr, bool objectPrefabOverride = false);
 
 	static void Instantiate(EventMessageBase *e);
 

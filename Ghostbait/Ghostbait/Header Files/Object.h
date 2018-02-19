@@ -57,6 +57,8 @@ public:
 	//	return Components.GetComponent<>(componentname);
 	//};
 
-	//always return 0?
-	static int GetTypeId();
+
+	virtual void GivePID(unsigned pid, char* tag);
+	virtual void CloneData(Object* obj);
+
 };

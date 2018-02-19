@@ -151,47 +151,38 @@ void Camera::Update() {
 
 	if(KeyIsDown(Control::left)) {
 		//position._41 -= 50.0f * dt;
-		rotationY -= 15.0f * dt;
-		ResetKey(Control::left);
+		rotationY -= dt;
+		//ResetKey(Control::left);
 	}
 	if(KeyIsDown(Control::right)) {
 		//position._41 += 50.0f * dt;
-		rotationY += 15.0f * dt;
-		ResetKey(Control::right);
+		rotationY += dt;
+		//ResetKey(Control::right);
 	}
 	if(KeyIsDown(Control::forward)) {
-		moveCameraAlongForward(100.0f);
-		ResetKey(Control::forward);
+		moveCameraAlongForward(10.0f);
+		//ResetKey(Control::forward);
 	}
 	if(KeyIsDown(Control::backward)) {
-		moveCameraAlongForward(-100.0f);
-		ResetKey(Control::backward);
+		moveCameraAlongForward(-10.0f);
+		//ResetKey(Control::backward);
 	}
 	if(KeyIsDown(Control::leftAttack)) {
-		position._42 += 100.0f * dt;
-		ResetKey(Control::leftAttack);
+		position._42 += 10.0f * dt;
+		//ResetKey(Control::leftAttack);
 	}
 	if(KeyIsDown(Control::rightAttack)) {
-		position._42 -= 100.0f * dt;
-		ResetKey(Control::rightAttack);
+		position._42 -= 10.0f * dt;
+		//ResetKey(Control::rightAttack);
 	}
 
-	if(KeyIsDown(Control::TestInputI)) {
-		moveCameraAlongUp(100.0f);
-		ResetKey(Control::TestInputI);
+	if(KeyIsDown(Control::TestInputZ)) {
+		moveCameraAlongSide(-10.0f);
+		//ResetKey(Control::TestInputZ);
 	}
-	if(KeyIsDown(Control::TestInputK)) {
-		moveCameraAlongUp(-100.0f);
-		ResetKey(Control::TestInputK);
-	}
-
-	if(KeyIsDown(Control::TestInputJ)) {
-		moveCameraAlongSide(-100.0f);
-		ResetKey(Control::TestInputJ);
-	}
-	if(KeyIsDown(Control::TestInputL)) {
-		moveCameraAlongSide(100.0f);
-		ResetKey(Control::TestInputL);
+	if(KeyIsDown(Control::TestInputC)) {
+		moveCameraAlongSide(10.0f);
+		//ResetKey(Control::TestInputC);
 	}
 
 	setCameraRotationRadians(0.0f, rotationY, 0.0f);

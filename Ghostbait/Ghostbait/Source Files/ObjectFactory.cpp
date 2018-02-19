@@ -9,6 +9,7 @@
 #define MAX_TAG_LENGTH 64
 
 std::unordered_map<unsigned, std::function<Object*(void)>> ObjectFactory::registeredConstructors;
+std::unordered_map<unsigned, std::function<Object*(Object*)>> ObjectFactory::registeredCasters;
 
 ObjectManager* ObjectFactory::objMan;
 
@@ -20,6 +21,8 @@ std::unordered_map<unsigned, unsigned> ObjectFactory::Object2Prefab;
 std::vector<IComponentManager*> ObjectFactory::managers;
 
 std::vector<ObjectFactory::Prefab> ObjectFactory::prefabs;
+
+std::vector<unsigned > ObjectFactory::objectSize;
 
 void ObjectFactory::Initialize(ObjectManager* _objMan, const char* object) {
 	objMan = _objMan;
@@ -88,7 +91,9 @@ void ObjectFactory::InstantiateByName(EventMessageBase *e) {
 
 GameObject* ObjectFactory::ActivateObject(PrefabId pid) {
 	GameObject* newobject = objMan->Instantiate(prefabs[pid].objectTypeID);
-
+	auto TypeGathered = registeredCasters[prefabs[pid].objectTypeID](newobject);
+	TypeGathered->CloneData(prefabs[pid].object);
+	//newobject->CloneData(prefabs[pid].object);
 	for(int i = 0; i < 64; i++) {
 		if(prefabs[pid].fastclone[i]) {
 			newobject->SetComponent(prefabs[pid].instantiatedComponents[i], i);
@@ -106,10 +111,17 @@ GameObject* ObjectFactory::ActivateObject(PrefabId pid) {
 	return newobject;
 }
 
-void ObjectFactory::CreatePrefab(std::string *_filename, char* DEBUG_STRING_NAME, bool objectPrefabOverride) {
+unsigned ObjectFactory::CreatePrefab(std::string* _filename, char* DEBUG_STRING_NAME, bool objectPrefabOverride) {
 	int prefabID = prefabNames[*_filename];
 	if(prefabID) {
 		//This Prefab already exists.
+		if(objectPrefabOverride) {
+			Object2Prefab[prefabs[prefabID].objectTypeID] = prefabID;
+		}
+		if(DEBUG_STRING_NAME) {
+			prefabNamesReverse[prefabID] = std::string(DEBUG_STRING_NAME);
+			prefabNames[std::string(DEBUG_STRING_NAME)] = prefabID;
+		}
 	}
 	else {
 		prefabID = (int)prefabs.size();
@@ -133,7 +145,8 @@ void ObjectFactory::CreatePrefab(std::string *_filename, char* DEBUG_STRING_NAME
 				Console::ErrorLine << "ObjectFactory: An unrecognized object class of '" << className << "' was referenced by object '" << _filename->c_str() << "' and was not able to be loaded.  This may cause serious issues.";
 			}
 			prefab->object = registeredConstructors[prefab->objectTypeID]();
-			int dataNameLen;
+			prefab->size = objectSize[prefab->objectTypeID];
+			int dataNameLen = 0;
 
 			while(fread(&dataNameLen, sizeof(int), 1, file)) {
 				char componentIdentifier[MAX_NAME_LENGTH] = { 0 };
@@ -184,7 +197,29 @@ void ObjectFactory::CreatePrefab(std::string *_filename, char* DEBUG_STRING_NAME
 					prefab->object->SetComponent(component, componentTypeID);
 					delete[] componentData;
 				}
+				else if(TypeMap::GetObjectNameID(std::string(ext)))
+				{
+					static const char* directory = "Assets/";
+					static const size_t length = strlen(directory);
+					memmove_s(componentIdentifier + length, MAX_NAME_LENGTH, componentIdentifier, MAX_NAME_LENGTH - length);
+					memcpy(componentIdentifier, directory, length);
+					unsigned prefabID = prefabNames[componentIdentifier];
+					if(prefabID == 0)
+					{
+						prefabID = CreatePrefab(&std::string(componentIdentifier));
+					}
+					// Check for a tag
+					int tagNameLength;
+					fread(&tagNameLength, sizeof(int), 1, file);
+					char componentTag[MAX_TAG_LENGTH];
+					if(tagNameLength) {
+						max_fget = tagNameLength < MAX_NAME_LENGTH ? tagNameLength : MAX_NAME_LENGTH;
+						fgets(componentTag, max_fget, file);
+					}
+					prefab->object->GivePID(prefabID, componentTag);
+				}
 				else {
+
 					Console::ErrorOutLine << "ObjectFactory: An unrecognized component of '" << componentIdentifier << "' on '" << _filename->c_str() << "' was not able to be loaded.  This may cause serious issues.";
 					Console::WarningLine << "ObjectFactory: An unrecognized component of '" << componentIdentifier << "' on '" << _filename->c_str() << "' was not able to be loaded.  This may cause serious issues.";
 				}
@@ -195,7 +230,7 @@ void ObjectFactory::CreatePrefab(std::string *_filename, char* DEBUG_STRING_NAME
 		}
 		else {
 			Console::ErrorOut << "ObjectFactory: Failed to load the file '" << _filename->c_str() << "'.  This may cause serious issues. \n";
-			Console::WarningLine << "ObjectFactory: Failed to load the file '" << _filename->c_str() << "'.  This may cause serious issues.";
+			Console::ErrorLine << "ObjectFactory: Failed to load the file '" << _filename->c_str() << "'.  This may cause serious issues.";
 
 		}
 		if(objectPrefabOverride) {
@@ -208,5 +243,6 @@ void ObjectFactory::CreatePrefab(std::string *_filename, char* DEBUG_STRING_NAME
 			prefabNames[std::string(DEBUG_STRING_NAME)] = prefabID;
 		}
 	}
+	return prefabID;
 }
 

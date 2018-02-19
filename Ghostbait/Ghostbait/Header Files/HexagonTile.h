@@ -107,7 +107,7 @@ public:
 
 	std::vector<HexTile> SuperCover(HexTile* b);
 
-	void Draw(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset = 0);
+	void Draw(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset = 0, bool blocked = false);
 
 	void DrawX(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset = 0);
 	void DrawmX(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, float offset = 0);

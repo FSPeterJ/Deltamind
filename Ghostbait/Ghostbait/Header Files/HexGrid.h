@@ -73,7 +73,7 @@ class HexGrid: public Controlable {
 	
 	HexagonalGridLayout layout;
 public:
-	const float Blocked = float(0xDEAD);
+	static const float Blocked;
 
 	HexGrid(float _radius, const HexagonalGridLayout& _layout);
 	~HexGrid();
@@ -110,6 +110,6 @@ public:
 
 	void Fill();
 
-	void Display();
+	void Display(DirectX::XMFLOAT2& player);
 };
 

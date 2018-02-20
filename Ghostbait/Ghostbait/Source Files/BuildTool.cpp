@@ -28,7 +28,7 @@ void BuildTool::SetPrefabs(std::vector<unsigned> prefabIDs) {
 		prefabs[i] = BuildItem();
 		prefabs[i].ID = prefabIDs[i];
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabIDs[i], { 0, 0, 0 }, &prefabs[i].object));
-		if(i) MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(prefabs[i].object));
+		if(i) MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[i].object));
 		PhysicsComponent* physComp = prefabs[i].object->GetComponent<PhysicsComponent>();
 		if(physComp) physComp->isActive = false;
 		//Set objects shader to be semi-transparent solid color
@@ -125,7 +125,7 @@ void BuildTool::Remove() {
 
 void BuildTool::CycleForward() {
 	if (prefabs[currentPrefabIndex].object)
-		MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(prefabs[currentPrefabIndex].object));
+		MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
 	
 	int tempIndex = ++currentPrefabIndex;
 
@@ -140,11 +140,11 @@ void BuildTool::CycleForward() {
 
 	currentPrefabIndex = tempIndex;
 	if (prefabs[currentPrefabIndex].object)
-		MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(prefabs[currentPrefabIndex].object));
+		MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
 }
 void BuildTool::CycleBackward() {
 	if (prefabs[currentPrefabIndex].object)
-		MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(prefabs[currentPrefabIndex].object));
+		MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
 
 	int tempIndex = --currentPrefabIndex;
 
@@ -161,7 +161,7 @@ void BuildTool::CycleBackward() {
 
 	currentPrefabIndex = tempIndex;
 	if (prefabs[currentPrefabIndex].object)
-		MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(prefabs[currentPrefabIndex].object));
+		MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
 
 }
 

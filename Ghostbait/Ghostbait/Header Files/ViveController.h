@@ -4,6 +4,7 @@
 class ViveController: public Item {
 public:
 	ViveController();
-	void ActiveUpdate();
-	void InactiveUpdate();
+	void ActiveUpdate() override;
+	void InactiveUpdate() override;
+	void CloneData(Object* obj);
 };

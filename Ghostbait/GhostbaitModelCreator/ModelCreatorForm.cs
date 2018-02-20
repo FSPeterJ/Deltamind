@@ -12,7 +12,7 @@ namespace GhostbaitModelCreator
 
     public partial class ModelCreatorForm : Form
     {
-
+        // This seems weird
         const string appendedPath = "../../../GhostBait/";
 
 

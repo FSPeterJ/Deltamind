@@ -53,6 +53,7 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 
 	case WM_KEYDOWN:
 	{
+		//Why does this exist?
 		uint64_t key = '?';
 		switch(wParam) {
 		case 'A': key = 'A'; break;
@@ -89,11 +90,12 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 		case VK_CONTROL: key = VK_CONTROL; break;
 		case VK_SHIFT: key = VK_SHIFT; break;
 		}
-		InputManager::AddToQueue(InputManager::IncomingKey(key, true));
+		InputManager::AddToQueue(InputManager::IncomingKey(wParam, true));
 	} break;
 
 	case WM_KEYUP:
 	{
+			//Why does this exist?
 		uint64_t key = '?';
 		switch (wParam) {
 		case 'A': key = 'A'; break;
@@ -130,7 +132,7 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 		case VK_CONTROL: key = VK_CONTROL; break;
 		case VK_SHIFT: key = VK_SHIFT; break;
 		}
-		InputManager::AddToQueue(InputManager::IncomingKey(key, false));
+		InputManager::AddToQueue(InputManager::IncomingKey(wParam, false));
 	} break;
 
 	default: return DefWindowProc(hWnd, message, wParam, lParam);

@@ -6,15 +6,15 @@
 #include "PhysicsComponent.h"
 
 ControllerObject::ControllerObject() {
-	items.resize(4);
-	displayItems.resize(4);
-	hand = HAND_Invalid;
+	int debugbreak =0;
+	debugbreak++;
 }
 
-void ControllerObject::Init(ControllerHand _hand, unsigned menuControllerPrefabID) {
-	SetControllerHand(_hand);
+void ControllerObject::Init(ControllerHand _hand) {
+	hand = _hand;
+	//SetControllerHand(_hand); //Not needed anymore?
 	Enable();
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuControllerItem>(menuControllerPrefabID, { 0,0,0 }, &menuController));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuControllerItem>( { 0,0,0 }, &menuController));
 	int temp = sizeof(MenuControllerItem);
 }
 void ControllerObject::SetPhysicsComponent(const GameObject* obj, bool active) {
@@ -87,7 +87,7 @@ void ControllerObject::DisplayInventory() {
 	Control touch = (hand == HAND_Left ? leftTouch : rightTouch);
 
 	if (KeyIsDown(touch)) {
-		for (unsigned int i = 0; i < displayItems.size(); ++i) {
+		for (unsigned int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
 			if (displayItems[i]) {
 				if (!*justTouched) displayItems[i]->Render(true);
 
@@ -135,7 +135,7 @@ void ControllerObject::DisplayInventory() {
 	}
 	else {
 		if (*justTouched) {
-			for (unsigned int i = 0; i < displayItems.size(); ++i) {
+			for (unsigned int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
 				if (displayItems[i]) displayItems[i]->Render(false);
 			}
 			*justTouched = false;
@@ -148,7 +148,6 @@ void ControllerObject::AddItem(int itemSlot, unsigned prefabID) {
 
 	Gun* gun = dynamic_cast<Gun*>(items[itemSlot]);
 	if (gun) {
-		gun->Init();
 		gun->SetStats(Gun::FireType::SEMI, 60, 1);
 	}
 }
@@ -158,7 +157,6 @@ void ControllerObject::AddItem(int itemSlot, unsigned prefabID, std::vector<unsi
 	Gun* gun = dynamic_cast<Gun*>(items[itemSlot]);
 	BuildTool* buildTool = dynamic_cast<BuildTool*>(items[itemSlot]);
 	if (gun) {
-		gun->Init();
 		gun->SetStats(Gun::FireType::SEMI, 60, 1);
 	}
 	else if (buildTool) {
@@ -171,7 +169,6 @@ void ControllerObject::AddItem(int itemSlot, unsigned prefabID, Gun::FireType _f
 
 	Gun* gun = dynamic_cast<Gun*>(items[itemSlot]);
 	if (gun) {
-		gun->Init();
 		gun->SetStats(_fireType, _fireRate, _damage);
 	}
 }
@@ -190,7 +187,7 @@ void ControllerObject::Update() {
 
 	//Update Items
 	#pragma region Update Inactive Items
-		for (unsigned int i = 0; i < items.size(); ++i) {
+		for (unsigned int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
 			if (items[i] && items[i] != currentGameItem) {
 				items[i]->InactiveUpdate();
 			}
@@ -273,3 +270,22 @@ void ControllerObject::PausedUpdate() {
 	}
 	else menuController->UpdateRay();
 }
+
+void ControllerObject::GivePID(unsigned pid, char* tag) {
+
+	//This is should be changed if other data is to be passed in.
+	//The stupid setup of this is taking the character '1'
+	itemPrefabs[*tag - '0'] = pid;
+}
+
+void ControllerObject::CloneData(Object* obj) {
+	memcpy(itemPrefabs, ((ControllerObject*)obj)->itemPrefabs, sizeof(unsigned) * CONTROLLER_MAX_ITEMS);
+	for (int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
+		if(itemPrefabs[i] > 0) {
+			AddItem(i, itemPrefabs[i]);
+		}
+
+	}
+}
+
+

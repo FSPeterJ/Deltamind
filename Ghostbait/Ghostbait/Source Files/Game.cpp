@@ -183,12 +183,12 @@ void Game::Start(EngineStructure* _engine, char* level) {
 	hexGrid.Fill();
 
 
-	AStarEnemy* fred;
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<AStarEnemy>("AStarEnemy", {0,0,0}, &fred));
+	//AStarEnemy* fred;
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<AStarEnemy>("AStarEnemy", {-5,0,0}, &fred));
 
-	fred->SetGrid(&hexGrid);
+	//fred->SetGrid(&hexGrid);
 
-	fred->Enable();
+	//fred->Enable();
 
 }
 void Game::Update() {

@@ -262,6 +262,7 @@ InputManager::KeyboardInput::KeyboardInput() {
 	MapKey(leftItem0, '1');
 	MapKey(leftItem1, '2');
 	MapKey(leftItem2, '3');
+	MapKey(leftItem3, '4');
 }
 void InputManager::KeyboardInput::CheckForInput() {
 	Control input = none;

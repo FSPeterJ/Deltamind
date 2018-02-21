@@ -592,10 +592,10 @@ void HexGrid::Display(DirectX::XMFLOAT2& player) {
 	//HexRegion playerView = GetTilesNStepsAway(GetTile((int)player.x, (int)player.y), 3);
 	//playerView.Color(&layout, {1,1,1}, 0, ColorType::__Outline);
 
-	for(const auto& t : map) {
-		auto realT = const_cast<HexTile*&>(t);
-		realT->Draw(layout, {1,1,1});
-	}
+//	for(const auto& t : map) {
+	//	auto realT = const_cast<HexTile*&>(t);
+	//	realT->Draw(layout, {1,1,1});
+	//}
 
 	
 	blocked.Color(&layout, {0,0,0}, 0, ColorType::__CheapFill);

@@ -202,14 +202,52 @@ void InputManager::VRInput::CheckForInput() {
 				if (event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
 				}
 				else {
-					input = teleportUp;
-					amount = 1;
+					input = teleportDown;
+					amount = 0.0f;
+
 					//DirectX::XMStoreFloat4x4(&vrMan->world, DirectX::XMLoadFloat4x4(&vrMan->world) * DirectX::XMMatrixTranslation(vrMan->hmdPose._31, 0, vrMan->hmdPose._33));
 				}
 				break;
 			case vr::k_EButton_Grip:
+				if (event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
+					input = leftCyclePrefab;
+					amount = 0;
+				}
+				else {
+					input = rightCyclePrefab;
+					amount = 0;
+				}
 				break;
 			case vr::k_EButton_SteamVR_Touchpad:
+				float x, y, rads;
+				if (event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
+					x = leftTPX;
+					y = leftTPY;
+				}
+				else {
+					x = rightTPX;
+					y = rightTPY;
+				}
+				if (x == 0 && y == 0) break;
+
+				rads = atan2(x, y);
+				if (rads < 0) rads += (float)(2 * RAD_PI);
+				if (rads >= RAD_PI_4 && rads < RAD_3PI_4) {
+					input = event.trackedDeviceIndex == VRManager::GetInstance().leftController.index ? leftItem2 : rightItem2;
+					amount = 0;
+				}
+				else if (rads >= RAD_3PI_4 && rads < RAD_5PI_4) {
+					input = event.trackedDeviceIndex == VRManager::GetInstance().leftController.index ? leftItem3 : rightItem3;
+					amount = 0;
+				}
+				else if (rads >= RAD_5PI_4 && rads < RAD_7PI_4) {
+					input = event.trackedDeviceIndex == VRManager::GetInstance().leftController.index ? leftItem1 : rightItem1;
+					amount = 0;
+				}
+				else {
+					input = event.trackedDeviceIndex == VRManager::GetInstance().leftController.index ? leftItem0 : rightItem0;
+					amount = 0;
+				}
 				break;
 			case vr::k_EButton_SteamVR_Trigger:
 				if(event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
@@ -302,6 +340,7 @@ void InputManager::HandleInput() {
 
 	while (inputPoll.size() > 0) {
 		MessageEvents::SendMessage(EVENT_Input, InputMessage(inputPoll.front().control, inputPoll.front().amount));
+
 		inputPoll.pop();
 	}
 }

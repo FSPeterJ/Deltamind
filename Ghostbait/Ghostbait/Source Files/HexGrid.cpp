@@ -546,6 +546,16 @@ void HexGrid::SetUpDrawingPaths() {
 	};
 }
 
+bool HexGrid::IsBlocked(HexTile* tile){
+	return tile->weight == Blocked;
+}
+bool HexGrid::IsBlocked(const DirectX::XMFLOAT2& pos) {
+	HexTile* tile = PointToTile(pos);
+	return IsBlocked(tile);
+}
+bool HexGrid::IsBlocked(const float x, const float z) {
+	return IsBlocked(DirectX::XMFLOAT2(x, z));
+}
 void HexGrid::Fill() {
 	srand((unsigned) time(0));
 	for(int q = (int) -map_radius; q <= map_radius; ++q) {

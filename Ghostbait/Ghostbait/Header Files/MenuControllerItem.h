@@ -4,7 +4,6 @@
 class MenuOption;
 
 class MenuControllerItem : public Item {
-	GameObject* currentlySelectedObject = nullptr;
 	MenuOption* currentMenuItem = nullptr;
 
 public:

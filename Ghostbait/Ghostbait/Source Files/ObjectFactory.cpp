@@ -66,8 +66,8 @@ void ObjectFactory::InstantiateByType(EventMessageBase *e) {
 	if(instantiate->obj != nullptr) {
 		*instantiate->obj = newobject;
 	}		if(instantiate->obj != nullptr) {
-			*instantiate->obj = newobject;
-		}
+		*instantiate->obj = newobject;
+	}
 	memcpy(&newobject->position, &instantiate->GetPosition(), sizeof(DirectX::XMFLOAT4X4));
 	MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
 }
@@ -111,7 +111,7 @@ GameObject* ObjectFactory::ActivateObject(PrefabId pid) {
 	return newobject;
 }
 
-unsigned ObjectFactory::CreatePrefab(std::string* _filename, char* DEBUG_STRING_NAME, bool objectPrefabOverride) {
+unsigned ObjectFactory::CreatePrefab(std::string* _filename, const char* DEBUG_STRING_NAME, bool objectPrefabOverride) {
 	int prefabID = prefabNames[*_filename];
 	if(prefabID) {
 		//This Prefab already exists.
@@ -194,18 +194,22 @@ unsigned ObjectFactory::CreatePrefab(std::string* _filename, char* DEBUG_STRING_
 						//This assign's the component parent object if the component is unique per object
 						((InstantiatedCompBase *)prefab->instantiatedComponents[componentTypeID])->parentObject = prefab->object;
 					}
-					prefab->object->SetComponent(component, componentTypeID);
+					if(tagNameLength) {
+						prefab->object->GiveComponent(component, componentTag);
+					}
+					else {
+
+						prefab->object->SetComponent(component, componentTypeID);
+					}
 					delete[] componentData;
 				}
-				else if(TypeMap::GetObjectNameID(std::string(ext)))
-				{
+				else if(TypeMap::GetObjectNameID(std::string(ext))) {
 					static const char* directory = "Assets/";
 					static const size_t length = strlen(directory);
 					memmove_s(componentIdentifier + length, MAX_NAME_LENGTH, componentIdentifier, MAX_NAME_LENGTH - length);
 					memcpy(componentIdentifier, directory, length);
 					unsigned prefabID = prefabNames[componentIdentifier];
-					if(prefabID == 0)
-					{
+					if(prefabID == 0) {
 						prefabID = CreatePrefab(&std::string(componentIdentifier));
 					}
 					// Check for a tag

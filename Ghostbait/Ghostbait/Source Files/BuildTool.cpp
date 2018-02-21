@@ -170,3 +170,8 @@ void BuildTool::InactiveUpdate() {
 void BuildTool::ActiveUpdate() {
 }
 
+void BuildTool::HideBuildItems() {
+	if (prefabs[currentPrefabIndex].object)
+		MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(prefabs[currentPrefabIndex].object));
+}
+

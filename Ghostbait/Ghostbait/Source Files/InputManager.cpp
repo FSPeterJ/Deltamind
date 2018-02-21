@@ -262,7 +262,7 @@ void InputManager::KeyboardInput::CheckForInput() {
 		input = keyBind[inputQueue.front().key];
 		inputQueue.front().isDown ? amount = 1.0f : amount = 0.0f;
 		
-		if (keyStates[input] != amount > 0.0f ? 1 : 0) {
+		if (keyStates[input] != (amount > 0.0f ? 1 : 0)) {
 			keyStates[input] = amount > 0.0f ? 1 : 0;
 			inputPoll.push(InputPackage(input, amount));
 		}

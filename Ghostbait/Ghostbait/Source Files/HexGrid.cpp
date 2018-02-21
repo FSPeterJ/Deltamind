@@ -9,6 +9,7 @@
 #include <unordered_map>
 #include <vector>
 #include <algorithm>
+#include "HexTileVector.h"
 
 const float HexGrid::Blocked = float(0xDEAD);
 
@@ -28,171 +29,8 @@ namespace std {
 bool EqualComparator::operator()(const HexTile* lhs, const HexTile* rhs) const { return *lhs == *rhs; }
 bool EqualComparator::operator()(const HexTile& lhs, const HexTile& rhs) const { return lhs == rhs; }
 
-enum class ColorType {
-	__X,
-	__T,
-	__mX,
-	__CheapFill,
-	__Outline,
-};
-template <typename TileType>
-class GridTileVector {
-	std::vector<TileType> data;
-public:
-	auto getData() const { return &data[0]; }
+bool operator<(const HexPath&p, const HexPath&p2) { return p.cost() <= p2.cost(); } //in case of a cost tie, std::pair will compare the second element so this is needed to satisfy it
 
-	GridTileVector() {}
-
-	GridTileVector(std::vector<TileType>& that) { data.swap(that); }
-
-	GridTileVector& operator=(std::vector<TileType>& that) {
-		data.swap(that);
-		return *this;
-	}
-
-	GridTileVector& operator=(GridTileVector& that) {
-		data.swap(that.data);
-		return *this;
-	}
-
-	void remove(const TileType& v) {
-		//auto it = std::find(data.begin(), data.end(), v);
-		//if(it != data.end()) data.erase(it);
-
-		data.erase(std::remove(data.begin(), data.end(), v), data.end());
-	}
-
-	void push_back(const TileType& v) { data.emplace_back(v); }
-
-	void push_back(TileType&& v) { data.emplace_back(_STD move(v)); }
-
-	TileType& operator[](const size_t i) { return data[i]; }
-
-	const TileType& operator[](const size_t i) const { return data[i]; }
-
-	size_t size() const noexcept { return data.size(); }
-
-	float cost() const {
-		float c = 0;
-		for(auto& t : data) {
-			c += t->weight;
-		}
-		return c;
-	}
-
-	template<class T = TileType>
-	void Color(HexagonalGridLayout *const layout, DirectX::XMFLOAT3 color, float offset, ColorType c, typename std::enable_if<std::is_pointer<T>::value >::type* = 0) {
-		//pointer
-		switch(c) {
-		case ColorType::__X:
-			for(auto& e : data) {
-				e->DrawX(*layout, color, offset);
-			}
-			break;
-		case ColorType::__T:
-			for(auto& e : data) {
-				e->DrawT(*layout, color, offset);
-			}
-			break;
-		case ColorType::__mX:
-			for(auto& e : data) {
-				e->DrawmX(*layout, color, offset);
-			}
-			break;
-		case ColorType::__CheapFill:
-			for(auto& e : data) {
-				e->DrawCheapFill(*layout, color, offset);
-			}
-			break;
-		case ColorType::__Outline:
-			for(auto& e : data) {
-				e->Draw(*layout, color, offset, e->weight == HexGrid::Blocked);
-			}
-			break;
-		}
-	}
-
-	template<class T = TileType>
-	void BuildPath(T start, T goal, VisitedMap& came_from, typename std::enable_if<std::is_pointer<T>::value >::type* = 0) {
-		//pointer
-
-		T current = goal;
-
-		while(current != start && current) {
-			data.push_back(current);
-			current = came_from[current];
-		}
-
-		data.push_back(start);
-		std::reverse(data.begin(), data.end());
-	}
-
-	template<class T = TileType>
-	void BuildPathReverse(T start, T goal, VisitedMap& came_from, typename std::enable_if<std::is_pointer<T>::value >::type* = 0) {
-		//pointer
-
-		T current = start;
-
-		while(current != goal && current) {
-			data.push_back(current);
-			current = came_from[current];
-		}
-
-		data.push_back(goal);
-		//std::reverse(data.begin(), data.end());
-	}
-
-	template<class T = TileType>
-	void Filter(HexGrid& grid, typename std::enable_if<!std::is_pointer<T>::value >::type* = 0) {
-		//non-pointer
-		//should this be a function in hexgrid that gets passed a region?
-		if(data.size()) {
-			for(auto it = data.begin(); it < data.end();) {
-				HexTile* t = grid.GetTile(*it);
-				if(!t) {
-					remove(*it);
-				} else {
-					++it;
-				}
-			}
-		}
-	}
-
-	template<class T = TileType>
-	void Color(HexagonalGridLayout *const layout, DirectX::XMFLOAT3 color, float offset, ColorType c, typename std::enable_if<!std::is_pointer<T>::value >::type* = 0) {
-		//non-pointer
-
-		switch(c) {
-		case ColorType::__X:
-			for(auto& e : data) {
-				e.DrawX(*layout, color, offset);
-			}
-			break;
-		case ColorType::__T:
-			for(auto& e : data) {
-				e.DrawT(*layout, color, offset);
-			}
-			break;
-		case ColorType::__mX:
-			for(auto& e : data) {
-				e.DrawmX(*layout, color, offset);
-			}
-			break;
-		case ColorType::__CheapFill:
-			for(auto& e : data) {
-				e.DrawCheapFill(*layout, color, offset);
-			}
-			break;
-		case ColorType::__Outline:
-			for(auto& e : data) {
-				e.Draw(*layout, color, offset, e.weight == HexGrid::Blocked);
-			}
-			break;
-		}
-	}
-};
-
-bool operator<(const HexPath&p, const HexPath&p2) { return p.cost() < p2.cost(); } //in case of a cost tie, std::pair will compare the second element so this is needed to satisfy it
 
 template<typename T, typename priority_t>
 struct PriorityQueue {
@@ -217,6 +55,11 @@ HexGrid::HexGrid(float _radius, const HexagonalGridLayout& _layout) : map_radius
 HexTile* HexGrid::PointToTile(const DirectX::XMFLOAT2& p) {
 	return GetTile(HexTile::Round(HexagonalGridLayout::PointToHexagonTile(p, layout)));
 }
+
+DirectX::XMFLOAT2 HexGrid::TileToPoint(HexTile * tile) {
+	return tile->Center(layout);
+}
+
 
 DirectX::XMFLOAT2 HexGrid::TileToWorld(const DirectX::XMFLOAT2& p) {
 	auto t = PointToTile(p);
@@ -523,27 +366,16 @@ HexPath HexGrid::DijkstraSearch(HexTile *const start, HexTile *const goal) {
 	return path;
 }
 
-std::vector<DirectX::XMFLOAT2> HexGrid::AStarSearch(const DirectX::XMFLOAT2& start, const DirectX::XMFLOAT2& goal, std::function<float(HexTile*, HexTile*)> Heuristic) {
+HexPath HexGrid::AStarSearch(const DirectX::XMFLOAT2& start, const DirectX::XMFLOAT2& goal, HeuristicsFunction Heuristic) {
 	HexTile* s = GetTile((int) start.x, (int) start.y);
 	HexTile* e = GetTile((int) goal.x, (int) goal.y);
 	if(s && e) {
-		HexPath path = AStarSearch(s, e, Heuristic);
-		std::vector<DirectX::XMFLOAT2> positions;
-
-		if(path.size()) {
-			positions.reserve(path.size());
-
-			auto data = path.getData();
-			for(size_t i = 0; i < path.size(); ++i) {
-				positions.push_back(data[i]->Center(layout));
-			}
-		}
-		return positions;
+		return AStarSearch(s, e, Heuristic);
 	}
-	return std::vector<DirectX::XMFLOAT2>();
+	return HexPath();
 }
 
-HexPath HexGrid::AStarSearch(HexTile *const start, HexTile *const goal, std::function<float(HexTile*, HexTile*)> Heuristic) {
+HexPath HexGrid::AStarSearch(HexTile *const start, HexTile *const goal, HeuristicsFunction Heuristic) {
 	if(goal->weight == Blocked) return HexPath();
 
 	PriorityQueue<HexTile*, float> Q;
@@ -746,16 +578,16 @@ HexRegion HexGrid::blocked;
 
 void HexGrid::Display(DirectX::XMFLOAT2& player) {
 
-	HexRegion playerView = GetTilesNStepsAway(GetTile((int)player.x, (int)player.y), 3);
-	playerView.Color(&layout, {1,1,1}, 0, ColorType::__Outline);
+	//HexRegion playerView = GetTilesNStepsAway(GetTile((int)player.x, (int)player.y), 3);
+	//playerView.Color(&layout, {1,1,1}, 0, ColorType::__Outline);
 
-	//for(const auto& t : map) {
-	//	auto realT = const_cast<HexTile*&>(t);
-	//	realT->Draw(layout, {1,1,1});
-	//}
+	for(const auto& t : map) {
+		auto realT = const_cast<HexTile*&>(t);
+		realT->Draw(layout, {1,1,1});
+	}
 
 	
-	//blocked.Color(&layout, {0,0,0}, 0, ColorType::__CheapFill);
+	blocked.Color(&layout, {0,0,0}, 0, ColorType::__CheapFill);
 
 	//DrawXStepsPath();
 }

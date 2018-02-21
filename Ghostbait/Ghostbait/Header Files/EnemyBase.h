@@ -14,6 +14,10 @@ class EnemyBase: public GameObject, public Health {
 	float maxSpeed = 1.0f;
 	DirectX::XMFLOAT3 target = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 
+	bool hurt = false;
+	double hurtTimer = 0;
+	double hurtDuration = 1;
+
 	void RestartGame() override;
 
 public:

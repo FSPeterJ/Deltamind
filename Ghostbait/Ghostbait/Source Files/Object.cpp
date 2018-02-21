@@ -8,6 +8,7 @@ Object::Object() {
 	//ObjectTypeMap::RegisterObject<Object>("Object");
 	//ObjectTypeMap::RegisterObject<Object>("object");
 	//ObjectTypeMap::RegisterObject<Object>("obj");
+
 }
 
 Object::~Object() {
@@ -19,7 +20,8 @@ int Object::SetComponent(ComponentBase* _component, const int _id) {
 }
 
 
-void Object::GiveComponent(ComponentBase* _component, const char* _id) {
+void Object::GiveComponent(ComponentBase* _component, const char* tag) {
+	componentVarients[tag] = _component;
 }
 
 void Object::GivePID(unsigned pid, const char* tag)

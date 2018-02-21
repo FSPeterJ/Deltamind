@@ -4,12 +4,22 @@
 #include "MessageEvents.h"
 #include "Console.h"
 #include "Projectile.h"
+#include "Material.h"
 
 void EnemyBase::RestartGame() {
 	MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 }
 
 void EnemyBase::Update() {
+	if (hurt) {
+		hurtTimer += GhostTime::DeltaTime();
+		if (hurtTimer >= 1) {
+			hurt = false;
+			int id = TypeMap::GetComponentTypeID<Material>();
+			SetComponent(defaultMat, id);
+		}
+	}
+
 	DirectX::XMVECTOR directionToGoal = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&target), DirectX::XMLoadFloat4x4(&position).r[3]));
 	PhysicsComponent* myPhys = GetComponent<PhysicsComponent>();
 
@@ -27,6 +37,13 @@ void EnemyBase::OnCollision(GameObject* _other) {
 	if(_other->GetTag() == "Bullet") {
 		myPhys->rigidBody.AddForce(0.2f, DirectX::XMVectorGetX(incomingDirection), 0.0f, DirectX::XMVectorGetZ(incomingDirection));
 		AdjustHealth(-(((Projectile*)_other)->damage));
+		if (componentVarients.find("Hurt") != componentVarients.end()) {
+			int id = TypeMap::GetComponentTypeID<Material>();
+			defaultMat = GetComponent<Material>();
+			SetComponent(componentVarients["Hurt"], id);
+			hurt = true;
+			hurtTimer = 0;
+		}
 	}
 	if(!IsAlive()) {
 		//Destroy itself

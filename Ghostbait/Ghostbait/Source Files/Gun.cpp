@@ -78,7 +78,7 @@ Gun::Gun(FireType _type, float _fireRate, float _damage): type(_type), fireRate(
 }
 
 void Gun::GivePID(unsigned pid, const char* tag) {
-	if(strcmp(tag, "projectile") < 1) {
+	if(strcmp(tag, "projectile") == 0) {
 		projectiePrefabID = pid;
 	}
 }

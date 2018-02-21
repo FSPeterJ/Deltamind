@@ -22,7 +22,8 @@ public:
 	DirectX::XMFLOAT4X4 position; //if we make this a pointer we don't have to include DXMath into every single object
 	ComponentTypeContainer<ComponentBase*> Components;
 	//Endnote
-
+	ComponentBase* defaultMat = nullptr;
+	std::unordered_map<std::string, ComponentBase*> componentVarients;
 	Object();
 
 	virtual ~Object();

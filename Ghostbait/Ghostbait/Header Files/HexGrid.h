@@ -80,6 +80,8 @@ public:
 	HexTile* PointToTile(const DirectX::XMFLOAT2& p);
 	DirectX::XMFLOAT2 TileToPoint(HexTile * tile);
 
+	HexTile* GetRandomTile();
+
 	DirectX::XMFLOAT2 TileToWorld(const DirectX::XMFLOAT2& p);
 
 	bool Snap(const DirectX::XMFLOAT2& p, OUT DirectX::XMFLOAT2& snapPoint);

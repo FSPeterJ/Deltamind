@@ -10,6 +10,7 @@
 #include <vector>
 #include <algorithm>
 #include "HexTileVector.h"
+#include <random>
 
 const float HexGrid::Blocked = float(0xDEAD);
 
@@ -609,6 +610,19 @@ HexGrid::~HexGrid() {
 	}
 	map.clear();
 }
+
+HexTile* HexGrid::GetRandomTile() {
+	auto begin = map.begin();
+	const unsigned long n = (unsigned long)std::distance(begin, map.end());
+	const unsigned long divisor = (unsigned long) ((RAND_MAX + 1) / n);
+
+	unsigned long k;
+	do { k = std::rand() / divisor; } while(k >= n);
+
+	std::advance(begin, k);
+	return *begin;
+}
+
 
 HexTile* HexGrid::GetTile(const int x, const int y) {
 	auto it = map.find(&HexTile(x, y));

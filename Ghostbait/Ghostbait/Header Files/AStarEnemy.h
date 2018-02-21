@@ -13,15 +13,19 @@ class AStarEnemy:public EnemyBase,public Controlable {
 	size_t howFarAlong = 0;
 
 	HexPath path;
+	HexTile* goal = 0;
 	HexTile* next = 0;
 
 	bool start = false;
 public:
 	AStarEnemy();
 
+	void NewPath();
+
 	void SetGrid(HexGrid* _grid);
 
 	void CalcPath(DirectX::XMFLOAT2 where);
+	void CalcPath(HexTile* where);
 
 	void Awake();
 	void Update();

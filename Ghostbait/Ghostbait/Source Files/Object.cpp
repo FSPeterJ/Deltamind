@@ -18,7 +18,11 @@ int Object::SetComponent(ComponentBase* _component, const int _id) {
 	return Components.AddComponent(_component, _id);
 }
 
-void Object::GivePID(unsigned pid, char* tag)
+
+void Object::GiveComponent(ComponentBase* _component, const char* _id) {
+}
+
+void Object::GivePID(unsigned pid, const char* tag)
 {
 }
 

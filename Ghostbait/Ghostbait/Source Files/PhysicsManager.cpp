@@ -948,6 +948,8 @@ void PhysicsManager::SendCollision(GameObject* obj1, GameObject* obj2) {
 	//TODO: Fix this frown
 	(obj1)->OnCollision(obj2);
 	(obj2)->OnCollision(obj1);
+
+	//Console::WriteLine << obj1->GetTag().c_str() << " collided with " << obj2->GetTag().c_str();
 }
 
 void PhysicsManager::TestAllComponentsCollision() {

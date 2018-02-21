@@ -126,7 +126,7 @@ public:
 		return extSize;
 	}
 
-	static unsigned CreatePrefab(std::string* _filename, char* DEBUG_STRING_NAME = nullptr, bool objectPrefabOverride = false);
+	static unsigned CreatePrefab(std::string* _filename, const char* DEBUG_STRING_NAME = nullptr, bool objectPrefabOverride = false);
 
 	static void Instantiate(EventMessageBase *e);
 

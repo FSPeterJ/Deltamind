@@ -280,10 +280,13 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ControllerObject *debugController;
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 2,2,2 }, &debugController));
 	debugController->Init(ControllerObject::ControllerHand::HAND_Left);
-	//debugController->AddItem(0, 1);
+	debugController->SetBuildItems({ basicTurret });
+	
+	
 	//debugController->AddItem(1, Gun1, Gun::FireType::SEMI, 60, 50);
 	//debugController->AddItem(2, Gun2, Gun::FireType::AUTO, 8, 25);
-	//debugController->AddItem(3, 16, { basicTurret });
+
+
 
 	GhostTime::Initalize();
 	MessageEvents::Initilize();

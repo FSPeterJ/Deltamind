@@ -42,4 +42,7 @@ public:
 	void PausedUpdate();
 	void GivePID(unsigned pid, char* tag);
 	void CloneData(Object* obj);
+
+	//TEMPORARY FUNCTION
+	void SetBuildItems(std::vector<unsigned> prefabIDs);
 };

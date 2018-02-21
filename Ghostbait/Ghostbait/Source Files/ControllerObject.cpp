@@ -288,4 +288,11 @@ void ControllerObject::CloneData(Object* obj) {
 	}
 }
 
+// TEMPORARY - CHANGE OR REMOVE LATER
+void ControllerObject::SetBuildItems(std::vector<unsigned> prefabIDs) {
+	BuildTool* buildTool = (BuildTool*)items[3];
+	buildTool->SetPrefabs(prefabIDs);
+	buildTool->SetParent(this);
+}
+
 

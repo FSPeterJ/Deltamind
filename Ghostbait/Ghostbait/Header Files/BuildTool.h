@@ -44,4 +44,6 @@ public:
 
 	void InactiveUpdate();
 	void ActiveUpdate();
+
+	void HideBuildItems();
 };

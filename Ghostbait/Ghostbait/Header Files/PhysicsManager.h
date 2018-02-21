@@ -14,15 +14,16 @@ namespace DirectX
 class GameObject;
 
 #define MAX_PHYSICALS 1024
+#define MAX_STATIC_PHYSICALS 64
 #define MAX_COLLIDER_DATA 24
 #define MAX_PREFABS 50
 
 class PhysicsManager: public IComponentManager {
-	//std::vector<PhysicsComponent> components;
-	Pool<PhysicsComponent> components = Pool<PhysicsComponent>(MAX_PHYSICALS);
+	static Pool<PhysicsComponent> dynamicComponents;
+	static Pool<PhysicsComponent> staticComponents;
+	static SpatialPartition partitionSpace;
 	std::vector<ColliderData> colliderDataList;
 	std::vector<PhysicsComponent> prefabComponents;
-	static SpatialPartition partitionSpace;
 
 	ColliderData* AddColliderData(float _radius);
 	ColliderData* AddColliderData(float _radius, float _height);

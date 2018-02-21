@@ -47,22 +47,40 @@ class Pool:
 	T* elements;
 	size_t pool_size;
 public:
-	Pool(size_t size = (size_t) 128) : pool_size((size_t) size), elements((T*) memManage->RequestMemory((unsigned) size, sizeof(T))) {
+
+	Pool(size_t size = (size_t)128) : pool_size(size), elements((T*)memManage->RequestMemory((unsigned)size, sizeof(T))) {
 		inactiveList.resize(pool_size);
 		activeList.reserve(pool_size);
-		for(size_t i = 0; i < pool_size; ++i) {
+		for (size_t i = 0; i < pool_size; ++i) {
 			//WTF WHY DOES THIS WORK BUT NOT &elements ????????
 			//inactiveList[i] = (char*)new ((char*)elements + sizeof(T) * i) T();
 			inactiveList[i] = (char*)new (&elements[i]) T();
 		}
-	}
+	};
 
 	~Pool() {
 		//We want to destruct in reverse order so the first created is the first destructed
-		for(size_t i = pool_size; i-- > 0;) {
+		for (size_t i = pool_size; i-- > 0;) {
 			elements[i].~T();
 		}
-	}
+	};
+
+	Pool(size_t size, bool isStatic) {
+		pool_size = size;
+		inactiveList.resize(pool_size);
+		activeList.reserve(pool_size);
+		if (!isStatic) {
+			RequestMemoryFromMemManager(pool_size);
+		}
+	};
+	void RequestMemoryFromMemManager(size_t size = 128) {
+		elements = (T*)memManage->RequestMemory((unsigned)size, sizeof(T));
+		for (size_t i = 0; i < pool_size; ++i) {
+			//WTF WHY DOES THIS WORK BUT NOT &elements ????????
+			//inactiveList[i] = (char*)new ((char*)elements + sizeof(T) * i) T();
+			inactiveList[i] = (char*)new (&elements[i]) T();
+		}
+	};
 
 	inline T &operator[](const size_t index) { return *(T*) activeList[index]; }
 

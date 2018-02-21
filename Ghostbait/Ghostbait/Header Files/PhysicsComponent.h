@@ -48,6 +48,7 @@ struct Collider {
 
 struct PhysicsComponent: public InstantiatedCompBase {
 	bool isActive = true;
+	bool isStatic = false;
 	RigidBody rigidBody;
 	std::vector<Collider> colliders;
 	AABB baseAABB;

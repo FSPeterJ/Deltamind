@@ -8,11 +8,12 @@
 #include "../Dependencies/XML_Library/irrXML.h"
 #include "AStarEnemy.h"
 #include "VRManager.h"
+#include "SceneManager.h"
+
 
 void Game::GameData::Reset() {
 	state = GAMESTATE_BetweenWaves;
 	prevState = GAMESTATE_BetweenWaves;
-	currentScene = nullptr;
 	spawners.empty();
 	enemiesLeftAlive = 0;
 	waveManager.currentWave = -1;
@@ -25,10 +26,11 @@ Game::Game() {
 	MessageEvents::Subscribe(EVENT_EnemyDied, [=](EventMessageBase* e) {this->EnemyDiedEvent(); });
 	MessageEvents::Subscribe(EVENT_StartWave, [=](EventMessageBase* e) {this->StartPressedEvent(); });
 	MessageEvents::Subscribe(EVENT_GamePause, [=](EventMessageBase* e) {this->PausePressedEvent(); });
-	MessageEvents::Subscribe(EVENT_RestartGame, [=](EventMessageBase* e) {this->RestartGameEvent(); });
+	MessageEvents::Subscribe(EVENT_GameRestart, [=](EventMessageBase* e) {this->RestartGameEvent(); });
 	MessageEvents::Subscribe(EVENT_SnapRequest, [=](EventMessageBase* e) {this->SnapRequestEvent(e); });
 	MessageEvents::Subscribe(EVENT_AddObstacle, [=](EventMessageBase* e) {this->AddObstacleEvent(e); });
 	MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {this->RemoveObstacleEvent(e); });
+	MessageEvents::Subscribe(EVENT_GameQuit, [=](EventMessageBase* e) {this->QuitEvent(); });
 }
 
 void Game::SpawnerCreatedEvent(EventMessageBase* e) {
@@ -58,8 +60,7 @@ void Game::PausePressedEvent() {
 	}
 }
 void Game::RestartGameEvent() {
-	gameData.Reset();
-	Start(engine);
+	RestartLevel();
 }
 void Game::SnapRequestEvent(EventMessageBase* e) {
 	SnapMessage* message = (SnapMessage*)e;
@@ -79,6 +80,9 @@ void Game::RemoveObstacleEvent(EventMessageBase* e) {
 	if (hexGrid.IsBlocked(*message->position)) {
 		(*message->success) = hexGrid.RemoveObstacle(*message->position);
 	}
+}
+void Game::QuitEvent() {
+	run = false;
 }
 
 void Game::ChangeState(State newState) {
@@ -104,9 +108,9 @@ void Game::ChangeState(State newState) {
 			else if (gameData.prevState == GAMESTATE_InWave) {
 				//Spawn start cube
 				MenuCube* startCube;
-				MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(7, { 0, 1.5f, 0.0f }, &startCube));
+				MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("StartCube", { 0, 1.5f, 0.0f }, &startCube));
 				DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
-				//startCube->Enable();
+				startCube->Enable();
 			}
 		}
 		break;
@@ -118,35 +122,44 @@ void Game::ChangeState(State newState) {
 		}
 	}
 }
-void Game::LoadLevel(char* fileName) {
+void Game::ChangeScene(char* sceneName) {
+	//Load scene assets
+	sceneManager->LoadScene(sceneName);
+
+	//Reset Game/Wave data
 	gameData.Reset();
-	irr::io::IrrXMLReader *xmlReader = irr::io::createIrrXMLReader(fileName);
-	WaveManager::Wave* newWave = nullptr;
-	while (xmlReader->read()) {
-		if (xmlReader->getNodeType() == irr::io::EXN_ELEMENT) {
-			if (!strcmp("Wave", xmlReader->getNodeName())) {
-				if (newWave) {
-					gameData.waveManager.waves.push_back(*newWave);
-					delete newWave;
+
+	//If it has level/wave data, load it
+	if (sceneManager->GetCurrentScene().levelFile != "") {
+		irr::io::IrrXMLReader *xmlReader = irr::io::createIrrXMLReader(sceneManager->GetCurrentScene().levelFile.c_str());
+
+		WaveManager::Wave* newWave = nullptr;
+		while (xmlReader->read()) {
+			if (xmlReader->getNodeType() == irr::io::EXN_ELEMENT) {
+				if (!strcmp("Wave", xmlReader->getNodeName())) {
+					if (newWave) {
+						gameData.waveManager.waves.push_back(*newWave);
+						delete newWave;
+					}
+					newWave = new WaveManager::Wave();
+					(*newWave).reward = xmlReader->getAttributeValueAsInt("reward");
 				}
-				newWave = new WaveManager::Wave();
-				(*newWave).reward = xmlReader->getAttributeValueAsInt("reward");
-			}
-			else if (!strcmp("Spawner", xmlReader->getNodeName())) {
-				WaveManager::Wave::Spawners newSpawner;
-				newSpawner.spawnerID = xmlReader->getAttributeValueAsInt("spawnerID");
-				newSpawner.enemyID = xmlReader->getAttributeValueAsInt("enemyID");
-				newSpawner.spawnCount = xmlReader->getAttributeValueAsInt("spawnCount");
-				newSpawner.initialDelay = xmlReader->getAttributeValueAsFloat("initialDelay");
-				newSpawner.runDelay = xmlReader->getAttributeValueAsFloat("runDelay");
-				(*newWave).spawns.push_back(newSpawner);
-				(*newWave).enemyCount += newSpawner.spawnCount;
+				else if (!strcmp("Spawner", xmlReader->getNodeName())) {
+					WaveManager::Wave::Spawners newSpawner;
+					newSpawner.spawnerID = xmlReader->getAttributeValueAsInt("spawnerID");
+					newSpawner.enemyID = xmlReader->getAttributeValueAsInt("enemyID");
+					newSpawner.spawnCount = xmlReader->getAttributeValueAsInt("spawnCount");
+					newSpawner.initialDelay = xmlReader->getAttributeValueAsFloat("initialDelay");
+					newSpawner.runDelay = xmlReader->getAttributeValueAsFloat("runDelay");
+					(*newWave).spawns.push_back(newSpawner);
+					(*newWave).enemyCount += newSpawner.spawnCount;
+				}
 			}
 		}
+		gameData.waveManager.waves.push_back(*newWave);
+		delete newWave;
+		delete xmlReader;
 	}
-	gameData.waveManager.waves.push_back(*newWave);
-	delete newWave;
-	delete xmlReader;
 }
 void Game::StartNextWave() {
 	int nextWave = gameData.waveManager.currentWave + 1;
@@ -159,6 +172,10 @@ void Game::StartNextWave() {
 	}
 }
 
+void Game::RestartLevel() {
+	gameData.Reset();
+	sceneManager->ReloadScene();
+}
 void Game::ResumeGame() {
 	//Logic to run when game first gets unPaused
 }
@@ -175,21 +192,21 @@ void Game::Win() {
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(9/*WinCube*/, { 0, 0.75f, 0 }));
 }
 
-void Game::Start(EngineStructure* _engine, char* level) {
+void Game::Start(EngineStructure* _engine, char* startScene) {
 	srand((unsigned int)time(NULL));
 	engine = _engine;
-	LoadLevel(level);
-	gameData.state = GAMESTATE_BetweenWaves;
+	sceneManager = new SceneManager();
+	sceneManager->Initialize();
+	gameData.Reset();
 	hexGrid.Fill();
 
+	ChangeScene(startScene);
 
 	AStarEnemy* fred;
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<AStarEnemy>("AStarEnemy", {-5,0,0}, &fred));
 
 	fred->SetGrid(&hexGrid);
-
 	fred->Enable();
-
 }
 void Game::Update() {
 	auto playerPos = VRManager::GetInstance().GetPlayerPosition();
@@ -250,4 +267,5 @@ void Game::Update() {
 }
 void Game::Clean() {
 	delete pauseMenu;
+	delete sceneManager;
 }

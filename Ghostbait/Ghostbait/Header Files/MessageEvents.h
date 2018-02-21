@@ -21,14 +21,14 @@ enum EVENT_TYPES {
 	EVENT_UnregisterNoisemaker,
 	
 	//Game Events
-	EVENT_RestartGame,
 	EVENT_SpawnerCreated,
 	EVENT_EnemyDied,
 	EVENT_StartWave,
 	EVENT_GameWin,
 	EVENT_GameLose,
 	EVENT_GamePause,
-	EVENT_GameResume,
+	EVENT_GameRestart,
+	EVENT_GameQuit,
 	EVENT_SnapRequest,
 	EVENT_AddObstacle,
 	EVENT_RemoveObstacle,

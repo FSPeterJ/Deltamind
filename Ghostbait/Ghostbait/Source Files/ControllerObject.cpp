@@ -4,6 +4,7 @@
 #include "VRManager.h"
 #include "BuildTool.h"
 #include "PhysicsComponent.h"
+#include "BuildTool.h"
 
 ControllerObject::ControllerObject() {
 	int debugbreak =0;
@@ -147,6 +148,7 @@ void ControllerObject::AddItem(int itemSlot, unsigned prefabID) {
 	AddToInventory(itemSlot, prefabID);
 
 	Gun* gun = dynamic_cast<Gun*>(items[itemSlot]);
+	BuildTool* tool = dynamic_cast<BuildTool*>(items[itemSlot]);
 	if (gun) {
 		gun->SetStats(Gun::FireType::SEMI, 60, 1);
 	}

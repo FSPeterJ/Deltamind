@@ -58,16 +58,10 @@ void ObjectFactory::InstantiateByType(EventMessageBase *e) {
 	}
 	else {
 		newobject = ActivateObject(Object2Prefab[instantiate->tid]);
-		if(instantiate->obj != nullptr) {
-			*instantiate->obj = newobject;
-		}
-
 	}
 	if(instantiate->obj != nullptr) {
 		*instantiate->obj = newobject;
-	}		if(instantiate->obj != nullptr) {
-		*instantiate->obj = newobject;
-	}
+	}		
 	memcpy(&newobject->position, &instantiate->GetPosition(), sizeof(DirectX::XMFLOAT4X4));
 	MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
 }

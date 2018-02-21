@@ -213,7 +213,7 @@ DirectX::XMFLOAT4X4 VRManager::GetRoomPosition() {
 	return roomPos;
 }
 
-bool VRManager::ArcCast(ControllerObject* controller, DirectX::XMFLOAT3* outPos, float maxDistance, float minAngle, float maxAngle, float castHeight) {
+bool VRManager::ArcCast(Object* controller, DirectX::XMFLOAT3* outPos, float maxDistance, float minAngle, float maxAngle, float castHeight) {
 	DirectX::XMMATRIX controllerMat = DirectX::XMLoadFloat4x4(&controller->position);
 	DirectX::XMVECTOR planeNormalVec = DirectX::XMVectorSet(0, 1, 0, 0);
 	DirectX::XMVECTOR forwardVec = DirectX::XMVector3Normalize(controllerMat.r[2]);

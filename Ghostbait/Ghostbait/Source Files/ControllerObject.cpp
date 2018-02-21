@@ -161,7 +161,6 @@ void ControllerObject::AddItem(int itemSlot, unsigned prefabID, std::vector<unsi
 	}
 	else if (buildTool) {
 		buildTool->SetPrefabs(prefabIDs);
-		buildTool->SetParent(this);
 	}
 }
 void ControllerObject::AddItem(int itemSlot, unsigned prefabID, Gun::FireType _fireType, float _fireRate, float _damage) {
@@ -292,7 +291,13 @@ void ControllerObject::CloneData(Object* obj) {
 void ControllerObject::SetBuildItems(std::vector<unsigned> prefabIDs) {
 	BuildTool* buildTool = (BuildTool*)items[3];
 	buildTool->SetPrefabs(prefabIDs);
-	buildTool->SetParent(this);
+}
+
+// TEMPORARY - CHANGE OR REMOVE LATER
+void ControllerObject::SetGunData(int slot, Gun::FireType _fireType, float _fireRate, float _damage) {
+	Gun* gun = (Gun*)items[slot];
+	gun->SetStats(Gun::FireType::SEMI, 60, 1);
+
 }
 
 

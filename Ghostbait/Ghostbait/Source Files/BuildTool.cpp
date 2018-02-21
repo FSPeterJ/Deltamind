@@ -37,9 +37,7 @@ void BuildTool::SetPrefabs(std::vector<unsigned> prefabIDs) {
 	prefabs[prefabs.size() - 1] = BuildItem();
 	prefabs[prefabs.size() - 1].ID = 0;
 }
-void BuildTool::SetParent(ControllerObject* _parent) {
-	parent = _parent;
-}
+
 
 void BuildTool::Projection() {
 	if (currentMode == SPAWN) SpawnProjection();
@@ -73,7 +71,7 @@ bool BuildTool::SetObstacle(DirectX::XMFLOAT2 pos, bool active) {
 }
 
 void BuildTool::SpawnProjection(){
-	if(VRManager::GetInstance().ArcCast(parent, &spawnPos)) {
+	if(VRManager::GetInstance().ArcCast((Object*)this, &spawnPos)) {
 		//snap to center of grid
 		DirectX::XMFLOAT2 newPos = DirectX::XMFLOAT2(spawnPos.x, spawnPos.z);
 		Snap(&newPos);

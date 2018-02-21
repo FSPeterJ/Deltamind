@@ -45,4 +45,5 @@ public:
 
 	//TEMPORARY FUNCTION
 	void SetBuildItems(std::vector<unsigned> prefabIDs);
+	void SetGunData(int slot, Gun::FireType _fireType, float _fireRate, float _damage);
 };

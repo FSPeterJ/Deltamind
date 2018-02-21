@@ -17,6 +17,7 @@ class SceneManager {
 	struct TestSceneData {
 		struct Prefab {
 			std::string ghostFile;
+			std::string name;
 			std::vector<DirectX::XMFLOAT4X4> positions;
 		};
 		std::string fileName;

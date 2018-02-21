@@ -32,12 +32,9 @@ namespace Reader {
 		stream.read((char*)&value, sizeof(DirectX::XMFLOAT4X4));
 		return value;
 	}
-	
-	//Must delete char* returned from this function!
-	static char* ReadBytes(std::ifstream& stream, int bytes) {
-		char* value = new char[bytes];
-		stream.read(value, bytes);
-		return value;
+	//UN-TESTED FUNCTION
+	static void ReadBytes(std::ifstream& stream, int bytes, char** outData) {
+		stream.read(*outData, bytes);
 	}
 
 
@@ -56,10 +53,9 @@ namespace Reader {
 	static DirectX::XMFLOAT4X4 ReadMatrix() {
 		return ReadMatrix(*defaultStream);
 	}
-
-	//Must delete char* returned from this function!
-	static char* ReadBytes(int bytes) {
-		return ReadBytes(*defaultStream, bytes);
+	//UN-TESTED FUNCTION
+	static void ReadBytes(int bytes, char** outData) {
+		ReadBytes(*defaultStream, bytes, outData);
 	}
 }
 

@@ -77,7 +77,7 @@ Gun::Gun(FireType _type, float _fireRate, float _damage): type(_type), fireRate(
 	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
 }
 
-void Gun::GivePID(unsigned pid, char* tag) {
+void Gun::GivePID(unsigned pid, const char* tag) {
 	if(strcmp(tag, "projectile") < 1) {
 		projectiePrefabID = pid;
 	}

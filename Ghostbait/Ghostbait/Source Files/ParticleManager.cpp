@@ -50,7 +50,7 @@ void ParticleManager::Initialize(ID3D11Device * _device, ID3D11DeviceContext * _
 	cpu_side_particles[0] = temp;
 	pCount++;
 	texMan->AddTexture("HELLO.png");
-	texMan->AddTexture("NullTex.png");
+	texMan->AddTexture("StartCube.fbm/startCube.png");
 }
 
 void ParticleManager::RenderParticlesTo(ID3D11RenderTargetView * rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport, DirectX::XMFLOAT4X4 & view, DirectX::XMFLOAT4X4 & proj)

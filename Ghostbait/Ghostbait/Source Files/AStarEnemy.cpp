@@ -5,7 +5,20 @@
 
 AStarEnemy::AStarEnemy() {}
 
-void AStarEnemy::NewPath() {
+void AStarEnemy::Repath() {
+	NewPath();
+}
+
+bool AStarEnemy::NewPath() {
+	path.clear();
+	howFarAlong = 0;
+
+	CalcPath(goal);
+
+	return path.size();
+}
+
+void AStarEnemy::NewRandPath() {
 	path.clear();
 	howFarAlong = 0;
 
@@ -13,8 +26,16 @@ void AStarEnemy::NewPath() {
 	CalcPath(goal);
 
 	if(!path.size()) {
-		NewPath();
+		NewRandPath();
 	}
+}
+
+void AStarEnemy::SetGoal(HexTile* _goal) {
+	goal = _goal;
+}
+void AStarEnemy::SetGoal(DirectX::XMFLOAT2 _goal) {
+	HexTile* goalTile = grid->PointToTile(_goal);
+	if(goalTile) { goal = goalTile; }
 }
 
 void AStarEnemy::SetGrid(HexGrid* _grid) {
@@ -23,7 +44,9 @@ void AStarEnemy::SetGrid(HexGrid* _grid) {
 
 void AStarEnemy::Awake() {
 	rb = &(GetComponent<PhysicsComponent>()->rigidBody);
-	NewPath();
+	if(!goal) {
+		NewRandPath();
+	}
 	next = path.start();
 }
 
@@ -47,7 +70,7 @@ void AStarEnemy::Update() {
 			if(path.goal() == curTile) {
 				Console::WriteLine << "We made it to our goal.";
 				start = false;
-				NewPath();
+				NewRandPath();
 			} else {
 				howFarAlong++;
 				if(howFarAlong > path.size() - 1) { return; }

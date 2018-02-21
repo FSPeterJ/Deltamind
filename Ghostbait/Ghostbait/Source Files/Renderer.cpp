@@ -185,11 +185,11 @@ void Renderer::renderToEye(eye * eyeTo) {
 	context->IASetInputLayout(ILStandard);
 #endif
 
-	ParticleManager::RenderParticlesTo(eyeTo->renderInfo.rtv, eyeTo->renderInfo.dsv, eyeTo->renderInfo.viewport, eyeTo->camera.view, eyeTo->camera.projection);
-	context->VSSetConstantBuffers(0, 1, &cameraBuffer);
-	context->VSSetShader(StandardVertexShader, NULL, NULL);
-	context->PSSetShader(StandardPixelShader, NULL, NULL);
-	context->IASetInputLayout(ILStandard);
+	//ParticleManager::RenderParticlesTo(eyeTo->renderInfo.rtv, eyeTo->renderInfo.dsv, eyeTo->renderInfo.viewport, eyeTo->camera.view, eyeTo->camera.projection);
+	//context->VSSetConstantBuffers(0, 1, &cameraBuffer);
+	//context->VSSetShader(StandardVertexShader, NULL, NULL);
+	//context->PSSetShader(StandardPixelShader, NULL, NULL);
+	//context->IASetInputLayout(ILStandard);
 }
 
 void Renderer::loadPipelineState(pipeline_state_t * pipeline) {
@@ -242,7 +242,7 @@ void Renderer::Initialize(Window window) {
 	initDepthStencilView(&defaultPipeline);
 	initRasterState(&defaultPipeline);
 	initShaders();
-	ParticleManager::Initialize(device, context, ParticleVS, ParticleGS, ParticlePS, ILParticle);
+	//ParticleManager::Initialize(device, context, ParticleVS, ParticleGS, ParticlePS, ILParticle);
 	defaultPipeline.vertex_shader = StandardVertexShader;
 	defaultPipeline.pixel_shader = StandardPixelShader;
 	defaultPipeline.input_layout = ILStandard;
@@ -323,7 +323,7 @@ void Renderer::Destroy() {
 	materialManagement->Destroy();
 	delete materialManagement;
 	animationManagement->Destroy();
-	ParticleManager::Destroy();
+	//ParticleManager::Destroy();
 	delete animationManagement;
 	delete keyboardCamera;
 #if _DEBUG
@@ -412,19 +412,19 @@ void Renderer::Render() {
 	for(size_t i = 0; i < renderedObjects.size(); ++i) {
 		renderObjectDefaultState((Object*) renderedObjects[i]);
 	}
-	DirectX::XMFLOAT4X4 view, proj;
-	if (VRManager::GetInstance().IsEnabled())
-	{
-		view = leftEye.camera.view;
-		proj = leftEye.camera.projection;
-	}
-	else
-	{
-		view = defaultCamera.view;
-		proj = defaultCamera.projection;
-	}
-	ParticleManager::RenderParticlesTo(defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport, view, proj);
-	context->VSSetConstantBuffers(0, 1, &cameraBuffer);
+	//DirectX::XMFLOAT4X4 view, proj;
+	//if (VRManager::GetInstance().IsEnabled())
+	//{
+	//	view = leftEye.camera.view;
+	//	proj = leftEye.camera.projection;
+	//}
+	//else
+	//{
+	//	view = defaultCamera.view;
+	//	proj = defaultCamera.projection;
+	//}
+	//ParticleManager::RenderParticlesTo(defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport, view, proj);
+	//context->VSSetConstantBuffers(0, 1, &cameraBuffer);
 #if _DEBUG
 	DebugRenderer::flushTo(defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport);
 #endif

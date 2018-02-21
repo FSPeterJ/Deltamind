@@ -4,7 +4,6 @@
 
 namespace DirectX {
 	struct XMFLOAT3;
-//	struct XMVECTOR;
 }
 
 struct PhysicsComponent;
@@ -16,7 +15,7 @@ class SpatialPartition {
 
 		Unit();
 		Unit(PhysicsComponent* comp);
-		int64_t FindComponent(PhysicsComponent* comp);
+		std::vector<PhysicsComponent*>::iterator FindComponent(PhysicsComponent* comp);
 		bool AddComponent(PhysicsComponent* comp);
 		bool RemoveComponent(PhysicsComponent* comp);
 	};
@@ -27,7 +26,7 @@ class SpatialPartition {
 	};
 
 	uint32_t bucketCount = 1024;
-	float unitSize = 0;
+	float unitSize = 3.0;
 	std::unordered_map<uint32_t, Unit> table;
 	uint32_t Hash(const float x, const float y, const float z);
 	uint32_t Hash(DirectX::XMFLOAT3 point);

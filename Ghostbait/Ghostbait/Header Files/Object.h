@@ -58,7 +58,9 @@ public:
 	//};
 
 
-	virtual void GivePID(unsigned pid, char* tag);
+	virtual void GiveComponent(ComponentBase * _component, const char* tag);
+
+	virtual void GivePID(unsigned pid, const char* tag);
 	virtual void CloneData(Object* obj);
 
 };

@@ -48,7 +48,7 @@ bool SpatialPartition::Unit::RemoveComponent(PhysicsComponent* comp) {
 
 SpatialPartition::SpatialPartition() {
 	bucketCount = 1024;
-	unitSize = 3.0f;
+	unitSize = PARTITION_UNIT_SIZE;
 }
 SpatialPartition::SpatialPartition(uint32_t _bucketCount, float _unitSize) : bucketCount(_bucketCount), unitSize(_unitSize) {
 }
@@ -74,50 +74,85 @@ std::vector<uint32_t> SpatialPartition::Hash(const AABB aabb) {
 
 	std::vector<uint32_t> indicies;
 	std::vector<XMFLOAT3> points;
-	points.resize(8);
-	points[0] = aabb.min;
-	points[1] = XMFLOAT3(aabb.min.x, aabb.min.y, aabb.max.z);
-	points[2] = XMFLOAT3(aabb.min.x, aabb.max.y, aabb.min.z);
-	points[3] = XMFLOAT3(aabb.min.x, aabb.max.y, aabb.max.z);
-	points[4] = XMFLOAT3(aabb.max.x, aabb.min.y, aabb.min.z);
-	points[5] = XMFLOAT3(aabb.max.x, aabb.min.y, aabb.max.z);
-	points[6] = XMFLOAT3(aabb.max.x, aabb.max.y, aabb.min.z);
-	points[7] = aabb.max;
 
-	XMFLOAT3 toStore;
-	XMVECTOR width = XMLoadFloat3(&points[4]) - XMLoadFloat3(&points[0]), 
-					 height = XMLoadFloat3(&points[2]) - XMLoadFloat3(&points[0]), 
-					 length = XMLoadFloat3(&points[1]) - XMLoadFloat3(&points[0]); 
-	float widthSq = XMVectorGetX(XMVector3LengthSq(width)),
-		 heightSq = XMVectorGetX(XMVector3LengthSq(height)),
-		 lengthSq = XMVectorGetX(XMVector3LengthSq(length));
-	float unitSizeSq = unitSize * unitSize;
+	if (aabb.isLarge) {
+		//XMFLOAT3 toStore;
+		//XMVECTOR width = XMLoadFloat3(&points[4]) - XMLoadFloat3(&points[0]), 
+		//				 height = XMLoadFloat3(&points[2]) - XMLoadFloat3(&points[0]), 
+		//				 length = XMLoadFloat3(&points[1]) - XMLoadFloat3(&points[0]); 
+		//float widthSq = XMVectorGetX(XMVector3LengthSq(width)),
+		//	 heightSq = XMVectorGetX(XMVector3LengthSq(height)),
+		//	 lengthSq = XMVectorGetX(XMVector3LengthSq(length));
+		//float unitSizeSq = unitSize * unitSize;
 
-	float widthRatio = 1.0f, heightRatio = 1.0f, lengthRatio = 1.0f;
+		//float widthRatio = 1.0f, heightRatio = 1.0f, lengthRatio = 1.0f;
 
-	if (widthSq > unitSizeSq) widthRatio = unitSize / sqrtf(widthSq);
-	if (heightSq > unitSizeSq) heightRatio = unitSize / sqrtf(heightSq);
-	if (lengthSq > unitSizeSq) lengthRatio = unitSize / sqrtf(lengthSq);
+		//if (widthSq > unitSizeSq) widthRatio = unitSize / sqrtf(widthSq);
+		//if (heightSq > unitSizeSq) heightRatio = unitSize / sqrtf(heightSq);
+		//if (lengthSq > unitSizeSq) lengthRatio = unitSize / sqrtf(lengthSq);
 
-	if (widthRatio < 1.0f || heightRatio < 1.0f || lengthRatio < 1.0f) {
-		points.reserve(64);
-		XMVECTOR currY, currZ;
-		for (float yChange = 0.0f - heightRatio; yChange < 1.0f;) {
-			yChange += heightRatio;
-			if (yChange >= 1.0f) yChange = 1.0f;
-			currY = XMLoadFloat3(&points[0]) + (height * yChange);
-			for (float zChange = 0.0f - lengthRatio; zChange < 1.0f;) {
-				zChange += lengthRatio;
-				if (zChange >= 1.0f) zChange = 1.0f;
-				currZ = currY + (length * zChange);
-				for (float xChange = 0.0f - widthRatio; xChange < 1.0f;) {
-					xChange += widthRatio;
-					if (xChange >= 1.0f) xChange = 1.0f;
-					XMStoreFloat3(&toStore, currZ + (width * xChange));
-					points.push_back(toStore);
+		//if (widthRatio < 1.0f || heightRatio < 1.0f || lengthRatio < 1.0f) {
+		//	points.reserve(64);
+		//	XMVECTOR currY, currZ;
+		//	for (float yChange = 0.0f - heightRatio; yChange < 1.0f;) {
+		//		yChange += heightRatio;
+		//		if (yChange >= 1.0f) yChange = 1.0f;
+		//		currY = XMLoadFloat3(&points[0]) + (height * yChange);
+		//		for (float zChange = 0.0f - lengthRatio; zChange < 1.0f;) {
+		//			zChange += lengthRatio;
+		//			if (zChange >= 1.0f) zChange = 1.0f;
+		//			currZ = currY + (length * zChange);
+		//			for (float xChange = 0.0f - widthRatio; xChange < 1.0f;) {
+		//				xChange += widthRatio;
+		//				if (xChange >= 1.0f) xChange = 1.0f;
+		//				XMStoreFloat3(&toStore, currZ + (width * xChange));
+		//				points.push_back(toStore);
+		//			}
+		//		}
+		//	}
+		//}
+
+		float width = aabb.max.x - aabb.min.x,
+			height = aabb.max.y - aabb.min.y,
+			length = aabb.max.z - aabb.min.z;
+
+		float widthRatio = 1.0f, heightRatio = 1.0f, lengthRatio = 1.0f;
+
+		if (width > unitSize) widthRatio = unitSize / width;
+		if (height > unitSize) heightRatio = unitSize / height;
+		if (length > unitSize) lengthRatio = unitSize / length;
+
+		if (widthRatio < 1.0f || heightRatio < 1.0f || lengthRatio < 1.0f) {
+			points.reserve(64);
+			float currX, currY, currZ;
+			for (float yChange = 0.0f - heightRatio; yChange < 1.0f;) {
+				yChange += heightRatio;
+				if (yChange >= 1.0f) yChange = 1.0f;
+				currY = aabb.min.y + heightRatio;
+				for (float zChange = 0.0f - lengthRatio; zChange < 1.0f;) {
+					zChange += lengthRatio;
+					if (zChange >= 1.0f) zChange = 1.0f;
+					currZ = aabb.min.z + (length * zChange);
+					for (float xChange = 0.0f - widthRatio; xChange < 1.0f;) {
+						xChange += widthRatio;
+						if (xChange >= 1.0f) xChange = 1.0f;
+						currX = aabb.min.x + (width * xChange);
+						points.push_back({ currX, currY, currZ });
+					}
 				}
 			}
 		}
+	}
+	else {
+		points.resize(8);
+		points[0] = aabb.min;
+		points[1] = { aabb.min.x, aabb.min.y, aabb.max.z };
+		points[2] = { aabb.min.x, aabb.max.y, aabb.min.z };
+		points[3] = { aabb.min.x, aabb.max.y, aabb.max.z };
+		points[4] = { aabb.max.x, aabb.min.y, aabb.min.z };
+		points[5] = { aabb.max.x, aabb.min.y, aabb.max.z };
+		points[6] = { aabb.max.x, aabb.max.y, aabb.min.z };
+		points[7] = aabb.max;
 	}
 	
 	int index;
@@ -138,7 +173,7 @@ std::vector<uint32_t> SpatialPartition::Hash(const AABB aabb) {
 bool SpatialPartition::AddComponent(PhysicsComponent* component) {
 	bool anythingAdded = false;
 	std::vector<uint32_t> indicies = Hash(component->currentAABB);
-	Console::WriteLine << component->parentObject << " occupies " << indicies.size() << " buckets";
+	//Console::WriteLine << component->parentObject << " occupies " << indicies.size() << " buckets";
 	for (unsigned int i = 0; i < indicies.size(); ++i) {
 		if (table.find(indicies[i]) != table.end()) {
 			if (table[indicies[i]].AddComponent(component)) {
@@ -211,11 +246,13 @@ const std::vector<PhysicsComponent*> SpatialPartition::GetComponentsToTest() {
 
 	for each (auto bucket in table)
 	{
-		for (unsigned int i = 0; i < bucket.second.components.size(); ++i) {
-			testComps.push_back(bucket.second.components[i]);
-			//Console::WriteLine << "Bucket: " << bucket.first << "  Size: " << bucket.second.components.size();
+		if (bucket.second.components.size() > 1) {
+			for (unsigned int i = 0; i < bucket.second.components.size(); ++i) {
+				testComps.push_back(bucket.second.components[i]);
+				//Console::WriteLine << "Bucket: " << bucket.first << "  Size: " << bucket.second.components.size();
+			}
+			testComps.push_back(nullptr);
 		}
-		testComps.push_back(nullptr);
 	}
 	return testComps;
 }

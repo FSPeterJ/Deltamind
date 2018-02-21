@@ -193,6 +193,7 @@
     <ClInclude Include="Header Files\AnimatorManager.h" />
     <ClInclude Include="Header Files\AStarEnemy.h" />
     <ClInclude Include="Header Files\AudioManager.h" />
+    <ClInclude Include="Header Files\BinaryFileIO.h" />
     <ClInclude Include="Header Files\BuildTool.h" />
     <ClInclude Include="Header Files\Camera.h" />
     <ClInclude Include="Header Files\ComponentBase.h" />
@@ -215,6 +216,7 @@
     <ClInclude Include="Header Files\HexagonTile.h" />
     <ClInclude Include="Header Files\HexagonTileSpecializer.h" />
     <ClInclude Include="Header Files\HexGrid.h" />
+    <ClInclude Include="Header Files\HexTileVector.h" />
     <ClInclude Include="Header Files\InputManager.h" />
     <ClInclude Include="Header Files\IComponentManager.h" />
     <ClInclude Include="Header Files\Item.h" />
@@ -292,6 +294,7 @@
     <ClCompile Include="Source Files\HexagonTile-Impl.cpp" />
     <ClCompile Include="Source Files\HexagonTile.cpp" />
     <ClCompile Include="Source Files\HexGrid.cpp" />
+    <ClCompile Include="Source Files\HexTileVector.cpp" />
     <ClCompile Include="Source Files\InputManager.cpp" />
     <ClCompile Include="Source Files\Item.cpp" />
     <ClCompile Include="Source Files\LightManager.cpp" />

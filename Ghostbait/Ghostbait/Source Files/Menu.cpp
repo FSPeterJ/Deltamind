@@ -4,13 +4,13 @@
 #include "Console.h"
 
 void MenuOption::Select() {
-	Console::WriteLine << "Menu Option: " << this << " was selected!";
+	//Console::WriteLine << "Menu Option: " << this << " was selected!";
 }
 void MenuOption::UnHighlight() {
-	Console::WriteLine << "Menu Option: " << this << " was Un-highlighted!";
+	//Console::WriteLine << "Menu Option: " << this << " was Un-highlighted!";
 }
 void MenuOption::Highlight() {
-	Console::WriteLine << "Menu Option: " << this << " was highlighted!";
+	//Console::WriteLine << "Menu Option: " << this << " was highlighted!";
 }
 
 Menu::Menu() {
@@ -22,12 +22,12 @@ Menu::Menu(Template t, std::vector<Button> buttons) {
 	Create(t, buttons);
 }
 void Menu::AssignPrefabIDs() {
-	buttonPrefabMap[BUTTON_Resume] = 20;
-	buttonPrefabMap[BUTTON_Restart] = 1;
-	buttonPrefabMap[BUTTON_Options] = 1;
-	buttonPrefabMap[BUTTON_Quit] = 1;
-	buttonPrefabMap[BUTTON_StartGame] = 1;
-	buttonPrefabMap[BUTTON_SelectLevel] = 1;
+	buttonPrefabMap[BUTTON_Resume] = "ResumeButton";
+	buttonPrefabMap[BUTTON_Restart] = "RestartButton";
+	buttonPrefabMap[BUTTON_Options] = "OptionsButton";
+	buttonPrefabMap[BUTTON_Quit] = "QuitButton";
+	buttonPrefabMap[BUTTON_StartGame] = "StartGameButton";
+	buttonPrefabMap[BUTTON_SelectLevel] = "SelectLevelButton";
 }
 void Menu::GamePauseEvent() {
 	if (active)
@@ -67,17 +67,6 @@ float Menu::FindDistanceFromCenter(int optionNumber, int optionCount, float opti
 		distanceFromCenter = (optionHeight + gapHeight + ((optionHeight + gapHeight) * (float)countBetweenOptionAndCenter));
 	}
 	return (optionNumber < center ? distanceFromCenter : -distanceFromCenter);
-
-	//if odd number, find middle option
-	//if (optionCount % 2 == 1) {
-	//	float middleOption = ceil(optionCount * 0.5f);
-	//	if (optionNumber == middleOption) return 0;
-	//	
-	//	int countBetweenOptionAndCenter = middleOption - optionNumber - 1;
-	//	float distanceFromCenter = (optionHeight + gapHeight + ((optionHeight + gapHeight) * (float)countBetweenOptionAndCenter));
-	//	return (optionNumber < middleOption ? center + distanceFromCenter : center - distanceFromCenter);
-	//}
-
 }
 void Menu::Create(Template t, std::vector<Button> _buttons) {
 	switch (t) {
@@ -91,14 +80,12 @@ void Menu::Create(Template t, std::vector<Button> _buttons) {
 			break;
 		case MENU_Pause:
 			buttons.empty();
-			buttons.resize(4);
+			buttons.resize(3);
 			buttons[0] = BUTTON_Resume;
 			buttons[1] = BUTTON_Resume;
 			buttons[2] = BUTTON_Resume;
-			buttons[3] = BUTTON_Resume;
 			//buttons[1] = BUTTON_Restart;
-			//buttons[2] = BUTTON_Options;
-			//buttons[3] = BUTTON_Quit;
+			//buttons[2] = BUTTON_Quit;
 			MessageEvents::Subscribe(EVENT_GamePause, [=](EventMessageBase* e) {this->GamePauseEvent(); });
 			break;
 		case MENU_Custom:
@@ -115,8 +102,7 @@ void Menu::Show() {
 	for (int i = 0; i < buttons.size(); ++i) {
 		MenuOption* newOption;
 		float distFromCenter = FindDistanceFromCenter(i, (int)options.size(), 0.25f, 0.05f);
-		//TODO: Need to spawn this in the correct place based off of the previous function
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(buttonPrefabMap[buttons[i]], {0, 0, 0}, (GameObject**)&newOption));
+		MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuOption>(buttonPrefabMap[buttons[i]], {0, 0, 0}, &newOption));
 		DirectX::XMStoreFloat4x4(&newOption->position, center_M * DirectX::XMMatrixTranslation(0, distFromCenter, 0));
 		newOption->SetMenu(this);
 		options[i] = newOption;
@@ -132,11 +118,12 @@ void Menu::Hide() {
 
 void ResumeButton::Select() {
 	MenuOption::Select();
-	//menu->Hide();
+	MessageEvents::SendMessage(EVENT_GamePause, EventMessageBase());
 }
 void RestartButton::Select() {
 	MenuOption::Select();
-	//menu->Hide();
+	MessageEvents::SendMessage(EVENT_GamePause, EventMessageBase());
+	MessageEvents::SendMessage(EVENT_GameRestart, EventMessageBase());
 }
 void QuitButton::Select() {
 	MenuOption::Select();

@@ -1,12 +1,11 @@
 #pragma once
 #include "EngineStructure.h"
-
 #include "HexagonalGridLayout.h"
 #include "HexGrid.h"
 #include <vector>
 
+class SceneManager;
 class Spawner;
-class Scene;
 class EventMessageBase;
 class EngineStructure;
 class Menu;
@@ -20,6 +19,7 @@ enum State {
 class Game {
 	HexGrid hexGrid = HexGrid(50, HexagonalGridLayout::FlatLayout);
 
+	bool run = true;
 
 	struct WaveManager {
 		struct Wave {
@@ -43,7 +43,6 @@ class Game {
 	struct GameData {
 		State state = GAMESTATE_BetweenWaves;
 		State prevState = GAMESTATE_BetweenWaves;
-		Scene* currentScene = nullptr;
 		std::vector<Spawner*> spawners;
 		int enemiesLeftAlive = 0;
 		WaveManager waveManager;
@@ -52,13 +51,15 @@ class Game {
 	} gameData;
 	
 	EngineStructure* engine;
+	SceneManager* sceneManager;
 	Menu* pauseMenu;
 
 	//Personal
 	void ChangeState(State newState);
-	void LoadLevel(char* fileName);
+	void ChangeScene(char* sceneName);
 	void StartNextWave();
 
+	void RestartLevel();
 	void PauseGame();
 	void ResumeGame();
 	void Lose();
@@ -73,6 +74,7 @@ class Game {
 	void SnapRequestEvent(EventMessageBase* e);
 	void AddObstacleEvent(EventMessageBase* e);
 	void RemoveObstacleEvent(EventMessageBase* e);
+	void QuitEvent();
 
 
 public:
@@ -80,9 +82,10 @@ public:
 
 	Game();
 
-	void Start(EngineStructure* _engine, char* level = "Game Files/level0.xml");
+	void Start(EngineStructure* _engine, char* level = "level0");
 	void Update();
 	void Clean();
 
+	const inline bool Run() { return run; };
 	const inline bool IsPaused() const { return gameData.state == GAMESTATE_Paused; };
 };

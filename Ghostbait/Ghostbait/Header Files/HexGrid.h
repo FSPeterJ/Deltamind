@@ -20,15 +20,15 @@ struct EqualComparator {
 	bool operator()(const HexTile& lhs, const HexTile& rhs) const;
 };
 
-template <typename TileType>
-class GridTileVector;
-typedef GridTileVector<HexTile> HexRegion;
-typedef GridTileVector<HexTile*> HexPath;
-
-using VisitedMap = std::unordered_map<HexTile *const, HexTile*, std::hash<HexTile*>, EqualComparator>;
-
+using VisitedMap = std::unordered_map<HexTile *const, HexTile*, std::hash<HexTile*>>;
 using CostMap = std::unordered_map<HexTile*, float, std::hash<HexTile*>, EqualComparator>;
 
+using HeuristicsFunction = std::function<float(HexTile*, HexTile*)>;
+
+class HexRegion;
+class HexPath;
+
+bool operator<(const HexPath&p, const HexPath&p2);
 
 struct TraversalResult {
 	VisitedMap visitedMap;
@@ -57,7 +57,6 @@ class HexGrid: public Controlable {
 
 	void step();
 
-
 	/// <summary>
 	/// Gets the region cooresponding to the specified bounds. Can return tiles that are not part of the grid.
 	/// If you only want tiles on the grid, use Filter().
@@ -79,6 +78,9 @@ public:
 	~HexGrid();
 
 	HexTile* PointToTile(const DirectX::XMFLOAT2& p);
+	DirectX::XMFLOAT2 TileToPoint(HexTile * tile);
+
+	HexTile* GetRandomTile();
 
 	DirectX::XMFLOAT2 TileToWorld(const DirectX::XMFLOAT2& p);
 
@@ -94,9 +96,9 @@ public:
 	HexPath DijkstraSearch(HexTile *const start, HexTile *const goal);
 	TraversalResult DijkstraTraverse(HexTile *const tile, size_t cost, size_t maxMovement);
 
-	HexPath AStarSearch(HexTile *const start, HexTile *const goal, std::function<float(HexTile*, HexTile*)> Heuristic);
+	HexPath AStarSearch(HexTile *const start, HexTile *const goal, HeuristicsFunction Heuristic);
 
-	std::vector<DirectX::XMFLOAT2> AStarSearch(const DirectX::XMFLOAT2& start, const DirectX::XMFLOAT2& goal, std::function<float(HexTile*, HexTile*)> Heuristic);
+	HexPath AStarSearch(const DirectX::XMFLOAT2& start, const DirectX::XMFLOAT2& goal, HeuristicsFunction Heuristic);
 
 	HexRegion GetTilesNStepsAway(HexTile *const tile, int n);
 

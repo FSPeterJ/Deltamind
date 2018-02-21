@@ -617,16 +617,18 @@ namespace GhostbaitModelCreator
                         // We look at anims up top but there's an Animate tag down here.  I do not fully understand our system for this.
                         else if (componentName == "Animate")
                         {
-                            int bindLen = reader.ReadInt32();
-                            string bindName = new string(reader.ReadChars(bindLen));
-                            bindName = bindName.Trim('\0');
-
-                            bindPose.FilePath = bindName;
                             tagsize = reader.ReadInt32();
                             if (tagsize > 0)
                             {
                                 string tag = new string(reader.ReadChars(tagsize));
                             }
+                            int Datablocksize = reader.ReadInt32();
+
+                            int bindLen = reader.ReadInt32();
+                            string bindName = new string(reader.ReadChars(bindLen));
+                            bindName = bindName.Trim('\0');
+
+                            bindPose.FilePath = bindName;
                             int animCount = reader.ReadInt32();
 
                             for (int i = 0; i < animCount; ++i)

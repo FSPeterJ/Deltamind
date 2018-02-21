@@ -36,9 +36,6 @@ EngineStructure engine;
 AnimatorManager* animMan;
 AudioManager* audioMan;
 
-MenuCube* startCube;
-
-
 void ExecuteAsync() {
 	Console::WriteLine << "I am executed asyncly!";
 	throw std::invalid_argument("ERROR: This is a test showing we can know if a thread throws an exception on its work.\n");
@@ -211,7 +208,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/EarthMage.ghost"), "EarthMage");
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest1.ghost"), "PhyTest1");
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest2.ghost"), "PhyTest2");
-	ObjectFactory::CreatePrefab(&std::string("Assets/PlaneMap1.ghost"), "Plane");
+	ObjectFactory::CreatePrefab(&std::string("Assets/PlaneMap1.ghost"), "Ground");
 	ObjectFactory::CreatePrefab(&std::string("Assets/OverheatBar.ghost"), "GUIOverheatTest"); //15 // stop using magic number prefab ID
 	ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost"), "BuildTool");
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest3.ghost"), "PhyTest3");
@@ -221,7 +218,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/TestProjectile.ghost"), "TestProjectile");
 	ObjectFactory::CreatePrefab(&std::string("Assets/AStarEnemy.ghost"), "AStarEnemy");
 	//ObjectFactory::CreatePrefab(&std::string("Assets/Teddy.ghost"));
-	ObjectFactory::CreatePrefab(&std::string("Assets/ResumeButton.ghost"));
+	ObjectFactory::CreatePrefab(&std::string("Assets/ResumeButton.ghost"), "ResumeButton");
 
 	//ObjectFactory::CreatePrefab(&std::string("Assets/TeleportSphere.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
@@ -246,9 +243,9 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	////********* TEMPORARY Start Cube ************
 	////TODO: Should move this to games start eventually when it is supported
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("startCube", {0, 1.5f, 0.0f}, &startCube));
-	DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
-	startCube->Enable();
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("startCube", {0, 1.5f, 0.0f}, &startCube));
+	//DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
+	//startCube->Enable();
 
 	////*******************************************
 
@@ -300,7 +297,6 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 }
 
 void Loop() {
-	startCube->position = VRManager::GetInstance().GetPlayerPosition();
 	GhostTime::Tick();
 	if (!game->IsPaused()) {
 		phyMan->Update();
@@ -343,7 +339,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	Setup(hInstance, nCmdShow);
 
 	MSG msg;
-	while(true) {
+	while(game->Run()) {
 		if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 			if(msg.message == WM_QUIT) { break; }
 			TranslateMessage(&msg);

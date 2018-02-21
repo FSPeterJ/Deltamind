@@ -53,50 +53,48 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 
 	case WM_KEYDOWN:
 	{
-		//Why does this exist?
-		uint64_t key = '?';
-		switch(wParam) {
-		case 'A': key = 'A'; break;
-		case 'B': key = 'B'; break;
-		case 'C': key = 'C'; break;
-		case 'D': key = 'D'; break;
-		case 'E': key = 'E'; break;
-		case 'F': key = 'F'; break;
-		case 'G': key = 'G'; break;
-		case 'H': key = 'H'; break;
-		case 'I': key = 'I'; break;
-		case 'J': key = 'J'; break;
-		case 'K': key = 'K'; break;
-		case 'L': key = 'L'; break;
-		case 'M': key = 'M'; break;
-		case 'N': key = 'N'; break;
-		case 'O': key = 'O'; break;
-		case 'P': key = 'P'; break;
-		case 'Q': key = 'Q'; break;
-		case 'R': key = 'R'; break;
-		case 'S': key = 'S'; break;
-		case 'T': key = 'T'; break;
-		case 'U': key = 'U'; break;
-		case 'V': key = 'V'; break;
-		case 'W': key = 'W'; break;
-		case 'X': key = 'X'; break;
-		case 'Y': key = 'Y'; break;
-		case 'Z': key = 'Z'; break;
-		case VK_LEFT: key = VK_LEFT; break;
-		case VK_RIGHT: key = VK_RIGHT; break;
-		case VK_UP: key = VK_UP; break;
-		case VK_DOWN: key = VK_DOWN; break;
-		case VK_ESCAPE: key = VK_ESCAPE; break;
-		case VK_CONTROL: key = VK_CONTROL; break;
-		case VK_SHIFT: key = VK_SHIFT; break;
-		}
+		//uint64_t key = '?';
+		//switch(wParam) {
+		//case 'A': key = 'A'; break;
+		//case 'B': key = 'B'; break;
+		//case 'C': key = 'C'; break;
+		//case 'D': key = 'D'; break;
+		//case 'E': key = 'E'; break;
+		//case 'F': key = 'F'; break;
+		//case 'G': key = 'G'; break;
+		//case 'H': key = 'H'; break;
+		//case 'I': key = 'I'; break;
+		//case 'J': key = 'J'; break;
+		//case 'K': key = 'K'; break;
+		//case 'L': key = 'L'; break;
+		//case 'M': key = 'M'; break;
+		//case 'N': key = 'N'; break;
+		//case 'O': key = 'O'; break;
+		//case 'P': key = 'P'; break;
+		//case 'Q': key = 'Q'; break;
+		//case 'R': key = 'R'; break;
+		//case 'S': key = 'S'; break;
+		//case 'T': key = 'T'; break;
+		//case 'U': key = 'U'; break;
+		//case 'V': key = 'V'; break;
+		//case 'W': key = 'W'; break;
+		//case 'X': key = 'X'; break;
+		//case 'Y': key = 'Y'; break;
+		//case 'Z': key = 'Z'; break;
+		//case VK_LEFT: key = VK_LEFT; break;
+		//case VK_RIGHT: key = VK_RIGHT; break;
+		//case VK_UP: key = VK_UP; break;
+		//case VK_DOWN: key = VK_DOWN; break;
+		//case VK_ESCAPE: key = VK_ESCAPE; break;
+		//case VK_CONTROL: key = VK_CONTROL; break;
+		//case VK_SHIFT: key = VK_SHIFT; break;
+		//}
 		InputManager::AddToQueue(InputManager::IncomingKey(wParam, true));
 	} break;
 
 	case WM_KEYUP:
 	{
-			//Why does this exist?
-		uint64_t key = '?';
+		/*uint64_t key = '?';
 		switch (wParam) {
 		case 'A': key = 'A'; break;
 		case 'B': key = 'B'; break;
@@ -131,7 +129,7 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 		case VK_ESCAPE: key = VK_ESCAPE; break;
 		case VK_CONTROL: key = VK_CONTROL; break;
 		case VK_SHIFT: key = VK_SHIFT; break;
-		}
+		}*/
 		InputManager::AddToQueue(InputManager::IncomingKey(wParam, false));
 	} break;
 

@@ -58,7 +58,6 @@ void ObjectFactory::InstantiateByType(EventMessageBase *e) {
 	}
 	else {
 		newobject = ActivateObject(Object2Prefab[instantiate->tid]);
-
 	}
 	if(instantiate->obj != nullptr) {
 		*instantiate->obj = newobject;

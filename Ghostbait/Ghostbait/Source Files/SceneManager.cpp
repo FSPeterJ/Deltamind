@@ -41,6 +41,7 @@ void SceneManager::CreateSceneFile(SceneManager::TestSceneData& data) {
 		
 		for (int i = 0; i < data.prefabs.size(); ++i) {
 			Writer::WriteIntString(data.prefabs[i].ghostFile);
+			Writer::WriteIntString(data.prefabs[i].name);
  			Writer::WriteInt(data.prefabs[i].positions.size());
 			for (int j = 0; j < data.prefabs[i].positions.size(); ++j) {
 				Writer::WriteMatrix(data.prefabs[i].positions[j]);
@@ -51,26 +52,43 @@ void SceneManager::CreateSceneFile(SceneManager::TestSceneData& data) {
 }
 
 void SceneManager::Initialize() {
-	//TestSceneData data;
-	//{
-	//	data.fileName = "Scene Files//level0.scene";
-	//
-	//	data.sceneName = "level0";
-	//	data.levelName = "Level Files//level0.xml";
-	//	TestSceneData::Prefab prefab1;
-	//	prefab1.ghostFile = "Assets//basicSphere.ghost";
-	//	DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1);
-	//	prefab1.positions.push_back(mat1);
-	//	DirectX::XMFLOAT4X4 mat2 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1);
-	//	prefab1.positions.push_back(mat2);
-	//	DirectX::XMFLOAT4X4 mat3 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1);
-	//	prefab1.positions.push_back(mat3);
-	//	DirectX::XMFLOAT4X4 mat4 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1);
-	//	prefab1.positions.push_back(mat4);
-	//	data.prefabs.push_back(prefab1);
-	//}
-	//CreateTestSceneFile(data);
-	//
+	//DirectX::XMFLOAT4X4 mat2 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+	TestSceneData data;
+	{
+		data.fileName = "Scene Files//level0.scene";
+	
+		data.sceneName = "level0";
+		data.levelName = "Level Files//level0.xml";
+		TestSceneData::Prefab ground;
+		{
+			ground.ghostFile = "Assets/PlaneMap1.ghost";
+			ground.name = "Ground";
+			DirectX::XMFLOAT4X4 mat = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0,	0, 0, 0, 1);
+			ground.positions.push_back(mat);
+			data.prefabs.push_back(ground);
+		}
+		TestSceneData::Prefab startCube;
+		{
+			startCube.ghostFile = "Assets/StartCube.ghost";
+			startCube.name = "StartCube";
+			DirectX::XMFLOAT4X4 mat = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0,	0, 0, 0, 1);
+			startCube.positions.push_back(mat);
+			data.prefabs.push_back(startCube);
+		}
+		TestSceneData::Prefab spawner;
+		{
+			spawner.ghostFile = "Assets/Spawner.ghost";
+			spawner.name = "Spawner";
+				DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0,		2, 1, 0, 1);
+				spawner.positions.push_back(mat1);
+				DirectX::XMFLOAT4X4 mat2 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0,		-2, 1, 0, 1);
+				spawner.positions.push_back(mat2);
+			data.prefabs.push_back(spawner);
+		}
+	}
+	CreateSceneFile(data);
+	
+
 	//Fill map of scenes using the ".scene" files from our "Scene Files" directory
 	FetchAllSceneFiles();
 }
@@ -148,13 +166,20 @@ void SceneManager::LoadScene(const char* sceneName) {
 			int ghostLen = Reader::ReadInt();
 			while (!file.eof()) {
 				std::string ghostName = Reader::ReadString(ghostLen);
-				unsigned int prefabID = ObjectFactory::CreatePrefab(&std::string(ghostName));
+				int prefabNameLen = Reader::ReadInt();
+				std::string prefabName = Reader::ReadString(prefabNameLen);
+
+				unsigned int prefabID = ObjectFactory::CreatePrefab(&ghostName, prefabName.c_str());
 
 				int ghostCount = Reader::ReadInt();
 				for (int i = 0; i < ghostCount; ++i) {
 					DirectX::XMFLOAT4X4 mat = Reader::ReadMatrix();
 					GameObject* newObj;
 					MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0, 0, 0 }, &newObj));
+					//TODO: TEMPORARY SOLUTION 
+					newObj->Enable();
+					//------------------------
+
 					newObj->position = mat;
 				}
 				//Will be garbage if the file is empty. Should only be garbage on the last call

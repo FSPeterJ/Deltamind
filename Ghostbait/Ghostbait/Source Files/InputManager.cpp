@@ -183,11 +183,11 @@ void InputManager::VRInput::CheckForInput() {
 				break;
 			case vr::k_EButton_SteamVR_Trigger:
 				if(event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
-					VRManager::GetInstance().Vibrate(VRControllerType::Left, 500);
+					VRManager::GetInstance().Vibrate(VRControllerType::Left, 5000);
 					input = leftAttack;
 					amount = 1.0f;
 				} else {
-					VRManager::GetInstance().Vibrate(VRControllerType::Right, 500);
+					VRManager::GetInstance().Vibrate(VRControllerType::Right, 5000);
 					input = rightAttack;
 					amount = 1.0f;
 				}

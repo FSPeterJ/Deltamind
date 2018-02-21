@@ -26,10 +26,11 @@ Game::Game() {
 	MessageEvents::Subscribe(EVENT_EnemyDied, [=](EventMessageBase* e) {this->EnemyDiedEvent(); });
 	MessageEvents::Subscribe(EVENT_StartWave, [=](EventMessageBase* e) {this->StartPressedEvent(); });
 	MessageEvents::Subscribe(EVENT_GamePause, [=](EventMessageBase* e) {this->PausePressedEvent(); });
-	MessageEvents::Subscribe(EVENT_RestartGame, [=](EventMessageBase* e) {this->RestartGameEvent(); });
+	MessageEvents::Subscribe(EVENT_GameRestart, [=](EventMessageBase* e) {this->RestartGameEvent(); });
 	MessageEvents::Subscribe(EVENT_SnapRequest, [=](EventMessageBase* e) {this->SnapRequestEvent(e); });
 	MessageEvents::Subscribe(EVENT_AddObstacle, [=](EventMessageBase* e) {this->AddObstacleEvent(e); });
 	MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {this->RemoveObstacleEvent(e); });
+	MessageEvents::Subscribe(EVENT_GameQuit, [=](EventMessageBase* e) {this->QuitEvent(); });
 }
 
 void Game::SpawnerCreatedEvent(EventMessageBase* e) {
@@ -80,6 +81,9 @@ void Game::RemoveObstacleEvent(EventMessageBase* e) {
 		(*message->success) = hexGrid.RemoveObstacle(*message->position);
 	}
 }
+void Game::QuitEvent() {
+	run = false;
+}
 
 void Game::ChangeState(State newState) {
 	if (gameData.state != newState) {
@@ -104,9 +108,9 @@ void Game::ChangeState(State newState) {
 			else if (gameData.prevState == GAMESTATE_InWave) {
 				//Spawn start cube
 				MenuCube* startCube;
-				MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(7, { 0, 1.5f, 0.0f }, &startCube));
+				MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("StartCube", { 0, 1.5f, 0.0f }, &startCube));
 				DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
-				//startCube->Enable();
+				startCube->Enable();
 			}
 		}
 		break;
@@ -198,11 +202,11 @@ void Game::Start(EngineStructure* _engine, char* startScene) {
 
 	ChangeScene(startScene);
 
-	AStarEnemy* fred;
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<AStarEnemy>("AStarEnemy", {0,0,0}, &fred));
-
-	fred->SetGrid(&hexGrid);
-	fred->Enable();
+	//AStarEnemy* fred;
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<AStarEnemy>("AStarEnemy", {0,0,0}, &fred));
+	//
+	//fred->SetGrid(&hexGrid);
+	//fred->Enable();
 
 }
 void Game::Update() {

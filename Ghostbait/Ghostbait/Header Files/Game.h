@@ -19,6 +19,7 @@ enum State {
 class Game {
 	HexGrid hexGrid = HexGrid(50, HexagonalGridLayout::FlatLayout);
 
+	bool run = true;
 
 	struct WaveManager {
 		struct Wave {
@@ -73,6 +74,7 @@ class Game {
 	void SnapRequestEvent(EventMessageBase* e);
 	void AddObstacleEvent(EventMessageBase* e);
 	void RemoveObstacleEvent(EventMessageBase* e);
+	void QuitEvent();
 
 
 public:
@@ -84,5 +86,6 @@ public:
 	void Update();
 	void Clean();
 
+	const inline bool Run() { return run; };
 	const inline bool IsPaused() const { return gameData.state == GAMESTATE_Paused; };
 };

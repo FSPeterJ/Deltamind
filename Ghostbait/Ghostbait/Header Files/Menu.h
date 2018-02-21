@@ -33,7 +33,7 @@ enum Button {
 class Menu {
 	bool active = false;
 	Template menu_template;
-	std::map<Button, int> buttonPrefabMap;
+	std::map<Button, char*> buttonPrefabMap;
 	std::vector<Button> buttons;
 	std::vector<MenuOption*> options;
 	DirectX::XMFLOAT4X4 FindCenter(float distFromPlayer = 1);

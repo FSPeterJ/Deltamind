@@ -68,7 +68,9 @@ public:
 
 	void Vibrate(VRControllerType ctrl, unsigned short durationMs);
 	void CreateControllers();
-	
+	void SetBuildItems(std::vector<unsigned> prefabIDs);
+	ControllerObject* GetRightController();
+
 	bool ArcCast(Object* controller, DirectX::XMFLOAT3* outPos, float maxDistance = 3, float minAngle = 60, float maxAngle = 120, float
 	             castHeight = 1);
 	void Teleport();

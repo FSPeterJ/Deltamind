@@ -112,7 +112,7 @@ void AudioManager::registerObject(EventMessageBase * e)
 
 void AudioManager::unRegisterObject(EventMessageBase * e)
 {
-	DestroyMessage* obj = (DestroyMessage*)e;
+	StandardObjectMessage* obj = (StandardObjectMessage*)e;
 	auto iter = objects.begin();
 	for (; iter != objects.end(); iter++)
 	{

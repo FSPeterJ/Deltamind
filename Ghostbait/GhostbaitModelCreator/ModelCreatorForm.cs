@@ -12,7 +12,7 @@ namespace GhostbaitModelCreator
 
     public partial class ModelCreatorForm : Form
     {
-
+        // This seems weird
         const string appendedPath = "../../../GhostBait/";
 
 
@@ -563,6 +563,8 @@ namespace GhostbaitModelCreator
                                 tagstringg = tagstringg.Trim('\0');
                             }
                             int byteCount = reader.ReadInt32();
+                            radioButtonStatic.Checked = reader.ReadBoolean();
+                            radioButtonDynamic.Checked = !radioButtonStatic.Checked;
                             int colCount = reader.ReadInt32();
                             for (int i = 0; i < colCount; ++i)
                             {
@@ -748,8 +750,9 @@ namespace GhostbaitModelCreator
                             specialdatasize += (int)specializedData[i].Length;
                         }
 
-                        specialdatasize += sizeof(int);
+                        specialdatasize += sizeof(int) + sizeof(bool);
                         writer.Write(specialdatasize);
+                        writer.Write(radioButtonStatic.Checked);
                         writer.Write(colliders.Count); //This line of data prevents generlization.  Investigate possible alternatives
                         //Write ColliderData
                         for (int i = 0; i < colliders.Count; ++i)

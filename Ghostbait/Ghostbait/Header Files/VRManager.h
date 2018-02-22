@@ -1,6 +1,7 @@
 #pragma once
 #include "openvr.h" //todo get rid.  (convert to ptrs and include in cpp) then uncomment namespace below
 #include <DirectXMath.h> // same as above
+#include "Object.h"
 
 //namespace vr {
 //	class IVRSystem;
@@ -67,8 +68,11 @@ public:
 
 	void Vibrate(VRControllerType ctrl, unsigned short durationMs);
 	void CreateControllers();
-	
-	bool ArcCast(ControllerObject* controller, DirectX::XMFLOAT3* outPos, float maxDistance = 3, float minAngle = 60, float maxAngle = 120, float castHeight = 1);
+	void SetBuildItems(std::vector<unsigned> prefabIDs);
+	ControllerObject* GetRightController();
+
+	bool ArcCast(Object* controller, DirectX::XMFLOAT3* outPos, float maxDistance = 3, float minAngle = 60, float maxAngle = 120, float
+	             castHeight = 1);
 	void Teleport();
 	
 	void GetVRMatrices(DirectX::XMFLOAT4X4* leftProj, DirectX::XMFLOAT4X4* rightProj, DirectX::XMFLOAT4X4* leftView, DirectX::XMFLOAT4X4* rightView);

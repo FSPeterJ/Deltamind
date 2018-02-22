@@ -43,7 +43,9 @@ public:
 	InputManager(InputType type);
 	~InputManager();
 
-	static void AddToQueue(IncomingKey key) { inputQueue.push(key); };
+	static void AddToQueue(IncomingKey key) {
+		inputQueue.push(key);
+	};
 
 	/// <summary>
 	/// Called to check input devices for new user input.

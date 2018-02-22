@@ -7,22 +7,22 @@
 #include "BuildTool.h"
 
 ControllerObject::ControllerObject() {
-	items.resize(4);
-	displayItems.resize(4);
-	hand = HAND_Invalid;
+	int debugbreak =0;
+	debugbreak++;
 }
 
-void ControllerObject::Init(ControllerHand _hand, int menuControllerPrefabID) {
-	SetControllerHand(_hand);
+void ControllerObject::Init(ControllerHand _hand) {
+	hand = _hand;
+	//SetControllerHand(_hand); //Not needed anymore?
 	Enable();
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuControllerItem>(menuControllerPrefabID, { 0,0,0 }, &menuController));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuControllerItem>( { 0,0,0 }, &menuController));
 	int temp = sizeof(MenuControllerItem);
 }
 void ControllerObject::SetPhysicsComponent(const GameObject* obj, bool active) {
 	PhysicsComponent* physComp = obj->GetComponent<PhysicsComponent>();
 	if (physComp) physComp->isActive = active;
 }
-void ControllerObject::AddToInventory(int itemSlot, int prefabID) {
+void ControllerObject::AddToInventory(int itemSlot, unsigned prefabID) {
 	//Actual Inventory
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Gun>(prefabID, { 0,0,0 }, (Gun**)&items[itemSlot]));
 	if (!currentGameItem) currentGameItem = items[itemSlot];
@@ -88,7 +88,7 @@ void ControllerObject::DisplayInventory() {
 	Control touch = (hand == HAND_Left ? leftTouch : rightTouch);
 
 	if (KeyIsDown(touch)) {
-		for (unsigned int i = 0; i < displayItems.size(); ++i) {
+		for (unsigned int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
 			if (displayItems[i]) {
 				if (!*justTouched) displayItems[i]->Render(true);
 
@@ -136,7 +136,7 @@ void ControllerObject::DisplayInventory() {
 	}
 	else {
 		if (*justTouched) {
-			for (unsigned int i = 0; i < displayItems.size(); ++i) {
+			for (unsigned int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
 				if (displayItems[i]) displayItems[i]->Render(false);
 			}
 			*justTouched = false;
@@ -144,36 +144,32 @@ void ControllerObject::DisplayInventory() {
 	}
 }
 
-void ControllerObject::AddItem(int itemSlot, int prefabID) {
+void ControllerObject::AddItem(int itemSlot, unsigned prefabID) {
 	AddToInventory(itemSlot, prefabID);
 
 	Gun* gun = dynamic_cast<Gun*>(items[itemSlot]);
 	BuildTool* tool = dynamic_cast<BuildTool*>(items[itemSlot]);
 	if (gun) {
-		gun->Init();
 		gun->SetStats(Gun::FireType::SEMI, 60, 1);
 	}
 }
-void ControllerObject::AddItem(int itemSlot, int prefabID, std::vector<int> prefabIDs) {
+void ControllerObject::AddItem(int itemSlot, unsigned prefabID, std::vector<unsigned> prefabIDs) {
 	AddToInventory(itemSlot, prefabID);
 
 	Gun* gun = dynamic_cast<Gun*>(items[itemSlot]);
 	BuildTool* buildTool = dynamic_cast<BuildTool*>(items[itemSlot]);
 	if (gun) {
-		gun->Init();
 		gun->SetStats(Gun::FireType::SEMI, 60, 1);
 	}
 	else if (buildTool) {
 		buildTool->SetPrefabs(prefabIDs);
-		buildTool->SetParent(this);
 	}
 }
-void ControllerObject::AddItem(int itemSlot, int prefabID, Gun::FireType _fireType, float _fireRate, float _damage) {
+void ControllerObject::AddItem(int itemSlot, unsigned prefabID, Gun::FireType _fireType, float _fireRate, float _damage) {
 	AddToInventory(itemSlot, prefabID);
 
 	Gun* gun = dynamic_cast<Gun*>(items[itemSlot]);
 	if (gun) {
-		gun->Init();
 		gun->SetStats(_fireType, _fireRate, _damage);
 	}
 }
@@ -192,7 +188,7 @@ void ControllerObject::Update() {
 
 	//Update Items
 	#pragma region Update Inactive Items
-		for (unsigned int i = 0; i < items.size(); ++i) {
+		for (unsigned int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
 			if (items[i] && items[i] != currentGameItem) {
 				items[i]->InactiveUpdate();
 			}
@@ -275,3 +271,35 @@ void ControllerObject::PausedUpdate() {
 	}
 	else menuController->UpdateRay();
 }
+
+void ControllerObject::GivePID(unsigned pid, const char* tag) {
+
+	//This is should be changed if other data is to be passed in.
+	//The stupid setup of this is taking the character '1'
+	itemPrefabs[*tag - '0'] = pid;
+}
+
+void ControllerObject::CloneData(Object* obj) {
+	memcpy(itemPrefabs, ((ControllerObject*)obj)->itemPrefabs, sizeof(unsigned) * CONTROLLER_MAX_ITEMS);
+	for (int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
+		if(itemPrefabs[i] > 0) {
+			AddItem(i, itemPrefabs[i]);
+		}
+
+	}
+}
+
+// TEMPORARY - CHANGE OR REMOVE LATER
+void ControllerObject::SetBuildItems(std::vector<unsigned> prefabIDs) {
+	BuildTool* buildTool = (BuildTool*)items[3];
+	buildTool->SetPrefabs(prefabIDs);
+}
+
+// TEMPORARY - CHANGE OR REMOVE LATER
+void ControllerObject::SetGunData(int slot, Gun::FireType _fireType, float _fireRate, float _damage) {
+	Gun* gun = (Gun*)items[slot];
+	gun->SetStats(Gun::FireType::SEMI, 60, 1);
+
+}
+
+

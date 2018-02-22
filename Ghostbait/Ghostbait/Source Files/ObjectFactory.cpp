@@ -58,16 +58,10 @@ void ObjectFactory::InstantiateByType(EventMessageBase *e) {
 	}
 	else {
 		newobject = ActivateObject(Object2Prefab[instantiate->tid]);
-		if(instantiate->obj != nullptr) {
-			*instantiate->obj = newobject;
-		}
-
 	}
 	if(instantiate->obj != nullptr) {
 		*instantiate->obj = newobject;
-	}		if(instantiate->obj != nullptr) {
-		*instantiate->obj = newobject;
-	}
+	}		
 	memcpy(&newobject->position, &instantiate->GetPosition(), sizeof(DirectX::XMFLOAT4X4));
 	MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
 }
@@ -134,10 +128,12 @@ unsigned ObjectFactory::CreatePrefab(std::string* _filename, const char* DEBUG_S
 		if(file) {
 			//Read ClassName
 			int nameLength;
+
 			fread(&nameLength, sizeof(int), 1, file);
 			char className[MAX_NAME_LENGTH];
+			max_fget = abs(nameLength) + 1;
 			// Note the intentional offset by 1
-			max_fget = ++nameLength < MAX_NAME_LENGTH ? nameLength : MAX_NAME_LENGTH;
+			max_fget = max_fget < MAX_NAME_LENGTH ? max_fget : MAX_NAME_LENGTH;
 			fgets(className, max_fget, file);
 			prefab->objectTypeID = TypeMap::GetObjectNameID(std::string(className));
 			if(prefab->objectTypeID == 0) {
@@ -168,7 +164,7 @@ unsigned ObjectFactory::CreatePrefab(std::string* _filename, const char* DEBUG_S
 					fread(&tagNameLength, sizeof(int), 1, file);
 					char componentTag[MAX_TAG_LENGTH];
 					if(tagNameLength) {
-						max_fget = tagNameLength < MAX_NAME_LENGTH ? tagNameLength : MAX_NAME_LENGTH;
+						max_fget = ++tagNameLength < MAX_NAME_LENGTH ? tagNameLength : MAX_NAME_LENGTH;
 						fgets(componentTag, max_fget, file);
 					}
 					//Check for special data flag
@@ -208,6 +204,12 @@ unsigned ObjectFactory::CreatePrefab(std::string* _filename, const char* DEBUG_S
 					static const size_t length = strlen(directory);
 					memmove_s(componentIdentifier + length, MAX_NAME_LENGTH, componentIdentifier, MAX_NAME_LENGTH - length);
 					memcpy(componentIdentifier, directory, length);
+					// In local context, 0 is impossible as it is the first one
+					unsigned componentPrefabID = prefabNames[componentIdentifier];
+					if(componentPrefabID == 0) {
+						componentPrefabID = CreatePrefab(&std::string(componentIdentifier));
+						prefab = &prefabs[prefabID]; //The vector may move
+					}
 					unsigned prefabID = prefabNames[componentIdentifier];
 					if(prefabID == 0) {
 						prefabID = CreatePrefab(&std::string(componentIdentifier));
@@ -217,10 +219,10 @@ unsigned ObjectFactory::CreatePrefab(std::string* _filename, const char* DEBUG_S
 					fread(&tagNameLength, sizeof(int), 1, file);
 					char componentTag[MAX_TAG_LENGTH];
 					if(tagNameLength) {
-						max_fget = tagNameLength < MAX_NAME_LENGTH ? tagNameLength : MAX_NAME_LENGTH;
+						max_fget = ++tagNameLength < MAX_NAME_LENGTH ? tagNameLength : MAX_NAME_LENGTH;
 						fgets(componentTag, max_fget, file);
 					}
-					prefab->object->GivePID(prefabID, componentTag);
+					prefab->object->GivePID(componentPrefabID, componentTag);
 				}
 				else {
 
@@ -235,8 +237,11 @@ unsigned ObjectFactory::CreatePrefab(std::string* _filename, const char* DEBUG_S
 		else {
 			Console::ErrorOut << "ObjectFactory: Failed to load the file '" << _filename->c_str() << "'.  This may cause serious issues. \n";
 			Console::ErrorLine << "ObjectFactory: Failed to load the file '" << _filename->c_str() << "'.  This may cause serious issues.";
-
+			assert(false);
 		}
+#ifdef _DEBUG
+		prefab->object->SmokeTest();
+#endif
 		if(objectPrefabOverride) {
 			Object2Prefab[prefab->objectTypeID] = prefabID;
 		}
@@ -246,6 +251,8 @@ unsigned ObjectFactory::CreatePrefab(std::string* _filename, const char* DEBUG_S
 			prefabNamesReverse[prefabID] = std::string(DEBUG_STRING_NAME);
 			prefabNames[std::string(DEBUG_STRING_NAME)] = prefabID;
 		}
+		
+
 	}
 	return prefabID;
 }

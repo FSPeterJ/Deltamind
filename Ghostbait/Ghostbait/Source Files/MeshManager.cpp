@@ -176,3 +176,11 @@ Mesh* MeshManager::CloneComponent(ComponentBase* meshReference) {
 void MeshManager::ResetComponent(ComponentBase * reset) {
 	trackedMeshes.DeactivateMemory(reset);
 }
+
+void MeshManager::ActivateComponent(ComponentBase* component)
+{
+}
+
+void MeshManager::DeactivateComponent(ComponentBase* component)
+{
+}

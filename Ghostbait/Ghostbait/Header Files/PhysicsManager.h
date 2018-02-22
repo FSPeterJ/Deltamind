@@ -4,6 +4,7 @@
 #include "Pool.h"
 #include "SpatialPartition.h"
 #include "PhysicsExtension.h"
+#include "IComponentManager.h"
 
 namespace DirectX
 {
@@ -13,16 +14,16 @@ namespace DirectX
 class GameObject;
 
 #define MAX_PHYSICALS 1024
+#define MAX_STATIC_PHYSICALS 64
 #define MAX_COLLIDER_DATA 24
 #define MAX_PREFABS 50
 
-#include "IComponentManager.h"
 class PhysicsManager: public IComponentManager {
-	//std::vector<PhysicsComponent> components;
-	Pool<PhysicsComponent> components = Pool<PhysicsComponent>(MAX_PHYSICALS);
+	static Pool<PhysicsComponent> dynamicComponents;
+	static Pool<PhysicsComponent> staticComponents;
+	static SpatialPartition partitionSpace;
 	std::vector<ColliderData> colliderDataList;
 	std::vector<PhysicsComponent> prefabComponents;
-	static SpatialPartition partitionSpace;
 
 	ColliderData* AddColliderData(float _radius);
 	ColliderData* AddColliderData(float _radius, float _height);
@@ -70,6 +71,8 @@ public:
 	PhysicsComponent* CloneComponent(ComponentBase * reference) override;
 	PhysicsComponent* GetReferenceComponent(const char * _FilePath, const char* _data) override;
 	void ResetComponent(ComponentBase * reset) override;
+	void ActivateComponent(ComponentBase* component) override;
+	void DeactivateComponent(ComponentBase* component) override;
 	void Update();
 	static bool Raycast(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction, DirectX::XMFLOAT3* colPoint = nullptr, GameObject** colObject = nullptr, float maxCastDistance = 100.f);
 

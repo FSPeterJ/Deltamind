@@ -28,5 +28,9 @@ void Object::GivePID(unsigned pid, const char* tag)
 
 void Object::CloneData(Object* obj)
 {
+
+}
+
+void Object::SmokeTest() {
 }
 

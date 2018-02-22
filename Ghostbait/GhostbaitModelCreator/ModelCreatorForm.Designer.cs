@@ -70,6 +70,8 @@ namespace GhostbaitModelCreator
             this.colliderBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.colliderCreatorFormBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.programBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.radioButtonDynamic = new System.Windows.Forms.RadioButton();
+            this.radioButtonStatic = new System.Windows.Forms.RadioButton();
             this.groupBoxAnimation.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewAnimation)).BeginInit();
             this.panel4.SuspendLayout();
@@ -104,7 +106,7 @@ namespace GhostbaitModelCreator
             this.groupBoxAnimation.Controls.Add(this.dataGridViewAnimation);
             this.groupBoxAnimation.Controls.Add(this.panel4);
             this.groupBoxAnimation.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBoxAnimation.Location = new System.Drawing.Point(0, 823);
+            this.groupBoxAnimation.Location = new System.Drawing.Point(0, 844);
             this.groupBoxAnimation.Name = "groupBoxAnimation";
             this.groupBoxAnimation.Size = new System.Drawing.Size(305, 168);
             this.groupBoxAnimation.TabIndex = 9;
@@ -172,7 +174,7 @@ namespace GhostbaitModelCreator
             this.SidePanel.Controls.Add(this.groupBoxClass);
             this.SidePanel.Location = new System.Drawing.Point(562, 24);
             this.SidePanel.Name = "SidePanel";
-            this.SidePanel.Size = new System.Drawing.Size(322, 637);
+            this.SidePanel.Size = new System.Drawing.Size(322, 686);
             this.SidePanel.TabIndex = 5;
             // 
             // groupBox1
@@ -180,7 +182,7 @@ namespace GhostbaitModelCreator
             this.groupBox1.Controls.Add(this.dataGridViewChildObjects);
             this.groupBox1.Controls.Add(this.panel5);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox1.Location = new System.Drawing.Point(0, 991);
+            this.groupBox1.Location = new System.Drawing.Point(0, 1012);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(305, 183);
             this.groupBox1.TabIndex = 10;
@@ -222,7 +224,7 @@ namespace GhostbaitModelCreator
             this.groupBoxBindPose.Controls.Add(this.bindPoseFileName);
             this.groupBoxBindPose.Controls.Add(this.bindPoseFileGrab);
             this.groupBoxBindPose.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBoxBindPose.Location = new System.Drawing.Point(0, 767);
+            this.groupBoxBindPose.Location = new System.Drawing.Point(0, 788);
             this.groupBoxBindPose.Name = "groupBoxBindPose";
             this.groupBoxBindPose.Size = new System.Drawing.Size(305, 56);
             this.groupBoxBindPose.TabIndex = 6;
@@ -264,7 +266,7 @@ namespace GhostbaitModelCreator
             this.groupBoxAudio.Controls.Add(this.dataGridViewAudio);
             this.groupBoxAudio.Controls.Add(this.panel6);
             this.groupBoxAudio.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBoxAudio.Location = new System.Drawing.Point(0, 594);
+            this.groupBoxAudio.Location = new System.Drawing.Point(0, 615);
             this.groupBoxAudio.Name = "groupBoxAudio";
             this.groupBoxAudio.Size = new System.Drawing.Size(305, 173);
             this.groupBoxAudio.TabIndex = 7;
@@ -307,7 +309,7 @@ namespace GhostbaitModelCreator
             this.groupBoxColliders.Controls.Add(this.dataGridViewColliders);
             this.groupBoxColliders.Controls.Add(this.panel1);
             this.groupBoxColliders.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBoxColliders.Location = new System.Drawing.Point(0, 418);
+            this.groupBoxColliders.Location = new System.Drawing.Point(0, 439);
             this.groupBoxColliders.Name = "groupBoxColliders";
             this.groupBoxColliders.Size = new System.Drawing.Size(305, 176);
             this.groupBoxColliders.TabIndex = 8;
@@ -350,7 +352,7 @@ namespace GhostbaitModelCreator
             this.groupBoxMaterial.Controls.Add(this.dataGridViewMaterial);
             this.groupBoxMaterial.Controls.Add(this.panel2);
             this.groupBoxMaterial.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBoxMaterial.Location = new System.Drawing.Point(0, 241);
+            this.groupBoxMaterial.Location = new System.Drawing.Point(0, 262);
             this.groupBoxMaterial.Name = "groupBoxMaterial";
             this.groupBoxMaterial.Size = new System.Drawing.Size(305, 177);
             this.groupBoxMaterial.TabIndex = 5;
@@ -393,7 +395,7 @@ namespace GhostbaitModelCreator
             this.groupBoxMesh.Controls.Add(this.dataGridViewMesh);
             this.groupBoxMesh.Controls.Add(this.panel3);
             this.groupBoxMesh.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBoxMesh.Location = new System.Drawing.Point(0, 52);
+            this.groupBoxMesh.Location = new System.Drawing.Point(0, 73);
             this.groupBoxMesh.Name = "groupBoxMesh";
             this.groupBoxMesh.Size = new System.Drawing.Size(305, 189);
             this.groupBoxMesh.TabIndex = 4;
@@ -421,11 +423,13 @@ namespace GhostbaitModelCreator
             // 
             // groupBoxClass
             // 
+            this.groupBoxClass.Controls.Add(this.radioButtonStatic);
+            this.groupBoxClass.Controls.Add(this.radioButtonDynamic);
             this.groupBoxClass.Controls.Add(this.className);
             this.groupBoxClass.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBoxClass.Location = new System.Drawing.Point(0, 0);
             this.groupBoxClass.Name = "groupBoxClass";
-            this.groupBoxClass.Size = new System.Drawing.Size(305, 52);
+            this.groupBoxClass.Size = new System.Drawing.Size(305, 73);
             this.groupBoxClass.TabIndex = 0;
             this.groupBoxClass.TabStop = false;
             this.groupBoxClass.Text = "Class";
@@ -496,11 +500,33 @@ namespace GhostbaitModelCreator
             // 
             this.programBindingSource.DataSource = typeof(GhostbaitModelCreator.Program);
             // 
+            // radioButtonDynamic
+            // 
+            this.radioButtonDynamic.AutoSize = true;
+            this.radioButtonDynamic.Checked = true;
+            this.radioButtonDynamic.Location = new System.Drawing.Point(7, 46);
+            this.radioButtonDynamic.Name = "radioButtonDynamic";
+            this.radioButtonDynamic.Size = new System.Drawing.Size(77, 17);
+            this.radioButtonDynamic.TabIndex = 2;
+            this.radioButtonDynamic.TabStop = true;
+            this.radioButtonDynamic.Text = "Is Dynamic";
+            this.radioButtonDynamic.UseVisualStyleBackColor = true;
+            // 
+            // radioButtonStatic
+            // 
+            this.radioButtonStatic.AutoSize = true;
+            this.radioButtonStatic.Location = new System.Drawing.Point(90, 46);
+            this.radioButtonStatic.Name = "radioButtonStatic";
+            this.radioButtonStatic.Size = new System.Drawing.Size(63, 17);
+            this.radioButtonStatic.TabIndex = 3;
+            this.radioButtonStatic.Text = "Is Static";
+            this.radioButtonStatic.UseVisualStyleBackColor = true;
+            // 
             // ModelCreatorForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(884, 661);
+            this.ClientSize = new System.Drawing.Size(884, 722);
             this.Controls.Add(this.SidePanel);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
@@ -583,6 +609,8 @@ namespace GhostbaitModelCreator
         private System.Windows.Forms.Button ChildObjectsAdd;
         private System.Windows.Forms.Panel panel6;
         private System.Windows.Forms.DataGridView dataGridViewAudio;
+        private System.Windows.Forms.RadioButton radioButtonStatic;
+        private System.Windows.Forms.RadioButton radioButtonDynamic;
     }
 }
 

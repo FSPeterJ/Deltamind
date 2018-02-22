@@ -84,14 +84,14 @@ namespace GhostbaitModelCreator
             this.colliderType.FormattingEnabled = true;
             this.colliderType.Location = new System.Drawing.Point(125, 24);
             this.colliderType.Name = "colliderType";
-            this.colliderType.Size = new System.Drawing.Size(147, 21);
+            this.colliderType.Size = new System.Drawing.Size(252, 21);
             this.colliderType.TabIndex = 0;
             this.colliderType.SelectedIndexChanged += new System.EventHandler(this.colliderType_SelectedIndexChanged);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(226, 54);
+            this.label1.Location = new System.Drawing.Point(294, 51);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(14, 13);
             this.label1.TabIndex = 2;
@@ -100,7 +100,7 @@ namespace GhostbaitModelCreator
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(174, 54);
+            this.label2.Location = new System.Drawing.Point(207, 54);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(14, 13);
             this.label2.TabIndex = 4;
@@ -224,34 +224,34 @@ namespace GhostbaitModelCreator
             this.boxPanel.Controls.Add(this.label12);
             this.boxPanel.Location = new System.Drawing.Point(0, 77);
             this.boxPanel.Name = "boxPanel";
-            this.boxPanel.Size = new System.Drawing.Size(279, 56);
+            this.boxPanel.Size = new System.Drawing.Size(377, 56);
             this.boxPanel.TabIndex = 15;
             this.boxPanel.Visible = false;
             // 
             // boxPoint2Z
             // 
             this.boxPoint2Z.DecimalPlaces = 3;
-            this.boxPoint2Z.Location = new System.Drawing.Point(240, 30);
+            this.boxPoint2Z.Location = new System.Drawing.Point(314, 30);
             this.boxPoint2Z.Minimum = new decimal(new int[] {
             100,
             0,
             0,
             -2147483648});
             this.boxPoint2Z.Name = "boxPoint2Z";
-            this.boxPoint2Z.Size = new System.Drawing.Size(33, 20);
+            this.boxPoint2Z.Size = new System.Drawing.Size(63, 20);
             this.boxPoint2Z.TabIndex = 12;
             // 
             // boxPoint1Z
             // 
             this.boxPoint1Z.DecimalPlaces = 3;
-            this.boxPoint1Z.Location = new System.Drawing.Point(240, 3);
+            this.boxPoint1Z.Location = new System.Drawing.Point(314, 4);
             this.boxPoint1Z.Minimum = new decimal(new int[] {
             100,
             0,
             0,
             -2147483648});
             this.boxPoint1Z.Name = "boxPoint1Z";
-            this.boxPoint1Z.Size = new System.Drawing.Size(33, 20);
+            this.boxPoint1Z.Size = new System.Drawing.Size(63, 20);
             this.boxPoint1Z.TabIndex = 12;
             // 
             // label13
@@ -266,27 +266,27 @@ namespace GhostbaitModelCreator
             // boxPoint2Y
             // 
             this.boxPoint2Y.DecimalPlaces = 3;
-            this.boxPoint2Y.Location = new System.Drawing.Point(189, 30);
+            this.boxPoint2Y.Location = new System.Drawing.Point(225, 30);
             this.boxPoint2Y.Minimum = new decimal(new int[] {
             100,
             0,
             0,
             -2147483648});
             this.boxPoint2Y.Name = "boxPoint2Y";
-            this.boxPoint2Y.Size = new System.Drawing.Size(33, 20);
+            this.boxPoint2Y.Size = new System.Drawing.Size(63, 20);
             this.boxPoint2Y.TabIndex = 12;
             // 
             // boxPoint1Y
             // 
             this.boxPoint1Y.DecimalPlaces = 3;
-            this.boxPoint1Y.Location = new System.Drawing.Point(189, 3);
+            this.boxPoint1Y.Location = new System.Drawing.Point(225, 4);
             this.boxPoint1Y.Minimum = new decimal(new int[] {
             100,
             0,
             0,
             -2147483648});
             this.boxPoint1Y.Name = "boxPoint1Y";
-            this.boxPoint1Y.Size = new System.Drawing.Size(33, 20);
+            this.boxPoint1Y.Size = new System.Drawing.Size(63, 20);
             this.boxPoint1Y.TabIndex = 12;
             // 
             // label14
@@ -308,7 +308,7 @@ namespace GhostbaitModelCreator
             0,
             -2147483648});
             this.boxPoint2X.Name = "boxPoint2X";
-            this.boxPoint2X.Size = new System.Drawing.Size(33, 20);
+            this.boxPoint2X.Size = new System.Drawing.Size(63, 20);
             this.boxPoint2X.TabIndex = 12;
             // 
             // boxPoint1X
@@ -321,13 +321,13 @@ namespace GhostbaitModelCreator
             0,
             -2147483648});
             this.boxPoint1X.Name = "boxPoint1X";
-            this.boxPoint1X.Size = new System.Drawing.Size(33, 20);
+            this.boxPoint1X.Size = new System.Drawing.Size(63, 20);
             this.boxPoint1X.TabIndex = 12;
             // 
             // label15
             // 
             this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(173, 34);
+            this.label15.Location = new System.Drawing.Point(207, 33);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(14, 13);
             this.label15.TabIndex = 20;
@@ -336,7 +336,7 @@ namespace GhostbaitModelCreator
             // label16
             // 
             this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(224, 34);
+            this.label16.Location = new System.Drawing.Point(294, 34);
             this.label16.Name = "label16";
             this.label16.Size = new System.Drawing.Size(14, 13);
             this.label16.TabIndex = 18;
@@ -363,7 +363,7 @@ namespace GhostbaitModelCreator
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(173, 7);
+            this.label11.Location = new System.Drawing.Point(207, 7);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(14, 13);
             this.label11.TabIndex = 13;
@@ -372,7 +372,7 @@ namespace GhostbaitModelCreator
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(224, 7);
+            this.label12.Location = new System.Drawing.Point(294, 6);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(14, 13);
             this.label12.TabIndex = 11;
@@ -383,7 +383,7 @@ namespace GhostbaitModelCreator
             this.createButton.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.createButton.Location = new System.Drawing.Point(0, 135);
             this.createButton.Name = "createButton";
-            this.createButton.Size = new System.Drawing.Size(280, 38);
+            this.createButton.Size = new System.Drawing.Size(384, 38);
             this.createButton.TabIndex = 16;
             this.createButton.Text = "Create";
             this.createButton.UseVisualStyleBackColor = true;
@@ -393,31 +393,46 @@ namespace GhostbaitModelCreator
             // 
             this.colliderOffsetX.DecimalPlaces = 3;
             this.colliderOffsetX.Location = new System.Drawing.Point(139, 51);
+            this.colliderOffsetX.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
             this.colliderOffsetX.Name = "colliderOffsetX";
-            this.colliderOffsetX.Size = new System.Drawing.Size(33, 20);
+            this.colliderOffsetX.Size = new System.Drawing.Size(63, 20);
             this.colliderOffsetX.TabIndex = 12;
             // 
             // colliderOffsetY
             // 
             this.colliderOffsetY.DecimalPlaces = 3;
-            this.colliderOffsetY.Location = new System.Drawing.Point(188, 51);
+            this.colliderOffsetY.Location = new System.Drawing.Point(225, 52);
+            this.colliderOffsetY.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
             this.colliderOffsetY.Name = "colliderOffsetY";
-            this.colliderOffsetY.Size = new System.Drawing.Size(33, 20);
+            this.colliderOffsetY.Size = new System.Drawing.Size(63, 20);
             this.colliderOffsetY.TabIndex = 12;
             // 
             // colliderOffsetZ
             // 
             this.colliderOffsetZ.DecimalPlaces = 3;
-            this.colliderOffsetZ.Location = new System.Drawing.Point(239, 51);
+            this.colliderOffsetZ.Location = new System.Drawing.Point(314, 51);
+            this.colliderOffsetZ.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
             this.colliderOffsetZ.Name = "colliderOffsetZ";
-            this.colliderOffsetZ.Size = new System.Drawing.Size(33, 20);
+            this.colliderOffsetZ.Size = new System.Drawing.Size(63, 20);
             this.colliderOffsetZ.TabIndex = 12;
             // 
             // ColliderCreatorForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(280, 173);
+            this.ClientSize = new System.Drawing.Size(384, 173);
             this.Controls.Add(this.colliderOffsetZ);
             this.Controls.Add(this.colliderOffsetY);
             this.Controls.Add(this.colliderOffsetX);

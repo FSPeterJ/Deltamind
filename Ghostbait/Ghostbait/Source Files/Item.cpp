@@ -9,11 +9,11 @@ void Item::Render(bool render) {
 	if (render == isRendered) return;
 
 	if (render) {
-		MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(this));
+		MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(this));
 		isRendered = true;
 	}
 	else {
-		MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(this));
+		MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(this));
 		isRendered = false;
 	}
 }

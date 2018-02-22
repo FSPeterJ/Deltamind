@@ -59,18 +59,18 @@ void VRManager::CreateControllers() {
 	//Left
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 0,0,0 }, &leftController.obj));
 	leftController.obj->Init(ControllerObject::ControllerHand::HAND_Left);
-	leftController.obj->AddItem(0, 1);
-	leftController.obj->AddItem(1, 19, Gun::FireType::SEMI, 60, 50);
-	leftController.obj->AddItem(2, 19, Gun::FireType::AUTO, 8, 25);
-	leftController.obj->AddItem(3, 16, { 1, 2, 5 });
+	//leftController.obj->AddItem(0, 1);
+	//leftController.obj->AddItem(1, 19, Gun::FireType::SEMI, 60, 50);
+	//leftController.obj->AddItem(2, 19, Gun::FireType::AUTO, 8, 25);
+	//leftController.obj->AddItem(3, 16, { 1, 2, 5 });
 	//Right
 	// Need to investigate a way to set these add items to be less hard coded numbers
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 1,0,1 }, &rightController.obj));
 	rightController.obj->Init(ControllerObject::ControllerHand::HAND_Right);
-	rightController.obj->AddItem(0, 1);
-	rightController.obj->AddItem(1, 19, Gun::FireType::SEMI, 60, 50); // quick test of different projectile loading
-	rightController.obj->AddItem(2, 19, Gun::FireType::AUTO, 8, 25);
-	rightController.obj->AddItem(3, 16, { 1, 2, 5 });
+	//rightController.obj->AddItem(0, 1);
+	//rightController.obj->AddItem(1, 19, Gun::FireType::SEMI, 60, 50); // quick test of different projectile loading
+	//rightController.obj->AddItem(2, 19, Gun::FireType::AUTO, 8, 25);
+	//rightController.obj->AddItem(3, 16, { 1, 2, 5 });
 }
 
 DirectX::XMFLOAT4X4 VRManager::VRProjectionToDirectXMatrix(vr::EVREye eye, float nearPlane, float farPlane) {
@@ -213,7 +213,7 @@ DirectX::XMFLOAT4X4 VRManager::GetRoomPosition() {
 	return roomPos;
 }
 
-bool VRManager::ArcCast(ControllerObject* controller, DirectX::XMFLOAT3* outPos, float maxDistance, float minAngle, float maxAngle, float castHeight) {
+bool VRManager::ArcCast(Object* controller, DirectX::XMFLOAT3* outPos, float maxDistance, float minAngle, float maxAngle, float castHeight) {
 	DirectX::XMMATRIX controllerMat = DirectX::XMLoadFloat4x4(&controller->position);
 	DirectX::XMVECTOR planeNormalVec = DirectX::XMVectorSet(0, 1, 0, 0);
 	DirectX::XMVECTOR forwardVec = DirectX::XMVector3Normalize(controllerMat.r[2]);

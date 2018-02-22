@@ -8,13 +8,15 @@
 Collider PhysicsManager::defaultColider;
 ColliderData PhysicsManager::defaultSphereColider;
 SpatialPartition PhysicsManager::partitionSpace;
-
+Pool<PhysicsComponent> PhysicsManager::dynamicComponents = Pool<PhysicsComponent>(MAX_PHYSICALS, true);
+Pool<PhysicsComponent> PhysicsManager::staticComponents = Pool<PhysicsComponent>(MAX_STATIC_PHYSICALS, true);
 
 using namespace DirectX;
 
 #pragma region Public Functions
 
 PhysicsManager::PhysicsManager() {
+
 	defaultSphereColider.colliderInfo.sphereCollider.radius = 0.5f;
 	defaultSphereColider.colliderType = SPHERE;
 
@@ -26,11 +28,14 @@ PhysicsManager::PhysicsManager() {
 
 	colliderDataList.reserve(MAX_COLLIDER_DATA);
 	prefabComponents.reserve(MAX_PREFABS);
+
+	dynamicComponents.RequestMemoryFromMemManager(MAX_PHYSICALS);
+	staticComponents.RequestMemoryFromMemManager(MAX_STATIC_PHYSICALS);
 }
 PhysicsManager::~PhysicsManager() {}
 
 void PhysicsManager::AddComponent(GameObject* obj, float veloX, float veloY, float veloZ) {
-	PhysicsComponent* physComponent = components.ActivateMemory();
+	PhysicsComponent* physComponent = dynamicComponents.ActivateMemory();
 	physComponent->colliders.push_back(defaultColider);
 	physComponent->parentObject = obj;
 	physComponent->rigidBody = RigidBody();
@@ -38,14 +43,24 @@ void PhysicsManager::AddComponent(GameObject* obj, float veloX, float veloY, flo
 }
 
 PhysicsComponent* PhysicsManager::CloneComponent(ComponentBase* reference) {
-	PhysicsComponent* physComponent = components.ActivateMemory();
+	PhysicsComponent* physComponent;
+
+	if(((PhysicsComponent*)reference)->isStatic)
+		physComponent = staticComponents.ActivateMemory();
+	else
+		 physComponent = dynamicComponents.ActivateMemory();
+	
 	// SHALLOW COPY - this only copies the std::vector head.
-	physComponent->colliders = ((PhysicsComponent*)reference)->colliders;	physComponent->currentAABB = ((PhysicsComponent*)reference)->currentAABB;
+	physComponent->colliders = ((PhysicsComponent*)reference)->colliders;	
+	physComponent->currentAABB = ((PhysicsComponent*)reference)->currentAABB;
 	physComponent->previousAABB = ((PhysicsComponent*)reference)->previousAABB;
 	physComponent->baseAABB = ((PhysicsComponent*)reference)->baseAABB;
+	physComponent->isStatic = ((PhysicsComponent*)reference)->isStatic;
+	physComponent->isActive = ((PhysicsComponent*)reference)->isActive;
 
+	if (((PhysicsComponent*)reference)->isStatic) return physComponent;
+		
 	partitionSpace.AddComponent(physComponent);
-
 	return physComponent;
 }
 PhysicsComponent* PhysicsManager::GetReferenceComponent(const char * _FilePath, const char * _dataBlock) {
@@ -64,6 +79,8 @@ PhysicsComponent* PhysicsManager::GetReferenceComponent(const char * _FilePath, 
 	char capsule[] = "CAPSULE";
 	char box[] = "BOX";
 
+	memcpy(&compHolder.isStatic, &_dataBlock[currIndex], sizeof(bool));
+	currIndex += sizeof(bool);
 	memcpy(&numofColliders, &_dataBlock[currIndex], sizeof(numofColliders));
 	currIndex += sizeof(numofColliders);
 
@@ -130,54 +147,69 @@ PhysicsComponent* PhysicsManager::GetReferenceComponent(const char * _FilePath, 
 }
 
 void PhysicsManager::ResetComponent(ComponentBase * reset) {
-	components.DeactivateMemory(reset);
+	if (((PhysicsComponent*)reset)->isStatic) {
+		staticComponents.DeactivateMemory(reset);
+		return;
+	}
+
+	dynamicComponents.DeactivateMemory(reset);
 	partitionSpace.RemoveComponent((PhysicsComponent*)reset);
 }
 
+void PhysicsManager::ActivateComponent(ComponentBase* component)
+{
+
+}
+
+void PhysicsManager::DeactivateComponent(ComponentBase* component)
+{
+
+}
+
 void PhysicsManager::Update() {
-	std::vector<PhysicsComponent*>*temp = components.GetActiveList();
-	const int activeCount = (int) components.GetActiveCount();
+
+	const int activeCount = (int)dynamicComponents.GetActiveCount();
 	for(int i = 0; i < activeCount; ++i) {
 		float delta = (float)GhostTime::DeltaTime();
 
 		//This seems absurd, are we sure we can't use XMVECTOR and XMMATRIX in a more manageable manner?
-		if (!components[i].isActive) continue;
-		XMFLOAT4* objectPosition = (XMFLOAT4*) &components[i].parentObject->position.m[3];
+		if (!dynamicComponents[i].isActive) continue;
+		XMFLOAT4* objectPosition = (XMFLOAT4*) &dynamicComponents[i].parentObject->position.m[3];
 		XMVECTOR newposition = XMLoadFloat4(objectPosition);
-		components[i].rigidBody.Update();
-		newposition += components[i].rigidBody.GetVelocity() * delta;
+		dynamicComponents[i].rigidBody.Update();
+		newposition += dynamicComponents[i].rigidBody.GetVelocity() * delta;
 		XMStoreFloat4(objectPosition, newposition);
-		UpdateAABB(components[i]);
-		partitionSpace.UpdateComponent(&components[i]);
+		UpdateAABB(dynamicComponents[i]);
+		partitionSpace.UpdateComponent(&dynamicComponents[i]);
 		//components[i].parentObject->position.r[3] += components[i].rigidBody.GetVelocity() * dt;
 
 #if _DEBUG
-		for(unsigned int colInd = 0; colInd < components[i].colliders.size(); ++colInd) {
-			XMVECTOR offset = XMLoadFloat3(&(components[i].colliders[colInd].centerOffset));
+		for(unsigned int colInd = 0; colInd < dynamicComponents[i].colliders.size(); ++colInd) {
+			XMVECTOR offset = XMLoadFloat3(&(dynamicComponents[i].colliders[colInd].centerOffset));
 			XMFLOAT3 colPos;
 			XMStoreFloat3(&colPos, newposition + offset);
 
-			switch(components[i].colliders[colInd].colliderData->colliderType) {
+			switch(dynamicComponents[i].colliders[colInd].colliderData->colliderType) {
 			case SPHERE:
-				DebugRenderer::AddSphere(colPos, components[i].colliders[colInd].colliderData->colliderInfo.sphereCollider.radius, XMFLOAT3(1.0f, 0.0f, 0.0f));
+				DebugRenderer::AddSphere(colPos, dynamicComponents[i].colliders[colInd].colliderData->colliderInfo.sphereCollider.radius, XMFLOAT3(1.0f, 0.0f, 0.0f));
 				break;
 			case CAPSULE:
 			{
-				float _height = components[i].colliders[colInd].colliderData->colliderInfo.capsuleCollider.height;
+				float _height = dynamicComponents[i].colliders[colInd].colliderData->colliderInfo.capsuleCollider.height;
 				XMVECTOR cap1A = offset + XMVectorSet(0, _height * 0.5f, 0, 0);
 				XMVECTOR cap1B = offset - XMVectorSet(0, _height * 0.5f, 0, 0);
-				cap1A = XMVector3TransformCoord(cap1A, XMLoadFloat4x4(&(components[i].parentObject->position)));
-				cap1B = XMVector3TransformCoord(cap1B, XMLoadFloat4x4(&(components[i].parentObject->position)));
+				cap1A = XMVector3TransformCoord(cap1A, XMLoadFloat4x4(&(dynamicComponents[i].parentObject->position)));
+				cap1B = XMVector3TransformCoord(cap1B, XMLoadFloat4x4(&(dynamicComponents[i].parentObject->position)));
 				XMFLOAT3 capStart, capEnd;
 				XMStoreFloat3(&capStart, cap1A);
 				XMStoreFloat3(&capEnd, cap1B);
-				DebugRenderer::AddSphere(capStart, components[i].colliders[colInd].colliderData->colliderInfo.capsuleCollider.radius, XMFLOAT3(1.0f, 0.0f, 0.0f));
-				DebugRenderer::AddSphere(capEnd, components[i].colliders[colInd].colliderData->colliderInfo.capsuleCollider.radius, XMFLOAT3(1.0f, 0.0f, 0.0f));
+				DebugRenderer::AddSphere(capStart, dynamicComponents[i].colliders[colInd].colliderData->colliderInfo.capsuleCollider.radius, XMFLOAT3(1.0f, 0.0f, 0.0f));
+				DebugRenderer::AddSphere(capEnd, dynamicComponents[i].colliders[colInd].colliderData->colliderInfo.capsuleCollider.radius, XMFLOAT3(1.0f, 0.0f, 0.0f));
 				DebugRenderer::AddLine(capStart, capEnd, XMFLOAT3(1.0f, 0.0f, 0.0f));
 			} break;
 			case BOX:
 			{
-				std::vector<XMVECTOR> corners = GetBoxCorners(components[i].colliders[colInd], XMLoadFloat4x4(&(components[i].parentObject->position)));
+				std::vector<XMVECTOR> corners = GetBoxCorners(dynamicComponents[i].colliders[colInd], XMLoadFloat4x4(&(dynamicComponents[i].parentObject->position)));
 				std::vector<XMFLOAT3> cornersStored;
 				XMFLOAT3 temp;
 				for (unsigned int i = 0; i < corners.size(); ++i) {
@@ -206,7 +238,7 @@ void PhysicsManager::Update() {
 			}
 		}
 
-		DebugRenderer::AddBox(components[i].currentAABB.min, components[i].currentAABB.max, XMFLOAT3(0.0f, 1.0f, 0.0f));
+		DebugRenderer::AddBox(dynamicComponents[i].currentAABB.min, dynamicComponents[i].currentAABB.max, XMFLOAT3(0.0f, 1.0f, 0.0f));
 
 #endif
 	}
@@ -252,6 +284,16 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 
 		if (collided)
 			break;
+	}
+
+	std::vector<PhysicsComponent*>* staticComps = staticComponents.GetActiveList();
+	for (int i = 0; i < staticComps->size(); ++i) {
+		if (!(*staticComps)[i]->isActive) continue;
+		if (RaycastCollisionCheck(vecOrigin, vecDirection, (*staticComps)[i], &tempCollidePt, &tempCollideObj, maxCastDistance)) {
+			collisionPoints.push_back(tempCollidePt);
+			collidedObjects.push_back(tempCollideObj);
+			collided = true;
+		}
 	}
 
 	if (collided) {
@@ -407,7 +449,6 @@ void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponen
 
 			if (collisionResult) {
 				SendCollision((GameObject*)component1.parentObject, (GameObject*)component2.parentObject);
-				//Console::WriteLine << "Collided";
 			}
 		}
 	}
@@ -949,7 +990,7 @@ void PhysicsManager::SendCollision(GameObject* obj1, GameObject* obj2) {
 	(obj1)->OnCollision(obj2);
 	(obj2)->OnCollision(obj1);
 
-	//Console::WriteLine << obj1->GetTag().c_str() << " collided with " << obj2->GetTag().c_str();
+	Console::WriteLine << obj1->GetTag().c_str() << " collided with " << obj2->GetTag().c_str();
 }
 
 void PhysicsManager::TestAllComponentsCollision() {
@@ -967,6 +1008,8 @@ void PhysicsManager::TestAllComponentsCollision() {
 	}
 	Console::WriteLine << counter;*/
 
+	std::vector<PhysicsComponent*>* dynamicComp = dynamicComponents.GetActiveList();
+	std::vector<PhysicsComponent*>* staticComp = staticComponents.GetActiveList();
 	std::vector<PhysicsComponent*> collidingList = partitionSpace.GetComponentsToTest();
 
 	for (unsigned int comp1Index = 0; comp1Index < collidingList.size(); ++comp1Index) {
@@ -974,6 +1017,12 @@ void PhysicsManager::TestAllComponentsCollision() {
 			continue;
 		for (unsigned int comp2Index = comp1Index + 1; collidingList[comp2Index]; ++comp2Index) {
 			CollisionCheck(*(collidingList[comp1Index]), *(collidingList[comp2Index]));
+		}
+	}
+
+	for (unsigned int staticIndex = 0; staticIndex < staticComp->size(); ++staticIndex) {
+		for (unsigned int dynamicIndex = 0; dynamicIndex < dynamicComp->size(); ++dynamicIndex) {
+			CollisionCheck(*(*staticComp)[staticIndex], *(*dynamicComp)[dynamicIndex]);
 		}
 	}
 }

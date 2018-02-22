@@ -48,6 +48,7 @@ void AStarEnemy::Awake() {
 		NewRandPath();
 	}
 	next = path.start();
+	rb->SetTerminalSpeed(maxSpeed);
 }
 
 void AStarEnemy::CalcPath(DirectX::XMFLOAT2 where) {
@@ -69,6 +70,7 @@ void AStarEnemy::Update() {
 		if(curTile == next) {
 			if(path.goal() == curTile) {
 				Console::WriteLine << "We made it to our goal.";
+				rb->Stop();
 				start = false;
 				NewRandPath();
 			} else {
@@ -77,9 +79,11 @@ void AStarEnemy::Update() {
 				next = path[howFarAlong];
 				auto nextPathPoint = grid->TileToPoint(next);
 
-				position._41 = nextPathPoint.x;
-				position._43 = nextPathPoint.y;
-				//rb->AddForce(2.0f, nextPathPoint.x - position._41, 0.0f, nextPathPoint.y - position._43, 0.5f);
+				//position._41 = nextPathPoint.x;
+				//position._43 = nextPathPoint.y;
+				DirectX::XMVECTOR nextDirection = DirectX::XMVectorSet(nextPathPoint.x - position._41, 0.0f, nextPathPoint.y - position._43, 1.0f);
+				DirectX::XMVECTOR velocity = rb->GetVelocity();
+				rb->AddForce(3.0f * (DirectX::XMVectorGetX(DirectX::XMVector3Dot(nextDirection, velocity)) + 1.0f), nextPathPoint.x - position._41, 0.0f, nextPathPoint.y - position._43, 0.5f);
 			}
 		}
 	}

@@ -9,5 +9,5 @@ public:
 	void Update();
 	float CalculateDistance(GameObject* obj);
 	~Turret();
-	void OnCollision(GameObject* object);
+	void OnTrigger(GameObject* object);
 };

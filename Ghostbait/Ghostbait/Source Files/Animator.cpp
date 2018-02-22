@@ -117,6 +117,59 @@ void Animator::Update() {
 	}
 }
 
+
+void Animator::SetTime(float _timePos) {
+	timePos = _timePos;
+	bool loopState = false;
+	if(timePos < 0.0) {
+		timePos = currAnim->keyframes[currAnim->keyframes.size() - 1].endTime;
+	}
+	if(timePos > currAnim->keyframes[currAnim->keyframes.size() - 1].endTime) {
+		timePos = 0.0;
+	}
+
+	keyframe beginFrame;
+	keyframe endFrame;
+
+	if(timePos < currAnim->keyframes[0].endTime) {
+		beginFrame = currAnim->keyframes[currAnim->keyframes.size() - 1];
+		endFrame = currAnim->keyframes[0];
+		loopState = true;
+	}
+	else {
+		for(size_t i = 0; i < currAnim->keyframes.size() - 1; ++i) {
+			if(timePos > currAnim->keyframes[i].endTime && timePos <= currAnim->keyframes[i + 1].endTime) {
+				beginFrame = currAnim->keyframes[i];
+				endFrame = currAnim->keyframes[i + 1];
+			}
+		}
+	}
+
+	float ratio;
+	if(!loopState)
+		ratio = (float)((timePos - beginFrame.endTime) / (endFrame.endTime - beginFrame.endTime));
+	else
+		ratio = (float)(timePos / endFrame.endTime);
+
+	for(size_t i = 0; i < tweens.size(); ++i) {
+		DirectX::XMFLOAT3X3 endJointMat = pullRotation(endFrame.joints[i].transform);
+		DirectX::XMFLOAT3X3 beginJointMat = pullRotation(beginFrame.joints[i].transform);
+		DirectX::XMFLOAT3X3 interpolatedMat = lerpRotation(beginJointMat, endJointMat, ratio);
+		tweens[i].transform._41 = beginFrame.joints[i].transform._41 + ((endFrame.joints[i].transform._41 - beginFrame.joints[i].transform._41)*ratio);
+		tweens[i].transform._42 = beginFrame.joints[i].transform._42 + ((endFrame.joints[i].transform._42 - beginFrame.joints[i].transform._42)*ratio);
+		tweens[i].transform._43 = beginFrame.joints[i].transform._43 + ((endFrame.joints[i].transform._43 - beginFrame.joints[i].transform._43)*ratio);
+		tweens[i].transform._11 = interpolatedMat._11;
+		tweens[i].transform._12 = interpolatedMat._12;
+		tweens[i].transform._13 = interpolatedMat._13;
+		tweens[i].transform._21 = interpolatedMat._21;
+		tweens[i].transform._22 = interpolatedMat._22;
+		tweens[i].transform._23 = interpolatedMat._23;
+		tweens[i].transform._31 = interpolatedMat._31;
+		tweens[i].transform._32 = interpolatedMat._32;
+		tweens[i].transform._33 = interpolatedMat._33;
+	}
+}
+
 void Animator::addAnim(const char * animFilePath, const char * bindposeFilePath, const char * animName) {
 	animations[std::string(animName)] = animMan->GetReferenceAnimation(animFilePath, bindposeFilePath);
 	if(!currAnim) {

@@ -237,6 +237,7 @@
     <ClInclude Include="Header Files\PhysicsComponent.h" />
     <ClInclude Include="Header Files\PhysicsExtension.h" />
     <ClInclude Include="Header Files\PhysicsManager.h" />
+    <ClInclude Include="Header Files\PhysicsRegistry.h" />
     <ClInclude Include="Header Files\PhysicsTestObj.h" />
     <ClInclude Include="Header Files\Pool.h" />
     <ClInclude Include="Header Files\ProgressBar.h" />
@@ -250,6 +251,7 @@
     <ClInclude Include="Header Files\targetver.h" />
     <ClInclude Include="Header Files\TestObject.h" />
     <ClInclude Include="Header Files\ThreadPool.h" />
+    <ClInclude Include="Header Files\Turret.h" />
     <ClInclude Include="Header Files\TypeContainer.h" />
     <ClInclude Include="Header Files\TypeMapping.h" />
     <ClInclude Include="Header Files\VertexTypes.h" />
@@ -314,6 +316,7 @@
     <ClCompile Include="Source Files\PhysicsComponent.cpp" />
     <ClCompile Include="Source Files\PhysicsExtension.cpp" />
     <ClCompile Include="Source Files\PhysicsManager.cpp" />
+    <ClCompile Include="Source Files\PhysicsRegistry.cpp" />
     <ClCompile Include="Source Files\PhysicsTestObj.cpp" />
     <ClCompile Include="Source Files\Pool.cpp" />
     <ClCompile Include="Source Files\ProgressBar.cpp" />
@@ -324,6 +327,7 @@
     <ClCompile Include="Source Files\SpatialPartition.cpp" />
     <ClCompile Include="Source Files\Spawner.cpp" />
     <ClCompile Include="Source Files\ThreadPool.cpp" />
+    <ClCompile Include="Source Files\Turret.cpp" />
     <ClCompile Include="Source Files\TypeMapping.cpp" />
     <ClCompile Include="Source Files\ViveController.cpp" />
     <ClCompile Include="Source Files\VRManager.cpp" />

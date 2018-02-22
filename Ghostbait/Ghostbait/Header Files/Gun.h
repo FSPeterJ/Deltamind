@@ -8,6 +8,9 @@ public:
 		float currentEnergy = 0;
 		float energyOverheatDelayTimeLeft = 0;
 		float timeSinceLastShot = 0;
+	protected:
+		friend Gun; // possibly rethink this
+		unsigned overheatBarPID = 0;
 	public:
 		Gun* parent;
 		ProgressBar* bar;
@@ -28,7 +31,8 @@ public:
 		SEMI,
 	};
 protected:
-	unsigned projectiePrefabID = 4;
+	unsigned projectiePID = 0;
+	Overheat overheat;
 private:
 	//Main Stats
 	FireType type = AUTO;
@@ -36,19 +40,25 @@ private:
 	float damage = 1;
 
 public:
-	Overheat overheat;
 	Gun();
 	Gun(FireType _type, float _fireRate, float _damage);
-	void GivePID(unsigned pid, const char* tag);
-	inline void Init() { overheat.CreateBar(); };
+	void GivePID(unsigned pid, const char* tag) override;
 	void SetStats(FireType _type, float _fireRate, float _damage) { type = _type; fireRate = _fireRate; damage = _damage; };
 	bool Shoot();
-	void InactiveUpdate();
-	void ActiveUpdate();
+	void InactiveUpdate() override;
+	void ActiveUpdate() override;
+	// This is essentially a copy constructor, but since objects are never truely instantiated post-start...
 	void CloneData(Object* obj);
+#ifdef _DEBUG
+	void SmokeTest() override;
+#endif
+
 	void PassObject(unsigned pid, char* tag) {
 		if(strcmp(tag, "projectile")) {
-			projectiePrefabID = pid;
+			projectiePID = pid;
+		}
+		else if(strcmp(tag, "overheat")) {
+			overheat.overheatBarPID = pid;
 		}
 	}
 };

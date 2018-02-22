@@ -77,7 +77,7 @@ class InstantiateMessage: public EventMessageBase {
 	PrefabId pid;
 	DirectX::XMFLOAT4X4 position;
 public:
-	GameObject** obj;
+	GameObject** obj = nullptr;
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="InstantiateTypeMessage"/> class.
@@ -99,7 +99,7 @@ class InstantiateTypeMessage: public EventMessageBase {
 	unsigned tid = 0; //Object Type ID
 	DirectX::XMFLOAT4X4 position;
 public:
-	ObjectType** obj;
+	ObjectType** obj = nullptr;
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="InstantiateTypeMessage"/> class.
@@ -134,7 +134,7 @@ class InstantiateNameMessage: public EventMessageBase {
 	unsigned tid = 0; //Object Type ID
 public:
 	char* debug_name;
-	ObjectType** obj;
+	ObjectType** obj = nullptr;
 	/// <summary>
 	/// Initializes a new instance of the <see cref="InstantiateTypeMessage"/> class.
 	/// </summary>
@@ -152,25 +152,25 @@ public:
 	DirectX::XMFLOAT4X4 GetPosition() const { return position; }
 };
 
-class DestroyMessage: public EventMessageBase {
-	GameObject* obj;
+class StandardObjectMessage: public EventMessageBase {
+	GameObject* obj = nullptr;
 public:
 
 	/// <summary>
-	/// Initializes a new instance of the <see cref="DestroyMessage"/> class.
+	/// Initializes a new instance of the <see cref="StandardObjectMessage"/> class.
 	/// </summary>
 	/// <param name="_obj">The object.</param>
-	DestroyMessage(GameObject* _obj): obj(_obj) {}
+	StandardObjectMessage(GameObject* _obj): obj(_obj) {}
 
 	GameObject* RetrieveObject() const { return obj; }
 };
 
 class SpawnerCreatedMessage: public EventMessageBase {
-	GameObject* obj;
+	GameObject* obj = nullptr;
 public:
 
 	/// <summary>
-	/// Initializes a new instance of the <see cref="DestroyMessage"/> class.
+	/// Initializes a new instance of the <see cref="StandardObjectMessage"/> class.
 	/// </summary>
 	/// <param name="_obj">The object.</param>
 	SpawnerCreatedMessage(GameObject* _obj): obj(_obj) {}
@@ -187,7 +187,7 @@ public:
 
 //Duplicate is unnessessary
 class NewObjectMessage: public EventMessageBase {
-	GameObject* obj;
+	GameObject* obj = nullptr;
 public:
 
 	/// <summary>
@@ -200,7 +200,7 @@ public:
 };
 
 class SoundRequestMessage: public EventMessageBase {
-	GameObject* obj;
+	GameObject* obj = nullptr;
 	AkUniqueID sound;
 public:
 	SoundRequestMessage(GameObject* _obj, AkUniqueID _sound): obj(_obj), sound(_sound) {}

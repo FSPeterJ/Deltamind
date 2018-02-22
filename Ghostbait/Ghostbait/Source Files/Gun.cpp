@@ -11,7 +11,7 @@ Gun::Overheat::Overheat() {
 
 }
 void Gun::Overheat::CreateBar() {
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ProgressBar>(15, { 0.0f, 0.0f, 0.0f }, &bar)); // stop using magic number prefab ID
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ProgressBar>(overheatBarPID, { 0.0f, 0.0f, 0.0f }, &bar)); // stop using magic number prefab ID
 }
 bool Gun::Overheat::CanShoot(float fireRate) {
 	return timeSinceLastShot > (1 / fireRate) && !energyOverheatDelayTimeLeft;
@@ -78,18 +78,24 @@ Gun::Gun(FireType _type, float _fireRate, float _damage): type(_type), fireRate(
 }
 
 void Gun::GivePID(unsigned pid, const char* tag) {
-	if(strcmp(tag, "projectile") == 0) {
-		projectiePrefabID = pid;
+	// Look into a better system
+	if(!strcmp(tag, "projectile") ) {
+		projectiePID = pid;
+	}
+	else if(!strcmp(tag, "overheat")) {
+		overheat.overheatBarPID = pid;
 	}
 }
 
 bool Gun::Shoot() {
+
+	// What does this switch statement do???
 	switch(type) {
 		case AUTO:
 			if(overheat.CanShoot(fireRate)) {
 				//Fire
 				Projectile* obj;
-				MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Projectile>(projectiePrefabID, { 0, 0, 0 }, &obj));
+				MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Projectile>(projectiePID, { 0, 0, 0 }, &obj));
 				MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_WEN));
 				obj->position = position;
 				obj->position._41 += obj->position._31 * 0.2f;
@@ -107,13 +113,15 @@ bool Gun::Shoot() {
 			if(overheat.CanShoot(fireRate)) {
 				//Fire
 				Projectile* obj;
-				MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Projectile>(projectiePrefabID, { 0, 0, 0 }, &obj));
+				MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Projectile>(projectiePID, { 0, 0, 0 }, &obj));
 				MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_WEN));
 				obj->position = position;
 				obj->position._41 += obj->position._31 * 0.2f;
 				obj->position._42 += obj->position._32 * 0.2f;
 				obj->position._43 += obj->position._33 * 0.2f;
-				obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
+				PhysicsComponent* temp2 = obj->GetComponent<PhysicsComponent>();
+				RigidBody* temp = &temp2->rigidBody;
+				temp->AdjustGravityMagnitude(0);
 				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 10.0f, position._32 * 10.0f, position._33 * 10.0f);
 				obj->SetDamage(damage);
 				obj->Enable();
@@ -133,7 +141,18 @@ void Gun::ActiveUpdate() {
 }
 
 void Gun::CloneData(Object* obj) {
-	projectiePrefabID = ((Gun*)obj)->projectiePrefabID;
+	overheat.overheatBarPID = ((Gun*)obj)->overheat.overheatBarPID;
+	overheat.CreateBar(); // may want to reethink this?
+	projectiePID = ((Gun*)obj)->projectiePID;
+
 }
+
+
+#ifdef _DEBUG
+void Gun::SmokeTest() {
+	assert(projectiePID != 0);
+	assert(overheat.overheatBarPID != 0);
+}
+#endif
 
 

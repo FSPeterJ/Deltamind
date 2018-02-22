@@ -188,8 +188,8 @@ void Game::Lose() {
 void Game::Win() {
 	//Logic to run when the player wins
 	MessageEvents::SendMessage(EVENT_GameWin, EventMessageBase());
-	Console::WriteLine << "GAME WAS WON";
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(9/*WinCube*/, { 0, 0.75f, 0 }));
+	Console::WriteLine << "GAME WAS WON";									// v THIS WILL PROBABLY CRASH DO NOT DO
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(9/*WinCube*/, { 0, 0.75f, 0 })); 
 }
 
 void Game::Start(EngineStructure* _engine, char* startScene) {

@@ -2,6 +2,7 @@
 
 #pragma region Subscribing to Events
 #include "MessageEvents.h"
+#include "MessageStructs.h"
 void FunctionToExecute(EventMessageBase);
 
 void Subscribe(void) {

@@ -393,6 +393,11 @@ namespace GhostbaitModelCreator
             // 
             this.colliderOffsetX.DecimalPlaces = 3;
             this.colliderOffsetX.Location = new System.Drawing.Point(139, 51);
+            this.colliderOffsetX.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
             this.colliderOffsetX.Name = "colliderOffsetX";
             this.colliderOffsetX.Size = new System.Drawing.Size(63, 20);
             this.colliderOffsetX.TabIndex = 12;
@@ -401,6 +406,11 @@ namespace GhostbaitModelCreator
             // 
             this.colliderOffsetY.DecimalPlaces = 3;
             this.colliderOffsetY.Location = new System.Drawing.Point(225, 52);
+            this.colliderOffsetY.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
             this.colliderOffsetY.Name = "colliderOffsetY";
             this.colliderOffsetY.Size = new System.Drawing.Size(63, 20);
             this.colliderOffsetY.TabIndex = 12;
@@ -409,6 +419,11 @@ namespace GhostbaitModelCreator
             // 
             this.colliderOffsetZ.DecimalPlaces = 3;
             this.colliderOffsetZ.Location = new System.Drawing.Point(314, 51);
+            this.colliderOffsetZ.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
             this.colliderOffsetZ.Name = "colliderOffsetZ";
             this.colliderOffsetZ.Size = new System.Drawing.Size(63, 20);
             this.colliderOffsetZ.TabIndex = 12;

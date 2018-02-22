@@ -46,19 +46,24 @@ void EnemyBase::OnCollision(GameObject* _other) {
 			hurt = true;
 			hurtTimer = 0;
 		}
-	}
-	if(!IsAlive()) {
-		//Destroy itself
-		//if(temp > 3) {
-		//	MessageEvents::SendMessage(EVENT_GameWin, EventMessageBase());
-		//	Console::WriteLine << "GAME WAS WON";
-		//	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(9/*WinCube*/, {0, 0.75f, 0}));
-		//}
-		MessageEvents::SendMessage(EVENT_EnemyDied, EventMessageBase());
-		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
+		if(!IsAlive() && !sentDeathMessage) {
+			//Destroy itself
+			//if(temp > 3) {
+			//	MessageEvents::SendMessage(EVENT_GameWin, EventMessageBase());
+			//	Console::WriteLine << "GAME WAS WON";
+			//	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(9/*WinCube*/, {0, 0.75f, 0}));
+			//}
+			sentDeathMessage = true;
+			MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
+		}
 	}
 }
 
 void EnemyBase::CloneData(Object* obj) {
 	componentVarients = obj->componentVarients;
+}
+
+void EnemyBase::Destroy() {
+	MessageEvents::SendMessage(EVENT_EnemyDied, EventMessageBase());
+	GameObject::Destroy();
 }

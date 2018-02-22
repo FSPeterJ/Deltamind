@@ -5,6 +5,7 @@
 class HexGrid;
 
 class EnemyBase: public GameObject, public Health {
+protected:
 	enum State {
 		IDLE,
 		PATROL,
@@ -13,19 +14,22 @@ class EnemyBase: public GameObject, public Health {
 	};
 	
 	State currState = IDLE;
-	float maxSpeed = 1.0f;
+	float maxSpeed = 2.0f;
 	DirectX::XMFLOAT3 target = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 
 	bool hurt = false;
 	double hurtTimer = 0;
 	double hurtDuration = 1;
 
+	bool sentDeathMessage = false;
+
 	void RestartGame() override;
 
 public:
-	EnemyBase() { tag = "enemy";  };
+	EnemyBase() { tag = "Enemy";  };
 	void Update() override;
 	void OnCollision(GameObject* _other);
+	void Destroy() override;
 
 	void CloneData(Object* obj);
 

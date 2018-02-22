@@ -20,7 +20,7 @@ public:
 	void DisableNow();
 	virtual void OnCollision(GameObject* obj);
 
-	void Destroy();
+	virtual void Destroy();
 
 	virtual void Awake() {};
 	virtual void Update() {};
@@ -39,4 +39,5 @@ class CoreCube: public GameObject {
 public:
 	CoreCube() { SetTag("Core"); };
 	void OnCollision(GameObject* other);
+	void Destroy() override;
 };

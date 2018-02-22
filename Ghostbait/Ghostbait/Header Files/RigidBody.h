@@ -16,6 +16,7 @@ class RigidBody {
 
 	bool hasGavity;
 	float mass;
+	float terminalSpeed;
 	DirectX::XMFLOAT3 velocity;
 	DirectX::XMFLOAT3 netAcceleration;
 	std::vector<AppliedForce> actingForces;
@@ -24,13 +25,15 @@ class RigidBody {
 
 public:
 	RigidBody();
-	RigidBody(bool _hasGravity, float _mass, float veloX, float veloY, float veloZ);
+	RigidBody(bool _hasGravity, float _mass, float veloX, float veloY, float veloZ, float maxSpeed = 100.0f);
 	void SetVelocity(float x, float y, float z);
 	void SetVelocity(DirectX::XMVECTOR _velocity);
 	void SetMass(float _mass);
+	void SetTerminalSpeed(float _speed);
 	void GravityOn(bool _hasGravity);
 	void AdjustGravityMagnitude(float magnitude);
 	float GetSpeedSq();
+	
 
 	//bool operator==(const RigidBody other) {
 	//	if (hasGavity != other.hasGavity) return false;
@@ -57,6 +60,14 @@ public:
 	/// </summary>
 	/// <returns>Returns FALSE if force cannot be added on this rigid body</returns>
 	bool AddForce(float _magnitude, float x, float y, float z, float _time = 0.01f, bool _isConstant = false);
+
+	/// <summary>
+	/// Removes all acting forces except gravity </summary>
+	void ClearForces();
+
+	/// <summary>
+	/// Sets velocity to zero and clear all forces except gravity </summary>
+	void Stop();
 
 	void Update();
 	DirectX::XMVECTOR GetVelocity();

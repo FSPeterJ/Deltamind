@@ -54,9 +54,11 @@ class Game {
 	SceneManager* sceneManager;
 	Menu* pauseMenu;
 
+	DirectX::XMFLOAT3 corePos = DirectX::XMFLOAT3(0, 0, 0);
+
 	//Personal
 	void ChangeState(State newState);
-	void ChangeScene(char* sceneName);
+	void ChangeScene(char* sceneName, DirectX::XMFLOAT3* _corePos = nullptr);
 	void StartNextWave();
 
 	void RestartLevel();

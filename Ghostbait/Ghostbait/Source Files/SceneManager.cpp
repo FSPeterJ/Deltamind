@@ -52,7 +52,7 @@ void SceneManager::CreateSceneFile(SceneManager::TestSceneData& data) {
 }
 
 void SceneManager::Initialize() {
-	//DirectX::XMFLOAT4X4 mat2 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+	DirectX::XMFLOAT4X4 mat2 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 	TestSceneData data;
 	{
 		data.fileName = "Scene Files//level0.scene";
@@ -85,10 +85,23 @@ void SceneManager::Initialize() {
 				spawner.positions.push_back(mat2);
 			data.prefabs.push_back(spawner);
 		}
+		TestSceneData::Prefab winCube;
+		{
+			winCube.ghostFile = "Assets/WinCube.ghost";
+			winCube.name = "WinCube";
+			data.prefabs.push_back(winCube);
+		}
+		TestSceneData::Prefab coreCube;
+		{
+			coreCube.ghostFile = "Assets/CoreCube.ghost";
+			coreCube.name = "CoreCube";
+			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0,			0, 1, 5, 1);
+			coreCube.positions.push_back(mat1);
+			data.prefabs.push_back(coreCube);
+		}
 	}
 	CreateSceneFile(data);
 	
-
 	//Fill map of scenes using the ".scene" files from our "Scene Files" directory
 	FetchAllSceneFiles();
 }
@@ -146,7 +159,7 @@ void SceneManager::UnloadScene() {
 	currentScene = nullptr;
 }
 
-void SceneManager::LoadScene(const char* sceneName) {
+void SceneManager::LoadScene(const char* sceneName, DirectX::XMFLOAT3* _corePos) {
 	Scene& scene = scenes[sceneName];
 	if (scene.sceneFile == "")
 		Console::ErrorLine << "Trying to load a scene named " << sceneName << " that does not exist in SceneManager!";
@@ -176,6 +189,9 @@ void SceneManager::LoadScene(const char* sceneName) {
 					DirectX::XMFLOAT4X4 mat = Reader::ReadMatrix();
 					GameObject* newObj;
 					MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0, 0, 0 }, &newObj));
+					if (_corePos && !strcmp(newObj->GetTag().c_str(),"Core")) {
+						*_corePos = DirectX::XMFLOAT3(mat._41, mat._42, mat._43);
+					}
 					//TODO: TEMPORARY SOLUTION 
 					newObj->Enable();
 					//------------------------
@@ -196,12 +212,12 @@ void SceneManager::LoadScene(const char* sceneName) {
 	return;
 
 }
-void SceneManager::LoadScene(Scene& scene) {
+void SceneManager::LoadScene(Scene& scene, DirectX::XMFLOAT3* _corePos) {
 	if (scene.sceneFile == "") {
 		Console::ErrorLine << "Trying to load an unknown scene that does not exist in SceneManager!";
 		return;
 	}
-	LoadScene(GetNameFromScene(scene).c_str());
+	LoadScene(GetNameFromScene(scene).c_str(), _corePos);
 }
 
 const Scene SceneManager::GetSceneFromName(const char* sceneName) {

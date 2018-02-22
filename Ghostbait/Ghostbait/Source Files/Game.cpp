@@ -122,9 +122,9 @@ void Game::ChangeState(State newState) {
 		}
 	}
 }
-void Game::ChangeScene(char* sceneName) {
+void Game::ChangeScene(char* sceneName, DirectX::XMFLOAT3* _corePos) {
 	//Load scene assets
-	sceneManager->LoadScene(sceneName);
+	sceneManager->LoadScene(sceneName, _corePos);
 
 	//Reset Game/Wave data
 	gameData.Reset();
@@ -188,8 +188,8 @@ void Game::Lose() {
 void Game::Win() {
 	//Logic to run when the player wins
 	MessageEvents::SendMessage(EVENT_GameWin, EventMessageBase());
-	Console::WriteLine << "GAME WAS WON";									// v THIS WILL PROBABLY CRASH DO NOT DO
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(9/*WinCube*/, { 0, 0.75f, 0 })); 
+	Console::WriteLine << "GAME WAS WON";
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("WinCube", { 0, 0.75f, 0 })); 
 }
 
 void Game::Start(EngineStructure* _engine, char* startScene) {
@@ -200,7 +200,7 @@ void Game::Start(EngineStructure* _engine, char* startScene) {
 	gameData.Reset();
 	hexGrid.Fill();
 
-	ChangeScene(startScene);
+	ChangeScene(startScene, &corePos);
 
 	//AStarEnemy* fred;
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<AStarEnemy>("AStarEnemy", {0,0,0}, &fred));
@@ -232,12 +232,12 @@ void Game::Update() {
 							//Spawns enemy at location
 							if (gameData.spawners.size() == 0) Console::ErrorLine << "No spawners are in the scene! Wave will be infinite!";
 							else if (spawner.spawnerID >= gameData.spawners.size() || spawner.spawnerID < 0) {
-								gameData.spawners[rand() % gameData.spawners.size()]->SpawnObject(const_cast<char*>(spawner.enemyName.c_str()), &hexGrid, DirectX::XMFLOAT2(0, 0));
+								gameData.spawners[rand() % gameData.spawners.size()]->SpawnObject(const_cast<char*>(spawner.enemyName.c_str()), &hexGrid, DirectX::XMFLOAT2(corePos.x, corePos.z));
 								spawner.enemiesSpawned++;
 								Console::WriteLine << "Spawner Index out of range. Picking random value";
 							}
 							else {
-								gameData.spawners[spawner.spawnerID]->SpawnObject(const_cast<char*>(spawner.enemyName.c_str()), &hexGrid, DirectX::XMFLOAT2(0, 0));
+								gameData.spawners[spawner.spawnerID]->SpawnObject(const_cast<char*>(spawner.enemyName.c_str()), &hexGrid, DirectX::XMFLOAT2(corePos.x, corePos.z));
 								spawner.enemiesSpawned++;
 							}
 							//Reset this entry's timeSinceLastSpawn

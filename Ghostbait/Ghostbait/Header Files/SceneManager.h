@@ -47,8 +47,8 @@ public:
 	void CreateSceneFromCurrentObjects(const char* filePath, const char* sceneName);
 	//---------
 
-	void LoadScene(const char* sceneName);
-	void LoadScene(Scene& scene);
+	void LoadScene(const char* sceneName, DirectX::XMFLOAT3* _corePos = nullptr);
+	void LoadScene(Scene& scene, DirectX::XMFLOAT3* _corePos = nullptr);
 	inline void ReloadScene() { LoadScene(*currentScene); };
 
 	const Scene GetSceneFromName(const char* sceneName);

@@ -77,12 +77,17 @@ void MenuCube::OnCollision(GameObject* other) {
 }
 
 void CoreCube::OnCollision(GameObject* other) {
-	if(other->GetTag() == "enemy") {
+	if(!strcmp(other->GetTag().c_str(),"Enemy")) {
 		Console::WriteLine << "YOU LOSE!";
 		Console::OutLine << "YOU LOSE!";
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
-		GameObject* temper;
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(10, {0, 0.75f, 0}, &temper));// stop using magic number prefab ID
-		DirectX::XMStoreFloat4x4(&temper->position, DirectX::XMLoadFloat4x4(&temper->position) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));
 	}
+}
+
+void CoreCube::Destroy() {
+	MessageEvents::SendMessage(EVENT_GameLose, EventMessageBase());
+	MenuCube* temper;
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("LoseCube", { 0, 0.75f, 0 }, &temper));// stop using magic number prefab ID
+	DirectX::XMStoreFloat4x4(&temper->position, DirectX::XMLoadFloat4x4(&temper->position) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));
+	GameObject::Destroy();
 }

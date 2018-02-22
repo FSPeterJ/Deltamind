@@ -19,6 +19,7 @@ public:
 	void Disable();
 	void DisableNow();
 	virtual void OnCollision(GameObject* obj);
+	virtual void OnTrigger(GameObject* obj);
 
 	virtual void Destroy();
 

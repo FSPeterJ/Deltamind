@@ -279,11 +279,11 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//debugController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
 	//debugController->SetGunData(2, Gun::FireType::AUTO, 8, 25);
 	
-	Turret *debugTurret;
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Turret>({ 0,0,0 }, &debugTurret));
-	assert(debugTurret->GetComponent<Animator>()->setState("default"));
-	debugTurret->GetComponent<Animator>()->SetTime(3.0f);
-	debugTurret->Enable();
+	//Turret *debugTurret;
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Turret>({ 0,0,0 }, &debugTurret));
+	//assert(debugTurret->GetComponent<Animator>()->setState("default"));
+	//debugTurret->GetComponent<Animator>()->SetTime(3.0f);
+	//debugTurret->Enable();
 
 	GhostTime::Initalize();
 	MessageEvents::Initilize();

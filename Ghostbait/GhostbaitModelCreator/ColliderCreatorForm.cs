@@ -17,19 +17,18 @@ namespace GhostbaitModelCreator
 
         internal class ColliderData : ModelCreatorForm.BaseComponent
         {
-
-            //Capsule
-            public float height;
-
+            public bool isTrigger;
             public float offsetX, offsetY, offsetZ;
-
-            //Box
-            public float point1X, point1Y, point1Z;
-
-            public float point2X, point2Y, point2Z;
 
             //Sphere
             public float radius;
+            
+            //Capsule
+            public float height;
+
+            //Box
+            public float point1X, point1Y, point1Z;
+            public float point2X, point2Y, point2Z;
 
             public ColliderType colliderType { get; set; }
 
@@ -44,6 +43,8 @@ namespace GhostbaitModelCreator
                 var enumString = colliderType.ToString() + '\0';
                 writer.Write(enumString.Length);
                 writer.Write(enumString.ToCharArray());
+                //Trigger
+                writer.Write(isTrigger);
                 //Offset
                 writer.Write(offsetX);
                 writer.Write(offsetY);
@@ -86,6 +87,7 @@ namespace GhostbaitModelCreator
             colliderType.DataSource = Enum.GetValues(typeof(ColliderType));
             colliderType.SelectedItem = ColliderType.SPHERE;
             spherePanel.Visible = true;
+            checkBoxIsTrigger.Checked = false;
             mainForm = _main;
             createButton.Text = "CREATE";
         }
@@ -125,6 +127,7 @@ namespace GhostbaitModelCreator
 
             colliderType.SelectedItem = col.colliderType;
 
+            checkBoxIsTrigger.Checked = col.isTrigger;
             colliderOffsetX.Value = (decimal)col.offsetX;
             colliderOffsetY.Value = (decimal)col.offsetY;
             colliderOffsetZ.Value = (decimal)col.offsetZ;
@@ -142,6 +145,7 @@ namespace GhostbaitModelCreator
 
         private void colliderType_SelectedIndexChanged(object sender, EventArgs e)
         {
+            checkBoxIsTrigger.Checked = false;
             sphereRadius.Value =
             capsuleRadius.Value =
             capsuleHeight.Value =
@@ -185,6 +189,7 @@ namespace GhostbaitModelCreator
             newCol = new ColliderData
             {
                 colliderType = (ColliderType)Enum.Parse(typeof(ColliderType), colliderType.Items[colliderType.SelectedIndex].ToString(), true),
+                isTrigger = checkBoxIsTrigger.Checked,
                 offsetX = (float)colliderOffsetX.Value,
                 offsetY = (float)colliderOffsetY.Value,
                 offsetZ = (float)colliderOffsetZ.Value,

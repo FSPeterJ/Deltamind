@@ -41,7 +41,7 @@ public:
 		return *this;
 	}
 
-	void remove(const HexTile& v);
+	std::vector<HexTile>::iterator remove(const HexTile& v);
 
 	void push_back(const HexTile& v);
 
@@ -83,7 +83,7 @@ public:
 		return *this;
 	}
 
-	void remove(const HexTilePtr& v);
+	std::vector<HexTilePtr>::iterator remove(const HexTilePtr& v);
 
 	void push_back(const HexTilePtr& v);
 

@@ -128,7 +128,7 @@ std::vector<uint32_t> SpatialPartition::Hash(const AABB aabb) {
 			for (float yChange = 0.0f - heightRatio; yChange < 1.0f;) {
 				yChange += heightRatio;
 				if (yChange >= 1.0f) yChange = 1.0f;
-				currY = aabb.min.y + heightRatio;
+				currY = aabb.min.y + (height * yChange);
 				for (float zChange = 0.0f - lengthRatio; zChange < 1.0f;) {
 					zChange += lengthRatio;
 					if (zChange >= 1.0f) zChange = 1.0f;
@@ -246,8 +246,10 @@ const std::vector<PhysicsComponent*> SpatialPartition::GetComponentsToTest() {
 
 	for each (auto bucket in table)
 	{
+		
 		if (bucket.second.components.size() > 1) {
 			for (unsigned int i = 0; i < bucket.second.components.size(); ++i) {
+				assert(bucket.second.components[i]  != nullptr);
 				testComps.push_back(bucket.second.components[i]);
 				//Console::WriteLine << "Bucket: " << bucket.first << "  Size: " << bucket.second.components.size();
 			}

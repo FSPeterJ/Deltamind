@@ -192,6 +192,93 @@ void DebugRenderer::AddSphere(DirectX::XMFLOAT3 pos, float radius, DirectX::XMFL
 	tri_count += 60;
 }
 
+void DebugRenderer::AddSphere(DirectX::XMFLOAT3 pos, float radius, int LatLines, int LongLines, DirectX::XMFLOAT3 colo) {
+
+
+	int NumSphereVertices = ((LatLines - 2) * LongLines) + 2;
+	int NumSphereFaces = ((LatLines - 3)*(LongLines) * 2) + (LongLines * 2);
+
+	float sphereYaw = 0.0f;
+	float spherePitch = 0.0f;
+
+	std::vector<VertexPositionColor> vertices(NumSphereVertices);
+	std::vector<UINT> indices(NumSphereFaces * 3);
+
+	DirectX::XMVECTOR currVertPos = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+
+	vertices[0].pos.x = 0.0f;
+	vertices[0].pos.y = 0.0f;
+	vertices[0].pos.z = 1.0f * radius;
+
+	for(int i = 0; i < LatLines - 2; ++i) {
+		spherePitch = (i + 1) * (3.14f / (LatLines - 1));
+		DirectX::XMMATRIX Rotationx = DirectX::XMMatrixRotationX(spherePitch);
+		for(int j = 0; j < LongLines; ++j) {
+			sphereYaw = j * (6.28f / (LongLines));
+			DirectX::XMMATRIX Rotationy = DirectX::XMMatrixRotationZ(sphereYaw);
+			currVertPos = DirectX::XMVector3TransformNormal(DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), (Rotationx * Rotationy));
+			currVertPos = DirectX::XMVector3Normalize(currVertPos);
+			vertices[i*LongLines + j + 1].pos.x = DirectX::XMVectorGetX(currVertPos) * radius;
+			vertices[i*LongLines + j + 1].pos.y = DirectX::XMVectorGetY(currVertPos) * radius;
+			vertices[i*LongLines + j + 1].pos.z = DirectX::XMVectorGetZ(currVertPos) * radius;
+		}
+	}
+
+	vertices[NumSphereVertices - 1].pos.x = 0.0f;
+	vertices[NumSphereVertices - 1].pos.y = 0.0f;
+	vertices[NumSphereVertices - 1].pos.z = -1.0f * radius;
+
+	int k = 0;
+	for(int l = 0; l < LongLines - 1; ++l) {
+		indices[k] = 0;
+		indices[k + 1] = l + 1;
+		indices[k + 2] = l + 2;
+		k += 3;
+	}
+
+	indices[k] = 0;
+	indices[k + 1] = LongLines;
+	indices[k + 2] = 1;
+	k += 3;
+
+	for(int i = 0; i < LatLines - 3; ++i) {
+		for(int j = 0; j < LongLines - 1; ++j) {
+			indices[k] = i*LongLines + j + 1;
+			indices[k + 1] = i*LongLines + j + 2;
+			indices[k + 2] = (i + 1)*LongLines + j + 1;
+
+			indices[k + 3] = (i + 1)*LongLines + j + 1;
+			indices[k + 4] = i*LongLines + j + 2;
+			indices[k + 5] = (i + 1)*LongLines + j + 2;
+
+			k += 6; // next quad
+		}
+
+		indices[k] = (i*LongLines) + LongLines;
+		indices[k + 1] = (i*LongLines) + 1;
+		indices[k + 2] = ((i + 1)*LongLines) + LongLines;
+
+		indices[k + 3] = ((i + 1)*LongLines) + LongLines;
+		indices[k + 4] = (i*LongLines) + 1;
+		indices[k + 5] = ((i + 1)*LongLines) + 1;
+
+		k += 6;
+	}
+
+	for(int l = 0; l < LongLines - 1; ++l) {
+		indices[k] = NumSphereVertices - 1;
+		indices[k + 1] = (NumSphereVertices - 1) - (l + 1);
+		indices[k + 2] = (NumSphereVertices - 1) - (l + 2);
+		k += 3;
+	}
+
+	indices[k] = NumSphereVertices - 1;
+	indices[k + 1] = (NumSphereVertices - 1) - LongLines;
+	indices[k + 2] = NumSphereVertices - 2;
+
+	//return new MeshObj(_pDevice, pDeviceContext, _pPixelShader, &vertices[0], (UINT)vertices.size(), &indices[0], (UINT)indices.size());
+}
+
 void DebugRenderer::DrawAxes(DirectX::XMFLOAT4X4 toDraw, float length) {
 	XMFLOAT3 xAxis;
 	xAxis.x = toDraw._11;

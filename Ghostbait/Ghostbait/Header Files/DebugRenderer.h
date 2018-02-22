@@ -30,6 +30,7 @@ public:
 	static void AddBox(ColliderData* cIn, DirectX::XMFLOAT3 color);
 	static void AddBox(DirectX::XMFLOAT3& min, DirectX::XMFLOAT3& max, DirectX::XMFLOAT3& color);
 	static void AddSphere(DirectX::XMFLOAT3 pos, float radius, DirectX::XMFLOAT3 color);
+	void AddSphere(DirectX::XMFLOAT3 pos, float radius, int LatLines, int LongLines, DirectX::XMFLOAT3 colo);
 	static void DrawAxes(DirectX::XMFLOAT4X4 toDraw, float length);
 	static void drawTo(ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT& viewport);
 	static void flushTo(ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT& viewport);

@@ -25,7 +25,7 @@ class Game {
 		struct Wave {
 			struct Spawners {
 				int spawnerID = 0;
-				int enemyID = 0;
+				std::string enemyName;
 				int spawnCount = 0;
 				float initialDelay = 0;
 				float runDelay = 0;

@@ -6,6 +6,8 @@
 #include "Projectile.h"
 #include "Material.h"
 
+
+
 void EnemyBase::RestartGame() {
 	MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 }
@@ -55,4 +57,8 @@ void EnemyBase::OnCollision(GameObject* _other) {
 		MessageEvents::SendMessage(EVENT_EnemyDied, EventMessageBase());
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 	}
+}
+
+void EnemyBase::CloneData(Object* obj) {
+	componentVarients = obj->componentVarients;
 }

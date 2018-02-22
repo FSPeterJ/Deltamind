@@ -32,12 +32,12 @@ class AStarEnemy:public EnemyBase, public Controlable {
 public:
 	AStarEnemy();
 
-	void SetGrid(HexGrid* _grid);
+	void SetGrid(HexGrid* _grid) override;
 
 	void SetGoal(HexTile* _goal);
-	void SetGoal(DirectX::XMFLOAT2 _goal);
+	void SetGoal(DirectX::XMFLOAT2 _goal) override;
 
-	void Repath();
+	void Repath() override;
 
 	void Awake();
 	void Update();

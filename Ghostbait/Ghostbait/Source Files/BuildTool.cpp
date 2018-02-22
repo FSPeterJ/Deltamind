@@ -131,7 +131,7 @@ void BuildTool::CycleForward() {
 		tempIndex = 0;
 	}
 
-	if (prefabs[tempIndex].ID < 0)
+	if (prefabs[tempIndex].ID == 0)
 		currentMode = Mode::REMOVE; // Unreachable code
 	else
 		currentMode = Mode::SPAWN;
@@ -152,7 +152,7 @@ void BuildTool::CycleBackward() {
 	}
 
 	//if index is removal tool...
-	if (prefabs[tempIndex].ID < 0)
+	if (prefabs[tempIndex].ID == 0)
 		currentMode = Mode::REMOVE;
 	else
 		currentMode = Mode::SPAWN;

@@ -147,7 +147,7 @@ void Game::ChangeScene(char* sceneName) {
 				else if (!strcmp("Spawner", xmlReader->getNodeName())) {
 					WaveManager::Wave::Spawners newSpawner;
 					newSpawner.spawnerID = xmlReader->getAttributeValueAsInt("spawnerID");
-					newSpawner.enemyID = xmlReader->getAttributeValueAsInt("enemyID");
+					newSpawner.enemyName = xmlReader->getAttributeValueSafe("enemyName");
 					newSpawner.spawnCount = xmlReader->getAttributeValueAsInt("spawnCount");
 					newSpawner.initialDelay = xmlReader->getAttributeValueAsFloat("initialDelay");
 					newSpawner.runDelay = xmlReader->getAttributeValueAsFloat("runDelay");
@@ -232,12 +232,12 @@ void Game::Update() {
 							//Spawns enemy at location
 							if (gameData.spawners.size() == 0) Console::ErrorLine << "No spawners are in the scene! Wave will be infinite!";
 							else if (spawner.spawnerID >= gameData.spawners.size() || spawner.spawnerID < 0) {
-								gameData.spawners[rand() % gameData.spawners.size()]->SpawnObject(spawner.enemyID);
+								gameData.spawners[rand() % gameData.spawners.size()]->SpawnObject(const_cast<char*>(spawner.enemyName.c_str()), &hexGrid, DirectX::XMFLOAT2(0, 0));
 								spawner.enemiesSpawned++;
 								Console::WriteLine << "Spawner Index out of range. Picking random value";
 							}
 							else {
-								gameData.spawners[spawner.spawnerID]->SpawnObject(spawner.enemyID);
+								gameData.spawners[spawner.spawnerID]->SpawnObject(const_cast<char*>(spawner.enemyName.c_str()), &hexGrid, DirectX::XMFLOAT2(0, 0));
 								spawner.enemiesSpawned++;
 							}
 							//Reset this entry's timeSinceLastSpawn

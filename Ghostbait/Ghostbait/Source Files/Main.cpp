@@ -84,7 +84,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	// This is a proof of concept, thread decoupling with .get is still uncertain.
 	try {
 		temp.get();
-	} catch(const std::exception& e) {
+	}
+	catch(const std::exception& e) {
 		//std::rethrow_exception(e);
 		// handle it
 
@@ -94,14 +95,15 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	rendInter = new Renderer();
 	audioMan = new AudioManager();
-	bool isVR = VRManager::GetInstance().Init();	
+	bool isVR = VRManager::GetInstance().Init();
 	if(isVR) {
 		rendInter->Initialize(wnd);
 		Console::WriteLine << "Renderer initialized......";
 		inputMan = new InputManager(VR);
 		if(inputMan) Console::WriteLine << "Input Manager initialized......";
 		audioMan->setCamera(&VRManager::GetInstance().GetPlayerPosition());
-	} else {
+	}
+	else {
 		Console::WriteLine << "VR not initialized! Defaulting to 2D";
 		rendInter->Initialize(wnd);
 		Console::WriteLine << "Renderer initialized......";
@@ -183,28 +185,28 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/basicSphere.ghost"), "BasicSphere");
 	ObjectFactory::CreatePrefab(&std::string("Assets/ScifiRoom.ghost"), "MainRoom");
 	ObjectFactory::CreatePrefab(&std::string("Assets/ProjectileSphere.ghost"), "Projectile");
-	ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost"), "Spawner"); 
+	ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost"), "Spawner");
 	ObjectFactory::CreatePrefab(&std::string("Assets/EnemyRobot.ghost"), "TestEnemy");
 	ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"), "startCube");
 	ObjectFactory::CreatePrefab(&std::string("Assets/CoreCube.ghost"), "CoreCube");
 	ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"), "WinCube");
-	ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"), "LoseCube"); 
+	ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"), "LoseCube");
 	ObjectFactory::CreatePrefab(&std::string("Assets/EarthMage.ghost"), "EarthMage");
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest1.ghost"), "PhyTest1");
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest2.ghost"), "PhyTest2");
 	ObjectFactory::CreatePrefab(&std::string("Assets/PlaneMap1.ghost"), "Ground");
-	ObjectFactory::CreatePrefab(&std::string("Assets/OverheatBar.ghost"), "GUIOverheatTest"); //15 // stop using magic number prefab ID
+	ObjectFactory::CreatePrefab(&std::string("Assets/OverheatBar.ghost"), "GUIOverheatTest");
 	ObjectFactory::CreatePrefab(&std::string("Assets/OverheatBar.ghost"), "ProgressBar");
 	ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost"), "BuildTool");
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest3.ghost"), "PhyTest3");
 	ObjectFactory::CreatePrefab(&std::string("Assets/MenuControllerItem.ghost"), "MenuController", true);
 	unsigned Gun1 = ObjectFactory::CreatePrefab(&std::string("Assets/Gun.ghost"), "GunTest");
 	unsigned Gun2 = ObjectFactory::CreatePrefab(&std::string("Assets/Gun2.ghost"), "GunTest2");
-	ObjectFactory::CreatePrefab(&std::string("Assets/Gun.ghost"), "GunTest", true); 
+	ObjectFactory::CreatePrefab(&std::string("Assets/Gun.ghost"), "GunTest", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/TestProjectile.ghost"), "TestProjectile");
 	ObjectFactory::CreatePrefab(&std::string("Assets/AStarEnemy.ghost"), "AStarEnemy");
 	ObjectFactory::CreatePrefab(&std::string("Assets/ResumeButton.ghost"), "ResumeButton");
-	unsigned basicTurret =  ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost"), "TestTurret", true);
+	unsigned basicTurret = ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost"), "TestTurret", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/RestartButton.ghost"), "RestartButton");
 	ObjectFactory::CreatePrefab(&std::string("Assets/QuitButton.ghost"), "QuitButton");
 
@@ -218,14 +220,14 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	Console::WriteLine << "Prefabs created......";
 	//=============================
-	
-	if(VRManager::GetInstance().IsEnabled()) VRManager::GetInstance().CreateControllers();
-	//DirectX::XMFLOAT4X4 roomMatrix;
-	//DirectX::XMStoreFloat4x4(&roomMatrix, DirectX::XMMatrixScaling(0.15f, 0.15f, 0.15f) * DirectX::XMMatrixTranslation(0, 3, 0));
-	//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(14, { 0, 0, 0 }));
+
+	if(VRManager::GetInstance().IsEnabled()) {
+		VRManager::GetInstance().CreateControllers();
+		VRManager::GetInstance().SetBuildItems({ basicTurret });
+	}
+
 	//GameObject* ground;
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<GameObject>("Ground", {4, 0.0f, 0.0f}, (GameObject**)&ground));
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage("startCube", {4, 1.5f, 0.0f}, (GameObject**)&startCube));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(11, { 0, 0, 0 }, nullptr));
 	//GameObject* teddy;
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(11, {0, 0, 0}, &teddy));
@@ -250,7 +252,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//GameObject* test;
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<GameObject>("Ground", { 0.0f, 0.0f, 0.0f }, &test));
 	//test->SetTag("Ground");
-	
+
 	//********************* PHYSICS TEST CODE **********************************
 	PhysicsTestObj *test1; //, *test2;
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { 0.0f, 2.0f, -1.0f }, &test1));
@@ -266,7 +268,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	test1->Enable();
 
-	
+
 	//------
 	// Test Gun
 	//=========================================================
@@ -274,10 +276,11 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 2,2,2 }, &debugController));
 	debugController->Init(ControllerObject::ControllerHand::HAND_Left);
 	debugController->SetBuildItems({ basicTurret });
-	
-	
-	//debugController->AddItem(1, Gun1, Gun::FireType::SEMI, 60, 50);
-	//debugController->AddItem(2, Gun2, Gun::FireType::AUTO, 8, 25);
+	debugController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
+	debugController->SetGunData(2, Gun::FireType::AUTO, 8, 25);
+
+	//
+	//
 
 
 
@@ -291,7 +294,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 void Loop() {
 	GhostTime::Tick();
-	if (!game->IsPaused()) {
+	if(!game->IsPaused()) {
 		phyMan->Update();
 		audioMan->Update();
 
@@ -337,7 +340,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			if(msg.message == WM_QUIT) { break; }
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-		} else {
+		}
+		else {
 			Loop();
 		}
 	}
@@ -346,5 +350,5 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	Console::Free();
 
-	return (int) msg.wParam;
+	return (int)msg.wParam;
 }

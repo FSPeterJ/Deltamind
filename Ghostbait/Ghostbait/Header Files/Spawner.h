@@ -1,9 +1,10 @@
 #pragma once
 #include "GameObject.h"
+class HexGrid;
 
 class Spawner : public GameObject {
 public:
 	Spawner();
 	void Awake();
-	void SpawnObject(int prefabID);
+	void SpawnObject(char* prefabName, HexGrid* grid, DirectX::XMFLOAT2 goal);
 };

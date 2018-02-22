@@ -298,7 +298,7 @@ void ControllerObject::SetBuildItems(std::vector<unsigned> prefabIDs) {
 // TEMPORARY - CHANGE OR REMOVE LATER
 void ControllerObject::SetGunData(int slot, Gun::FireType _fireType, float _fireRate, float _damage) {
 	Gun* gun = (Gun*)items[slot];
-	gun->SetStats(Gun::FireType::SEMI, 60, 1);
+	gun->SetStats(_fireType, _fireRate, _damage);
 
 }
 

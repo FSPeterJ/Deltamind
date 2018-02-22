@@ -60,17 +60,13 @@ void AStarEnemy::CalcPath(HexTile* where) {
 }
 
 void AStarEnemy::Update() {
-	if(KeyIsHit(Control::TestInputO)) start = true;
-
-	if(!start) return;
-
+ 
 	HexTile* curTile = grid->PointToTile(DirectX::XMFLOAT2(position._41, position._43));
 	if(curTile) {
 		if(curTile == next) {
 			if(path.goal() == curTile) {
 				Console::WriteLine << "We made it to our goal.";
-				start = false;
-				NewRandPath();
+ 				//NewRandPath();
 			} else {
 				howFarAlong++;
 				if(howFarAlong > path.size() - 1) { return; }

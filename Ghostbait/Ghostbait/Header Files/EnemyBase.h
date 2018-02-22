@@ -2,6 +2,8 @@
 #include "GameObject.h"
 #include "Health.h"
 
+class HexGrid;
+
 class EnemyBase: public GameObject, public Health {
 	enum State {
 		IDLE,
@@ -9,7 +11,7 @@ class EnemyBase: public GameObject, public Health {
 		ATTACK,
 		DEATH,
 	};
-
+	
 	State currState = IDLE;
 	float maxSpeed = 1.0f;
 	DirectX::XMFLOAT3 target = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -25,7 +27,9 @@ public:
 	void Update() override;
 	void OnCollision(GameObject* _other);
 
-	void CloneData(Object* obj) {
-		componentVarients = obj->componentVarients;
-	}
+	void CloneData(Object* obj);
+
+	virtual void SetGrid(HexGrid* _grid) {};
+	virtual void SetGoal(DirectX::XMFLOAT2 _goal) {};
+	virtual void Repath() {};
 };

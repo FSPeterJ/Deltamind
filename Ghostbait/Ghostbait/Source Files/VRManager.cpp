@@ -67,6 +67,8 @@ void VRManager::CreateControllers() {
 	//leftController.obj->AddItem(1, 19, Gun::FireType::SEMI, 60, 50);
 	//leftController.obj->AddItem(2, 19, Gun::FireType::AUTO, 8, 25);
 	//leftController.obj->AddItem(3, 16, { 1, 2, 5 });
+	leftController.obj->SetGunData(1, Gun::FireType::SEMI, 60, 50);
+	leftController.obj->SetGunData(2, Gun::FireType::AUTO, 8, 25);
 	//Right
 	// Need to investigate a way to set these add items to be less hard coded numbers
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 1,0,1 }, &rightController.obj));
@@ -79,6 +81,14 @@ void VRManager::CreateControllers() {
 	//rightController.obj->AddItem(1, 19, Gun::FireType::SEMI, 60, 50); // quick test of different projectile loading
 	//rightController.obj->AddItem(2, 19, Gun::FireType::AUTO, 8, 25);
 	//rightController.obj->AddItem(3, 16, { 1, 2, 5 });
+	rightController.obj->SetGunData(1, Gun::FireType::SEMI, 60, 50);
+	rightController.obj->SetGunData(2, Gun::FireType::AUTO, 8, 25);
+}
+
+void VRManager::SetBuildItems(std::vector<unsigned> prefabIDs) {
+	rightController.obj->SetBuildItems(prefabIDs);
+	leftController.obj->SetBuildItems(prefabIDs);
+
 }
 
 DirectX::XMFLOAT4X4 VRManager::VRProjectionToDirectXMatrix(vr::EVREye eye, float nearPlane, float farPlane) {

@@ -564,18 +564,18 @@ void HexGrid::Fill() {
 		int r2 = (int) min(map_radius, -q + map_radius);
 		for(int r = r1; r <= r2; ++r) {
 			HexTile* t = new HexTile(q, r);
-			//t->weight = 1;
-			if(rand() % 100 < 40) {
-				t->weight = (float) Blocked;
-			} else {
-				t->weight = float(rand() % 4) + 1;
-			}
+			t->weight = 1;
+			//if(rand() % 100 < 40) {
+			//	t->weight = (float) Blocked;
+			//} else {
+			//	t->weight = float(rand() % 4) + 1;
+			//}
 			map.insert(t);
 		}
 	}
 
-	HexTile* start = GetTile(0, 0);
-	start->weight = 1.0f;
+	//HexTile* start = GetTile(0, 0);
+	//start->weight = 1.0f;
 
 	for(auto& t : map) {
 		if(t->weight == Blocked)

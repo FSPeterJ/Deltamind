@@ -42,7 +42,7 @@ float Turret::CalculateDistance(GameObject* obj) {
 Turret::~Turret() {
 }
 
-void Turret::OnCollision(GameObject* object) {
+void Turret::OnTrigger(GameObject* object) {
 	if(!strcmp(object->GetTag().c_str(), "Enemy") || !strcmp(object->GetTag().c_str(), "PhysicsTestObj")) {
 		using namespace DirectX;
 		float length = CalculateDistance(object);;

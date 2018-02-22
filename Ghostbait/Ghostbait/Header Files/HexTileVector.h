@@ -41,10 +41,37 @@ public:
 		return *this;
 	}
 
+	/// <summary>
+	/// Determines whether this region contains the specified HexTile.
+	/// </summary>
+	/// <param name="v">The tile.</param>
+	/// <returns>true if contains, otherwise false.</returns>
+	bool contains(const HexTile& v);
+
+	/// <summary>
+	/// Finds the specified tile.
+	/// </summary>
+	/// <param name="v">The tile.</param>
+	/// <returns>an iterator representing the find result.</returns>
+	std::vector<HexTile>::iterator find(const HexTile& v);
+
+	/// <summary>
+	/// Removes the specified tile.
+	/// </summary>
+	/// <param name="v">The tile.</param>
+	/// <returns>an iterator representing the remove result.</returns>
 	std::vector<HexTile>::iterator remove(const HexTile& v);
 
+	/// <summary>
+	/// Adds a tile to this region.
+	/// </summary>
+	/// <param name="v">The tile.</param>
 	void push_back(const HexTile& v);
 
+	/// <summary>
+	/// Adds a tile to this region.
+	/// </summary>
+	/// <param name="v">The tile.</param>
 	void push_back(HexTile&& v);
 
 	HexTile& operator[](const size_t i) { return data[i]; }

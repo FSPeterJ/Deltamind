@@ -583,6 +583,7 @@ namespace GhostbaitModelCreator
                                 }
                                 colData.ComponentIdentifier = componentName;
                                 colData.colliderType = temp;
+                                colData.isTrigger = reader.ReadBoolean();
                                 colData.offsetX = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
                                 colData.offsetY = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
                                 colData.offsetZ = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);

@@ -171,27 +171,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	Console::WriteLine << "Object Alias registered......";
 
-	//------
-	// Scenemanager would make this
-	//
-	//	
-	//
-	//   PLEASE STOP INSTANTIATING USING A PREFAB ID AND WEIRD MANUAL COUNTING UNLESS ASSIGNED PROGRAMATICALLY
-	//
-	//	 Use this:
-	//																						v String Identifier
-	//			ObjectFactory::CreatePrefab(&std::string("Assets/ViveController2.ghost"), "VController", true);
-	//																										^ Base Class Type Default Override 
-	//																						(only set this if you want the class default for EVENT_InstantiateRequestByType, stomps out previous class asignment)
-	//   Then use this:
-	//			
-	//			MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage("TheObjectNAme", { 0,0,0 }, (GameObject**)&leftController.obj));
-	//	Or This:
-	//			MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(TypeMap::GetObjectTypeID<ControllerObject>(), {1,0,1}, (GameObject**) &rightController.obj));
-	//
-	//
-	//=========================================================
-	
+
 
 	ObjectFactory::CreatePrefab(&std::string("Assets/DevController.ghost"), "DevController", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/basicSphere.ghost"), "BasicSphere");

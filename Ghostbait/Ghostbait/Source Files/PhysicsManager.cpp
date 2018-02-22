@@ -74,6 +74,7 @@ PhysicsComponent* PhysicsManager::GetReferenceComponent(const char * _FilePath, 
 	int numofColliders, lengthofTypeName, currIndex = 0;
 	float radiusHolder, heightHolder;
 	char* typeName;
+	bool triggerHolder;
 
 	char sphere[] = "SPHERE";
 	char capsule[] = "CAPSULE";
@@ -90,6 +91,8 @@ PhysicsComponent* PhysicsManager::GetReferenceComponent(const char * _FilePath, 
 		typeName = new char[lengthofTypeName];
 		memcpy(&typeName[0], &_dataBlock[currIndex], lengthofTypeName);
 		currIndex += lengthofTypeName;
+		memcpy(&triggerHolder, &_dataBlock[currIndex], sizeof(bool));
+		currIndex += sizeof(bool);
 		memcpy(&offsetHolder, &_dataBlock[currIndex], sizeof(float) * 3);
 		currIndex += sizeof(float) * 3;
 
@@ -130,9 +133,9 @@ PhysicsComponent* PhysicsManager::GetReferenceComponent(const char * _FilePath, 
 		if (incomingMin.y < aabbMin.y) { aabbMin.y = incomingMin.y; };
 		if (incomingMin.z < aabbMin.z) { aabbMin.z = incomingMin.z; };
 
-		compHolder.AddCollider(colDataHolder, offsetHolder.x, offsetHolder.y, offsetHolder.z);
+		compHolder.AddCollider(colDataHolder, offsetHolder.x, offsetHolder.y, offsetHolder.z, triggerHolder);
 		colDataHolder = nullptr;
-		delete[] typeName; //TODO: typeName is allocated with new[] but is only being deleted with delete (not delete[])
+		delete[] typeName; 
 	}
 
 	compHolder.previousAABB = compHolder.currentAABB = compHolder.baseAABB = AABB(aabbMin, aabbMax);

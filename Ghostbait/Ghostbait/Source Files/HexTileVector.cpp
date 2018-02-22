@@ -5,7 +5,7 @@ HexTile* HexRegion::getData() { return &data[0]; }
 
 HexRegion::HexRegion(std::vector<HexTile>& that) { data.swap(that); }
 
-void HexRegion::remove(const HexTile & v) { data.erase(std::remove(data.begin(), data.end(), v), data.end()); }
+std::vector<HexTile>::iterator HexRegion::remove(const HexTile & v) { return data.erase(std::remove(data.begin(), data.end(), v), data.end()); }
 
 void HexRegion::push_back(const HexTile & v) { data.emplace_back(v); }
 
@@ -44,10 +44,10 @@ void HexRegion::Color(HexagonalGridLayout * const layout, DirectX::XMFLOAT3 colo
 void HexRegion::Filter(HexGrid & grid) {
 	//should this be a function in hexgrid that gets passed a region?
 	if(data.size()) {
-		for(auto it = data.begin(); it < data.end();) {
+		for(auto it = data.begin(); it != data.end();) {
 			HexTile* t = grid.GetTile(*it);
 			if(!t) {
-				remove(*it);
+				it = remove(*it);
 			} else {
 				++it;
 			}
@@ -63,7 +63,7 @@ HexTile* HexPath::start() { return data.front(); }
 
 HexPath::HexPath(std::vector<HexTilePtr>& that) { data.swap(that); }
 
-void HexPath::remove(const HexTilePtr & v) { data.erase(std::remove(data.begin(), data.end(), v), data.end()); }
+std::vector<HexTile*>::iterator HexPath::remove(const HexTilePtr & v) { return data.erase(std::remove(data.begin(), data.end(), v), data.end()); }
 
 void HexPath::push_back(const HexTilePtr & v) { data.emplace_back(v); }
 

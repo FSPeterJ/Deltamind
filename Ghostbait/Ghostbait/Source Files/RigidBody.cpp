@@ -6,14 +6,16 @@ using namespace DirectX;
 RigidBody::RigidBody() {
 	hasGavity = false;
 	mass = 1.0f;
+	terminalSpeed = 100.0f;
 	velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	netAcceleration = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	actingForces.reserve(MAX_APPLIED_FORCE);
 	actingForces.push_back(AppliedForce(1.8f, 0.0f, -1.0f, 0.0f, 1.0f, true));
 }
-RigidBody::RigidBody(bool _hasGravity, float _mass, float veloX, float veloY, float veloZ) {
+RigidBody::RigidBody(bool _hasGravity, float _mass, float veloX, float veloY, float veloZ, float maxSpeed) {
 	hasGavity = _hasGravity;
 	mass = _mass;
+	terminalSpeed = maxSpeed;
 	velocity = XMFLOAT3(veloX, veloY, veloZ);
 	netAcceleration = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	actingForces.reserve(MAX_APPLIED_FORCE);
@@ -74,10 +76,12 @@ void RigidBody::Update() {
 			actingForces[i].timeInAction -= delta;
 		}
 	}
-
 	CalculateNetAccelaration();
+	XMVECTOR newVelo = XMLoadFloat3(&velocity) + (XMLoadFloat3(&netAcceleration) * delta);
+	if (XMVectorGetX(XMVector3LengthSq(newVelo)) > terminalSpeed * terminalSpeed)
+		newVelo = XMVectorScale(XMVector3Normalize(newVelo), terminalSpeed);
 
-	XMStoreFloat3(&velocity, XMLoadFloat3(&velocity) + (XMLoadFloat3(&netAcceleration) * delta));
+	XMStoreFloat3(&velocity, newVelo);
 }
 XMVECTOR RigidBody::GetVelocity() {
 	return XMLoadFloat3(&velocity);
@@ -90,4 +94,17 @@ float RigidBody::GetSpeedSq() {
 inline RigidBody::AppliedForce::AppliedForce(float _magnitude, float x, float y, float z, float _time, bool _isConstant) :
 	isConstant(_isConstant), timeInAction(_time), magnitude(_magnitude) {
 	DirectX::XMStoreFloat3(&direction, DirectX::XMVector3Normalize(DirectX::XMVectorSet(x, y, z, 0.0f)));
+}
+
+void RigidBody::ClearForces() {
+	while (actingForces.size() > 1) actingForces.pop_back();
+}
+
+void RigidBody::Stop() {
+	ClearForces();
+	SetVelocity(0.0f, 0.0f, 0.0f);
+}
+
+void RigidBody::SetTerminalSpeed(float _speed) {
+	terminalSpeed = _speed;
 }

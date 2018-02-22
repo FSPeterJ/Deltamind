@@ -133,7 +133,10 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<CoreCube>(5);
 	ObjectFactory::RegisterPrefabBase<BuildTool>(20);
 	ObjectFactory::RegisterPrefabBase<PhysicsTestObj>(32);
-	ObjectFactory::RegisterPrefabBase<ResumeButton>(32);
+	ObjectFactory::RegisterPrefabBase<ResumeButton>(1);
+	ObjectFactory::RegisterPrefabBase<RestartButton>(1);
+	ObjectFactory::RegisterPrefabBase<QuitButton>(1);
+
 	ObjectFactory::RegisterPrefabBase<AStarEnemy>(10);
 	Console::WriteLine << "Prefab base registered......";
 
@@ -163,6 +166,9 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<PhysicsTestObj>("PhysicsTestObj");
 	TypeMap::RegisterObjectAlias<BuildTool>("BuildTool");
 	TypeMap::RegisterObjectAlias<ResumeButton>("ResumeButton");
+	TypeMap::RegisterObjectAlias<RestartButton>("RestartButton");
+	TypeMap::RegisterObjectAlias<QuitButton>("QuitButton");
+
 	TypeMap::RegisterObjectAlias<AStarEnemy>("AStarEnemy");
 	Console::WriteLine << "Object Alias registered......";
 
@@ -219,6 +225,9 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/AStarEnemy.ghost"), "AStarEnemy");
 	//ObjectFactory::CreatePrefab(&std::string("Assets/Teddy.ghost"));
 	ObjectFactory::CreatePrefab(&std::string("Assets/ResumeButton.ghost"), "ResumeButton");
+	ObjectFactory::CreatePrefab(&std::string("Assets/RestartButton.ghost"), "RestartButton");
+	ObjectFactory::CreatePrefab(&std::string("Assets/QuitButton.ghost"), "QuitButton");
+
 
 	//ObjectFactory::CreatePrefab(&std::string("Assets/TeleportSphere.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));

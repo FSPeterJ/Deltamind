@@ -22,9 +22,9 @@ void ControllerObject::SetPhysicsComponent(const GameObject* obj, bool active) {
 	PhysicsComponent* physComp = obj->GetComponent<PhysicsComponent>();
 	if (physComp) physComp->isActive = active;
 }
-void ControllerObject::AddToInventory(int itemSlot, int prefabID) {
+void ControllerObject::AddToInventory(int itemSlot, char* prefabName) {
 	//Actual Inventory
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Gun>(prefabID, { 0,0,0 }, (Gun**)&items[itemSlot]));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<Gun>(prefabName, { 0,0,0 }, (Gun**)&items[itemSlot]));
 	if (!currentGameItem) currentGameItem = items[itemSlot];
 	else {
 		items[itemSlot]->Render(false);
@@ -32,7 +32,7 @@ void ControllerObject::AddToInventory(int itemSlot, int prefabID) {
 	}
 	
 	//Inventory Display
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Gun>(prefabID, { 0,0,0 }, (Gun**)&displayItems[itemSlot]));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<Gun>(prefabName, { 0,0,0 }, (Gun**)&displayItems[itemSlot]));
 	displayItems[itemSlot]->Render(false);
 	SetPhysicsComponent(displayItems[itemSlot], false);
 }
@@ -144,8 +144,8 @@ void ControllerObject::DisplayInventory() {
 	}
 }
 
-void ControllerObject::AddItem(int itemSlot, int prefabID) {
-	AddToInventory(itemSlot, prefabID);
+void ControllerObject::AddItem(int itemSlot, char* prefabName) {
+	AddToInventory(itemSlot, prefabName);
 
 	Gun* gun = dynamic_cast<Gun*>(items[itemSlot]);
 	BuildTool* tool = dynamic_cast<BuildTool*>(items[itemSlot]);
@@ -154,8 +154,8 @@ void ControllerObject::AddItem(int itemSlot, int prefabID) {
 		gun->SetStats(Gun::FireType::SEMI, 60, 1);
 	}
 }
-void ControllerObject::AddItem(int itemSlot, int prefabID, std::vector<int> prefabIDs) {
-	AddToInventory(itemSlot, prefabID);
+void ControllerObject::AddItem(int itemSlot, char* prefabName, std::vector<int> prefabIDs) {
+	AddToInventory(itemSlot, prefabName);
 
 	Gun* gun = dynamic_cast<Gun*>(items[itemSlot]);
 	BuildTool* buildTool = dynamic_cast<BuildTool*>(items[itemSlot]);
@@ -168,8 +168,8 @@ void ControllerObject::AddItem(int itemSlot, int prefabID, std::vector<int> pref
 		buildTool->SetParent(this);
 	}
 }
-void ControllerObject::AddItem(int itemSlot, int prefabID, Gun::FireType _fireType, float _fireRate, float _damage) {
-	AddToInventory(itemSlot, prefabID);
+void ControllerObject::AddItem(int itemSlot, char* prefabName, Gun::FireType _fireType, float _fireRate, float _damage) {
+	AddToInventory(itemSlot, prefabName);
 
 	Gun* gun = dynamic_cast<Gun*>(items[itemSlot]);
 	if (gun) {

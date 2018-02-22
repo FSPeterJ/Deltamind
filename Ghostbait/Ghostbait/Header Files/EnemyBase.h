@@ -24,4 +24,8 @@ public:
 	EnemyBase() { tag = "enemy";  };
 	void Update() override;
 	void OnCollision(GameObject* _other);
+
+	void CloneData(Object* obj) {
+		componentVarients = obj->componentVarients;
+	}
 };

@@ -20,7 +20,7 @@ private:
 	Item* currentGameItem = nullptr;
 
 	void SetPhysicsComponent(const GameObject* obj, bool active);
-	void AddToInventory(int itemSlot, int prefabID);
+	void AddToInventory(int itemSlot, char* prefabName);
 	inline void SetControllerHand(ControllerHand _hand) { hand = _hand; };
 
 	void SwitchCurrentItem(int itemIndex = -1);
@@ -30,9 +30,9 @@ public:
 	ControllerObject();
 
 	void Init(ControllerHand _hand, int menuControllerPrefabID = 18);
-	void AddItem(int itemSlot, int prefabID);
-	void AddItem(int itemSlot, int prefabID, std::vector<int> prefabIDs);
-	void AddItem(int itemSlot, int prefabID, Gun::FireType _fireType, float _fireRate, float _damage);
+	void AddItem(int itemSlot, char* prefabName);
+	void AddItem(int itemSlot, char* prefabName, std::vector<int> prefabIDs);
+	void AddItem(int itemSlot, char* prefabName, Gun::FireType _fireType, float _fireRate, float _damage);
 	void Update();
 	void PausedUpdate();
 };

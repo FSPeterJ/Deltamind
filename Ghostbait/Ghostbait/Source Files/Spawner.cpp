@@ -13,5 +13,5 @@ void Spawner::SpawnObject(int prefabID) {
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, {0, 0, 0}, &obj));
 	obj->position = position;
 	obj->Enable();
-	obj->GetComponent<PhysicsComponent>()->rigidBody.AddForce(100);
+	//obj->GetComponent<PhysicsComponent>()->rigidBody.AddForce(100);
 }

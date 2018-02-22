@@ -82,10 +82,8 @@ void Menu::Create(Template t, std::vector<Button> _buttons) {
 			buttons.empty();
 			buttons.resize(3);
 			buttons[0] = BUTTON_Resume;
-			buttons[1] = BUTTON_Resume;
-			buttons[2] = BUTTON_Resume;
-			//buttons[1] = BUTTON_Restart;
-			//buttons[2] = BUTTON_Quit;
+			buttons[1] = BUTTON_Restart;
+			buttons[2] = BUTTON_Quit;
 			MessageEvents::Subscribe(EVENT_GamePause, [=](EventMessageBase* e) {this->GamePauseEvent(); });
 			break;
 		case MENU_Custom:
@@ -127,7 +125,7 @@ void RestartButton::Select() {
 }
 void QuitButton::Select() {
 	MenuOption::Select();
-
+	MessageEvents::SendMessage(EVENT_GameQuit, EventMessageBase());
 }
 
 void OptionsButton::Select() {

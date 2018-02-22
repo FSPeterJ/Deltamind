@@ -54,40 +54,43 @@ struct PriorityQueue {
 HexGrid::HexGrid(float _radius, const HexagonalGridLayout& _layout) : map_radius(_radius), layout(_layout) {}
 
 HexTile* HexGrid::PointToTile(const DirectX::XMFLOAT2& p) {
-	return GetTile(HexTile::Round(HexagonalGridLayout::PointToHexagonTile(p, layout)));
+	return GetTileExact(HexTile::Round(HexagonalGridLayout::PointToHexagonTile(p, layout)));
 }
 
 DirectX::XMFLOAT2 HexGrid::TileToPoint(HexTile * tile) {
 	return tile->Center(layout);
 }
 
+bool HexGrid::SetWeight(const DirectX::XMFLOAT2& tilePosition, float weight) {
+	HexTile* t = PointToTile(tilePosition);
+	return SetWeight(t, weight);
+}
 
-DirectX::XMFLOAT2 HexGrid::TileToWorld(const DirectX::XMFLOAT2& p) {
-	auto t = PointToTile(p);
-	if(t)
-		return t->Center(layout);
-	return DirectX::XMFLOAT2(0, 0);
+bool HexGrid::SetWeight(HexTile *const tile, float weight) {
+	if(tile) {
+		tile->weight = weight;
+		return true;
+	}
+	return false;
 }
 
 bool HexGrid::AddObstacle(const DirectX::XMFLOAT2& obstaclePosition) {
-	auto t = PointToTile(obstaclePosition);
+	HexTile* t = PointToTile(obstaclePosition);
 	if(t) {
 		t->weight = Blocked;
 		blocked.push_back(*t);
 		return true;
 	}
-
 	return false;
 }
 
 bool HexGrid::RemoveObstacle(const DirectX::XMFLOAT2& obstaclePosition) {
-	auto t = PointToTile(obstaclePosition);
+	HexTile* t = PointToTile(obstaclePosition);
 	if(t) {
 		t->weight = 1;
 		blocked.remove(*t);
 		return true;
 	}
-
 	return false;
 }
 
@@ -195,6 +198,7 @@ HexRegion HexGrid::GetRegion(int xmin, int xmax, int ymin, int ymax, int zmin, i
 	return results;
 }
 
+
 HexRegion HexGrid::GetIntersectingTilesRanges(HexTile *const a, int aRadius, HexTile *const b, int bRadius) {
 	int ax = a->q, ay = a->r, az = a->s;
 	int bx = b->q, by = b->r, bz = b->s;
@@ -262,7 +266,7 @@ TraversalResult HexGrid::breadthFirstTraverse(HexTile *const tile, size_t steps,
 			HexTile* _this_ = const_cast<HexTile*>(_this);
 
 			for(auto& n : _this_->Neighbors()) {
-				HexTile* neighbor = GetTile(n);
+				HexTile* neighbor = GetTileExact(n);
 				if(!neighbor || neighbor->weight == Blocked) { continue; }
 
 				bool notContain = !stepCost.count(neighbor);
@@ -306,7 +310,7 @@ TraversalResult HexGrid::DijkstraTraverse(HexTile *const tile, size_t cost, size
 			HexPath build;
 			for(size_t j = 0; j < current.size(); ++j) {
 				for(auto& n : current[j]->Neighbors()) {
-					HexTile* neighbor = GetTile(n);
+					HexTile* neighbor = GetTileExact(n);
 					if(!neighbor || neighbor->weight == Blocked) { continue; }
 
 					float new_cost = weightCost[current[j]] + neighbor->weight;
@@ -348,7 +352,7 @@ HexPath HexGrid::DijkstraSearch(HexTile *const start, HexTile *const goal) {
 		if(current == goal) { break; }
 
 		for(auto& _n : current->Neighbors()) {
-			HexTile* neighbor = GetTile(_n);
+			HexTile* neighbor = GetTileExact(_n);
 			if(!neighbor || neighbor->weight == Blocked) { continue; }
 			//neighbor->DrawT(layout, {0,1,0});
 
@@ -368,8 +372,8 @@ HexPath HexGrid::DijkstraSearch(HexTile *const start, HexTile *const goal) {
 }
 
 HexPath HexGrid::AStarSearch(const DirectX::XMFLOAT2& start, const DirectX::XMFLOAT2& goal, HeuristicsFunction Heuristic) {
-	HexTile* s = GetTile((int) start.x, (int) start.y);
-	HexTile* e = GetTile((int) goal.x, (int) goal.y);
+	HexTile* s = PointToTile(start);
+	HexTile* e = PointToTile(goal);
 	if(s && e) {
 		return AStarSearch(s, e, Heuristic);
 	}
@@ -397,7 +401,7 @@ HexPath HexGrid::AStarSearch(HexTile *const start, HexTile *const goal, Heuristi
 		if(current == goal) { break; }
 
 		for(auto& _n : current->Neighbors()) { //the call to Neighbors() can be optimized if instead I preallocate space to store the neighbors and pass it in to be filled out
-			HexTile* neighbor = GetTile(_n);
+			HexTile* neighbor = GetTileExact(_n);
 			if(!neighbor || neighbor->weight == Blocked) { continue; }
 			//neighbor->DrawX(layout, {0,1,0});
 
@@ -425,7 +429,7 @@ void HexGrid::SetUpDrawingPaths() {
 	iter = map.begin();
 	HexTile* start = *iter;
 
-	HexTile* istart = GetTile(HexTile(0, 0));
+	HexTile* istart = GetTileExact(0, 0);
 
 	DrawLine += [=]() {
 		HexTile* end = *iter;
@@ -548,11 +552,10 @@ void HexGrid::SetUpDrawingPaths() {
 }
 
 bool HexGrid::IsBlocked(HexTile* tile){
-	return tile->weight == Blocked;
+	return tile?tile->weight == Blocked:true;
 }
 bool HexGrid::IsBlocked(const DirectX::XMFLOAT2& pos) {
-	HexTile* tile = PointToTile(pos);
-	return IsBlocked(tile);
+	return IsBlocked(PointToTile(pos));
 }
 bool HexGrid::IsBlocked(const float x, const float z) {
 	return IsBlocked(DirectX::XMFLOAT2(x, z));
@@ -574,7 +577,7 @@ void HexGrid::Fill() {
 		}
 	}
 
-	HexTile* start = GetTile(0, 0);
+	HexTile* start = GetTileExact(0, 0);
 	start->weight = 1.0f;
 
 	for(auto& t : map) {
@@ -591,8 +594,9 @@ void HexGrid::Display(DirectX::XMFLOAT2& player) {
 	HexTile* pos = PointToTile(player);
 	if(pos) {
 		HexRegion playerView = GetTilesNStepsAway(pos, 3);
-		playerView.Color(&layout, {1,1,1}, 0, ColorType::__CheapFill);
+		playerView.Color(&layout, {1,1,1}, 0, ColorType::__Outline);
 	}
+
 //	for(const auto& t : map) {
 	//	auto realT = const_cast<HexTile*&>(t);
 	//	realT->Draw(layout, {1,1,1});
@@ -625,12 +629,12 @@ HexTile* HexGrid::GetRandomTile() {
 }
 
 
-HexTile* HexGrid::GetTile(const int x, const int y) {
+HexTile* HexGrid::GetTileExact(const int x, const int y) {
 	auto it = map.find(&HexTile(x, y));
 	return it == map.end() ? nullptr : *it;
 }
 
-HexTile* HexGrid::GetTile(HexTile& t) const {
+HexTile* HexGrid::GetTileExact(HexTile& t) const {
 	auto it = map.find(&t);
 	return it == map.end() ? nullptr : *it;
 }

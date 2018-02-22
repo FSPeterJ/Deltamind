@@ -83,8 +83,18 @@ public:
 
 	const float Length() const;
 
+	/// <summary>
+	/// Gets the center of this tile in world space.
+	/// </summary>
+	/// <param name="layout">The layout.</param>
+	/// <returns>DirectX.XMFLOAT2.</returns>
 	DirectX::XMFLOAT2 Center(HexagonalGridLayout layout);
 
+	/// <summary>
+	/// Gets this distance between this instance and the specified tile.
+	/// </summary>
+	/// <param name="b">The tile.</param>
+	/// <returns>T.</returns>
 	T DistanceFrom(HexTile* b);
 
 	inline HexTile Direction(NEIGHBOR_DIRECTION dir) { return directions[(int) dir]; }

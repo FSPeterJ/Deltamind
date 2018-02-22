@@ -84,7 +84,7 @@ void HexagonTile<T>::Draw(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, f
 	DebugRenderer::AddLine(line5, line0, color);
 
 	if(blocked) {
-		DrawX(layout, color, offset);
+		DrawX(layout, {0,0,0}, offset);
 	}
 }
 

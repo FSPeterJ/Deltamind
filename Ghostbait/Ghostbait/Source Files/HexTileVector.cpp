@@ -11,6 +11,14 @@ void HexRegion::push_back(const HexTile & v) { data.emplace_back(v); }
 
 void HexRegion::push_back(HexTile && v) { data.emplace_back(std::move(v)); }
 
+std::vector<HexTile>::iterator HexRegion::find(const HexTile& v) {
+	return std::find(data.begin(), data.end(), v);
+}
+
+bool HexRegion::contains(const HexTile& v) {
+	return find(v) != data.end();
+}
+
 void HexRegion::Color(HexagonalGridLayout * const layout, DirectX::XMFLOAT3 color, float offset, ColorType c) {
 	switch(c) {
 	case ColorType::__X:
@@ -45,7 +53,7 @@ void HexRegion::Filter(HexGrid & grid) {
 	//should this be a function in hexgrid that gets passed a region?
 	if(data.size()) {
 		for(auto it = data.begin(); it != data.end();) {
-			HexTile* t = grid.GetTile(*it);
+			HexTile* t = grid.GetTileExact(*it); // yes so this function can be private //TODO
 			if(!t) {
 				it = remove(*it);
 			} else {

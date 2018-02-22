@@ -272,7 +272,7 @@ void ControllerObject::PausedUpdate() {
 	else menuController->UpdateRay();
 }
 
-void ControllerObject::GivePID(unsigned pid, char* tag) {
+void ControllerObject::GivePID(unsigned pid, const char* tag) {
 
 	//This is should be changed if other data is to be passed in.
 	//The stupid setup of this is taking the character '1'

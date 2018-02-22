@@ -21,7 +21,7 @@ BuildTool::BuildTool(std::vector<unsigned> prefabIDs) {
 }
 
 void BuildTool::SetPrefabs(std::vector<unsigned> prefabIDs) {
-	prefabs.empty();
+	//prefabs.empty();
 	prefabs.resize(prefabIDs.size() + 1);
 
 	for (int i = 0; i < prefabIDs.size(); ++i) {

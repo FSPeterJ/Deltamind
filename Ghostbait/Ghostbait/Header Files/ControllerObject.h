@@ -40,7 +40,7 @@ public:
 	void AddItem(int itemSlot, unsigned prefabID, Gun::FireType _fireType, float _fireRate, float _damage);
 	void Update();
 	void PausedUpdate();
-	void GivePID(unsigned pid, char* tag);
+	void GivePID(unsigned pid, const char* tag) override;
 	void CloneData(Object* obj);
 
 	//TEMPORARY FUNCTION

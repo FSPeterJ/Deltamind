@@ -42,7 +42,7 @@ private:
 public:
 	Gun();
 	Gun(FireType _type, float _fireRate, float _damage);
-	void GivePID(unsigned pid, char* tag);
+	void GivePID(unsigned pid, const char* tag) override;
 	void SetStats(FireType _type, float _fireRate, float _damage) { type = _type; fireRate = _fireRate; damage = _damage; };
 	bool Shoot();
 	void InactiveUpdate() override;

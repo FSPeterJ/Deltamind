@@ -96,6 +96,7 @@ void BuildTool::Spawn() {
 			GameObject* newObj;
 			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabs[currentPrefabIndex].ID, spawnPos, &newObj));
 			builtItems.push_back(newObj);
+			
 			//Console::WriteLine << newObj << "was built at position (" << newObj->position._41 << ", " << newObj->position._42 << ", " << newObj->position._43 << ")!";
 		}
 	}

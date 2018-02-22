@@ -1,5 +1,5 @@
 #include "Renderer.h"
-#include "vld.h"
+//#include "vld.h"
 //#include "GameObject.h"
 #include "InputManager.h"
 #include "Messagebox.h"
@@ -256,12 +256,17 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//------
 	// Test Gun
 	//=========================================================
-	ControllerObject *debugController;
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 2,2,2 }, &debugController));
-	debugController->Init(ControllerObject::ControllerHand::HAND_Left);
-	debugController->SetBuildItems({ basicTurret });
-	debugController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
-	debugController->SetGunData(2, Gun::FireType::AUTO, 8, 25);
+	//ControllerObject *debugController;
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 2,2,2 }, &debugController));
+	//debugController->Init(ControllerObject::ControllerHand::HAND_Left);
+	//debugController->SetBuildItems({ basicTurret });
+	//debugController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
+	//debugController->SetGunData(2, Gun::FireType::AUTO, 8, 25);
+	
+	Turret *debugTurret;
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Turret>({ 0,0,0 }, &debugTurret));
+
+
 
 	//
 	//

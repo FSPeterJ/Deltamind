@@ -3,7 +3,9 @@
 #include "PhysicsComponent.h"
 #include "Console.h"
 
-AStarEnemy::AStarEnemy() {}
+AStarEnemy::AStarEnemy() {
+	tag = std::string("Enemy");
+}
 
 void AStarEnemy::Repath() {
 	NewPath();

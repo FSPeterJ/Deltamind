@@ -9,7 +9,7 @@ GameObject::GameObject() {
 }
 
 void GameObject::OnCollision(GameObject* obj) {}
-
+void GameObject::OnTrigger(GameObject* obj) {}
 
 void GameObject::Enable() {
 	Awake();

@@ -264,7 +264,7 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 	if(colObject)
 		*colObject = nullptr;
 
-	for (int iteration = 0; iteration < 10000; ++iteration) {
+	for (int iteration = 0; iteration < (int)(maxCastDistance * 100); ++iteration) {
 		XMStoreFloat3(&nextSegment, vecNextSeg);
 		nextIndex = partitionSpace.GetHashedIndex(nextSegment);
 		vecNextSeg += vecSegInterval;
@@ -381,7 +381,7 @@ void PhysicsManager::UpdateAABB(PhysicsComponent& component) {
 	}
 }
 void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponent component2) {
-	bool collisionResult = false;
+	bool collisionResult = false, isCol1Trigger = false, isCol2Trigger = false;
 	ColliderType colliderType1, colliderType2;
 
 	XMMATRIX matrixComA = XMLoadFloat4x4(&component1.parentObject->position);
@@ -389,8 +389,10 @@ void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponen
 
 	for(unsigned int com1 = 0; com1 < component1.colliders.size(); ++com1) {
 		colliderType1 = component1.colliders[com1].colliderData->colliderType;
-
+		isCol1Trigger = component1.colliders[com1].isTrigger;
 		for (unsigned int com2 = 0; com2 < component2.colliders.size(); ++com2) {
+			isCol2Trigger = component2.colliders[com2].isTrigger;
+			if (isCol1Trigger && isCol2Trigger) continue;
 			collisionResult = false;
 			colliderType2 = component2.colliders[com2].colliderData->colliderType;
 
@@ -448,7 +450,12 @@ void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponen
 			}
 
 			if (collisionResult) {
-				SendCollision((GameObject*)component1.parentObject, (GameObject*)component2.parentObject);
+				if (isCol1Trigger)
+					SendTrigger((GameObject*)component1.parentObject, (GameObject*)component2.parentObject);
+				else if (isCol2Trigger)
+					SendTrigger((GameObject*)component2.parentObject, (GameObject*)component1.parentObject);
+				else
+					SendCollision((GameObject*)component1.parentObject, (GameObject*)component2.parentObject);
 			}
 		}
 	}
@@ -992,6 +999,9 @@ void PhysicsManager::SendCollision(GameObject* obj1, GameObject* obj2) {
 
 	Console::WriteLine << obj1->GetTag().c_str() << " collided with " << obj2->GetTag().c_str();
 }
+void PhysicsManager::SendTrigger(GameObject* obj1, GameObject* obj2) {
+	obj1->OnTrigger(obj2);
+}
 
 void PhysicsManager::TestAllComponentsCollision() {
 	//Console::WriteLine((int)components.GetActiveCount());
@@ -1038,6 +1048,7 @@ bool PhysicsManager::RaycastCollisionCheck(XMVECTOR& origin, XMVECTOR& direction
 		*colObject = nullptr;
 
 	for (int colliderIndex = 0; colliderIndex < collidingComp->colliders.size(); ++colliderIndex) {
+		if (collidingComp->colliders[colliderIndex].isTrigger) continue;
 		switch (collidingComp->colliders[colliderIndex].colliderData->colliderType)
 		{
 		case SPHERE:

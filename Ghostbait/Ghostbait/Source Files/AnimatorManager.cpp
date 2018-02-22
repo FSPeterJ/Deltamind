@@ -35,10 +35,10 @@ Animator* AnimatorManager::GetReferenceComponent(const char * _FilePath, const c
 		currIndex += strLength;
 		memcpy(&strLength, &_data[currIndex], sizeof(strLength));
 		currIndex += sizeof(strLength);
-		name = new char[strLength + +strlen(DIRECTORY_PATH)];
-		memcpy(name, DIRECTORY_PATH, strlen(DIRECTORY_PATH));
-		memcpy(name + strlen(DIRECTORY_PATH), &_data[currIndex], strLength);
-			currIndex += strLength;
+		name = new char[strLength];
+		memcpy(name, &_data[currIndex], strLength);
+		currIndex += strLength;
+
 		toReturn->addAnim(filePath, bindposePath, name);
 		delete[] filePath;
 		delete[] name;

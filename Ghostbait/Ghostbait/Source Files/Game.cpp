@@ -202,11 +202,11 @@ void Game::Start(EngineStructure* _engine, char* startScene) {
 
 	ChangeScene(startScene);
 
-	/*AStarEnemy* fred;
+	AStarEnemy* fred;
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<AStarEnemy>("AStarEnemy", {-3,0,0}, &fred));
 
 	fred->SetGrid(&hexGrid);
-	fred->Enable();*/
+	fred->Enable();
 }
 void Game::Update() {
 	auto playerPos = VRManager::GetInstance().GetPlayerPosition();

@@ -22,6 +22,7 @@ public:
 	void Destroy();
 	void Initialize(AnimationManager* animManIn);
 	void Update();
+	void SetTime(float _timePos);
 	void addAnim(const char* animFilePath, const char* bindposeFilePath, const char* animName);
 	bool setState(const char* animName);
 

@@ -61,6 +61,7 @@ namespace GhostbaitModelCreator
             this.colliderOffsetX = new System.Windows.Forms.NumericUpDown();
             this.colliderOffsetY = new System.Windows.Forms.NumericUpDown();
             this.colliderOffsetZ = new System.Windows.Forms.NumericUpDown();
+            this.checkBoxIsTrigger = new System.Windows.Forms.CheckBox();
             this.capsulePanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.capsuleHeight)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.capsuleRadius)).BeginInit();
@@ -84,7 +85,7 @@ namespace GhostbaitModelCreator
             this.colliderType.FormattingEnabled = true;
             this.colliderType.Location = new System.Drawing.Point(125, 24);
             this.colliderType.Name = "colliderType";
-            this.colliderType.Size = new System.Drawing.Size(252, 21);
+            this.colliderType.Size = new System.Drawing.Size(163, 21);
             this.colliderType.TabIndex = 0;
             this.colliderType.SelectedIndexChanged += new System.EventHandler(this.colliderType_SelectedIndexChanged);
             // 
@@ -428,11 +429,22 @@ namespace GhostbaitModelCreator
             this.colliderOffsetZ.Size = new System.Drawing.Size(63, 20);
             this.colliderOffsetZ.TabIndex = 12;
             // 
+            // checkBoxIsTrigger
+            // 
+            this.checkBoxIsTrigger.AutoSize = true;
+            this.checkBoxIsTrigger.Location = new System.Drawing.Point(307, 26);
+            this.checkBoxIsTrigger.Name = "checkBoxIsTrigger";
+            this.checkBoxIsTrigger.Size = new System.Drawing.Size(70, 17);
+            this.checkBoxIsTrigger.TabIndex = 17;
+            this.checkBoxIsTrigger.Text = "Is Trigger";
+            this.checkBoxIsTrigger.UseVisualStyleBackColor = true;
+            // 
             // ColliderCreatorForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(384, 173);
+            this.Controls.Add(this.checkBoxIsTrigger);
             this.Controls.Add(this.colliderOffsetZ);
             this.Controls.Add(this.colliderOffsetY);
             this.Controls.Add(this.colliderOffsetX);
@@ -506,5 +518,6 @@ namespace GhostbaitModelCreator
         private System.Windows.Forms.NumericUpDown colliderOffsetX;
         private System.Windows.Forms.NumericUpDown colliderOffsetY;
         private System.Windows.Forms.NumericUpDown colliderOffsetZ;
+        private System.Windows.Forms.CheckBox checkBoxIsTrigger;
     }
 }

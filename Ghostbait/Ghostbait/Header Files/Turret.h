@@ -3,9 +3,11 @@
 
 class Turret: public GameObject {
 	GameObject* target;
-	float targetDistance;
+	float targetDistance =0;
 public:
 	Turret();
+	void Update();
+	float CalculateDistance(GameObject* obj);
 	~Turret();
-	void OnCollision(GameObject* object);
+	void OnTrigger(GameObject* object);
 };

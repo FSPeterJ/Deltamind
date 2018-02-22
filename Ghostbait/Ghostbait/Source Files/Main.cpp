@@ -265,13 +265,9 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	
 	Turret *debugTurret;
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Turret>({ 0,0,0 }, &debugTurret));
-
-
-
-	//
-	//
-
-
+	assert(debugTurret->GetComponent<Animator>()->setState("default"));
+	debugTurret->GetComponent<Animator>()->SetTime(3.0f);
+	debugTurret->Enable();
 
 	GhostTime::Initalize();
 	MessageEvents::Initilize();

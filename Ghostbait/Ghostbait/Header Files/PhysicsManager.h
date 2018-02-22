@@ -46,6 +46,7 @@ class PhysicsManager: public IComponentManager {
 	std::vector<DirectX::XMVECTOR> GetBoxCorners(AABB& boxCol, DirectX::XMMATRIX& boxPos);
 
 	void SendCollision(GameObject* obj1, GameObject* obj2);
+	void SendTrigger(GameObject* obj1, GameObject* obj2);
 
 	static DirectX::XMVECTOR FindClosestPointOnLine(DirectX::XMVECTOR& _lineSegStart, DirectX::XMVECTOR& _lineSegEnd, DirectX::XMVECTOR& _testPoint);
 	static bool IsRayInCollider(DirectX::XMVECTOR& origin, Collider& collidingComp, DirectX::XMVECTOR& objectPos);

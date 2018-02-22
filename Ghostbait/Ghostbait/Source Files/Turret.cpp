@@ -6,6 +6,7 @@
 
 
 Turret::Turret() {
+	tag = "turret";
 }
 
 Turret::~Turret()

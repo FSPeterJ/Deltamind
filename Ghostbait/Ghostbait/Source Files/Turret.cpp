@@ -6,7 +6,7 @@
 
 
 Turret::Turret() {
-	tag = "turret";
+	tag = std::string("Turret");
 }
 
 Turret::~Turret()

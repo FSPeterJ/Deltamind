@@ -130,8 +130,8 @@ HexPath HexGrid::CalculatePathWithinXSteps(HexTile *const start, HexTile *const 
 		//if(path.size() == 2 && distance > 1) {
 		//	Console::WriteLine << "Path is not reachable or too far!";
 		//} else {
-		Console::WriteLine << "Path has: " << path.size() << " elements.";
-		path.Color(&layout, {0,1,0}, 0.0f, ColorType::__mX);
+		//Console::WriteLine << "Path has: " << path.size() << " elements.";
+		//path.Color(&layout, {0,1,0}, 0.0f, ColorType::__mX);
 		//}
 	}
 
@@ -158,8 +158,8 @@ HexPath HexGrid::CalculatePathWithinXCost(HexTile *const start, HexTile *const g
 
 	path.BuildPathReverse(start, goal, search.visitedMap);
 
-	Console::WriteLine << "Path has: " << path.size() << " elements.";
-	path.Color(&layout, {0,1,0}, 0.0f, ColorType::__mX);
+	//Console::WriteLine << "Path has: " << path.size() << " elements.";
+	//path.Color(&layout, {0,1,0}, 0.0f, ColorType::__mX);
 
 	return path;
 }
@@ -200,10 +200,10 @@ HexRegion HexGrid::GetIntersectingTilesRanges(HexTile *const a, int aRadius, Hex
 	int bx = b->q, by = b->r, bz = b->s;
 
 	HexRegion regionA = GetRegion(ax - aRadius, ax + aRadius, ay - aRadius, ay + aRadius, az - aRadius, az + aRadius);
-	regionA.Color(&layout, {0,1,0}, 0, ColorType::__X);
+	//regionA.Color(&layout, {0,1,0}, 0, ColorType::__X);
 
 	HexRegion regionB = GetRegion(bx - bRadius, bx + bRadius, by - bRadius, by + bRadius, bz - bRadius, bz + bRadius);
-	regionB.Color(&layout, {0,0,1}, 0.01f, ColorType::__X);
+	//regionB.Color(&layout, {0,0,1}, 0.01f, ColorType::__X);
 
 	HexRegion intersection = GetRegion(
 		max(ax - aRadius, bx - bRadius), min(ax + aRadius, bx + bRadius),
@@ -213,7 +213,7 @@ HexRegion HexGrid::GetIntersectingTilesRanges(HexTile *const a, int aRadius, Hex
 
 	//intersection.Filter(*this);
 
-	intersection.Color(&layout, {1, 0, 0}, 0, ColorType::__CheapFill);
+	//intersection.Color(&layout, {1, 0, 0}, 0, ColorType::__CheapFill);
 
 	return intersection;
 }
@@ -350,7 +350,7 @@ HexPath HexGrid::DijkstraSearch(HexTile *const start, HexTile *const goal) {
 		for(auto& _n : current->Neighbors()) {
 			HexTile* neighbor = GetTile(_n);
 			if(!neighbor || neighbor->weight == Blocked) { continue; }
-			neighbor->DrawT(layout, {0,1,0});
+			//neighbor->DrawT(layout, {0,1,0});
 
 			float new_cost = cumulativeCost[current] + neighbor->weight;
 			if(!cumulativeCost.count(neighbor) || new_cost < cumulativeCost[neighbor]) {
@@ -399,7 +399,7 @@ HexPath HexGrid::AStarSearch(HexTile *const start, HexTile *const goal, Heuristi
 		for(auto& _n : current->Neighbors()) { //the call to Neighbors() can be optimized if instead I preallocate space to store the neighbors and pass it in to be filled out
 			HexTile* neighbor = GetTile(_n);
 			if(!neighbor || neighbor->weight == Blocked) { continue; }
-			neighbor->DrawX(layout, {0,1,0});
+			//neighbor->DrawX(layout, {0,1,0});
 
 			float new_cost = cumulativeCost[current] + neighbor->weight;
 			//you may have noticed I don't check for a node in the Q that has a high cost
@@ -588,17 +588,18 @@ void HexGrid::Fill() {
 HexRegion HexGrid::blocked;
 
 void HexGrid::Display(DirectX::XMFLOAT2& player) {
-
-	//HexRegion playerView = GetTilesNStepsAway(GetTile((int)player.x, (int)player.y), 3);
-	//playerView.Color(&layout, {1,1,1}, 0, ColorType::__Outline);
-
+	HexTile* pos = PointToTile(player);
+	if(pos) {
+		HexRegion playerView = GetTilesNStepsAway(pos, 3);
+		playerView.Color(&layout, {1,1,1}, 0, ColorType::__CheapFill);
+	}
 //	for(const auto& t : map) {
 	//	auto realT = const_cast<HexTile*&>(t);
 	//	realT->Draw(layout, {1,1,1});
 	//}
 
 	
-	blocked.Color(&layout, {0,0,0}, 0, ColorType::__CheapFill);
+	//blocked.Color(&layout, {0,0,0}, 0, ColorType::__CheapFill);
 
 	//DrawXStepsPath();
 }

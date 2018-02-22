@@ -48,7 +48,7 @@ void GameObject::DisableNow() {
 
 void GameObject::Destroy() {
 	//recycle memory, pool::deactivatememory
-	MessageEvents::SendMessage(EVENT_Destroy, DestroyMessage(this));
+	MessageEvents::SendMessage(EVENT_Destroy, StandardObjectMessage(this));
 	DestroyComponents();
 	Components.Clear();
 	Disable();

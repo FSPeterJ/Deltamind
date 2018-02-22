@@ -20,7 +20,6 @@ class BuildTool : public Item {
 	Mode currentMode = SPAWN;
 	DirectX::XMFLOAT3 spawnPos;
 	GameObject* currentlySelectedItem = nullptr;
-	ControllerObject* parent;
 
 	void SpawnProjection();
 	void Spawn();
@@ -32,10 +31,10 @@ class BuildTool : public Item {
 	bool SetObstacle(DirectX::XMFLOAT2 pos, bool active);
 public:
 	BuildTool();
+	BuildTool(std::vector<unsigned> prefabIDs);
 	BuildTool(std::vector<int> prefabIDs);
 
-	void SetPrefabs(std::vector<int> prefabIDs);
-	void SetParent(ControllerObject* _parent);
+	void SetPrefabs(std::vector<unsigned> prefabIDs);
 
 	void Projection();
 	void Activate();

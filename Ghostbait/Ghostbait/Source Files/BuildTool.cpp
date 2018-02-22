@@ -15,31 +15,29 @@ BuildTool::BuildTool() {
 	//SetPrefabs(prefabIDs);
 	state = BUILD;
 }
-BuildTool::BuildTool(std::vector<int> prefabIDs) {
+BuildTool::BuildTool(std::vector<unsigned> prefabIDs) {
 	SetPrefabs(prefabIDs);
 	state = BUILD;
 }
 
-void BuildTool::SetPrefabs(std::vector<int> prefabIDs) {
-	prefabs.empty();
+void BuildTool::SetPrefabs(std::vector<unsigned> prefabIDs) {
+	//prefabs.empty();
 	prefabs.resize(prefabIDs.size() + 1);
 
 	for (int i = 0; i < prefabIDs.size(); ++i) {
 		prefabs[i] = BuildItem();
 		prefabs[i].ID = prefabIDs[i];
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabIDs[i], { 0, 0, 0 }, &prefabs[i].object));
-		if(i) MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(prefabs[i].object));
+		if(i) MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[i].object));
 		PhysicsComponent* physComp = prefabs[i].object->GetComponent<PhysicsComponent>();
 		if(physComp) physComp->isActive = false;
 		//Set objects shader to be semi-transparent solid color
 	}
 	//Add removal tool
 	prefabs[prefabs.size() - 1] = BuildItem();
-	prefabs[prefabs.size() - 1].ID = -1;
+	prefabs[prefabs.size() - 1].ID = 0;
 }
-void BuildTool::SetParent(ControllerObject* _parent) {
-	parent = _parent;
-}
+
 
 void BuildTool::Projection() {
 	if (currentMode == SPAWN) SpawnProjection();
@@ -73,7 +71,7 @@ bool BuildTool::SetObstacle(DirectX::XMFLOAT2 pos, bool active) {
 }
 
 void BuildTool::SpawnProjection(){
-	if(VRManager::GetInstance().ArcCast(parent, &spawnPos)) {
+	if(VRManager::GetInstance().ArcCast((Object*)this, &spawnPos)) {
 		//snap to center of grid
 		DirectX::XMFLOAT2 newPos = DirectX::XMFLOAT2(spawnPos.x, spawnPos.z);
 		Snap(&newPos);
@@ -125,7 +123,7 @@ void BuildTool::Remove() {
 
 void BuildTool::CycleForward() {
 	if (prefabs[currentPrefabIndex].object)
-		MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(prefabs[currentPrefabIndex].object));
+		MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
 	
 	int tempIndex = ++currentPrefabIndex;
 
@@ -140,11 +138,11 @@ void BuildTool::CycleForward() {
 
 	currentPrefabIndex = tempIndex;
 	if (prefabs[currentPrefabIndex].object)
-		MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(prefabs[currentPrefabIndex].object));
+		MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
 }
 void BuildTool::CycleBackward() {
 	if (prefabs[currentPrefabIndex].object)
-		MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(prefabs[currentPrefabIndex].object));
+		MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
 
 	int tempIndex = --currentPrefabIndex;
 
@@ -161,7 +159,7 @@ void BuildTool::CycleBackward() {
 
 	currentPrefabIndex = tempIndex;
 	if (prefabs[currentPrefabIndex].object)
-		MessageEvents::SendMessage(EVENT_Addrender, DestroyMessage(prefabs[currentPrefabIndex].object));
+		MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
 
 }
 
@@ -172,6 +170,6 @@ void BuildTool::ActiveUpdate() {
 
 void BuildTool::HideBuildItems() {
 	if (prefabs[currentPrefabIndex].object)
-		MessageEvents::SendMessage(EVENT_Unrender, DestroyMessage(prefabs[currentPrefabIndex].object));
+		MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
 }
 

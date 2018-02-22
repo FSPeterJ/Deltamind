@@ -62,5 +62,9 @@ public:
 
 	virtual void GivePID(unsigned pid, const char* tag);
 	virtual void CloneData(Object* obj);
+#ifdef _DEBUG
+	virtual void SmokeTest();
+#endif
+
 
 };

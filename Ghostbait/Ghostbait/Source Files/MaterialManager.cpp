@@ -104,6 +104,15 @@ Material* MaterialManager::GetReferenceComponent(const char* _FilePath, const ch
 void MaterialManager::ResetComponent(ComponentBase * reset) {
 	trackedMaterials.DeactivateMemory(reset);
 }
+
+void MaterialManager::ActivateComponent(ComponentBase* component)
+{
+}
+
+void MaterialManager::DeactivateComponent(ComponentBase* component)
+{
+}
+
 Material* MaterialManager::CloneComponent(ComponentBase* reference) {
 	return nullptr;
 }

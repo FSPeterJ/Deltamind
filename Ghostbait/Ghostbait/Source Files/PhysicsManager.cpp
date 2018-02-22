@@ -156,6 +156,16 @@ void PhysicsManager::ResetComponent(ComponentBase * reset) {
 	partitionSpace.RemoveComponent((PhysicsComponent*)reset);
 }
 
+void PhysicsManager::ActivateComponent(ComponentBase* component)
+{
+
+}
+
+void PhysicsManager::DeactivateComponent(ComponentBase* component)
+{
+
+}
+
 void PhysicsManager::Update() {
 
 	const int activeCount = (int)dynamicComponents.GetActiveCount();

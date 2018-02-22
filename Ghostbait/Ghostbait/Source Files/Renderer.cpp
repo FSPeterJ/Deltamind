@@ -341,7 +341,7 @@ void Renderer::registerObject(EventMessageBase* e) {
 }
 
 void Renderer::unregisterObject(EventMessageBase* e) {
-	DestroyMessage* removeobjMessage = (DestroyMessage*) e;
+	StandardObjectMessage* removeobjMessage = (StandardObjectMessage*) e;
 	//TODO: Need logic for which register it is under
 	for(std::vector<const GameObject*>::iterator iter = renderedObjects.begin(); iter != renderedObjects.end(); ++iter) {
 		if(*iter == removeobjMessage->RetrieveObject()) {

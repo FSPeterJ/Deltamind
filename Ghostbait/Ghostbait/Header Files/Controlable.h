@@ -1,7 +1,7 @@
 #pragma once
-#include <functional>		//can probably be moved to cpp if nested classes move
-#include <unordered_map>	//can probably be moved to cpp if nested classes move
-#include "MessageStructs.h"	//can probably be moved to cpp if nested classes move
+#include <functional>		
+#include <unordered_map>	
+#include "MessageStructs.h"	
 
 //This becomes some sort of component add-on?
 class Controlable {
@@ -13,16 +13,28 @@ class Controlable {
 		struct InputReceiver: std::unordered_map<Control, float> {
 			//its for your own good
 			void OnInputReceived(EventMessageBase* e) {
-				InputMessage* inputMsg = (InputMessage*) e;
+				InputMessage* inputMsg = (InputMessage*)e;
 				this->operator[](inputMsg->GetControl()) = inputMsg->GetAmount();
 			}
 		}*receiver;
 		ReceiveEvent ReceiveInput;
 	public:
-		InputReceiver * const GetState() const { return this->receiver; }
-		void SetState(const Control key, const float amount) { this->receiver->operator[](key) = amount; }
-		ReceiveEvent const ReceiveInputEvent() const { return ReceiveInput; }
-		InputReceivedEvent() : receiver(new InputReceiver()), ReceiveInput([receiver = receiver](EventMessageBase* e) mutable { receiver->OnInputReceived(e); }) {}
+		InputReceiver * const GetState() const {
+			return this->receiver;
+		}
+		void SetState(const Control key, const float amount) {
+			this->receiver->operator[](key) = amount;
+		}
+		ReceiveEvent const ReceiveInputEvent() const {
+			return ReceiveInput;
+		}
+		InputReceivedEvent():
+			receiver(new InputReceiver()), 
+			ReceiveInput([receiver = receiver](EventMessageBase* e) mutable {
+				receiver->OnInputReceived(e);
+			}) {
+
+		}
 		virtual ~InputReceivedEvent() {
 			delete receiver;
 		}
@@ -34,7 +46,9 @@ protected:
 	/// </summary>
 	/// <param name="key">The key.</param>
 	/// <returns>The amount the specified key is down.</returns>
-	inline float Amount(Control key) { return (*inputReceivedEvent.GetState())[key]; }
+	inline float Amount(Control key) {
+		return (*inputReceivedEvent.GetState())[key];
+	}
 
 	/// <summary>
 	/// Determines whether the specified key is currently down.
@@ -45,7 +59,9 @@ protected:
 
 	inline bool KeyIsHit(Control key) { bool hit = Amount(key) > 0; ResetKey(key); return hit; }
 
-	inline void ResetKey(Control key) { inputReceivedEvent.SetState(key, 0); }
+	inline void ResetKey(Control key) {
+		inputReceivedEvent.SetState(key, 0);
+	}
 public:
 	/// <summary>
 	/// Subscribes children to receive message input events.

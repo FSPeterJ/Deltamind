@@ -2,6 +2,7 @@
 #include "Heuristics.h"
 #include "PhysicsComponent.h"
 #include "Console.h"
+#include "MessageEvents.h"
 
 AStarEnemy::AStarEnemy() {
 	tag = std::string("Enemy");
@@ -9,6 +10,16 @@ AStarEnemy::AStarEnemy() {
 
 void AStarEnemy::Repath() {
 	NewPath();
+}
+
+void AStarEnemy::Enable() {
+	eventAdd = MessageEvents::Subscribe(EVENT_AddObstacle, [=](EventMessageBase* e) {this->Repath(); });
+	eventRemove = MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {this->Repath(); });
+}
+
+void AStarEnemy::Disable() {
+	MessageEvents::UnSubscribe(EVENT_AddObstacle, eventAdd);
+	MessageEvents::UnSubscribe(EVENT_RemoveObstacle, eventRemove);
 }
 
 bool AStarEnemy::NewPath() {
@@ -63,14 +74,15 @@ void AStarEnemy::CalcPath(HexTile* where) {
 }
 
 void AStarEnemy::Update() {
- 
+
 	HexTile* curTile = grid->PointToTile(DirectX::XMFLOAT2(position._41, position._43));
 	if(curTile) {
 		if(curTile == next) {
 			if(path.goal() == curTile) {
 				Console::WriteLine << "We made it to our goal.";
-				rb->Stop();			
-			} else {
+				rb->Stop();
+			}
+			else {
 				howFarAlong++;
 				if(howFarAlong > path.size() - 1) { return; }
 				next = path[howFarAlong];

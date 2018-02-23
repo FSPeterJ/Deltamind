@@ -16,7 +16,7 @@ public:
 	GameObject();
 
 	void Enable();
-	void Disable();
+	virtual void Disable();
 	void DisableNow();
 	virtual void OnCollision(GameObject* obj);
 	virtual void OnTrigger(GameObject* obj);

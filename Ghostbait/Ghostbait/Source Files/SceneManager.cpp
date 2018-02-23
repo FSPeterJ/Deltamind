@@ -71,7 +71,7 @@ void SceneManager::Initialize() {
 		{
 			startCube.ghostFile = "Assets/StartCube.ghost";
 			startCube.name = "StartCube";
-			DirectX::XMFLOAT4X4 mat = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0,	0, 0, 0, 1);
+			DirectX::XMFLOAT4X4 mat = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0,	0, 0, 3, 1);
 			startCube.positions.push_back(mat);
 			data.prefabs.push_back(startCube);
 		}

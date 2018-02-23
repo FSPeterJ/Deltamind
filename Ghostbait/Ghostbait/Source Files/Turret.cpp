@@ -16,6 +16,7 @@ Turret::Turret() {
 	targetDistance = 9999999;
 	target = nullptr;
 	firerate = 2;
+	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
 }
 
 void Turret::Update() {

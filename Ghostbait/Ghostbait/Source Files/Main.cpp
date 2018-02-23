@@ -254,8 +254,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//test->SetTag("Ground");
 
 	//********************* PHYSICS TEST CODE **********************************
-	PhysicsTestObj *test1; //, *test2;
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { 0.0f, 2.0f, -1.0f }, &test1));
+	//PhysicsTestObj *test1; //, *test2;
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { 0.0f, 2.0f, -1.0f }, &test1));
 	////DirectX::XMStoreFloat4x4(&test1->position, DirectX::XMLoadFloat4x4(&test1->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest3", { 0.0f, 1.0f, 0.0f }, &test2));
 	//DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
@@ -263,10 +263,10 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { -2.0f, 2.0f, 0.0f }, nullptr));
 
-	dynamic_cast<PhysicsTestObj*>(test1)->isControllable = true;
-	dynamic_cast<PhysicsTestObj*>(test1)->isRayCasting = true;
+	//dynamic_cast<PhysicsTestObj*>(test1)->isControllable = true;
+	//dynamic_cast<PhysicsTestObj*>(test1)->isRayCasting = true;
 
-	test1->Enable();
+	//test1->Enable();
 
 
 	//------

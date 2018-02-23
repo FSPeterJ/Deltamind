@@ -9,7 +9,12 @@
 
 
 void EnemyBase::Awake() {
-	MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) {this->RestartGame(); });
+	eventLose = MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) {this->RestartGame(); });
+}
+
+void EnemyBase::Disable() {
+	MessageEvents::UnSubscribe(EVENT_GameLose, eventLose);
+	GameObject::Disable();
 }
 
 void EnemyBase::RestartGame() {
@@ -19,7 +24,7 @@ void EnemyBase::RestartGame() {
 void EnemyBase::Update() {
 	if (hurt) {
 		hurtTimer += GhostTime::DeltaTime();
-		if (hurtTimer >= 0.5f) {
+		if (hurtTimer >= 0.25f) {
 			hurt = false;
 			int id = TypeMap::GetComponentTypeID<Material>();
 			SetComponent(defaultMat, id);

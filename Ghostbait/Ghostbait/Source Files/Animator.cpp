@@ -97,7 +97,7 @@ void Animator::Update() {
 		ratio = (float) ((timePos - beginFrame.endTime) / (endFrame.endTime - beginFrame.endTime));
 	else
 		ratio = (float) (timePos / endFrame.endTime);
-
+	
 	for(size_t i = 0; i < tweens.size(); ++i) {
 		DirectX::XMFLOAT3X3 endJointMat = pullRotation(endFrame.joints[i].transform);
 		DirectX::XMFLOAT3X3 beginJointMat = pullRotation(beginFrame.joints[i].transform);

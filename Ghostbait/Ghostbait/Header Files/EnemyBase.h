@@ -17,6 +17,8 @@ protected:
 	float maxSpeed = 2.0f;
 	DirectX::XMFLOAT3 target = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 
+	unsigned eventLose;
+
 	bool hurt = false;
 	double hurtTimer = 0;
 	double hurtDuration = 1;
@@ -27,9 +29,11 @@ protected:
 
 public:
 	EnemyBase() { tag = std::string("Enemy");  };
+	void Awake() override;
 	void Update() override;
 	void OnCollision(GameObject* _other);
 	void Destroy() override;
+	void Disable() override;
 
 	void CloneData(Object* obj);
 

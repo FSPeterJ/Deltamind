@@ -2,6 +2,7 @@
 #include <vector>
 #include <functional>
 #include <algorithm>
+#include <cassert>
 
 template <typename ...T>
 class Delegate: std::function<void(T...)> {

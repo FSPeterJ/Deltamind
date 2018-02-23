@@ -28,7 +28,7 @@ void BuildTool::SetPrefabs(std::vector<unsigned> prefabIDs) {
 		prefabs[i] = BuildItem();
 		prefabs[i].ID = prefabIDs[i];
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabIDs[i], { 0, 0, 0 }, &prefabs[i].object));
-		if(i) MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[i].object));
+		if(prefabs[i].ID) MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[i].object));
 		PhysicsComponent* physComp = prefabs[i].object->GetComponent<PhysicsComponent>();
 		if(physComp) physComp->isActive = false;
 		//Set objects shader to be semi-transparent solid color
@@ -169,8 +169,13 @@ void BuildTool::InactiveUpdate() {
 void BuildTool::ActiveUpdate() {
 }
 
-void BuildTool::HideBuildItems() {
+void BuildTool::DeSelected() {
 	if (prefabs[currentPrefabIndex].object)
 		MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
+}
+
+void BuildTool::Selected() {
+	if (prefabs[currentPrefabIndex].object)
+		MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
 }
 

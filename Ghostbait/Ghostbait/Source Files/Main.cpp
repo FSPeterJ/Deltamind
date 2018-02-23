@@ -204,9 +204,9 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	unsigned Gun2 = ObjectFactory::CreatePrefab(&std::string("Assets/Gun2.ghost"), "GunTest2");
 	ObjectFactory::CreatePrefab(&std::string("Assets/Gun.ghost"), "GunTest", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/TestProjectile.ghost"), "TestProjectile");
-	ObjectFactory::CreatePrefab(&std::string("Assets/BackHoe.ghost"), "AStarEnemy");
+	ObjectFactory::CreatePrefab(&std::string("Assets/AStarEnemyEdit.ghost"), "AStarEnemy");
 	ObjectFactory::CreatePrefab(&std::string("Assets/ResumeButton.ghost"), "ResumeButton");
-	unsigned basicTurret = ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost"), "TestTurret", true);
+	unsigned basicTurret = ObjectFactory::CreatePrefab(&std::string("Assets/TestTurretEdit.ghost"), "TestTurret", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/RestartButton.ghost"), "RestartButton");
 	ObjectFactory::CreatePrefab(&std::string("Assets/QuitButton.ghost"), "QuitButton");
 
@@ -284,10 +284,11 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//assert(debugTurret->GetComponent<Animator>()->setState("default"));
 	//debugTurret->GetComponent<Animator>()->SetTime(3.0f);
 	//debugTurret->Enable();
-
+	
 	GhostTime::Initalize();
 	MessageEvents::Initilize();
 
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<GameObject>("EarthMage", { 0.0f, 0.0f, 25.0f }));
 	Console::WriteLine << "Starting Game Loop......";
 	game = new Game();
 	game->Start(&engine);

@@ -30,6 +30,7 @@ Game::Game() {
 	MessageEvents::Subscribe(EVENT_SnapRequest, [=](EventMessageBase* e) {this->SnapRequestEvent(e); });
 	MessageEvents::Subscribe(EVENT_AddObstacle, [=](EventMessageBase* e) {this->AddObstacleEvent(e); });
 	MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {this->RemoveObstacleEvent(e); });
+	MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) {this->Lose(); });
 	MessageEvents::Subscribe(EVENT_GameQuit, [=](EventMessageBase* e) {this->QuitEvent(); });
 }
 
@@ -91,34 +92,39 @@ void Game::ChangeState(State newState) {
 		gameData.state = newState;
 		switch (newState) {
 		case GAMESTATE_Paused:
-		{
-			PauseGame();
-		}
-		break;
+			{
+				PauseGame();
+			}
+			break;
 		case GAMESTATE_BetweenWaves:
-		{
-			if (gameData.prevState == GAMESTATE_Paused) ResumeGame();
+			{
+				if (gameData.prevState == GAMESTATE_Paused) ResumeGame();
 
-			//if upcoming wave doesnt exist...
-			int nextWave = gameData.waveManager.currentWave + 1;
-			if (nextWave >= gameData.waveManager.waves.size()) {
+				//if upcoming wave doesnt exist...
+				int nextWave = gameData.waveManager.currentWave + 1;
+				if (nextWave >= gameData.waveManager.waves.size()) {
 				Win();
 			}
-			//if upcoming wave does exist
-			else if (gameData.prevState == GAMESTATE_InWave) {
+				//if upcoming wave does exist
+				else if (gameData.prevState == GAMESTATE_InWave) {
 				//Spawn start cube
 				MenuCube* startCube;
 				MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("StartCube", { 0, 1.5f, 0.0f }, &startCube));
 				DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
 				startCube->Enable();
 			}
-		}
-		break;
+			}
+			break;
 		case GAMESTATE_InWave:
-		{
-			if (gameData.prevState == GAMESTATE_Paused) ResumeGame();
-		}
-		break;
+			{
+				if (gameData.prevState == GAMESTATE_Paused) ResumeGame();
+			}
+			break;
+		case GAMESTATE_Lost:
+			{
+				gameData.Reset();
+			}
+			break;
 		}
 	}
 }
@@ -184,6 +190,11 @@ void Game::PauseGame() {
 }
 void Game::Lose() {
 	//Logic to run when the player loses
+	MenuCube* temper;
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("LoseCube", { 0, 0.75f, 0 }, &temper));
+	DirectX::XMStoreFloat4x4(&temper->position, DirectX::XMLoadFloat4x4(&temper->position) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));
+
+	ChangeState(GAMESTATE_Lost);
 }
 void Game::Win() {
 	//Logic to run when the player wins
@@ -201,6 +212,13 @@ void Game::Start(EngineStructure* _engine, char* startScene) {
 	hexGrid.Fill();
 
 	ChangeScene(startScene, &corePos);
+
+	//AStarEnemy *enemy;
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<AStarEnemy>("AStarEnemy", { 2,2,2 }, &enemy));
+	//enemy->SetGrid(&hexGrid);
+	//enemy->SetGoal(DirectX::XMFLOAT2(corePos.x, corePos.z));
+	//enemy->Repath();
+	//enemy->Enable();
 
 	//AStarEnemy* fred;
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<AStarEnemy>("AStarEnemy", {0,0,0}, &fred));
@@ -253,6 +271,13 @@ void Game::Update() {
 			}
 			break;
 		case GAMESTATE_BetweenWaves:
+			{
+				//--------Update Engine Structure
+				engine->ExecuteUpdate();
+				engine->ExecuteLateUpdate();
+			}
+			break;
+		case GAMESTATE_Lost:
 			{
 				//--------Update Engine Structure
 				engine->ExecuteUpdate();

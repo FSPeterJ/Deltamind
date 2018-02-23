@@ -13,7 +13,8 @@ class Menu;
 enum State {
 		GAMESTATE_Paused,
 		GAMESTATE_InWave,
-		GAMESTATE_BetweenWaves
+		GAMESTATE_BetweenWaves,
+		GAMESTATE_Lost
 	};
 
 class Game {

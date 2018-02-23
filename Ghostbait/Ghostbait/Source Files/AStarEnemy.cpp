@@ -45,6 +45,7 @@ void AStarEnemy::SetGrid(HexGrid* _grid) {
 }
 
 void AStarEnemy::Awake() {
+	EnemyBase::Awake();
 	rb = &(GetComponent<PhysicsComponent>()->rigidBody);
 	if(!goal) {
 		NewRandPath();
@@ -63,7 +64,7 @@ void AStarEnemy::CalcPath(HexTile* where) {
 }
 
 void AStarEnemy::Update() {
- 
+	EnemyBase::Update();
 	HexTile* curTile = grid->PointToTile(DirectX::XMFLOAT2(position._41, position._43));
 	if(curTile) {
 		if(curTile == next) {

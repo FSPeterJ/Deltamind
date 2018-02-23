@@ -86,8 +86,5 @@ void CoreCube::OnCollision(GameObject* other) {
 
 void CoreCube::Destroy() {
 	MessageEvents::SendMessage(EVENT_GameLose, EventMessageBase());
-	MenuCube* temper;
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("LoseCube", { 0, 0.75f, 0 }, &temper));// stop using magic number prefab ID
-	DirectX::XMStoreFloat4x4(&temper->position, DirectX::XMLoadFloat4x4(&temper->position) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));
 	GameObject::Destroy();
 }

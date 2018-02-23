@@ -27,6 +27,7 @@ protected:
 
 public:
 	EnemyBase() { tag = std::string("Enemy");  };
+	void Awake() override;
 	void Update() override;
 	void OnCollision(GameObject* _other);
 	void Destroy() override;

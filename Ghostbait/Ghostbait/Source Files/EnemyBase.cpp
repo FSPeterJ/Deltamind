@@ -8,6 +8,10 @@
 
 
 
+void EnemyBase::Awake() {
+	MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) {this->RestartGame(); });
+}
+
 void EnemyBase::RestartGame() {
 	MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 }
@@ -15,22 +19,22 @@ void EnemyBase::RestartGame() {
 void EnemyBase::Update() {
 	if (hurt) {
 		hurtTimer += GhostTime::DeltaTime();
-		if (hurtTimer >= 1) {
+		if (hurtTimer >= 0.5f) {
 			hurt = false;
 			int id = TypeMap::GetComponentTypeID<Material>();
 			SetComponent(defaultMat, id);
 		}
 	}
 
-	DirectX::XMVECTOR directionToGoal = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&target), DirectX::XMLoadFloat4x4(&position).r[3]));
-	PhysicsComponent* myPhys = GetComponent<PhysicsComponent>();
-
-	myPhys->rigidBody.AddForce(0.2f * (float) GhostTime::DeltaTime(), DirectX::XMVectorGetX(directionToGoal), DirectX::XMVectorGetY(directionToGoal), DirectX::XMVectorGetZ(directionToGoal));
-
-	if(myPhys->rigidBody.GetSpeedSq() > maxSpeed * maxSpeed) {
-		DirectX::XMVECTOR clampedVelocity = DirectX::XMVectorScale(DirectX::XMVector3Normalize(myPhys->rigidBody.GetVelocity()), maxSpeed);
-		myPhys->rigidBody.SetVelocity(clampedVelocity);
-	}
+	//DirectX::XMVECTOR directionToGoal = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&target), DirectX::XMLoadFloat4x4(&position).r[3]));
+	//PhysicsComponent* myPhys = GetComponent<PhysicsComponent>();
+	//
+	//myPhys->rigidBody.AddForce(0.2f * (float) GhostTime::DeltaTime(), DirectX::XMVectorGetX(directionToGoal), DirectX::XMVectorGetY(directionToGoal), DirectX::XMVectorGetZ(directionToGoal));
+	//
+	//if(myPhys->rigidBody.GetSpeedSq() > maxSpeed * maxSpeed) {
+	//	DirectX::XMVECTOR clampedVelocity = DirectX::XMVectorScale(DirectX::XMVector3Normalize(myPhys->rigidBody.GetVelocity()), maxSpeed);
+	//	myPhys->rigidBody.SetVelocity(clampedVelocity);
+	//}
 }
 
 void EnemyBase::OnCollision(GameObject* _other) {
@@ -40,9 +44,11 @@ void EnemyBase::OnCollision(GameObject* _other) {
 		myPhys->rigidBody.AddForce(0.2f, DirectX::XMVectorGetX(incomingDirection), 0.0f, DirectX::XMVectorGetZ(incomingDirection));
 		AdjustHealth(-(((Projectile*)_other)->damage));
 		if (componentVarients.find("Hurt") != componentVarients.end()) {
-			int id = TypeMap::GetComponentTypeID<Material>();
-			defaultMat = GetComponent<Material>();
-			SetComponent(componentVarients["Hurt"], id);
+			if (!hurt) {
+				int id = TypeMap::GetComponentTypeID<Material>();
+				defaultMat = GetComponent<Material>();
+				SetComponent(componentVarients["Hurt"], id);
+			}
 			hurt = true;
 			hurtTimer = 0;
 		}

@@ -45,5 +45,6 @@ public:
 	void InactiveUpdate();
 	void ActiveUpdate();
 
-	void HideBuildItems();
+	void DeSelected();
+	void Selected() override;
 };

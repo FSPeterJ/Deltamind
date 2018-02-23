@@ -73,9 +73,11 @@ void ControllerObject::SwitchCurrentItem(int itemIndex) {
 		}
 	}
 	else {
+		currentGameItem->DeSelected();
 		currentGameItem->Render(false);
 		SetPhysicsComponent(currentGameItem, false);
 		currentGameItem = items[itemIndex];
+		currentGameItem->Selected();
 		currentGameItem->Render(true);
 		SetPhysicsComponent(currentGameItem, true);
 		return;

@@ -92,7 +92,7 @@ void Turret::Shoot() {
 	//obj->position._42 += obj->position._32 * 0.2f;
 	//obj->position._43 += obj->position._33 * 0.2f;
 	XMVECTOR bulletpos = DirectX::XMLoadFloat4(&(XMFLOAT4)obj->position.m[3]);
-	XMVECTOR targetPos = DirectX::XMLoadFloat3(&(XMFLOAT3)target->position.m[3]);
+	XMVECTOR targetPos = DirectX::XMLoadFloat4(&(XMFLOAT4)target->position.m[3]);
 	XMVECTOR Z(XMVector3Normalize(targetPos - bulletpos));
 	XMVECTOR X(XMVector3Normalize(XMVector3Cross(XMVectorSet(0, 1, 0, 1), Z)));
 	XMVECTOR Y(XMVector3Normalize(XMVector3Cross(Z, X)));

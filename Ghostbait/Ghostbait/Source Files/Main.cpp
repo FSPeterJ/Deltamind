@@ -204,7 +204,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	unsigned Gun2 = ObjectFactory::CreatePrefab(&std::string("Assets/Gun2.ghost"), "GunTest2");
 	ObjectFactory::CreatePrefab(&std::string("Assets/Gun.ghost"), "GunTest", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/TestProjectile.ghost"), "TestProjectile");
-	ObjectFactory::CreatePrefab(&std::string("Assets/AStarEnemy.ghost"), "AStarEnemy");
+	ObjectFactory::CreatePrefab(&std::string("Assets/BackHoe.ghost"), "AStarEnemy");
 	ObjectFactory::CreatePrefab(&std::string("Assets/ResumeButton.ghost"), "ResumeButton");
 	unsigned basicTurret = ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost"), "TestTurret", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/RestartButton.ghost"), "RestartButton");
@@ -272,12 +272,12 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//------
 	// Test Gun
 	//=========================================================
-	//ControllerObject *debugController;
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 2,2,2 }, &debugController));
-	//debugController->Init(ControllerObject::ControllerHand::HAND_Left);
-	//debugController->SetBuildItems({ basicTurret });
-	//debugController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
-	//debugController->SetGunData(2, Gun::FireType::AUTO, 8, 25);
+	ControllerObject *debugController;
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 2,2,2 }, &debugController));
+	debugController->Init(ControllerObject::ControllerHand::HAND_Left);
+	debugController->SetBuildItems({ basicTurret });
+	debugController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
+	debugController->SetGunData(2, Gun::FireType::AUTO, 8, 25);
 	
 	//Turret *debugTurret;
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Turret>({ 0,0,0 }, &debugTurret));

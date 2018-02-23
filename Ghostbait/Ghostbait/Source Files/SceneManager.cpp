@@ -79,9 +79,9 @@ void SceneManager::Initialize() {
 		{
 			spawner.ghostFile = "Assets/Spawner.ghost";
 			spawner.name = "Spawner";
-				DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0,		-10, 0, 10, 1);
+				DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0,		-40, 0, 10, 1);
 				spawner.positions.push_back(mat1);
-				DirectX::XMFLOAT4X4 mat2 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0,		10, 0, 10, 1);
+				DirectX::XMFLOAT4X4 mat2 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0,		10, 0, 40, 1);
 				spawner.positions.push_back(mat2);
 			data.prefabs.push_back(spawner);
 		}

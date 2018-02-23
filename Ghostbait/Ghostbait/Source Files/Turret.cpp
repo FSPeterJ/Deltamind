@@ -4,24 +4,44 @@
 #include <DirectXMath.h>
 #include "DebugRenderer.h"
 #include "Animator.h"
+#include "Projectile.h"
+#include "MessageEvents.h"
+#include "Wwise_IDs.h"
+#include "PhysicsComponent.h"
+#include "GhostTime.h"
 
 
 Turret::Turret() {
 	tag = std::string("Turret");
 	targetDistance = 9999999;
+	target = nullptr;
+	firerate = 2;
 }
 
 void Turret::Update() {
-	if(target) {
+	float dt = (float)GhostTime::DeltaTime();
+	timeSinceLastShot += dt;
+	if(target != nullptr) {
+		using namespace DirectX;
 		DirectX::XMFLOAT4X4* temp = GetComponent<Animator>()->getJointByName("RocketLauncher_DeployedSetup:Pitch");
-		DebugRenderer::AddLine((DirectX::XMFLOAT3)temp->m[3], (DirectX::XMFLOAT3)target->position.m[3], DirectX::XMFLOAT3(1.0f, 0.6f, 0.0f));
+		//XMVECTOR jointoffset = XMLoadFloat3(&(XMFLOAT3)temp->m[3]);
+		XMVECTOR jointoffset = { 0,1.0f,0 };
+		XMVECTOR pos = XMLoadFloat3(&(XMFLOAT3)position.m[3]);
+		pos += jointoffset;
+		XMFLOAT3 newpos;
+		XMStoreFloat3(&newpos, pos);
+		DebugRenderer::AddLine(newpos, (XMFLOAT3)target->position.m[3], DirectX::XMFLOAT3(1.0f, 0.6f, 0.0f));
 
 		targetDistance = CalculateDistance(target);
+		if(CanShoot(firerate)) {
+			Shoot();
+		}
 		if(targetDistance > 5) {
 			target = nullptr;
 			targetDistance = 99999;
 
 		}
+		
 	}
 
 }
@@ -31,7 +51,9 @@ float Turret::CalculateDistance(GameObject* obj) {
 	using namespace DirectX;
 	DirectX::XMFLOAT4X4* temp = GetComponent<Animator>()->getJointByName("RocketLauncher_DeployedSetup:Pitch");
 
-	XMVECTOR pos = XMLoadFloat3(&(XMFLOAT3)temp->m[3]);
+	XMVECTOR jointoffset = XMLoadFloat3(&(XMFLOAT3)temp->m[3]);
+	XMVECTOR pos = XMLoadFloat3(&(XMFLOAT3)position.m[3]);
+	pos += jointoffset;
 	XMVECTOR enemypos = XMLoadFloat3(&(XMFLOAT3)obj->position.m[3]);
 	pos = DirectX::XMVector3Length(pos - enemypos);
 	XMVectorAbs(pos);
@@ -53,3 +75,53 @@ void Turret::OnTrigger(GameObject* object) {
 	}
 }
 
+bool Turret::CanShoot(float fireRate) {
+	return timeSinceLastShot >(1 / fireRate);
+}
+
+void Turret::Shoot() {
+	//Fire
+	using namespace DirectX;
+
+	Projectile* obj;
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Projectile>(projectiePID, { 0, 0, 0 }, &obj));
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_WEN));
+	obj->position = position;
+	obj->position._42 += 1.0f;
+	//obj->position._41 += obj->position._31 * 0.2f;
+	//obj->position._42 += obj->position._32 * 0.2f;
+	//obj->position._43 += obj->position._33 * 0.2f;
+	XMVECTOR bulletpos = DirectX::XMLoadFloat4(&(XMFLOAT4)obj->position.m[3]);
+	XMVECTOR targetPos = DirectX::XMLoadFloat3(&(XMFLOAT3)target->position.m[3]);
+	XMVECTOR Z(XMVector3Normalize(targetPos - bulletpos));
+	XMVECTOR X(XMVector3Normalize(XMVector3Cross(XMVectorSet(0, 1, 0, 1), Z)));
+	XMVECTOR Y(XMVector3Normalize(XMVector3Cross(Z, X)));
+	XMMATRIX lookat(
+		X,
+		Y,
+		Z,
+		bulletpos
+	);
+	//lookat =  lookat * DirectX::XMMatrixTranslationFromVector(bulletpos);
+	DirectX::XMStoreFloat4x4(&obj->position, lookat);
+
+	PhysicsComponent* temp2 = obj->GetComponent<PhysicsComponent>();
+	RigidBody* temp = &temp2->rigidBody;
+	temp->AdjustGravityMagnitude(0);
+	obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(obj->position._31 * 10.0f, obj->position._32 * 10.0f, obj->position._33 * 10.0f);
+	obj->SetDamage(damage);
+	obj->Enable();
+	timeSinceLastShot = (float)GhostTime::DeltaTime();
+}
+
+void Turret::CloneData(Object* obj) {
+	projectiePID = ((Turret*)obj)->projectiePID;
+
+}
+
+void Turret::GivePID(unsigned pid, const char* tag) {
+	// Look into a better system
+	if(!strcmp(tag, "projectile")) {
+		projectiePID = pid;
+	}
+}

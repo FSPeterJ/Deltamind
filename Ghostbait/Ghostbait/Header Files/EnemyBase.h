@@ -26,7 +26,7 @@ protected:
 	void RestartGame() override;
 
 public:
-	EnemyBase() { tag = "Enemy";  };
+	EnemyBase() { tag = std::string("Enemy");  };
 	void Update() override;
 	void OnCollision(GameObject* _other);
 	void Destroy() override;

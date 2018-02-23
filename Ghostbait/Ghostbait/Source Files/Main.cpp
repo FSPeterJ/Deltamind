@@ -284,7 +284,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//assert(debugTurret->GetComponent<Animator>()->setState("default"));
 	//debugTurret->GetComponent<Animator>()->SetTime(3.0f);
 	//debugTurret->Enable();
-
+	
 	GhostTime::Initalize();
 	MessageEvents::Initilize();
 

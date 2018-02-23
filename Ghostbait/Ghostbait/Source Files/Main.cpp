@@ -206,7 +206,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/TestProjectile.ghost"), "TestProjectile");
 	ObjectFactory::CreatePrefab(&std::string("Assets/AStarEnemyEdit.ghost"), "AStarEnemy");
 	ObjectFactory::CreatePrefab(&std::string("Assets/ResumeButton.ghost"), "ResumeButton");
-	unsigned basicTurret = ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost"), "TestTurret", true);
+	unsigned basicTurret = ObjectFactory::CreatePrefab(&std::string("Assets/TestTurretEdit.ghost"), "TestTurret", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/RestartButton.ghost"), "RestartButton");
 	ObjectFactory::CreatePrefab(&std::string("Assets/QuitButton.ghost"), "QuitButton");
 

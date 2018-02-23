@@ -10,7 +10,7 @@ void MessageEvents::Initilize() {
 	EngineStructure::LateUpdate += [=]() { ProcessEvents(); };
 }
 
-unsigned  MessageEvents::Subscribe(const EVENT_TYPES eventtype,
+unsigned MessageEvents::Subscribe(const EVENT_TYPES eventtype,
 	std::function<void(EventMessageBase *)> execute, const int priority) {
 	//if(priority < 0) {
 	return eventmap[eventtype].Add(execute);
@@ -19,6 +19,10 @@ unsigned  MessageEvents::Subscribe(const EVENT_TYPES eventtype,
 
 	//size_t index = priority > eventmap.size() - 1 ? eventmap.size() - 1 : priority;
 	//eventmap[eventtype].insert(execute, index);
+}
+
+void MessageEvents::UnSubscribe(const EVENT_TYPES eventtype, unsigned subscriptionID) {
+	eventmap[eventtype].Remove(subscriptionID);
 }
 
 void MessageEvents::SendMessage(const EVENT_TYPES eventtype, EventMessageBase& message) {

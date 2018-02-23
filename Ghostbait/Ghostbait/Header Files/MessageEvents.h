@@ -53,6 +53,7 @@ public:
 	/// <param name="execute">The function to execute.</param>
 	/// <param name="priority">The optional priority. Leaving it as -1 means no priority. Zero is highest priority.</param>
 	static unsigned Subscribe(const EVENT_TYPES eventtype, std::function<void(EventMessageBase *)> execute, const int priority = -1);
+	static void UnSubscribe(const EVENT_TYPES eventtype, unsigned subscriptionID);
 
 	/// <summary>
 	/// Sends a message and stores it in the event queue.

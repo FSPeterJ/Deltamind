@@ -12,11 +12,31 @@
 
 
 Turret::Turret() {
+
+}
+
+void Turret::Enable() {
+	eventDestroy = MessageEvents::Subscribe(EVENT_Destroy, [=](EventMessageBase* e) {
+		if(target == ((StandardObjectMessage*)e)->RetrieveObject()) {
+			this->target = nullptr;
+			targetDistance = 99999;
+		}
+	});
+	GameObject::Enable();
+}
+
+void Turret::Disable() {
+	MessageEvents::UnSubscribe(EVENT_Destroy, eventDestroy);
+	GameObject::Disable();
+}
+
+void Turret::Awake() {
 	tag = std::string("Turret");
 	targetDistance = 9999999;
 	target = nullptr;
 	firerate = 2;
 	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
+	turretPitch = GetComponent<Animator>()->getJointByName("RocketLauncher_DeployedSetup:Pitch");
 }
 
 void Turret::Update() {
@@ -24,8 +44,7 @@ void Turret::Update() {
 	timeSinceLastShot += dt;
 	if(target != nullptr) {
 		using namespace DirectX;
-		DirectX::XMFLOAT4X4* temp = GetComponent<Animator>()->getJointByName("RocketLauncher_DeployedSetup:Pitch");
-		//XMVECTOR jointoffset = XMLoadFloat3(&(XMFLOAT3)temp->m[3]);
+		//XMVECTOR jointoffset = XMLoadFloat3(&(XMFLOAT3)turretPitch->m[3]);
 		XMVECTOR jointoffset = { 0,1.0f,0 };
 		XMVECTOR pos = XMLoadFloat3(&(XMFLOAT3)position.m[3]);
 		pos += jointoffset;
@@ -42,7 +61,7 @@ void Turret::Update() {
 			targetDistance = 99999;
 
 		}
-		
+
 	}
 
 }
@@ -50,9 +69,8 @@ void Turret::Update() {
 float Turret::CalculateDistance(GameObject* obj) {
 	float length;
 	using namespace DirectX;
-	DirectX::XMFLOAT4X4* temp = GetComponent<Animator>()->getJointByName("RocketLauncher_DeployedSetup:Pitch");
-
-	XMVECTOR jointoffset = XMLoadFloat3(&(XMFLOAT3)temp->m[3]);
+	//XMVECTOR jointoffset = XMLoadFloat3(&(XMFLOAT3)turretPitch->m[3]);
+	XMVECTOR jointoffset = { 0,1.0f,0 };
 	XMVECTOR pos = XMLoadFloat3(&(XMFLOAT3)position.m[3]);
 	pos += jointoffset;
 	XMVECTOR enemypos = XMLoadFloat3(&(XMFLOAT3)obj->position.m[3]);

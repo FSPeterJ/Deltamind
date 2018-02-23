@@ -1,5 +1,6 @@
 #pragma once
 #include "GameObject.h"
+#include "Animator.h"
 
 class Turret: public GameObject {
 	GameObject* target;
@@ -8,9 +9,14 @@ class Turret: public GameObject {
 	float firerate =0;
 	float damage = 10;
 	float timeSinceLastShot = 0;
+	DirectX::XMFLOAT4X4* turretPitch;
+	unsigned eventDestroy;
 
 public:
 	Turret();
+	void Enable();
+	void Disable();
+	void Awake();
 	void Update();
 	float CalculateDistance(GameObject* obj);
 	~Turret();

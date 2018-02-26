@@ -9,11 +9,6 @@ GameObject::GameObject() {
 }
 
 void GameObject::Awake() {
-	tag = "none";
-	typeID = 0;
-	updateID = 0;  //Update Delegate ID
-	eventRestart = 0;
-
 	enabled = false;
 	destroyOnReset = true;
 }

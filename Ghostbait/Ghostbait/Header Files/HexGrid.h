@@ -4,6 +4,7 @@
 #include "Controlable.h"
 #include "HexagonalGridLayout.h"
 #include "HexagonTileSpecializer.h"
+#include "HexTileEqualityCheck.h"
 
 namespace DirectX { struct XMFLOAT2; }
 
@@ -13,30 +14,10 @@ template <typename T>
 struct HexagonTile;
 typedef HexagonTile<int> HexTile;
 
-struct CostComparator;
-
-struct EqualComparator {
-	bool operator()(const HexTile* lhs, const HexTile* rhs) const;
-	bool operator()(const HexTile& lhs, const HexTile& rhs) const;
-};
-
-using VisitedMap = std::unordered_map<HexTile *const, HexTile*, std::hash<HexTile*>>;
-using CostMap = std::unordered_map<HexTile*, float, std::hash<HexTile*>, EqualComparator>;
-
-using HeuristicsFunction = std::function<float(HexTile*, HexTile*)>;
-
 class HexRegion;
 class HexPath;
 
-bool operator<(const HexPath&p, const HexPath&p2);
-
-struct TraversalResult {
-	VisitedMap visitedMap;
-	CostMap costMap;
-	std::vector<HexPath> reachableTiles; //reachableTiles[k] contains all tiles k steps/cost away
-};
-
-class HexGrid: public Controlable {
+class HexGrid {
 	using GridContainer = std::unordered_set<HexTile*, std::hash<HexTile*>, EqualComparator>;
 
 	float map_radius = 0;
@@ -71,8 +52,8 @@ class HexGrid: public Controlable {
 	/// <returns>HexRegion.</returns>
 	HexRegion GetRegion(int xmin, int xmax, int ymin, int ymax, int zmin, int zmax);
 	
-public:
 	static const float Blocked;
+public:
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="HexGrid"/> class with the desired radius layout.
@@ -110,58 +91,6 @@ public:
 	/// <param name="snapPoint">The out snap point.</param>
 	/// <returns>true if the passed in point was able to map to a tile on the grid, otherwise false.</returns>
 	bool Snap(const DirectX::XMFLOAT2& p, OUT DirectX::XMFLOAT2& snapPoint);
-
-	/// <summary>
-	/// Constructs a path from the start tile to the goal tile by searching every tile in the grid. Optimal in steps.
-	/// </summary>
-	/// <param name="start">The start tile.</param>
-	/// <param name="goal">The goal tile.</param>
-	/// <returns>A path from the start to goal or an empty path if one is not found.</returns>
-	HexPath breadthFirstSearch(HexTile *const start, HexTile *const goal);
-
-	/// <summary>
-	/// Creates a path from specified tile to every/any other tile on the grid within steps steps and is limited by maxMovement.
-	/// </summary>
-	/// <param name="tile">The tile.</param>
-	/// <param name="steps">The steps.</param>
-	/// <param name="maxMovement">The maximum movement.</param>
-	/// <returns>TraversalResult.</returns>
-	TraversalResult breadthFirstTraverse(HexTile *const tile, size_t steps, size_t maxMovement);
-
-	/// <summary>
-	/// Constructs a path from the start tile to the goal tile by searching tiles in the grid. Optimal in cost.
-	/// </summary>
-	/// <param name="start">The start tile.</param>
-	/// <param name="goal">The goal tile.</param>
-	/// <returns>A path from the start to goal or an empty path if one is not found.</returns>
-	HexPath DijkstraSearch(HexTile *const start, HexTile *const goal);
-
-	/// <summary>
-	/// Creates a path from specified tile to every/any other tile on the grid within cost cost and is limited by maxMovement.
-	/// </summary>
-	/// <param name="tile">The tile.</param>
-	/// <param name="cost">The cost.</param>
-	/// <param name="maxMovement">The maximum movement.</param>
-	/// <returns>TraversalResult.</returns>
-	TraversalResult DijkstraTraverse(HexTile *const tile, size_t cost, size_t maxMovement);
-
-	/// <summary>
-	/// Constructs a path from the start tile to the goal tile by searching tiles in the grid. Optimal in steps and cost given an admissible heuristic.
-	/// </summary>
-	/// <param name="start">The start tile.</param>
-	/// <param name="goal">The goal tile.</param>
-	/// <param name="Heuristic">The admissible heuristic.</param>
-	/// <returns>A path from the start to goal or an empty path if one is not found.</returns>
-	HexPath AStarSearch(HexTile *const start, HexTile *const goal, HeuristicsFunction Heuristic);
-
-	/// <summary>
-	/// Constructs a path from the start tile to the goal tile by searching tiles in the grid. Optimal in steps and cost given an admissible heuristic.
-	/// </summary>
-	/// <param name="start">The start tile.</param>
-	/// <param name="goal">The goal tile.</param>
-	/// <param name="Heuristic">The admissible heuristic.</param>
-	/// <returns>A path from the start to goal or an empty path if one is not found.</returns>
-	HexPath AStarSearch(const DirectX::XMFLOAT2& start, const DirectX::XMFLOAT2& goal, HeuristicsFunction Heuristic);
 
 	/// <summary>
 	/// Gets a region of tiles n steps away from the specified tile.
@@ -202,24 +131,6 @@ public:
 	bool RemoveObstacle(const DirectX::XMFLOAT2& obstaclePosition);
 
 	/// <summary>
-	/// Calculates the path from start to goal within x steps. Returns empty path if path is invalid or too far.
-	/// </summary>
-	/// <param name="start">The start.</param>
-	/// <param name="goal">The goal.</param>
-	/// <param name="steps">The steps.</param>
-	/// <returns>HexPath.</returns>
-	HexPath CalculatePathWithinXSteps(HexTile *const start, HexTile *const goal, size_t steps);
-
-	/// <summary>
-	/// Calculates the path from start to goal within x cost. Returns empty path if path is invalid or too far.
-	/// </summary>
-	/// <param name="start">The start.</param>
-	/// <param name="goal">The goal.</param>
-	/// <param name="cost">The cost.</param>
-	/// <returns>HexPath.</returns>
-	HexPath CalculatePathWithinXCost(HexTile *const start, HexTile *const goal, size_t cost);
-
-	/// <summary>
 	/// Given two tiles and their radii, finds the tiles which intersect.
 	/// </summary>
 	/// <param name="a">The first tile.</param>
@@ -234,7 +145,7 @@ public:
 	/// </summary>
 	/// <param name="tile">The tile.</param>
 	/// <returns>true if blocked or invalid, otherwise false.</returns>
-	bool IsBlocked(HexTile* tile);
+	static bool IsBlocked(HexTile* tile);
 
 	/// <summary>
 	/// Determines whether the specified position is blocked. If tile is invalid, it returns true.
@@ -269,12 +180,12 @@ public:
 	/// <summary>
 	/// Populates this instance.
 	/// </summary>
-	void Fill();
+	void Fill(bool withRandomObstacles);
 
 	/// <summary>
 	/// Displays this instance in debug. It will only draw tiles within a radius of 3 from the specified position.
 	/// </summary>
 	/// <param name="player">The player.</param>
 	void Display(DirectX::XMFLOAT2& player);
-};
 
+};

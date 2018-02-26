@@ -250,7 +250,7 @@ void PhysicsManager::Update() {
 	TestAllComponentsCollision();
 }
 
-bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* colPoint, GameObject** colObject, float maxCastDistance) {
+bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* colPoint, GameObject** colObject, float maxCastDistance, const char* tag) {
 	bool collided = false;
 	uint32_t nextIndex, currBucketIndex = -1;
 	XMVECTOR vecOrigin = XMLoadFloat3(&origin);
@@ -275,9 +275,10 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 			continue;
 		currBucketIndex = nextIndex;
 		compToTest = partitionSpace.GetComponentsToTest(currBucketIndex);
-
+		
 		for (int compIndex = 0; compIndex < compToTest.size(); ++compIndex) {
 			if (!compToTest[compIndex]->isActive) continue;
+			if (tag && strcmp(dynamic_cast<GameObject*>(compToTest[compIndex]->parentObject)->GetTag().c_str(), tag)) continue;
 			if (RaycastCollisionCheck(vecOrigin, vecDirection, compToTest[compIndex], &tempCollidePt, &tempCollideObj, maxCastDistance)) {
 				collisionPoints.push_back(tempCollidePt);
 				collidedObjects.push_back(tempCollideObj);
@@ -292,6 +293,7 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 	std::vector<PhysicsComponent*>* staticComps = staticComponents.GetActiveList();
 	for (int i = 0; i < staticComps->size(); ++i) {
 		if (!(*staticComps)[i]->isActive) continue;
+		if (tag && strcmp(dynamic_cast<GameObject*>((*staticComps)[i]->parentObject)->GetTag().c_str(), tag)) continue;
 		if (RaycastCollisionCheck(vecOrigin, vecDirection, (*staticComps)[i], &tempCollidePt, &tempCollideObj, maxCastDistance)) {
 			collisionPoints.push_back(tempCollidePt);
 			collidedObjects.push_back(tempCollideObj);

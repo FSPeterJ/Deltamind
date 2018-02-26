@@ -226,7 +226,7 @@ void Game::Start(EngineStructure* _engine, char* startScene) {
 	sceneManager = new SceneManager();
 	sceneManager->Initialize();
 	gameData.Reset();
-	hexGrid.Fill();
+	hexGrid.Fill(false);
 
 	ChangeScene(startScene, &corePos);
 

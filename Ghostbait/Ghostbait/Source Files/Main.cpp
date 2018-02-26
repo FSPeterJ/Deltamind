@@ -273,7 +273,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	// Test Gun
 	//=========================================================
 	//ControllerObject *debugController;
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 2,2,2 }, &debugController));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 0,2,-2 }, &debugController));
 	//debugController->Init(ControllerObject::ControllerHand::HAND_Left);
 	//debugController->SetBuildItems({ basicTurret });
 	//debugController->SetGunData(1, Gun::FireType::SEMI, 60, 50);

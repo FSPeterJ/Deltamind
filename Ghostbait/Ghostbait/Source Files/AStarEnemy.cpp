@@ -3,6 +3,7 @@
 #include "PhysicsComponent.h"
 #include "Console.h"
 #include "MessageEvents.h"
+#include "PathPlanner.h"
 
 AStarEnemy::AStarEnemy() {
 	tag = std::string("Enemy");
@@ -102,9 +103,9 @@ void AStarEnemy::NewRandPath() {
 	}
 }
 void AStarEnemy::CalcPath(DirectX::XMFLOAT2 where) {
-	path = grid->AStarSearch(DirectX::XMFLOAT2(position._41, position._43), where, Heuristics::ManhattanDistance);
+	path = PathPlanner::FindPath({position._41, position._43}, where, TileType::Static, TileType::Static);
 }
 void AStarEnemy::CalcPath(HexTile* where) {
 	HexTile* curTile = grid->PointToTile(DirectX::XMFLOAT2(position._41, position._43));
-	path = grid->AStarSearch(curTile, where, Heuristics::ManhattanDistance);
+	path = PathPlanner::FindPath(curTile, where, TileType::Static, TileType::Static);
 }

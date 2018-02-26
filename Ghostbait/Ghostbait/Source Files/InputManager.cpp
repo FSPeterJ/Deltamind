@@ -3,6 +3,7 @@
 #include "VRManager.h"    // for VRManager, VRManager::VRController, VRManager::leftController
 #include "MessageEvents.h"
 #include "Console.h"
+#include "WindowsX.h"
 
 #define RAD_PI 3.14159265359
 
@@ -31,6 +32,9 @@ struct InputManager::VRInput: public InputBridge {
 	void CheckForInput() override;
 };
 struct InputManager::KeyboardInput: public InputBridge {
+	float cursorX = 0, cursorY = 0;
+	POINT winCenter;
+	RECT winRect;
 	KeyboardInput();
 	bool MapKey(Control control, uint64_t key);
 	void CheckForInput();
@@ -272,13 +276,25 @@ void InputManager::VRInput::CheckForInput() {
 
 //Keyboard
 InputManager::KeyboardInput::KeyboardInput() {
+	MapKey(menu, VK_ESCAPE);
 	MapKey(forward, 'W');
 	MapKey(backward, 'S');
 	MapKey(left, 'A');
 	MapKey(right, 'D');
-	MapKey(teleportUp, 'T');
-	MapKey(leftAttack, 'Q');
-	MapKey(rightAttack, 'E');
+	MapKey(teleportDown, MK_RBUTTON);
+	MapKey(leftAttack, MK_LBUTTON);
+	MapKey(LeftAction, 'Q');
+	MapKey(RightAction, 'E');
+
+	MapKey(leftItem0, '1');
+	MapKey(leftItem1, '2');
+	MapKey(leftItem2, '3');
+	MapKey(leftItem3, '4');
+	MapKey(rightItem0, '5');
+	MapKey(rightItem1, '6');
+	MapKey(rightItem2, '7');
+	MapKey(rightItem3, '8');
+
 	MapKey(TestInputX, 'X');
 	MapKey(TestInputU, 'U');
 	MapKey(TestInputI, 'I');
@@ -288,18 +304,81 @@ InputManager::KeyboardInput::KeyboardInput() {
 	MapKey(TestInputZ, 'Z');
 	MapKey(TestInputC, 'C');
 	MapKey(TestInputL, 'L');
-	MapKey(leftItem0, '1');
-	MapKey(leftItem1, '2');
-	MapKey(leftItem2, '3');
-	MapKey(leftItem3, '4');
+
+	GetWindowRect(GetActiveWindow(), &winRect);
+	cursorX = ((winRect.right - winRect.left) * 0.5f);
+	cursorY = ((winRect.bottom - winRect.top) * 0.5f);
+	winCenter.x = (int)cursorX;
+	winCenter.y = (int)cursorY;
+
+	SetCursorPos(winRect.left + (int)cursorX, winRect.top + (int)cursorY);
+	ShowCursor(false);
 }
 void InputManager::KeyboardInput::CheckForInput() {
 	Control input = none;
 	float amount = 0;
 
 	while(inputQueue.size() > 0) {
-		input = keyBind[inputQueue.front().key];
-		inputQueue.front().isDown ? amount = 1.0f : amount = 0.0f;
+		input = keyBind[inputQueue.front().wParam];
+		switch (inputQueue.front().messageType)
+		{
+		case MouseDown:
+			amount = 1.0f;
+			break;
+		case MouseUp:
+			amount = 0.0f;
+			break;
+		case MouseMove:
+		{
+			bool movedCursor = false;
+			static int screenX, screenY;
+			POINT newPos;
+			GetCursorPos(&newPos);
+			if (newPos.x == screenX && newPos.y == screenY) {
+				inputQueue.pop();
+				continue;
+			}
+			input = CameraLeftRight;
+			amount = (float)GET_X_LPARAM(inputQueue.front().lParam);
+			if (fabsf(amount - winCenter.x) >= 300) {
+				screenX = winRect.left + winCenter.x;
+				cursorX = (float)winCenter.x;
+				movedCursor = true;
+			}
+			else {
+				inputPoll.push(InputPackage(input, amount - cursorX));
+				cursorX = amount;
+				screenX = newPos.x;
+			}
+			input = CameraUpDown;
+			amount = (float)GET_Y_LPARAM(inputQueue.front().lParam);
+			if (fabsf(amount - winCenter.y) >= 300) {
+				screenY = winRect.top + winCenter.y;
+				cursorY = (float)winCenter.y;
+				movedCursor = true;
+			}
+			else {
+				inputPoll.push(InputPackage(input, amount - cursorY));
+				cursorY = amount;
+				screenY = newPos.y;
+			}
+			inputQueue.pop();
+			if (movedCursor) SetCursorPos(screenX, screenY);
+			continue; 
+		} break;
+		case MouseWheel:
+			break;
+		case KeyboardDown:
+			if(input == menu)
+				MessageEvents::SendMessage(EVENT_GameQuit, EventMessageBase());
+			amount = 1.0f;
+			break;
+		case KeyboardUp:
+			amount = 0.0f;
+			break;
+		default:
+			break;
+		}
 		
 		if (keyStates[input] != (amount > 0.0f ? 1 : 0)) {
 			keyStates[input] = amount > 0.0f ? 1 : 0;
@@ -307,8 +386,6 @@ void InputManager::KeyboardInput::CheckForInput() {
 		}
 		inputQueue.pop();
 	}
-
-	InputPackage message(input, amount);
 }
 bool InputManager::KeyboardInput::MapKey(Control control, uint64_t key) {
 	if (keyBind.find(key) == keyBind.end()) {
@@ -332,16 +409,16 @@ bool InputManager::ControllerInput::MapKey(Control control, uint64_t key) {
 }
 
 //Input Manager
-std::queue<InputManager::IncomingKey> InputManager::inputQueue;
+std::queue<InputManager::IncomingMessage> InputManager::inputQueue;
 std::queue<InputPackage> InputManager::inputPoll;
 std::bitset<(size_t)Control::Total> InputManager::keyStates;
+InputType InputManager::inputType = KEYBOARD;
 
 void InputManager::HandleInput() {
 	bridge->CheckForInput();
 
 	while (inputPoll.size() > 0) {
 		MessageEvents::SendMessage(EVENT_Input, InputMessage(inputPoll.front().control, inputPoll.front().amount));
-
 		inputPoll.pop();
 	}
 }

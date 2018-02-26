@@ -5,7 +5,7 @@
 #include "vector"         // for vector
 #include "MenuControllerItem.h"
 
-#define CONTROLLER_MAX_ITEMS 8
+#define CONTROLLER_MAX_ITEMS 4
 
 class ControllerObject: public GameObject, public Controlable {
 public:

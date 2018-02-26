@@ -48,6 +48,11 @@ enum Control {
 	TestInputZ,
 	TestInputC,
 
+	CameraLeftRight,
+	CameraUpDown,
+	LeftAction,
+	RightAction,
+
 	Total,
 };
 

@@ -367,12 +367,14 @@ namespace GhostbaitModelCreator
             OpenFileDialog open = new OpenFileDialog
             {
                 Filter = "BindPose (*.bind)| *.bind;",
-                InitialDirectory = @"C:\",
+                InitialDirectory = Settings.Default.bind_path,
                 Title = "A bindPose file for this Ghostbait object."
             };
             if (open.ShowDialog() == DialogResult.OK)
             {
-                bindPose.FilePath = open.FileName;
+                Settings.Default.material_path = Path.GetDirectoryName(open.FileName);
+                Settings.Default.Save();
+                bindPose.FilePath = Path.GetFileName(open.FileName);
             }
         }
 
@@ -619,9 +621,10 @@ namespace GhostbaitModelCreator
                         else if (componentName == "Animate")
                         {
                             tagsize = reader.ReadInt32();
+                            string tag = null;
                             if (tagsize > 0)
                             {
-                                string tag = new string(reader.ReadChars(tagsize));
+                                tag = new string(reader.ReadChars(tagsize));
                             }
                             int Datablocksize = reader.ReadInt32();
 
@@ -642,7 +645,7 @@ namespace GhostbaitModelCreator
                                 AnimationCreatorForm.AnimationData toPush = new AnimationCreatorForm.AnimationData();
                                 toPush.ComponentIdentifier = stringAnim;
                                 //toPush.AbsolutePath = ; // I am making an assumption about pathing here
-                                //toPush.ComponentTag = tag;
+                                toPush.ComponentTag = stringName;
                                 animations.Add(toPush);
                             }
                         }

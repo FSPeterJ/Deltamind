@@ -6,6 +6,8 @@
 
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 
+//#include "HexTileEqualityCheck.h"
+
 template<typename T>
 const std::vector<HexTile> HexagonTile<T>::directions = {
 	HexTile(1, 0, -1), HexTile(1, -1, 0), HexTile(0, -1, 1),
@@ -83,9 +85,6 @@ void HexagonTile<T>::Draw(HexagonalGridLayout layout, DirectX::XMFLOAT3 color, f
 	DebugRenderer::AddLine(line4, line5, color);
 	DebugRenderer::AddLine(line5, line0, color);
 
-	if(blocked) {
-		DrawX(layout, {0,0,0}, offset);
-	}
 }
 
 template<typename T>
@@ -311,4 +310,6 @@ inline void HexagonTile<T>::RotateRight() { *this = HexagonTile<T>(-r, -s, -q); 
 
 template<typename T>
 T HexagonTile<T>::DistanceFrom(HexTile* b) { return (T) (std::max)({abs(q - b->q), abs(r - b->r), abs(s - b->s)}); } // = length of this - b
+
+template struct HexagonTile<int>;
 

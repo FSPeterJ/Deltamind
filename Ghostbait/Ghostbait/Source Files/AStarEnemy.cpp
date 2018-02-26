@@ -69,7 +69,8 @@ void AStarEnemy::Awake() {
 }
 
 void AStarEnemy::CalcPath(DirectX::XMFLOAT2 where) {
-	path = PathPlanner::FindPath({position._41, position._43}, where, TileType::Static, TileType::Static);
+	HexTile* whereTile = grid->PointToTile(where);
+	CalcPath(whereTile);
 }
 
 void AStarEnemy::CalcPath(HexTile* where) {

@@ -215,7 +215,7 @@ void Game::Start(EngineStructure* _engine, char* startScene) {
 	ChangeScene(startScene, &corePos);
 
 
-	MessageEvents::SendMessage(EVENT_StartWave, EventMessageBase());
+	//MessageEvents::SendMessage(EVENT_StartWave, EventMessageBase());
 
 
 	//AStarEnemy *enemy;

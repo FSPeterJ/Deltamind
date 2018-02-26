@@ -316,22 +316,21 @@ HexRegion HexGrid::blocked;
 
 void HexGrid::Display(DirectX::XMFLOAT2& player) {
 	HexTile* pos = PointToTile(player);
-	//if(pos) {
-	//	HexRegion playerView = GetTilesNStepsAway(pos, 3);
-	//	playerView.Color(&layout, {1,1,1}, 0, ColorType::__Outline);
-	//} else {
-		
-//	}
+	if(pos) {
+		HexRegion playerView = GetTilesNStepsAway(pos, 3);
+		playerView.Color(&layout, {1,1,1}, 0, ColorType::__Outline);
+	} else {
+		HexRegion playerView = GetTilesNStepsAway(&HexTile(0, 0), 13);
+		playerView.Color(&layout, {1,1,1}, 0, ColorType::__Outline);
+	}
 
-	HexRegion playerView = GetTilesNStepsAway(&HexTile(0,0), 13);
-	playerView.Color(&layout, {1,1,1}, 0, ColorType::__Outline);
-
+	
 	//draw everything
 	//for(const auto& t : map) {
 	//	auto realT = const_cast<HexTile*&>(t);
 	//	realT->Draw(layout, {1,1,1});
 	//}
-	blocked.Color(&layout, {0,0,0}, 0, ColorType::__CheapFill);
+	//blocked.Color(&layout, {0,0,0}, 0, ColorType::__CheapFill);
 
 	//DrawXStepsPath();
 }

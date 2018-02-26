@@ -1,6 +1,8 @@
 #include "HexTileVector.h"
 #include "HexGrid.h"
 
+bool operator<(const HexPath&p, const HexPath&p2) { return p.cost() <= p2.cost(); } //in case of a cost tie, std::pair will compare the second element so this is needed to satisfy it
+
 HexTile* HexRegion::getData() { return &data[0]; }
 
 HexRegion::HexRegion(std::vector<HexTile>& that) { data.swap(that); }
@@ -43,7 +45,7 @@ void HexRegion::Color(HexagonalGridLayout * const layout, DirectX::XMFLOAT3 colo
 		break;
 	case ColorType::__Outline:
 		for(auto& e : data) {
-			e.Draw(*layout, color, offset, e.weight == HexGrid::Blocked);
+			e.Draw(*layout, color, offset,false);
 		}
 		break;
 	}
@@ -107,7 +109,7 @@ void HexPath::Color(HexagonalGridLayout * const layout, DirectX::XMFLOAT3 color,
 		break;
 	case ColorType::__Outline:
 		for(auto& e : data) {
-			e->Draw(*layout, color, offset, e->weight == HexGrid::Blocked);
+			e->Draw(*layout, color, offset,false);
 		}
 		break;
 	}

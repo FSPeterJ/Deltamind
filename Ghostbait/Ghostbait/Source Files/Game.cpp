@@ -9,7 +9,7 @@
 #include "AStarEnemy.h"
 #include "VRManager.h"
 #include "SceneManager.h"
-
+#include "PathPlanner.h"
 
 void Game::GameData::Reset() {
 	state = GAMESTATE_BetweenWaves;
@@ -32,6 +32,7 @@ Game::Game() {
 	MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {this->RemoveObstacleEvent(e); });
 	MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) {this->Lose(); });
 	MessageEvents::Subscribe(EVENT_GameQuit, [=](EventMessageBase* e) {this->QuitEvent(); });
+	PathPlanner::SetGrid(&hexGrid);
 }
 
 void Game::SpawnerCreatedEvent(EventMessageBase* e) {
@@ -209,9 +210,13 @@ void Game::Start(EngineStructure* _engine, char* startScene) {
 	sceneManager = new SceneManager();
 	sceneManager->Initialize();
 	gameData.Reset();
-	hexGrid.Fill();
+	hexGrid.Fill(true);
 
 	ChangeScene(startScene, &corePos);
+
+
+	//MessageEvents::SendMessage(EVENT_StartWave, EventMessageBase());
+
 
 	//AStarEnemy *enemy;
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<AStarEnemy>("AStarEnemy", { 2,2,2 }, &enemy));
@@ -228,6 +233,7 @@ void Game::Start(EngineStructure* _engine, char* startScene) {
 void Game::Update() {
 	auto playerPos = VRManager::GetInstance().GetPlayerPosition();
 	hexGrid.Display(DirectX::XMFLOAT2(playerPos._41, playerPos._43));
+
 	float dt = (float)GhostTime::DeltaTime();
 	switch (gameData.state) {
 		case GAMESTATE_Paused:

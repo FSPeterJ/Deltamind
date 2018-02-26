@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using GhostbaitModelCreator.Properties;
 
 
 namespace GhostbaitModelCreator
@@ -34,23 +35,26 @@ namespace GhostbaitModelCreator
             OpenFileDialog open = new OpenFileDialog
             {
                 Filter = "Animations (*.anim), (*.fbx)| *.anim; *.fbx;",
-                InitialDirectory = @"C:\",
+                InitialDirectory = Settings.Default.animation_path,
                 Title = "An animation file for this Ghostbait object."
             };
             if (open.ShowDialog() == DialogResult.OK)
             {
+                Settings.Default.animation_path = Path.GetDirectoryName(open.FileName);
+                Settings.Default.Save();
                 if (open.FileName.Substring(open.FileName.Length - 4) == ".fbx")
                 {
-                    string animFile = Path.GetDirectoryName(open.FileName) + Path.GetFileNameWithoutExtension(open.FileName) + ".anim";
+
+                    string animFile = Path.GetFileNameWithoutExtension(open.FileName) + ".anim";
                     if (ModelCreatorForm.get_animdata_from_scene(open.FileName, animFile) != -1)
                     {
-                        animFile = animFile.Substring(/*Make const*/19);
                         filePathBox.Text = animFile;
                     }
                 }
                 else
                 {
-                    filePathBox.Text = open.FileName;
+
+                    filePathBox.Text = Path.GetFileName(open.FileName);
                 }
             }
         }

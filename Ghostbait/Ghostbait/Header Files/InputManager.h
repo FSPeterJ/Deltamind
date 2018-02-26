@@ -15,11 +15,21 @@ class VRManager;
 
 class InputManager {
 public:
-	struct IncomingKey {
-		uint64_t key;
-		bool isDown;
-		IncomingKey() {};
-		IncomingKey(uint64_t _key, bool _isDown) : key(_key), isDown(_isDown) {};
+	enum MessageType {
+		Invalid,
+		KeyboardUp,
+		KeyboardDown,
+		MouseUp,
+		MouseDown,
+		MouseWheel,
+		MouseMove,
+	};
+	struct IncomingMessage {
+		uint64_t wParam;
+		int64_t lParam;
+		MessageType messageType;
+		IncomingMessage() {};
+		IncomingMessage(uint64_t _wParam, int64_t _lParam, MessageType _messType) : wParam(_wParam), lParam(_lParam), messageType(_messType) {};
 	};
 private:
 
@@ -28,11 +38,11 @@ private:
 	struct KeyboardInput;
 	struct ControllerInput;
 
-	static std::queue<IncomingKey> inputQueue;
+	static std::queue<IncomingMessage> inputQueue;
 	static std::queue<InputPackage> inputPoll;
 	static std::bitset<(size_t)Control::Total> keyStates;
 	
-	InputType inputType = KEYBOARD;
+	static InputType inputType;
 	InputBridge* bridge = nullptr;
 
 	VRManager* vrMan;
@@ -43,8 +53,8 @@ public:
 	InputManager(InputType type);
 	~InputManager();
 
-	static void AddToQueue(IncomingKey key) {
-		inputQueue.push(key);
+	static void AddToQueue(IncomingMessage message) {
+		if(inputType != VR) inputQueue.push(message);
 	};
 
 	/// <summary>

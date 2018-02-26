@@ -12,7 +12,7 @@
 
 
 Turret::Turret() {
-
+	tag = std::string("Turret");
 }
 
 void Turret::Enable() {
@@ -31,7 +31,6 @@ void Turret::Disable() {
 }
 
 void Turret::Awake() {
-	tag = std::string("Turret");
 	targetDistance = 9999999;
 	target = nullptr;
 	firerate = 2;

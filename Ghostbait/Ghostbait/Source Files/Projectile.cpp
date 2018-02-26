@@ -9,16 +9,20 @@ Projectile::Projectile() {
 Projectile::~Projectile() {}
 
 void Projectile::Update() {
-	timeSinceShot += (float) GhostTime::DeltaTime();
+	timeSinceShot += (float)GhostTime::DeltaTime();
 
-	if(timeSinceShot > maxProjectileTime) {
+	if (timeSinceShot > maxProjectileTime) {
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 		timeSinceShot = 0;
 	}
 }
 
 void Projectile::OnCollision(GameObject* object) {
-	MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
+
+	if (object->GetTag() != std::string("Turret"))
+	{
+		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
+	}
 
 	timeSinceShot = 0;
 }

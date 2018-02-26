@@ -75,6 +75,6 @@ public:
 	void ActivateComponent(ComponentBase* component) override;
 	void DeactivateComponent(ComponentBase* component) override;
 	void Update();
-	static bool Raycast(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction, DirectX::XMFLOAT3* colPoint = nullptr, GameObject** colObject = nullptr, float maxCastDistance = 100.f);
+	static bool Raycast(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction, DirectX::XMFLOAT3* colPoint = nullptr, GameObject** colObject = nullptr, float maxCastDistance = 100.f, const char* tag = nullptr);
 
 };

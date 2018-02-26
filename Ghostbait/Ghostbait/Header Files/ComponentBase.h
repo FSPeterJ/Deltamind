@@ -17,5 +17,5 @@ public:
 	InstantiatedCompBase() {
 		singleInstance = false;
 	}
-	 Object* parentObject = nullptr;
+	Object* parentObject = nullptr;
 };

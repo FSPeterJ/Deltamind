@@ -38,6 +38,11 @@
             this.lbl_Levels = new System.Windows.Forms.Label();
             this.btn_AddLevel = new System.Windows.Forms.Button();
             this.btn_RemoveLevel = new System.Windows.Forms.Button();
+            this.lbo_AdditionalPrefabs = new System.Windows.Forms.ListBox();
+            this.lbl_AdditionalPrefabs = new System.Windows.Forms.Label();
+            this.btn_AddPrefab = new System.Windows.Forms.Button();
+            this.btn_RemovePrefab = new System.Windows.Forms.Button();
+            this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -47,7 +52,7 @@
             this.fileToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(396, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(345, 24);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -55,7 +60,8 @@
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.newFromfbxToolStripMenuItem,
-            this.openToolStripMenuItem});
+            this.openToolStripMenuItem,
+            this.saveToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "File";
@@ -63,14 +69,14 @@
             // newFromfbxToolStripMenuItem
             // 
             this.newFromfbxToolStripMenuItem.Name = "newFromfbxToolStripMenuItem";
-            this.newFromfbxToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.newFromfbxToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
             this.newFromfbxToolStripMenuItem.Text = "New from .fbx";
             this.newFromfbxToolStripMenuItem.Click += new System.EventHandler(this.newFromfbxToolStripMenuItem_Click);
             // 
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
             this.openToolStripMenuItem.Text = "Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
@@ -115,6 +121,7 @@
             this.btn_AddLevel.TabIndex = 5;
             this.btn_AddLevel.Text = "Add";
             this.btn_AddLevel.UseVisualStyleBackColor = true;
+            this.btn_AddLevel.Click += new System.EventHandler(this.btn_AddLevel_Click);
             // 
             // btn_RemoveLevel
             // 
@@ -124,12 +131,61 @@
             this.btn_RemoveLevel.TabIndex = 6;
             this.btn_RemoveLevel.Text = "Remove";
             this.btn_RemoveLevel.UseVisualStyleBackColor = true;
+            this.btn_RemoveLevel.Click += new System.EventHandler(this.btn_RemoveLevel_Click);
+            // 
+            // lbo_AdditionalPrefabs
+            // 
+            this.lbo_AdditionalPrefabs.FormattingEnabled = true;
+            this.lbo_AdditionalPrefabs.Location = new System.Drawing.Point(205, 75);
+            this.lbo_AdditionalPrefabs.Name = "lbo_AdditionalPrefabs";
+            this.lbo_AdditionalPrefabs.Size = new System.Drawing.Size(120, 134);
+            this.lbo_AdditionalPrefabs.TabIndex = 7;
+            // 
+            // lbl_AdditionalPrefabs
+            // 
+            this.lbl_AdditionalPrefabs.AutoSize = true;
+            this.lbl_AdditionalPrefabs.Location = new System.Drawing.Point(202, 59);
+            this.lbl_AdditionalPrefabs.Name = "lbl_AdditionalPrefabs";
+            this.lbl_AdditionalPrefabs.Size = new System.Drawing.Size(92, 13);
+            this.lbl_AdditionalPrefabs.TabIndex = 8;
+            this.lbl_AdditionalPrefabs.Text = "Additional Prefabs";
+            // 
+            // btn_AddPrefab
+            // 
+            this.btn_AddPrefab.Location = new System.Drawing.Point(205, 215);
+            this.btn_AddPrefab.Name = "btn_AddPrefab";
+            this.btn_AddPrefab.Size = new System.Drawing.Size(57, 23);
+            this.btn_AddPrefab.TabIndex = 9;
+            this.btn_AddPrefab.Text = "Add";
+            this.btn_AddPrefab.UseVisualStyleBackColor = true;
+            this.btn_AddPrefab.Click += new System.EventHandler(this.btn_AddPrefab_Click);
+            // 
+            // btn_RemovePrefab
+            // 
+            this.btn_RemovePrefab.Location = new System.Drawing.Point(268, 215);
+            this.btn_RemovePrefab.Name = "btn_RemovePrefab";
+            this.btn_RemovePrefab.Size = new System.Drawing.Size(57, 23);
+            this.btn_RemovePrefab.TabIndex = 10;
+            this.btn_RemovePrefab.Text = "Remove";
+            this.btn_RemovePrefab.UseVisualStyleBackColor = true;
+            this.btn_RemovePrefab.Click += new System.EventHandler(this.btn_RemovePrefab_Click);
+            // 
+            // saveToolStripMenuItem
+            // 
+            this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.saveToolStripMenuItem.Text = "Save";
+            this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(396, 279);
+            this.ClientSize = new System.Drawing.Size(345, 250);
+            this.Controls.Add(this.btn_RemovePrefab);
+            this.Controls.Add(this.btn_AddPrefab);
+            this.Controls.Add(this.lbl_AdditionalPrefabs);
+            this.Controls.Add(this.lbo_AdditionalPrefabs);
             this.Controls.Add(this.btn_RemoveLevel);
             this.Controls.Add(this.btn_AddLevel);
             this.Controls.Add(this.lbl_Levels);
@@ -140,6 +196,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
             this.Text = "Ghostbait Scene Creator";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
@@ -159,6 +216,11 @@
         private System.Windows.Forms.Label lbl_Levels;
         private System.Windows.Forms.Button btn_AddLevel;
         private System.Windows.Forms.Button btn_RemoveLevel;
+        private System.Windows.Forms.ListBox lbo_AdditionalPrefabs;
+        private System.Windows.Forms.Label lbl_AdditionalPrefabs;
+        private System.Windows.Forms.Button btn_AddPrefab;
+        private System.Windows.Forms.Button btn_RemovePrefab;
+        private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
     }
 }
 

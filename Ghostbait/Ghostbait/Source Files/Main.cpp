@@ -304,6 +304,7 @@ void Loop() {
 	else {
 		VRManager::GetInstance().leftController.obj->PausedUpdate();
 		VRManager::GetInstance().rightController.obj->PausedUpdate();
+		phyMan->PausedUpdate();
 	}
 	game->Update();
 	inputMan->HandleInput();

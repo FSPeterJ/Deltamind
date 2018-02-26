@@ -2,6 +2,8 @@
 #include "Object.h"
 #include "Controlable.h"
 
+#include "Console.h"
+
 class GameObject: public Object {
 	friend class ObjectFactory;
 	virtual void GameObject::SetData(char* data) {};
@@ -39,6 +41,14 @@ class MenuCube: public GameObject {
 	void Update();
 public:
 	void OnCollision(GameObject* other);
+
+	void Enable(bool _destroyOnReset = true) override{
+		GameObject::Enable(_destroyOnReset);
+	}
+
+	void Destroy() {
+		GameObject::Destroy();
+	};
 };
 class CoreCube: public GameObject {
 	bool enemyTouched = false;

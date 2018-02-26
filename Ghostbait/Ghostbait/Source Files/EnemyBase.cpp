@@ -9,15 +9,6 @@
 
 //Main Overrides
 void EnemyBase::Awake() {
-	currState = IDLE;
-	maxSpeed = 2.0f;
-	target = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	eventLose = 0;
-	hurt = false;
-	hurtTimer = 0;
-	hurtDuration = 1;
-	sentDeathMessage = false;
-
 	GameObject::Awake();
 }
 void EnemyBase::Subscribe() {

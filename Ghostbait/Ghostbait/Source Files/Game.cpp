@@ -9,6 +9,7 @@
 #include "AStarEnemy.h"
 #include "VRManager.h"
 #include "SceneManager.h"
+#include "PathPlanner.h"
 
 
 void Game::GameData::Reset() {
@@ -41,6 +42,7 @@ Game::Game() {
 	MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {this->RemoveObstacleEvent(e); });
 	MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) {this->Lose(); });
 	MessageEvents::Subscribe(EVENT_GameQuit, [=](EventMessageBase* e) {this->Quit(); });
+	PathPlanner::SetGrid(&hexGrid);
 }
 
 //Catch Events
@@ -135,9 +137,12 @@ void Game::ChangeState(State newState) {
 void Game::ChangeScene(const char* sceneName, DirectX::XMFLOAT3* _corePos) {
 	//Reset Game/Wave data
 	gameData.Reset();
+	Console::WriteLine << "Game Data Reset!";
 
 	//Load scene assets
 	sceneManager->LoadScene(sceneName, _corePos);
+	Console::WriteLine << "New Scene Loaded!";
+
 
 
 	//If it has level/wave data, load it
@@ -190,6 +195,7 @@ void Game::RestartLevel() {
 
 	//Reinstantiate starting wave values and current scene
 	ChangeScene(name.c_str(), &corePos);
+	Console::WriteLine << "Restarted!";
 
 }
 void Game::ResumeGame() {
@@ -229,6 +235,10 @@ void Game::Start(EngineStructure* _engine, char* startScene) {
 	hexGrid.Fill(false);
 
 	ChangeScene(startScene, &corePos);
+
+
+	//MessageEvents::SendMessage(EVENT_StartWave, EventMessageBase());
+
 
 	//AStarEnemy *enemy;
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<AStarEnemy>("AStarEnemy", { 2,2,2 }, &enemy));

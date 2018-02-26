@@ -9,16 +9,16 @@ GameObject::GameObject() {
 }
 
 void GameObject::Awake() {
-	enabled = false;
-	destroyOnReset = true;
 }
 void GameObject::Subscribe() {
-	if(destroyOnReset)
+	if (destroyOnReset) {
 		eventRestart = MessageEvents::Subscribe(EVENT_GameRestart, [=](EventMessageBase* e) { MessageEvents::SendQueueMessage(EVENT_Late, [=] {this->Destroy(); }); });
+	}
 }
 void GameObject::UnSubscribe() {
-	if(destroyOnReset)
+	if (destroyOnReset) {
 		MessageEvents::UnSubscribe(EVENT_GameRestart, eventRestart);
+	}
 }
 void GameObject::Enable(bool _destroyOnReset) {
 	if (!enabled) {
@@ -90,6 +90,7 @@ void MenuCube::Update() {
 void MenuCube::OnCollision(GameObject* other) {
 	if(other->GetTag() == "Bullet") {
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
+		Console::WriteLine << "StartCube Shot!";
 		MessageEvents::SendMessage(EVENT_StartWave, EventMessageBase());
 		//GameObject* obj;
 		//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(8/*Core*/, {0, 1.5f, 0}, &obj));

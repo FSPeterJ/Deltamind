@@ -1,6 +1,6 @@
 #include "Health.h"
 
-#define default_health 200
+#define default_health 1
 
 Health::Health() {
 	maxHealth = default_health;

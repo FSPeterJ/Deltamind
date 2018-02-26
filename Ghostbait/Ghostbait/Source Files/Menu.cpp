@@ -103,6 +103,7 @@ void Menu::Show() {
 		MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuOption>(buttonPrefabMap[buttons[i]], {0, 0, 0}, &newOption));
 		DirectX::XMStoreFloat4x4(&newOption->position, center_M * DirectX::XMMatrixTranslation(0, distFromCenter, 0));
 		newOption->SetMenu(this);
+		newOption->Enable(false);
 		options[i] = newOption;
 	}
 }
@@ -120,8 +121,8 @@ void ResumeButton::Select() {
 }
 void RestartButton::Select() {
 	MenuOption::Select();
-	MessageEvents::SendMessage(EVENT_GamePause, EventMessageBase());
 	MessageEvents::SendMessage(EVENT_GameRestart, EventMessageBase());
+	MessageEvents::SendMessage(EVENT_GamePause, EventMessageBase());
 }
 void QuitButton::Select() {
 	MenuOption::Select();

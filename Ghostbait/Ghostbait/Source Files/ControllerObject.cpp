@@ -14,7 +14,7 @@ ControllerObject::ControllerObject() {
 void ControllerObject::Init(ControllerHand _hand) {
 	hand = _hand;
 	//SetControllerHand(_hand); //Not needed anymore?
-	Enable();
+	Enable(false);
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuControllerItem>( { 0,0,0 }, &menuController));
 	int temp = sizeof(MenuControllerItem);
 }
@@ -259,6 +259,8 @@ void ControllerObject::Update() {
 			}
 		}
 	#pragma endregion
+
+	GameObject::Update();
 }
 void ControllerObject::PausedUpdate() {
 	if (hand == HAND_Invalid) return;
@@ -289,6 +291,7 @@ void ControllerObject::CloneData(Object* obj) {
 		}
 
 	}
+	GameObject::CloneData(obj);
 }
 
 // TEMPORARY - CHANGE OR REMOVE LATER

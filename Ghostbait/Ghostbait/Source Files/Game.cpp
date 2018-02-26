@@ -14,26 +14,36 @@
 void Game::GameData::Reset() {
 	state = GAMESTATE_BetweenWaves;
 	prevState = GAMESTATE_BetweenWaves;
-	spawners.empty();
-	enemiesLeftAlive = 0;
+	//for (int i = 0; i < waveManager.waves.size(); ++i) {
+	//	for (int j = 0; j < waveManager.waves[i].spawns.size(); ++j) {
+	//		waveManager.waves[i].spawns[j].spawnCount = 0;
+	//	}
+	//}
+	enemiesLeftAlive = 100;
 	waveManager.currentWave = -1;
-	waveManager.waves.empty();
+	while (spawners.size() > 0) {
+		spawners.erase(spawners.begin());
+	}
+	while (waveManager.waves.size() > 0) {
+		waveManager.waves.erase(waveManager.waves.begin());
+	}
 }
 
 Game::Game() {
 	pauseMenu = new Menu(MENU_Pause);
 	MessageEvents::Subscribe(EVENT_SpawnerCreated, [=](EventMessageBase* e) {this->SpawnerCreatedEvent(e); });
 	MessageEvents::Subscribe(EVENT_EnemyDied, [=](EventMessageBase* e) {this->EnemyDiedEvent(); });
-	MessageEvents::Subscribe(EVENT_StartWave, [=](EventMessageBase* e) {this->StartPressedEvent(); });
+	MessageEvents::Subscribe(EVENT_StartWave, [=](EventMessageBase* e) {this->StartNextWave(); });
 	MessageEvents::Subscribe(EVENT_GamePause, [=](EventMessageBase* e) {this->PausePressedEvent(); });
-	MessageEvents::Subscribe(EVENT_GameRestart, [=](EventMessageBase* e) {this->RestartGameEvent(); });
+	MessageEvents::Subscribe(EVENT_GameRestart, [=](EventMessageBase* e) {this->restartNextFrame = true; });
 	MessageEvents::Subscribe(EVENT_SnapRequest, [=](EventMessageBase* e) {this->SnapRequestEvent(e); });
 	MessageEvents::Subscribe(EVENT_AddObstacle, [=](EventMessageBase* e) {this->AddObstacleEvent(e); });
 	MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {this->RemoveObstacleEvent(e); });
 	MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) {this->Lose(); });
-	MessageEvents::Subscribe(EVENT_GameQuit, [=](EventMessageBase* e) {this->QuitEvent(); });
+	MessageEvents::Subscribe(EVENT_GameQuit, [=](EventMessageBase* e) {this->Quit(); });
 }
 
+//Catch Events
 void Game::SpawnerCreatedEvent(EventMessageBase* e) {
 	Spawner* spawner = dynamic_cast<Spawner*>(((SpawnerCreatedMessage*)e)->RetrieveObject());
 	if (spawner)
@@ -47,9 +57,6 @@ void Game::EnemyDiedEvent() {
 		ChangeState(GAMESTATE_BetweenWaves);
 	}
 }
-void Game::StartPressedEvent() {
-	StartNextWave();
-}
 void Game::PausePressedEvent() {
 	if (gameData.state == GAMESTATE_Paused) {
 		ChangeState(gameData.prevState);
@@ -59,9 +66,6 @@ void Game::PausePressedEvent() {
 		ChangeState(GAMESTATE_Paused);
 		Console::WriteLine << "Game is Paused";
 	}
-}
-void Game::RestartGameEvent() {
-	RestartLevel();
 }
 void Game::SnapRequestEvent(EventMessageBase* e) {
 	SnapMessage* message = (SnapMessage*)e;
@@ -82,10 +86,8 @@ void Game::RemoveObstacleEvent(EventMessageBase* e) {
 		(*message->success) = hexGrid.RemoveObstacle(*message->position);
 	}
 }
-void Game::QuitEvent() {
-	run = false;
-}
 
+//Helpers
 void Game::ChangeState(State newState) {
 	if (gameData.state != newState) {
 		gameData.prevState = gameData.state;
@@ -99,20 +101,22 @@ void Game::ChangeState(State newState) {
 		case GAMESTATE_BetweenWaves:
 			{
 				if (gameData.prevState == GAMESTATE_Paused) ResumeGame();
+				else {
 
-				//if upcoming wave doesnt exist...
-				int nextWave = gameData.waveManager.currentWave + 1;
-				if (nextWave >= gameData.waveManager.waves.size()) {
-				Win();
-			}
-				//if upcoming wave does exist
-				else if (gameData.prevState == GAMESTATE_InWave) {
-				//Spawn start cube
-				MenuCube* startCube;
-				MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("StartCube", { 0, 1.5f, 0.0f }, &startCube));
-				DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
-				startCube->Enable();
-			}
+					//if upcoming wave doesnt exist...
+					int nextWave = gameData.waveManager.currentWave + 1;
+					if (nextWave >= gameData.waveManager.waves.size()) {
+						Win();
+					}
+					//if upcoming wave does exist
+					else if (gameData.prevState == GAMESTATE_InWave) {
+						//Spawn start cube
+						MenuCube* startCube;
+						MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("StartCube", { 0, 1.5f, 0.0f }, &startCube));
+						DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
+						startCube->Enable();
+					}
+				}
 			}
 			break;
 		case GAMESTATE_InWave:
@@ -122,18 +126,19 @@ void Game::ChangeState(State newState) {
 			break;
 		case GAMESTATE_Lost:
 			{
-				gameData.Reset();
+				//gameData.Reset();
 			}
 			break;
 		}
 	}
 }
-void Game::ChangeScene(char* sceneName, DirectX::XMFLOAT3* _corePos) {
+void Game::ChangeScene(const char* sceneName, DirectX::XMFLOAT3* _corePos) {
+	//Reset Game/Wave data
+	gameData.Reset();
+
 	//Load scene assets
 	sceneManager->LoadScene(sceneName, _corePos);
 
-	//Reset Game/Wave data
-	gameData.Reset();
 
 	//If it has level/wave data, load it
 	if (sceneManager->GetCurrentScene().levelFile != "") {
@@ -178,9 +183,14 @@ void Game::StartNextWave() {
 	}
 }
 
+//Handle primary function event logic
 void Game::RestartLevel() {
-	gameData.Reset();
-	sceneManager->ReloadScene();
+	//Reset currentScene pointer
+	std::string name = sceneManager->GetNameFromScene(sceneManager->UnloadScene());
+
+	//Reinstantiate starting wave values and current scene
+	ChangeScene(name.c_str(), &corePos);
+
 }
 void Game::ResumeGame() {
 	//Logic to run when game first gets unPaused
@@ -190,9 +200,10 @@ void Game::PauseGame() {
 }
 void Game::Lose() {
 	//Logic to run when the player loses
-	MenuCube* temper;
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("LoseCube", { 0, 0.75f, 0 }, &temper));
-	DirectX::XMStoreFloat4x4(&temper->position, DirectX::XMLoadFloat4x4(&temper->position) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));
+	MenuCube* loseCube;
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("LoseCube", { 0, 0.75f, 0 }, &loseCube));
+	DirectX::XMStoreFloat4x4(&loseCube->position, DirectX::XMLoadFloat4x4(&loseCube->position) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));
+	loseCube->Enable();
 
 	ChangeState(GAMESTATE_Lost);
 }
@@ -200,9 +211,15 @@ void Game::Win() {
 	//Logic to run when the player wins
 	MessageEvents::SendMessage(EVENT_GameWin, EventMessageBase());
 	Console::WriteLine << "GAME WAS WON";
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("WinCube", { 0, 0.75f, 0 })); 
+	MenuCube* winCube;
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("WinCube", { 0, 0.75f, 0 }, &winCube));
+	winCube->Enable();
+}
+void Game::Quit() {
+	run = false;
 }
 
+//Main loop elements
 void Game::Start(EngineStructure* _engine, char* startScene) {
 	srand((unsigned int)time(NULL));
 	engine = _engine;
@@ -226,6 +243,13 @@ void Game::Start(EngineStructure* _engine, char* startScene) {
 	//fred->Enable();
 }
 void Game::Update() {
+
+	if (restartNextFrame) {
+		RestartLevel();
+		restartNextFrame = false;
+		return;
+	}
+
 	auto playerPos = VRManager::GetInstance().GetPlayerPosition();
 	hexGrid.Display(DirectX::XMFLOAT2(playerPos._41, playerPos._43));
 	float dt = (float)GhostTime::DeltaTime();

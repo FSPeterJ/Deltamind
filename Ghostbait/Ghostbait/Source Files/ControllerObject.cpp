@@ -5,6 +5,7 @@
 #include "BuildTool.h"
 #include "PhysicsComponent.h"
 #include "BuildTool.h"
+#include "Item.h"
 
 ControllerObject::ControllerObject() {
 	int debugbreak =0;
@@ -17,6 +18,7 @@ void ControllerObject::Init(ControllerHand _hand) {
 	Enable();
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuControllerItem>( { 0,0,0 }, &menuController));
 	int temp = sizeof(MenuControllerItem);
+	currentGameItem = items[0];
 }
 void ControllerObject::SetPhysicsComponent(const GameObject* obj, bool active) {
 	PhysicsComponent* physComp = obj->GetComponent<PhysicsComponent>();
@@ -24,15 +26,18 @@ void ControllerObject::SetPhysicsComponent(const GameObject* obj, bool active) {
 }
 void ControllerObject::AddToInventory(int itemSlot, unsigned prefabID) {
 	//Actual Inventory
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Gun>(prefabID, { 0,0,0 }, (Gun**)&items[itemSlot]));
-	if (!currentGameItem) currentGameItem = items[itemSlot];
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Item>(prefabID, { 0,0,0 }, (Item**)&items[itemSlot]));
+	if(!currentGameItem) {
+		currentGameItem = items[itemSlot];
+		//currentGameItem->Selected();
+	}
 	else {
 		items[itemSlot]->Render(false);
 		SetPhysicsComponent(items[itemSlot], false);
 	}
 	
 	//Inventory Display
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Gun>(prefabID, { 0,0,0 }, (Gun**)&displayItems[itemSlot]));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Item>(prefabID, { 0,0,0 }, (Item**)&displayItems[itemSlot]));
 	displayItems[itemSlot]->Render(false);
 	SetPhysicsComponent(displayItems[itemSlot], false);
 }
@@ -287,8 +292,8 @@ void ControllerObject::CloneData(Object* obj) {
 		if(itemPrefabs[i] > 0) {
 			AddItem(i, itemPrefabs[i]);
 		}
-
 	}
+	//currentGameItem = ((ControllerObject*)obj)->currentGameItem;
 }
 
 // TEMPORARY - CHANGE OR REMOVE LATER

@@ -47,6 +47,8 @@ private:
 
 	VRManager* vrMan;
 
+	static bool mouseActivate;
+
 public:
 
 	InputManager() {};

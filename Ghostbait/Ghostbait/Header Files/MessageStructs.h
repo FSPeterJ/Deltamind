@@ -21,6 +21,7 @@ enum Control {
 	teleportDown,
 	teleportUp,
 	menu,
+	releaseKey,
 	leftCyclePrefab,
 	rightCyclePrefab,
 

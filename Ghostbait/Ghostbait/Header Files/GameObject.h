@@ -23,7 +23,7 @@ public:
 
 	virtual void Destroy();
 
-	virtual void Awake() {};
+	virtual void Awake(Object* obj) {};
 	virtual void Update() {};
 
 	inline const std::string GetTag() const { return tag; };

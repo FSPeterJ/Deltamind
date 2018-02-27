@@ -1,6 +1,5 @@
 #include "Renderer.h"
-//#include "vld.h"
-//#include "GameObject.h"
+#include "vld.h"
 #include "InputManager.h"
 #include "Messagebox.h"
 #include "Game.h"
@@ -225,6 +224,17 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 		VRManager::GetInstance().CreateControllers();
 		VRManager::GetInstance().SetBuildItems({ basicTurret });
 	}
+	else {
+		//------
+		// Debug Controller
+		//=========================================================
+		ControllerObject *debugController;
+		MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 0,2,-2 }, &debugController));
+		debugController->Init(ControllerObject::ControllerHand::HAND_Left);
+		debugController->SetBuildItems({ basicTurret });
+		debugController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
+		debugController->SetGunData(2, Gun::FireType::AUTO, 8, 25);
+	}
 
 	//GameObject* ground;
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<GameObject>("Ground", {4, 0.0f, 0.0f}, (GameObject**)&ground));
@@ -269,22 +279,14 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//test1->Enable();
 
 
-	//------
-	// Test Gun
-	//=========================================================
-	//ControllerObject *debugController;
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 0,2,-2 }, &debugController));
-	//debugController->Init(ControllerObject::ControllerHand::HAND_Left);
-	//debugController->SetBuildItems({ basicTurret });
-	//debugController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
-	//debugController->SetGunData(2, Gun::FireType::AUTO, 8, 25);
-	
+
+
 	//Turret *debugTurret;
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Turret>({ 0,0,0 }, &debugTurret));
 	//assert(debugTurret->GetComponent<Animator>()->setState("default"));
 	//debugTurret->GetComponent<Animator>()->SetTime(3.0f);
 	//debugTurret->Enable();
-	
+
 	GhostTime::Initalize();
 	MessageEvents::Initilize();
 

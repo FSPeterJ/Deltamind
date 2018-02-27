@@ -12,7 +12,6 @@ void GameObject::OnCollision(GameObject* obj) {}
 void GameObject::OnTrigger(GameObject* obj) {}
 
 void GameObject::Enable() {
-	Awake();
 	//This is potentially dangerous if used incorrectly.
 	//Double Enable emplaces a second update delegate that can never be removed.
 	MessageEvents::Subscribe(EVENT_GameRestart, [=](EventMessageBase* e) {this->RestartGame(); });

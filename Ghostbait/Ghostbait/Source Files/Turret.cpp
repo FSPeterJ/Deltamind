@@ -29,10 +29,12 @@ void Turret::Disable() {
 	GameObject::Disable();
 }
 
-void Turret::Awake() {
+void Turret::Awake(Object* obj) {
+	Turret* turret = ((Turret*)obj);
+	projectiePID = turret->projectiePID;
 	targetDistance = 9999999;
 	target = nullptr;
-	firerate = 2;
+	firerate = turret->firerate;
 	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
 	turretPitch = GetComponent<Animator>()->getJointByName("RocketLauncher_DeployedSetup:Pitch");
 }
@@ -133,10 +135,6 @@ void Turret::Shoot() {
 	timeSinceLastShot = (float)GhostTime::DeltaTime();
 }
 
-void Turret::CloneData(Object* obj) {
-	projectiePID = ((Turret*)obj)->projectiePID;
-
-}
 
 void Turret::GivePID(unsigned pid, const char* tag) {
 	// Look into a better system

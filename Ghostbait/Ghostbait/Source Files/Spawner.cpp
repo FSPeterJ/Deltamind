@@ -5,7 +5,7 @@
 #include "EnemyBase.h"
 
 #include "HexGrid.h"
-void Spawner::Awake() {
+void Spawner::Awake(Object* obj) {
 	SetTag("Spawner");
 	MessageEvents::SendMessage(EVENT_SpawnerCreated, SpawnerCreatedMessage(this));
 }

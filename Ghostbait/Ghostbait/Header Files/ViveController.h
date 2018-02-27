@@ -6,5 +6,4 @@ public:
 	ViveController();
 	void ActiveUpdate() override;
 	void InactiveUpdate() override;
-	void CloneData(Object* obj);
 };

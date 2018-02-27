@@ -16,6 +16,11 @@ void AStarEnemy::Repath() {
 void AStarEnemy::Enable() {
 	eventAdd = MessageEvents::Subscribe(EVENT_AddObstacle, [=](EventMessageBase* e) {this->Repath(); });
 	eventRemove = MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {this->Repath(); });
+	if(!goal) {
+		NewRandPath();
+	}
+	rb->SetTerminalSpeed(maxSpeed);
+	next = path.start();
 	GameObject::Enable();
 }
 
@@ -58,14 +63,10 @@ void AStarEnemy::SetGrid(HexGrid* _grid) {
 	grid = _grid;
 }
 
-void AStarEnemy::Awake() {
-	EnemyBase::Awake();
+void AStarEnemy::Awake(Object* obj) {
+	EnemyBase::Awake(obj);
 	rb = &(GetComponent<PhysicsComponent>()->rigidBody);
-	if(!goal) {
-		NewRandPath();
-	}
-	next = path.start();
-	rb->SetTerminalSpeed(maxSpeed);
+
 }
 
 void AStarEnemy::CalcPath(DirectX::XMFLOAT2 where) {

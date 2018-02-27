@@ -8,8 +8,10 @@
 
 
 
-void EnemyBase::Awake() {
+void EnemyBase::Awake(Object* obj) {
 	eventLose = MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) {this->RestartGame(); });
+	componentVarients = obj->componentVarients;
+
 }
 
 void EnemyBase::Disable() {
@@ -70,9 +72,6 @@ void EnemyBase::OnCollision(GameObject* _other) {
 	}
 }
 
-void EnemyBase::CloneData(Object* obj) {
-	componentVarients = obj->componentVarients;
-}
 
 void EnemyBase::Destroy() {
 	MessageEvents::SendMessage(EVENT_EnemyDied, EventMessageBase());

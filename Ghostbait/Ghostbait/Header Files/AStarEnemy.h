@@ -43,6 +43,6 @@ public:
 	void Enable();
 	void Disable();
 
-	void Awake();
+	void Awake(Object* obj);
 	void Update();
 };

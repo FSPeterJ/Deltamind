@@ -16,13 +16,12 @@ public:
 	Turret();
 	void Enable();
 	void Disable();
-	void Awake();
+	void Awake(Object* obj);
 	void Update();
 	float CalculateDistance(GameObject* obj);
 	~Turret();
 	void OnTrigger(GameObject* object);
 	bool CanShoot(float fireRate);
 	void Shoot();
-	void CloneData(Object* obj);
 	void GivePID(unsigned pid, const char* tag);
 };

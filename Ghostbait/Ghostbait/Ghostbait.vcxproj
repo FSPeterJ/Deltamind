@@ -273,6 +273,7 @@
     <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Common\AkFilePackageLUT.cpp" />
     <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Win32\AkDefaultIOHookBlocking.cpp" />
     <ClCompile Include="Dependencies\XML_Library\irrXML.cpp" />
+    <ClCompile Include="Header Files\Player.h" />
     <ClCompile Include="Source Files\AABB.cpp" />
     <ClCompile Include="Source Files\AnimationManager.cpp" />
     <ClCompile Include="Source Files\Animator.cpp" />
@@ -323,6 +324,7 @@
     <ClCompile Include="Source Files\PhysicsManager.cpp" />
     <ClCompile Include="Source Files\PhysicsRegistry.cpp" />
     <ClCompile Include="Source Files\PhysicsTestObj.cpp" />
+    <ClCompile Include="Source Files\Player.cpp" />
     <ClCompile Include="Source Files\Pool.cpp" />
     <ClCompile Include="Source Files\ProgressBar.cpp" />
     <ClCompile Include="Source Files\Projectile.cpp" />

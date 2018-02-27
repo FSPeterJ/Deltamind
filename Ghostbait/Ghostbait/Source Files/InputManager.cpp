@@ -51,7 +51,6 @@ InputManager::~InputManager() {
 InputManager::InputManager(InputType type) {
 	SetInputType(type);
 };
-inline InputType InputManager::GetInputType() { return inputType; };
 
 //VR
 InputManager::VRInput::VRInput() {
@@ -193,12 +192,12 @@ void InputManager::VRInput::CheckForInput() {
 						break;
 					case vr::k_EButton_SteamVR_Trigger:
 						if(event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
-							VRManager::GetInstance().Vibrate(VRControllerType::Left, 5000);
+							VRManager::GetInstance().Vibrate(ControllerHand::HAND_Left, 5000);
 							input = leftAttack;
 							amount = 1.0f;
 						}
 						else {
-							VRManager::GetInstance().Vibrate(VRControllerType::Right, 5000);
+							VRManager::GetInstance().Vibrate(ControllerHand::HAND_Right, 5000);
 							input = rightAttack;
 							amount = 1.0f;
 						}

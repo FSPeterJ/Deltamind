@@ -11,7 +11,7 @@ protected:
 	std::string tag = "none";
 	unsigned typeID = 0;
 	unsigned updateID = 0;  //Update Delegate ID
-	unsigned eventRestart = 0;
+	unsigned eventDeleteAllGameObjects = 0;
 
 	bool enabled = false;
 	bool destroyOnReset = true;

@@ -70,7 +70,7 @@ public:
 	/// Retreive the current input method (Ex. VR, Keyboard, Controller, etc.)
 	/// </summary>
 	/// <returns>The current input method.</returns>
-	inline InputType GetInputType();
+	inline InputType GetInputType() { return inputType; };
 
 	/// <summary>
 	/// Sets the current input method (Ex. VR, Keyboard, Controller, etc.)

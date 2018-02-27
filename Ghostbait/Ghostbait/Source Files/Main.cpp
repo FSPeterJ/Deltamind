@@ -1,5 +1,5 @@
 #include "Renderer.h"
-#include "vld.h"
+//#include "vld.h"
 #include "InputManager.h"
 #include "Messagebox.h"
 #include "Game.h"
@@ -293,7 +293,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<GameObject>("EarthMage", { 0.0f, 0.0f, 25.0f }));
 	Console::WriteLine << "Starting Game Loop......";
 	game = new Game();
-	game->Start(&engine);
+	game->Start(&engine, "level0");
 }
 
 void Loop() {

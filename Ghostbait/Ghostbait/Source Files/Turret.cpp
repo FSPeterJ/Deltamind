@@ -36,7 +36,7 @@ void Turret::Awake(Object* obj) {
 	target = nullptr;
 	firerate = turret->firerate;
 	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
-	turretPitch = GetComponent<Animator>()->getJointByName("RocketLauncher_DeployedSetup:Pitch");
+	turretPitch = GetComponent<Animator>()->getJointByName("Pitch");
 }
 
 void Turret::Update() {

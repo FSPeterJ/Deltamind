@@ -1,8 +1,8 @@
+#include <time.h>
 #include "Game.h"
 #include "Spawner.h"
 #include "MessageEvents.h"
 #include "GhostTime.h"
-#include <time.h>
 #include "EngineStructure.h"
 #include "Menu.h"
 #include "../Dependencies/XML_Library/irrXML.h"

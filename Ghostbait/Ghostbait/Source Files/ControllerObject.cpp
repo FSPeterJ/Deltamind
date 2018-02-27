@@ -326,7 +326,6 @@ void ControllerObject::Awake(Object* obj) {
 			AddItem(i, itemPrefabs[i]);
 		}
 	}
-	GameObject::CloneData(obj);
 }
 
 // TEMPORARY - CHANGE OR REMOVE LATER
@@ -344,9 +343,9 @@ void ControllerObject::SetGunData(int slot, Gun::FireType _fireType, float _fire
 }
 
 
-void ControllerObject::Enable() {
+void ControllerObject::Enable(bool destroyOnEnd) {
 	menuController->Render(false);
-	GameObject::Enable();
+	GameObject::Enable(destroyOnEnd);
 }
 
 

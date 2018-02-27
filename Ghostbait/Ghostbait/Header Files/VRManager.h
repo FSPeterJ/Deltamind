@@ -17,9 +17,10 @@ class ControllerObject;
 
 #define FLOAT4X4Identity DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
 
-enum class VRControllerType {
-	Left,
-	Right
+enum ControllerHand {
+	HAND_Invalid,
+	HAND_Left,
+	HAND_Right,
 };
 
 class VRManager {
@@ -66,7 +67,7 @@ public:
 	bool Init();
 	inline bool IsEnabled() { return isEnabled; };
 
-	void Vibrate(VRControllerType ctrl, unsigned short durationMs);
+	void Vibrate(ControllerHand ctrl, unsigned short durationMs);
 	void CreateControllers();
 	void SetBuildItems(std::vector<unsigned> prefabIDs);
 	ControllerObject* GetRightController();

@@ -122,8 +122,8 @@ void ResumeButton::Select() {
 }
 void RestartButton::Select() {
 	MenuOption::Select();
-	MessageEvents::SendMessage(EVENT_GameRestart, EventMessageBase());
 	MessageEvents::SendMessage(EVENT_GamePause, EventMessageBase());
+	MessageEvents::SendMessage(EVENT_GameRestart, EventMessageBase());
 }
 void QuitButton::Select() {
 	MenuOption::Select();

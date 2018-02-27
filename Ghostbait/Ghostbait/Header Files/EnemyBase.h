@@ -25,15 +25,16 @@ protected:
 
 	bool sentDeathMessage = false;
 
-	void RestartGame() override;
-
 public:
 	EnemyBase() { tag = std::string("Enemy");  };
+	void Enable(bool _destroyOnReset = true) override;
+	void Disable() override;
+	void Destroy() override;
 	void Awake(Object* obj) override;
 	void Update() override;
-	void OnCollision(GameObject* _other);
-	void Destroy() override;
-	void Disable() override;
+	void Subscribe() override;
+	void UnSubscribe() override;
+	void OnCollision(GameObject* _other) override;
 
 
 	virtual void SetGrid(HexGrid* _grid) {};

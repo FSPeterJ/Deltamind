@@ -71,7 +71,7 @@ void SceneManager::Initialize() {
 		{
 			startCube.ghostFile = "Assets/StartCube.ghost";
 			startCube.name = "StartCube";
-			DirectX::XMFLOAT4X4 mat = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0,	0, 0, 3, 1);
+			DirectX::XMFLOAT4X4 mat = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0,	0, 1.5f, 3, 1);
 			startCube.positions.push_back(mat);
 			data.prefabs.push_back(startCube);
 		}
@@ -152,11 +152,13 @@ void SceneManager::FetchAllSceneFiles(const char* folderPath) {
 	}
 }
 
-void SceneManager::UnloadScene() {
-	//Destroy everything and reset object factories prefabs/pools
+const Scene SceneManager::UnloadScene() {
+	//Destroy everything
 	
 	//Reset currentScene
+	Scene prevScene = *currentScene;
 	currentScene = nullptr;
+	return prevScene;
 }
 
 void SceneManager::LoadScene(const char* sceneName, DirectX::XMFLOAT3* _corePos) {
@@ -164,7 +166,7 @@ void SceneManager::LoadScene(const char* sceneName, DirectX::XMFLOAT3* _corePos)
 	if (scene.sceneFile == "")
 		Console::ErrorLine << "Trying to load a scene named " << sceneName << " that does not exist in SceneManager!";
 	else {
-		UnloadScene();
+		//UnloadScene();
 		currentScene = &scene;
 
 		std::ifstream file(scene.sceneFile, std::ios::binary);
@@ -192,11 +194,12 @@ void SceneManager::LoadScene(const char* sceneName, DirectX::XMFLOAT3* _corePos)
 					if (_corePos && !strcmp(newObj->GetTag().c_str(),"Core")) {
 						*_corePos = DirectX::XMFLOAT3(mat._41, mat._42, mat._43);
 					}
+					newObj->position = mat;
+					
 					//TODO: TEMPORARY SOLUTION 
-					newObj->Enable();
+					MessageEvents::SendQueueMessage(EVENT_Late, [=] { newObj->Enable(); });
 					//------------------------
 
-					newObj->position = mat;
 				}
 				//Will be garbage if the file is empty. Should only be garbage on the last call
 				ghostLen = Reader::ReadInt();

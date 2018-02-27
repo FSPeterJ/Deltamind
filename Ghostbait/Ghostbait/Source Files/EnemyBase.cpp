@@ -13,16 +13,28 @@ void EnemyBase::Awake(Object* obj) {
 	componentVarients = obj->componentVarients;
 
 }
-
-void EnemyBase::Disable() {
+void EnemyBase::Subscribe() {
+	eventLose = MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) { MessageEvents::SendQueueMessage(EVENT_Late, [=] {this->Destroy(); }); });
+}
+void EnemyBase::UnSubscribe() {
 	MessageEvents::UnSubscribe(EVENT_GameLose, eventLose);
-	GameObject::Disable();
 }
-
-void EnemyBase::RestartGame() {
-	MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
+void EnemyBase::Enable(bool _destroyOnReset) {
+	if (!enabled) {
+		EnemyBase::Subscribe();
+		GameObject::Enable(_destroyOnReset);
+	}
 }
-
+void EnemyBase::Disable() {
+	if (enabled) {
+		EnemyBase::UnSubscribe();
+		GameObject::Disable();
+	}
+}
+void EnemyBase::Destroy() {
+	MessageEvents::SendMessage(EVENT_EnemyDied, EventMessageBase());
+	GameObject::Destroy();
+}
 void EnemyBase::Update() {
 	if (hurt) {
 		hurtTimer += GhostTime::DeltaTime();
@@ -32,7 +44,7 @@ void EnemyBase::Update() {
 			SetComponent(defaultMat, id);
 		}
 	}
-
+	GameObject::Update();
 	//DirectX::XMVECTOR directionToGoal = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&target), DirectX::XMLoadFloat4x4(&position).r[3]));
 	//PhysicsComponent* myPhys = GetComponent<PhysicsComponent>();
 	//
@@ -44,6 +56,7 @@ void EnemyBase::Update() {
 	//}
 }
 
+//Other Overrides
 void EnemyBase::OnCollision(GameObject* _other) {
 	PhysicsComponent* myPhys = GetComponent<PhysicsComponent>();
 	DirectX::XMVECTOR incomingDirection = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat4x4(&position).r[3], DirectX::XMLoadFloat4x4(&(_other->position)).r[3]));
@@ -72,6 +85,9 @@ void EnemyBase::OnCollision(GameObject* _other) {
 	}
 }
 
+void EnemyBase::CloneData(Object* obj) {
+	componentVarients = obj->componentVarients;
+}
 
 void EnemyBase::Destroy() {
 	MessageEvents::SendMessage(EVENT_EnemyDied, EventMessageBase());

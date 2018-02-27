@@ -55,30 +55,33 @@ class Game {
 	SceneManager* sceneManager;
 	Menu* pauseMenu;
 
+	bool restartNextFrame = false;
+
 	DirectX::XMFLOAT3 corePos = DirectX::XMFLOAT3(0, 0, 0);
+
+
+
+	//Event Catchers
+	void SpawnerCreatedEvent(EventMessageBase* e);
+	void EnemyDiedEvent();
+	void PausePressedEvent();
+	void SnapRequestEvent(EventMessageBase* e);
+	void AddObstacleEvent(EventMessageBase* e);
+	void RemoveObstacleEvent(EventMessageBase* e);
 
 	//Personal
 	void ChangeState(State newState);
-	void ChangeScene(char* sceneName, DirectX::XMFLOAT3* _corePos = nullptr);
+	void ChangeScene(const char* sceneName, DirectX::XMFLOAT3* _corePos = nullptr);
 	void StartNextWave();
 
+	//Handle primary function event logic
 	void RestartLevel();
 	void PauseGame();
 	void ResumeGame();
 	void Lose();
 	void Win();
+	void Quit();
 	
-	//Delegate Subscription Calls
-	void SpawnerCreatedEvent(EventMessageBase* e);
-	void EnemyDiedEvent();
-	void StartPressedEvent();
-	void PausePressedEvent();
-	void RestartGameEvent();
-	void SnapRequestEvent(EventMessageBase* e);
-	void AddObstacleEvent(EventMessageBase* e);
-	void RemoveObstacleEvent(EventMessageBase* e);
-	void QuitEvent();
-
 
 public:
 

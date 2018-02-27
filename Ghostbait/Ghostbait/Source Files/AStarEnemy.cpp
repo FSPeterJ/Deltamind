@@ -9,11 +9,20 @@ AStarEnemy::AStarEnemy() {
 	tag = std::string("Enemy");
 }
 
-void AStarEnemy::Repath() {
-	NewPath();
+//Main Overrides
+
+void AStarEnemy::Awake(Object* obj) {
+	EnemyBase::Awake(obj);
+	rb = &(GetComponent<PhysicsComponent>()->rigidBody);
+	if(!goal) {
+		NewRandPath();
+	}
+	next = path.start();
+	rb->SetTerminalSpeed(maxSpeed);
+
 }
 
-void AStarEnemy::Enable() {
+void AStarEnemy::Subscribe() {
 	eventAdd = MessageEvents::Subscribe(EVENT_AddObstacle, [=](EventMessageBase* e) {this->Repath(); });
 	eventRemove = MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {this->Repath(); });
 	if(!goal) {
@@ -23,62 +32,25 @@ void AStarEnemy::Enable() {
 	next = path.start();
 	GameObject::Enable();
 }
-
-void AStarEnemy::Disable() {
+void AStarEnemy::UnSubscribe() {
 	MessageEvents::UnSubscribe(EVENT_AddObstacle, eventAdd);
 	MessageEvents::UnSubscribe(EVENT_RemoveObstacle, eventRemove);
-	EnemyBase::Disable();
 }
-
-bool AStarEnemy::NewPath() {
-	path.clear();
-	howFarAlong = 0;
-
-	CalcPath(goal);
-
-	return path.size();
-}
-
-void AStarEnemy::NewRandPath() {
-	path.clear();
-	howFarAlong = 0;
-
-	goal = grid->GetRandomTile();
-	CalcPath(goal);
-
-	if(!path.size()) {
-		NewRandPath();
+void AStarEnemy::Enable(bool _destroyOnReset) {
+	if (!enabled) {
+		AStarEnemy::Subscribe();
+		EnemyBase::Enable(_destroyOnReset);
 	}
 }
-
-void AStarEnemy::SetGoal(HexTile* _goal) {
-	goal = _goal;
+void AStarEnemy::Disable() {
+	if (enabled) {
+		AStarEnemy::UnSubscribe();
+		EnemyBase::Disable();
+	}
 }
-void AStarEnemy::SetGoal(DirectX::XMFLOAT2 _goal) {
-	HexTile* goalTile = grid->PointToTile(_goal);
-	if(goalTile) { goal = goalTile; }
+void AStarEnemy::Destroy() {
+	EnemyBase::Destroy();
 }
-
-void AStarEnemy::SetGrid(HexGrid* _grid) {
-	grid = _grid;
-}
-
-void AStarEnemy::Awake(Object* obj) {
-	EnemyBase::Awake(obj);
-	rb = &(GetComponent<PhysicsComponent>()->rigidBody);
-
-}
-
-void AStarEnemy::CalcPath(DirectX::XMFLOAT2 where) {
-	HexTile* whereTile = grid->PointToTile(where);
-	CalcPath(whereTile);
-}
-
-void AStarEnemy::CalcPath(HexTile* where) {
-	HexTile* curTile = grid->PointToTile(DirectX::XMFLOAT2(position._41, position._43));
-	path = PathPlanner::FindPath(curTile, where, TileType::Static, TileType::Static);
-}
-
 void AStarEnemy::Update() {
 	EnemyBase::Update();
 	HexTile* curTile = grid->PointToTile(DirectX::XMFLOAT2(position._41, position._43));
@@ -102,4 +74,48 @@ void AStarEnemy::Update() {
 			}
 		}
 	}
+}
+
+//Other Overrides
+void AStarEnemy::Repath() {
+	NewPath();
+}
+void AStarEnemy::SetGrid(HexGrid* _grid) {
+	grid = _grid;
+}
+void AStarEnemy::SetGoal(DirectX::XMFLOAT2 _goal) {
+	HexTile* goalTile = grid->PointToTile(_goal);
+	if(goalTile) { goal = goalTile; }
+}
+
+//Other
+void AStarEnemy::SetGoal(HexTile* _goal) {
+	goal = _goal;
+}
+bool AStarEnemy::NewPath() {
+	path.clear();
+	howFarAlong = 0;
+
+	CalcPath(goal);
+
+	return path.size();
+}
+void AStarEnemy::NewRandPath() {
+	path.clear();
+	howFarAlong = 0;
+
+	goal = grid->GetRandomTile();
+	CalcPath(goal);
+
+	if(!path.size()) {
+		NewRandPath();
+	}
+}
+void AStarEnemy::CalcPath(DirectX::XMFLOAT2 where) {
+	HexTile* whereTile = grid->PointToTile(where);
+	CalcPath(whereTile);
+}
+void AStarEnemy::CalcPath(HexTile* where) {
+	HexTile* curTile = grid->PointToTile(DirectX::XMFLOAT2(position._41, position._43));
+	path = PathPlanner::FindPath(curTile, where, TileType::Static, TileType::Static);
 }

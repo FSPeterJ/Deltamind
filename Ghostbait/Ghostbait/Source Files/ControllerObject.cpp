@@ -17,7 +17,7 @@ void ControllerObject::Init(ControllerHand _hand) {
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuControllerItem>({ 0,0,0 }, &menuController));
 	int temp = sizeof(MenuControllerItem);
 	currentGameItem = items[0];
-	Enable();
+	Enable(false);
 }
 void ControllerObject::SetPhysicsComponent(const GameObject* obj, bool active) {
 	PhysicsComponent* physComp = obj->GetComponent<PhysicsComponent>();
@@ -281,18 +281,20 @@ void ControllerObject::Update() {
 				break;
 		}
 
-		static bool teleport = false;
-		//All states
-		if(KeyIsDown(teleportDown) && hand == HAND_Right) {
-			VRManager::GetInstance().ArcCast(this, {});
-			teleport = true;
+			static bool teleport = false;
+			//All states
+			if (KeyIsDown(teleportDown) && hand == HAND_Right) {
+				VRManager::GetInstance().ArcCast(this, {});
+				teleport = true;
+			}
+			if (teleport && !KeyIsDown(teleportDown) && hand == HAND_Right) {
+				VRManager::GetInstance().Teleport();
+				teleport = false;
+			}
 		}
-		if(teleport && !KeyIsDown(teleportDown) && hand == HAND_Right) {
-			VRManager::GetInstance().Teleport();
-			teleport = false;
-		}
-	}
-#pragma endregion
+	#pragma endregion
+
+	GameObject::Update();
 }
 void ControllerObject::PausedUpdate() {
 	if(hand == HAND_Invalid) return;
@@ -324,7 +326,7 @@ void ControllerObject::Awake(Object* obj) {
 			AddItem(i, itemPrefabs[i]);
 		}
 	}
-	//currentGameItem = ((ControllerObject*)obj)->currentGameItem;
+	GameObject::CloneData(obj);
 }
 
 // TEMPORARY - CHANGE OR REMOVE LATER

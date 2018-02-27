@@ -279,6 +279,11 @@ void DebugRenderer::AddSphere(DirectX::XMFLOAT3 pos, float radius, int LatLines,
 	//return new MeshObj(_pDevice, pDeviceContext, _pPixelShader, &vertices[0], (UINT)vertices.size(), &indices[0], (UINT)indices.size());
 }
 
+void DebugRenderer::AddCapsule(DirectX::XMFLOAT3& start, DirectX::XMFLOAT3& end, DirectX::XMFLOAT4X4& orientation, float radius, DirectX::XMFLOAT3& color) {
+
+}
+
+
 void DebugRenderer::DrawAxes(DirectX::XMFLOAT4X4 toDraw, float length) {
 	XMFLOAT3 xAxis;
 	xAxis.x = toDraw._11;

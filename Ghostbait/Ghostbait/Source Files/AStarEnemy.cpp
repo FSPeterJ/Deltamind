@@ -14,33 +14,29 @@ AStarEnemy::AStarEnemy() {
 void AStarEnemy::Awake(Object* obj) {
 	EnemyBase::Awake(obj);
 	rb = &(GetComponent<PhysicsComponent>()->rigidBody);
-	if(!goal) {
-		NewRandPath();
-	}
-	next = path.start();
-	rb->SetTerminalSpeed(maxSpeed);
 
 }
 
 void AStarEnemy::Subscribe() {
 	eventAdd = MessageEvents::Subscribe(EVENT_AddObstacle, [=](EventMessageBase* e) {this->Repath(); });
 	eventRemove = MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {this->Repath(); });
-	if(!goal) {
-		NewRandPath();
-	}
-	rb->SetTerminalSpeed(maxSpeed);
-	next = path.start();
-	GameObject::Enable();
+
 }
 void AStarEnemy::UnSubscribe() {
 	MessageEvents::UnSubscribe(EVENT_AddObstacle, eventAdd);
 	MessageEvents::UnSubscribe(EVENT_RemoveObstacle, eventRemove);
 }
 void AStarEnemy::Enable(bool _destroyOnReset) {
-	if (!enabled) {
+	if(!goal) {
+		NewRandPath();
+	}
+	rb->SetTerminalSpeed(maxSpeed);
+	next = path.start();
+	if (!enabled) { // What does this do?
 		AStarEnemy::Subscribe();
 		EnemyBase::Enable(_destroyOnReset);
 	}
+	GameObject::Enable();
 }
 void AStarEnemy::Disable() {
 	if (enabled) {

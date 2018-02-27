@@ -35,7 +35,6 @@ class SceneManager {
 	void CreateSceneFile(TestSceneData& data);
 
 	void FetchAllSceneFiles(const char* folderPath = "Scene Files");
-	void UnloadScene();
 public:
 	SceneManager(){};
 	~SceneManager(){};
@@ -47,6 +46,7 @@ public:
 	void CreateSceneFromCurrentObjects(const char* filePath, const char* sceneName);
 	//---------
 
+	const Scene UnloadScene();
 	void LoadScene(const char* sceneName, DirectX::XMFLOAT3* _corePos = nullptr);
 	void LoadScene(Scene& scene, DirectX::XMFLOAT3* _corePos = nullptr);
 	inline void ReloadScene() { LoadScene(*currentScene); };

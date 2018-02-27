@@ -216,6 +216,7 @@
     <ClInclude Include="Header Files\HexagonTile.h" />
     <ClInclude Include="Header Files\HexagonTileSpecializer.h" />
     <ClInclude Include="Header Files\HexGrid.h" />
+    <ClInclude Include="Header Files\HexTileEqualityCheck.h" />
     <ClInclude Include="Header Files\HexTileVector.h" />
     <ClInclude Include="Header Files\InputManager.h" />
     <ClInclude Include="Header Files\IComponentManager.h" />
@@ -234,6 +235,7 @@
     <ClInclude Include="Header Files\ObjectManager.h" />
     <ClInclude Include="Header Files\ParticleManager.h" />
     <ClInclude Include="Header Files\ParticleTextureManager.h" />
+    <ClInclude Include="Header Files\PathPlanner.h" />
     <ClInclude Include="Header Files\PhysicsComponent.h" />
     <ClInclude Include="Header Files\PhysicsExtension.h" />
     <ClInclude Include="Header Files\PhysicsManager.h" />
@@ -251,6 +253,7 @@
     <ClInclude Include="Header Files\targetver.h" />
     <ClInclude Include="Header Files\TestObject.h" />
     <ClInclude Include="Header Files\ThreadPool.h" />
+    <ClInclude Include="Header Files\TraversalResult.h" />
     <ClInclude Include="Header Files\Turret.h" />
     <ClInclude Include="Header Files\TypeContainer.h" />
     <ClInclude Include="Header Files\TypeMapping.h" />
@@ -296,6 +299,7 @@
     <ClCompile Include="Source Files\HexagonTile-Impl.cpp" />
     <ClCompile Include="Source Files\HexagonTile.cpp" />
     <ClCompile Include="Source Files\HexGrid.cpp" />
+    <ClCompile Include="Source Files\HexTileEqualityCheck.cpp" />
     <ClCompile Include="Source Files\HexTileVector.cpp" />
     <ClCompile Include="Source Files\InputManager.cpp" />
     <ClCompile Include="Source Files\Item.cpp" />
@@ -313,6 +317,7 @@
     <ClCompile Include="Source Files\ObjectManager.cpp" />
     <ClCompile Include="Source Files\ParticleManager.cpp" />
     <ClCompile Include="Source Files\ParticleTextureManager.cpp" />
+    <ClCompile Include="Source Files\PathPlanner.cpp" />
     <ClCompile Include="Source Files\PhysicsComponent.cpp" />
     <ClCompile Include="Source Files\PhysicsExtension.cpp" />
     <ClCompile Include="Source Files\PhysicsManager.cpp" />

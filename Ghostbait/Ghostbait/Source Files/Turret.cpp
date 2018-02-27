@@ -10,7 +10,6 @@
 #include "PhysicsComponent.h"
 #include "GhostTime.h"
 
-
 Turret::Turret() {
 	tag = std::string("Turret");
 }
@@ -126,6 +125,8 @@ void Turret::Shoot() {
 	PhysicsComponent* temp2 = obj->GetComponent<PhysicsComponent>();
 	RigidBody* temp = &temp2->rigidBody;
 	temp->AdjustGravityMagnitude(0);
+	//why arent we using 
+	//temp->SetVelocity(obj->position._31 * 10.0f, obj->position._32 * 10.0f, obj->position._33 * 10.0f);
 	obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(obj->position._31 * 10.0f, obj->position._32 * 10.0f, obj->position._33 * 10.0f);
 	obj->SetDamage(damage);
 	obj->Enable();

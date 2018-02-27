@@ -191,4 +191,6 @@ void Camera::Update() {
 	}
 
 	setCameraRotationRadians(rotationX, rotationY, 0.0f);
+
+	GameObject::Update();
 }

@@ -51,7 +51,19 @@ void Turret::Update() {
 		XMFLOAT3 newpos;
 		XMStoreFloat3(&newpos, pos);
 		DebugRenderer::AddLine(newpos, (XMFLOAT3)target->position.m[3], DirectX::XMFLOAT3(1.0f, 0.6f, 0.0f));
-
+		XMVECTOR bulletpos = DirectX::XMLoadFloat4(&(XMFLOAT4)position.m[3]);
+		XMVECTOR targetPos = DirectX::XMLoadFloat4(&(XMFLOAT4)target->position.m[3]) + XMVectorSet(0,1,0,0);
+		XMVECTOR Z(XMVector3Normalize(targetPos - bulletpos));
+		XMVECTOR X(XMVector3Normalize(XMVector3Cross(XMVectorSet(0, 1, 0, 1), Z)));
+		XMVECTOR Y(XMVector3Normalize(XMVector3Cross(Z, X)));
+		XMMATRIX lookat(
+			X,
+			Y,
+			Z,
+			bulletpos
+		);
+		//lookat =  lookat * DirectX::XMMatrixTranslationFromVector(bulletpos);
+		DirectX::XMStoreFloat4x4(&position, lookat);
 		targetDistance = CalculateDistance(target);
 		if(CanShoot(firerate)) {
 			Shoot();
@@ -107,23 +119,9 @@ void Turret::Shoot() {
 	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_WEN));
 	obj->position = position;
 	obj->position._42 += 1.0f;
-	//obj->position._41 += obj->position._31 * 0.2f;
-	//obj->position._42 += obj->position._32 * 0.2f;
-	//obj->position._43 += obj->position._33 * 0.2f;
-	XMVECTOR bulletpos = DirectX::XMLoadFloat4(&(XMFLOAT4)obj->position.m[3]);
-	XMVECTOR targetPos = DirectX::XMLoadFloat4(&(XMFLOAT4)target->position.m[3]);
-	XMVECTOR Z(XMVector3Normalize(targetPos - bulletpos));
-	XMVECTOR X(XMVector3Normalize(XMVector3Cross(XMVectorSet(0, 1, 0, 1), Z)));
-	XMVECTOR Y(XMVector3Normalize(XMVector3Cross(Z, X)));
-	XMMATRIX lookat(
-		X,
-		Y,
-		Z,
-		bulletpos
-	);
-	//lookat =  lookat * DirectX::XMMatrixTranslationFromVector(bulletpos);
-	DirectX::XMStoreFloat4x4(&obj->position, lookat);
-
+	obj->position._41 += obj->position._31 * 0.2f;
+	obj->position._42 += obj->position._32 * 0.2f;
+	obj->position._43 += obj->position._33 * 0.2f;
 	PhysicsComponent* temp2 = obj->GetComponent<PhysicsComponent>();
 	RigidBody* temp = &temp2->rigidBody;
 	temp->AdjustGravityMagnitude(0);

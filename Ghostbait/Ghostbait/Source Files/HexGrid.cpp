@@ -65,6 +65,7 @@ bool HexGrid::SetWeight(const DirectX::XMFLOAT2& tilePosition, float weight) {
 
 bool HexGrid::SetWeight(HexTile *const tile, float weight) {
 	if(tile) {
+		cost_delta[tile] = tile->weight;
 		tile->weight = weight;
 		return true;
 	}
@@ -74,6 +75,7 @@ bool HexGrid::SetWeight(HexTile *const tile, float weight) {
 bool HexGrid::AddObstacle(const DirectX::XMFLOAT2& obstaclePosition) {
 	HexTile* t = PointToTile(obstaclePosition);
 	if(t) {
+		cost_delta[t] = t->weight;
 		t->weight = Blocked;
 		blocked.push_back(*t);
 		return true;
@@ -84,6 +86,7 @@ bool HexGrid::AddObstacle(const DirectX::XMFLOAT2& obstaclePosition) {
 bool HexGrid::RemoveObstacle(const DirectX::XMFLOAT2& obstaclePosition) {
 	HexTile* t = PointToTile(obstaclePosition);
 	if(t) {
+		cost_delta[t] = t->weight;
 		t->weight = 1;
 		blocked.remove(*t);
 		return true;

@@ -31,6 +31,7 @@ enum class PathingAlgorithm {
 class PathPlanner {
 	static HeuristicFunction heuristicFunction;
 	static HexGrid* grid;
+	friend class DStarLite;
 
 	/// <summary>
 	/// Chooses the algorithm to run based on the states of the start and goal tiles.
@@ -83,7 +84,7 @@ class PathPlanner {
 	/// <returns>A path from the start to goal or an empty path if one is not found.</returns>
 	static HexPath AStarSearch(HexTile *const start, HexTile *const goal, HeuristicFunction Heuristic);
 
-	//HexPath DStarSearch(HexTile *const start, HexTile *const goal){}
+	static HexPath DStarSearch(HexTile *const start, HexTile *const goal);
 
 public:
 
@@ -91,13 +92,11 @@ public:
 	static void SetGrid(HexGrid* _grid);
 
 	static HexPath FindPath(HexTile*const start, HexTile*const goal, TileType startType, TileType goalType);
-
 	static HexPath FindPath(const DirectX::XMFLOAT2 start, const DirectX::XMFLOAT2 goal, TileType startType, TileType goalType);
 
 	template <PathingAlgorithm a>
 	typename std::enable_if<a == PathingAlgorithm::BreadthFirst || a == PathingAlgorithm::Dijkstra, TraversalResult>::type
 	static Traverse(HexTile*const start, std::size_t constraint, std::size_t maxSteps = 0);
-
 
 	/// <summary>
 	/// Calculates the path from start to goal within x steps. Returns empty path if path is invalid or too far.

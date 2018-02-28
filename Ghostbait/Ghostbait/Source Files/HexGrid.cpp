@@ -335,6 +335,12 @@ void HexGrid::Display(DirectX::XMFLOAT2& player) {
 	//DrawXStepsPath();
 }
 
+void HexGrid::ForEach(std::function<void(HexTile*const)> f) {
+	for(auto& t : map) {
+		f(t);
+	}
+}
+
 HexGrid::~HexGrid() {
 	for(HexTile* t : map) {
 		delete t;

@@ -97,45 +97,47 @@ void ControllerObject::DisplayInventory() {
 		for(unsigned int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
 			if(displayItems[i]) {
 				if(!*justTouched) displayItems[i]->Render(true);
-
-				displayItems[i]->position._11 = position._11 * 0.5f;
-				displayItems[i]->position._12 = position._12 * 0.5f;
-				displayItems[i]->position._13 = position._13 * 0.5f;
-				displayItems[i]->position._14 = position._14;
-				displayItems[i]->position._21 = position._21 * 0.5f;
-				displayItems[i]->position._22 = position._22 * 0.5f;
-				displayItems[i]->position._23 = position._23 * 0.5f;
-				displayItems[i]->position._24 = position._24;
-				displayItems[i]->position._31 = position._31 * 0.5f;
-				displayItems[i]->position._32 = position._32 * 0.5f;
-				displayItems[i]->position._33 = position._33 * 0.5f;
-				displayItems[i]->position._34 = position._34;
-				displayItems[i]->position._41 = position._41;
-				displayItems[i]->position._42 = position._42;
-				displayItems[i]->position._43 = position._43;
-				displayItems[i]->position._44 = position._44;
+				DirectX::XMFLOAT4X4 newPos;
+				newPos._11 = GetPosition()._11 * 0.5f;
+				newPos._12 = GetPosition()._12 * 0.5f;
+				newPos._13 = GetPosition()._13 * 0.5f;
+				newPos._14 = GetPosition()._14;
+				newPos._21 = GetPosition()._21 * 0.5f;
+				newPos._22 = GetPosition()._22 * 0.5f;
+				newPos._23 = GetPosition()._23 * 0.5f;
+				newPos._24 = GetPosition()._24;
+				newPos._31 = GetPosition()._31 * 0.5f;
+				newPos._32 = GetPosition()._32 * 0.5f;
+				newPos._33 = GetPosition()._33 * 0.5f;
+				newPos._34 = GetPosition()._34;
+				newPos._41 = GetPosition()._41;
+				newPos._42 = GetPosition()._42;
+				newPos._43 = GetPosition()._43;
+				newPos._44 = GetPosition()._44;
 				switch(i) {
 					case 0:
-						displayItems[i]->position._41 += ((position._21 * 0.2f) + (position._31 * 0.1f));
-						displayItems[i]->position._42 += ((position._22 * 0.2f) + (position._32 * 0.1f));
-						displayItems[i]->position._43 += ((position._23 * 0.2f) + (position._33 * 0.1f));
+						newPos._41 += ((GetPosition()._21 * 0.2f) + (GetPosition()._31 * 0.1f));
+						newPos._42 += ((GetPosition()._22 * 0.2f) + (GetPosition()._32 * 0.1f));
+						newPos._43 += ((GetPosition()._23 * 0.2f) + (GetPosition()._33 * 0.1f));
 						break;
 					case 1:
-						displayItems[i]->position._41 += ((-position._11 * 0.2f) + (position._31 * 0.1f));
-						displayItems[i]->position._42 += ((-position._12 * 0.2f) + (position._32 * 0.1f));
-						displayItems[i]->position._43 += ((-position._13 * 0.2f) + (position._33 * 0.1f));
+						newPos._41 += ((-GetPosition()._11 * 0.2f) + (GetPosition()._31 * 0.1f));
+						newPos._42 += ((-GetPosition()._12 * 0.2f) + (GetPosition()._32 * 0.1f));
+						newPos._43 += ((-GetPosition()._13 * 0.2f) + (GetPosition()._33 * 0.1f));
 						break;
 					case 2:
-						displayItems[i]->position._41 += ((position._11 * 0.2f) + (position._31 * 0.1f));
-						displayItems[i]->position._42 += ((position._12 * 0.2f) + (position._32 * 0.1f));
-						displayItems[i]->position._43 += ((position._13 * 0.2f) + (position._33 * 0.1f));
+						newPos._41 += ((GetPosition()._11 * 0.2f) + (GetPosition()._31 * 0.1f));
+						newPos._42 += ((GetPosition()._12 * 0.2f) + (GetPosition()._32 * 0.1f));
+						newPos._43 += ((GetPosition()._13 * 0.2f) + (GetPosition()._33 * 0.1f));
 						break;
 					case 3:
-						displayItems[i]->position._41 += ((-position._21 * 0.2f) + (position._31 * 0.1f));
-						displayItems[i]->position._42 += ((-position._22 * 0.2f) + (position._32 * 0.1f));
-						displayItems[i]->position._43 += ((-position._23 * 0.2f) + (position._33 * 0.1f));
+						newPos._41 += ((-GetPosition()._21 * 0.2f) + (GetPosition()._31 * 0.1f));
+						newPos._42 += ((-GetPosition()._22 * 0.2f) + (GetPosition()._32 * 0.1f));
+						newPos._43 += ((-GetPosition()._23 * 0.2f) + (GetPosition()._33 * 0.1f));
 						break;
 				}
+
+				displayItems[i]->SetPosition(newPos);
 			}
 		}
 		*justTouched = true;
@@ -181,37 +183,48 @@ void ControllerObject::AddItem(int itemSlot, unsigned prefabID, Gun::FireType _f
 }
 
 void ControllerObject::Update() {
+	if (hand == HAND_Invalid) return;
 	float dt = (float)GhostTime::DeltaTime();
 
+	if (menuController) menuController->Render(false);
 
-	if(hand == HAND_Invalid) return;
 
-	if(KeyIsDown(Control::TestInputU)) {
-		position._42 += dt;
+	if (KeyIsDown(Control::TestInputU)) {
+		DirectX::XMFLOAT4X4 newPos = GetPosition();
+		newPos._42 += dt;
+		SetPosition(newPos);
 		//ResetKey(Control::TestInputU);
 	}
-	if(KeyIsDown(Control::TestInputO)) {
-		position._42 -= dt;
+	if (KeyIsDown(Control::TestInputO)) {
+		DirectX::XMFLOAT4X4 newPos = GetPosition();
+		newPos._42 -= dt;
+		SetPosition(newPos);
 		//ResetKey(Control::TestInputO);
 	}
-	if(KeyIsDown(Control::TestInputI)) {
-		position._43 += dt;
+	if (KeyIsDown(Control::TestInputI)) {
+		DirectX::XMFLOAT4X4 newPos = GetPosition();
+		newPos._43 += dt;
+		SetPosition(newPos);
 		//ResetKey(Control::TestInputI);
 	}
-	if(KeyIsDown(Control::TestInputK)) {
-		position._43 -= dt;
+	if (KeyIsDown(Control::TestInputK)) {
+		DirectX::XMFLOAT4X4 newPos = GetPosition();
+		newPos._43 -= dt;
+		SetPosition(newPos);
 		//ResetKey(Control::TestInputK);
 	}
-	if(KeyIsDown(Control::TestInputJ)) {
-		position._41 -= dt;
+	if (KeyIsDown(Control::TestInputJ)) {
+		DirectX::XMFLOAT4X4 newPos = GetPosition();
+		newPos._41 -= dt;
+		SetPosition(newPos);
 		//ResetKey(Control::TestInputJ);
 	}
-	if(KeyIsDown(Control::TestInputL)) {
-		position._41 += dt;
+	if (KeyIsDown(Control::TestInputL)) {
+		DirectX::XMFLOAT4X4 newPos = GetPosition();
+		newPos._41 += dt;
+		SetPosition(newPos);
 		//ResetKey(Control::TestInputL);
 	}
-
-
 
 	//Seperate controller Values
 	Control attack = (hand == HAND_Left ? leftAttack : rightAttack);
@@ -222,76 +235,76 @@ void ControllerObject::Update() {
 	DisplayInventory();
 
 	//Update Items
-#pragma region Update Inactive Items
-	for(unsigned int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
-		if(items[i] && items[i] != currentGameItem) {
-			items[i]->InactiveUpdate();
-		}
-	}
-#pragma endregion
-#pragma region Update Current Item
-	if(currentGameItem) {
-		currentGameItem->position = position;
-		currentGameItem->ActiveUpdate();
-
-		//Specific States
-		switch(currentGameItem->state) {
-			case Item::State::GUN:
-			{
-				if(KeyIsDown(attack)) {
-					if(!((Gun*)currentGameItem)->Shoot()) {
-						ResetKey(attack);
-					}
-				}
-			}
-			break;
-			case Item::State::CONTROLLER:
-			{
-			}
-			break;
-			case Item::State::BUILD:
-			{
-				//static bool leftCycled = false, rightCycled = false;
-				if(/*!(hand == HAND_Left ? leftCycled : rightCycled) && */KeyIsDown(cyclePrefab)) {
-					((BuildTool*)currentGameItem)->CycleForward();
-					ResetKey(cyclePrefab);
-					//if(hand == HAND_Left) leftCycled = true;
-					//else if (hand == HAND_Right) rightCycled = true;
-				}
-				//if (!KeyIsDown(cyclePrefab)) {
-				//	if (hand == HAND_Left) leftCycled = false;
-				//	else if (hand == HAND_Right) rightCycled = false;
-				//}
-
-				//static bool leftAttacked = false, rightAttacked = false;
-				if(/*!(hand == HAND_Left ? leftAttacked : rightAttacked) && */KeyIsDown(attack)) {
-					((BuildTool*)currentGameItem)->Activate();
-					//if (hand == HAND_Left) leftAttacked = true;
-					//else if (hand == HAND_Right) rightAttacked = true;
-					ResetKey(attack);
-				}
-				if(!KeyIsDown(attack)) {
-					((BuildTool*)currentGameItem)->Projection();
-					//	if (hand == HAND_Left) leftAttacked = false;
-					//	else if (hand == HAND_Right) rightAttacked = false;
-				}
-			}
-			break;
-			case Item::State::INVALID:
-				break;
-		}
-
-			static bool teleport = false;
-			//All states
-			if (KeyIsDown(teleportDown) && hand == HAND_Right) {
-				VRManager::GetInstance().ArcCast(this, {});
-				teleport = true;
-			}
-			if (teleport && !KeyIsDown(teleportDown) && hand == HAND_Right) {
-				VRManager::GetInstance().Teleport();
-				teleport = false;
+	#pragma region Update Inactive Items
+		for (unsigned int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
+			if (items[i] && items[i] != currentGameItem) {
+				items[i]->InactiveUpdate();
 			}
 		}
+	#pragma endregion
+	#pragma region Update Current Item
+			if (currentGameItem) {
+				currentGameItem->SetPosition(GetPosition());
+				currentGameItem->ActiveUpdate();
+
+				//Specific States
+				switch (currentGameItem->state) {
+					case Item::State::GUN:
+						{
+							if (KeyIsDown(attack)) {
+								if (!((Gun*)currentGameItem)->Shoot()) {
+									ResetKey(attack);
+								}
+							}
+						}
+						break;
+					case Item::State::CONTROLLER:
+						{
+						}
+						break;
+					case Item::State::BUILD:
+						{
+							//static bool leftCycled = false, rightCycled = false;
+							if (/*!(hand == HAND_Left ? leftCycled : rightCycled) && */KeyIsDown(cyclePrefab)) {
+								((BuildTool*)currentGameItem)->CycleForward();
+								ResetKey(cyclePrefab);
+								//if(hand == HAND_Left) leftCycled = true;
+								//else if (hand == HAND_Right) rightCycled = true;
+							}
+							//if (!KeyIsDown(cyclePrefab)) {
+							//	if (hand == HAND_Left) leftCycled = false;
+							//	else if (hand == HAND_Right) rightCycled = false;
+							//}
+
+							//static bool leftAttacked = false, rightAttacked = false;
+							if (/*!(hand == HAND_Left ? leftAttacked : rightAttacked) && */KeyIsDown(attack)) {
+								((BuildTool*)currentGameItem)->Activate();
+								//if (hand == HAND_Left) leftAttacked = true;
+								//else if (hand == HAND_Right) rightAttacked = true;
+								ResetKey(attack);
+							}
+							if (!KeyIsDown(attack)) {
+								((BuildTool*)currentGameItem)->Projection();
+								//	if (hand == HAND_Left) leftAttacked = false;
+								//	else if (hand == HAND_Right) rightAttacked = false;
+							}
+						}
+						break;
+					case Item::State::INVALID:
+						break;
+				}
+
+				static bool teleport = false;
+				//All states
+				if (KeyIsDown(teleportDown) && hand == HAND_Right) {
+					VRManager::GetInstance().ArcCast(this, {});
+					teleport = true;
+				}
+				if (teleport && !KeyIsDown(teleportDown) && hand == HAND_Right) {
+					VRManager::GetInstance().Teleport();
+					teleport = false;
+				}
+			}
 	#pragma endregion
 
 	GameObject::Update();
@@ -301,7 +314,7 @@ void ControllerObject::PausedUpdate() {
 	Control attack = (hand == HAND_Left ? leftAttack : rightAttack);
 
 	menuController->Render(true);
-	menuController->position = position;
+	menuController->SetPosition(GetPosition());
 
 	if(KeyIsDown(attack)) {
 		menuController->Activate();
@@ -347,5 +360,3 @@ void ControllerObject::Enable(bool destroyOnEnd) {
 	menuController->Render(false);
 	GameObject::Enable(destroyOnEnd);
 }
-
-

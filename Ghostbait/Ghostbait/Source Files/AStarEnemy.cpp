@@ -49,7 +49,7 @@ void AStarEnemy::Destroy() {
 }
 void AStarEnemy::Update() {
 	EnemyBase::Update();
-	HexTile* curTile = grid->PointToTile(DirectX::XMFLOAT2(position._41, position._43));
+	HexTile* curTile = grid->PointToTile(DirectX::XMFLOAT2(GetPosition()._41, GetPosition()._43));
 	if(curTile) {
 		if(curTile == next) {
 			if(path.goal() == curTile) {
@@ -64,9 +64,9 @@ void AStarEnemy::Update() {
 
 				//position._41 = nextPathPoint.x;
 				//position._43 = nextPathPoint.y;
-				DirectX::XMVECTOR nextDirection = DirectX::XMVectorSet(nextPathPoint.x - position._41, 0.0f, nextPathPoint.y - position._43, 1.0f);
+				DirectX::XMVECTOR nextDirection = DirectX::XMVectorSet(nextPathPoint.x - GetPosition()._41, 0.0f, nextPathPoint.y - GetPosition()._43, 1.0f);
 				DirectX::XMVECTOR velocity = rb->GetVelocity();
-				rb->AddForce(3.0f * (DirectX::XMVectorGetX(DirectX::XMVector3Dot(nextDirection, velocity)) + 1.0f), nextPathPoint.x - position._41, 0.0f, nextPathPoint.y - position._43, 0.5f);
+				rb->AddForce(3.0f * (DirectX::XMVectorGetX(DirectX::XMVector3Dot(nextDirection, velocity)) + 1.0f), nextPathPoint.x - GetPosition()._41, 0.0f, nextPathPoint.y - GetPosition()._43, 0.5f);
 			}
 		}
 	}
@@ -112,6 +112,6 @@ void AStarEnemy::CalcPath(DirectX::XMFLOAT2 where) {
 	CalcPath(whereTile);
 }
 void AStarEnemy::CalcPath(HexTile* where) {
-	HexTile* curTile = grid->PointToTile(DirectX::XMFLOAT2(position._41, position._43));
+	HexTile* curTile = grid->PointToTile(DirectX::XMFLOAT2(GetPosition()._41, GetPosition()._43));
 	path = PathPlanner::FindPath(curTile, where, TileType::Static, TileType::Static);
 }

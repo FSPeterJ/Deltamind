@@ -41,7 +41,9 @@ void ObjectFactory::Instantiate(EventMessageBase *e) {
 	if(instantiate->obj != nullptr) {
 		*instantiate->obj = newobject;
 	}
-	memcpy(&newobject->position, &instantiate->position, sizeof(DirectX::XMFLOAT4X4));
+	DirectX::XMFLOAT4X4 newPos;
+	memcpy(&newPos, &instantiate->position, sizeof(DirectX::XMFLOAT4X4));
+	newobject->SetPosition(newPos);
 	MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
 }
 
@@ -62,7 +64,9 @@ void ObjectFactory::InstantiateByType(EventMessageBase *e) {
 	if(instantiate->obj != nullptr) {
 		*instantiate->obj = newobject;
 	}		
-	memcpy(&newobject->position, &instantiate->GetPosition(), sizeof(DirectX::XMFLOAT4X4));
+	DirectX::XMFLOAT4X4 newPos;
+	memcpy(&newPos, &instantiate->GetPosition(), sizeof(DirectX::XMFLOAT4X4));
+	newobject->SetPosition(newPos);
 	MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
 }
 
@@ -78,8 +82,9 @@ void ObjectFactory::InstantiateByName(EventMessageBase *e) {
 	if(instantiate->obj != nullptr) {
 		*instantiate->obj = newobject;
 	}
-
-	memcpy(&newobject->position, &instantiate->position, sizeof(DirectX::XMFLOAT4X4));
+	DirectX::XMFLOAT4X4 newPos;
+	memcpy(&newPos, &instantiate->position, sizeof(DirectX::XMFLOAT4X4));
+	newobject->SetPosition(newPos);
 	MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
 }
 

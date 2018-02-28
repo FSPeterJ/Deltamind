@@ -134,7 +134,9 @@ void Game::ChangeState(State newState) {
 						//Spawn start cube
 						MenuCube* startCube;
 						MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("StartCube", { 0, 1.5f, 0.0f }, &startCube));
-						DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
+						DirectX::XMFLOAT4X4 newPos;
+						DirectX::XMStoreFloat4x4(&newPos, DirectX::XMLoadFloat4x4(&startCube->GetPosition()) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
+						startCube->SetPosition(newPos);
 						startCube->Enable();
 					}
 				}
@@ -238,7 +240,9 @@ void Game::Lose() {
 	//Logic to run when the player loses
 	MenuCube* loseCube;
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("LoseCube", { 0, 0.75f, 0 }, &loseCube));
-	DirectX::XMStoreFloat4x4(&loseCube->position, DirectX::XMLoadFloat4x4(&loseCube->position) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));
+	DirectX::XMFLOAT4X4 newPos;
+	DirectX::XMStoreFloat4x4(&newPos, DirectX::XMLoadFloat4x4(&loseCube->GetPosition()) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));
+	loseCube->SetPosition(newPos);
 	loseCube->Enable();
 
 	ChangeState(GAMESTATE_GameOver);

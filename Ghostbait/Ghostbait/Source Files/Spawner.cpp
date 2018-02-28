@@ -4,13 +4,17 @@
 #include "PhysicsComponent.h"
 #include "EnemyBase.h"
 
-void Spawner::Awake() {
+#include "HexGrid.h"
+void Spawner::Awake(Object* obj) {
 	SetTag("Spawner");
 	MessageEvents::SendMessage(EVENT_SpawnerCreated, SpawnerCreatedMessage(this));
 }
 Spawner::Spawner() {
 }
 void Spawner::SpawnObject(char* prefabName, HexGrid* grid, DirectX::XMFLOAT2 goal) {
+	grid->RemoveObstacle(goal);
+	grid->RemoveObstacle({position._41,position._43});
+
 	EnemyBase* obj;
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<EnemyBase>(prefabName, {0, 0, 0}, &obj));
 	obj->position = position;

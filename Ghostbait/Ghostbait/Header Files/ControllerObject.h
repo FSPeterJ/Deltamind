@@ -4,22 +4,18 @@
 #include "Controlable.h"  // for Controlable
 #include "vector"         // for vector
 #include "MenuControllerItem.h"
+#include "VRManager.h"
 
-#define CONTROLLER_MAX_ITEMS 8
+
+#define CONTROLLER_MAX_ITEMS 4
 
 class ControllerObject: public GameObject, public Controlable {
-public:
-	enum ControllerHand {
-		HAND_Invalid,
-		HAND_Left,
-		HAND_Right,
-	};
-private:
 	MenuControllerItem* menuController = nullptr;
 	ControllerHand hand = HAND_Invalid;
 	Item* items[CONTROLLER_MAX_ITEMS] = { 0 };
 	Item* displayItems[CONTROLLER_MAX_ITEMS] = { 0 };
 	Item* currentGameItem = nullptr;
+	unsigned itemCount = 0;
 
 	//Find a better solution for this
 	unsigned itemPrefabs[CONTROLLER_MAX_ITEMS] = { 0 };
@@ -41,9 +37,10 @@ public:
 	void Update();
 	void PausedUpdate();
 	void GivePID(unsigned pid, const char* tag) override;
-	void CloneData(Object* obj);
+	void Awake(Object* obj);
 
 	//TEMPORARY FUNCTION
 	void SetBuildItems(std::vector<unsigned> prefabIDs);
 	void SetGunData(int slot, Gun::FireType _fireType, float _fireRate, float _damage);
+	void Enable(bool destroyOnEnd);
 };

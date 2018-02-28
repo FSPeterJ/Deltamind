@@ -54,6 +54,15 @@ const std::vector<animJoint>* Animator::getTweens()
 	return &tweens;
 }
 
+DirectX::XMFLOAT4X4* Animator::getJointByName(std::string name) {
+	//Accessing a map with [] without certantity that the map contains x is undefined behavior (The map will create a null value with key x since it does not exist)
+	std::unordered_map<std::string, int>::iterator check = jointPointers.find(name);
+	if(check == jointPointers.end()) {
+		return nullptr;
+	}
+	return &tweens[(*check).second].transform;
+}
+
 void Animator::Destroy() {
 	EngineStructure::Update.Remove(updateID);
 }

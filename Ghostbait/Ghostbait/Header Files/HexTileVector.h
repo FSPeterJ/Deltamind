@@ -1,6 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include "HexagonTile.h" //vector
+#include "TraversalResult.h" //VisitedMap
 
 struct HexagonalGridLayout;
 
@@ -11,8 +12,6 @@ typedef HexagonTile<int> HexTile;
 class HexGrid;
 
 namespace DirectX { struct XMFLOAT2; struct XMFLOAT3; }
-
-using VisitedMap = std::unordered_map<HexTile *const, HexTile*, std::hash<HexTile*>>; //if things break, put EqualComparator in its own class include it here and Grid
 
 enum class ColorType {
 	__X,
@@ -74,6 +73,9 @@ public:
 	/// <param name="v">The tile.</param>
 	void push_back(HexTile&& v);
 
+	std::vector<HexTile>::iterator begin() { return data.begin(); }
+	std::vector<HexTile>::iterator end() { return data.end(); }
+
 	HexTile& operator[](const size_t i) { return data[i]; }
 
 	const HexTile& operator[](const size_t i) const { return data[i]; }
@@ -130,3 +132,5 @@ public:
 
 	void Color(HexagonalGridLayout *const layout, DirectX::XMFLOAT3 color, float offset, ColorType c);
 };
+
+bool operator<(const HexPath&p, const HexPath&p2);

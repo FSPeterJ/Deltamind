@@ -34,15 +34,18 @@ class AStarEnemy:public EnemyBase, public Controlable {
 public:
 	AStarEnemy();
 
-	void SetGrid(HexGrid* _grid) override;
+
 
 	void SetGoal(HexTile* _goal);
 	void SetGoal(DirectX::XMFLOAT2 _goal) override;
-
+	void SetGrid(HexGrid* _grid) override;
 	void Repath() override;
-	void Enable();
-	void Disable();
 
-	void Awake();
-	void Update();
+	void Subscribe() override;
+	void UnSubscribe() override;
+	void Enable(bool _destroyOnReset = true) override;
+	void Disable() override;
+	void Destroy() override;
+	void Update() override;
+	void Awake(Object* obj);
 };

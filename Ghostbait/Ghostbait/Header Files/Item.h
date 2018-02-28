@@ -15,9 +15,9 @@ public:
 	Item();
 
 	void Render(bool render = true);
-	virtual void InactiveUpdate() {};
-	virtual void ActiveUpdate() {};
+	virtual void InactiveUpdate() {}
+	virtual void ActiveUpdate() {}
 
-	virtual void Selected() {};
-	virtual void DeSelected() {};
+	virtual void Selected() {}
+	virtual void DeSelected() {}
 };

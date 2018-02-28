@@ -10,7 +10,6 @@
 #include "PhysicsComponent.h"
 #include "GhostTime.h"
 
-
 Turret::Turret() {
 	tag = std::string("Turret");
 }
@@ -30,12 +29,17 @@ void Turret::Disable() {
 	GameObject::Disable();
 }
 
-void Turret::Awake() {
+void Turret::Awake(Object* obj) {
+	Turret* turret = ((Turret*)obj);
+	projectiePID = turret->projectiePID;
 	targetDistance = 9999999;
 	target = nullptr;
-	firerate = 2;
+	firerate = turret->firerate;
 	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
-	turretPitch = GetComponent<Animator>()->getJointByName("RocketLauncher_DeployedSetup:Pitch");
+	turretPitch = GetComponent<Animator>()->getJointByName("Yaw");
+	assert(turretPitch);
+	launcherorigin = GetComponent<Animator>()->getJointByName("Launcher_1");
+	assert(launcherorigin);
 }
 
 void Turret::Update() {
@@ -49,8 +53,20 @@ void Turret::Update() {
 		pos += jointoffset;
 		XMFLOAT3 newpos;
 		XMStoreFloat3(&newpos, pos);
-		DebugRenderer::AddLine(newpos, (XMFLOAT3)target->position.m[3], DirectX::XMFLOAT3(1.0f, 0.6f, 0.0f));
-
+		DebugRenderer::AddLine(newpos, (XMFLOAT3)target->position.m[3], (XMFLOAT3)turretPitch->m[3]);
+		XMVECTOR bulletpos = DirectX::XMLoadFloat4(&(XMFLOAT4)turretPitch->m[3]);
+		XMVECTOR targetPos = DirectX::XMLoadFloat4(&(XMFLOAT4)target->position.m[3]) + XMVectorSet(0,1,0,0);
+		XMVECTOR Z(XMVector3Normalize(targetPos - bulletpos));
+		XMVECTOR X(XMVector3Normalize(XMVector3Cross(XMVectorSet(0, 1, 0, 1), Z)));
+		XMVECTOR Y(XMVector3Normalize(XMVector3Cross(Z, X)));
+		XMMATRIX lookat(
+			X,
+			Y,
+			Z,
+			bulletpos
+		);
+		//lookat =  lookat * DirectX::XMMatrixTranslationFromVector(bulletpos);
+		DirectX::XMStoreFloat4x4(turretPitch, lookat);
 		targetDistance = CalculateDistance(target);
 		if(CanShoot(firerate)) {
 			Shoot();
@@ -104,38 +120,22 @@ void Turret::Shoot() {
 	Projectile* obj;
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Projectile>(projectiePID, { 0, 0, 0 }, &obj));
 	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_WEN));
-	obj->position = position;
+	obj->position = *launcherorigin;
 	obj->position._42 += 1.0f;
-	//obj->position._41 += obj->position._31 * 0.2f;
-	//obj->position._42 += obj->position._32 * 0.2f;
-	//obj->position._43 += obj->position._33 * 0.2f;
-	XMVECTOR bulletpos = DirectX::XMLoadFloat4(&(XMFLOAT4)obj->position.m[3]);
-	XMVECTOR targetPos = DirectX::XMLoadFloat4(&(XMFLOAT4)target->position.m[3]);
-	XMVECTOR Z(XMVector3Normalize(targetPos - bulletpos));
-	XMVECTOR X(XMVector3Normalize(XMVector3Cross(XMVectorSet(0, 1, 0, 1), Z)));
-	XMVECTOR Y(XMVector3Normalize(XMVector3Cross(Z, X)));
-	XMMATRIX lookat(
-		X,
-		Y,
-		Z,
-		bulletpos
-	);
-	//lookat =  lookat * DirectX::XMMatrixTranslationFromVector(bulletpos);
-	DirectX::XMStoreFloat4x4(&obj->position, lookat);
-
+	obj->position._41 += obj->position._31 * 0.2f;
+	obj->position._42 += obj->position._32 * 0.2f;
+	obj->position._43 += obj->position._33 * 0.2f;
 	PhysicsComponent* temp2 = obj->GetComponent<PhysicsComponent>();
 	RigidBody* temp = &temp2->rigidBody;
 	temp->AdjustGravityMagnitude(0);
+	//why arent we using 
+	//temp->SetVelocity(obj->position._31 * 10.0f, obj->position._32 * 10.0f, obj->position._33 * 10.0f);
 	obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(obj->position._31 * 10.0f, obj->position._32 * 10.0f, obj->position._33 * 10.0f);
 	obj->SetDamage(damage);
 	obj->Enable();
 	timeSinceLastShot = (float)GhostTime::DeltaTime();
 }
 
-void Turret::CloneData(Object* obj) {
-	projectiePID = ((Turret*)obj)->projectiePID;
-
-}
 
 void Turret::GivePID(unsigned pid, const char* tag) {
 	// Look into a better system

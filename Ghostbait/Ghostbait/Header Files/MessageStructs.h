@@ -21,6 +21,7 @@ enum Control {
 	teleportDown,
 	teleportUp,
 	menu,
+	releaseKey,
 	leftCyclePrefab,
 	rightCyclePrefab,
 
@@ -47,6 +48,11 @@ enum Control {
 	TestInputX,
 	TestInputZ,
 	TestInputC,
+
+	CameraLeftRight,
+	CameraUpDown,
+	LeftAction,
+	RightAction,
 
 	Total,
 };

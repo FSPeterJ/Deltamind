@@ -169,6 +169,15 @@ void PhysicsManager::DeactivateComponent(ComponentBase* component)
 
 }
 
+void PhysicsManager::PausedUpdate() {
+	const int activeCount = (int)dynamicComponents.GetActiveCount();
+	for (int i = 0; i < activeCount; ++i) {
+		if (!dynamicComponents[i].isActive) continue;
+		UpdateAABB(dynamicComponents[i]);
+		partitionSpace.UpdateComponent(&dynamicComponents[i]);
+	}
+}
+
 void PhysicsManager::Update() {
 
 	const int activeCount = (int)dynamicComponents.GetActiveCount();

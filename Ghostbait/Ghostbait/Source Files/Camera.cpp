@@ -131,32 +131,37 @@ void Camera::moveCameraAlongForward(float speed) {
 
 void Camera::moveCameraAlongUp(float speed) {
 	float dt = (float) GhostTime::DeltaTime();
-	//position._41 += position._31 * speed * dt;
-	position._42 += speed * dt;
-	//position._43 += position._33 * speed * dt;
+	position._41 += position._21 * speed * dt;
+	position._42 += position._22 * speed * dt;
+	position._43 += position._23 * speed * dt;
 }
 
 void Camera::moveCameraAlongSide(float speed) {
 	float dt = (float) GhostTime::DeltaTime();
-	position._41 += speed * dt;
-	//position._42 += speed * dt;
-	//position._43 += position._33 * speed * dt;
+	position._41 += position._11 * speed * dt;
+	position._42 += position._12 * speed * dt;
+	position._43 += position._13 * speed * dt;
 }
 
 void Camera::Update() {
 	static float rotationY = 0.0f;
+	static float rotationX = 0.0f;
 	float dt = (float) GhostTime::DeltaTime();
 	if(rotationY < -XM_2PI || rotationY > XM_2PI)
 		rotationY = 0.0f;
+	if (rotationX < -XM_2PI || rotationX > XM_2PI)
+		rotationX = 0.0f;
 
-	if(KeyIsDown(Control::left)) {
+	if(KeyIsDown(Control::CameraLeftRight)) {
 		//position._41 -= 50.0f * dt;
-		rotationY -= dt;
+		rotationY += Amount(CameraLeftRight) * dt;
+		ResetKey(Control::CameraLeftRight);
 		//ResetKey(Control::left);
 	}
-	if(KeyIsDown(Control::right)) {
+	if(KeyIsDown(Control::CameraUpDown)) {
 		//position._41 += 50.0f * dt;
-		rotationY += dt;
+		rotationX += Amount(CameraUpDown) * dt;
+		ResetKey(Control::CameraUpDown);
 		//ResetKey(Control::right);
 	}
 	if(KeyIsDown(Control::forward)) {
@@ -167,23 +172,25 @@ void Camera::Update() {
 		moveCameraAlongForward(-10.0f);
 		//ResetKey(Control::backward);
 	}
-	if(KeyIsDown(Control::leftAttack)) {
-		position._42 += 10.0f * dt;
+	if(KeyIsDown(Control::LeftAction)) {
+		moveCameraAlongUp(10.0f);
 		//ResetKey(Control::leftAttack);
 	}
-	if(KeyIsDown(Control::rightAttack)) {
-		position._42 -= 10.0f * dt;
+	if(KeyIsDown(Control::RightAction)) {
+		moveCameraAlongUp(-10.0f);
 		//ResetKey(Control::rightAttack);
 	}
 
-	if(KeyIsDown(Control::TestInputZ)) {
+	if(KeyIsDown(Control::left)) {
 		moveCameraAlongSide(-10.0f);
 		//ResetKey(Control::TestInputZ);
 	}
-	if(KeyIsDown(Control::TestInputC)) {
+	if(KeyIsDown(Control::right)) {
 		moveCameraAlongSide(10.0f);
 		//ResetKey(Control::TestInputC);
 	}
 
-	setCameraRotationRadians(0.0f, rotationY, 0.0f);
+	setCameraRotationRadians(rotationX, rotationY, 0.0f);
+
+	GameObject::Update();
 }

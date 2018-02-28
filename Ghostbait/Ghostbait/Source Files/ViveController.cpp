@@ -10,6 +10,3 @@ void ViveController::ActiveUpdate() {
 void ViveController::InactiveUpdate() {
 }
 
-void ViveController::CloneData(Object* obj) {
-}
-

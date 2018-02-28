@@ -99,10 +99,12 @@ void Menu::Show() {
 	DirectX::XMMATRIX center_M = DirectX::XMLoadFloat4x4(&center);
 	for (int i = 0; i < buttons.size(); ++i) {
 		MenuOption* newOption;
+		DirectX::XMFLOAT4X4 newObjPos;
 		float distFromCenter = FindDistanceFromCenter(i, (int)options.size(), 0.25f, 0.05f);
-		MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuOption>(buttonPrefabMap[buttons[i]], {0, 0, 0}, &newOption));
-		DirectX::XMStoreFloat4x4(&newOption->position, center_M * DirectX::XMMatrixTranslation(0, distFromCenter, 0));
+		DirectX::XMStoreFloat4x4(&newObjPos, center_M * DirectX::XMMatrixTranslation(0, distFromCenter, 0));
+		MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuOption>(buttonPrefabMap[buttons[i]], newObjPos, &newOption));
 		newOption->SetMenu(this);
+		newOption->Enable(false);
 		options[i] = newOption;
 	}
 }
@@ -119,9 +121,9 @@ void ResumeButton::Select() {
 	MessageEvents::SendMessage(EVENT_GamePause, EventMessageBase());
 }
 void RestartButton::Select() {
-	//MenuOption::Select();
-	//MessageEvents::SendMessage(EVENT_GamePause, EventMessageBase());
-	//MessageEvents::SendMessage(EVENT_GameRestart, EventMessageBase());
+	MenuOption::Select();
+	MessageEvents::SendMessage(EVENT_GamePause, EventMessageBase());
+	MessageEvents::SendMessage(EVENT_GameRestart, EventMessageBase());
 }
 void QuitButton::Select() {
 	MenuOption::Select();

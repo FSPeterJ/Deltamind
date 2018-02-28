@@ -4,6 +4,7 @@
 #include "ControllerObject.h"
 #include "MessageEvents.h"
 #include "PhysicsExtension.h"
+#include "ObjectFactory.h"
 
 
 VRManager& VRManager::GetInstance() {
@@ -17,8 +18,8 @@ VRManager::~VRManager() {
 	Shutdown();
 }
 
-void VRManager::Vibrate(VRControllerType ctrl, unsigned short durationMs) {
-	pVRHMD->TriggerHapticPulse(ctrl == VRControllerType::Left ? VRManager::leftController.index : VRManager::rightController.index, 0, durationMs);
+void VRManager::Vibrate(ControllerHand ctrl, unsigned short durationMs) {
+	pVRHMD->TriggerHapticPulse(ctrl == ControllerHand::HAND_Left ? VRManager::leftController.index : VRManager::rightController.index, 0, durationMs);
 }
 
 bool VRManager::Init() {
@@ -56,33 +57,22 @@ bool VRManager::Init() {
 }
 
 void VRManager::CreateControllers() {
+	//TODO: Upon calling this function, we should be reading in the 
+	//		inventory/equipped items from some sort of save file,
+	//		NOT hard setting them as we are doing now...
+
 	//Left
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 0,0,0 }, &leftController.obj));
-	leftController.obj->Init(ControllerObject::ControllerHand::HAND_Left);
-	//leftController.obj->AddItem(0, "ViveController");
-	//leftController.obj->AddItem(1, "GunTest", Gun::FireType::SEMI, 60, 50);
-	//leftController.obj->AddItem(2, "GunTest2", Gun::FireType::AUTO, 8, 25);
-	//leftController.obj->AddItem(3, "BuildTool", { 1, 2, 5 });
-	//leftController.obj->AddItem(0, 1);
-	//leftController.obj->AddItem(1, 19, Gun::FireType::SEMI, 60, 50);
-	//leftController.obj->AddItem(2, 19, Gun::FireType::AUTO, 8, 25);
-	//leftController.obj->AddItem(3, 16, { 1, 2, 5 });
+	leftController.obj->Init(ControllerHand::HAND_Left);
+	// Need to move gundata out of here.
 	leftController.obj->SetGunData(1, Gun::FireType::SEMI, 60, 50);
 	leftController.obj->SetGunData(2, Gun::FireType::AUTO, 8, 25);
 	//Right
-	// Need to investigate a way to set these add items to be less hard coded numbers
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 1,0,1 }, &rightController.obj));
-	rightController.obj->Init(ControllerObject::ControllerHand::HAND_Right);
-	//rightController.obj->AddItem(0, "ViveController");
-	//rightController.obj->AddItem(1, "GunTest", Gun::FireType::SEMI, 60, 50); // quick test of different projectile loading
-	//rightController.obj->AddItem(2, "GunTest2", Gun::FireType::AUTO, 8, 25);
-	//rightController.obj->AddItem(3, "BuildTool", { 1, 2, 5 });
-	//rightController.obj->AddItem(0, 1);
-	//rightController.obj->AddItem(1, 19, Gun::FireType::SEMI, 60, 50); // quick test of different projectile loading
-	//rightController.obj->AddItem(2, 19, Gun::FireType::AUTO, 8, 25);
-	//rightController.obj->AddItem(3, 16, { 1, 2, 5 });
+	rightController.obj->Init(ControllerHand::HAND_Right);
 	rightController.obj->SetGunData(1, Gun::FireType::SEMI, 60, 50);
 	rightController.obj->SetGunData(2, Gun::FireType::AUTO, 8, 25);
+
 }
 
 void VRManager::SetBuildItems(std::vector<unsigned> prefabIDs) {
@@ -186,12 +176,16 @@ void VRManager::UpdateVRPoses() {
 					if(pVRHMD->GetControllerRoleForTrackedDeviceIndex(deviceIndex) == vr::ETrackedControllerRole::TrackedControllerRole_LeftHand) {
 						DirectX::XMStoreFloat4x4(&leftController.pos, DirectX::XMLoadFloat4x4(&VRMatrix34ToDirectXMatrix44(trackedDevicePos[deviceIndex].mDeviceToAbsoluteTracking)) * DirectX::XMLoadFloat4x4(&roomPos));
 						leftController.index = deviceIndex;
-						XMStoreFloat4x4(&leftController.obj->position, DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(55)) * DirectX::XMLoadFloat4x4(&leftController.pos));// *DirectX::XMMatrixScaling(0.25f, 0.25f, 0.25f);
+						if (leftController.obj) {
+							XMStoreFloat4x4(&leftController.obj->position, DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(55)) * DirectX::XMLoadFloat4x4(&leftController.pos));// *DirectX::XMMatrixScaling(0.25f, 0.25f, 0.25f);
+						}
 					}
-					else if(pVRHMD->GetControllerRoleForTrackedDeviceIndex(deviceIndex) == vr::ETrackedControllerRole::TrackedControllerRole_RightHand) {
+					else if (pVRHMD->GetControllerRoleForTrackedDeviceIndex(deviceIndex) == vr::ETrackedControllerRole::TrackedControllerRole_RightHand) {
 						DirectX::XMStoreFloat4x4(&rightController.pos, DirectX::XMLoadFloat4x4(&VRMatrix34ToDirectXMatrix44(trackedDevicePos[deviceIndex].mDeviceToAbsoluteTracking)) * DirectX::XMLoadFloat4x4(&roomPos));
 						rightController.index = deviceIndex;
-						XMStoreFloat4x4(&rightController.obj->position, DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(55)) * DirectX::XMLoadFloat4x4(&rightController.pos));// *DirectX::XMMatrixScaling(0.25f, 0.25f, 0.25f);
+						if (rightController.obj) {
+							XMStoreFloat4x4(&rightController.obj->position, DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(55)) * DirectX::XMLoadFloat4x4(&rightController.pos));// *DirectX::XMMatrixScaling(0.25f, 0.25f, 0.25f);
+						}
 					}
 					break;
 				case vr::TrackedDeviceClass_HMD:
@@ -235,7 +229,9 @@ bool VRManager::ArcCast(Object* controller, DirectX::XMFLOAT3* outPos, float max
 	DirectX::XMMATRIX controllerMat = DirectX::XMLoadFloat4x4(&controller->position);
 	DirectX::XMVECTOR planeNormalVec = DirectX::XMVectorSet(0, 1, 0, 0);
 	DirectX::XMVECTOR forwardVec = DirectX::XMVector3Normalize(controllerMat.r[2]);
-	DirectX::XMVECTOR playerVec = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(playerPos._41, playerPos._42, playerPos._43));
+	//This was swapped off to allow testing without vive
+	//DirectX::XMVECTOR playerVec = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(playerPos._41, playerPos._42, playerPos._43));
+	DirectX::XMVECTOR playerVec = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(controller->position._41, controller->position._42, controller->position._43));
 
 	float maxRaycastDist = 100;
 

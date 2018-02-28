@@ -100,7 +100,6 @@ namespace GhostbaitSceneCreator
                 currentFile = txt_SceneName.Text + ".temp";
                 BinaryWriter writer = new BinaryWriter(File.Open(currentFile, FileMode.Create));
                 int size = reader.ReadInt32();
-                int sizeOffset = 0;
                 List<prefab> toWrite = new List<prefab>();
                 for(int i = 0; i < size; ++i)
                 {
@@ -113,7 +112,6 @@ namespace GhostbaitSceneCreator
                     int instanceCount = reader.ReadInt32();
                     if(instanceCount == 0)
                     {
-                        sizeOffset++;
                         lbo_AdditionalPrefabs.Items.Add(prefabName);
                         continue;
                     }
@@ -127,6 +125,21 @@ namespace GhostbaitSceneCreator
                                 matrix[anotherIndex] = BitConverter.ToSingle(reader.ReadBytes(sizeof(float)), 0);
                             }
                             toAdd.matrices.Add(matrix);
+                        }
+                    }
+                    toWrite.Add(toAdd);
+                }
+                writer.Write(toWrite.Count);
+                for(int i = 0; i < toWrite.Count; ++i)
+                {
+                    writer.Write(toWrite[i].name.Length);
+                    writer.Write(toWrite[i].name.ToCharArray());
+                    writer.Write(toWrite[i].matrices.Count);
+                    for (int index = 0; index < toWrite[i].matrices.Count; ++index)
+                    {
+                        for(int j = 0; j < 16; ++j)
+                        {
+                            writer.Write(toWrite[i].matrices[index][j]);
                         }
                     }
                 }

@@ -46,5 +46,29 @@ namespace GhostbaitSceneCreator.Properties {
                 this["level_path"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("@\"C:\\\"")]
+        public string prefab_path {
+            get {
+                return ((string)(this["prefab_path"]));
+            }
+            set {
+                this["prefab_path"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("@\"C:\\\"")]
+        public string scene_path {
+            get {
+                return ((string)(this["scene_path"]));
+            }
+            set {
+                this["scene_path"] = value;
+            }
+        }
     }
 }

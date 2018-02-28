@@ -8,5 +8,11 @@
     <Setting Name="level_path" Type="System.String" Scope="User">
       <Value Profile="(Default)">@"C:\"</Value>
     </Setting>
+    <Setting Name="prefab_path" Type="System.String" Scope="User">
+      <Value Profile="(Default)">@"C:\"</Value>
+    </Setting>
+    <Setting Name="scene_path" Type="System.String" Scope="User">
+      <Value Profile="(Default)">@"C:\"</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

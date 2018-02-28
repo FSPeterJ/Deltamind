@@ -186,7 +186,7 @@ void PhysicsManager::Update() {
 
 		//This seems absurd, are we sure we can't use XMVECTOR and XMMATRIX in a more manageable manner?
 		if (!dynamicComponents[i].isActive) continue;
-		XMFLOAT4* objectPosition = (XMFLOAT4*) &dynamicComponents[i].parentObject->position.m[3];
+		XMFLOAT4* objectPosition = (XMFLOAT4*) &dynamicComponents[i].parentObject->GetPosition().m[3];
 		XMVECTOR newposition = XMLoadFloat4(objectPosition);
 		dynamicComponents[i].rigidBody.Update();
 		newposition += dynamicComponents[i].rigidBody.GetVelocity() * delta;
@@ -210,8 +210,8 @@ void PhysicsManager::Update() {
 				float _height = dynamicComponents[i].colliders[colInd].colliderData->colliderInfo.capsuleCollider.height;
 				XMVECTOR cap1A = offset + XMVectorSet(0, _height * 0.5f, 0, 0);
 				XMVECTOR cap1B = offset - XMVectorSet(0, _height * 0.5f, 0, 0);
-				cap1A = XMVector3TransformCoord(cap1A, XMLoadFloat4x4(&(dynamicComponents[i].parentObject->position)));
-				cap1B = XMVector3TransformCoord(cap1B, XMLoadFloat4x4(&(dynamicComponents[i].parentObject->position)));
+				cap1A = XMVector3TransformCoord(cap1A, XMLoadFloat4x4(&(dynamicComponents[i].parentObject->GetPosition())));
+				cap1B = XMVector3TransformCoord(cap1B, XMLoadFloat4x4(&(dynamicComponents[i].parentObject->GetPosition())));
 				XMFLOAT3 capStart, capEnd;
 				XMStoreFloat3(&capStart, cap1A);
 				XMStoreFloat3(&capEnd, cap1B);
@@ -221,7 +221,7 @@ void PhysicsManager::Update() {
 			} break;
 			case BOX:
 			{
-				std::vector<XMVECTOR> corners = GetBoxCorners(dynamicComponents[i].colliders[colInd], XMLoadFloat4x4(&(dynamicComponents[i].parentObject->position)));
+				std::vector<XMVECTOR> corners = GetBoxCorners(dynamicComponents[i].colliders[colInd], XMLoadFloat4x4(&(dynamicComponents[i].parentObject->GetPosition())));
 				std::vector<XMFLOAT3> cornersStored;
 				XMFLOAT3 temp;
 				for (unsigned int i = 0; i < corners.size(); ++i) {
@@ -377,7 +377,7 @@ ColliderData* PhysicsManager::AddColliderData(float trfX, float trfY, float trfZ
 }
 void PhysicsManager::UpdateAABB(PhysicsComponent& component) {
 	//DOES NOT ACCOUNT FOR ROTATION!
-	std::vector<XMVECTOR> corners = GetBoxCorners(component.baseAABB, XMLoadFloat4x4(&component.parentObject->position));
+	std::vector<XMVECTOR> corners = GetBoxCorners(component.baseAABB, XMLoadFloat4x4(&component.parentObject->GetPosition()));
 	XMFLOAT3* newMax = &component.currentAABB.max;
 	XMFLOAT3* newMin = &component.currentAABB.min;
 	*newMax = { -FLT_MAX, -FLT_MAX , -FLT_MAX };
@@ -398,8 +398,8 @@ void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponen
 	bool collisionResult = false, isCol1Trigger = false, isCol2Trigger = false;
 	ColliderType colliderType1, colliderType2;
 
-	XMMATRIX matrixComA = XMLoadFloat4x4(&component1.parentObject->position);
-	XMMATRIX matrixComB = XMLoadFloat4x4(&component2.parentObject->position);
+	XMMATRIX matrixComA = XMLoadFloat4x4(&component1.parentObject->GetPosition());
+	XMMATRIX matrixComB = XMLoadFloat4x4(&component2.parentObject->GetPosition());
 
 	for(unsigned int com1 = 0; com1 < component1.colliders.size(); ++com1) {
 		colliderType1 = component1.colliders[com1].colliderData->colliderType;
@@ -1056,7 +1056,7 @@ bool PhysicsManager::RaycastCollisionCheck(XMVECTOR& origin, XMVECTOR& direction
 	bool hasCollidingComp = false;
 	XMVECTOR closestCollision = origin + (direction * maxCastDistance);
 	XMVECTOR tempColPoint = g_XMFltMax;
-	XMMATRIX objMatrix = XMLoadFloat4x4(&(collidingComp->parentObject->position));
+	XMMATRIX objMatrix = XMLoadFloat4x4(&(collidingComp->parentObject->GetPosition()));
 	std::vector<XMVECTOR> collisionPoints;
 	if (colObject)
 		*colObject = nullptr;

@@ -36,3 +36,10 @@ void Object::CloneData(Object* obj)
 void Object::SmokeTest() {
 }
 #endif
+
+void Object::SetPosition(DirectX::XMFLOAT4X4 newPos) {
+	position = newPos;
+}
+const DirectX::XMFLOAT4X4& Object::GetPosition() const {
+	return position;
+}

@@ -16,36 +16,48 @@ void PhysicsTestObj::Update() {
 	float dt = (float)GhostTime::DeltaTime();
 	if (!isControllable) return;
 	if (isRayCasting)
-		Raycast(DirectX::XMFLOAT3(position._41, position._42, position._43), DirectX::XMFLOAT3(position._31, position._32, position._33));
+		Raycast(DirectX::XMFLOAT3(GetPosition()._41, GetPosition()._42, GetPosition()._43), DirectX::XMFLOAT3(GetPosition()._31, GetPosition()._32, GetPosition()._33));
 
 	if (KeyIsDown(Control::TestInputU))
 	{
-		position._42 += dt;
+		DirectX::XMFLOAT4X4 newPos = GetPosition();
+		newPos._42 += dt;
+		SetPosition(newPos);
 		//ResetKey(Control::TestInputU);
 	}
 	if (KeyIsDown(Control::TestInputO))
 	{
-		position._42 -= dt;
+		DirectX::XMFLOAT4X4 newPos = GetPosition();
+		newPos._42 -= dt;
+		SetPosition(newPos);
 		//ResetKey(Control::TestInputO);
 	}
 	if (KeyIsDown(Control::TestInputI))
 	{
-		position._43 += dt;
+		DirectX::XMFLOAT4X4 newPos = GetPosition();
+		newPos._43 += dt;
+		SetPosition(newPos);
 		//ResetKey(Control::TestInputI);
 	}
 	if (KeyIsDown(Control::TestInputK))
 	{
-		position._43 -= dt;
+		DirectX::XMFLOAT4X4 newPos = GetPosition();
+		newPos._43 -= dt;
+		SetPosition(newPos);
 		//ResetKey(Control::TestInputK);
 	}
 	if (KeyIsDown(Control::TestInputJ))
 	{
-		position._41 -= dt;
+		DirectX::XMFLOAT4X4 newPos = GetPosition();
+		newPos._41 -= dt;
+		SetPosition(newPos);
 		//ResetKey(Control::TestInputJ);
 	}
 	if (KeyIsDown(Control::TestInputL))
 	{
-		position._41 += dt;
+		DirectX::XMFLOAT4X4 newPos = GetPosition();
+		newPos._41 += dt;
+		SetPosition(newPos);
 		//ResetKey(Control::TestInputL);
 	}
 	

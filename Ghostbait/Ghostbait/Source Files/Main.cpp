@@ -109,7 +109,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 		Console::WriteLine << "Renderer initialized......";
 		inputMan = new InputManager(KEYBOARD);
 		if(inputMan) Console::WriteLine << "Input Manager initialized......";
-		audioMan->setCamera(&(rendInter->getCamera())->position);
+		audioMan->setCamera(&(rendInter->getCamera())->GetPosition());
 	}
 	Console::WriteLine << "Nothing's wrong here......";
 

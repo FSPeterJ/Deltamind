@@ -57,7 +57,7 @@ void EnemyBase::Update() {
 //Other Overrides
 void EnemyBase::OnCollision(GameObject* _other) {
 	PhysicsComponent* myPhys = GetComponent<PhysicsComponent>();
-	DirectX::XMVECTOR incomingDirection = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat4x4(&position).r[3], DirectX::XMLoadFloat4x4(&(_other->position)).r[3]));
+	DirectX::XMVECTOR incomingDirection = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat4x4(&GetPosition()).r[3], DirectX::XMLoadFloat4x4(&(_other->GetPosition())).r[3]));
 	if(_other->GetTag() == "Bullet") {
 		myPhys->rigidBody.AddForce(0.2f, DirectX::XMVectorGetX(incomingDirection), 0.0f, DirectX::XMVectorGetZ(incomingDirection));
 		AdjustHealth(-(((Projectile*)_other)->damage));

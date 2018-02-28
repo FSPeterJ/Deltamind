@@ -98,45 +98,47 @@ void ControllerObject::DisplayInventory() {
 		for (unsigned int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
 			if (displayItems[i]) {
 				if (!*justTouched) displayItems[i]->Render(true);
-
-				displayItems[i]->position._11 = position._11 * 0.5f;
-				displayItems[i]->position._12 = position._12 * 0.5f;
-				displayItems[i]->position._13 = position._13 * 0.5f;
-				displayItems[i]->position._14 = position._14;
-				displayItems[i]->position._21 = position._21 * 0.5f;
-				displayItems[i]->position._22 = position._22 * 0.5f;
-				displayItems[i]->position._23 = position._23 * 0.5f;
-				displayItems[i]->position._24 = position._24;
-				displayItems[i]->position._31 = position._31 * 0.5f;
-				displayItems[i]->position._32 = position._32 * 0.5f;
-				displayItems[i]->position._33 = position._33 * 0.5f;
-				displayItems[i]->position._34 = position._34;
-				displayItems[i]->position._41 = position._41;
-				displayItems[i]->position._42 = position._42;
-				displayItems[i]->position._43 = position._43;
-				displayItems[i]->position._44 = position._44;
+				DirectX::XMFLOAT4X4 newPos;
+				newPos._11 = GetPosition()._11 * 0.5f;
+				newPos._12 = GetPosition()._12 * 0.5f;
+				newPos._13 = GetPosition()._13 * 0.5f;
+				newPos._14 = GetPosition()._14;
+				newPos._21 = GetPosition()._21 * 0.5f;
+				newPos._22 = GetPosition()._22 * 0.5f;
+				newPos._23 = GetPosition()._23 * 0.5f;
+				newPos._24 = GetPosition()._24;
+				newPos._31 = GetPosition()._31 * 0.5f;
+				newPos._32 = GetPosition()._32 * 0.5f;
+				newPos._33 = GetPosition()._33 * 0.5f;
+				newPos._34 = GetPosition()._34;
+				newPos._41 = GetPosition()._41;
+				newPos._42 = GetPosition()._42;
+				newPos._43 = GetPosition()._43;
+				newPos._44 = GetPosition()._44;
 				switch (i) {
 					case 0:
-						displayItems[i]->position._41 += ((position._21 * 0.2f) + (position._31 * 0.1f));
-						displayItems[i]->position._42 += ((position._22 * 0.2f) + (position._32 * 0.1f));
-						displayItems[i]->position._43 += ((position._23 * 0.2f) + (position._33 * 0.1f));
+						newPos._41 += ((GetPosition()._21 * 0.2f) + (GetPosition()._31 * 0.1f));
+						newPos._42 += ((GetPosition()._22 * 0.2f) + (GetPosition()._32 * 0.1f));
+						newPos._43 += ((GetPosition()._23 * 0.2f) + (GetPosition()._33 * 0.1f));
 						break;
 					case 1:
-						displayItems[i]->position._41 += ((-position._11 * 0.2f) + (position._31 * 0.1f));
-						displayItems[i]->position._42 += ((-position._12 * 0.2f) + (position._32 * 0.1f));
-						displayItems[i]->position._43 += ((-position._13 * 0.2f) + (position._33 * 0.1f));
+						newPos._41 += ((-GetPosition()._11 * 0.2f) + (GetPosition()._31 * 0.1f));
+						newPos._42 += ((-GetPosition()._12 * 0.2f) + (GetPosition()._32 * 0.1f));
+						newPos._43 += ((-GetPosition()._13 * 0.2f) + (GetPosition()._33 * 0.1f));
 						break;
 					case 2:
-						displayItems[i]->position._41 += ((position._11 * 0.2f) + (position._31 * 0.1f));
-						displayItems[i]->position._42 += ((position._12 * 0.2f) + (position._32 * 0.1f));
-						displayItems[i]->position._43 += ((position._13 * 0.2f) + (position._33 * 0.1f));
+						newPos._41 += ((GetPosition()._11 * 0.2f) + (GetPosition()._31 * 0.1f));
+						newPos._42 += ((GetPosition()._12 * 0.2f) + (GetPosition()._32 * 0.1f));
+						newPos._43 += ((GetPosition()._13 * 0.2f) + (GetPosition()._33 * 0.1f));
 						break;
 					case 3:
-						displayItems[i]->position._41 += ((-position._21 * 0.2f) + (position._31 * 0.1f));
-						displayItems[i]->position._42 += ((-position._22 * 0.2f) + (position._32 * 0.1f));
-						displayItems[i]->position._43 += ((-position._23 * 0.2f) + (position._33 * 0.1f));
+						newPos._41 += ((-GetPosition()._21 * 0.2f) + (GetPosition()._31 * 0.1f));
+						newPos._42 += ((-GetPosition()._22 * 0.2f) + (GetPosition()._32 * 0.1f));
+						newPos._43 += ((-GetPosition()._23 * 0.2f) + (GetPosition()._33 * 0.1f));
 						break;
 				}
+
+				displayItems[i]->SetPosition(newPos);
 			}
 		}
 		*justTouched = true;
@@ -203,7 +205,7 @@ void ControllerObject::Update() {
 	#pragma endregion
 	#pragma region Update Current Item
 		if (currentGameItem) {
-			currentGameItem->position = position;
+			currentGameItem->SetPosition(GetPosition());
 			currentGameItem->ActiveUpdate();
 
 			//Specific States
@@ -272,7 +274,7 @@ void ControllerObject::PausedUpdate() {
 	Control attack = (hand == HAND_Left ? leftAttack : rightAttack);
 	
 	menuController->Render(true);
-	menuController->position = position;
+	menuController->SetPosition(GetPosition());
 	
 	if (KeyIsDown(attack)) {
 		menuController->Activate();

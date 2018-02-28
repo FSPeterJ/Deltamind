@@ -192,14 +192,18 @@ void VRManager::UpdateVRPoses() {
 						DirectX::XMStoreFloat4x4(&leftController.pos, DirectX::XMLoadFloat4x4(&VRMatrix34ToDirectXMatrix44(trackedDevicePos[deviceIndex].mDeviceToAbsoluteTracking)) * DirectX::XMLoadFloat4x4(&roomPos));
 						leftController.index = deviceIndex;
 						if (leftController.obj) {
-							XMStoreFloat4x4(&leftController.obj->position, DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(55)) * DirectX::XMLoadFloat4x4(&leftController.pos));// *DirectX::XMMatrixScaling(0.25f, 0.25f, 0.25f);
+							DirectX::XMFLOAT4X4 newPos;
+							XMStoreFloat4x4(&newPos, DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(55)) * DirectX::XMLoadFloat4x4(&leftController.pos));// *DirectX::XMMatrixScaling(0.25f, 0.25f, 0.25f);
+							leftController.obj->SetPosition(newPos);
 						}
 					}
 					else if (pVRHMD->GetControllerRoleForTrackedDeviceIndex(deviceIndex) == vr::ETrackedControllerRole::TrackedControllerRole_RightHand) {
 						DirectX::XMStoreFloat4x4(&rightController.pos, DirectX::XMLoadFloat4x4(&VRMatrix34ToDirectXMatrix44(trackedDevicePos[deviceIndex].mDeviceToAbsoluteTracking)) * DirectX::XMLoadFloat4x4(&roomPos));
 						rightController.index = deviceIndex;
 						if (rightController.obj) {
-							XMStoreFloat4x4(&rightController.obj->position, DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(55)) * DirectX::XMLoadFloat4x4(&rightController.pos));// *DirectX::XMMatrixScaling(0.25f, 0.25f, 0.25f);
+							DirectX::XMFLOAT4X4 newPos;
+							XMStoreFloat4x4(&newPos, DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(55)) * DirectX::XMLoadFloat4x4(&rightController.pos));// *DirectX::XMMatrixScaling(0.25f, 0.25f, 0.25f);
+							rightController.obj->SetPosition(newPos);
 						}
 					}
 					break;
@@ -241,7 +245,7 @@ DirectX::XMFLOAT4X4 VRManager::GetRoomPosition() {
 }
 
 bool VRManager::ArcCast(Object* controller, DirectX::XMFLOAT3* outPos, float maxDistance, float minAngle, float maxAngle, float castHeight) {
-	DirectX::XMMATRIX controllerMat = DirectX::XMLoadFloat4x4(&controller->position);
+	DirectX::XMMATRIX controllerMat = DirectX::XMLoadFloat4x4(&controller->GetPosition());
 	DirectX::XMVECTOR planeNormalVec = DirectX::XMVectorSet(0, 1, 0, 0);
 	DirectX::XMVECTOR forwardVec = DirectX::XMVector3Normalize(controllerMat.r[2]);
 	DirectX::XMVECTOR playerVec = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(playerPos._41, playerPos._42, playerPos._43));

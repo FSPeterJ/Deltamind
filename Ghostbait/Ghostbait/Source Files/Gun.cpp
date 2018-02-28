@@ -45,16 +45,17 @@ void Gun::Overheat::Update(bool active) {
 	// This seems weird but I have no better ideas at the moment
 	if(active) {
 		//Update Bar itself
-		bar->position = parent->position;
-		bar->position._41 -= bar->position._11 * 0.04f;
-		bar->position._42 -= bar->position._12 * 0.04f;
-		bar->position._43 -= bar->position._13 * 0.04f;
+		DirectX::XMFLOAT4X4 newPos;
+		newPos = parent->GetPosition();
+		newPos._41 -= bar->GetPosition()._11 * 0.04f;
+		newPos._42 -= bar->GetPosition()._12 * 0.04f;
+		newPos._43 -= bar->GetPosition()._13 * 0.04f;
 
+		newPos._41 -= bar->GetPosition()._31 * 0.1f;
+		newPos._42 -= bar->GetPosition()._32 * 0.1f;
+		newPos._43 -= bar->GetPosition()._33 * 0.1f;
 
-
-		bar->position._41 -= bar->position._31 * 0.1f;
-		bar->position._42 -= bar->position._32 * 0.1f;
-		bar->position._43 -= bar->position._33 * 0.1f;
+		bar->SetPosition(newPos);
 
 		bar->SetBarPercentage(currentEnergy / energyLimit);
 	}
@@ -97,12 +98,14 @@ bool Gun::Shoot() {
 				Projectile* obj;
 				MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Projectile>(projectiePID, { 0, 0, 0 }, &obj));
 				MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_WEN));
-				obj->position = position;
-				obj->position._41 += obj->position._31 * 0.2f;
-				obj->position._42 += obj->position._32 * 0.2f;
-				obj->position._43 += obj->position._33 * 0.2f;
+				DirectX::XMFLOAT4X4 newPos;
+				newPos = GetPosition();
+				newPos._41 += newPos._31 * 0.2f;
+				newPos._42 += newPos._32 * 0.2f;
+				newPos._43 += newPos._33 * 0.2f;
+				obj->SetPosition(newPos);
 				obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
-				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 10.0f, position._32 * 10.0f, position._33 * 10.0f);
+				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(GetPosition()._31 * 10.0f, GetPosition()._32 * 10.0f, GetPosition()._33 * 10.0f);
 				obj->SetDamage(damage);
 				obj->Enable();
 				overheat.AddEnergy(overheat.energyBulletCost);
@@ -115,14 +118,16 @@ bool Gun::Shoot() {
 				Projectile* obj;
 				MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Projectile>(projectiePID, { 0, 0, 0 }, &obj));
 				MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_WEN));
-				obj->position = position;
-				obj->position._41 += obj->position._31 * 0.2f;
-				obj->position._42 += obj->position._32 * 0.2f;
-				obj->position._43 += obj->position._33 * 0.2f;
+				DirectX::XMFLOAT4X4 newPos;
+				newPos = GetPosition();
+				newPos._41 += newPos._31 * 0.2f;
+				newPos._42 += newPos._32 * 0.2f;
+				newPos._43 += newPos._33 * 0.2f;
+				obj->SetPosition(newPos);
 				PhysicsComponent* temp2 = obj->GetComponent<PhysicsComponent>();
 				RigidBody* temp = &temp2->rigidBody;
 				temp->AdjustGravityMagnitude(0);
-				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 10.0f, position._32 * 10.0f, position._33 * 10.0f);
+				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(GetPosition()._31 * 10.0f, GetPosition()._32 * 10.0f, GetPosition()._33 * 10.0f);
 				obj->SetDamage(damage);
 				obj->Enable();
 				overheat.AddEnergy(overheat.energyBulletCost);

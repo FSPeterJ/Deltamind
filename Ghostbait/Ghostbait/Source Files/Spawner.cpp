@@ -13,11 +13,11 @@ Spawner::Spawner() {
 }
 void Spawner::SpawnObject(char* prefabName, HexGrid* grid, DirectX::XMFLOAT2 goal) {
 	grid->RemoveObstacle(goal);
-	grid->RemoveObstacle({position._41,position._43});
+	grid->RemoveObstacle({ GetPosition()._41,GetPosition()._43});
 
 	EnemyBase* obj;
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<EnemyBase>(prefabName, {0, 0, 0}, &obj));
-	obj->position = position;
+	obj->SetPosition(GetPosition());
 	obj->SetGrid(grid);
 	obj->SetGoal(goal);
 	obj->Repath();

@@ -30,6 +30,7 @@ void BuildTool::SetPrefabs(std::vector<unsigned> prefabIDs) {
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabIDs[i], { 0, 0, 0 }, &prefabs[i].object));
 		if(prefabs[i].ID) MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[i].object));
 		PhysicsComponent* physComp = prefabs[i].object->GetComponent<PhysicsComponent>();
+		prefabs[i].object->Enable(false);
 		if(physComp) physComp->isActive = false;
 		//Set objects shader to be semi-transparent solid color
 	}
@@ -54,10 +55,12 @@ void BuildTool::Activate() {
 }
 
 bool BuildTool::Snap(GameObject** obj) {
-	DirectX::XMFLOAT2 pos = { (*obj)->position._41, (*obj)->position._43 };
+	DirectX::XMFLOAT2 pos = { (*obj)->GetPosition()._41, (*obj)->GetPosition()._43 };
 	if (Snap(&pos)) {
-		(*obj)->position._41 = pos.x;
-		(*obj)->position._43 = pos.y;
+		DirectX::XMFLOAT4X4 newPos = (*obj)->GetPosition();
+		newPos._41 = pos.x;
+		newPos._43 = pos.y;
+		(*obj)->SetPosition(newPos);
 		return true;
 	}
 	return false;
@@ -83,9 +86,11 @@ void BuildTool::SpawnProjection(){
 		spawnPos.z = newPos.y;
 		//Move Object
 		if (prefabs[currentPrefabIndex].object) {
-			prefabs[currentPrefabIndex].object->position._41 = spawnPos.x;
-			prefabs[currentPrefabIndex].object->position._42 = spawnPos.y;
-			prefabs[currentPrefabIndex].object->position._43 = spawnPos.z;
+			DirectX::XMFLOAT4X4 newPos1 = prefabs[currentPrefabIndex].object->GetPosition();
+			newPos1._41 = spawnPos.x;
+			newPos1._42 = spawnPos.y;
+			newPos1._43 = spawnPos.z;
+			prefabs[currentPrefabIndex].object->SetPosition(newPos1);
 		}
 	}
 }
@@ -107,7 +112,7 @@ void BuildTool::Spawn() {
 }
 void BuildTool::RemoveProjection() {
 	DirectX::XMFLOAT3 endPos;
-	if (!Raycast(DirectX::XMFLOAT3(position._41, position._42, position._43), DirectX::XMFLOAT3(position._31, position._32, position._33), &endPos, &currentlySelectedItem, 4)) {
+	if (!Raycast(DirectX::XMFLOAT3(GetPosition()._41, GetPosition()._42, GetPosition()._43), DirectX::XMFLOAT3(GetPosition()._31, GetPosition()._32, GetPosition()._33), &endPos, &currentlySelectedItem, 4)) {
 		currentlySelectedItem = nullptr;
 	}
 	//Set shader to transparent thing
@@ -115,7 +120,7 @@ void BuildTool::RemoveProjection() {
 void BuildTool::Remove() {
 	for (int i = 0; i < builtItems.size(); ++i) {
 		if (currentlySelectedItem == builtItems[i]) {
-			DirectX::XMFLOAT2 pos = DirectX::XMFLOAT2(currentlySelectedItem->position._41, currentlySelectedItem->position._43);
+			DirectX::XMFLOAT2 pos = DirectX::XMFLOAT2(currentlySelectedItem->GetPosition()._41, currentlySelectedItem->GetPosition()._43);
 			if (SetObstacle(pos, false)) {
 				MessageEvents::SendQueueMessage(EVENT_Late, [=] { currentlySelectedItem->Destroy(); });
 				builtItems.erase(builtItems.begin() + i);

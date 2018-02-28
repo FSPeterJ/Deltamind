@@ -141,18 +141,18 @@ void AudioManager::Update()
 		AkVector upIn;
 		DirectX::XMFLOAT3 front;
 		DirectX::XMFLOAT3 up;
-		DirectX::XMFLOAT4X4* matrix = &objects[i]->position;
-		pos.X = matrix->_41;
-		pos.Y = matrix->_42;
-		pos.Z = matrix->_43;
+		DirectX::XMFLOAT4X4 matrix = objects[i]->GetPosition();
+		pos.X = matrix._41;
+		pos.Y = matrix._42;
+		pos.Z = matrix._43;
 
-		front.x = matrix->_31;
-		front.y = matrix->_32;
-		front.z = matrix->_33;
+		front.x = matrix._31;
+		front.y = matrix._32;
+		front.z = matrix._33;
 
-		up.x = matrix->_21;
-		up.y = matrix->_22;
-		up.z = matrix->_23;
+		up.x = matrix._21;
+		up.y = matrix._22;
+		up.z = matrix._23;
 		DirectX::XMStoreFloat3(&front, DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&front)));
 		DirectX::XMStoreFloat3(&up, DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&up)));
 		frontIn.X = front.x;

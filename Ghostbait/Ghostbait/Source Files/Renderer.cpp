@@ -145,7 +145,7 @@ void Renderer::renderObjectDefaultState(Object * obj) {
 
 	context->IASetVertexBuffers(0, 1, &x, &stride, &offset);
 	context->IASetIndexBuffer(obj->GetComponent<Mesh>()->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(XMLoadFloat4x4(&obj->position)), 0, 0);
+	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(XMLoadFloat4x4(&obj->GetPosition())), 0, 0);
 	Material* mat = obj->GetComponent<Material>();
 	if (mat)
 		obj->GetComponent<Material>()->bindToShader(context, factorBuffer);
@@ -374,7 +374,7 @@ XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 
 void Renderer::Render() {
 	loadPipelineState(&defaultPipeline);
-	XMMATRIX cameraObj = XMMatrixTranspose(XMLoadFloat4x4(&keyboardCamera->position));
+	XMMATRIX cameraObj = XMMatrixTranspose(XMLoadFloat4x4(&keyboardCamera->GetPosition()));
 	XMStoreFloat4x4(&defaultCamera.view, XMMatrixInverse(&XMMatrixDeterminant(cameraObj), cameraObj));
 	if(VRManager::GetInstance().IsEnabled()) {
 		VRManager::GetInstance().GetVRMatrices(&leftEye.camera.projection, &rightEye.camera.projection, &leftEye.camera.view, &rightEye.camera.view);
@@ -407,7 +407,7 @@ void Renderer::Render() {
 	if (VRManager::GetInstance().IsEnabled())
 		LightManager::getLightBuffer()->cameraPos = leftEye.camPos;
 	else
-		LightManager::getLightBuffer()->cameraPos = DirectX::XMFLOAT3(keyboardCamera->position._41, keyboardCamera->position._42, keyboardCamera->position._43);
+		LightManager::getLightBuffer()->cameraPos = DirectX::XMFLOAT3(keyboardCamera->GetPosition()._41, keyboardCamera->GetPosition()._42, keyboardCamera->GetPosition()._43);
 	context->UpdateSubresource(lightBuffer, NULL, NULL, LightManager::getLightBuffer(), 0, 0);
 	for(size_t i = 0; i < renderedObjects.size(); ++i) {
 		renderObjectDefaultState((Object*) renderedObjects[i]);

@@ -360,5 +360,3 @@ void ControllerObject::Enable(bool destroyOnEnd) {
 	menuController->Render(false);
 	GameObject::Enable(destroyOnEnd);
 }
-
-

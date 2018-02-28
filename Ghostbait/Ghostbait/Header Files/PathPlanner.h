@@ -84,7 +84,7 @@ class PathPlanner {
 	/// <returns>A path from the start to goal or an empty path if one is not found.</returns>
 	static HexPath AStarSearch(HexTile *const start, HexTile *const goal, HeuristicFunction Heuristic);
 
-	static HexPath DStarSearch(HexTile *const start, HexTile *const goal);
+	static void DStarLiteSearch(HexTile *const start, HexTile *const goal, HexPath* path, HeuristicFunction Heuristic);
 
 public:
 

@@ -37,9 +37,10 @@ public:
 	void Update();
 	void PausedUpdate();
 	void GivePID(unsigned pid, const char* tag) override;
-	void CloneData(Object* obj);
+	void Awake(Object* obj);
 
 	//TEMPORARY FUNCTION
 	void SetBuildItems(std::vector<unsigned> prefabIDs);
 	void SetGunData(int slot, Gun::FireType _fireType, float _fireRate, float _damage);
+	void Enable(bool destroyOnEnd);
 };

@@ -20,7 +20,6 @@ public:
 	GameObject();
 	void DisableNow();
 
-	virtual void Awake();
 	virtual void Subscribe();
 	virtual void UnSubscribe();
 	virtual void Enable(bool _destroyOnReset = true);
@@ -32,9 +31,13 @@ public:
 	virtual void OnCollision(GameObject* obj);
 	virtual void OnTrigger(GameObject* obj);
 
+
+	virtual void Awake(Object* obj);
+
 	inline const std::string GetTag() const { return tag; };
 	inline void SetTag(std::string _tag) { tag = _tag; };
 };
+
 
 //Other
 class MenuCube: public GameObject {

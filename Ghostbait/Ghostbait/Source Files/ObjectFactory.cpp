@@ -8,8 +8,8 @@
 #define MAX_EXTENSION_LENGTH 64
 #define MAX_TAG_LENGTH 64
 
-std::unordered_map<unsigned, std::function<Object*(void)>> ObjectFactory::registeredConstructors;
-std::unordered_map<unsigned, std::function<Object*(Object*)>> ObjectFactory::registeredCasters;
+std::unordered_map<unsigned, std::function<GameObject*(void)>> ObjectFactory::registeredConstructors;
+std::unordered_map<unsigned, std::function<GameObject*(GameObject*)>> ObjectFactory::registeredCasters;
 
 ObjectManager* ObjectFactory::objMan;
 
@@ -91,8 +91,6 @@ void ObjectFactory::InstantiateByName(EventMessageBase *e) {
 GameObject* ObjectFactory::ActivateObject(PrefabId pid) {
 	GameObject* newobject = objMan->Instantiate(prefabs[pid].objectTypeID);
 	auto TypeGathered = registeredCasters[prefabs[pid].objectTypeID](newobject);
-	TypeGathered->CloneData(prefabs[pid].object);
-	//newobject->CloneData(prefabs[pid].object);
 	for(int i = 0; i < 64; i++) {
 		if(prefabs[pid].fastclone[i]) {
 			newobject->SetComponent(prefabs[pid].instantiatedComponents[i], i);
@@ -106,7 +104,7 @@ GameObject* ObjectFactory::ActivateObject(PrefabId pid) {
 			});
 		}
 	}
-	//newobject->Awake();
+	TypeGathered->Awake(prefabs[pid].object);
 	return newobject;
 }
 

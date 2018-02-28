@@ -7,9 +7,7 @@
 #include "Wwise_IDs.h"
 
 
-Gun::Overheat::Overheat() {
 
-}
 void Gun::Overheat::CreateBar() {
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ProgressBar>(overheatBarPID, { 0.0f, 0.0f, 0.0f }, &bar)); // stop using magic number prefab ID
 }
@@ -66,17 +64,22 @@ void Gun::Overheat::Update(bool active) {
 }
 
 Gun::Gun() {
-	state = GUN;
 	SetTag("Gun");
+}
+
+void Gun::Awake(Object* obj) {
+	state = GUN;
+	Gun* gun = ((Gun*)obj);
+	overheat.overheatBarPID = gun->overheat.overheatBarPID;
+	overheat.CreateBar(); // may want to reethink this?
+	projectiePID = gun->projectiePID;
+	fireRate = gun->fireRate;
+	damage = gun->damage;
+	type = gun->type;
 	overheat.parent = this;
 	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
 }
-Gun::Gun(FireType _type, float _fireRate, float _damage): type(_type), fireRate(_fireRate), damage(_damage) {
-	state = GUN;
-	SetTag("Gun");
-	overheat.parent = this;
-	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
-}
+
 
 void Gun::GivePID(unsigned pid, const char* tag) {
 	// Look into a better system
@@ -145,12 +148,6 @@ void Gun::ActiveUpdate() {
 	overheat.Update(true);
 }
 
-void Gun::CloneData(Object* obj) {
-	overheat.overheatBarPID = ((Gun*)obj)->overheat.overheatBarPID;
-	overheat.CreateBar(); // may want to reethink this?
-	projectiePID = ((Gun*)obj)->projectiePID;
-
-}
 
 
 #ifdef _DEBUG

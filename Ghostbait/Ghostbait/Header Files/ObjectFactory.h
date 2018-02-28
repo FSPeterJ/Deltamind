@@ -2,12 +2,11 @@
 #include <vector>
 #include <unordered_map>
 #include <bitset>
-#include "Object.h"
+#include "GameObject.h"
 #include "functional"       // for function
 #include "StdHeader.h"      // for PrefabId
 
 class ObjectManager;
-class GameObject;
 class IComponentManager;
 class EventMessageBase;
 /// <summary>
@@ -24,7 +23,7 @@ class ObjectFactory {
 	public:
 		ComponentBase * instantiatedComponents[MAX_DATA] = {};
 		unsigned managers[MAX_DATA] = {};
-		Object* object = nullptr;
+		GameObject* object = nullptr;
 		std::bitset<MAX_DATA> fastclone;
 		unsigned objectTypeID = UINT_MAX;
 		unsigned size;
@@ -39,14 +38,14 @@ class ObjectFactory {
 	}
 
 	template <typename T>
-	static auto CastorFunction(Object* object) {
+	static auto CastorFunction(GameObject* object) {
 		return ((T*)object);
 	}
 
 	ObjectFactory() {};
 
-	static std::unordered_map<unsigned, std::function<Object*(void)>> registeredConstructors;
-	static std::unordered_map<unsigned, std::function<Object*(Object*)>> registeredCasters;
+	static std::unordered_map<unsigned, std::function<GameObject*(void)>> registeredConstructors;
+	static std::unordered_map<unsigned, std::function<GameObject*(GameObject*)>> registeredCasters;
 
 	static std::vector<IComponentManager*> managers;
 
@@ -140,7 +139,7 @@ public:
 	/// gives an immutable pointer to the requested Prefab
 	/// </summary>
 	/// <param name="_pid">Prefab id</param>
-	static const Object *  RequestPrefab(const PrefabId _pid) {
+	static const GameObject*  RequestPrefab(const PrefabId _pid) {
 		return prefabs[_pid].object;
 	}
 
@@ -152,7 +151,7 @@ public:
 	}
 
 	static void Shutdown() {
-		for(auto &prefab : prefabs) {
+		for(Prefab &prefab : prefabs) {
 			delete prefab.object;
 		}
 	}

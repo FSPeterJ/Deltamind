@@ -31,15 +31,15 @@ public:
 	}
 
 	static unsigned GetNameId(std::string &name) {
-		return mapname[name];
+		return mapname[name]; //Will return 0 if name is not registered
 	}
 
 	static unsigned GetObjectNameID(std::string &_name) {
-		return mapnameObject[_name];
+		return mapnameObject[_name];//Will return 0 if name is not registered
 	}
 
 	static unsigned GetComponentNameID(std::string &_name) {
-		return mapnameComponent[_name];
+		return mapnameComponent[_name];//Will return 0 if name is not registered
 	}
 	template <typename ComponentType>
 	static void RegisterAlias(const std::string _name) {

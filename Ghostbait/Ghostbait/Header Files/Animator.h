@@ -31,5 +31,5 @@ public:
 	std::unordered_map<std::string, Animation*>* getAnimations() { return &animations; }
 	const std::vector<animJoint>* getTweens();
 	Animation* getCurrentAnimation() { return currAnim; }
-	DirectX::XMFLOAT4X4* getJointByName(std::string name) { return &tweens[jointPointers[name]].transform; }
+	DirectX::XMFLOAT4X4* getJointByName(std::string name);
 };

@@ -62,7 +62,6 @@ public:
 	virtual void GiveComponent(ComponentBase * _component, const char* tag);
 
 	virtual void GivePID(unsigned pid, const char* tag);
-	virtual void CloneData(Object* obj);
 	//virtual void SmokeTest();
 #ifdef _DEBUG
 	virtual void SmokeTest();

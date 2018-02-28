@@ -8,8 +8,7 @@ GameObject::GameObject() {
 	//updateID = EngineStructure::Update.Add([=]() {this->Update(); });
 }
 
-void GameObject::Awake() {
-}
+
 void GameObject::Subscribe() {
 	if (destroyOnReset) {
 		eventDeleteAllGameObjects = MessageEvents::Subscribe(EVENT_DeleteAllGameObjects, [=](EventMessageBase* e) { MessageEvents::SendQueueMessage(EVENT_Late, [=] {this->Destroy(); }); });
@@ -25,7 +24,6 @@ void GameObject::Enable(bool _destroyOnReset) {
 		destroyOnReset = _destroyOnReset;
 		GameObject::Subscribe();
 		enabled = true;
-		Awake();
 		//This is potentially dangerous if used incorrectly.
 			//Double Enable emplaces a second update delegate that can never be removed.
 			//If check was added to prevent user error, but may be unecessary
@@ -72,6 +70,7 @@ void GameObject::Destroy() {
 
 void GameObject::OnCollision(GameObject* obj) {}
 void GameObject::OnTrigger(GameObject* obj) {}
+void GameObject::Awake(Object* obj) {}
 
 void GameObject::DisableNow() {
 	EngineStructure::Update.Remove(updateID);

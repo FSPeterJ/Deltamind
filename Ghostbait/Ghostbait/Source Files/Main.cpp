@@ -1,6 +1,5 @@
 #include "Renderer.h"
 //#include "vld.h"
-//#include "GameObject.h"
 #include "InputManager.h"
 #include "Messagebox.h"
 #include "Game.h"
@@ -206,7 +205,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/TestProjectile.ghost"), "TestProjectile");
 	ObjectFactory::CreatePrefab(&std::string("Assets/AStarEnemyEdit.ghost"), "AStarEnemy");
 	ObjectFactory::CreatePrefab(&std::string("Assets/ResumeButton.ghost"), "ResumeButton");
-	unsigned basicTurret = ObjectFactory::CreatePrefab(&std::string("Assets/TestTurretEdit.ghost"), "TestTurret", true);
+	unsigned basicTurret = ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost"), "TestTurret", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/RestartButton.ghost"), "RestartButton");
 	ObjectFactory::CreatePrefab(&std::string("Assets/QuitButton.ghost"), "QuitButton");
 
@@ -224,6 +223,17 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	if(VRManager::GetInstance().IsEnabled()) {
 		VRManager::GetInstance().CreateControllers();
 		VRManager::GetInstance().SetBuildItems({ basicTurret });
+	}
+	else {
+		//------
+		// Debug Controller
+		//=========================================================
+		ControllerObject *debugController;
+		MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 0,2,-2 }, &debugController));
+		debugController->Init(ControllerHand::HAND_Left);
+		debugController->SetBuildItems({ basicTurret });
+		debugController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
+		debugController->SetGunData(2, Gun::FireType::AUTO, 8, 25);
 	}
 
 	//GameObject* ground;
@@ -248,50 +258,39 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<Spawner>( "Spawner", { -5.0f, 5.0f, -5.0f }, &spawner2));
 	//spawner2->Enable();
 
-	//TestArc
-	//GameObject* test;
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<GameObject>("Ground", { 0.0f, 0.0f, 0.0f }, &test));
-	//test->SetTag("Ground");
+
 
 	//********************* PHYSICS TEST CODE **********************************
 	//PhysicsTestObj *test1; //, *test2;
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { 0.0f, 2.0f, -1.0f }, &test1));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { 0.0f, 2.0f, 1.0f }, &test1));
 	////DirectX::XMStoreFloat4x4(&test1->position, DirectX::XMLoadFloat4x4(&test1->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest3", { 0.0f, 1.0f, 0.0f }, &test2));
-	//DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest2", { 2.0f, 2.0f, 0.0f }, &test2));
-	//DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { -2.0f, 2.0f, 0.0f }, nullptr));
+	////MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest3", { 0.0f, 1.0f, 0.0f }, &test2));
+	////DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
+	////MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest2", { 2.0f, 2.0f, 0.0f }, &test2));
+	////DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
+	////MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { -2.0f, 2.0f, 0.0f }, nullptr));
 
-	//dynamic_cast<PhysicsTestObj*>(test1)->isControllable = true;
-	//dynamic_cast<PhysicsTestObj*>(test1)->isRayCasting = true;
+	//((PhysicsTestObj*)test1)->isControllable = true;
+	//((PhysicsTestObj*)test1)->isRayCasting = true;
 
 	//test1->Enable();
 
 
-	//------
-	// Test Gun
-	//=========================================================
-	//ControllerObject *debugController;
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 0,2,-2 }, &debugController));
-	//debugController->Init(ControllerObject::ControllerHand::HAND_Left);
-	//debugController->SetBuildItems({ basicTurret });
-	//debugController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
-	//debugController->SetGunData(2, Gun::FireType::AUTO, 8, 25);
-	
-	//Turret *debugTurret;
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Turret>({ 0,0,0 }, &debugTurret));
+
+
+	Turret *debugTurret;
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Turret>({ 0,0,0 }, &debugTurret));
 	//assert(debugTurret->GetComponent<Animator>()->setState("default"));
 	//debugTurret->GetComponent<Animator>()->SetTime(3.0f);
-	//debugTurret->Enable();
-	
+	debugTurret->Enable();
+
 	GhostTime::Initalize();
 	MessageEvents::Initilize();
 
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<GameObject>("EarthMage", { 0.0f, 0.0f, 25.0f }));
 	Console::WriteLine << "Starting Game Loop......";
 	game = new Game();
-	game->Start(&engine);
+	game->Start(&engine, "level0");
 }
 
 void Loop() {

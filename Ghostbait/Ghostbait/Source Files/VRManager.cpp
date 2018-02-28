@@ -64,30 +64,15 @@ void VRManager::CreateControllers() {
 	//Left
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 0,0,0 }, &leftController.obj));
 	leftController.obj->Init(ControllerHand::HAND_Left);
-	//leftController.obj->AddItem(0, "ViveController");
-	//leftController.obj->AddItem(1, "GunTest", Gun::FireType::SEMI, 60, 50);
-	//leftController.obj->AddItem(2, "GunTest2", Gun::FireType::AUTO, 8, 25);
-	//leftController.obj->AddItem(3, "BuildTool", { 1, 2, 5 });
-	//leftController.obj->AddItem(0, 1);
-	//leftController.obj->AddItem(1, 19, Gun::FireType::SEMI, 60, 50);
-	//leftController.obj->AddItem(2, 19, Gun::FireType::AUTO, 8, 25);
-	//leftController.obj->AddItem(3, 16, { 1, 2, 5 });
+	// Need to move gundata out of here.
 	leftController.obj->SetGunData(1, Gun::FireType::SEMI, 60, 50);
 	leftController.obj->SetGunData(2, Gun::FireType::AUTO, 8, 25);
 	//Right
-	// Need to investigate a way to set these add items to be less hard coded numbers
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 1,0,1 }, &rightController.obj));
 	rightController.obj->Init(ControllerHand::HAND_Right);
-	//rightController.obj->AddItem(0, "ViveController");
-	//rightController.obj->AddItem(1, "GunTest", Gun::FireType::SEMI, 60, 50); // quick test of different projectile loading
-	//rightController.obj->AddItem(2, "GunTest2", Gun::FireType::AUTO, 8, 25);
-	//rightController.obj->AddItem(3, "BuildTool", { 1, 2, 5 });
-	//rightController.obj->AddItem(0, 1);
-	//rightController.obj->AddItem(1, 19, Gun::FireType::SEMI, 60, 50); // quick test of different projectile loading
-	//rightController.obj->AddItem(2, 19, Gun::FireType::AUTO, 8, 25);
-	//rightController.obj->AddItem(3, 16, { 1, 2, 5 });
 	rightController.obj->SetGunData(1, Gun::FireType::SEMI, 60, 50);
 	rightController.obj->SetGunData(2, Gun::FireType::AUTO, 8, 25);
+
 }
 
 void VRManager::SetBuildItems(std::vector<unsigned> prefabIDs) {
@@ -248,7 +233,9 @@ bool VRManager::ArcCast(Object* controller, DirectX::XMFLOAT3* outPos, float max
 	DirectX::XMMATRIX controllerMat = DirectX::XMLoadFloat4x4(&controller->GetPosition());
 	DirectX::XMVECTOR planeNormalVec = DirectX::XMVectorSet(0, 1, 0, 0);
 	DirectX::XMVECTOR forwardVec = DirectX::XMVector3Normalize(controllerMat.r[2]);
-	DirectX::XMVECTOR playerVec = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(playerPos._41, playerPos._42, playerPos._43));
+	//This was swapped off to allow testing without vive
+	//DirectX::XMVECTOR playerVec = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(playerPos._41, playerPos._42, playerPos._43));
+	DirectX::XMVECTOR playerVec = DirectX::XMLoadFloat3(&DirectX::XMFLOAT3(controller->GetPosition()._41, controller->GetPosition()._42, controller->GetPosition()._43));
 
 	float maxRaycastDist = 100;
 

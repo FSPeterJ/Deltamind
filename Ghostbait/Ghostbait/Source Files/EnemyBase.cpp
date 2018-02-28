@@ -7,11 +7,12 @@
 #include "Material.h"
 
 
-//Main Overrides
-void EnemyBase::Awake() {
-	GameObject::Awake();
+
+void EnemyBase::Awake(Object* obj) {
+	componentVarients = obj->componentVarients;
 }
 void EnemyBase::Subscribe() {
+
 	eventLose = MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) { MessageEvents::SendQueueMessage(EVENT_Late, [=] {this->Destroy(); }); });
 }
 void EnemyBase::UnSubscribe() {
@@ -82,6 +83,5 @@ void EnemyBase::OnCollision(GameObject* _other) {
 		}
 	}
 }
-void EnemyBase::CloneData(Object* obj) {
-	componentVarients = obj->componentVarients;
-}
+
+

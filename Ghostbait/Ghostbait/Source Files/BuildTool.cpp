@@ -7,21 +7,11 @@
 #include "PhysicsExtension.h"
 
 BuildTool::BuildTool() { 
-	//std::vector<unsigned> prefabIDs;
-	//prefabIDs.resize(3);
-	//prefabIDs[0] = 2;
-	//prefabIDs[1] = 2;
-	//prefabIDs[2] = 2;
-	//SetPrefabs(prefabIDs);
-	state = BUILD;
-}
-BuildTool::BuildTool(std::vector<unsigned> prefabIDs) {
-	SetPrefabs(prefabIDs);
 	state = BUILD;
 }
 
 void BuildTool::SetPrefabs(std::vector<unsigned> prefabIDs) {
-	//prefabs.empty();
+	prefabs.empty();
 	prefabs.resize(prefabIDs.size() + 1);
 
 	for (int i = 0; i < prefabIDs.size(); ++i) {
@@ -39,6 +29,15 @@ void BuildTool::SetPrefabs(std::vector<unsigned> prefabIDs) {
 	prefabs[prefabs.size() - 1].ID = 0;
 }
 
+void BuildTool::Enable(bool onEndDestroy) {
+}
+
+void BuildTool::Disable() {
+}
+
+void BuildTool::Update() {
+	Item::Update();
+}
 
 void BuildTool::Projection() {
 	if (currentPrefabIndex >= 0 && currentPrefabIndex < prefabs.size()) {

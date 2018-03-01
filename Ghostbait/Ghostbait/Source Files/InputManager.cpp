@@ -291,8 +291,8 @@ InputManager::KeyboardInput::KeyboardInput() {
 	MapKey(rightAttack, MK_RBUTTON);
 	MapKey(leftAttack, MK_LBUTTON);
 	//MapKey(teleportDown, MK_MBUTTON);
-	MapKey(LeftAction, 'Q');
-	MapKey(RightAction, 'E');
+	MapKey(leftCyclePrefab, 'Q');
+	MapKey(rightCyclePrefab, 'E');
 
 	MapKey(leftItem0, '1');
 	MapKey(leftItem1, '2');
@@ -387,7 +387,7 @@ void InputManager::KeyboardInput::CheckForInput() {
 					case menu:
 					{
 
-						MessageEvents::SendMessage(EVENT_GameQuit, EventMessageBase());
+						MessageEvents::SendMessage(EVENT_GamePause, EventMessageBase());
 						break;
 					}
 					case releaseKey:

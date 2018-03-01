@@ -219,7 +219,7 @@ DirectX::XMFLOAT4X4 VRManager::GetRoomPosition() {
 
 void VRManager::Teleport() {
 	DirectX::XMFLOAT3 endPos;
-	if(ArcCast(rightController.obj, &endPos)) {
+	if(ArcCast(&rightController.obj->transform, &endPos)) {
 		MovePlayer(endPos);
 	}
 }

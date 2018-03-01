@@ -304,8 +304,11 @@ void Loop() {
 
 	}
 	else {
-		VRManager::GetInstance().leftController.obj->PausedUpdate();
-		VRManager::GetInstance().rightController.obj->PausedUpdate();
+		//TODO: Need a better way to do this...Maybe a paused Update delegate?
+		player->leftHand.controller->PausedUpdate();
+		player->rightHand.controller->PausedUpdate();
+		player->PausedUpdate();
+
 		phyMan->PausedUpdate();
 	}
 	game->Update();

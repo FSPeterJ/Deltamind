@@ -11,8 +11,10 @@ class Transform {
 	//DirectX::XMFLOAT3 scale = DirectX::XMFLOAT3(0, 0, 0);
 public:
 	const DirectX::XMFLOAT4X4& GetMatrix() const;
+	const DirectX::XMFLOAT3 GetPosition() const;
 	void SetMatrix(const DirectX::XMFLOAT4X4& mat);
 	void SetPosition(const float x, const float y, const float z);
+	void SetPosition(const DirectX::XMFLOAT3& pos);
 	void SetRotationDegrees(const float x, const float y, const float z);
 	void SetRotationRadians(const float x, const float y, const float z);
 	void LookAt(const DirectX::XMFLOAT3& target, const DirectX::XMFLOAT3 up = { 0, 1, 0 });

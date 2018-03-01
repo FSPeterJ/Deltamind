@@ -200,7 +200,7 @@ void ControllerObject::Update() {
 
 		static bool teleport = false;
 		if (KeyIsDown(teleportDown) && hand == HAND_Right) {
-			ArcCast(this, {});
+			ArcCast(&transform, {});
 			teleport = true;
 		}
 		if (teleport && !KeyIsDown(teleportDown) && hand == HAND_Right) {
@@ -210,39 +210,7 @@ void ControllerObject::Update() {
 	}
 	//Keboard Inputs
 	else {
-		DirectX::XMFLOAT4X4 newPos = player->transform.GetMatrix();
-		//Move Controllers
-		float forwardDist = 1;
-		{
-			newPos._41 += newPos._31 * forwardDist;
-			newPos._42 += newPos._32 * forwardDist;
-			newPos._43 += newPos._33 * forwardDist;
-		}
-		float heightDist = 0.4f;
-		{
-			newPos._41 -= newPos._21 * heightDist;
-			newPos._42 -= newPos._22 * heightDist;
-			newPos._43 -= newPos._23 * heightDist;
-		}
-		float sideDist = 0.4f;
-		{
-			newPos._41 += newPos._11 * (hand == HAND_Left ? -sideDist : sideDist);
-			newPos._42 += newPos._12 * (hand == HAND_Left ? -sideDist : sideDist);
-			newPos._43 += newPos._13 * (hand == HAND_Left ? -sideDist : sideDist);
-		}
-
-		//Find Angle of Controllers
-		float maxDist = 100;
-		DirectX::XMFLOAT3 startPoint = { player->transform.GetMatrix()._41, player->transform.GetMatrix()._42, player->transform.GetMatrix()._43 };
-		DirectX::XMFLOAT3 direction = { player->transform.GetMatrix()._31, player->transform.GetMatrix()._32, player->transform.GetMatrix()._33 };
-		DirectX::XMFLOAT3 colPoint;
-		if (!Raycast(startPoint, direction, &colPoint, nullptr, maxDist)) {
-			colPoint = { startPoint.x + (direction.x * maxDist), startPoint.y + (direction.y * maxDist), startPoint.z + (direction.z * maxDist) };
-		}
-
-		//Set Position and angle of controllers
-		transform.SetMatrix(newPos);
-		transform.LookAt(colPoint);
+		PositionNonVRController();
 
 		//Keyboard Inputs
 		if (KeyIsDown(Control::TestInputU)) {
@@ -353,6 +321,10 @@ void ControllerObject::PausedUpdate() {
 	if(hand == HAND_Invalid) return;
 	Control attack = (hand == HAND_Left ? leftAttack : rightAttack);
 
+	if (!player->IsVR()) {
+		PositionNonVRController();
+	}
+
 	menuController->Render(true);
 	menuController->transform.SetMatrix(transform.GetMatrix());
 
@@ -399,4 +371,40 @@ void ControllerObject::SetGunData(int slot, Gun::FireType _fireType, float _fire
 void ControllerObject::Enable(bool destroyOnEnd) {
 	menuController->Render(false);
 	GameObject::Enable(destroyOnEnd);
+}
+
+void ControllerObject::PositionNonVRController() {
+	DirectX::XMFLOAT4X4 newPos = player->transform.GetMatrix();
+	//Move Controllers
+	float forwardDist = 1;
+	{
+		newPos._41 += newPos._31 * forwardDist;
+		newPos._42 += newPos._32 * forwardDist;
+		newPos._43 += newPos._33 * forwardDist;
+	}
+	float heightDist = 0.4f;
+	{
+		newPos._41 -= newPos._21 * heightDist;
+		newPos._42 -= newPos._22 * heightDist;
+		newPos._43 -= newPos._23 * heightDist;
+	}
+	float sideDist = 0.4f;
+	{
+		newPos._41 += newPos._11 * (hand == HAND_Left ? -sideDist : sideDist);
+		newPos._42 += newPos._12 * (hand == HAND_Left ? -sideDist : sideDist);
+		newPos._43 += newPos._13 * (hand == HAND_Left ? -sideDist : sideDist);
+	}
+
+	//Find Angle of Controllers
+	float maxDist = 100;
+	DirectX::XMFLOAT3 startPoint = { player->transform.GetMatrix()._41, player->transform.GetMatrix()._42, player->transform.GetMatrix()._43 };
+	DirectX::XMFLOAT3 direction = { player->transform.GetMatrix()._31, player->transform.GetMatrix()._32, player->transform.GetMatrix()._33 };
+	DirectX::XMFLOAT3 colPoint;
+	if (!Raycast(startPoint, direction, &colPoint, nullptr, maxDist)) {
+		colPoint = { startPoint.x + (direction.x * maxDist), startPoint.y + (direction.y * maxDist), startPoint.z + (direction.z * maxDist) };
+	}
+
+	//Set Position and angle of controllers
+	transform.SetMatrix(newPos);
+	transform.LookAt(colPoint);
 }

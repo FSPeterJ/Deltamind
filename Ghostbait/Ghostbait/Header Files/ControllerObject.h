@@ -28,6 +28,9 @@ class ControllerObject: public GameObject, public Controlable {
 
 	void SwitchCurrentItem(int itemIndex = -1);
 	void DisplayInventory();
+
+	void PositionNonVRController();
+
 public:
 
 	ControllerObject();

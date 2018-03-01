@@ -167,12 +167,18 @@ void Transform::SetMatrix(const DirectX::XMFLOAT4X4& mat) {
 	matrix = mat;
 }
 
-
+const DirectX::XMFLOAT3 Transform::GetPosition() const {
+	return XMFLOAT3(matrix._41, matrix._42, matrix._43);
+}
 void Transform::SetPosition(const float x, const float y, const float z) {
 	matrix._41 = x;
 	matrix._42 = y;
 	matrix._43 = z;
 }
+void Transform::SetPosition(const DirectX::XMFLOAT3& pos) {
+	SetPosition(pos.x, pos.y, pos.z);
+}
+
 void Transform::SetRotationRadians(const float x, const float y, const float z) {
 	XMFLOAT4X4 rotatedBy;
 	XMStoreFloat4x4(&rotatedBy, XMMatrixRotationRollPitchYaw(x, y, z));

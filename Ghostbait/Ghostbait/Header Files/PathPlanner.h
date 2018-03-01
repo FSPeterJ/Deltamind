@@ -84,8 +84,8 @@ class PathPlanner {
 	/// <returns>A path from the start to goal or an empty path if one is not found.</returns>
 	static HexPath AStarSearch(HexTile *const start, HexTile *const goal, HeuristicFunction Heuristic);
 
-	static void DStarLiteSearch(HexTile *const start, HexTile *const goal, HexPath* path, HeuristicFunction Heuristic);
-
+	static std::vector<DStarLite> dstarList;
+	static std::size_t dstars;
 public:
 
 	static void SetHeuristic(HeuristicFunction heuristic);
@@ -93,6 +93,11 @@ public:
 
 	static HexPath FindPath(HexTile*const start, HexTile*const goal, TileType startType, TileType goalType);
 	static HexPath FindPath(const DirectX::XMFLOAT2 start, const DirectX::XMFLOAT2 goal, TileType startType, TileType goalType);
+
+
+	static std::size_t DStarLiteSearch(HexTile *const start, HexTile *const goal, HexTile** nextTileInPath, HeuristicFunction Heuristic);
+	static void UpdateDStarLite(std::size_t dstarId);
+
 
 	template <PathingAlgorithm a>
 	typename std::enable_if<a == PathingAlgorithm::BreadthFirst || a == PathingAlgorithm::Dijkstra, TraversalResult>::type

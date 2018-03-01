@@ -6,6 +6,8 @@
 #include "TraversalResult.h"
 #include "Console.h"
 #include <map>
+#include <functional>
+#include <iterator>
 
 template<typename T, typename priority_t>
 struct PriorityQueue {
@@ -39,6 +41,41 @@ struct PriorityQueue {
 	}
 };
 
+template<typename K, typename V>
+struct BiDePriorityQueueMap {
+	//typedef std::pair<K, V> pair;
+	std::deque<std::pair<K, V>> q;
+
+	static bool Predicate(std::pair<K, V> const& p1, std::pair<K, V> const& p2) {
+		return p1.second > p2.second;
+	}
+
+	bool empty() const { return q.empty(); }
+
+	void clear() { q.clear(); }
+
+	std::size_t size() const { return q.size(); }
+
+	void insert(K const& key, V const& value) {
+		std::pair<K, V> node = std::make_pair(key, value);
+		q.insert(std::upper_bound(q.begin(), q.end(), node, Predicate), node);
+	}
+
+	std::pair<K, V> front() const { return q.back(); }
+
+	void pop() { q.pop_back(); }
+
+	typename std::deque<std::pair<K, V>>::iterator find(K const& key) {
+		return std::find_if(q.begin(), q.end(), [=](const std::pair<K, V>& element) { return element.first == key; });
+	}
+	
+	typename std::deque<std::pair<K, V>>::iterator remove(K const& key) { return q.erase(find(key)); }
+
+	bool contains(K const& key) { return find(key) != q.end(); }
+
+	void update(K const& key, V const& value) { remove(key); insert(key, value); }
+};
+
 HeuristicFunction PathPlanner::heuristicFunction = nullptr;
 HexGrid* PathPlanner::grid = nullptr;
 
@@ -70,6 +107,7 @@ HexPath PathPlanner::FindPath(HexTile*const start, HexTile*const goal, TileType 
 	case PathingAlgorithm::BreadthFirst: return BreadthFirstSearch(start, goal);
 	case PathingAlgorithm::Dijkstra: return DijkstraSearch(start, goal);
 	case PathingAlgorithm::AStar: return AStarSearch(start, goal, heuristicFunction);
+		//case PathingAlgorithm::DStarLite: return DStarLiteSearch(start, goal, heuristicFunction);
 	default: return HexPath();
 	}
 }
@@ -290,25 +328,44 @@ HexPath PathPlanner::AStarSearch(HexTile *const start, HexTile *const goal, Heur
 
 class DStarLite {
 	typedef std::pair<float, float> pair_float;
-	typedef std::map<HexTile*const, pair_float, std::greater<pair_float>> priority_map;
-	priority_map U;
+	//typedef std::multimap<pair_float, HexTile*const, std::greater<pair_float>> priority_map;
+	//priority_map U;
+
+	BiDePriorityQueueMap<HexTile*, pair_float> U;
 
 	float km;
 	HexGrid *const grid = nullptr;
-	HexTile *const start = nullptr, *const goal = nullptr;
-	HexTile* last;
+	HexTile * start = nullptr, *const goal = nullptr;
+	HexTile* last = nullptr;
+	HexTile* curNode = nullptr;
+
+	HexTile** nextTileInPath = nullptr;
 
 	CostMap cumulativeCost;
 	CostMap rhs; //min of next cost
 
-	DStarLite(HexGrid *const _grid, HexTile *const _start, HexTile *const _goal) : last(_start), grid(_grid), start(_start), goal(_goal) {
-		km = 0;
+	float mostMinimum;
 
-		grid->ForEach([=](HexTile*const tile) {rhs[tile] = cumulativeCost[tile] = grid->BlockWeight(); });
+	typedef std::function<void(HexTile*const)> NeighborFunction;
 
-		rhs[goal] = 0;
+	void ForEachPredessor(HexTile*const tile, NeighborFunction exec) {
+		//pred = non blocked neighbors
+		for(auto& element : tile->Neighbors()) {
+			HexTile* neighbor = grid->GetTileExact(element);
+			if(!neighbor || grid->IsBlocked(neighbor)) { continue; }
+			exec(neighbor);
+		}
+	}
 
-		U.insert(std::make_pair(goal, std::make_pair(PathPlanner::heuristicFunction(start, goal), 0.0f)));
+	void ForEachSuccessor(HexTile*const tile, NeighborFunction exec) {
+		//succ = if you blocked, no res, else return all
+		if(grid->IsBlocked(tile)) return;
+
+		for(auto& element : tile->Neighbors()) {
+			HexTile* neighbor = grid->GetTileExact(element);
+			if(!neighbor) { continue; }
+			exec(neighbor);
+		}
 	}
 
 	std::pair<float, float> CalcKey(HexTile *const tile) {
@@ -316,117 +373,180 @@ class DStarLite {
 	}
 
 	void UpdateVertex(HexTile *const tile) {
-		if(cumulativeCost[tile] != rhs[tile] && U.count(tile)) {
-			//update u
-			U.erase(tile);
-			U.insert(std::make_pair(tile, CalcKey(tile)));
-		} else if(cumulativeCost[tile] != rhs[tile] && !U.count(tile)) {
-			U.insert(std::make_pair(tile, CalcKey(tile)));
-		} else if(cumulativeCost[tile] == rhs[tile] && U.count(tile)) {
-			U.erase(tile);
+		if(cumulativeCost[tile] != rhs[tile] && U.contains(tile)) {
+			U.update(tile, CalcKey(tile));
+		} else if(cumulativeCost[tile] != rhs[tile] && !U.contains(tile)) {
+			U.insert(tile, CalcKey(tile));
+		} else if(cumulativeCost[tile] == rhs[tile] && U.contains(tile)) {
+			U.remove(tile);
 		}
 	}
 
+	//void Replan() {
+	//	path->clear();
+	//
+	//	curNode = start;
+	//
+	//	while(curNode != goal) {
+	//		path->push_back(curNode);
+	//
+	//		mostMinimum = grid->BlockWeight();
+	//		ForEachSuccessor(curNode, [=](HexTile*const sPrime) {
+	//			float minposib = sPrime->weight + cumulativeCost[sPrime];
+	//			if(minposib < mostMinimum) {
+	//				mostMinimum = minposib;
+	//				curNode = sPrime;
+	//			}
+	//		});
+	//
+	//		if(grid->IsBlocked(curNode)) {
+	//			path->clear();
+	//			return; //no path
+	//		}
+	//
+	//	}
+	//
+	//	path->push_back(goal);
+	//
+	//}
+
 	void ComputeShortestPath() {
-		while((U.begin())->second < CalcKey(start) || rhs[start] > cumulativeCost[start]) {
-			HexTile* u = (U.begin())->first;
-			pair_float kold = (U.begin())->second;
+		while(U.front().second < CalcKey(start) || rhs[start] > cumulativeCost[start]) {
+			HexTile* u = U.front().first;
+			pair_float kold = U.front().second;
 			pair_float knew = CalcKey(u);
 			if(kold < knew) {
-				//update u
-				U.erase(u);
-				U.insert(std::make_pair(u, knew));
+				U.update(u, knew);
 			} else if(cumulativeCost[u] > rhs[u]) {
 				cumulativeCost[u] = rhs[u];
-				U.erase(u);
+				U.remove(u);
 
-				for(auto& element : u->Neighbors()) {
-					HexTile* neighbor = grid->GetTileExact(element);
-					if(!neighbor || grid->IsBlocked(neighbor)) { continue; }
-
+				ForEachPredessor(u, [=](HexTile*const neighbor) {
 					if(neighbor != goal) {
 						rhs[neighbor] = min(rhs[neighbor], neighbor->weight + cumulativeCost[u]);
 					}
 					UpdateVertex(neighbor);
-				}
+				});
 			} else {
-				auto gold = cumulativeCost[u];
+				float gold = cumulativeCost[u];
 				cumulativeCost[u] = grid->BlockWeight();
 
-
-				for(auto& element : u->Neighbors()) {
-					HexTile* neighbor = grid->GetTileExact(element);
-					if(!neighbor || grid->IsBlocked(neighbor)) { continue; }
-
+				ForEachPredessor(u, [=](HexTile*const neighbor) {
 					if(rhs[neighbor] == neighbor->weight + gold) {
 						if(neighbor != goal) {
-							auto minest = grid->BlockWeight();
-							for(auto& scele : neighbor->Neighbors()) {
-								HexTile* neighbor2 = grid->GetTileExact(scele);
-								if(!neighbor2 || grid->IsBlocked(neighbor2)) { continue; }
+							mostMinimum = grid->BlockWeight();
 
-								auto minposib = neighbor2->weight + cumulativeCost[neighbor2];
-								minest = minposib < minest ? minposib : minest;
-							}
+							ForEachSuccessor(neighbor, [=](HexTile*const neighbor2) {
+								float minposib = neighbor2->weight + cumulativeCost[neighbor2];
+								mostMinimum = minposib < mostMinimum ? minposib : mostMinimum;
+							});
 
-							rhs[neighbor] = minest;
+							rhs[neighbor] = mostMinimum;
 						}
 					}
 					UpdateVertex(neighbor);
-				}
+				});
 			}
 		}
+		//Replan();
 	}
 
-	void Start() {
+public:
+	DStarLite & operator=(const DStarLite& other) {
+		return *this;
+	}
+
+	DStarLite(HexGrid *const _grid, HexTile *const _start, HexTile *const _goal, HexTile** _nextTileInPath) :
+		last(_start), grid(_grid), start(_start), goal(_goal), nextTileInPath(_nextTileInPath) {
+		km = 0;
+
+		*nextTileInPath = start;
+
+		grid->ForEach([=](HexTile*const tile) {rhs[tile] = cumulativeCost[tile] = grid->BlockWeight(); });
+
+		rhs[goal] = 0;
+
+		U.insert(goal, std::make_pair(PathPlanner::heuristicFunction(start, goal), 0.0f));
+
 		ComputeShortestPath();
+	}
 
-		while(start != goal) {
-			if(rhs[start] == grid->BlockWeight()) {
-				//there is no known path
+	void Update() {//ran on thread
+	//	while(start != goal) {
+		if(rhs[start] == grid->BlockWeight()) {
+			//there is no known path
+
+			return;
+		}
+
+		//find next node on path
+		mostMinimum = grid->BlockWeight();
+		ForEachSuccessor(start, [=](HexTile*const sPrime) {
+			float minposib = sPrime->weight + cumulativeCost[sPrime];
+			if(minposib < mostMinimum) {
+				mostMinimum = minposib;
+				start = sPrime;
 			}
+		});
 
-			//start = arg min
+		//move enemy to start
+		*nextTileInPath = start;
 
-			//move to start
+		//scan graph for changed edge costs
+		if(grid->GetCostDelta().size()) { //if any edge costs changed
+			km = km + PathPlanner::heuristicFunction(last, start);
 
-			//scan graph for changed edge costs
-			if(grid->GetCostDelta().size()) { //if any edge costs changed
-				km = km + PathPlanner::heuristicFunction(last, start);
+			last = start;
 
-				last = start;
+			//for all directed edges
+			for(auto& n : start->Neighbors()) {
+				HexTile* neighbor = grid->GetTileExact(n);
+				//with changed edge costs
+				if(!neighbor || !grid->GetCostDelta().count(neighbor)) { continue; }
 
-				//for all directed edges
-				for(auto& n : start->Neighbors()) {
-					HexTile* neighbor = grid->GetTileExact(n);
-					//with changed edge costs
-					if(!neighbor || !grid->GetCostDelta().count(neighbor)) { continue; }
-					
-					auto u = start; // ?????
-					
-					float c_old = grid->GetCostDelta()[neighbor];
+				auto u = start; // ?????
 
-					if(c_old > neighbor->weight) {
-						if(u != goal) {
-							rhs[u] = min(rhs[u], neighbor->weight + cumulativeCost[neighbor]);
-						}
-					} else if(rhs[u] == c_old + cumulativeCost[neighbor]) {
-						if(u != goal) {
-						//	rhs[u] =
-						}
+				float c_old = grid->GetCostDelta()[neighbor];
+
+				if(c_old > neighbor->weight) {
+					if(u != goal) {
+						rhs[u] = min(rhs[u], neighbor->weight + cumulativeCost[neighbor]);
 					}
-				
-					UpdateVertex(u);
+				} else if(rhs[u] == c_old + cumulativeCost[neighbor]) {
+					if(u != goal) {
+						mostMinimum = grid->BlockWeight();
+
+						ForEachSuccessor(u, [=](HexTile*const neighbor2) {
+							float minposib = neighbor2->weight + cumulativeCost[neighbor2];
+							mostMinimum = minposib < mostMinimum ? minposib : mostMinimum;
+						});
+
+						rhs[u] = mostMinimum;
+					}
 				}
 
-				ComputeShortestPath();
-				grid->GetCostDelta().clear();
+				UpdateVertex(u);
 			}
+
+			ComputeShortestPath();
+			grid->GetCostDelta().clear();
 		}
 	}
+	//}
 };
 
-HexPath PathPlanner::DStarSearch(HexTile *const start, HexTile *const goal) {}
+std::vector<DStarLite> PathPlanner::dstarList;
+std::size_t PathPlanner::dstars = 0;
+std::size_t PathPlanner::DStarLiteSearch(HexTile *const start, HexTile *const goal, HexTile** nextTileInPath, HeuristicFunction Heuristic) {
+	auto ds = DStarLite(grid, start, goal, nextTileInPath);
+	dstarList.insert(dstarList.begin() + dstars, ds);
+
+	return dstars++;
+}
+
+void PathPlanner::UpdateDStarLite(std::size_t dstarId) {
+	dstarList[dstarId].Update();
+}
 
 HexPath PathPlanner::CalculatePathWithinXSteps(HexTile *const start, HexTile *const goal, size_t steps) {
 	if(grid->IsBlocked(goal)) {

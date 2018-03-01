@@ -1,6 +1,5 @@
 #include "Menu.h"
 #include "MessageEvents.h"
-#include "VRManager.h"
 #include "Console.h"
 
 void MenuOption::Select() {
@@ -21,6 +20,9 @@ Menu::Menu(Template t, std::vector<Button> buttons) {
 	AssignPrefabIDs();
 	Create(t, buttons);
 }
+void Menu::SetCamera(Transform* _camera) {
+	camera = _camera;
+}
 void Menu::AssignPrefabIDs() {
 	buttonPrefabMap[BUTTON_Resume] = "ResumeButton";
 	buttonPrefabMap[BUTTON_Restart] = "RestartButton";
@@ -38,7 +40,7 @@ void Menu::GamePauseEvent() {
 
 DirectX::XMFLOAT4X4 Menu::FindCenter(float distFromPlayer) {
 	DirectX::XMMATRIX center_M;
-	DirectX::XMMATRIX player_M = DirectX::XMLoadFloat4x4(&VRManager::GetInstance().GetPlayerPosition());
+	DirectX::XMMATRIX player_M = DirectX::XMLoadFloat4x4(&camera->GetMatrix());
 	DirectX::XMVECTOR forward = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(player_M.r[0], DirectX::XMVectorSet(0, 1, 0, 0)));
 	DirectX::XMMATRIX translationMat = DirectX::XMMatrixTranslationFromVector(DirectX::XMVectorScale(forward, distFromPlayer));
 	center_M = player_M * translationMat;

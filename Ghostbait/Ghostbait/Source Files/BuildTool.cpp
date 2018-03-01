@@ -76,7 +76,7 @@ bool BuildTool::SetObstacle(DirectX::XMFLOAT2 pos, bool active) {
 }
 
 void BuildTool::SpawnProjection(){
-	if (ArcCast((Object*)this, &spawnPos)) {
+	if (ArcCast(&transform, &spawnPos)) {
 		//snap to center of grid
 		DirectX::XMFLOAT2 newPos = DirectX::XMFLOAT2(spawnPos.x, spawnPos.z);
 		Snap(&newPos);

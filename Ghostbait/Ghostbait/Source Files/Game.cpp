@@ -264,6 +264,7 @@ void Game::Start(Player* _player, EngineStructure* _engine, char* startScene) {
 	srand((unsigned int)time(NULL));
 	engine = _engine;
 	player = _player;
+	pauseMenu->SetCamera(&player->transform);
 	sceneManager = new SceneManager();
 	sceneManager->Initialize();
 	gameData.Reset();

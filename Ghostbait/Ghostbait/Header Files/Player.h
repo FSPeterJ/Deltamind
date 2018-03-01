@@ -16,19 +16,25 @@ class Player : public GameObject, public Controlable {
 		int inventory[CONTROLLER_MAX_ITEMS] = { -1 };
 		ControllerObject* controller = nullptr;
 	};
-	Hand left, right;
 	
 	std::vector<unsigned> ownedItems;
-	ControllerObject* leftController, *rightController;
+	//ControllerObject* leftController, *rightController;
 
 	//Camera cam;
 
 	//void LoadInventory(const char* fileName = INVENTORY_FILE);
 
+	float rotationY = 0.0f;
+	float rotationX = 0.0f;
+
 public:
+	Hand leftHand, rightHand;
+
+	float playerHeight = 1.7f;
 	Player();
 
 	void Update() override;
+	void PausedUpdate();
 	
 	void LoadControllers(VRControllerTypes type = CONTROLLER_Full);
 

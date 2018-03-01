@@ -60,6 +60,7 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 			break;
 		case WM_MBUTTONDOWN:
 			messType = InputManager::MessageType::MouseDown;
+			wParam = MK_MBUTTON;
 			break;
 		case WM_LBUTTONUP:
 			messType = InputManager::MessageType::MouseUp;
@@ -67,6 +68,7 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 			break;
 		case WM_LBUTTONDOWN:
 			messType = InputManager::MessageType::MouseDown;
+			wParam = MK_LBUTTON;
 			break;
 		case WM_RBUTTONUP:
 			messType = InputManager::MessageType::MouseUp;
@@ -74,6 +76,7 @@ LRESULT CALLBACK Window::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 			break;
 		case WM_RBUTTONDOWN:
 			messType = InputManager::MessageType::MouseDown;
+			wParam = MK_RBUTTON;
 			break;
 		case WM_KEYDOWN:
 			messType = InputManager::MessageType::KeyboardDown;

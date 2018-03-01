@@ -25,6 +25,7 @@
 #include "Menu.h"
 #include "AStarEnemy.h"
 #include "Turret.h"
+#include "Player.h"
 
 Renderer* rendInter;
 Game* game;
@@ -35,6 +36,7 @@ ObjectManager* objMan;
 EngineStructure engine;
 AnimatorManager* animMan;
 AudioManager* audioMan;
+Player* player;
 
 void ExecuteAsync() {
 	Console::WriteLine << "I am executed asyncly!";
@@ -51,7 +53,6 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	_Pool_Base::RegisterMemory(&MemMan);
 	Console::WriteLine << "App has been initalized!";
-
 	//Minimize();
 
 #pragma region testing
@@ -94,22 +95,23 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	rendInter = new Renderer();
 	audioMan = new AudioManager();
-	bool isVR = VRManager::GetInstance().Init();
-	if(isVR) {
-		rendInter->Initialize(wnd);
+	player = new Player();
+	if(player->IsVR()) {
+		rendInter->Initialize(wnd, &player->transform);
 		Console::WriteLine << "Renderer initialized......";
 		inputMan = new InputManager(VR);
 		if(inputMan) Console::WriteLine << "Input Manager initialized......";
-		audioMan->setCamera(&VRManager::GetInstance().GetPlayerPosition());
+		//audioMan->setCamera(&VRManager::GetInstance().GetPlayerPosition());
 	}
 	else {
 		Console::WriteLine << "VR not initialized! Defaulting to 2D";
-		rendInter->Initialize(wnd);
+		rendInter->Initialize(wnd, &player->transform);
 		Console::WriteLine << "Renderer initialized......";
 		inputMan = new InputManager(KEYBOARD);
 		if(inputMan) Console::WriteLine << "Input Manager initialized......";
-		audioMan->setCamera(&(rendInter->getCamera())->GetPosition());
+		//audioMan->setCamera(&(rendInter->getCamera())->GetPosition());
 	}
+	audioMan->setCamera(&player->transform.GetMatrix());
 	Console::WriteLine << "Nothing's wrong here......";
 
 	animMan = new AnimatorManager(rendInter->getAnimationManager());
@@ -220,21 +222,22 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	Console::WriteLine << "Prefabs created......";
 	//=============================
 
-	if(VRManager::GetInstance().IsEnabled()) {
-		VRManager::GetInstance().CreateControllers();
-		VRManager::GetInstance().SetBuildItems({ basicTurret });
-	}
-	else {
-		//------
-		// Debug Controller
-		//=========================================================
-		ControllerObject *debugController;
-		MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 0,2,-2 }, &debugController));
-		debugController->Init(ControllerHand::HAND_Left);
-		debugController->SetBuildItems({ basicTurret });
-		debugController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
-		debugController->SetGunData(2, Gun::FireType::AUTO, 8, 25);
-	}
+	player->LoadControllers();
+	//if(VRManager::GetInstance().IsEnabled()) {
+	//	VRManager::GetInstance().CreateControllers();
+	//	VRManager::GetInstance().SetBuildItems({ basicTurret });
+	//}
+	//else {
+	//	//------
+	//	// Debug Controller
+	//	//=========================================================
+	//	ControllerObject *debugController;
+	//	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 0,2,-2 }, &debugController));
+	//	debugController->Init(ControllerHand::HAND_Left);
+	//	debugController->SetBuildItems({ basicTurret });
+	//	debugController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
+	//	debugController->SetGunData(2, Gun::FireType::AUTO, 8, 25);
+	//}
 
 	//GameObject* ground;
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<GameObject>("Ground", {4, 0.0f, 0.0f}, (GameObject**)&ground));
@@ -290,7 +293,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<GameObject>("EarthMage", { 0.0f, 0.0f, 25.0f }));
 	Console::WriteLine << "Starting Game Loop......";
 	game = new Game();
-	game->Start(&engine, "level0");
+	game->Start(player, &engine, "level0");
 }
 
 void Loop() {
@@ -327,6 +330,7 @@ void CleanUp() {
 		game->Clean();
 		delete game;
 	}
+	delete player;
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow) {

@@ -2,7 +2,6 @@
 #include "GhostTime.h"
 #include "MessageEvents.h"
 #include "Console.h"
-#include "VRManager.h"
 #include "PhysicsComponent.h"
 #include "PhysicsExtension.h"
 
@@ -54,12 +53,12 @@ void BuildTool::Activate() {
 }
 
 bool BuildTool::Snap(GameObject** obj) {
-	DirectX::XMFLOAT2 pos = { (*obj)->GetPosition()._41, (*obj)->GetPosition()._43 };
+	DirectX::XMFLOAT2 pos = { (*obj)->transform.GetMatrix()._41, (*obj)->transform.GetMatrix()._43 };
 	if (Snap(&pos)) {
-		DirectX::XMFLOAT4X4 newPos = (*obj)->GetPosition();
+		DirectX::XMFLOAT4X4 newPos = (*obj)->transform.GetMatrix();
 		newPos._41 = pos.x;
 		newPos._43 = pos.y;
-		(*obj)->SetPosition(newPos);
+		(*obj)->transform.SetMatrix(newPos);
 		return true;
 	}
 	return false;
@@ -77,7 +76,7 @@ bool BuildTool::SetObstacle(DirectX::XMFLOAT2 pos, bool active) {
 }
 
 void BuildTool::SpawnProjection(){
-	if (VRManager::GetInstance().ArcCast((Object*)this, &spawnPos)) {
+	if (ArcCast((Object*)this, &spawnPos)) {
 		//snap to center of grid
 		DirectX::XMFLOAT2 newPos = DirectX::XMFLOAT2(spawnPos.x, spawnPos.z);
 		Snap(&newPos);
@@ -85,11 +84,11 @@ void BuildTool::SpawnProjection(){
 		spawnPos.z = newPos.y;
 		//Move Object
 		if (prefabs[currentPrefabIndex].object) {
-			DirectX::XMFLOAT4X4 newPos1 = prefabs[currentPrefabIndex].object->GetPosition();
+			DirectX::XMFLOAT4X4 newPos1 = prefabs[currentPrefabIndex].object->transform.GetMatrix();
 			newPos1._41 = spawnPos.x;
 			newPos1._42 = spawnPos.y;
 			newPos1._43 = spawnPos.z;
-			prefabs[currentPrefabIndex].object->SetPosition(newPos1);
+			prefabs[currentPrefabIndex].object->transform.SetMatrix(newPos1);
 		}
 	}
 }
@@ -111,7 +110,7 @@ void BuildTool::Spawn() {
 }
 void BuildTool::RemoveProjection() {
 	DirectX::XMFLOAT3 endPos;
-	if (!Raycast(DirectX::XMFLOAT3(GetPosition()._41, GetPosition()._42, GetPosition()._43), DirectX::XMFLOAT3(GetPosition()._31, GetPosition()._32, GetPosition()._33), &endPos, &currentlySelectedItem, 4)) {
+	if (!Raycast(DirectX::XMFLOAT3(transform.GetMatrix()._41, transform.GetMatrix()._42, transform.GetMatrix()._43), DirectX::XMFLOAT3(transform.GetMatrix()._31, transform.GetMatrix()._32, transform.GetMatrix()._33), &endPos, &currentlySelectedItem, 4)) {
 		currentlySelectedItem = nullptr;
 	}
 	//Set shader to transparent thing
@@ -119,7 +118,7 @@ void BuildTool::RemoveProjection() {
 void BuildTool::Remove() {
 	for (int i = 0; i < builtItems.size(); ++i) {
 		if (currentlySelectedItem == builtItems[i]) {
-			DirectX::XMFLOAT2 pos = DirectX::XMFLOAT2(currentlySelectedItem->GetPosition()._41, currentlySelectedItem->GetPosition()._43);
+			DirectX::XMFLOAT2 pos = DirectX::XMFLOAT2(currentlySelectedItem->transform.GetMatrix()._41, currentlySelectedItem->transform.GetMatrix()._43);
 			if (SetObstacle(pos, false)) {
 				MessageEvents::SendQueueMessage(EVENT_Late, [=] { currentlySelectedItem->Destroy(); });
 				builtItems.erase(builtItems.begin() + i);

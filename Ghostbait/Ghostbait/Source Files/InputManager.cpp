@@ -288,8 +288,9 @@ InputManager::KeyboardInput::KeyboardInput() {
 	MapKey(backward, 'S');
 	MapKey(left, 'A');
 	MapKey(right, 'D');
-	MapKey(teleportDown, MK_RBUTTON);
+	MapKey(rightAttack, MK_RBUTTON);
 	MapKey(leftAttack, MK_LBUTTON);
+	//MapKey(teleportDown, MK_MBUTTON);
 	MapKey(LeftAction, 'Q');
 	MapKey(RightAction, 'E');
 

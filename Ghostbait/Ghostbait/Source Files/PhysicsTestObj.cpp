@@ -16,48 +16,48 @@ void PhysicsTestObj::Update() {
 	float dt = (float)GhostTime::DeltaTime();
 	if (!isControllable) return;
 	if (isRayCasting)
-		Raycast(DirectX::XMFLOAT3(GetPosition()._41, GetPosition()._42, GetPosition()._43), DirectX::XMFLOAT3(GetPosition()._31, GetPosition()._32, GetPosition()._33));
+		Raycast(DirectX::XMFLOAT3(transform.GetMatrix()._41, transform.GetMatrix()._42, transform.GetMatrix()._43), DirectX::XMFLOAT3(transform.GetMatrix()._31, transform.GetMatrix()._32, transform.GetMatrix()._33));
 
 	if (KeyIsDown(Control::TestInputU))
 	{
-		DirectX::XMFLOAT4X4 newPos = GetPosition();
+		DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
 		newPos._42 += dt;
-		SetPosition(newPos);
+		transform.SetMatrix(newPos);
 		//ResetKey(Control::TestInputU);
 	}
 	if (KeyIsDown(Control::TestInputO))
 	{
-		DirectX::XMFLOAT4X4 newPos = GetPosition();
+		DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
 		newPos._42 -= dt;
-		SetPosition(newPos);
+		transform.SetMatrix(newPos);
 		//ResetKey(Control::TestInputO);
 	}
 	if (KeyIsDown(Control::TestInputI))
 	{
-		DirectX::XMFLOAT4X4 newPos = GetPosition();
+		DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
 		newPos._43 += dt;
-		SetPosition(newPos);
+		transform.SetMatrix(newPos);
 		//ResetKey(Control::TestInputI);
 	}
 	if (KeyIsDown(Control::TestInputK))
 	{
-		DirectX::XMFLOAT4X4 newPos = GetPosition();
+		DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
 		newPos._43 -= dt;
-		SetPosition(newPos);
+		transform.SetMatrix(newPos);
 		//ResetKey(Control::TestInputK);
 	}
 	if (KeyIsDown(Control::TestInputJ))
 	{
-		DirectX::XMFLOAT4X4 newPos = GetPosition();
+		DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
 		newPos._41 -= dt;
-		SetPosition(newPos);
+		transform.SetMatrix(newPos);
 		//ResetKey(Control::TestInputJ);
 	}
 	if (KeyIsDown(Control::TestInputL))
 	{
-		DirectX::XMFLOAT4X4 newPos = GetPosition();
+		DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
 		newPos._41 += dt;
-		SetPosition(newPos);
+		transform.SetMatrix(newPos);
 		//ResetKey(Control::TestInputL);
 	}
 	

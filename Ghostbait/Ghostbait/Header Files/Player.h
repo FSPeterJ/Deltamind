@@ -1,5 +1,6 @@
 #pragma once
 #include "ControllerObject.h"
+#include "Camera.h"
 
 #define INVENTORY_FILE "Save Files\\Inventory.save"
 
@@ -10,8 +11,7 @@ enum VRControllerTypes {
 	CONTROLLER_ModelsOnly,
 };
 
-
-class Player : public GameObject {
+class Player : public GameObject, public Controlable {
 	struct Hand {
 		int inventory[CONTROLLER_MAX_ITEMS] = { -1 };
 		ControllerObject* controller = nullptr;
@@ -19,14 +19,23 @@ class Player : public GameObject {
 	Hand left, right;
 	
 	std::vector<unsigned> ownedItems;
-	InputManager* im;
-	
-	void LoadInventory(const char* fileName = INVENTORY_FILE);
+	ControllerObject* leftController, *rightController;
+
+	//Camera cam;
+
+	//void LoadInventory(const char* fileName = INVENTORY_FILE);
 
 public:
-	Player(InputManager* _im);
+	Player();
 
 	void Update() override;
 	
 	void LoadControllers(VRControllerTypes type = CONTROLLER_Full);
+
+//	void SetPosition(DirectX::XMFLOAT4X4 newPos) override;
+//	const DirectX::XMFLOAT4X4& GetPosition() const override;
+
+	void Teleport();
+
+	bool IsVR() const;
 };

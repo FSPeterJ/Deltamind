@@ -4,12 +4,14 @@
 #include "Controlable.h"  // for Controlable
 #include "vector"         // for vector
 #include "MenuControllerItem.h"
-#include "VRManager.h"
+#include "VRStructs.h"
 
+class Player;
 
 #define CONTROLLER_MAX_ITEMS 4
 
 class ControllerObject: public GameObject, public Controlable {
+	Player* player = nullptr;
 	MenuControllerItem* menuController = nullptr;
 	ControllerHand hand = HAND_Invalid;
 	Item* items[CONTROLLER_MAX_ITEMS] = { 0 };
@@ -30,7 +32,7 @@ public:
 
 	ControllerObject();
 
-	void Init(ControllerHand _hand);
+	void Init(Player* _player, ControllerHand _hand);
 	void AddItem(int itemSlot, unsigned prefabID);
 	void AddItem(int itemSlot, unsigned prefabID, std::vector<unsigned> prefabIDs);
 	void AddItem(int itemSlot, unsigned prefabID, Gun::FireType _fireType, float _fireRate, float _damage);

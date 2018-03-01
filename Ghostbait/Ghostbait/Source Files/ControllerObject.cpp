@@ -1,17 +1,19 @@
 #include "ControllerObject.h"
 #include "Console.h"         // for Console, Console::WriteLine, Console::WriteLiner
 #include "MessageEvents.h"
-#include "VRManager.h"
 #include "BuildTool.h"
 #include "PhysicsComponent.h"
 #include "BuildTool.h"
 #include "Item.h"
 #include "GhostTime.h"
+#include "PhysicsExtension.h"
+#include "Player.h"
 
 ControllerObject::ControllerObject() {
 }
 
-void ControllerObject::Init(ControllerHand _hand) {
+void ControllerObject::Init(Player* _player, ControllerHand _hand) {
+	player = _player;
 	hand = _hand;
 	//SetControllerHand(_hand); //Not needed anymore?
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuControllerItem>({ 0,0,0 }, &menuController));
@@ -98,46 +100,46 @@ void ControllerObject::DisplayInventory() {
 			if(displayItems[i]) {
 				if(!*justTouched) displayItems[i]->Render(true);
 				DirectX::XMFLOAT4X4 newPos;
-				newPos._11 = GetPosition()._11 * 0.5f;
-				newPos._12 = GetPosition()._12 * 0.5f;
-				newPos._13 = GetPosition()._13 * 0.5f;
-				newPos._14 = GetPosition()._14;
-				newPos._21 = GetPosition()._21 * 0.5f;
-				newPos._22 = GetPosition()._22 * 0.5f;
-				newPos._23 = GetPosition()._23 * 0.5f;
-				newPos._24 = GetPosition()._24;
-				newPos._31 = GetPosition()._31 * 0.5f;
-				newPos._32 = GetPosition()._32 * 0.5f;
-				newPos._33 = GetPosition()._33 * 0.5f;
-				newPos._34 = GetPosition()._34;
-				newPos._41 = GetPosition()._41;
-				newPos._42 = GetPosition()._42;
-				newPos._43 = GetPosition()._43;
-				newPos._44 = GetPosition()._44;
+				newPos._11 = transform.GetMatrix()._11 * 0.5f;
+				newPos._12 = transform.GetMatrix()._12 * 0.5f;
+				newPos._13 = transform.GetMatrix()._13 * 0.5f;
+				newPos._14 = transform.GetMatrix()._14;
+				newPos._21 = transform.GetMatrix()._21 * 0.5f;
+				newPos._22 = transform.GetMatrix()._22 * 0.5f;
+				newPos._23 = transform.GetMatrix()._23 * 0.5f;
+				newPos._24 = transform.GetMatrix()._24;
+				newPos._31 = transform.GetMatrix()._31 * 0.5f;
+				newPos._32 = transform.GetMatrix()._32 * 0.5f;
+				newPos._33 = transform.GetMatrix()._33 * 0.5f;
+				newPos._34 = transform.GetMatrix()._34;
+				newPos._41 = transform.GetMatrix()._41;
+				newPos._42 = transform.GetMatrix()._42;
+				newPos._43 = transform.GetMatrix()._43;
+				newPos._44 = transform.GetMatrix()._44;
 				switch(i) {
 					case 0:
-						newPos._41 += ((GetPosition()._21 * 0.2f) + (GetPosition()._31 * 0.1f));
-						newPos._42 += ((GetPosition()._22 * 0.2f) + (GetPosition()._32 * 0.1f));
-						newPos._43 += ((GetPosition()._23 * 0.2f) + (GetPosition()._33 * 0.1f));
+						newPos._41 += ((transform.GetMatrix()._21 * 0.2f) + (transform.GetMatrix()._31 * 0.1f));
+						newPos._42 += ((transform.GetMatrix()._22 * 0.2f) + (transform.GetMatrix()._32 * 0.1f));
+						newPos._43 += ((transform.GetMatrix()._23 * 0.2f) + (transform.GetMatrix()._33 * 0.1f));
 						break;
 					case 1:
-						newPos._41 += ((-GetPosition()._11 * 0.2f) + (GetPosition()._31 * 0.1f));
-						newPos._42 += ((-GetPosition()._12 * 0.2f) + (GetPosition()._32 * 0.1f));
-						newPos._43 += ((-GetPosition()._13 * 0.2f) + (GetPosition()._33 * 0.1f));
+						newPos._41 += ((-transform.GetMatrix()._11 * 0.2f) + (transform.GetMatrix()._31 * 0.1f));
+						newPos._42 += ((-transform.GetMatrix()._12 * 0.2f) + (transform.GetMatrix()._32 * 0.1f));
+						newPos._43 += ((-transform.GetMatrix()._13 * 0.2f) + (transform.GetMatrix()._33 * 0.1f));
 						break;
 					case 2:
-						newPos._41 += ((GetPosition()._11 * 0.2f) + (GetPosition()._31 * 0.1f));
-						newPos._42 += ((GetPosition()._12 * 0.2f) + (GetPosition()._32 * 0.1f));
-						newPos._43 += ((GetPosition()._13 * 0.2f) + (GetPosition()._33 * 0.1f));
+						newPos._41 += ((transform.GetMatrix()._11 * 0.2f) + (transform.GetMatrix()._31 * 0.1f));
+						newPos._42 += ((transform.GetMatrix()._12 * 0.2f) + (transform.GetMatrix()._32 * 0.1f));
+						newPos._43 += ((transform.GetMatrix()._13 * 0.2f) + (transform.GetMatrix()._33 * 0.1f));
 						break;
 					case 3:
-						newPos._41 += ((-GetPosition()._21 * 0.2f) + (GetPosition()._31 * 0.1f));
-						newPos._42 += ((-GetPosition()._22 * 0.2f) + (GetPosition()._32 * 0.1f));
-						newPos._43 += ((-GetPosition()._23 * 0.2f) + (GetPosition()._33 * 0.1f));
+						newPos._41 += ((-transform.GetMatrix()._21 * 0.2f) + (transform.GetMatrix()._31 * 0.1f));
+						newPos._42 += ((-transform.GetMatrix()._22 * 0.2f) + (transform.GetMatrix()._32 * 0.1f));
+						newPos._43 += ((-transform.GetMatrix()._23 * 0.2f) + (transform.GetMatrix()._33 * 0.1f));
 						break;
 				}
 
-				displayItems[i]->SetPosition(newPos);
+				displayItems[i]->transform.SetMatrix(newPos);
 			}
 		}
 		*justTouched = true;
@@ -185,54 +187,102 @@ void ControllerObject::AddItem(int itemSlot, unsigned prefabID, Gun::FireType _f
 void ControllerObject::Update() {
 	if (hand == HAND_Invalid) return;
 	float dt = (float)GhostTime::DeltaTime();
-
 	if (menuController) menuController->Render(false);
 
-
-	if (KeyIsDown(Control::TestInputU)) {
-		DirectX::XMFLOAT4X4 newPos = GetPosition();
-		newPos._42 += dt;
-		SetPosition(newPos);
-		//ResetKey(Control::TestInputU);
-	}
-	if (KeyIsDown(Control::TestInputO)) {
-		DirectX::XMFLOAT4X4 newPos = GetPosition();
-		newPos._42 -= dt;
-		SetPosition(newPos);
-		//ResetKey(Control::TestInputO);
-	}
-	if (KeyIsDown(Control::TestInputI)) {
-		DirectX::XMFLOAT4X4 newPos = GetPosition();
-		newPos._43 += dt;
-		SetPosition(newPos);
-		//ResetKey(Control::TestInputI);
-	}
-	if (KeyIsDown(Control::TestInputK)) {
-		DirectX::XMFLOAT4X4 newPos = GetPosition();
-		newPos._43 -= dt;
-		SetPosition(newPos);
-		//ResetKey(Control::TestInputK);
-	}
-	if (KeyIsDown(Control::TestInputJ)) {
-		DirectX::XMFLOAT4X4 newPos = GetPosition();
-		newPos._41 -= dt;
-		SetPosition(newPos);
-		//ResetKey(Control::TestInputJ);
-	}
-	if (KeyIsDown(Control::TestInputL)) {
-		DirectX::XMFLOAT4X4 newPos = GetPosition();
-		newPos._41 += dt;
-		SetPosition(newPos);
-		//ResetKey(Control::TestInputL);
-	}
-
-	//Seperate controller Values
+	//All Inputs
 	Control attack = (hand == HAND_Left ? leftAttack : rightAttack);
 	Control cyclePrefab = (hand == HAND_Left ? leftCyclePrefab : rightCyclePrefab);
-
-	//Handle Inventory
 	SwitchCurrentItem();
-	DisplayInventory();
+
+	//VR Inputs
+	if (player->IsVR()) {
+		DisplayInventory();
+
+		static bool teleport = false;
+		if (KeyIsDown(teleportDown) && hand == HAND_Right) {
+			ArcCast(this, {});
+			teleport = true;
+		}
+		if (teleport && !KeyIsDown(teleportDown) && hand == HAND_Right) {
+			player->Teleport();
+			teleport = false;
+		}
+	}
+	//Keboard Inputs
+	else {
+		DirectX::XMFLOAT4X4 newPos = player->transform.GetMatrix();
+		//Move Controllers
+		float forwardDist = 1;
+		{
+			newPos._41 += newPos._31 * forwardDist;
+			newPos._42 += newPos._32 * forwardDist;
+			newPos._43 += newPos._33 * forwardDist;
+		}
+		float heightDist = 0.4f;
+		{
+			newPos._41 -= newPos._21 * heightDist;
+			newPos._42 -= newPos._22 * heightDist;
+			newPos._43 -= newPos._23 * heightDist;
+		}
+		float sideDist = 0.4f;
+		{
+			newPos._41 += newPos._11 * (hand == HAND_Left ? -sideDist : sideDist);
+			newPos._42 += newPos._12 * (hand == HAND_Left ? -sideDist : sideDist);
+			newPos._43 += newPos._13 * (hand == HAND_Left ? -sideDist : sideDist);
+		}
+
+		//Find Angle of Controllers
+		float maxDist = 100;
+		DirectX::XMFLOAT3 startPoint = { player->transform.GetMatrix()._41, player->transform.GetMatrix()._42, player->transform.GetMatrix()._43 };
+		DirectX::XMFLOAT3 direction = { player->transform.GetMatrix()._31, player->transform.GetMatrix()._32, player->transform.GetMatrix()._33 };
+		DirectX::XMFLOAT3 colPoint;
+		if (!Raycast(startPoint, direction, &colPoint, nullptr, maxDist)) {
+			colPoint = { startPoint.x + (direction.x * maxDist), startPoint.y + (direction.y * maxDist), startPoint.z + (direction.z * maxDist) };
+		}
+
+		//Set Position and angle of controllers
+		transform.SetMatrix(newPos);
+		transform.LookAt(colPoint);
+
+		//Keyboard Inputs
+		if (KeyIsDown(Control::TestInputU)) {
+			DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
+			newPos._42 += dt;
+			transform.SetMatrix(newPos);
+			//ResetKey(Control::TestInputU);
+		}
+		if (KeyIsDown(Control::TestInputO)) {
+			DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
+			newPos._42 -= dt;
+			transform.SetMatrix(newPos);
+			//ResetKey(Control::TestInputO);
+		}
+		if (KeyIsDown(Control::TestInputI)) {
+			DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
+			newPos._43 += dt;
+			transform.SetMatrix(newPos);
+			//ResetKey(Control::TestInputI);
+		}
+		if (KeyIsDown(Control::TestInputK)) {
+			DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
+			newPos._43 -= dt;
+			transform.SetMatrix(newPos);
+			//ResetKey(Control::TestInputK);
+		}
+		if (KeyIsDown(Control::TestInputJ)) {
+			DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
+			newPos._41 -= dt;
+			transform.SetMatrix(newPos);
+			//ResetKey(Control::TestInputJ);
+		}
+		if (KeyIsDown(Control::TestInputL)) {
+			DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
+			newPos._41 += dt;
+			transform.SetMatrix(newPos);
+			//ResetKey(Control::TestInputL);
+		}
+	}
+
 
 	//Update Items
 	#pragma region Update Inactive Items
@@ -244,7 +294,7 @@ void ControllerObject::Update() {
 	#pragma endregion
 	#pragma region Update Current Item
 			if (currentGameItem) {
-				currentGameItem->SetPosition(GetPosition());
+				currentGameItem->transform.SetMatrix(transform.GetMatrix());
 				currentGameItem->ActiveUpdate();
 
 				//Specific States
@@ -294,16 +344,6 @@ void ControllerObject::Update() {
 						break;
 				}
 
-				static bool teleport = false;
-				//All states
-				if (KeyIsDown(teleportDown) && hand == HAND_Right) {
-					VRManager::GetInstance().ArcCast(this, {});
-					teleport = true;
-				}
-				if (teleport && !KeyIsDown(teleportDown) && hand == HAND_Right) {
-					VRManager::GetInstance().Teleport();
-					teleport = false;
-				}
 			}
 	#pragma endregion
 
@@ -314,7 +354,7 @@ void ControllerObject::PausedUpdate() {
 	Control attack = (hand == HAND_Left ? leftAttack : rightAttack);
 
 	menuController->Render(true);
-	menuController->SetPosition(GetPosition());
+	menuController->transform.SetMatrix(transform.GetMatrix());
 
 	if(KeyIsDown(attack)) {
 		menuController->Activate();

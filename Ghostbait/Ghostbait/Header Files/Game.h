@@ -9,6 +9,7 @@ class Spawner;
 class EventMessageBase;
 class EngineStructure;
 class Menu;
+class Player;
 
 enum State {
 		GAMESTATE_Paused,
@@ -66,6 +67,7 @@ class Game {
 	EngineStructure* engine;
 	SceneManager* sceneManager;
 	Menu* pauseMenu;
+	Player* player;
 
 	bool restartNextFrame = false;
 
@@ -101,7 +103,7 @@ public:
 
 	Game();
 
-	void Start(EngineStructure* _engine, char* level = "splashScreen");
+	void Start(Player* _player, EngineStructure* _engine, char* level = "splashScreen");
 	void Update();
 	void Clean();
 

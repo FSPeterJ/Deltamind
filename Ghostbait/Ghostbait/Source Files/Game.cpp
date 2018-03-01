@@ -7,10 +7,10 @@
 #include "Menu.h"
 #include "../Dependencies/XML_Library/irrXML.h"
 #include "AStarEnemy.h"
-#include "VRManager.h"
 #include "SceneManager.h"
 #include "PathPlanner.h"
 #include "ObjectFactory.h"
+#include "Player.h"
 
 
 void Game::GameData::Reset() {
@@ -135,8 +135,8 @@ void Game::ChangeState(State newState) {
 						MenuCube* startCube;
 						MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("StartCube", { 0, 1.5f, 0.0f }, &startCube));
 						DirectX::XMFLOAT4X4 newPos;
-						DirectX::XMStoreFloat4x4(&newPos, DirectX::XMLoadFloat4x4(&startCube->GetPosition()) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
-						startCube->SetPosition(newPos);
+						DirectX::XMStoreFloat4x4(&newPos, DirectX::XMLoadFloat4x4(&startCube->transform.GetMatrix()) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
+						startCube->transform.SetMatrix(newPos);
 						startCube->Enable();
 					}
 				}
@@ -241,8 +241,8 @@ void Game::Lose() {
 	MenuCube* loseCube;
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("LoseCube", { 0, 0.75f, 0 }, &loseCube));
 	DirectX::XMFLOAT4X4 newPos;
-	DirectX::XMStoreFloat4x4(&newPos, DirectX::XMLoadFloat4x4(&loseCube->GetPosition()) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));
-	loseCube->SetPosition(newPos);
+	DirectX::XMStoreFloat4x4(&newPos, DirectX::XMLoadFloat4x4(&loseCube->transform.GetMatrix()) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));
+	loseCube->transform.SetMatrix(newPos);
 	loseCube->Enable();
 
 	ChangeState(GAMESTATE_GameOver);
@@ -260,9 +260,10 @@ void Game::Quit() {
 }
 
 //Main loop elements
-void Game::Start(EngineStructure* _engine, char* startScene) {
+void Game::Start(Player* _player, EngineStructure* _engine, char* startScene) {
 	srand((unsigned int)time(NULL));
 	engine = _engine;
+	player = _player;
 	sceneManager = new SceneManager();
 	sceneManager->Initialize();
 	gameData.Reset();
@@ -287,7 +288,7 @@ void Game::Update() {
 		return;
 	}
 
-	auto playerPos = VRManager::GetInstance().GetPlayerPosition();
+	auto playerPos = player->transform.GetMatrix();
 	hexGrid.Display(DirectX::XMFLOAT2(playerPos._41, playerPos._43));
 	float dt = (float)GhostTime::DeltaTime();
 	switch (gameData.state) {

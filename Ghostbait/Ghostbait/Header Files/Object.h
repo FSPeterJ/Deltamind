@@ -3,6 +3,7 @@
 #include "TypeContainer.h"
 #include "StdHeader.h" //for PrefabId
 #include "Delegate.h"
+#include "Transform.h"
 
 class ComponentBase;
 //
@@ -15,9 +16,9 @@ class Object {
 protected:
 
 private:
-	DirectX::XMFLOAT4X4 position; //if we make this a pointer we don't have to include DXMath into every single object
 
 public:
+	Transform transform;
 
 	Delegate<> DestroyComponents;
 	ComponentTypeContainer<ComponentBase*> Components;
@@ -66,9 +67,4 @@ public:
 #ifdef _DEBUG
 	virtual void SmokeTest();
 #endif
-
-	virtual void SetPosition(DirectX::XMFLOAT4X4 newPos);
-	virtual const DirectX::XMFLOAT4X4& GetPosition() const;
-
-
 };

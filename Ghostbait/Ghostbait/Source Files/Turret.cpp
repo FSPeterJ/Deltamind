@@ -49,13 +49,13 @@ void Turret::Update() {
 		using namespace DirectX;
 		//XMVECTOR jointoffset = XMLoadFloat3(&(XMFLOAT3)turretPitch->m[3]);
 		XMVECTOR jointoffset = { 0,1.0f,0 };
-		XMVECTOR pos = XMLoadFloat3(&(XMFLOAT3)GetPosition().m[3]);
+		XMVECTOR pos = XMLoadFloat3(&(XMFLOAT3)transform.GetMatrix().m[3]);
 		pos += jointoffset;
 		XMFLOAT3 newpos;
 		XMStoreFloat3(&newpos, pos);
-		DebugRenderer::AddLine(newpos, (XMFLOAT3)target->GetPosition().m[3], (XMFLOAT3)turretPitch->m[3]);
+		DebugRenderer::AddLine(newpos, (XMFLOAT3)target->transform.GetMatrix().m[3], (XMFLOAT3)turretPitch->m[3]);
 		XMVECTOR bulletpos = DirectX::XMLoadFloat4(&(XMFLOAT4)turretPitch->m[3]);
-		XMVECTOR targetPos = DirectX::XMLoadFloat4(&(XMFLOAT4)target->GetPosition().m[3]) + XMVectorSet(0,1,0,0);
+		XMVECTOR targetPos = DirectX::XMLoadFloat4(&(XMFLOAT4)target->transform.GetMatrix().m[3]) + XMVectorSet(0,1,0,0);
 		XMVECTOR Z(XMVector3Normalize(targetPos - bulletpos));
 		XMVECTOR X(XMVector3Normalize(XMVector3Cross(XMVectorSet(0, 1, 0, 1), Z)));
 		XMVECTOR Y(XMVector3Normalize(XMVector3Cross(Z, X)));
@@ -86,9 +86,9 @@ float Turret::CalculateDistance(GameObject* obj) {
 	using namespace DirectX;
 	//XMVECTOR jointoffset = XMLoadFloat3(&(XMFLOAT3)turretPitch->m[3]);
 	XMVECTOR jointoffset = { 0,1.0f,0 };
-	XMVECTOR pos = XMLoadFloat3(&(XMFLOAT3)GetPosition().m[3]);
+	XMVECTOR pos = XMLoadFloat3(&(XMFLOAT3)transform.GetMatrix().m[3]);
 	pos += jointoffset;
-	XMVECTOR enemypos = XMLoadFloat3(&(XMFLOAT3)obj->GetPosition().m[3]);
+	XMVECTOR enemypos = XMLoadFloat3(&(XMFLOAT3)obj->transform.GetMatrix().m[3]);
 	pos = DirectX::XMVector3Length(pos - enemypos);
 	XMVectorAbs(pos);
 	XMStoreFloat(&length, pos);
@@ -126,13 +126,13 @@ void Turret::Shoot() {
 	newPos._41 += newPos._31 * 0.2f;
 	newPos._42 += newPos._32 * 0.2f;
 	newPos._43 += newPos._33 * 0.2f;
-	obj->SetPosition(newPos);
+	obj->transform.SetMatrix(newPos);
 	PhysicsComponent* temp2 = obj->GetComponent<PhysicsComponent>();
 	RigidBody* temp = &temp2->rigidBody;
 	temp->AdjustGravityMagnitude(0);
 	//why arent we using 
 	//temp->SetVelocity(obj->position._31 * 10.0f, obj->position._32 * 10.0f, obj->position._33 * 10.0f);
-	obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(obj->GetPosition()._31 * 10.0f, obj->GetPosition()._32 * 10.0f, obj->GetPosition()._33 * 10.0f);
+	obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(obj->transform.GetMatrix()._31 * 10.0f, obj->transform.GetMatrix()._32 * 10.0f, obj->transform.GetMatrix()._33 * 10.0f);
 	obj->SetDamage(damage);
 	obj->Enable();
 	timeSinceLastShot = (float)GhostTime::DeltaTime();

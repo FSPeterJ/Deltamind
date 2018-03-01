@@ -210,7 +210,7 @@ void SceneManager::LoadScene(const char* sceneName, DirectX::XMFLOAT3* _corePos)
 					if (_corePos && !strcmp(newObj->GetTag().c_str(),"Core")) {
 						*_corePos = DirectX::XMFLOAT3(mat._41, mat._42, mat._43);
 					}
-					newObj->SetPosition(mat);
+					newObj->transform.SetMatrix(mat);
 					
 					//TODO: TEMPORARY SOLUTION 
 					MessageEvents::SendQueueMessage(EVENT_Late, [=] { newObj->Enable(); });

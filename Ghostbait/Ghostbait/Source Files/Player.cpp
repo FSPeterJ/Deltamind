@@ -1,39 +1,105 @@
 #include "Player.h"
 #include "InputManager.h"
 #include "VRManager.h"
+#include "MessageEvents.h"
+#include "GhostTime.h"
 
-Player::Player(InputManager* _im) : im(_im) {
+Player::Player() {
 	Enable(false);
+	VRManager::GetInstance().Init(&transform);
 }
 
 void Player::Update() {
-	if (!im) return;
+	static float rotationY = 0.0f;
+	static float rotationX = 0.0f;
+	float dt = (float)GhostTime::DeltaTime();
+	if (rotationY < -DirectX::XM_2PI || rotationY > DirectX::XM_2PI)
+		rotationY = 0.0f;
+	if (rotationX < -DirectX::XM_2PI || rotationX > DirectX::XM_2PI)
+		rotationX = 0.0f;
 
-	switch (im->GetInputType()) {
-		case InputType::VR:
-			position = VRManager::GetInstance().GetPlayerPosition();
-			break;
-		case InputType::KEYBOARD:
-			break;
+	if (KeyIsDown(Control::CameraLeftRight)) {
+		//position._41 -= 50.0f * dt;
+		rotationY += Amount(CameraLeftRight) * dt;
+		ResetKey(Control::CameraLeftRight);
+		//ResetKey(Control::left);
 	}
+	if (KeyIsDown(Control::CameraUpDown)) {
+		//position._41 += 50.0f * dt;
+		rotationX += Amount(CameraUpDown) * dt;
+		ResetKey(Control::CameraUpDown);
+		//ResetKey(Control::right);
+	}
+	if (KeyIsDown(Control::forward)) {
+		transform.MoveAlongForward(10.0f);
+		//ResetKey(Control::forward);
+	}
+	if (KeyIsDown(Control::backward)) {
+		transform.MoveAlongForward(-10.0f);
+		//ResetKey(Control::backward);
+	}
+	if (KeyIsDown(Control::LeftAction)) {
+		transform.MoveAlongUp(10.0f);
+		//ResetKey(Control::leftAttack);
+	}
+	if (KeyIsDown(Control::RightAction)) {
+		transform.MoveAlongUp(-10.0f);
+		//ResetKey(Control::rightAttack);
+	}
+	
+	if (KeyIsDown(Control::left)) {
+		transform.MoveAlongSide(-10.0f);
+		//ResetKey(Control::TestInputZ);
+	}
+	if (KeyIsDown(Control::right)) {
+		transform.MoveAlongSide(10.0f);
+		//ResetKey(Control::TestInputC);
+	}
+
+	transform.SetRotationRadians(rotationX, rotationY, 0.0f);
 }
 
+void Player::Teleport() {
+	if (IsVR()) {
+		VRManager::GetInstance().Teleport();
+	}
+}
 void Player::LoadControllers(VRControllerTypes type) {
-	if (!im) {
-		Console::ErrorLine << "Input Manager not set on player!";
-		return;
-	}
-	if (im->GetInputType() != InputType::VR) {
-		Console::ErrorLine << "You tried to give the player controllers not in VR!";
-		return;
-	}
+	//Read in from file and assign the correct items
 
-	switch (type) {
-		case VRControllerTypes::CONTROLLER_Full:
-			//Load in ID's from file
-			VRManager::GetInstance().CreateControllers();
-			break;
-		case VRControllerTypes::CONTROLLER_ModelsOnly:
-			break;
+	
+	
+	//Left
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 0,0,0 }, &leftController));
+	leftController->Init(this, ControllerHand::HAND_Left);
+	leftController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
+	leftController->SetGunData(2, Gun::FireType::AUTO, 8, 25);
+	//Right
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 1,0,1 }, &rightController));
+	rightController->Init(this, ControllerHand::HAND_Right);
+	rightController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
+	rightController->SetGunData(2, Gun::FireType::AUTO, 8, 25);
+
+	if (IsVR()) {
+		VRManager::GetInstance().SetControllers(leftController, rightController);
 	}
 }
+
+bool Player::IsVR() const {
+	return VRManager::GetInstance().IsEnabled();
+}
+
+/*
+void Player::SetPosition(DirectX::XMFLOAT4X4 newPos) {
+	if(IsVR()) {
+		VRManager::GetInstance().MovePlayer({ newPos._41, newPos._42, newPos._43 });
+	}
+	position = newPos;
+}
+const DirectX::XMFLOAT4X4& Player::GetPosition() const {
+	if (IsVR()) {
+		return VRManager::GetInstance().GetPlayerPosition();
+	}
+	return position;
+}
+*/

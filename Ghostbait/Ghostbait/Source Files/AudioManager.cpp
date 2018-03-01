@@ -141,7 +141,7 @@ void AudioManager::Update()
 		AkVector upIn;
 		DirectX::XMFLOAT3 front;
 		DirectX::XMFLOAT3 up;
-		DirectX::XMFLOAT4X4 matrix = objects[i]->GetPosition();
+		DirectX::XMFLOAT4X4 matrix = objects[i]->transform.GetMatrix();
 		pos.X = matrix._41;
 		pos.Y = matrix._42;
 		pos.Z = matrix._43;

@@ -1,14 +1,18 @@
 #include "Renderer.h"
 #include <fstream>
 #include "DebugRenderer.h"
+#include "MessageStructs.h"
 #include "MessageEvents.h"
 #include "MeshManager.h"
 #include "VRManager.h"
 #include "MaterialManager.h"
-#include "Camera.h"
+#include "Transform.h"
 #include "Animator.h"
 #include "LightManager.h"
 #include "ParticleManager.h"
+#include "GameObject.h"
+#include "AnimatorStructs.h"
+
 using namespace DirectX;
 
 void Renderer::createDeviceContextAndSwapchain(Window window) {
@@ -145,7 +149,7 @@ void Renderer::renderObjectDefaultState(Object * obj) {
 
 	context->IASetVertexBuffers(0, 1, &x, &stride, &offset);
 	context->IASetIndexBuffer(obj->GetComponent<Mesh>()->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(XMLoadFloat4x4(&obj->position)), 0, 0);
+	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(XMLoadFloat4x4(&obj->transform.GetMatrix())), 0, 0);
 	Material* mat = obj->GetComponent<Material>();
 	if (mat)
 		obj->GetComponent<Material>()->bindToShader(context, factorBuffer);
@@ -231,8 +235,8 @@ Renderer::Renderer() {}
 
 Renderer::~Renderer() {}
 
-void Renderer::Initialize(Window window) {
-
+void Renderer::Initialize(Window window, Transform* _cameraPos) {
+	cameraPos = _cameraPos;
 	createDeviceContextAndSwapchain(window);
 	RECT windRect;
 	GetWindowRect(window.GetOutputWindow(), &windRect);
@@ -274,8 +278,7 @@ void Renderer::Initialize(Window window) {
 	context->PSSetSamplers(0, 1, &OnlySamplerState);
 #pragma endregion
 	
-	keyboardCamera = new Camera();
-	keyboardCamera->pointCameraAt(DirectX::XMFLOAT3(0.0f, 2.0f, -15.0f), DirectX::XMFLOAT3(0.0f, -2.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
+	cameraPos->LookAt(DirectX::XMFLOAT3(0.0f, 0.0f, 5.0f));
 	XMStoreFloat4x4(&defaultCamera.projection, XMMatrixTranspose(XMMatrixPerspectiveFovLH(60.0f * XM_PI / 180.0f, defaultPipeline.viewport.Width / defaultPipeline.viewport.Height, 0.001f, 300.0f)));
 
 	if(VRManager::GetInstance().IsEnabled())
@@ -325,7 +328,6 @@ void Renderer::Destroy() {
 	animationManagement->Destroy();
 	//ParticleManager::Destroy();
 	delete animationManagement;
-	delete keyboardCamera;
 #if _DEBUG
 	DebugRenderer::Destroy();
 #endif
@@ -374,7 +376,7 @@ XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 
 void Renderer::Render() {
 	loadPipelineState(&defaultPipeline);
-	XMMATRIX cameraObj = XMMatrixTranspose(XMLoadFloat4x4(&keyboardCamera->position));
+	XMMATRIX cameraObj = XMMatrixTranspose(XMLoadFloat4x4(&cameraPos->GetMatrix()));
 	XMStoreFloat4x4(&defaultCamera.view, XMMatrixInverse(&XMMatrixDeterminant(cameraObj), cameraObj));
 	if(VRManager::GetInstance().IsEnabled()) {
 		VRManager::GetInstance().GetVRMatrices(&leftEye.camera.projection, &rightEye.camera.projection, &leftEye.camera.view, &rightEye.camera.view);
@@ -407,7 +409,7 @@ void Renderer::Render() {
 	if (VRManager::GetInstance().IsEnabled())
 		LightManager::getLightBuffer()->cameraPos = leftEye.camPos;
 	else
-		LightManager::getLightBuffer()->cameraPos = DirectX::XMFLOAT3(keyboardCamera->position._41, keyboardCamera->position._42, keyboardCamera->position._43);
+		LightManager::getLightBuffer()->cameraPos = DirectX::XMFLOAT3(cameraPos->GetMatrix()._41, cameraPos->GetMatrix()._42, cameraPos->GetMatrix()._43);
 	context->UpdateSubresource(lightBuffer, NULL, NULL, LightManager::getLightBuffer(), 0, 0);
 	for(size_t i = 0; i < renderedObjects.size(); ++i) {
 		renderObjectDefaultState((Object*) renderedObjects[i]);
@@ -574,4 +576,4 @@ void Renderer::initViewport(const RECT window, pipeline_state_t * pipelineTo) {
 MeshManager* Renderer::getMeshManager() { return meshManagement; }
 MaterialManager* Renderer::getMaterialManager() { return materialManagement; }
 AnimationManager* Renderer::getAnimationManager() { return animationManagement; }
-Camera* Renderer::getCamera() { return keyboardCamera; }
+Transform* Renderer::getCamera() { return cameraPos; }

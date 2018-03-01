@@ -9,12 +9,14 @@ class Spawner;
 class EventMessageBase;
 class EngineStructure;
 class Menu;
+class Player;
 
 enum State {
 		GAMESTATE_Paused,
 		GAMESTATE_InWave,
 		GAMESTATE_BetweenWaves,
-		GAMESTATE_Lost
+		GAMESTATE_GameOver,
+		GAMESTATE_Menu,
 	};
 
 class Game {
@@ -41,6 +43,10 @@ class Game {
 		int currentWave = -1;
 
 	};
+	struct Logo {
+		std::string fileName;
+		float duration;
+	};
 	struct GameData {
 		State state = GAMESTATE_BetweenWaves;
 		State prevState = GAMESTATE_BetweenWaves;
@@ -48,12 +54,20 @@ class Game {
 		int enemiesLeftAlive = 0;
 		WaveManager waveManager;
 
+		std::string nextScene = "";
+		float timeInScene = 0;
+		float sceneTimeLimit = -1;
+		int currentLogoIndex = -1;
+		GameObject* currentLogo = nullptr;
+		std::vector<Logo> logos;
+
 		void Reset();
 	} gameData;
 	
 	EngineStructure* engine;
 	SceneManager* sceneManager;
 	Menu* pauseMenu;
+	Player* player;
 
 	bool restartNextFrame = false;
 
@@ -68,10 +82,11 @@ class Game {
 	void SnapRequestEvent(EventMessageBase* e);
 	void AddObstacleEvent(EventMessageBase* e);
 	void RemoveObstacleEvent(EventMessageBase* e);
+	void StartEvent();
 
 	//Personal
 	void ChangeState(State newState);
-	void ChangeScene(const char* sceneName, DirectX::XMFLOAT3* _corePos = nullptr);
+	void ChangeScene(const char* sceneName);
 	void StartNextWave();
 
 	//Handle primary function event logic
@@ -88,7 +103,7 @@ public:
 
 	Game();
 
-	void Start(EngineStructure* _engine, char* level = "level0");
+	void Start(Player* _player, EngineStructure* _engine, char* level = "splashScreen");
 	void Update();
 	void Clean();
 

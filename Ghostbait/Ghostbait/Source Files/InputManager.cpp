@@ -51,7 +51,6 @@ InputManager::~InputManager() {
 InputManager::InputManager(InputType type) {
 	SetInputType(type);
 };
-inline InputType InputManager::GetInputType() { return inputType; };
 
 //VR
 InputManager::VRInput::VRInput() {
@@ -193,12 +192,12 @@ void InputManager::VRInput::CheckForInput() {
 						break;
 					case vr::k_EButton_SteamVR_Trigger:
 						if(event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
-							VRManager::GetInstance().Vibrate(VRControllerType::Left, 5000);
+							VRManager::GetInstance().Vibrate(ControllerHand::HAND_Left, 5000);
 							input = leftAttack;
 							amount = 1.0f;
 						}
 						else {
-							VRManager::GetInstance().Vibrate(VRControllerType::Right, 5000);
+							VRManager::GetInstance().Vibrate(ControllerHand::HAND_Right, 5000);
 							input = rightAttack;
 							amount = 1.0f;
 						}
@@ -289,10 +288,11 @@ InputManager::KeyboardInput::KeyboardInput() {
 	MapKey(backward, 'S');
 	MapKey(left, 'A');
 	MapKey(right, 'D');
-	MapKey(teleportDown, MK_RBUTTON);
+	MapKey(rightAttack, MK_RBUTTON);
 	MapKey(leftAttack, MK_LBUTTON);
-	MapKey(LeftAction, 'Q');
-	MapKey(RightAction, 'E');
+	//MapKey(teleportDown, MK_MBUTTON);
+	MapKey(leftCyclePrefab, 'Q');
+	MapKey(rightCyclePrefab, 'E');
 
 	MapKey(leftItem0, '1');
 	MapKey(leftItem1, '2');
@@ -387,7 +387,7 @@ void InputManager::KeyboardInput::CheckForInput() {
 					case menu:
 					{
 
-						MessageEvents::SendMessage(EVENT_GameQuit, EventMessageBase());
+						MessageEvents::SendMessage(EVENT_GamePause, EventMessageBase());
 						break;
 					}
 					case releaseKey:

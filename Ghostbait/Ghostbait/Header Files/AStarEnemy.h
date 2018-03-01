@@ -41,11 +41,11 @@ public:
 	void SetGrid(HexGrid* _grid) override;
 	void Repath() override;
 
-	void Awake() override;
 	void Subscribe() override;
 	void UnSubscribe() override;
 	void Enable(bool _destroyOnReset = true) override;
 	void Disable() override;
 	void Destroy() override;
 	void Update() override;
+	void Awake(Object* obj);
 };

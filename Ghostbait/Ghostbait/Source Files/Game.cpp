@@ -1,32 +1,36 @@
+#include <time.h>
 #include "Game.h"
 #include "Spawner.h"
 #include "MessageEvents.h"
 #include "GhostTime.h"
-#include <time.h>
 #include "EngineStructure.h"
 #include "Menu.h"
 #include "../Dependencies/XML_Library/irrXML.h"
 #include "AStarEnemy.h"
-#include "VRManager.h"
 #include "SceneManager.h"
 #include "PathPlanner.h"
+#include "ObjectFactory.h"
+#include "Player.h"
 
 
 void Game::GameData::Reset() {
 	state = GAMESTATE_BetweenWaves;
 	prevState = GAMESTATE_BetweenWaves;
-	//for (int i = 0; i < waveManager.waves.size(); ++i) {
-	//	for (int j = 0; j < waveManager.waves[i].spawns.size(); ++j) {
-	//		waveManager.waves[i].spawns[j].spawnCount = 0;
-	//	}
-	//}
-	enemiesLeftAlive = 100;
-	waveManager.currentWave = -1;
 	while (spawners.size() > 0) {
 		spawners.erase(spawners.begin());
 	}
+	enemiesLeftAlive = 10000;
 	while (waveManager.waves.size() > 0) {
 		waveManager.waves.erase(waveManager.waves.begin());
+	}
+	waveManager.currentWave = -1;
+	nextScene = "";
+	timeInScene = 0;
+	sceneTimeLimit = -1;
+	currentLogoIndex = -1;
+	currentLogo = nullptr;
+	while (logos.size()) {
+		logos.erase(logos.begin());
 	}
 }
 
@@ -34,9 +38,9 @@ Game::Game() {
 	pauseMenu = new Menu(MENU_Pause);
 	MessageEvents::Subscribe(EVENT_SpawnerCreated, [=](EventMessageBase* e) {this->SpawnerCreatedEvent(e); });
 	MessageEvents::Subscribe(EVENT_EnemyDied, [=](EventMessageBase* e) {this->EnemyDiedEvent(); });
-	MessageEvents::Subscribe(EVENT_StartWave, [=](EventMessageBase* e) {this->StartNextWave(); });
+	MessageEvents::Subscribe(EVENT_Start, [=](EventMessageBase* e) {this->StartNextWave(); });
 	MessageEvents::Subscribe(EVENT_GamePause, [=](EventMessageBase* e) {this->PausePressedEvent(); });
-	MessageEvents::Subscribe(EVENT_GameRestart, [=](EventMessageBase* e) {this->restartNextFrame = true; });
+	MessageEvents::Subscribe(EVENT_GameRestart, [=](EventMessageBase* e) {this->RestartLevel(); });
 	MessageEvents::Subscribe(EVENT_SnapRequest, [=](EventMessageBase* e) {this->SnapRequestEvent(e); });
 	MessageEvents::Subscribe(EVENT_AddObstacle, [=](EventMessageBase* e) {this->AddObstacleEvent(e); });
 	MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {this->RemoveObstacleEvent(e); });
@@ -88,6 +92,21 @@ void Game::RemoveObstacleEvent(EventMessageBase* e) {
 		(*message->success) = hexGrid.RemoveObstacle(*message->position);
 	}
 }
+void Game::StartEvent() {
+	switch (gameData.state) {
+		case GAMESTATE_Menu:
+			{
+				char* sceneName = new char[gameData.nextScene.length() + 1];
+				memcpy(sceneName, gameData.nextScene.c_str(), gameData.nextScene.length() + 1);
+				ChangeScene(sceneName);
+				delete sceneName;
+			}
+			break;
+		case GAMESTATE_BetweenWaves:
+			StartNextWave();
+			break;
+	}
+}
 
 //Helpers
 void Game::ChangeState(State newState) {
@@ -115,7 +134,9 @@ void Game::ChangeState(State newState) {
 						//Spawn start cube
 						MenuCube* startCube;
 						MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("StartCube", { 0, 1.5f, 0.0f }, &startCube));
-						DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
+						DirectX::XMFLOAT4X4 newPos;
+						DirectX::XMStoreFloat4x4(&newPos, DirectX::XMLoadFloat4x4(&startCube->transform.GetMatrix()) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
+						startCube->transform.SetMatrix(newPos);
 						startCube->Enable();
 					}
 				}
@@ -126,7 +147,7 @@ void Game::ChangeState(State newState) {
 				if (gameData.prevState == GAMESTATE_Paused) ResumeGame();
 			}
 			break;
-		case GAMESTATE_Lost:
+		case GAMESTATE_GameOver:
 			{
 				//gameData.Reset();
 			}
@@ -134,16 +155,15 @@ void Game::ChangeState(State newState) {
 		}
 	}
 }
-void Game::ChangeScene(const char* sceneName, DirectX::XMFLOAT3* _corePos) {
+void Game::ChangeScene(const char* sceneName) {
+	//Delete all current scene Items
+	MessageEvents::SendMessage(EVENT_DeleteAllGameObjects, EventMessageBase());
+
 	//Reset Game/Wave data
 	gameData.Reset();
-	Console::WriteLine << "Game Data Reset!";
 
 	//Load scene assets
-	sceneManager->LoadScene(sceneName, _corePos);
-	Console::WriteLine << "New Scene Loaded!";
-
-
+	sceneManager->LoadScene(sceneName, &corePos);
 
 	//If it has level/wave data, load it
 	if (sceneManager->GetCurrentScene().levelFile != "") {
@@ -170,10 +190,24 @@ void Game::ChangeScene(const char* sceneName, DirectX::XMFLOAT3* _corePos) {
 					(*newWave).spawns.push_back(newSpawner);
 					(*newWave).enemyCount += newSpawner.spawnCount;
 				}
+				else if (!strcmp("MenuScene", xmlReader->getNodeName())) {
+					gameData.sceneTimeLimit = xmlReader->getAttributeValueAsFloat("sceneTimeLimit");
+					gameData.nextScene = xmlReader->getAttributeValue("nextScene");
+					gameData.state = GAMESTATE_Menu;
+					gameData.prevState = GAMESTATE_Menu;
+				}
+				else if (!strcmp("Logo", xmlReader->getNodeName())) {
+					Logo logo;
+					logo.fileName = xmlReader->getAttributeValue("ghostFile");
+					logo.duration = xmlReader->getAttributeValueAsFloat("duration");
+					gameData.logos.push_back(logo);
+				}
 			}
 		}
-		gameData.waveManager.waves.push_back(*newWave);
-		delete newWave;
+		if (newWave) {
+			gameData.waveManager.waves.push_back(*newWave);
+			delete newWave;
+		}
 		delete xmlReader;
 	}
 }
@@ -191,12 +225,10 @@ void Game::StartNextWave() {
 //Handle primary function event logic
 void Game::RestartLevel() {
 	//Reset currentScene pointer
-	std::string name = sceneManager->GetNameFromScene(sceneManager->UnloadScene());
+	std::string name = sceneManager->GetNameFromScene(sceneManager->ResetCurrentScene());
 
 	//Reinstantiate starting wave values and current scene
-	ChangeScene(name.c_str(), &corePos);
-	Console::WriteLine << "Restarted!";
-
+	ChangeScene(name.c_str());
 }
 void Game::ResumeGame() {
 	//Logic to run when game first gets unPaused
@@ -208,10 +240,12 @@ void Game::Lose() {
 	//Logic to run when the player loses
 	MenuCube* loseCube;
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("LoseCube", { 0, 0.75f, 0 }, &loseCube));
-	DirectX::XMStoreFloat4x4(&loseCube->position, DirectX::XMLoadFloat4x4(&loseCube->position) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));
+	DirectX::XMFLOAT4X4 newPos;
+	DirectX::XMStoreFloat4x4(&newPos, DirectX::XMLoadFloat4x4(&loseCube->transform.GetMatrix()) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));
+	loseCube->transform.SetMatrix(newPos);
 	loseCube->Enable();
 
-	ChangeState(GAMESTATE_Lost);
+	ChangeState(GAMESTATE_GameOver);
 }
 void Game::Win() {
 	//Logic to run when the player wins
@@ -226,19 +260,19 @@ void Game::Quit() {
 }
 
 //Main loop elements
-void Game::Start(EngineStructure* _engine, char* startScene) {
+void Game::Start(Player* _player, EngineStructure* _engine, char* startScene) {
 	srand((unsigned int)time(NULL));
 	engine = _engine;
+	player = _player;
+	pauseMenu->SetCamera(&player->transform);
 	sceneManager = new SceneManager();
 	sceneManager->Initialize();
 	gameData.Reset();
 	hexGrid.Fill(false);
 
-	ChangeScene(startScene, &corePos);
-
+	ChangeScene(startScene);
 
 	//MessageEvents::SendMessage(EVENT_StartWave, EventMessageBase());
-
 
 	//AStarEnemy *enemy;
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<AStarEnemy>("AStarEnemy", { 2,2,2 }, &enemy));
@@ -246,11 +280,6 @@ void Game::Start(EngineStructure* _engine, char* startScene) {
 	//enemy->SetGoal(DirectX::XMFLOAT2(corePos.x, corePos.z));
 	//enemy->Repath();
 	//enemy->Enable();
-
-	//AStarEnemy* fred;
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<AStarEnemy>("AStarEnemy", {0,0,0}, &fred));
-	//fred->SetGrid(&hexGrid);
-	//fred->Enable();
 }
 void Game::Update() {
 
@@ -260,7 +289,7 @@ void Game::Update() {
 		return;
 	}
 
-	auto playerPos = VRManager::GetInstance().GetPlayerPosition();
+	auto playerPos = player->transform.GetMatrix();
 	hexGrid.Display(DirectX::XMFLOAT2(playerPos._41, playerPos._43));
 	float dt = (float)GhostTime::DeltaTime();
 	switch (gameData.state) {
@@ -311,9 +340,55 @@ void Game::Update() {
 				engine->ExecuteLateUpdate();
 			}
 			break;
-		case GAMESTATE_Lost:
+		case GAMESTATE_GameOver:
 			{
 				//--------Update Engine Structure
+				engine->ExecuteUpdate();
+				engine->ExecuteLateUpdate();
+			}
+			break;
+		case GAMESTATE_Menu:
+			{
+
+				//if first time
+				if (gameData.currentLogoIndex == -1) {
+					++gameData.currentLogoIndex;
+					int id = ObjectFactory::CreatePrefab(&gameData.logos[gameData.currentLogoIndex].fileName);
+					MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(id, { 0, 1, 3 }, &gameData.currentLogo));
+				}
+
+				//update time
+				gameData.timeInScene += dt;
+
+				//if time is up, switch scenes
+				if (gameData.sceneTimeLimit != -1) {
+					if (gameData.timeInScene >= gameData.sceneTimeLimit) {
+						StartEvent();
+					}
+				}
+
+				//If we have logos to go through
+				if (gameData.logos.size()) {
+
+					//else if logo duration is up, switch logos
+					if (gameData.timeInScene >= gameData.logos[gameData.currentLogoIndex].duration) {
+						if (gameData.currentLogoIndex + 1 >= gameData.logos.size()) {
+							//we just finished last logo
+							while (gameData.logos.size()) {
+								gameData.logos.erase(gameData.logos.begin());
+							}
+							gameData.currentLogo->Destroy();
+							gameData.currentLogo = nullptr;
+						}
+						else {
+							if (gameData.currentLogo) gameData.currentLogo->Destroy();
+							gameData.logos[++gameData.currentLogoIndex].duration += gameData.timeInScene;
+							int id = ObjectFactory::CreatePrefab(&gameData.logos[gameData.currentLogoIndex].fileName);
+							MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(id, { 0, 1, 3 }, &gameData.currentLogo));
+
+						}
+					}
+				}
 				engine->ExecuteUpdate();
 				engine->ExecuteLateUpdate();
 			}

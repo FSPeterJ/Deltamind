@@ -10,28 +10,33 @@ AStarEnemy::AStarEnemy() {
 }
 
 //Main Overrides
-void AStarEnemy::Awake() {
-	EnemyBase::Awake();
+
+void AStarEnemy::Awake(Object* obj) {
+	EnemyBase::Awake(obj);
 	rb = &(GetComponent<PhysicsComponent>()->rigidBody);
-	if(!goal) {
-		NewRandPath();
-	}
-	next = path.start();
-	rb->SetTerminalSpeed(maxSpeed);
+
 }
+
 void AStarEnemy::Subscribe() {
 	eventAdd = MessageEvents::Subscribe(EVENT_AddObstacle, [=](EventMessageBase* e) {this->Repath(); });
 	eventRemove = MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {this->Repath(); });
+
 }
 void AStarEnemy::UnSubscribe() {
 	MessageEvents::UnSubscribe(EVENT_AddObstacle, eventAdd);
 	MessageEvents::UnSubscribe(EVENT_RemoveObstacle, eventRemove);
 }
 void AStarEnemy::Enable(bool _destroyOnReset) {
-	if (!enabled) {
+	if(!goal) {
+		NewRandPath();
+	}
+	rb->SetTerminalSpeed(maxSpeed);
+	next = path.start();
+	if (!enabled) { // What does this do?
 		AStarEnemy::Subscribe();
 		EnemyBase::Enable(_destroyOnReset);
 	}
+	GameObject::Enable();
 }
 void AStarEnemy::Disable() {
 	if (enabled) {
@@ -44,7 +49,7 @@ void AStarEnemy::Destroy() {
 }
 void AStarEnemy::Update() {
 	EnemyBase::Update();
-	HexTile* curTile = grid->PointToTile(DirectX::XMFLOAT2(position._41, position._43));
+	HexTile* curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.GetMatrix()._41, transform.GetMatrix()._43));
 	if(curTile) {
 		if(curTile == next) {
 			if(path.goal() == curTile) {
@@ -59,9 +64,9 @@ void AStarEnemy::Update() {
 
 				//position._41 = nextPathPoint.x;
 				//position._43 = nextPathPoint.y;
-				DirectX::XMVECTOR nextDirection = DirectX::XMVectorSet(nextPathPoint.x - position._41, 0.0f, nextPathPoint.y - position._43, 1.0f);
+				DirectX::XMVECTOR nextDirection = DirectX::XMVectorSet(nextPathPoint.x - transform.GetMatrix()._41, 0.0f, nextPathPoint.y - transform.GetMatrix()._43, 1.0f);
 				DirectX::XMVECTOR velocity = rb->GetVelocity();
-				rb->AddForce(3.0f * (DirectX::XMVectorGetX(DirectX::XMVector3Dot(nextDirection, velocity)) + 1.0f), nextPathPoint.x - position._41, 0.0f, nextPathPoint.y - position._43, 0.5f);
+				rb->AddForce(3.0f * (DirectX::XMVectorGetX(DirectX::XMVector3Dot(nextDirection, velocity)) + 1.0f), nextPathPoint.x - transform.GetMatrix()._41, 0.0f, nextPathPoint.y - transform.GetMatrix()._43, 0.5f);
 			}
 		}
 	}
@@ -107,6 +112,6 @@ void AStarEnemy::CalcPath(DirectX::XMFLOAT2 where) {
 	CalcPath(whereTile);
 }
 void AStarEnemy::CalcPath(HexTile* where) {
-	HexTile* curTile = grid->PointToTile(DirectX::XMFLOAT2(position._41, position._43));
+	HexTile* curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.GetMatrix()._41, transform.GetMatrix()._43));
 	path = PathPlanner::FindPath(curTile, where, TileType::Static, TileType::Static);
 }

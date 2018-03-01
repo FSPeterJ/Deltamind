@@ -19,7 +19,6 @@ public:
 		float energyOverheatDelay = 7; //How long you need to wait (seconds) after reaching/exceeding energy limit to begin cooldown
 		float energyLimit = 20; //Max amount of energy before overheat
 
-		Overheat();
 		bool AddEnergy(float energy);
 		bool CanShoot(float fireRate);
 		inline void ResetTimeSinceLastShot() { timeSinceLastShot = 0; };
@@ -41,14 +40,13 @@ private:
 
 public:
 	Gun();
-	Gun(FireType _type, float _fireRate, float _damage);
+	void Awake(Object * obj);
 	void GivePID(unsigned pid, const char* tag) override;
 	void SetStats(FireType _type, float _fireRate, float _damage) { type = _type; fireRate = _fireRate; damage = _damage; };
 	bool Shoot();
 	void InactiveUpdate() override;
 	void ActiveUpdate() override;
 	// This is essentially a copy constructor, but since objects are never truely instantiated post-start...
-	void CloneData(Object* obj);
 #ifdef _DEBUG
 	void SmokeTest() override;
 #endif

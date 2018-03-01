@@ -7,9 +7,7 @@
 #include "Wwise_IDs.h"
 
 
-Gun::Overheat::Overheat() {
 
-}
 void Gun::Overheat::CreateBar() {
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ProgressBar>(overheatBarPID, { 0.0f, 0.0f, 0.0f }, &bar)); // stop using magic number prefab ID
 }
@@ -45,16 +43,17 @@ void Gun::Overheat::Update(bool active) {
 	// This seems weird but I have no better ideas at the moment
 	if(active) {
 		//Update Bar itself
-		bar->position = parent->position;
-		bar->position._41 -= bar->position._11 * 0.04f;
-		bar->position._42 -= bar->position._12 * 0.04f;
-		bar->position._43 -= bar->position._13 * 0.04f;
+		DirectX::XMFLOAT4X4 newPos;
+		newPos = parent->transform.GetMatrix();
+		newPos._41 -= bar->transform.GetMatrix()._11 * 0.04f;
+		newPos._42 -= bar->transform.GetMatrix()._12 * 0.04f;
+		newPos._43 -= bar->transform.GetMatrix()._13 * 0.04f;
 
+		newPos._41 -= bar->transform.GetMatrix()._31 * 0.1f;
+		newPos._42 -= bar->transform.GetMatrix()._32 * 0.1f;
+		newPos._43 -= bar->transform.GetMatrix()._33 * 0.1f;
 
-
-		bar->position._41 -= bar->position._31 * 0.1f;
-		bar->position._42 -= bar->position._32 * 0.1f;
-		bar->position._43 -= bar->position._33 * 0.1f;
+		bar->transform.SetMatrix(newPos);
 
 		bar->SetBarPercentage(currentEnergy / energyLimit);
 	}
@@ -65,17 +64,22 @@ void Gun::Overheat::Update(bool active) {
 }
 
 Gun::Gun() {
-	state = GUN;
 	SetTag("Gun");
+}
+
+void Gun::Awake(Object* obj) {
+	state = GUN;
+	Gun* gun = ((Gun*)obj);
+	overheat.overheatBarPID = gun->overheat.overheatBarPID;
+	overheat.CreateBar(); // may want to reethink this?
+	projectiePID = gun->projectiePID;
+	fireRate = gun->fireRate;
+	damage = gun->damage;
+	type = gun->type;
 	overheat.parent = this;
 	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
 }
-Gun::Gun(FireType _type, float _fireRate, float _damage): type(_type), fireRate(_fireRate), damage(_damage) {
-	state = GUN;
-	SetTag("Gun");
-	overheat.parent = this;
-	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
-}
+
 
 void Gun::GivePID(unsigned pid, const char* tag) {
 	// Look into a better system
@@ -97,12 +101,14 @@ bool Gun::Shoot() {
 				Projectile* obj;
 				MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Projectile>(projectiePID, { 0, 0, 0 }, &obj));
 				MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_WEN));
-				obj->position = position;
-				obj->position._41 += obj->position._31 * 0.2f;
-				obj->position._42 += obj->position._32 * 0.2f;
-				obj->position._43 += obj->position._33 * 0.2f;
+				DirectX::XMFLOAT4X4 newPos;
+				newPos = transform.GetMatrix();
+				newPos._41 += newPos._31 * 0.2f;
+				newPos._42 += newPos._32 * 0.2f;
+				newPos._43 += newPos._33 * 0.2f;
+				obj->transform.SetMatrix(newPos);
 				obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
-				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 10.0f, position._32 * 10.0f, position._33 * 10.0f);
+				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(transform.GetMatrix()._31 * 10.0f, transform.GetMatrix()._32 * 10.0f, transform.GetMatrix()._33 * 10.0f);
 				obj->SetDamage(damage);
 				obj->Enable();
 				overheat.AddEnergy(overheat.energyBulletCost);
@@ -115,14 +121,16 @@ bool Gun::Shoot() {
 				Projectile* obj;
 				MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Projectile>(projectiePID, { 0, 0, 0 }, &obj));
 				MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_WEN));
-				obj->position = position;
-				obj->position._41 += obj->position._31 * 0.2f;
-				obj->position._42 += obj->position._32 * 0.2f;
-				obj->position._43 += obj->position._33 * 0.2f;
+				DirectX::XMFLOAT4X4 newPos;
+				newPos = transform.GetMatrix();
+				newPos._41 += newPos._31 * 0.2f;
+				newPos._42 += newPos._32 * 0.2f;
+				newPos._43 += newPos._33 * 0.2f;
+				obj->transform.SetMatrix(newPos);
 				PhysicsComponent* temp2 = obj->GetComponent<PhysicsComponent>();
 				RigidBody* temp = &temp2->rigidBody;
 				temp->AdjustGravityMagnitude(0);
-				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(position._31 * 10.0f, position._32 * 10.0f, position._33 * 10.0f);
+				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(transform.GetMatrix()._31 * 10.0f, transform.GetMatrix()._32 * 10.0f, transform.GetMatrix()._33 * 10.0f);
 				obj->SetDamage(damage);
 				obj->Enable();
 				overheat.AddEnergy(overheat.energyBulletCost);
@@ -140,12 +148,6 @@ void Gun::ActiveUpdate() {
 	overheat.Update(true);
 }
 
-void Gun::CloneData(Object* obj) {
-	overheat.overheatBarPID = ((Gun*)obj)->overheat.overheatBarPID;
-	overheat.CreateBar(); // may want to reethink this?
-	projectiePID = ((Gun*)obj)->projectiePID;
-
-}
 
 
 #ifdef _DEBUG

@@ -2,7 +2,9 @@
 #include "openvr.h" //todo get rid.  (convert to ptrs and include in cpp) then uncomment namespace below
 #include <DirectXMath.h> // same as above
 #include "Object.h"
+#include "VRStructs.h"
 
+class Transform;
 //namespace vr {
 //	class IVRSystem;
 //	class IVRRenderModels;
@@ -17,14 +19,11 @@ class ControllerObject;
 
 #define FLOAT4X4Identity DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
 
-enum class VRControllerType {
-	Left,
-	Right
-};
-
 class VRManager {
 private:
 	bool isEnabled = false;
+
+	Transform* player = nullptr;
 
 	DirectX::XMFLOAT4X4 leftProj;
 	DirectX::XMFLOAT4X4 rightProj;
@@ -63,20 +62,19 @@ public:
 	VRManager();
 	~VRManager();
 
-	bool Init();
-	inline bool IsEnabled() { return isEnabled; };
+	bool Init(Transform* _player);
+	inline bool IsEnabled() const { return isEnabled; };
 
-	void Vibrate(VRControllerType ctrl, unsigned short durationMs);
-	void CreateControllers();
+	void Vibrate(ControllerHand ctrl, unsigned short durationMs);
+	void SetControllers(ControllerObject* left, ControllerObject* right);
 	void SetBuildItems(std::vector<unsigned> prefabIDs);
-	ControllerObject* GetRightController();
 
-	bool ArcCast(Object* controller, DirectX::XMFLOAT3* outPos, float maxDistance = 3, float minAngle = 60, float maxAngle = 120, float
-	             castHeight = 1);
 	void Teleport();
 	
 	void GetVRMatrices(DirectX::XMFLOAT4X4* leftProj, DirectX::XMFLOAT4X4* rightProj, DirectX::XMFLOAT4X4* leftView, DirectX::XMFLOAT4X4* rightView);
 	void SendToHMD(void* leftTexture, void* rightTexture);
 	DirectX::XMFLOAT4X4& GetPlayerPosition();
 	DirectX::XMFLOAT4X4 GetRoomPosition();
+
+	void MovePlayer(DirectX::XMFLOAT3 newPos);
 };

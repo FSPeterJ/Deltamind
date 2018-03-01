@@ -5,6 +5,6 @@ class HexGrid;
 class Spawner : public GameObject {
 public:
 	Spawner();
-	void Awake();
+	void Awake(Object* obj);
 	void SpawnObject(char* prefabName, HexGrid* grid, DirectX::XMFLOAT2 goal);
 };

@@ -23,11 +23,12 @@ enum EVENT_TYPES {
 	//Game Events
 	EVENT_SpawnerCreated,
 	EVENT_EnemyDied,
-	EVENT_StartWave,
+	EVENT_Start,
 	EVENT_GameWin,
 	EVENT_GameLose,
 	EVENT_GamePause,
 	EVENT_GameRestart,
+	EVENT_DeleteAllGameObjects,
 	EVENT_GameQuit,
 	EVENT_SnapRequest,
 	EVENT_AddObstacle,

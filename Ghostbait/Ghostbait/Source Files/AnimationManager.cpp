@@ -1,5 +1,8 @@
 #include "AnimationManager.h"
 #include <fstream>
+#include <DirectXMath.h> 
+#include "AnimatorStructs.h"
+
 
 Animation * AnimationManager::LoadAnimation(const char * _animationFilePath, const char* _bindposeFilePath) {
 	Animation* toPush = new Animation;

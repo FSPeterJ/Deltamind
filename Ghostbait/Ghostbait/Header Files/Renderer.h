@@ -4,7 +4,7 @@
 #include "Window.h"
 #include <vector>
 
-class Camera;
+class Transform;
 class GameObject;
 class Object;
 class VRManager;
@@ -85,7 +85,7 @@ private:
 	ID3D11Buffer* lightBuffer;
 	ID3D11Buffer* animDataBuffer;
 	pipeline_state_t defaultPipeline;
-	Camera* keyboardCamera;
+	Transform* cameraPos;
 	viewProjectionConstantBuffer defaultCamera;
 	animDataBufferStruct cpuAnimationData;
 
@@ -132,7 +132,7 @@ public:
 	//Parameters: window
 	//[window] Used to initialize the render texture and viewport, among other things.
 	//////////////////////////////////////////////////////////////////////////////////
-	void Initialize(Window window);
+	void Initialize(Window window, Transform* _cameraPos);
 
 	//////////////////////////////////////////////////////////////////////////////////
 	//Destroy
@@ -167,6 +167,6 @@ public:
 	MeshManager* getMeshManager();
 	MaterialManager* getMaterialManager();
 	AnimationManager* getAnimationManager();
-	Camera* getCamera();
+	Transform* getCamera();
 	void Render();
 };

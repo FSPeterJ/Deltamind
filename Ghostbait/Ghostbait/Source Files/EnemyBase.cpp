@@ -7,11 +7,12 @@
 #include "Material.h"
 
 
-//Main Overrides
-void EnemyBase::Awake() {
-	GameObject::Awake();
+
+void EnemyBase::Awake(Object* obj) {
+	componentVarients = obj->componentVarients;
 }
 void EnemyBase::Subscribe() {
+
 	eventLose = MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) { MessageEvents::SendQueueMessage(EVENT_Late, [=] {this->Destroy(); }); });
 }
 void EnemyBase::UnSubscribe() {
@@ -57,7 +58,7 @@ void EnemyBase::Update() {
 //Other Overrides
 void EnemyBase::OnCollision(GameObject* _other) {
 	PhysicsComponent* myPhys = GetComponent<PhysicsComponent>();
-	DirectX::XMVECTOR incomingDirection = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat4x4(&position).r[3], DirectX::XMLoadFloat4x4(&(_other->position)).r[3]));
+	DirectX::XMVECTOR incomingDirection = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat4x4(&transform.GetMatrix()).r[3], DirectX::XMLoadFloat4x4(&(_other->transform.GetMatrix())).r[3]));
 	if(_other->GetTag() == "Bullet") {
 		myPhys->rigidBody.AddForce(0.2f, DirectX::XMVectorGetX(incomingDirection), 0.0f, DirectX::XMVectorGetZ(incomingDirection));
 		AdjustHealth(-(((Projectile*)_other)->damage));
@@ -82,6 +83,5 @@ void EnemyBase::OnCollision(GameObject* _other) {
 		}
 	}
 }
-void EnemyBase::CloneData(Object* obj) {
-	componentVarients = obj->componentVarients;
-}
+
+

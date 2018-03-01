@@ -1,0 +1,18 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="GhostbaitSceneCreator.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="fbx_path" Type="System.String" Scope="User">
+      <Value Profile="(Default)">@"C:\"</Value>
+    </Setting>
+    <Setting Name="level_path" Type="System.String" Scope="User">
+      <Value Profile="(Default)">@"C:\"</Value>
+    </Setting>
+    <Setting Name="prefab_path" Type="System.String" Scope="User">
+      <Value Profile="(Default)">@"C:\"</Value>
+    </Setting>
+    <Setting Name="scene_path" Type="System.String" Scope="User">
+      <Value Profile="(Default)">@"C:\"</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

@@ -25,6 +25,7 @@
 #include "EngineStructure.h"
 #include "Menu.h"
 #include "AStarEnemy.h"
+#include "DStarEnemy.h"
 #include "Turret.h"
 
 Renderer* rendInter;
@@ -142,6 +143,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<QuitButton>(1);
 
 	ObjectFactory::RegisterPrefabBase<AStarEnemy>(10);
+	ObjectFactory::RegisterPrefabBase<DStarEnemy>(10);
 	Console::WriteLine << "Prefab base registered......";
 
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
@@ -175,6 +177,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<QuitButton>("QuitButton");
 
 	TypeMap::RegisterObjectAlias<AStarEnemy>("AStarEnemy");
+	TypeMap::RegisterObjectAlias<DStarEnemy>("DStarEnemy");
 	TypeMap::RegisterObjectAlias<Turret>("Turret");
 
 	Console::WriteLine << "Object Alias registered......";
@@ -205,6 +208,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/Gun.ghost"), "GunTest", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/TestProjectile.ghost"), "TestProjectile");
 	ObjectFactory::CreatePrefab(&std::string("Assets/AStarEnemyEdit.ghost"), "AStarEnemy");
+	ObjectFactory::CreatePrefab(&std::string("Assets/DStarEnemyEdit.ghost"), "DStarEnemy");
 	ObjectFactory::CreatePrefab(&std::string("Assets/ResumeButton.ghost"), "ResumeButton");
 	unsigned basicTurret = ObjectFactory::CreatePrefab(&std::string("Assets/TestTurretEdit.ghost"), "TestTurret", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/RestartButton.ghost"), "RestartButton");

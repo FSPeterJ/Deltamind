@@ -411,7 +411,7 @@ class DStarLite {
 	//}
 
 	void ComputeShortestPath() {
-		while(U.front().second < CalcKey(start) || rhs[start] > cumulativeCost[start]) {
+		while(!U.empty() && (U.front().second < CalcKey(start) || rhs[start] > cumulativeCost[start])) {
 			HexTile* u = U.front().first;
 			pair_float kold = U.front().second;
 			pair_float knew = CalcKey(u);
@@ -458,6 +458,9 @@ public:
 
 	DStarLite(HexGrid *const _grid, HexTile *const _start, HexTile *const _goal, HexTile** _nextTileInPath) :
 		last(_start), grid(_grid), start(_start), goal(_goal), nextTileInPath(_nextTileInPath) {
+
+		PathPlanner::SetHeuristic(Heuristics::OctileDistance);
+
 		km = 0;
 
 		*nextTileInPath = start;

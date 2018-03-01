@@ -10,6 +10,7 @@
 #include "VRManager.h"
 #include "SceneManager.h"
 #include "PathPlanner.h"
+#include "DStarEnemy.h"
 
 void Game::GameData::Reset() {
 	state = GAMESTATE_BetweenWaves;
@@ -217,6 +218,11 @@ void Game::Start(EngineStructure* _engine, char* startScene) {
 
 	//MessageEvents::SendMessage(EVENT_StartWave, EventMessageBase());
 
+	DStarEnemy* newFred;
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<DStarEnemy>("DStarEnemy", { 40,0,40 }, &newFred));
+	newFred->SetGrid(&hexGrid);
+	newFred->SetGoal(DirectX::XMFLOAT2(corePos.x, corePos.z));
+	newFred->Enable();
 
 	//AStarEnemy *enemy;
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<AStarEnemy>("AStarEnemy", { 2,2,2 }, &enemy));

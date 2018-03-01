@@ -191,6 +191,7 @@
     <ClInclude Include="Header Files\AnimationManager.h" />
     <ClInclude Include="Header Files\Animator.h" />
     <ClInclude Include="Header Files\AnimatorManager.h" />
+    <ClInclude Include="Header Files\AnimatorStructs.h" />
     <ClInclude Include="Header Files\AStarEnemy.h" />
     <ClInclude Include="Header Files\AudioManager.h" />
     <ClInclude Include="Header Files\BinaryFileIO.h" />

@@ -2,6 +2,7 @@
 #include "GhostTime.h"
 #include "DebugRenderer.h"
 #include "EngineStructure.h"
+#include "AnimatorStructs.h"
 
 DirectX::XMFLOAT3X3 Animator::pullRotation(DirectX::XMFLOAT4X4 pullFrom) {
 	DirectX::XMFLOAT3X3 ret;
@@ -49,8 +50,7 @@ void Animator::Copy(const Animator * that) {
 	}
 }
 
-const std::vector<animJoint>* Animator::getTweens()
-{
+const std::vector<animJoint>* Animator::getTweens() {
 	return &tweens;
 }
 
@@ -63,14 +63,20 @@ DirectX::XMFLOAT4X4* Animator::getJointByName(std::string name) {
 	return &tweens[(*check).second].transform;
 }
 
+void Animator::ManipulateJointByName(std::string name, DirectX::XMFLOAT4X4) {
+	std::unordered_map<std::string, int>::iterator check = jointPointers.find(name);
+	if(check != jointPointers.end()) {
+		&tweens[(*check).second].transform;
+	}
+}
+
 void Animator::Destroy() {
 	EngineStructure::Update.Remove(updateID);
 }
 
 void Animator::Initialize(AnimationManager* animManIn) {
 	animMan = animManIn;
-	updateID = EngineStructure::Update.Add([=]()
-	{
+	updateID = EngineStructure::Update.Add([=]() {
 		this->Update();
 	});
 }
@@ -92,7 +98,8 @@ void Animator::Update() {
 		beginFrame = currAnim->keyframes[currAnim->keyframes.size() - 1];
 		endFrame = currAnim->keyframes[0];
 		loopState = true;
-	} else {
+	}
+	else {
 		for(size_t i = 0; i < currAnim->keyframes.size() - 1; ++i) {
 			if(timePos > currAnim->keyframes[i].endTime && timePos <= currAnim->keyframes[i + 1].endTime) {
 				beginFrame = currAnim->keyframes[i];
@@ -103,10 +110,10 @@ void Animator::Update() {
 
 	float ratio;
 	if(!loopState)
-		ratio = (float) ((timePos - beginFrame.endTime) / (endFrame.endTime - beginFrame.endTime));
+		ratio = (float)((timePos - beginFrame.endTime) / (endFrame.endTime - beginFrame.endTime));
 	else
-		ratio = (float) (timePos / endFrame.endTime);
-	
+		ratio = (float)(timePos / endFrame.endTime);
+
 	for(size_t i = 0; i < tweens.size(); ++i) {
 		DirectX::XMFLOAT3X3 endJointMat = pullRotation(endFrame.joints[i].transform);
 		DirectX::XMFLOAT3X3 beginJointMat = pullRotation(beginFrame.joints[i].transform);
@@ -184,8 +191,7 @@ void Animator::addAnim(const char * animFilePath, const char * bindposeFilePath,
 	if(!currAnim) {
 		currAnim = animations[std::string(animName)];
 		tweens = animations[std::string(animName)]->keyframes[0].joints;
-		for (size_t i = 0; i < tweens.size(); ++i)
-		{
+		for(size_t i = 0; i < tweens.size(); ++i) {
 			jointPointers[tweens[i].name] = (int)i;
 		}
 	}

@@ -9,32 +9,60 @@ Animation * AnimationManager::LoadAnimation(const char * _animationFilePath, con
 	std::ifstream reader;
 	reader.open(_animationFilePath, std::ios_base::binary);
 	if(reader.is_open()) {
-		reader.read((char*) &toPush->duration, sizeof(toPush->duration));
+		reader.read((char*)&toPush->duration, sizeof(toPush->duration));
 		int length;
-		reader.read((char*) &length, sizeof(length));
+		reader.read((char*)&length, sizeof(length));
 		char name[512];
 		for(int i = 0; i < length; ++i) {
 			keyframe temp;
-			reader.read((char*) &temp.endTime, sizeof(temp.endTime));
+			reader.read((char*)&temp.endTime, sizeof(temp.endTime));
 			int jointNum;
-			reader.read((char*) &jointNum, sizeof(jointNum));
+			reader.read((char*)&jointNum, sizeof(jointNum));
+			//TEMPORARY CODE - REMOVE LATER
+			std::vector<std::vector<int>> ChildRecord_holyshit;
+			//END
 			for(int index = 0; index < jointNum; ++index) {
 				animJoint joint;
-				reader.read((char*) &joint.parent_index, sizeof(joint.parent_index));
-				for(int almostThere = 0; almostThere < 4; ++almostThere)
-					reader.read((char*) &joint.transform.m[almostThere], sizeof(joint.transform.m[almostThere]));
+				reader.read((char*)&joint.parent_index, sizeof(joint.parent_index));
+				for(int almostThere = 0; almostThere < 4; ++almostThere) {
+					reader.read((char*)&joint.transform.m[almostThere], sizeof(joint.transform.m[almostThere]));
 
+					//TEMPORARY CODE - REMOVE LATER
+					//LONGER LOAD TIMES
+
+				}
+				//TEMPORARY CODE - REMOVE LATER
+
+				if(joint.parent_index > -1) {
+					if(joint.parent_index >= ChildRecord_holyshit.size()) {
+						ChildRecord_holyshit.resize(joint.parent_index +1);
+					}
+					ChildRecord_holyshit[joint.parent_index].push_back(index);
+				}
+
+				//END
 				int nameLen;
 				reader.read((char*)&nameLen, sizeof(nameLen));
 				reader.read(name, nameLen);
 				joint.name = name;
 				temp.joints.push_back(joint);
 			}
+			//TEMPORARY CODE - REMOVE LATER
+
+			for(int index = 0; index < ChildRecord_holyshit.size(); ++index) {
+				if(!ChildRecord_holyshit[index].empty()) {
+
+					temp.joints[index].child_index = new int[ChildRecord_holyshit[index].size()];
+					temp.joints[index].child_count = (int)ChildRecord_holyshit[index].size();
+					memcpy(temp.joints[index].child_index, &ChildRecord_holyshit[index][0], ChildRecord_holyshit[index].size() * sizeof(int));
+				}
+			}
+			//END
 			toPush->keyframes.push_back(temp);
 		}
 	}
 	reader.close();
-	toPush->animID = (unsigned int) animations.size();
+	toPush->animID = (unsigned int)animations.size();
 	toPush->bPose = LoadBindpose(_bindposeFilePath);
 	animations.push_back(toPush);
 	animNames[std::string(_animationFilePath)] = toPush;
@@ -52,12 +80,12 @@ bindpose * AnimationManager::LoadBindpose(const char * _bindposeFilePath) {
 	reader.open(_bindposeFilePath, std::ios_base::binary);
 	int len;
 	char name[512];
-	reader.read((char*) &len, sizeof(len));
+	reader.read((char*)&len, sizeof(len));
 	for(int i = 0; i < len; ++i) {
 		animJoint alright;
-		reader.read((char*) &alright.parent_index, sizeof(alright.parent_index));
+		reader.read((char*)&alright.parent_index, sizeof(alright.parent_index));
 		for(int almostThere = 0; almostThere < 4; ++almostThere)
-			reader.read((char*) &alright.transform.m[almostThere], sizeof(alright.transform.m[almostThere]));
+			reader.read((char*)&alright.transform.m[almostThere], sizeof(alright.transform.m[almostThere]));
 
 		XMStoreFloat4x4(&alright.transform, XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat4x4(&alright.transform)), XMLoadFloat4x4(&alright.transform)));
 		int nameLen;

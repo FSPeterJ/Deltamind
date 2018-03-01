@@ -14,14 +14,14 @@ Turret::Turret() {
 	tag = std::string("Turret");
 }
 
-void Turret::Enable() {
+void Turret::Enable(bool object) {
 	eventDestroy = MessageEvents::Subscribe(EVENT_Destroy, [=](EventMessageBase* e) {
 		if(target == ((StandardObjectMessage*)e)->RetrieveObject()) {
 			this->target = nullptr;
 			targetDistance = 99999;
 		}
 	});
-	GameObject::Enable();
+	GameObject::Enable(object);
 }
 
 void Turret::Disable() {

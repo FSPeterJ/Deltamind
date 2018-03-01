@@ -15,7 +15,7 @@ class Turret: public GameObject {
 
 public:
 	Turret();
-	void Enable();
+	void Enable(bool DestroyOnEnd =true) override;
 	void Disable();
 	void Awake(Object* obj);
 	void Update();

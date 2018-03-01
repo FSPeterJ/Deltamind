@@ -1,7 +1,6 @@
 #pragma once
 #include "AnimationManager.h"
 #include "ComponentBase.h"
-//#include <DirectXMath.h>       // for XMFLOAT3X3, XMFLOAT4X4 (ptr only)
 #include <unordered_map>
 
 namespace DirectX {
@@ -36,6 +35,7 @@ public:
 	std::unordered_map<std::string, Animation*>* getAnimations() { return &animations; }
 	const std::vector<animJoint>* getTweens();
 	Animation* getCurrentAnimation() { return currAnim; }
-	DirectX::XMFLOAT4X4* getJointByName(std::string name);
-	void ManipulateJointByName(std::string name, DirectX::XMFLOAT4X4);
+	DirectX::XMFLOAT4X4* getJointByName(const std::string& name);
+	void ManipulateJointByName(const std::string &name, const DirectX::XMFLOAT4X4  &transform);
+	void ManipulateJoint(animJoint* animationJoint, const DirectX::XMFLOAT4X4& _transformation);
 };

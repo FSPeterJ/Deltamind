@@ -11,6 +11,7 @@
 #include "LightManager.h"
 #include "ParticleManager.h"
 #include "GameObject.h"
+#include "AnimatorStructs.h"
 
 using namespace DirectX;
 

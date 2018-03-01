@@ -25,9 +25,10 @@ public:
 	void SetGoal(DirectX::XMFLOAT2 _goal) override;
 
 	void Repath() override {};
-	void Enable();
+	void Enable(bool _destroyOnReset = false);
 	void Disable();
 
-	void Awake();
+	void Awake(Object* obj);
+	void Start();
 	void Update();
 };

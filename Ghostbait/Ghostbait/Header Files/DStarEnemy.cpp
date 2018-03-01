@@ -5,10 +5,11 @@
 #include "MessageEvents.h"
 #include "PathPlanner.h"
 
-void DStarEnemy::Enable() {
+void DStarEnemy::Enable(bool _destroyOnReset) {
 	eventAdd = MessageEvents::Subscribe(EVENT_AddObstacle, [=](EventMessageBase* e) {this->Repath(); });
 	eventRemove = MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {this->Repath(); });
-	GameObject::Enable();
+	GameObject::Enable(_destroyOnReset);
+	Start();
 }
 
 void DStarEnemy::Disable() {
@@ -30,8 +31,11 @@ void DStarEnemy::SetGrid(HexGrid* _grid) {
 	grid = _grid;
 }
 
-void DStarEnemy::Awake() {
-	EnemyBase::Awake();
+void DStarEnemy::Awake(Object* obj) {
+	EnemyBase::Awake(obj);
+}
+
+void DStarEnemy::Start() {
 
 	tag = std::string("Enemy");
 
@@ -39,8 +43,7 @@ void DStarEnemy::Awake() {
 
 	if(!goal) { Console::ErrorLine << "No Goal! I'm gonna blowwwwww!!!!"; }
 
-
-	curTile = grid->PointToTile(DirectX::XMFLOAT2(position._41, position._43));
+	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
 
 	if(!curTile) { Console::ErrorLine << "Ahhhh! Initalize me on the grid please!!"; }
 
@@ -53,7 +56,7 @@ void DStarEnemy::Awake() {
 void DStarEnemy::Update() {
 	EnemyBase::Update();
 	
-	curTile = grid->PointToTile(DirectX::XMFLOAT2(position._41, position._43));
+	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
 	if(curTile) {
 		if(curTile == next) {
 			if(goal == curTile) {
@@ -64,9 +67,9 @@ void DStarEnemy::Update() {
 
 				auto nextPathPoint = grid->TileToPoint(next);
 
-				DirectX::XMVECTOR nextDirection = DirectX::XMVectorSet(nextPathPoint.x - position._41, 0.0f, nextPathPoint.y - position._43, 1.0f);
+				DirectX::XMVECTOR nextDirection = DirectX::XMVectorSet(nextPathPoint.x - transform.matrix._41, 0.0f, nextPathPoint.y - transform.matrix._43, 1.0f);
 				DirectX::XMVECTOR velocity = rb->GetVelocity();
-				rb->AddForce(3.0f * (DirectX::XMVectorGetX(DirectX::XMVector3Dot(nextDirection, velocity)) + 1.0f), nextPathPoint.x - position._41, 0.0f, nextPathPoint.y - position._43, 0.5f);
+				rb->AddForce(3.0f * (DirectX::XMVectorGetX(DirectX::XMVector3Dot(nextDirection, velocity)) + 1.0f), nextPathPoint.x - transform.matrix._41, 0.0f, nextPathPoint.y - transform.matrix._43, 0.5f);
 			}
 		}
 	}

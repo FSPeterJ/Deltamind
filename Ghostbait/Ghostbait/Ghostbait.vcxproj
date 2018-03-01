@@ -296,7 +296,9 @@
     <ClCompile Include="Source Files\Game.cpp" />
     <ClCompile Include="Source Files\GameObject.cpp" />
     <ClCompile Include="Source Files\GhostTime.cpp" />
-    <ClCompile Include="Source Files\Gun.cpp" />
+    <ClCompile Include="Source Files\Gun.cpp">
+      <ShowIncludes Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ShowIncludes>
+    </ClCompile>
     <ClCompile Include="Source Files\Health.cpp" />
     <ClCompile Include="Source Files\Heuristics.cpp" />
     <ClCompile Include="Source Files\HexagonalGridLayout.cpp" />

@@ -1,6 +1,5 @@
 #include "Renderer.h"
 //#include "vld.h"
-//#include "GameObject.h"
 #include "InputManager.h"
 #include "Messagebox.h"
 #include "Game.h"
@@ -27,6 +26,7 @@
 #include "AStarEnemy.h"
 #include "DStarEnemy.h"
 #include "Turret.h"
+#include "Player.h"
 
 Renderer* rendInter;
 Game* game;
@@ -37,6 +37,7 @@ ObjectManager* objMan;
 EngineStructure engine;
 AnimatorManager* animMan;
 AudioManager* audioMan;
+Player* player;
 
 void ExecuteAsync() {
 	Console::WriteLine << "I am executed asyncly!";
@@ -53,7 +54,6 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	_Pool_Base::RegisterMemory(&MemMan);
 	Console::WriteLine << "App has been initalized!";
-
 	//Minimize();
 
 #pragma region testing
@@ -96,22 +96,23 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	rendInter = new Renderer();
 	audioMan = new AudioManager();
-	bool isVR = VRManager::GetInstance().Init();
-	if(isVR) {
-		rendInter->Initialize(wnd);
+	player = new Player();
+	if(player->IsVR()) {
+		rendInter->Initialize(wnd, &player->transform);
 		Console::WriteLine << "Renderer initialized......";
 		inputMan = new InputManager(VR);
 		if(inputMan) Console::WriteLine << "Input Manager initialized......";
-		audioMan->setCamera(&VRManager::GetInstance().GetPlayerPosition());
+		//audioMan->setCamera(&VRManager::GetInstance().GetPlayerPosition());
 	}
 	else {
 		Console::WriteLine << "VR not initialized! Defaulting to 2D";
-		rendInter->Initialize(wnd);
+		rendInter->Initialize(wnd, &player->transform);
 		Console::WriteLine << "Renderer initialized......";
 		inputMan = new InputManager(KEYBOARD);
 		if(inputMan) Console::WriteLine << "Input Manager initialized......";
-		audioMan->setCamera(&(rendInter->getCamera())->position);
+		//audioMan->setCamera(&(rendInter->getCamera())->GetPosition());
 	}
+	audioMan->setCamera(&player->transform.GetMatrix());
 	Console::WriteLine << "Nothing's wrong here......";
 
 	animMan = new AnimatorManager(rendInter->getAnimationManager());
@@ -210,10 +211,10 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/AStarEnemyEdit.ghost"), "AStarEnemy");
 	ObjectFactory::CreatePrefab(&std::string("Assets/DStarEnemyEdit.ghost"), "DStarEnemy");
 	ObjectFactory::CreatePrefab(&std::string("Assets/ResumeButton.ghost"), "ResumeButton");
-	unsigned basicTurret = ObjectFactory::CreatePrefab(&std::string("Assets/TestTurretEdit.ghost"), "TestTurret", true);
+	unsigned basicTurret = ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost"), "TestTurret", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/RestartButton.ghost"), "RestartButton");
 	ObjectFactory::CreatePrefab(&std::string("Assets/QuitButton.ghost"), "QuitButton");
-
+	
 
 	//ObjectFactory::CreatePrefab(&std::string("Assets/TeleportSphere.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
@@ -225,10 +226,22 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	Console::WriteLine << "Prefabs created......";
 	//=============================
 
-	if(VRManager::GetInstance().IsEnabled()) {
-		VRManager::GetInstance().CreateControllers();
-		VRManager::GetInstance().SetBuildItems({ basicTurret });
-	}
+	player->LoadControllers();
+	//if(VRManager::GetInstance().IsEnabled()) {
+	//	VRManager::GetInstance().CreateControllers();
+	//	VRManager::GetInstance().SetBuildItems({ basicTurret });
+	//}
+	//else {
+	//	//------
+	//	// Debug Controller
+	//	//=========================================================
+	//	ControllerObject *debugController;
+	//	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 0,2,-2 }, &debugController));
+	//	debugController->Init(ControllerHand::HAND_Left);
+	//	debugController->SetBuildItems({ basicTurret });
+	//	debugController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
+	//	debugController->SetGunData(2, Gun::FireType::AUTO, 8, 25);
+	//}
 
 	//GameObject* ground;
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<GameObject>("Ground", {4, 0.0f, 0.0f}, (GameObject**)&ground));
@@ -252,50 +265,39 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<Spawner>( "Spawner", { -5.0f, 5.0f, -5.0f }, &spawner2));
 	//spawner2->Enable();
 
-	//TestArc
-	//GameObject* test;
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<GameObject>("Ground", { 0.0f, 0.0f, 0.0f }, &test));
-	//test->SetTag("Ground");
+
 
 	//********************* PHYSICS TEST CODE **********************************
 	//PhysicsTestObj *test1; //, *test2;
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { 0.0f, 2.0f, -1.0f }, &test1));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { 0.0f, 2.0f, 1.0f }, &test1));
 	////DirectX::XMStoreFloat4x4(&test1->position, DirectX::XMLoadFloat4x4(&test1->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest3", { 0.0f, 1.0f, 0.0f }, &test2));
-	//DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest2", { 2.0f, 2.0f, 0.0f }, &test2));
-	//DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { -2.0f, 2.0f, 0.0f }, nullptr));
+	////MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest3", { 0.0f, 1.0f, 0.0f }, &test2));
+	////DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
+	////MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest2", { 2.0f, 2.0f, 0.0f }, &test2));
+	////DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
+	////MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { -2.0f, 2.0f, 0.0f }, nullptr));
 
-	//dynamic_cast<PhysicsTestObj*>(test1)->isControllable = true;
-	//dynamic_cast<PhysicsTestObj*>(test1)->isRayCasting = true;
+	//((PhysicsTestObj*)test1)->isControllable = true;
+	//((PhysicsTestObj*)test1)->isRayCasting = true;
 
 	//test1->Enable();
 
 
-	//------
-	// Test Gun
-	//=========================================================
-	//ControllerObject *debugController;
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 0,2,-2 }, &debugController));
-	//debugController->Init(ControllerObject::ControllerHand::HAND_Left);
-	//debugController->SetBuildItems({ basicTurret });
-	//debugController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
-	//debugController->SetGunData(2, Gun::FireType::AUTO, 8, 25);
-	
-	//Turret *debugTurret;
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Turret>({ 0,0,0 }, &debugTurret));
+
+
+	Turret *debugTurret;
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Turret>({ 0,0,0 }, &debugTurret));
 	//assert(debugTurret->GetComponent<Animator>()->setState("default"));
 	//debugTurret->GetComponent<Animator>()->SetTime(3.0f);
-	//debugTurret->Enable();
-	
+	debugTurret->Enable();
+
 	GhostTime::Initalize();
 	MessageEvents::Initilize();
 
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<GameObject>("EarthMage", { 0.0f, 0.0f, 25.0f }));
 	Console::WriteLine << "Starting Game Loop......";
 	game = new Game();
-	game->Start(&engine);
+	game->Start(player, &engine, "level0");
 }
 
 void Loop() {
@@ -306,8 +308,12 @@ void Loop() {
 
 	}
 	else {
-		VRManager::GetInstance().leftController.obj->PausedUpdate();
-		VRManager::GetInstance().rightController.obj->PausedUpdate();
+		//TODO: Need a better way to do this...Maybe a paused Update delegate?
+		player->leftHand.controller->PausedUpdate();
+		player->rightHand.controller->PausedUpdate();
+		player->PausedUpdate();
+
+		phyMan->PausedUpdate();
 	}
 	game->Update();
 	inputMan->HandleInput();
@@ -331,6 +337,7 @@ void CleanUp() {
 		game->Clean();
 		delete game;
 	}
+	delete player;
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow) {

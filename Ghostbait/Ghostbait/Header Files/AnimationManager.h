@@ -2,19 +2,17 @@
 #include <vector>
 #include <map>
 #include <string>
-#include <DirectXMath.h> //todo get rid
+////todo get rid
 
 //namespace DirectX {
 //	struct XMFLOAT4X4;
 //}
 class ComponentBase;
 
+struct animJoint;
+
 #define MAX_ANIMATIONS 512
-struct animJoint {
-	DirectX::XMFLOAT4X4 transform;
-	int parent_index;
-	std::string name;
-};
+
 
 struct keyframe {
 	double endTime;

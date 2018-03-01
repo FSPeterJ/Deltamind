@@ -31,10 +31,11 @@ class BuildTool : public Item {
 	bool SetObstacle(DirectX::XMFLOAT2 pos, bool active);
 public:
 	BuildTool();
-	BuildTool(std::vector<unsigned> prefabIDs);
-	BuildTool(std::vector<int> prefabIDs);
 
 	void SetPrefabs(std::vector<unsigned> prefabIDs);
+	void Enable(bool onEndDestroy);
+	void Disable();
+	void Update();
 
 	void Projection();
 	void Activate();

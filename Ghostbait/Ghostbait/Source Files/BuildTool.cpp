@@ -2,26 +2,15 @@
 #include "GhostTime.h"
 #include "MessageEvents.h"
 #include "Console.h"
-#include "VRManager.h"
 #include "PhysicsComponent.h"
 #include "PhysicsExtension.h"
 
 BuildTool::BuildTool() { 
-	//std::vector<unsigned> prefabIDs;
-	//prefabIDs.resize(3);
-	//prefabIDs[0] = 2;
-	//prefabIDs[1] = 2;
-	//prefabIDs[2] = 2;
-	//SetPrefabs(prefabIDs);
-	state = BUILD;
-}
-BuildTool::BuildTool(std::vector<unsigned> prefabIDs) {
-	SetPrefabs(prefabIDs);
 	state = BUILD;
 }
 
 void BuildTool::SetPrefabs(std::vector<unsigned> prefabIDs) {
-	//prefabs.empty();
+	prefabs.empty();
 	prefabs.resize(prefabIDs.size() + 1);
 
 	for (int i = 0; i < prefabIDs.size(); ++i) {
@@ -30,6 +19,7 @@ void BuildTool::SetPrefabs(std::vector<unsigned> prefabIDs) {
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabIDs[i], { 0, 0, 0 }, &prefabs[i].object));
 		if(prefabs[i].ID) MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[i].object));
 		PhysicsComponent* physComp = prefabs[i].object->GetComponent<PhysicsComponent>();
+		prefabs[i].object->Enable(false);
 		if(physComp) physComp->isActive = false;
 		//Set objects shader to be semi-transparent solid color
 	}
@@ -38,22 +28,37 @@ void BuildTool::SetPrefabs(std::vector<unsigned> prefabIDs) {
 	prefabs[prefabs.size() - 1].ID = 0;
 }
 
+void BuildTool::Enable(bool onEndDestroy) {
+}
+
+void BuildTool::Disable() {
+}
+
+void BuildTool::Update() {
+	Item::Update();
+}
 
 void BuildTool::Projection() {
-	if (currentMode == SPAWN) SpawnProjection();
-	else RemoveProjection();
+	if (currentPrefabIndex >= 0 && currentPrefabIndex < prefabs.size()) {
+		if (currentMode == SPAWN) SpawnProjection();
+		else RemoveProjection();
+	}
 }
 
 void BuildTool::Activate() {
-	if (currentMode == SPAWN) Spawn();
-	else Remove();
+	if (currentPrefabIndex >= 0 && currentPrefabIndex < prefabs.size()) {
+		if (currentMode == SPAWN) Spawn();
+		else Remove();
+	}
 }
 
 bool BuildTool::Snap(GameObject** obj) {
-	DirectX::XMFLOAT2 pos = { (*obj)->position._41, (*obj)->position._43 };
+	DirectX::XMFLOAT2 pos = { (*obj)->transform.GetMatrix()._41, (*obj)->transform.GetMatrix()._43 };
 	if (Snap(&pos)) {
-		(*obj)->position._41 = pos.x;
-		(*obj)->position._43 = pos.y;
+		DirectX::XMFLOAT4X4 newPos = (*obj)->transform.GetMatrix();
+		newPos._41 = pos.x;
+		newPos._43 = pos.y;
+		(*obj)->transform.SetMatrix(newPos);
 		return true;
 	}
 	return false;
@@ -71,7 +76,7 @@ bool BuildTool::SetObstacle(DirectX::XMFLOAT2 pos, bool active) {
 }
 
 void BuildTool::SpawnProjection(){
-	if(VRManager::GetInstance().ArcCast((Object*)this, &spawnPos)) {
+	if (ArcCast(&transform, &spawnPos)) {
 		//snap to center of grid
 		DirectX::XMFLOAT2 newPos = DirectX::XMFLOAT2(spawnPos.x, spawnPos.z);
 		Snap(&newPos);
@@ -79,9 +84,11 @@ void BuildTool::SpawnProjection(){
 		spawnPos.z = newPos.y;
 		//Move Object
 		if (prefabs[currentPrefabIndex].object) {
-			prefabs[currentPrefabIndex].object->position._41 = spawnPos.x;
-			prefabs[currentPrefabIndex].object->position._42 = spawnPos.y;
-			prefabs[currentPrefabIndex].object->position._43 = spawnPos.z;
+			DirectX::XMFLOAT4X4 newPos1 = prefabs[currentPrefabIndex].object->transform.GetMatrix();
+			newPos1._41 = spawnPos.x;
+			newPos1._42 = spawnPos.y;
+			newPos1._43 = spawnPos.z;
+			prefabs[currentPrefabIndex].object->transform.SetMatrix(newPos1);
 		}
 	}
 }
@@ -103,7 +110,7 @@ void BuildTool::Spawn() {
 }
 void BuildTool::RemoveProjection() {
 	DirectX::XMFLOAT3 endPos;
-	if (!Raycast(DirectX::XMFLOAT3(position._41, position._42, position._43), DirectX::XMFLOAT3(position._31, position._32, position._33), &endPos, &currentlySelectedItem, 4)) {
+	if (!Raycast(DirectX::XMFLOAT3(transform.GetMatrix()._41, transform.GetMatrix()._42, transform.GetMatrix()._43), DirectX::XMFLOAT3(transform.GetMatrix()._31, transform.GetMatrix()._32, transform.GetMatrix()._33), &endPos, &currentlySelectedItem, 4)) {
 		currentlySelectedItem = nullptr;
 	}
 	//Set shader to transparent thing
@@ -111,7 +118,7 @@ void BuildTool::RemoveProjection() {
 void BuildTool::Remove() {
 	for (int i = 0; i < builtItems.size(); ++i) {
 		if (currentlySelectedItem == builtItems[i]) {
-			DirectX::XMFLOAT2 pos = DirectX::XMFLOAT2(currentlySelectedItem->position._41, currentlySelectedItem->position._43);
+			DirectX::XMFLOAT2 pos = DirectX::XMFLOAT2(currentlySelectedItem->transform.GetMatrix()._41, currentlySelectedItem->transform.GetMatrix()._43);
 			if (SetObstacle(pos, false)) {
 				MessageEvents::SendQueueMessage(EVENT_Late, [=] { currentlySelectedItem->Destroy(); });
 				builtItems.erase(builtItems.begin() + i);
@@ -123,45 +130,48 @@ void BuildTool::Remove() {
 }
 
 void BuildTool::CycleForward() {
-	if (prefabs[currentPrefabIndex].object)
-		MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
-	
-	int tempIndex = ++currentPrefabIndex;
+	if (currentPrefabIndex >= 0 && currentPrefabIndex < prefabs.size()) {
+		if (prefabs[currentPrefabIndex].object)
+			MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
 
-	if (tempIndex >= (int)prefabs.size()) {
-		tempIndex = 0;
+		int tempIndex = ++currentPrefabIndex;
+
+		if (tempIndex >= (int)prefabs.size()) {
+			tempIndex = 0;
+		}
+
+		if (prefabs[tempIndex].ID == 0)
+			currentMode = Mode::REMOVE; // Unreachable code
+		else
+			currentMode = Mode::SPAWN;
+
+		currentPrefabIndex = tempIndex;
+		if (prefabs[currentPrefabIndex].object)
+			MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
 	}
-
-	if (prefabs[tempIndex].ID == 0)
-		currentMode = Mode::REMOVE; // Unreachable code
-	else
-		currentMode = Mode::SPAWN;
-
-	currentPrefabIndex = tempIndex;
-	if (prefabs[currentPrefabIndex].object)
-		MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
 }
 void BuildTool::CycleBackward() {
-	if (prefabs[currentPrefabIndex].object)
-		MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
+	if (currentPrefabIndex >= 0 && currentPrefabIndex < prefabs.size()) {
+		if (prefabs[currentPrefabIndex].object)
+			MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
 
-	int tempIndex = --currentPrefabIndex;
+		int tempIndex = --currentPrefabIndex;
 
-	//if index is out of range, loop it
-	if (tempIndex < 0) {
-		tempIndex = (int)prefabs.size() - 1;
+		//if index is out of range, loop it
+		if (tempIndex < 0) {
+			tempIndex = (int)prefabs.size() - 1;
+		}
+
+		//if index is removal tool...
+		if (prefabs[tempIndex].ID == 0)
+			currentMode = Mode::REMOVE;
+		else
+			currentMode = Mode::SPAWN;
+
+		currentPrefabIndex = tempIndex;
+		if (prefabs[currentPrefabIndex].object)
+			MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
 	}
-
-	//if index is removal tool...
-	if (prefabs[tempIndex].ID == 0)
-		currentMode = Mode::REMOVE;
-	else
-		currentMode = Mode::SPAWN;
-
-	currentPrefabIndex = tempIndex;
-	if (prefabs[currentPrefabIndex].object)
-		MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
-
 }
 
 void BuildTool::InactiveUpdate() {
@@ -170,12 +180,16 @@ void BuildTool::ActiveUpdate() {
 }
 
 void BuildTool::DeSelected() {
-	if (prefabs[currentPrefabIndex].object)
-		MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
+	if (currentPrefabIndex >= 0 && currentPrefabIndex < prefabs.size()) {
+		if (prefabs[currentPrefabIndex].object)
+			MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
+	}
 }
 
 void BuildTool::Selected() {
-	if (prefabs[currentPrefabIndex].object)
-		MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
+	if (currentPrefabIndex >= 0 && currentPrefabIndex < prefabs.size()) {
+		if (prefabs[currentPrefabIndex].object)
+			MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
+	}
 }
 

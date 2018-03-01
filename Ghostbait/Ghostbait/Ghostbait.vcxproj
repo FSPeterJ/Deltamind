@@ -191,6 +191,7 @@
     <ClInclude Include="Header Files\AnimationManager.h" />
     <ClInclude Include="Header Files\Animator.h" />
     <ClInclude Include="Header Files\AnimatorManager.h" />
+    <ClInclude Include="Header Files\AnimatorStructs.h" />
     <ClInclude Include="Header Files\AStarEnemy.h" />
     <ClInclude Include="Header Files\AudioManager.h" />
     <ClInclude Include="Header Files\BinaryFileIO.h" />
@@ -242,6 +243,7 @@
     <ClInclude Include="Header Files\PhysicsManager.h" />
     <ClInclude Include="Header Files\PhysicsRegistry.h" />
     <ClInclude Include="Header Files\PhysicsTestObj.h" />
+    <ClInclude Include="Header Files\Player.h" />
     <ClInclude Include="Header Files\Pool.h" />
     <ClInclude Include="Header Files\ProgressBar.h" />
     <ClInclude Include="Header Files\Projectile.h" />
@@ -254,6 +256,7 @@
     <ClInclude Include="Header Files\targetver.h" />
     <ClInclude Include="Header Files\TestObject.h" />
     <ClInclude Include="Header Files\ThreadPool.h" />
+    <ClInclude Include="Header Files\Transform.h" />
     <ClInclude Include="Header Files\TraversalResult.h" />
     <ClInclude Include="Header Files\Turret.h" />
     <ClInclude Include="Header Files\TypeContainer.h" />
@@ -261,6 +264,7 @@
     <ClInclude Include="Header Files\VertexTypes.h" />
     <ClInclude Include="Header Files\ViveController.h" />
     <ClInclude Include="Header Files\VRManager.h" />
+    <ClInclude Include="Header Files\VRStructs.h" />
     <ClInclude Include="Header Files\WICTextureLoader.h" />
     <ClInclude Include="Header Files\Window.h" />
     <ClInclude Include="Header Files\MessageEvents.h" />
@@ -292,9 +296,7 @@
     <ClCompile Include="Source Files\Game.cpp" />
     <ClCompile Include="Source Files\GameObject.cpp" />
     <ClCompile Include="Source Files\GhostTime.cpp" />
-    <ClCompile Include="Source Files\Gun.cpp">
-      <ShowIncludes Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ShowIncludes>
-    </ClCompile>
+    <ClCompile Include="Source Files\Gun.cpp" />
     <ClCompile Include="Source Files\Health.cpp" />
     <ClCompile Include="Source Files\Heuristics.cpp" />
     <ClCompile Include="Source Files\HexagonalGridLayout.cpp" />
@@ -325,6 +327,7 @@
     <ClCompile Include="Source Files\PhysicsManager.cpp" />
     <ClCompile Include="Source Files\PhysicsRegistry.cpp" />
     <ClCompile Include="Source Files\PhysicsTestObj.cpp" />
+    <ClCompile Include="Source Files\Player.cpp" />
     <ClCompile Include="Source Files\Pool.cpp" />
     <ClCompile Include="Source Files\ProgressBar.cpp" />
     <ClCompile Include="Source Files\Projectile.cpp" />
@@ -334,6 +337,7 @@
     <ClCompile Include="Source Files\SpatialPartition.cpp" />
     <ClCompile Include="Source Files\Spawner.cpp" />
     <ClCompile Include="Source Files\ThreadPool.cpp" />
+    <ClCompile Include="Source Files\Transform.cpp" />
     <ClCompile Include="Source Files\Turret.cpp" />
     <ClCompile Include="Source Files\TypeMapping.cpp" />
     <ClCompile Include="Source Files\ViveController.cpp" />

@@ -25,17 +25,17 @@ protected:
 
 	bool sentDeathMessage = false;
 
-	void RestartGame() override;
-
 public:
 	EnemyBase() { tag = std::string("Enemy");  };
-	void Awake() override;
-	void Update() override;
-	void OnCollision(GameObject* _other);
-	void Destroy() override;
+	void Enable(bool _destroyOnReset = true) override;
 	void Disable() override;
+	void Destroy() override;
+	void Awake(Object* obj) override;
+	void Update() override;
+	void Subscribe() override;
+	void UnSubscribe() override;
+	void OnCollision(GameObject* _other) override;
 
-	void CloneData(Object* obj);
 
 	virtual void SetGrid(HexGrid* _grid) {};
 	virtual void SetGoal(DirectX::XMFLOAT2 _goal) {};

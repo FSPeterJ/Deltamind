@@ -12,135 +12,146 @@ Camera::Camera() {
 
 Camera::~Camera() {}
 
-void Camera::setCamera(const DirectX::XMFLOAT4X4 matrixToUse) { position = matrixToUse; }
-
+void Camera::setCamera(const DirectX::XMFLOAT4X4 matrixToUse) { transform.SetMatrix(matrixToUse); }
 void Camera::setCameraPosition(const float x, const float y, const float z) {
-	position._41 = x;
-	position._42 = y;
-	position._43 = z;
+	DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
+	newPos._41 = x;
+	newPos._42 = y;
+	newPos._43 = z;
+	transform.SetMatrix(newPos);
 }
-
 void Camera::setCameraRotationDegrees(const float x, const float y, const float z) {
 	XMFLOAT4X4 rotatedBy;
 	XMStoreFloat4x4(&rotatedBy, DirectX::XMMatrixRotationRollPitchYaw(x * XM_PI / 180.0f, y * XM_PI / 180.0f, z * XM_PI / 180.0f));
-	position._11 = rotatedBy._11;
-	position._12 = rotatedBy._12;
-	position._13 = rotatedBy._13;
-	position._21 = rotatedBy._21;
-	position._22 = rotatedBy._22;
-	position._23 = rotatedBy._23;
-	position._31 = rotatedBy._31;
-	position._32 = rotatedBy._32;
-	position._33 = rotatedBy._33;
+	DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
+	newPos._11 = rotatedBy._11;
+	newPos._12 = rotatedBy._12;
+	newPos._13 = rotatedBy._13;
+	newPos._21 = rotatedBy._21;
+	newPos._22 = rotatedBy._22;
+	newPos._23 = rotatedBy._23;
+	newPos._31 = rotatedBy._31;
+	newPos._32 = rotatedBy._32;
+	newPos._33 = rotatedBy._33;
+	transform.SetMatrix(newPos);
 }
-
 void Camera::setCameraRotationRadians(const float x, const float y, const float z) {
 	XMFLOAT4X4 rotatedBy;
 	XMStoreFloat4x4(&rotatedBy, XMMatrixRotationRollPitchYaw(x, y, z));
-	position._11 = rotatedBy._11;
-	position._12 = rotatedBy._12;
-	position._13 = rotatedBy._13;
-	position._21 = rotatedBy._21;
-	position._22 = rotatedBy._22;
-	position._23 = rotatedBy._23;
-	position._31 = rotatedBy._31;
-	position._32 = rotatedBy._32;
-	position._33 = rotatedBy._33;
+	DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
+	newPos._11 = rotatedBy._11;
+	newPos._12 = rotatedBy._12;
+	newPos._13 = rotatedBy._13;
+	newPos._21 = rotatedBy._21;
+	newPos._22 = rotatedBy._22;
+	newPos._23 = rotatedBy._23;
+	newPos._31 = rotatedBy._31;
+	newPos._32 = rotatedBy._32;
+	newPos._33 = rotatedBy._33;
+	transform.SetMatrix(newPos);
 }
-
 void Camera::setCameraScale(const float x, const float y, const float z) {
-	position._14 = x;
-	position._24 = y;
-	position._34 = z;
+	DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
+	newPos._14 = x;
+	newPos._24 = y;
+	newPos._34 = z;
+	transform.SetMatrix(newPos);
 }
-
 void Camera::pointCameraAt(XMFLOAT3 pos, XMFLOAT3 target, XMFLOAT3 up) {
-	XMStoreFloat4x4(&position, XMMatrixIdentity());
+	DirectX::XMFLOAT4X4 newPos;
+	XMStoreFloat4x4(&newPos, XMMatrixIdentity());
 	XMFLOAT3 x;
 	XMFLOAT3 y;
 	XMFLOAT3 z;
 	XMStoreFloat3(&z, XMVector3Normalize(XMLoadFloat3(&target) - XMLoadFloat3(&pos)));
 	XMStoreFloat3(&x, XMVector3Normalize(XMVector3Cross(XMLoadFloat3(&up), XMLoadFloat3(&z))));
 	XMStoreFloat3(&y, XMVector3Normalize(XMVector3Cross(XMLoadFloat3(&z), XMLoadFloat3(&x))));
-	position._11 = x.x;
-	position._12 = x.y;
-	position._13 = x.z;
-	position._41 = pos.x;
-	position._21 = y.x;
-	position._22 = y.y;
-	position._23 = y.z;
-	position._42 = pos.y;
-	position._31 = z.x;
-	position._32 = z.y;
-	position._33 = z.z;
-	position._43 = pos.z;
+	newPos._11 = x.x;
+	newPos._12 = x.y;
+	newPos._13 = x.z;
+	newPos._41 = pos.x;
+	newPos._21 = y.x;
+	newPos._22 = y.y;
+	newPos._23 = y.z;
+	newPos._42 = pos.y;
+	newPos._31 = z.x;
+	newPos._32 = z.y;
+	newPos._33 = z.z;
+	newPos._43 = pos.z;
+	transform.SetMatrix(newPos);
 }
-
 void Camera::turnCameraTowards(XMFLOAT3 target, float speed) {
 	XMFLOAT3 toTarget;
 	XMFLOAT3 camPos;
-	camPos.x = position._41;
-	camPos.y = position._42;
-	camPos.z = position._43;
+	camPos.x = transform.GetMatrix()._41;
+	camPos.y = transform.GetMatrix()._42;
+	camPos.z = transform.GetMatrix()._43;
 	XMStoreFloat3(&toTarget, XMVector3Normalize(XMLoadFloat3(&target) - XMLoadFloat3(&camPos)));
 	XMFLOAT3 viewX;
-	viewX.x = position._11;
-	viewX.y = position._12;
-	viewX.z = position._13;
+	viewX.x = transform.GetMatrix()._11;
+	viewX.y = transform.GetMatrix()._12;
+	viewX.z = transform.GetMatrix()._13;
 
 	float dotX = XMVector3Dot(XMLoadFloat3(&viewX), XMLoadFloat3(&toTarget)).m128_f32[0];
 
-	viewX.x = position._21;
-	viewX.y = position._22;
-	viewX.z = position._23;
+	viewX.x = transform.GetMatrix()._21;
+	viewX.y = transform.GetMatrix()._22;
+	viewX.z = transform.GetMatrix()._23;
 	float dotY = XMVector3Dot(XMLoadFloat3(&viewX), XMLoadFloat3(&toTarget)).m128_f32[0];
 
-	XMStoreFloat4x4(&position, XMMatrixRotationRollPitchYaw(-dotY * speed, dotX * speed, 0.0f) * XMLoadFloat4x4(&position));
-	viewX.x = position._11;
-	viewX.y = position._12;
-	viewX.z = position._13;
+	DirectX::XMFLOAT4X4 newPos;
+	XMStoreFloat4x4(&newPos, XMMatrixRotationRollPitchYaw(-dotY * speed, dotX * speed, 0.0f) * XMLoadFloat4x4(&transform.GetMatrix()));
+	transform.SetMatrix(newPos);
+	viewX.x = transform.GetMatrix()._11;
+	viewX.y = transform.GetMatrix()._12;
+	viewX.z = transform.GetMatrix()._13;
 
 	XMFLOAT3 viewY;
-	viewY.x = position._21;
-	viewY.y = position._22;
-	viewY.z = position._23;
+	viewY.x = transform.GetMatrix()._21;
+	viewY.y = transform.GetMatrix()._22;
+	viewY.z = transform.GetMatrix()._23;
 
 	XMFLOAT3 viewZ;
-	viewZ.x = position._31;
-	viewZ.y = position._32;
-	viewZ.z = position._33;
+	viewZ.x = transform.GetMatrix()._31;
+	viewZ.y = transform.GetMatrix()._32;
+	viewZ.z = transform.GetMatrix()._33;
 	XMFLOAT3 x;
 	XMFLOAT3 y;
 	XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	XMStoreFloat3(&x, XMVector3Normalize(XMVector3Cross(XMLoadFloat3(&up), XMLoadFloat3(&viewZ))));
 	XMStoreFloat3(&y, XMVector3Normalize(XMVector3Cross(XMLoadFloat3(&viewZ), XMLoadFloat3(&x))));
-	position._11 = x.x;
-	position._12 = x.y;
-	position._13 = x.z;
-	position._21 = y.x;
-	position._22 = y.y;
-	position._23 = y.z;
+	newPos = transform.GetMatrix();
+	newPos._11 = x.x;
+	newPos._12 = x.y;
+	newPos._13 = x.z;
+	newPos._21 = y.x;
+	newPos._22 = y.y;
+	newPos._23 = y.z;
+	transform.SetMatrix(newPos);
 }
-
 void Camera::moveCameraAlongForward(float speed) {
 	float dt = (float) GhostTime::DeltaTime();
-	position._41 += position._31 * speed * dt;
-	position._42 += position._32 * speed * dt;
-	position._43 += position._33 * speed * dt;
+	DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
+	newPos._41 += newPos._31 * speed * dt;
+	newPos._42 += newPos._32 * speed * dt;
+	newPos._43 += newPos._33 * speed * dt;
+	transform.SetMatrix(newPos);
 }
-
 void Camera::moveCameraAlongUp(float speed) {
 	float dt = (float) GhostTime::DeltaTime();
-	position._41 += position._21 * speed * dt;
-	position._42 += position._22 * speed * dt;
-	position._43 += position._23 * speed * dt;
+	DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
+	newPos._41 += newPos._21 * speed * dt;
+	newPos._42 += newPos._22 * speed * dt;
+	newPos._43 += newPos._23 * speed * dt;
+	transform.SetMatrix(newPos);
 }
-
 void Camera::moveCameraAlongSide(float speed) {
 	float dt = (float) GhostTime::DeltaTime();
-	position._41 += position._11 * speed * dt;
-	position._42 += position._12 * speed * dt;
-	position._43 += position._13 * speed * dt;
+	DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
+	newPos._41 += newPos._11 * speed * dt;
+	newPos._42 += newPos._12 * speed * dt;
+	newPos._43 += newPos._13 * speed * dt;
+	transform.SetMatrix(newPos);
 }
 
 void Camera::Update() {
@@ -191,4 +202,6 @@ void Camera::Update() {
 	}
 
 	setCameraRotationRadians(rotationX, rotationY, 0.0f);
+
+	GameObject::Update();
 }

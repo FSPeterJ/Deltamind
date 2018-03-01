@@ -36,6 +36,8 @@ class Menu {
 	std::map<Button, char*> buttonPrefabMap;
 	std::vector<Button> buttons;
 	std::vector<MenuOption*> options;
+	Transform* camera = nullptr;
+
 	DirectX::XMFLOAT4X4 FindCenter(float distFromPlayer = 1);
 	float FindDistanceFromCenter(int optionNumber, int optionCount, float optionHeight, float gapHeight);
 	void AssignPrefabIDs();
@@ -45,6 +47,7 @@ public:
 	Menu();
 	Menu(Template t, std::vector<Button> buttons = std::vector<Button>());
 	void Create(Template t, std::vector<Button> buttons = std::vector<Button>());
+	void SetCamera(Transform* _camera);
 	void Show();
 	void Hide();
 	void Cleanup();

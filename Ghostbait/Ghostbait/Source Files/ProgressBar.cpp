@@ -2,7 +2,9 @@
 
 void ProgressBar::SetBarPercentage(float percent) {
 	percentage = percent;
-	position._11 *= percentage;
-	position._12 *= percentage;
-	position._13 *= percentage;
+	DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
+	newPos._11 *= percentage;
+	newPos._12 *= percentage;
+	newPos._13 *= percentage;
+	transform.SetMatrix(newPos);
 }

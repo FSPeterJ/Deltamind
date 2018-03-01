@@ -5,24 +5,24 @@
 class Turret: public GameObject {
 	GameObject* target;
 	unsigned projectiePID =0;
+	unsigned eventDestroy;
 	float targetDistance =0;
 	float firerate =0;
 	float damage = 10;
 	float timeSinceLastShot = 0;
 	DirectX::XMFLOAT4X4* turretPitch;
-	unsigned eventDestroy;
+	DirectX::XMFLOAT4X4* launcherorigin;
 
 public:
 	Turret();
 	void Enable();
 	void Disable();
-	void Awake();
+	void Awake(Object* obj);
 	void Update();
 	float CalculateDistance(GameObject* obj);
 	~Turret();
 	void OnTrigger(GameObject* object);
 	bool CanShoot(float fireRate);
 	void Shoot();
-	void CloneData(Object* obj);
 	void GivePID(unsigned pid, const char* tag);
 };

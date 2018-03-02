@@ -166,8 +166,8 @@ void Game::ChangeScene(const char* sceneName) {
 	sceneManager->LoadScene(sceneName, &corePos);
 
 	//If it has level/wave data, load it
-	if (sceneManager->GetCurrentScene().levelFile != "") {
-		irr::io::IrrXMLReader *xmlReader = irr::io::createIrrXMLReader(sceneManager->GetCurrentScene().levelFile.c_str());
+	if (sceneManager->GetCurrentScene().levelFiles.size() > 0) {
+		irr::io::IrrXMLReader *xmlReader = irr::io::createIrrXMLReader(sceneManager->GetCurrentScene().levelFiles[0].c_str());
 
 		WaveManager::Wave* newWave = nullptr;
 		while (xmlReader->read()) {

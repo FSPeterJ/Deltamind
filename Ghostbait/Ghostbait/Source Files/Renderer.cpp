@@ -231,6 +231,11 @@ DirectX::XMFLOAT4X4 Renderer::lookAt(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 ta
 	return ret;
 }
 
+void Renderer::loadSkyboxFaces(Skybox * toLoad, const char * directory, const char * filePrefix)
+{
+
+}
+
 Renderer::Renderer() {}
 
 Renderer::~Renderer() {}
@@ -573,6 +578,39 @@ void Renderer::initViewport(const RECT window, pipeline_state_t * pipelineTo) {
 
 	pipelineTo->viewport = tempView;
 }
+
+void Renderer::setSkybox(const char* directoryName, const char* filePrefix)
+{
+	if (currSkybox)
+	{
+		currSkybox->srv->Release();
+		currSkybox->box->Release();
+		for (int i = 0; i < 6; ++i)
+		{
+			currSkybox->faces[i]->Release();
+		}
+		delete currSkybox;
+		currSkybox = nullptr;
+	}
+
+	Skybox* toSet = new Skybox();
+	loadSkyboxFaces(toSet, directoryName, filePrefix);
+	D3D11_TEXTURE2D_DESC refDesc;
+	D3D11_TEXTURE2D_DESC texdesc;
+	toSet->faces[0]->GetDesc(&refDesc);
+	texdesc.Height = refDesc.Height;
+	texdesc.Width = refDesc.Width;
+	texdesc.Format = refDesc.Format;
+	texdesc.CPUAccessFlags = NULL;
+	texdesc.SampleDesc.Count = 1;
+	texdesc.SampleDesc.Quality = 0;
+	texdesc.Usage = D3D11_USAGE_DEFAULT;
+	texdesc.MipLevels = 1;
+	texdesc.ArraySize = 6;
+	texdesc.MiscFlags = D3D11_SRV_DIMENSION_TEXTURECUBE;
+	
+}
+
 MeshManager* Renderer::getMeshManager() { return meshManagement; }
 MaterialManager* Renderer::getMaterialManager() { return materialManagement; }
 AnimationManager* Renderer::getAnimationManager() { return animationManagement; }

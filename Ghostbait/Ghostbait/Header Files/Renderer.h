@@ -59,6 +59,13 @@ private:
 		bool willAnimate;
 		DirectX::XMFLOAT3 filler;
 	};
+
+	struct Skybox
+	{
+		ID3D11Texture2D* faces[6];
+		ID3D11Texture2D* box;
+		ID3D11ShaderResourceView* srv;
+	};
 #pragma endregion
 
 	ID3D11SamplerState* OnlySamplerState; //DirectX is a hoot
@@ -89,6 +96,7 @@ private:
 	viewProjectionConstantBuffer defaultCamera;
 	animDataBufferStruct cpuAnimationData;
 
+	Skybox* currSkybox = nullptr;
 	//eye leftEye;
 	//eye rightEye;
 
@@ -116,6 +124,8 @@ private:
 	void loadPipelineState(pipeline_state_t* pipeline);
 
 	DirectX::XMFLOAT4X4 lookAt(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 up);
+
+	void loadSkyboxFaces(Skybox* toLoad, const char* directory, const char* filePrefix);
 
 public:
 	//test
@@ -163,6 +173,7 @@ public:
 	void unregisterObject(EventMessageBase* e);
 
 	//////////////////////////////////////////////////////////////////////////////////
+	void setSkybox(const char* directoryName, const char* filePrefix);
 
 	MeshManager* getMeshManager();
 	MaterialManager* getMaterialManager();

@@ -76,7 +76,7 @@ namespace GhostbaitSceneCreator
         {
             OpenFileDialog open = new OpenFileDialog
             {
-                Filter = "Scene files (*.ghostscene) | *.ghostscene;",
+                Filter = "Scene files (*.scene) | *.scene;",
                 InitialDirectory = Settings.Default.scene_path,
                 Title = "Scene file"
             };
@@ -171,7 +171,7 @@ namespace GhostbaitSceneCreator
 
             SaveFileDialog save = new SaveFileDialog
             {
-                Filter = "Scene file (*.ghostscene)| *.ghostscene; |Binary file (*.bin)| *.bin;",
+                Filter = "Scene file (*.scene)| *.scene; |Binary file (*.bin)| *.bin;",
                 InitialDirectory = Settings.Default.scene_path,
                 Title = "Ghostbait scene file"
             };

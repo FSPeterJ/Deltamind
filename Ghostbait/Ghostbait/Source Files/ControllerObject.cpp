@@ -200,8 +200,12 @@ void ControllerObject::Update() {
 
 		static bool teleport = false;
 		if (KeyIsDown(teleportDown) && hand == HAND_Right) {
-			ArcCast(&transform, {});
-			teleport = true;
+			DirectX::XMFLOAT3 endPos;
+			if (ArcCast(&transform, &endPos)) {
+				teleport = true;
+			}
+			else
+				teleport = false;
 		}
 		if (teleport && !KeyIsDown(teleportDown) && hand == HAND_Right) {
 			player->Teleport();

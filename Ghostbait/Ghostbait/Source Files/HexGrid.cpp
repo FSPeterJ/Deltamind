@@ -376,3 +376,26 @@ void HexGrid::Color(HexRegion r, DirectX::XMFLOAT3 color, int fill) {
 	r.Color(&layout, color, 0, (ColorType)fill);
 }
 
+
+HexRegion HexGrid::Spiral(HexTile *const center, std::size_t radius) {
+	HexRegion ring;
+	if(radius == 0) { return ring; }
+
+	for(std::size_t k = 1; k <= radius; ++k) {
+		HexTile H = center->Direction(NEIGHBOR_DIRECTION::BottomLeft) * k;
+		for(std::size_t i = 0; i < Hexagon::NUMBER_OF_SIDES; ++i) {
+			for(std::size_t j = 0; j < k; ++j) {
+				ring.push_back(H);
+				H = H.Neighbor((NEIGHBOR_DIRECTION) i);
+			}
+		}
+
+	}
+	
+	return ring;
+}
+
+
+HexRegion HexGrid::Ring(HexTile *const center, std::size_t radius) {
+	return HexRegion();
+}

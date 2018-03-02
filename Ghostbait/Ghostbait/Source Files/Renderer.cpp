@@ -233,7 +233,12 @@ DirectX::XMFLOAT4X4 Renderer::lookAt(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 ta
 
 void Renderer::loadSkyboxFaces(Skybox * toLoad, const char * directory, const char * filePrefix)
 {
-
+	std::string path = std::string(directory);
+	path = "Skyboxes/" + path;
+	for (int i = 0; i < 6; ++i)
+	{
+		std::string truepath = path + '/' + filePrefix + "c0" + (char)(i+48) + ".png";
+	}
 }
 
 Renderer::Renderer() {}
@@ -608,7 +613,28 @@ void Renderer::setSkybox(const char* directoryName, const char* filePrefix)
 	texdesc.MipLevels = 1;
 	texdesc.ArraySize = 6;
 	texdesc.MiscFlags = D3D11_SRV_DIMENSION_TEXTURECUBE;
+	device->CreateTexture2D(&texdesc, nullptr, &toSet->box);
 	
+	D3D11_BOX src;
+	src.left = 0;
+	src.top = 0;
+	src.right = refDesc.Width;
+	src.bottom = refDesc.Height;
+	src.front = 0;
+	src.back = 1;
+
+	for (int i = 0; i < 6; ++i)
+	{
+		context->CopySubresourceRegion(toSet->box, D3D11CalcSubresource(0, i, 1), 0, 0, 0, toSet->faces[i], 0, &src);
+	}
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvdesc;
+	srvdesc.Format = texdesc.Format;
+	srvdesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+	srvdesc.TextureCube.MostDetailedMip = 0;
+	srvdesc.TextureCube.MipLevels = texdesc.MipLevels;
+	device->CreateShaderResourceView((ID3D11Resource*)toSet->box, &srvdesc, &toSet->srv);
+	currSkybox = toSet;
 }
 
 MeshManager* Renderer::getMeshManager() { return meshManagement; }

@@ -14,6 +14,7 @@ Player::Player() {
 
 void Player::Update() {
 	float dt = (float)GhostTime::DeltaTime();
+	if (IsVR()) transform.SetMatrix(VRManager::GetInstance().GetPlayerPosition());
 
 	DirectX::XMFLOAT3 prevPos = transform.GetPosition();
 	if (rotationY < -DirectX::XM_2PI || rotationY > DirectX::XM_2PI)

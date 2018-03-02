@@ -12,6 +12,7 @@
 #include "ParticleManager.h"
 #include "GameObject.h"
 #include "AnimatorStructs.h"
+#include "WICTextureLoader.h"
 
 using namespace DirectX;
 
@@ -196,6 +197,23 @@ void Renderer::renderToEye(eye * eyeTo) {
 	//context->IASetInputLayout(ILStandard);
 }
 
+void Renderer::drawSkyboxTo(ID3D11RenderTargetView * rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport)
+{
+	UINT stride = sizeof(VertexPositionTextureNormalAnim);
+	UINT offset = 0;
+
+	context->OMSetRenderTargets(1, &rtv, dsv);
+	context->RSSetViewports(1, &viewport);
+	context->VSSetShader(SkyboxVS, NULL, NULL);
+	context->PSSetShader(SkyboxPS, NULL, NULL);
+	context->UpdateSubresource(modelBuffer, NULL, NULL, &XMMatrixTranspose(XMMatrixTranslationFromVector(XMLoadFloat3(&LightManager::getLightBuffer()->cameraPos))), NULL, NULL);
+	context->IASetVertexBuffers(0, 1, &skyball->vertexBuffer, &stride, &offset);
+	context->IASetIndexBuffer(skyball->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	context->PSSetShaderResources(0, 1, &currSkybox->srv);
+	context->DrawIndexed(skyball->indexCount, 0, 0);
+	context->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+}
+
 void Renderer::loadPipelineState(pipeline_state_t * pipeline) {
 	context->RSSetState(pipeline->rasterizer_state);
 	context->OMSetRenderTargets(1, &pipeline->render_target_view, pipeline->depth_stencil_view);
@@ -234,10 +252,17 @@ DirectX::XMFLOAT4X4 Renderer::lookAt(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 ta
 void Renderer::loadSkyboxFaces(Skybox * toLoad, const char * directory, const char * filePrefix)
 {
 	std::string path = std::string(directory);
-	path = "Skyboxes/" + path;
+	path = "Assets/Skyboxes/" + path;
+	ID3D11ShaderResourceView* throwitaway;
 	for (int i = 0; i < 6; ++i)
 	{
-		std::string truepath = path + '/' + filePrefix + "c0" + (char)(i+48) + ".png";
+		std::string truepath = path + '/' + filePrefix + "_c0" + (char)(i+48) + ".png";
+		std::wstring forrealthistime(truepath.begin(), truepath.end());
+
+		ID3D11Texture2D* tex;
+		DirectX::CreateWICTextureFromFile(device, context, forrealthistime.c_str(), (ID3D11Resource**)&tex, &throwitaway);
+		toLoad->faces[i] = tex;
+		throwitaway->Release();
 	}
 }
 
@@ -302,6 +327,8 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 #if _DEBUG
 	DebugRenderer::Initialize(device, context, modelBuffer, PassThroughPositionColorVS, PassThroughPS, ILPositionColor, defaultPipeline.rasterizer_state);
 #endif
+	setSkybox("Space", "spaceBox");
+	//skyball = meshManagement->GetReferenceComponent("Assets/Skyball.mesh", nullptr);
 }
 
 void Renderer::Destroy() {
@@ -321,6 +348,8 @@ void Renderer::Destroy() {
 	ParticleVS->Release();
 	ParticleGS->Release();
 	ParticlePS->Release();
+	SkyboxVS->Release();
+	SkyboxPS->Release();
 	backBuffer->Release();
 	swapchain->Release();
 	context->Release();
@@ -341,6 +370,17 @@ void Renderer::Destroy() {
 #if _DEBUG
 	DebugRenderer::Destroy();
 #endif
+	if (currSkybox)
+	{
+		currSkybox->srv->Release();
+		currSkybox->box->Release();
+		for (int i = 0; i < 6; ++i)
+		{
+			currSkybox->faces[i]->Release();
+		}
+		delete currSkybox;
+		currSkybox = nullptr;
+	}
 }
 
 void Renderer::registerObject(EventMessageBase* e) {
@@ -421,6 +461,7 @@ void Renderer::Render() {
 	else
 		LightManager::getLightBuffer()->cameraPos = DirectX::XMFLOAT3(cameraPos->GetMatrix()._41, cameraPos->GetMatrix()._42, cameraPos->GetMatrix()._43);
 	context->UpdateSubresource(lightBuffer, NULL, NULL, LightManager::getLightBuffer(), 0, 0);
+	drawSkyboxTo(defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport);
 	for(size_t i = 0; i < renderedObjects.size(); ++i) {
 		renderObjectDefaultState((Object*) renderedObjects[i]);
 	}
@@ -556,6 +597,16 @@ void Renderer::initShaders() {
 	device->CreatePixelShader(byteCode, byteCodeSize, NULL, &ParticlePS);
 	delete[] byteCode;
 	byteCode = nullptr;
+
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "SkyboxVertexShader.cso");
+	device->CreateVertexShader(byteCode, byteCodeSize, NULL, &SkyboxVS);
+	delete[] byteCode;
+	byteCode = nullptr;
+
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "SkyboxPixelShader.cso");
+	device->CreatePixelShader(byteCode, byteCodeSize, NULL, &SkyboxPS);
+	delete[] byteCode;
+	byteCode = nullptr;
 	CD3D11_BUFFER_DESC constantBufferDesc(sizeof(viewProjectionConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
 	device->CreateBuffer(&constantBufferDesc, nullptr, &cameraBuffer);
 
@@ -610,9 +661,10 @@ void Renderer::setSkybox(const char* directoryName, const char* filePrefix)
 	texdesc.SampleDesc.Count = 1;
 	texdesc.SampleDesc.Quality = 0;
 	texdesc.Usage = D3D11_USAGE_DEFAULT;
+	texdesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 	texdesc.MipLevels = 1;
 	texdesc.ArraySize = 6;
-	texdesc.MiscFlags = D3D11_SRV_DIMENSION_TEXTURECUBE;
+	texdesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
 	device->CreateTexture2D(&texdesc, nullptr, &toSet->box);
 	
 	D3D11_BOX src;

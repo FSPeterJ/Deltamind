@@ -352,14 +352,6 @@ void Game::Update() {
 			break;
 		case GAMESTATE_Menu:
 			{
-
-				//if first time
-				if (gameData.currentLogoIndex == -1) {
-					++gameData.currentLogoIndex;
-					int id = ObjectFactory::CreatePrefab(&gameData.logos[gameData.currentLogoIndex].fileName);
-					MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(id, { 0, 1, 3 }, &gameData.currentLogo));
-				}
-
 				//update time
 				gameData.timeInScene += dt;
 
@@ -372,26 +364,64 @@ void Game::Update() {
 
 				//If we have logos to go through
 				if (gameData.logos.size()) {
-
-					//else if logo duration is up, switch logos
-					if (gameData.timeInScene >= gameData.logos[gameData.currentLogoIndex].duration) {
-						if (gameData.currentLogoIndex + 1 >= gameData.logos.size()) {
-							//we just finished last logo
+					//if first time
+					if (gameData.currentLogoIndex == -1) {
+						//Spawn first logo
+						if (gameData.logos[++gameData.currentLogoIndex].fileName != "") {
+							int id = ObjectFactory::CreatePrefab(&gameData.logos[gameData.currentLogoIndex].fileName);
+							MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(id, { 0, 1, 3 }, &gameData.currentLogo));
+						}
+					}
+					else if (gameData.timeInScene >= gameData.logos[gameData.currentLogoIndex].duration) {
+						//If this duration is not special, delete it
+						if (gameData.logos[gameData.currentLogoIndex].duration != -1) {
+							if (gameData.currentLogo) gameData.currentLogo->Destroy();
+							gameData.currentLogo = nullptr;
+						}
+						//If there is a next option
+						if (gameData.currentLogoIndex + 1 < gameData.logos.size()) {
+							//Update your index to it, and update the duration to be a new timer if not special
+							if (gameData.logos[++gameData.currentLogoIndex].duration != -1) {
+								gameData.logos[gameData.currentLogoIndex].duration += gameData.timeInScene;
+							}
+							if (gameData.logos[gameData.currentLogoIndex].fileName != "") {
+								int id = ObjectFactory::CreatePrefab(&gameData.logos[gameData.currentLogoIndex].fileName);
+								MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(id, { 0, 1, 3 }, &gameData.currentLogo));
+							}
+						}
+						else {
+							if (gameData.currentLogo && gameData.logos[gameData.currentLogoIndex].duration != -1) gameData.currentLogo->Destroy();
 							while (gameData.logos.size()) {
 								gameData.logos.erase(gameData.logos.begin());
 							}
-							gameData.currentLogo->Destroy();
 							gameData.currentLogo = nullptr;
-						}
-						else {
-							if (gameData.currentLogo) gameData.currentLogo->Destroy();
-							gameData.logos[++gameData.currentLogoIndex].duration += gameData.timeInScene;
-							int id = ObjectFactory::CreatePrefab(&gameData.logos[gameData.currentLogoIndex].fileName);
-							MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(id, { 0, 1, 3 }, &gameData.currentLogo));
-
 						}
 					}
 				}
+
+
+				//	//else if logo duration is up, switch logos
+				//	if (gameData.timeInScene >= gameData.logos[gameData.currentLogoIndex].duration) {
+				//		if (gameData.currentLogoIndex + 1 >= gameData.logos.size()) {
+				//			//we just finished last logo
+				//			while (gameData.logos.size()) {
+				//				gameData.logos.erase(gameData.logos.begin());
+				//			}
+				//			gameData.currentLogo->Destroy();
+				//			gameData.currentLogo = nullptr;
+				//		}
+				//		else {
+				//			if (gameData.currentLogo) gameData.currentLogo->Destroy();
+				//			gameData.logos[++gameData.currentLogoIndex].duration += gameData.timeInScene;
+				//			if(gameData.logos[gameData.currentLogoIndex].fileName != ""){
+				//				int id = ObjectFactory::CreatePrefab(&gameData.logos[gameData.currentLogoIndex].fileName);
+				//				MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(id, { 0, 1, 3 }, &gameData.currentLogo));
+				//			}
+				//		}
+				//	}
+				//}
+
+
 				engine->ExecuteUpdate();
 				engine->ExecuteLateUpdate();
 			}

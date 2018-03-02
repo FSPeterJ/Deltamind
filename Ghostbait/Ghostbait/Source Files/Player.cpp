@@ -14,65 +14,68 @@ Player::Player() {
 
 void Player::Update() {
 	float dt = (float)GhostTime::DeltaTime();
-
-	DirectX::XMFLOAT3 prevPos = transform.GetPosition();
-	if (rotationY < -DirectX::XM_2PI || rotationY > DirectX::XM_2PI)
-		rotationY = 0.0f;
-	if (rotationX < -DirectX::XM_2PI || rotationX > DirectX::XM_2PI)
-		rotationX = 0.0f;
-
-	if (KeyIsDown(Control::CameraLeftRight)) {
-		//position._41 -= 50.0f * dt;
-		rotationY += Amount(CameraLeftRight) * dt;
-		ResetKey(Control::CameraLeftRight);
-		//ResetKey(Control::left);
-	}
-	if (KeyIsDown(Control::CameraUpDown)) {
-		//position._41 += 50.0f * dt;
-		rotationX += Amount(CameraUpDown) * dt;
-		ResetKey(Control::CameraUpDown);
-		//ResetKey(Control::right);
-	}
-	if (KeyIsDown(Control::forward)) {
-		transform.MoveAlongForward(10.0f);
-		//ResetKey(Control::forward);
-	}
-	if (KeyIsDown(Control::backward)) {
-		transform.MoveAlongForward(-10.0f);
-		//ResetKey(Control::backward);
-	}
-	if (KeyIsDown(Control::LeftAction)) {
-		transform.MoveAlongUp(10.0f);
-		//ResetKey(Control::leftAttack);
-	}
-	if (KeyIsDown(Control::RightAction)) {
-		transform.MoveAlongUp(-10.0f);
-		//ResetKey(Control::rightAttack);
-	}
-	
-	if (KeyIsDown(Control::left)) {
-		transform.MoveAlongSide(-10.0f);
-		//ResetKey(Control::TestInputZ);
-	}
-	if (KeyIsDown(Control::right)) {
-		transform.MoveAlongSide(10.0f);
-		//ResetKey(Control::TestInputC);
-	}
-
-	transform.SetRotationRadians(rotationX, rotationY, 0.0f);
-
-
-	//Ground Clamp
-	DirectX::XMFLOAT3 start = { transform.GetMatrix()._41, transform.GetMatrix()._42 - playerHeight + 0.1f, transform.GetMatrix()._43 };
-	DirectX::XMFLOAT3 direction = {0, -1, 0};
-	DirectX::XMFLOAT3 end;
-	if (Raycast(start, direction, &end, nullptr, 100)) {
-		DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
-		newPos._42 = end.y + playerHeight;
-		transform.SetMatrix(newPos);
-	}
+	if (IsVR()) 
+		transform.SetMatrix(VRManager::GetInstance().GetPlayerPosition());
 	else {
-		transform.SetPosition(prevPos);
+		DirectX::XMFLOAT3 prevPos = transform.GetPosition();
+		if (rotationY < -DirectX::XM_2PI || rotationY > DirectX::XM_2PI)
+			rotationY = 0.0f;
+		if (rotationX < -DirectX::XM_2PI || rotationX > DirectX::XM_2PI)
+			rotationX = 0.0f;
+
+		if (KeyIsDown(Control::CameraLeftRight)) {
+			//position._41 -= 50.0f * dt;
+			rotationY += Amount(CameraLeftRight) * dt;
+			ResetKey(Control::CameraLeftRight);
+			//ResetKey(Control::left);
+		}
+		if (KeyIsDown(Control::CameraUpDown)) {
+			//position._41 += 50.0f * dt;
+			rotationX += Amount(CameraUpDown) * dt;
+			ResetKey(Control::CameraUpDown);
+			//ResetKey(Control::right);
+		}
+		if (KeyIsDown(Control::forward)) {
+			transform.MoveAlongForward(10.0f);
+			//ResetKey(Control::forward);
+		}
+		if (KeyIsDown(Control::backward)) {
+			transform.MoveAlongForward(-10.0f);
+			//ResetKey(Control::backward);
+		}
+		if (KeyIsDown(Control::LeftAction)) {
+			transform.MoveAlongUp(10.0f);
+			//ResetKey(Control::leftAttack);
+		}
+		if (KeyIsDown(Control::RightAction)) {
+			transform.MoveAlongUp(-10.0f);
+			//ResetKey(Control::rightAttack);
+		}
+
+		if (KeyIsDown(Control::left)) {
+			transform.MoveAlongSide(-10.0f);
+			//ResetKey(Control::TestInputZ);
+		}
+		if (KeyIsDown(Control::right)) {
+			transform.MoveAlongSide(10.0f);
+			//ResetKey(Control::TestInputC);
+		}
+
+		transform.SetRotationRadians(rotationX, rotationY, 0.0f);
+
+
+		//Ground Clamp
+		DirectX::XMFLOAT3 start = { transform.GetMatrix()._41, transform.GetMatrix()._42 - playerHeight + 0.1f, transform.GetMatrix()._43 };
+		DirectX::XMFLOAT3 direction = {0, -1, 0};
+		DirectX::XMFLOAT3 end;
+		if (Raycast(start, direction, &end, nullptr, 100)) {
+			DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
+			newPos._42 = end.y + playerHeight;
+			transform.SetMatrix(newPos);
+		}
+		else {
+			transform.SetPosition(prevPos);
+		}
 	}
 }
 void Player::PausedUpdate() {

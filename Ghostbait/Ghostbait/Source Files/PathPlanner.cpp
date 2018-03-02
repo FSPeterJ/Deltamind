@@ -423,7 +423,7 @@ class DStarLite {
 
 				ForEachPredessor(u, [=](HexTile*const neighbor) {
 					if(neighbor != goal) {
-						rhs[neighbor] = min(rhs[neighbor], neighbor->weight + cumulativeCost[u]);
+						rhs[neighbor] = min(rhs[neighbor], u->weight + cumulativeCost[u]);
 					}
 					UpdateVertex(neighbor);
 				});
@@ -432,7 +432,7 @@ class DStarLite {
 				cumulativeCost[u] = grid->BlockWeight();
 
 				ForEachPredessor(u, [=](HexTile*const neighbor) {
-					if(rhs[neighbor] == neighbor->weight + gold) {
+					if(rhs[neighbor] == u->weight + gold) {
 						if(neighbor != goal) {
 							mostMinimum = grid->BlockWeight();
 
@@ -459,8 +459,6 @@ public:
 	DStarLite(HexGrid *const _grid, HexTile *const _start, HexTile *const _goal, HexTile** _nextTileInPath) :
 		last(_start), grid(_grid), start(_start), goal(_goal), nextTileInPath(_nextTileInPath) {
 
-		PathPlanner::SetHeuristic(Heuristics::OctileDistance);
-
 		km = 0;
 
 		*nextTileInPath = start;
@@ -478,7 +476,7 @@ public:
 	//	while(start != goal) {
 		if(rhs[start] == grid->BlockWeight()) {
 			//there is no known path
-
+			Console::WriteLine << "There's no PATH for MEE!!!!!";
 			return;
 		}
 
@@ -497,19 +495,20 @@ public:
 
 		//scan graph for changed edge costs
 		if(grid->GetCostDelta().size()) { //if any edge costs changed
-			km = km + PathPlanner::heuristicFunction(last, start);
-
-			last = start;
 
 			//for all directed edges
 			for(auto& n : start->Neighbors()) {
 				HexTile* neighbor = grid->GetTileExact(n);
 				//with changed edge costs
 				if(!neighbor || !grid->GetCostDelta().count(neighbor)) { continue; }
+				km = km + PathPlanner::heuristicFunction(last, start);
+
+				last = start;
 
 				auto u = start; // ?????
 
 				float c_old = grid->GetCostDelta()[neighbor];
+				grid->GetCostDelta().erase(neighbor);
 
 				if(c_old > neighbor->weight) {
 					if(u != goal) {
@@ -532,7 +531,7 @@ public:
 			}
 
 			ComputeShortestPath();
-			grid->GetCostDelta().clear();
+			//grid->GetCostDelta().clear();
 		}
 	}
 	//}
@@ -541,6 +540,8 @@ public:
 std::vector<DStarLite> PathPlanner::dstarList;
 std::size_t PathPlanner::dstars = 0;
 std::size_t PathPlanner::DStarLiteSearch(HexTile *const start, HexTile *const goal, HexTile** nextTileInPath, HeuristicFunction Heuristic) {
+	PathPlanner::SetHeuristic(Heuristic);
+
 	auto ds = DStarLite(grid, start, goal, nextTileInPath);
 	dstarList.insert(dstarList.begin() + dstars, ds);
 

@@ -48,29 +48,36 @@ void DStarEnemy::Start() {
 	if(!curTile) { Console::ErrorLine << "Ahhhh! Initalize me on the grid please!!"; }
 
 	next = curTile; //is this needed or can i pass a ref to a null var below
+	grid->RemoveObstacle(curTile);//Remove on final build
 	dstarId = PathPlanner::DStarLiteSearch(curTile, goal, &next, Heuristics::OctileDistance);
+	
 
 	rb->SetTerminalSpeed(maxSpeed);
 }
 
 void DStarEnemy::Update() {
 	EnemyBase::Update();
-	
+
 	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
-	if(curTile) {
-		if(curTile == next) {
-			if(goal == curTile) {
+	if (curTile) {
+		if (curTile == next) {
+			rb->Stop();
+			if (goal == curTile) {
 				Console::WriteLine << "We made it to our goal.";
 				rb->Stop();
-			} else {
-				PathPlanner::UpdateDStarLite(dstarId);
+			}
+			else {
+				if (KeyIsHit(Control::TestInputO)) {
+					PathPlanner::UpdateDStarLite(dstarId);
 
-				auto nextPathPoint = grid->TileToPoint(next);
+					auto nextPathPoint = grid->TileToPoint(next);
 
-				DirectX::XMVECTOR nextDirection = DirectX::XMVectorSet(nextPathPoint.x - transform.matrix._41, 0.0f, nextPathPoint.y - transform.matrix._43, 1.0f);
-				DirectX::XMVECTOR velocity = rb->GetVelocity();
-				rb->AddForce(3.0f * (DirectX::XMVectorGetX(DirectX::XMVector3Dot(nextDirection, velocity)) + 1.0f), nextPathPoint.x - transform.matrix._41, 0.0f, nextPathPoint.y - transform.matrix._43, 0.5f);
+					DirectX::XMVECTOR nextDirection = DirectX::XMVectorSet(nextPathPoint.x - transform.matrix._41, 0.0f, nextPathPoint.y - transform.matrix._43, 1.0f);
+					DirectX::XMVECTOR velocity = rb->GetVelocity();
+					rb->AddForce(3.0f * (DirectX::XMVectorGetX(DirectX::XMVector3Dot(nextDirection, velocity)) + 1.0f), nextPathPoint.x - transform.matrix._41, 0.0f, nextPathPoint.y - transform.matrix._43, 0.5f);
+				}
 			}
 		}
 	}
+
 }

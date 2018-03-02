@@ -100,6 +100,7 @@ void Player::PausedUpdate() {
 
 	transform.SetRotationRadians(rotationX, rotationY, 0.0f);
 }
+
 void Player::Teleport() {
 	if (IsVR()) {
 		VRManager::GetInstance().Teleport();

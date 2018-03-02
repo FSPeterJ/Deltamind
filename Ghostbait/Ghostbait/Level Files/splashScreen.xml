@@ -1,11 +1,11 @@
 <splashScreen>
-  <!-- sceneTimeLimit = (float)(-1 = no limit) How long we should stay in this scene before switching to the next one -->
+  <!-- sceneTimeLimit = (float)(-1 = no limit : -2 = end when last element ends) How long we should stay in this scene before switching to the next one -->
   <!-- nextScene = (string) the name of the scene we should switch to after this timer runs out -->
-  <MenuScene sceneTimeLimit="-1" nextScene="level0"/>
+  <MenuScene sceneTimeLimit="-2" nextScene="level0"/>
+  <Logo ghostFile="Assets/FS_Logo.ghost" duration="5"/>
+  <Logo ghostFile="" duration="1"/>
+  <Logo ghostFile="Assets/GP_Logo.ghost" duration="5"/>
+  <Logo ghostFile="" duration="1"/>
   <Logo ghostFile="Assets/SandwichQuad.ghost" duration="5"/>
-  <Logo ghostFile="" duration="2.5"/>
-  <Logo ghostFile="Assets/ElonMuskQuad.ghost" duration="5"/>
-  <Logo ghostFile="" duration="2.5"/>
-  <Logo ghostFile="Assets/SandwichQuad.ghost" duration="-1"/>
 
 </splashScreen>

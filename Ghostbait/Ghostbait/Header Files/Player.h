@@ -35,6 +35,7 @@ public:
 
 	void Update() override;
 	void PausedUpdate();
+	void MenuUpdate();
 	
 	void LoadControllers(VRControllerTypes type = CONTROLLER_Full);
 

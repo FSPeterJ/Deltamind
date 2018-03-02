@@ -53,9 +53,9 @@ private:
 		std::swap(q, b.q);
 		std::swap(r, b.r);
 		std::swap(s, b.s);
-		std::swap(v[0], b.v[0]);
-		std::swap(v[1], b.v[1]);
-		std::swap(v[2], b.v[2]);
+		//std::swap(v[0], b.v[0]);
+		//std::swap(v[1], b.v[1]);
+		//std::swap(v[2], b.v[2]);
 		std::swap(weight, b.weight);
 	}
 
@@ -158,7 +158,7 @@ inline HexagonTile<T> operator-(const HexagonTile<T>& a, const HexagonTile<T>& b
 }
 
 template<typename T>
-inline HexagonTile<T> operator*(const HexagonTile<T>& a, const float& b) {
+inline HexagonTile<T> operator*(const HexagonTile<T>& a, const int& b) {
 	return HexagonTile<T>(a.q *b, a.r *b, a.s *b);
 }
 

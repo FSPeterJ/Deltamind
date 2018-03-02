@@ -500,10 +500,11 @@ public:
 		//scan graph for changed edge costs
 		if (grid->GetCostDelta().size()) { //if any edge costs changed
 
-			HexRegion range = grid->GetTilesNStepsAway(start, 10);
-			grid->Color(range, { 1.0f, 0.0f, 0.0f }, 3);
+			//HexRegion range = grid->GetTilesNStepsAway(start, 3);
+			HexRegion range = grid->Spiral(start, 3);
+			//range.reverse();
 			//for all directed edges
-			for (auto& n : range /* grid->GetTilesNStepsAway(start, 3)*/) {
+			for (HexTile& n : range /* grid->GetTilesNStepsAway(start, 3)*/) {
 				HexTile* neighbor = grid->GetTileExact(n);
 				//with changed edge costs
 				if (!neighbor || !grid->GetCostDelta().count(neighbor)) { continue; }

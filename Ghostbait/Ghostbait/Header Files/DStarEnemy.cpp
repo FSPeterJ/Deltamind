@@ -62,6 +62,8 @@ void DStarEnemy::Update() {
 	if (curTile) {
 		if (curTile == next) {
 			rb->Stop();
+			HexRegion neigh = grid->Spiral(curTile, 3);
+			grid->Color(neigh, { 1.0f, 0.0f, 0.0f }, 3);
 			if (goal == curTile) {
 				Console::WriteLine << "We made it to our goal.";
 				rb->Stop();

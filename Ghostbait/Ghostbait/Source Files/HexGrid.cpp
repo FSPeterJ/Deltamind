@@ -381,12 +381,13 @@ HexRegion HexGrid::Spiral(HexTile *const center, std::size_t radius) {
 	HexRegion ring;
 	if(radius == 0) { return ring; }
 
+	ring.push_back(*center);
 	for(std::size_t k = 1; k <= radius; ++k) {
-		HexTile H = center->Direction(NEIGHBOR_DIRECTION::BottomLeft) * k;
+		HexTile H = *center + (center->Direction(NEIGHBOR_DIRECTION::BottomLeft) * (int)k);
 		for(std::size_t i = 0; i < Hexagon::NUMBER_OF_SIDES; ++i) {
 			for(std::size_t j = 0; j < k; ++j) {
 				ring.push_back(H);
-				H = H.Neighbor((NEIGHBOR_DIRECTION) i);
+				H = H.Neighbor((NEIGHBOR_DIRECTION)i);
 			}
 		}
 

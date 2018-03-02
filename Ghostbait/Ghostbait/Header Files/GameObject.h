@@ -13,7 +13,6 @@ protected:
 	unsigned updateID = 0;  //Update Delegate ID
 	unsigned eventDeleteAllGameObjects = 0;
 
-	bool enabled = false;
 	bool destroyOnReset = true;
 
 public:

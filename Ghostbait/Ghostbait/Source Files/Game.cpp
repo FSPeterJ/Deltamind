@@ -133,7 +133,8 @@ void Game::ChangeState(State newState) {
 					else if (gameData.prevState == GAMESTATE_InWave) {
 						//Spawn start cube
 						MenuCube* startCube;
-						MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("StartCube", { 0, 1.5f, 0.0f }, &startCube));
+						unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"));
+						MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(ID, { 0, 1.5f, 0.0f }, &startCube));
 						DirectX::XMFLOAT4X4 newPos;
 						DirectX::XMStoreFloat4x4(&newPos, DirectX::XMLoadFloat4x4(&startCube->transform.GetMatrix()) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
 						startCube->transform.SetMatrix(newPos);
@@ -239,7 +240,8 @@ void Game::PauseGame() {
 void Game::Lose() {
 	//Logic to run when the player loses
 	MenuCube* loseCube;
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("LoseCube", { 0, 0.75f, 0 }, &loseCube));
+	unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(ID, { 0, 0.75f, 0 }, &loseCube));
 	DirectX::XMFLOAT4X4 newPos;
 	DirectX::XMStoreFloat4x4(&newPos, DirectX::XMLoadFloat4x4(&loseCube->transform.GetMatrix()) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));
 	loseCube->transform.SetMatrix(newPos);
@@ -252,7 +254,8 @@ void Game::Win() {
 	MessageEvents::SendMessage(EVENT_GameWin, EventMessageBase());
 	Console::WriteLine << "GAME WAS WON";
 	MenuCube* winCube;
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("WinCube", { 0, 0.75f, 0 }, &winCube));
+	unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(ID, { 0, 0.75f, 0 }, &winCube));
 	winCube->Enable();
 }
 void Game::Quit() {

@@ -33,7 +33,7 @@ enum Button {
 class Menu {
 	bool active = false;
 	Template menu_template;
-	std::map<Button, char*> buttonPrefabMap;
+	std::map<Button, unsigned> buttonPrefabMap;
 	std::vector<Button> buttons;
 	std::vector<MenuOption*> options;
 	Transform* camera = nullptr;

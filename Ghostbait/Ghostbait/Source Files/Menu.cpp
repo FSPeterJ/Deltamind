@@ -1,6 +1,7 @@
 #include "Menu.h"
 #include "MessageEvents.h"
 #include "Console.h"
+#include "ObjectFactory.h"
 
 void MenuOption::Select() {
 	//Console::WriteLine << "Menu Option: " << this << " was selected!";
@@ -24,12 +25,12 @@ void Menu::SetCamera(Transform* _camera) {
 	camera = _camera;
 }
 void Menu::AssignPrefabIDs() {
-	buttonPrefabMap[BUTTON_Resume] = "ResumeButton";
-	buttonPrefabMap[BUTTON_Restart] = "RestartButton";
-	buttonPrefabMap[BUTTON_Options] = "OptionsButton";
-	buttonPrefabMap[BUTTON_Quit] = "QuitButton";
-	buttonPrefabMap[BUTTON_StartGame] = "StartGameButton";
-	buttonPrefabMap[BUTTON_SelectLevel] = "SelectLevelButton";
+	buttonPrefabMap[BUTTON_Resume] = ObjectFactory::CreatePrefab(&std::string("Assets/ResumeButton.ghost"));
+	buttonPrefabMap[BUTTON_Restart] = ObjectFactory::CreatePrefab(&std::string("Assets/RestartButton.ghost"));
+	buttonPrefabMap[BUTTON_Quit] = ObjectFactory::CreatePrefab(&std::string("Assets/QuitButton.ghost"));
+	buttonPrefabMap[BUTTON_Options] = buttonPrefabMap[BUTTON_Resume];
+	buttonPrefabMap[BUTTON_StartGame] = buttonPrefabMap[BUTTON_Resume];
+	buttonPrefabMap[BUTTON_SelectLevel] = buttonPrefabMap[BUTTON_Resume];
 }
 void Menu::GamePauseEvent() {
 	if (active)
@@ -104,7 +105,7 @@ void Menu::Show() {
 		DirectX::XMFLOAT4X4 newObjPos;
 		float distFromCenter = FindDistanceFromCenter(i, (int)options.size(), 0.25f, 0.05f);
 		DirectX::XMStoreFloat4x4(&newObjPos, center_M * DirectX::XMMatrixTranslation(0, distFromCenter, 0));
-		MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuOption>(buttonPrefabMap[buttons[i]], newObjPos, &newOption));
+		MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuOption>(buttonPrefabMap[buttons[i]], newObjPos, &newOption));
 		newOption->SetMenu(this);
 		newOption->Enable(false);
 		options[i] = newOption;

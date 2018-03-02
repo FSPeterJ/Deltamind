@@ -85,6 +85,8 @@ public:
 	void Color(HexagonalGridLayout *const layout, DirectX::XMFLOAT3 color, float offset, ColorType c);
 
 	void Filter(HexGrid& grid);
+
+	void reverse() { std::reverse(data.begin(), data.end()); }
 };
 
 class HexPath {

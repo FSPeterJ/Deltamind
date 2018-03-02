@@ -110,6 +110,11 @@ public:
 	/// <returns>HexRegion.</returns>
 	HexRegion GetTilesNStepsAway(HexTile *const tile, int n);
 
+	[[deprecated]]
+	HexRegion Ring(HexTile *const center, std::size_t radius);
+
+	HexRegion Spiral(HexTile *const center, std::size_t radius);
+
 	/// <summary>
 	/// Sets the weight of the tile at tilePosition. If the tile does not map to a tile on the grid, nothing happens.
 	/// </summary>

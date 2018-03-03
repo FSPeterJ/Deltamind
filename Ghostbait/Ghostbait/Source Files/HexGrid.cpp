@@ -74,25 +74,33 @@ bool HexGrid::SetWeight(HexTile *const tile, float weight) {
 
 bool HexGrid::AddObstacle(const DirectX::XMFLOAT2& obstaclePosition) {
 	HexTile* t = PointToTile(obstaclePosition);
-	if(t) {
-		cost_delta[t] = t->weight;
-		t->weight = Blocked;
-		blocked.push_back(*t);
+	return AddObstacle(t);
+}
+bool HexGrid::AddObstacle(HexTile*const obstaclePosition) {
+	if (obstaclePosition) {
+		cost_delta[obstaclePosition] = obstaclePosition->weight;
+		obstaclePosition->weight = Blocked;
+		blocked.push_back(*obstaclePosition);
 		return true;
 	}
 	return false;
 }
 
+
 bool HexGrid::RemoveObstacle(const DirectX::XMFLOAT2& obstaclePosition) {
 	HexTile* t = PointToTile(obstaclePosition);
-	if(t) {
-		cost_delta[t] = t->weight;
-		t->weight = 1;
-		blocked.remove(*t);
+	return RemoveObstacle(t);
+}
+bool HexGrid::RemoveObstacle(HexTile*const obstaclePosition) {
+	if (obstaclePosition) {
+		cost_delta[obstaclePosition] = obstaclePosition->weight;
+		obstaclePosition->weight = 1;
+		blocked.remove(*obstaclePosition);
 		return true;
 	}
 	return false;
 }
+
 
 bool HexGrid::Snap(const DirectX::XMFLOAT2& p, OUT DirectX::XMFLOAT2& snapPoint) {
 	HexTile* snapTile = PointToTile(p);
@@ -291,7 +299,7 @@ void HexGrid::Fill(bool withRandomObstacles) {
 		for(int r = r1; r <= r2; ++r) {
 			HexTile* t = new HexTile(q, r);
 			if(withRandomObstacles) {
-				if(rand() % 100 < 40) {
+				if(rand() % 100 < 25) {
 					t->weight = (float) Blocked;
 				} else {
 					t->weight = float(rand() % 4) + 1;
@@ -333,7 +341,7 @@ void HexGrid::Display(DirectX::XMFLOAT2& player) {
 	//	auto realT = const_cast<HexTile*&>(t);
 	//	realT->Draw(layout, {1,1,1});
 	//}
-	//blocked.Color(&layout, {0,0,0}, 0, ColorType::__CheapFill);
+	blocked.Color(&layout, {0,0,0}, 0, ColorType::__CheapFill);
 
 	//DrawXStepsPath();
 }
@@ -364,25 +372,22 @@ HexTile* HexGrid::GetRandomTile() {
 	return *begin;
 }
 
-
-
-
-
-
-
-
+void HexGrid::Color(HexRegion r, DirectX::XMFLOAT3 color, int fill) {
+	r.Color(&layout, color, 0, (ColorType)fill);
+}
 
 
 HexRegion HexGrid::Spiral(HexTile *const center, std::size_t radius) {
 	HexRegion ring;
 	if(radius == 0) { return ring; }
 
+	ring.push_back(*center);
 	for(std::size_t k = 1; k <= radius; ++k) {
-		HexTile H = center->Direction(NEIGHBOR_DIRECTION::BottomLeft) * k;
+		HexTile H = *center + (center->Direction(NEIGHBOR_DIRECTION::BottomLeft) * (int)k);
 		for(std::size_t i = 0; i < Hexagon::NUMBER_OF_SIDES; ++i) {
 			for(std::size_t j = 0; j < k; ++j) {
 				ring.push_back(H);
-				H = H.Neighbor((NEIGHBOR_DIRECTION) i);
+				H = H.Neighbor((NEIGHBOR_DIRECTION)i);
 			}
 		}
 

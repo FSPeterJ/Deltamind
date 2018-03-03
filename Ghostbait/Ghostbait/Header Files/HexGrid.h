@@ -138,12 +138,18 @@ public:
 	/// <returns>true if the weight of the tile was set, otherwise false.</returns>
 	bool AddObstacle(const DirectX::XMFLOAT2& obstaclePosition);
 
+
+	bool AddObstacle(HexTile*const obstaclePosition);
+
 	/// <summary>
 	/// Removes the tile at tilePosition as an obstacle. If the tile does not map to a tile on the grid, nothing happens.
 	/// </summary>
 	/// <param name="obstaclePosition">The obstacle position.</param>
 	/// <returns>true if the weight of the tile was set, otherwise false.</returns>
 	bool RemoveObstacle(const DirectX::XMFLOAT2& obstaclePosition);
+
+	bool RemoveObstacle(HexTile*const obstaclePosition);
+
 
 	/// <summary>
 	/// Given two tiles and their radii, finds the tiles which intersect.
@@ -203,4 +209,5 @@ public:
 	/// <param name="player">The player.</param>
 	void Display(DirectX::XMFLOAT2& player);
 
+	void Color(HexRegion r, DirectX::XMFLOAT3 color, int fill);
 };

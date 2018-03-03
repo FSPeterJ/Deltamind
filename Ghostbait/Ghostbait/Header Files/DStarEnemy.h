@@ -2,11 +2,12 @@
 #include "HexGrid.h"
 #include "EnemyBase.h"
 #include "HexTileVector.h"
+#include "Controlable.h"
 class RigidBody;
 
 namespace DirectX { struct XMFLOAT2; }
 class HexGrid;
-class DStarEnemy: public EnemyBase  {
+class DStarEnemy: public EnemyBase, public Controlable  {
 	HexGrid* grid;
 	RigidBody* rb;
 

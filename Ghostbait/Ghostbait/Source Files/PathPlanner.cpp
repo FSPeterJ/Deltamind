@@ -42,13 +42,12 @@ struct PriorityQueue {
 };
 
 template<typename K, typename V>
-struct BiDePriorityQueueMap {
-	//typedef std::pair<K, V> pair;
-	std::deque<std::pair<K, V>> q;
+struct PriorityQueueMap {
+	typedef std::pair<K, V> pair;
+	std::deque<pair> q;
 
-	static bool Predicate(std::pair<K, V> const& p1, std::pair<K, V> const& p2) {
-		return p1.second > p2.second;
-	}
+	//this would ideally be a passed in template arg
+	static bool Predicate(pair const& p1, pair const& p2) { return p1.second > p2.second; }
 
 	bool empty() const { return q.empty(); }
 
@@ -57,19 +56,17 @@ struct BiDePriorityQueueMap {
 	std::size_t size() const { return q.size(); }
 
 	void insert(K const& key, V const& value) {
-		std::pair<K, V> node = std::make_pair(key, value);
+		pair node = std::make_pair(key, value);
 		q.insert(std::upper_bound(q.begin(), q.end(), node, Predicate), node);
 	}
 
-	std::pair<K, V> front() const { return q.back(); }
+	pair front() const { return q.back(); }
 
 	void pop() { q.pop_back(); }
 
-	typename std::deque<std::pair<K, V>>::iterator find(K const& key) {
-		return std::find_if(q.begin(), q.end(), [=](const std::pair<K, V>& element) { return element.first == key; });
-	}
+	typename std::deque<pair>::iterator find(K const& key) { return std::find_if(q.begin(), q.end(), [=](const pair& element) { return element.first == key; }); }
 	
-	typename std::deque<std::pair<K, V>>::iterator remove(K const& key) { return q.erase(find(key)); }
+	typename std::deque<pair>::iterator remove(K const& key) { return q.erase(find(key)); }
 
 	bool contains(K const& key) { return find(key) != q.end(); }
 
@@ -328,10 +325,8 @@ HexPath PathPlanner::AStarSearch(HexTile *const start, HexTile *const goal, Heur
 
 class DStarLite {
 	typedef std::pair<float, float> pair_float;
-	//typedef std::multimap<pair_float, HexTile*const, std::greater<pair_float>> priority_map;
-	//priority_map U;
 
-	BiDePriorityQueueMap<HexTile*, pair_float> U;
+	PriorityQueueMap<HexTile*, pair_float> U;
 
 	float km;
 	HexGrid *const grid = nullptr;
@@ -465,6 +460,7 @@ public:
 
 		*nextTileInPath = start;
 
+		//this may not be neccessary
 		grid->ForEach([=](HexTile*const tile) {rhs[tile] = cumulativeCost[tile] = grid->BlockWeight(); });
 
 		rhs[goal] = 0;
@@ -537,6 +533,31 @@ public:
 	}
 	//}
 };
+
+class MTDStarLite {
+	typedef std::pair<float, float> pair_float;
+
+	PriorityQueueMap<HexTile*, pair_float> U;
+
+	HexGrid *const grid = nullptr;
+	HexTile * start = nullptr, *const goal = nullptr;
+
+	CostMap cumulativeCost;
+	CostMap rhs;
+
+	VisitedMap parents;
+
+public:
+	MTDStarLite() {
+
+
+
+	}
+
+
+
+};
+
 
 std::vector<DStarLite> PathPlanner::dstarList;
 std::size_t PathPlanner::dstars = 0;

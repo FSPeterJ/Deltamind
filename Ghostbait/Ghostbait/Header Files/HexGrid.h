@@ -103,7 +103,7 @@ public:
 	bool Snap(const DirectX::XMFLOAT2& p, OUT DirectX::XMFLOAT2& snapPoint);
 
 	/// <summary>
-	/// Gets a region of tiles n steps away from the specified tile.
+	/// Gets a region of all tiles reachable within n steps from the specified tile.
 	/// </summary>
 	/// <param name="tile">The tile.</param>
 	/// <param name="n">The radius of steps.</param>

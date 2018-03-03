@@ -333,6 +333,7 @@ class DStarLite {
 
 	BiDePriorityQueueMap<HexTile*, pair_float> U;
 
+	int perceptionRange = 3;
 	float km;
 	HexGrid *const grid = nullptr;
 	HexTile * start = nullptr, *const goal = nullptr;
@@ -369,17 +370,17 @@ class DStarLite {
 	}
 
 	std::pair<float, float> CalcKey(HexTile *const tile) {
-		return { min(cumulativeCost[tile], rhs[tile]) + PathPlanner::heuristicFunction(start, tile) + km, min(cumulativeCost[tile],rhs[tile]) };
+		return { PathPlanner::ClampInfinity(min(cumulativeCost[tile], rhs[tile]) + PathPlanner::heuristicFunction(start, tile) + km), min(cumulativeCost[tile],rhs[tile]) };
 	}
 
 	void UpdateVertex(HexTile *const tile) {
-		if (cumulativeCost[tile] != rhs[tile] && U.contains(tile)) {
-			U.update(tile, CalcKey(tile));
+		if (!PathPlanner::EpsilonIsEqual(cumulativeCost[tile], rhs[tile])){
+			if(U.contains(tile))
+				U.update(tile, CalcKey(tile));
+			else
+				U.insert(tile, CalcKey(tile));
 		}
-		else if (cumulativeCost[tile] != rhs[tile] && !U.contains(tile)) {
-			U.insert(tile, CalcKey(tile));
-		}
-		else if (cumulativeCost[tile] == rhs[tile] && U.contains(tile)) {
+		else if (PathPlanner::EpsilonIsEqual(cumulativeCost[tile], rhs[tile]) && U.contains(tile)) {
 			U.remove(tile);
 		}
 	}
@@ -426,7 +427,7 @@ class DStarLite {
 
 				ForEachPredessor(u, [=](HexTile*const neighbor) {
 					if (neighbor != goal) {
-						rhs[neighbor] = min(rhs[neighbor], u->weight + cumulativeCost[u]);
+						rhs[neighbor] = PathPlanner::ClampInfinity((min(rhs[neighbor], u->weight + cumulativeCost[u])));
 					}
 					UpdateVertex(neighbor);
 				});
@@ -436,13 +437,13 @@ class DStarLite {
 				cumulativeCost[u] = grid->BlockWeight();
 
 				ForEachPredessor(u, [=](HexTile*const neighbor) {
-					if (rhs[neighbor] == u->weight + gold) {
+					if (PathPlanner::EpsilonIsEqual(rhs[neighbor], PathPlanner::ClampInfinity(u->weight + gold))) {
 						if (neighbor != goal) {
 							mostMinimum = grid->BlockWeight();
 
 							ForEachSuccessor(neighbor, [=](HexTile*const neighbor2) {
 								float minposib = neighbor2->weight + cumulativeCost[neighbor2];
-								mostMinimum = minposib < mostMinimum ? minposib : mostMinimum;
+								mostMinimum = PathPlanner::ClampInfinity(min(minposib, mostMinimum));
 							});
 
 							rhs[neighbor] = mostMinimum;
@@ -501,13 +502,14 @@ public:
 		if (grid->GetCostDelta().size()) { //if any edge costs changed
 
 			//HexRegion range = grid->GetTilesNStepsAway(start, 3);
-			HexRegion range = grid->Spiral(start, 3);
+			HexRegion range = grid->Spiral(start, perceptionRange);
+			auto n0 = start->Neighbors();
 			//range.reverse();
 			//for all directed edges
 			for (HexTile& n : range /* grid->GetTilesNStepsAway(start, 3)*/) {
 				HexTile* neighbor = grid->GetTileExact(n);
 				//with changed edge costs
-				if (!neighbor || !grid->GetCostDelta().count(neighbor)) { continue; }
+				if (!grid->GetCostDelta().count(neighbor)) { continue; }
 				km = km + PathPlanner::heuristicFunction(last, start);
 				last = start;
 
@@ -518,26 +520,24 @@ public:
 
 					if (c_old > neighbor->weight) {
 						if (pred != goal) {
-							rhs[pred] = min(rhs[pred], neighbor->weight + cumulativeCost[neighbor]);
+							rhs[pred] = PathPlanner::ClampInfinity(min(rhs[pred], neighbor->weight + cumulativeCost[neighbor]));
 						}
 					}
-					else if (rhs[pred] == c_old + cumulativeCost[neighbor]) {
+					else if (PathPlanner::EpsilonIsEqual(rhs[pred], PathPlanner::ClampInfinity(c_old + cumulativeCost[neighbor]))) {
 						if (pred != goal) {
 							mostMinimum = grid->BlockWeight();
 
 							ForEachSuccessor(pred, [=](HexTile*const neighbor2) {
 								float minposib = neighbor2->weight + cumulativeCost[neighbor2];
-								mostMinimum = minposib < mostMinimum ? minposib : mostMinimum;
+								mostMinimum = min(minposib, mostMinimum);
 							});
 
-							rhs[pred] = mostMinimum;
+							rhs[pred] = PathPlanner::ClampInfinity(mostMinimum);
 						}
 					}
-
 					UpdateVertex(pred);
 				});
 			}
-
 			ComputeShortestPath();
 			//grid->GetCostDelta().clear();
 		}
@@ -622,4 +622,14 @@ HexPath PathPlanner::CalculatePathWithinXCost(HexTile *const start, HexTile *con
 	//path.Color(&layout, {0,1,0}, 0.0f, ColorType::__mX);
 
 	return path;
+}
+
+float PathPlanner::ClampInfinity(float num) {
+	if (num > grid->BlockWeight()) 
+		num = grid->BlockWeight();
+	return num;
+}
+
+bool PathPlanner::EpsilonIsEqual(float num1, float num2) {
+	return fabsf(num1 - num2) < FLT_EPSILON;
 }

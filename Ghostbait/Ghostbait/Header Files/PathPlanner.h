@@ -102,6 +102,8 @@ public:
 	template <PathingAlgorithm a>
 	typename std::enable_if<a == PathingAlgorithm::BreadthFirst || a == PathingAlgorithm::Dijkstra, TraversalResult>::type
 	static Traverse(HexTile*const start, std::size_t constraint, std::size_t maxSteps = 0);
+	static float ClampInfinity(float num);
+	static bool EpsilonIsEqual(float num1, float num2);
 
 	/// <summary>
 	/// Calculates the path from start to goal within x steps. Returns empty path if path is invalid or too far.

@@ -61,6 +61,21 @@ void Player::Update() {
 
 	transform.SetRotationRadians(rotationX, rotationY, 0.0f);
 
+	static bool removePressed = false;
+	static DirectX::XMFLOAT3 col;
+	static bool success = false;
+	static bool hitted = false;
+	if (KeyIsDown(Control::TestInputR)) {
+		hitted = Raycast(DirectX::XMFLOAT3(transform.GetPosition()), DirectX::XMFLOAT3(transform.matrix._31, transform.matrix._32, transform.matrix._33), &col);
+		removePressed = true;
+	}
+	else if (removePressed && !KeyIsDown(Control::TestInputR)) {
+		DirectX::XMFLOAT2 pos(col.x, col.z);
+		if(hitted)MessageEvents::SendMessage(EVENT_RemoveObstacle, SnapMessage(&pos, &success));
+		removePressed = false;
+		hitted = false;
+	}
+
 
 	//Ground Clamp
 	DirectX::XMFLOAT3 start = { transform.GetMatrix()._41, transform.GetMatrix()._42 - playerHeight + 0.1f, transform.GetMatrix()._43 };

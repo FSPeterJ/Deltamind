@@ -48,6 +48,7 @@ enum Control {
 	TestInputX,
 	TestInputZ,
 	TestInputC,
+	TestInputR,
 
 	CameraLeftRight,
 	CameraUpDown,

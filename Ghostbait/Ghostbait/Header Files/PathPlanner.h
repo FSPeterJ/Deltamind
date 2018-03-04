@@ -32,6 +32,7 @@ class PathPlanner {
 	static HeuristicFunction heuristicFunction;
 	static HexGrid* grid;
 	friend class DStarLite;
+	friend class MTDStarLite;
 
 	/// <summary>
 	/// Chooses the algorithm to run based on the states of the start and goal tiles.

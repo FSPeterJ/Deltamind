@@ -109,6 +109,7 @@ void Menu::Show() {
 		newOption->SetMenu(this);
 		newOption->Enable(false);
 		options[i] = newOption;
+		MessageEvents::SendMessage(EVENT_Rendertofront, NewObjectMessage(newOption));
 	}
 }
 void Menu::Hide() {

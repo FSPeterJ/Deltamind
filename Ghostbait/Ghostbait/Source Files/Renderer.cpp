@@ -183,13 +183,18 @@ void Renderer::renderToEye(eye * eyeTo) {
 	for(size_t i = 0; i < renderedObjects.size(); ++i) {
 		renderObjectDefaultState((Object*) renderedObjects[i]);
 	}
-
 #if _DEBUG
 	DebugRenderer::drawTo(eyeTo->renderInfo.rtv, eyeTo->renderInfo.dsv, eyeTo->renderInfo.viewport);
 	context->VSSetShader(StandardVertexShader, NULL, NULL);
 	context->PSSetShader(StandardPixelShader, NULL, NULL);
 	context->IASetInputLayout(ILStandard);
 #endif
+	context->ClearDepthStencilView(eyeTo->renderInfo.dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	for (size_t i = 0; i < frontRenderedObjects.size(); ++i)
+	{
+		renderObjectDefaultState((Object*)frontRenderedObjects[i]);
+	}
+
 
 	//ParticleManager::RenderParticlesTo(eyeTo->renderInfo.rtv, eyeTo->renderInfo.dsv, eyeTo->renderInfo.viewport, eyeTo->camera.view, eyeTo->camera.projection);
 	//context->VSSetConstantBuffers(0, 1, &cameraBuffer);
@@ -329,6 +334,7 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 	MessageEvents::Subscribe(EVENT_Destroy, [this](EventMessageBase * _e) {this->unregisterObject(_e); });
 	MessageEvents::Subscribe(EVENT_Unrender, [this](EventMessageBase * _e) {this->unregisterObject(_e); });
 	MessageEvents::Subscribe(EVENT_Addrender, [this](EventMessageBase * _e) {this->registerObject(_e); });
+	MessageEvents::Subscribe(EVENT_Rendertofront, [this](EventMessageBase * _e) {this->moveToFront(_e); });
 
 #if _DEBUG
 	DebugRenderer::Initialize(device, context, modelBuffer, PassThroughPositionColorVS, PassThroughPS, ILPositionColor, defaultPipeline.rasterizer_state);
@@ -407,6 +413,29 @@ void Renderer::unregisterObject(EventMessageBase* e) {
 			return;
 		}
 	}
+
+	for (std::vector<const GameObject*>::iterator iter = frontRenderedObjects.begin(); iter != frontRenderedObjects.end(); ++iter)
+	{
+		if (*iter == removeobjMessage->RetrieveObject()) {
+			frontRenderedObjects.erase(iter);
+			return;
+		}
+	}
+}
+
+void Renderer::moveToFront(EventMessageBase * e)
+{
+	NewObjectMessage* move = (NewObjectMessage*)e;
+	auto iter = renderedObjects.begin();
+	for (; iter != renderedObjects.end(); ++iter)
+	{
+		if (*iter == move->RetrieveObject())
+		{
+			renderedObjects.erase(iter);
+			break;
+		}
+	}
+	frontRenderedObjects.push_back(move->RetrieveObject());
 }
 
 XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
@@ -473,6 +502,17 @@ void Renderer::Render() {
 	for(size_t i = 0; i < renderedObjects.size(); ++i) {
 		renderObjectDefaultState((Object*) renderedObjects[i]);
 	}
+#if _DEBUG
+	DebugRenderer::flushTo(defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport);
+	context->VSSetShader(StandardVertexShader, NULL, NULL);
+	context->PSSetShader(StandardPixelShader, NULL, NULL);
+	context->IASetInputLayout(ILStandard);
+#endif
+	context->ClearDepthStencilView(defaultPipeline.depth_stencil_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	for (size_t i = 0; i < frontRenderedObjects.size(); ++i)
+	{
+		renderObjectDefaultState((Object*)frontRenderedObjects[i]);
+	}
 	//DirectX::XMFLOAT4X4 view, proj;
 	//if (VRManager::GetInstance().IsEnabled())
 	//{
@@ -486,9 +526,7 @@ void Renderer::Render() {
 	//}
 	//ParticleManager::RenderParticlesTo(defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport, view, proj);
 	//context->VSSetConstantBuffers(0, 1, &cameraBuffer);
-#if _DEBUG
-	DebugRenderer::flushTo(defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport);
-#endif
+
 	swapchain->Present(0, 0);
 }
 

@@ -30,7 +30,7 @@ void Menu::AssignPrefabIDs() {
 	buttonPrefabMap[BUTTON_Quit] = ObjectFactory::CreatePrefab(&std::string("Assets/QuitButton.ghost"));
 	buttonPrefabMap[BUTTON_Options] = buttonPrefabMap[BUTTON_Resume];
 	buttonPrefabMap[BUTTON_StartGame] = buttonPrefabMap[BUTTON_Resume];
-	buttonPrefabMap[BUTTON_SelectLevel] = buttonPrefabMap[BUTTON_Resume];
+	buttonPrefabMap[BUTTON_ChangeLevel] = buttonPrefabMap[BUTTON_Resume];
 }
 void Menu::GamePauseEvent() {
 	if (active)
@@ -39,11 +39,14 @@ void Menu::GamePauseEvent() {
 		Show();
 }
 
+void Menu::SetParent(Menu* _parent) {
+	parentMenu = _parent;
+}
 DirectX::XMFLOAT4X4 Menu::FindCenter(float distFromPlayer) {
 	DirectX::XMMATRIX center_M;
 	DirectX::XMMATRIX player_M = DirectX::XMLoadFloat4x4(&camera->GetMatrix());
 	DirectX::XMVECTOR forward = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(player_M.r[0], DirectX::XMVectorSet(0, 1, 0, 0)));
-	DirectX::XMMATRIX translationMat = DirectX::XMMatrixTranslationFromVector(DirectX::XMVectorScale(forward, distFromPlayer));
+	DirectX::XMMATRIX translationMat = DirectX::XMMatrixTranslationFromVector(DirectX::XMVectorScale(DirectX::XMVectorScale(forward, 1.5f), distFromPlayer));
 	center_M = player_M * translationMat;
 	center_M.r[1] = DirectX::XMVectorSet(0, 1, 0, 0);
 	center_M.r[2] = forward;
@@ -77,7 +80,7 @@ void Menu::Create(Template t, std::vector<Button> _buttons) {
 			buttons.empty();
 			buttons.resize(4);
 			buttons[0] = BUTTON_StartGame;
-			buttons[1] = BUTTON_SelectLevel;
+			buttons[1] = BUTTON_ChangeLevel;
 			buttons[2] = BUTTON_Options;
 			buttons[3] = BUTTON_Quit;
 			break;
@@ -95,10 +98,10 @@ void Menu::Create(Template t, std::vector<Button> _buttons) {
 			break;
 	}
 }
-void Menu::Show() {
+void Menu::Show(DirectX::XMFLOAT4X4* spawnPos) {
 	active = true;
 	options.resize(buttons.size());
-	DirectX::XMFLOAT4X4 center = FindCenter();
+	DirectX::XMFLOAT4X4 center = spawnPos ? *spawnPos : FindCenter();
 	DirectX::XMMATRIX center_M = DirectX::XMLoadFloat4x4(&center);
 	for (int i = 0; i < buttons.size(); ++i) {
 		MenuOption* newOption;
@@ -117,6 +120,8 @@ void Menu::Hide() {
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {options[i]->Destroy(); });
 	}
 	options.empty();
+
+	if (parentMenu) parentMenu->Show();
 }
 
 void ResumeButton::Select() {
@@ -141,7 +146,6 @@ void StartGameButton::Select() {
 	MenuOption::Select();
 
 }
-void SelectLevelButton::Select() {
+void ChangeLevelButton::Select() {
 	MenuOption::Select();
-
 }

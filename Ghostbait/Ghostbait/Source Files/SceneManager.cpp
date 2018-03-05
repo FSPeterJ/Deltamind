@@ -55,6 +55,7 @@ void SceneManager::CreateSceneFile(SceneManager::TestSceneData& data) {
 
 void SceneManager::Initialize() {
 	DirectX::XMFLOAT4X4 identity = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+	/*
 	TestSceneData level0Data;
 	{
 		level0Data.fileName = "Scene Files//level0.scene";
@@ -118,6 +119,23 @@ void SceneManager::Initialize() {
 		//}
 	}
 	CreateSceneFile(splashScreenData);
+	*/
+	TestSceneData mainMenuData;
+	{
+		mainMenuData.fileName = "Scene Files//mainMenu.scene";
+
+		mainMenuData.sceneName = "mainMenu";
+		//mainMenuData.levelName.push_back(std::string("Level Files//splashScreen.xml"));
+		//TestSceneData::Prefab coreCube;
+		//{
+		//	coreCube.ghostFile = "Assets/ElonMuskQuad.ghost";
+		//	coreCube.name = "MuskQuad";
+		//	DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 5, 1);
+		//	coreCube.positions.push_back(mat1);
+		//	splashScreenData.prefabs.push_back(coreCube);
+		//}
+	}
+	CreateSceneFile(mainMenuData);
 
 
 	//Fill map of scenes using the ".scene" files from our "Scene Files" directory

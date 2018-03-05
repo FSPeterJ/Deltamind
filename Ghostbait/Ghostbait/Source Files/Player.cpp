@@ -110,21 +110,21 @@ void Player::LoadControllers(VRControllerTypes type) {
 	//Read in from save file and assign the correct items
 	
 	//Left
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 0,0,0 }, &leftHand.controller));
-	leftHand.controller->Init(this, ControllerHand::HAND_Left);
-	leftHand.controller->SetGunData(1, Gun::FireType::SEMI, 60, 50);
-	leftHand.controller->SetGunData(2, Gun::FireType::AUTO, 8, 25);
-	leftHand.controller->SetBuildItems({ /*TODO: FIX THIS LATER*/ ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost")) });
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 0,0,0 }, &leftController));
+	leftController->Init(this, ControllerHand::HAND_Left);
+	leftController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
+	leftController->SetGunData(2, Gun::FireType::AUTO, 8, 25);
+	leftController->SetBuildItems({ /*TODO: FIX THIS LATER*/ ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost")) });
 	//Right
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 1,0,1 }, &rightHand.controller));
-	rightHand.controller->Init(this, ControllerHand::HAND_Right);
-	rightHand.controller->SetGunData(1, Gun::FireType::SEMI, 60, 50);
-	rightHand.controller->SetGunData(2, Gun::FireType::AUTO, 8, 25);
-	rightHand.controller->SetBuildItems({ /*TODO: FIX THIS LATER*/ ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost")) });
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 1,0,1 }, &rightController));
+	rightController->Init(this, ControllerHand::HAND_Right);
+	rightController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
+	rightController->SetGunData(2, Gun::FireType::AUTO, 8, 25);
+	rightController->SetBuildItems({ /*TODO: FIX THIS LATER*/ ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost")) });
 
 
 	if (IsVR()) {
-		VRManager::GetInstance().SetControllers(leftHand.controller, rightHand.controller);
+		VRManager::GetInstance().SetControllers(leftController, rightController);
 	}
 }
 

@@ -1,4 +1,4 @@
-<level0>
+<Level>
   <!-- Wave0 -->
   <Wave reward="100">
     <Spawner spawnerID="1" enemyName="Assets/AStarEnemyEdit.ghost" spawnCount="2" initialDelay="0" runDelay="4"/>
@@ -9,4 +9,4 @@
     <Spawner spawnerID="1" enemyName="Assets/AStarEnemyEdit.ghost" spawnCount="2"  initialDelay="1" runDelay="5"/>
     <Spawner spawnerID="0" enemyName="Assets/AStarEnemyEdit.ghost" spawnCount="2"  initialDelay="1" runDelay="5"/>
   </Wave>
-</level0>
+</Level>

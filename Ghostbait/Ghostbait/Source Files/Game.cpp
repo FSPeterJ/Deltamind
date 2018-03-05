@@ -12,7 +12,6 @@
 #include "ObjectFactory.h"
 #include "Player.h"
 
-
 void Game::GameData::Reset() {
 	state = GAMESTATE_BetweenWaves;
 	prevState = GAMESTATE_BetweenWaves;
@@ -113,6 +112,11 @@ void Game::ChangeState(State newState) {
 	if (gameData.state != newState) {
 		gameData.prevState = gameData.state;
 		gameData.state = newState;
+
+		if (gameData.prevState == GAMESTATE_Paused) {
+			ResumeGame();
+		}
+
 		switch (newState) {
 		case GAMESTATE_Paused:
 			{
@@ -121,9 +125,7 @@ void Game::ChangeState(State newState) {
 			break;
 		case GAMESTATE_BetweenWaves:
 			{
-				if (gameData.prevState == GAMESTATE_Paused) ResumeGame();
-				else {
-
+				if (!gameData.prevState == GAMESTATE_Paused) {
 					//if upcoming wave doesnt exist...
 					int nextWave = gameData.waveManager.currentWave + 1;
 					if (nextWave >= gameData.waveManager.waves.size()) {
@@ -145,12 +147,17 @@ void Game::ChangeState(State newState) {
 			break;
 		case GAMESTATE_InWave:
 			{
-				if (gameData.prevState == GAMESTATE_Paused) ResumeGame();
+
 			}
 			break;
 		case GAMESTATE_GameOver:
 			{
 				//gameData.Reset();
+			}
+			break;
+		case GAMESTATE_SplashScreen:
+			{
+
 			}
 			break;
 		}
@@ -173,7 +180,21 @@ void Game::ChangeScene(const char* sceneName) {
 		WaveManager::Wave* newWave = nullptr;
 		while (xmlReader->read()) {
 			if (xmlReader->getNodeType() == irr::io::EXN_ELEMENT) {
-				if (!strcmp("Wave", xmlReader->getNodeName())) {
+				if (!strcmp("Level", xmlReader->getNodeName())) {
+					gameData.state = GAMESTATE_BetweenWaves;
+					gameData.prevState = GAMESTATE_BetweenWaves;
+					player->leftController->SetControllerState(CSTATE_Inventory);
+					player->rightController->SetControllerState(CSTATE_Inventory);
+				}
+				else if (!strcmp("MenuScene", xmlReader->getNodeName())) {
+					gameData.sceneTimeLimit = xmlReader->getAttributeValueAsFloat("sceneTimeLimit");
+					gameData.nextScene = xmlReader->getAttributeValue("nextScene");
+					gameData.state = GAMESTATE_SplashScreen;
+					gameData.prevState = GAMESTATE_SplashScreen;
+					player->leftController->SetControllerState(CSTATE_ModelOnly);
+					player->rightController->SetControllerState(CSTATE_ModelOnly);
+				}
+				else if (!strcmp("Wave", xmlReader->getNodeName())) {
 					if (newWave) {
 						gameData.waveManager.waves.push_back(*newWave);
 						delete newWave;
@@ -190,12 +211,6 @@ void Game::ChangeScene(const char* sceneName) {
 					newSpawner.runDelay = xmlReader->getAttributeValueAsFloat("runDelay");
 					(*newWave).spawns.push_back(newSpawner);
 					(*newWave).enemyCount += newSpawner.spawnCount;
-				}
-				else if (!strcmp("MenuScene", xmlReader->getNodeName())) {
-					gameData.sceneTimeLimit = xmlReader->getAttributeValueAsFloat("sceneTimeLimit");
-					gameData.nextScene = xmlReader->getAttributeValue("nextScene");
-					gameData.state = GAMESTATE_SplashScreen;
-					gameData.prevState = GAMESTATE_SplashScreen;
 				}
 				else if (!strcmp("Logo", xmlReader->getNodeName())) {
 					Logo logo;
@@ -233,9 +248,14 @@ void Game::RestartLevel() {
 }
 void Game::ResumeGame() {
 	//Logic to run when game first gets unPaused
+	player->leftController->SetControllerStateToPrevious();
+	player->rightController->SetControllerStateToPrevious();
 }
 void Game::PauseGame() {
+
 	//Logic to run when game first gets paused
+	player->leftController->SetControllerState(CSTATE_MenuController);
+	player->rightController->SetControllerState(CSTATE_ModelOnly);
 }
 void Game::Lose() {
 	//Logic to run when the player loses
@@ -298,7 +318,7 @@ void Game::Update() {
 	switch (gameData.state) {
 		case GAMESTATE_Paused:
 			{
-				
+				//player->leftController.SetControllerState(CSTATE_MenuController);
 			}
 			break;
 		case GAMESTATE_InWave:
@@ -402,28 +422,22 @@ void Game::Update() {
 					}
 				}
 
-				player->leftHand.controller->PausedUpdate();
-				player->rightHand.controller->PausedUpdate();
 
-				player->leftHand.controller->DisableNow();
-				player->rightHand.controller->DisableNow();
 				engine->ExecuteUpdate();
 				engine->ExecuteLateUpdate();
-				player->leftHand.controller->Enable(false);
-				player->rightHand.controller->Enable(false);
 			}
 			break;
 		case GAMESTATE_MainMenu:
 			{
-				player->leftHand.controller->PausedUpdate();
-				player->rightHand.controller->PausedUpdate();
+				player->leftController->PausedUpdate();
+				player->rightController->PausedUpdate();
 
-				player->leftHand.controller->DisableNow();
-				player->rightHand.controller->DisableNow();
+				player->leftController->DisableNow();
+				player->rightController->DisableNow();
 				engine->ExecuteUpdate();
 				engine->ExecuteLateUpdate();
-				player->leftHand.controller->Enable(false);
-				player->rightHand.controller->Enable(false);
+				player->leftController->Enable(false);
+				player->rightController->Enable(false);
 			}
 			break;
 		default:

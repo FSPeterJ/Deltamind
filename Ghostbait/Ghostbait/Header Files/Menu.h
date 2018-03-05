@@ -27,7 +27,7 @@ enum Button {
 	BUTTON_Quit,
 
 	BUTTON_StartGame,
-	BUTTON_SelectLevel,
+	BUTTON_ChangeLevel,
 };
 
 class Menu {
@@ -37,6 +37,7 @@ class Menu {
 	std::vector<Button> buttons;
 	std::vector<MenuOption*> options;
 	Transform* camera = nullptr;
+	Menu* parentMenu = nullptr;
 
 	DirectX::XMFLOAT4X4 FindCenter(float distFromPlayer = 1);
 	float FindDistanceFromCenter(int optionNumber, int optionCount, float optionHeight, float gapHeight);
@@ -48,7 +49,8 @@ public:
 	Menu(Template t, std::vector<Button> buttons = std::vector<Button>());
 	void Create(Template t, std::vector<Button> buttons = std::vector<Button>());
 	void SetCamera(Transform* _camera);
-	void Show();
+	void SetParent(Menu* _parent);
+	void Show(DirectX::XMFLOAT4X4* spawnPos = nullptr);
 	void Hide();
 	void Cleanup();
 };
@@ -73,6 +75,6 @@ class QuitButton : public MenuOption {
 class StartGameButton : public MenuOption {
 	void Select() override;
 };
-class SelectLevelButton : public MenuOption {
+class ChangeLevelButton : public MenuOption {
 	void Select() override;
 };

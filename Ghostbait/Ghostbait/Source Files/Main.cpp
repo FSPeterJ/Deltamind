@@ -304,15 +304,19 @@ void Loop() {
 
 	}
 	else {
-		//TODO: Need a better way to do this...Maybe a paused Update delegate?
-		player->leftHand.controller->PausedUpdate();
-		player->rightHand.controller->PausedUpdate();
 		player->PausedUpdate();
 
 		phyMan->PausedUpdate();
 	}
+
+
 	game->Update();
 	inputMan->HandleInput();
+
+	//TODO: Need a better way to do this...Maybe a paused Update delegate?
+	player->leftController->Update();
+	player->rightController->Update();
+	
 	rendInter->Render();
 }
 

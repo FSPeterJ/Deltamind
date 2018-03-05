@@ -12,15 +12,7 @@ enum VRControllerTypes {
 };
 
 class Player : public GameObject, public Controlable {
-	struct Hand {
-		int inventory[CONTROLLER_MAX_ITEMS] = { -1 };
-		ControllerObject* controller = nullptr;
-	};
-	
 	std::vector<unsigned> ownedItems;
-	//ControllerObject* leftController, *rightController;
-
-	//Camera cam;
 
 	//void LoadInventory(const char* fileName = INVENTORY_FILE);
 
@@ -28,7 +20,7 @@ class Player : public GameObject, public Controlable {
 	float rotationX = 0.0f;
 
 public:
-	Hand leftHand, rightHand;
+	ControllerObject *leftController = 0, *rightController = 0;
 
 	float playerHeight = 1.7f;
 	Player();

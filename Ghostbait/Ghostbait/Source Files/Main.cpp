@@ -25,6 +25,7 @@
 #include "Menu.h"
 #include "AStarEnemy.h"
 #include "DStarEnemy.h"
+#include "MTDSLEnemy.h"
 #include "Turret.h"
 #include "Player.h"
 
@@ -145,6 +146,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	ObjectFactory::RegisterPrefabBase<AStarEnemy>(10);
 	ObjectFactory::RegisterPrefabBase<DStarEnemy>(10);
+	ObjectFactory::RegisterPrefabBase<MTDSLEnemy>(10);
+
 	Console::WriteLine << "Prefab base registered......";
 
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
@@ -180,6 +183,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<AStarEnemy>("AStarEnemy");
 	TypeMap::RegisterObjectAlias<DStarEnemy>("DStarEnemy");
 	TypeMap::RegisterObjectAlias<Turret>("Turret");
+	TypeMap::RegisterObjectAlias<DStarEnemy>("MTDSLEnemy");
+
 
 	Console::WriteLine << "Object Alias registered......";
 
@@ -214,6 +219,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	unsigned basicTurret = ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost"), "TestTurret", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/RestartButton.ghost"), "RestartButton");
 	ObjectFactory::CreatePrefab(&std::string("Assets/QuitButton.ghost"), "QuitButton");
+	ObjectFactory::CreatePrefab(&std::string("Assets/MTDSLEnemy.ghost"), "MTDSLEnemy");
+
 	
 
 	//ObjectFactory::CreatePrefab(&std::string("Assets/TeleportSphere.ghost"));

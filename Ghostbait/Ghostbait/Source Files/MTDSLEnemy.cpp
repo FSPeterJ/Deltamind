@@ -1,0 +1,85 @@
+#include "MTDSLEnemy.h"
+#include "Heuristics.h"
+#include "PhysicsComponent.h"
+#include "Console.h"
+#include "MessageEvents.h"
+#include "PathPlanner.h"
+
+void MTDSLEnemy::Enable(bool _destroyOnReset) {
+	eventAdd = MessageEvents::Subscribe(EVENT_AddObstacle, [=](EventMessageBase* e) {this->Repath(); });
+	eventRemove = MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {this->Repath(); });
+	GameObject::Enable(_destroyOnReset);
+	Start();
+}
+
+void MTDSLEnemy::Disable() {
+	MessageEvents::UnSubscribe(EVENT_AddObstacle, eventAdd);
+	MessageEvents::UnSubscribe(EVENT_RemoveObstacle, eventRemove);
+	EnemyBase::Disable();
+}
+
+void MTDSLEnemy::SetGoal(HexTile* _goal) {
+	goal = _goal;
+}
+
+void MTDSLEnemy::SetGoal(DirectX::XMFLOAT2 _goal) {
+	HexTile* goalTile = grid->PointToTile(_goal);
+	if (goalTile) { goal = goalTile; }
+}
+
+void MTDSLEnemy::SetGrid(HexGrid* _grid) {
+	grid = _grid;
+}
+
+void MTDSLEnemy::Awake(Object* obj) {
+	EnemyBase::Awake(obj);
+}
+
+void MTDSLEnemy::Start() {
+
+	tag = std::string("Enemy");
+
+	rb = &(GetComponent<PhysicsComponent>()->rigidBody);
+
+	if (!goal) { Console::ErrorLine << "No Goal! I'm gonna blowwwwww!!!!"; }
+
+	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
+
+	if (!curTile) { Console::ErrorLine << "Ahhhh! Initalize me on the grid please!!"; }
+
+	next = curTile; //is this needed or can i pass a ref to a null var below
+	grid->RemoveObstacle(curTile);//Remove on final build
+	dstarId = PathPlanner::DStarLiteSearch(curTile, goal, &next, Heuristics::OctileDistance);
+
+
+	rb->SetTerminalSpeed(maxSpeed);
+}
+
+void MTDSLEnemy::Update() {
+	EnemyBase::Update();
+
+	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
+	if (curTile) {
+		if (curTile == next) {
+			rb->Stop();
+			HexRegion neigh = grid->Spiral(curTile, 3);
+			grid->Color(neigh, { 1.0f, 0.0f, 0.0f }, 3);
+			if (goal == curTile) {
+				Console::WriteLine << "We made it to our goal.";
+				rb->Stop();
+			}
+			else {
+				if (KeyIsHit(Control::TestInputO)) {
+					PathPlanner::UpdateDStarLite(dstarId);
+
+					auto nextPathPoint = grid->TileToPoint(next);
+
+					DirectX::XMVECTOR nextDirection = DirectX::XMVectorSet(nextPathPoint.x - transform.matrix._41, 0.0f, nextPathPoint.y - transform.matrix._43, 1.0f);
+					DirectX::XMVECTOR velocity = rb->GetVelocity();
+					rb->AddForce(3.0f * (DirectX::XMVectorGetX(DirectX::XMVector3Dot(nextDirection, velocity)) + 1.0f), nextPathPoint.x - transform.matrix._41, 0.0f, nextPathPoint.y - transform.matrix._43, 0.5f);
+				}
+			}
+		}
+	}
+
+}

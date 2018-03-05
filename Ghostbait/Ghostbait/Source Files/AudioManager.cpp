@@ -1,7 +1,8 @@
 #include "AudioManager.h"
 #include <AK\SoundEngine\Common\AkSoundEngine.h>
 #include <AK\IBytes.h>
-#include <AK/SoundEngine/Common/AkMemoryMgr.h>                 
+#include <AK/SoundEngine/Common/AkMemoryMgr.h>       
+#include <AK/MusicEngine/Common/AkMusicEngine.h>
 #include <AK/SoundEngine/Common/AkModule.h>            
 #include <AK/SoundEngine/Common/IAkStreamMgr.h>
 #include <AK/Tools/Common/AkPlatformFuncs.h>
@@ -76,6 +77,10 @@ AudioManager::AudioManager() //Thank the lord for SDK documentation
 	AK::SoundEngine::GetDefaultPlatformInitSettings(platformInitSettings);
 	result = AK::SoundEngine::Init(&initSettings, &platformInitSettings);
 
+	AkMusicSettings musicSettings;
+	AK::MusicEngine::GetDefaultInitSettings(musicSettings);
+	AK::MusicEngine::Init(&musicSettings);
+
 	AkBankID wiseIsGood;
 	result = AK::SoundEngine::LoadBank(INIT_BANK, AK_DEFAULT_POOL_ID, wiseIsGood);
 
@@ -90,6 +95,7 @@ AudioManager::AudioManager() //Thank the lord for SDK documentation
 AudioManager::~AudioManager()
 {
 	g_lowLevelIO.Term();
+	AK::MusicEngine::Term();
 	AK::SoundEngine::Term();
 	AK::IAkStreamMgr::Get()->Destroy();
 	AK::MemoryMgr::Term();

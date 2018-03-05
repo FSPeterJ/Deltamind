@@ -101,10 +101,9 @@ private:
 	Mesh* skyball;
 
 	Skybox* currSkybox = nullptr;
-	//eye leftEye;
-	//eye rightEye;
 
 	std::vector<const GameObject*> renderedObjects;
+	std::vector<const GameObject*> frontRenderedObjects;
 
 	MeshManager* meshManagement = nullptr;
 	MaterialManager* materialManagement = nullptr;
@@ -176,6 +175,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////
 	void unregisterObject(EventMessageBase* e);
 
+	void moveToFront(EventMessageBase* e);
 	//////////////////////////////////////////////////////////////////////////////////
 	void setSkybox(const char* directoryName, const char* filePrefix);
 

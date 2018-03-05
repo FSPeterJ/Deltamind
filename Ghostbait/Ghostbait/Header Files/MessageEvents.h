@@ -14,6 +14,7 @@ enum EVENT_TYPES {
 	EVENT_Destroy,
 	EVENT_Unrender,
 	EVENT_Addrender,
+	EVENT_Rendertofront,
 	EVENT_Late,
 	EVENT_LENGTH,
 	EVENT_RegisterNoisemaker,

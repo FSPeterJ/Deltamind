@@ -16,7 +16,8 @@ enum State {
 		GAMESTATE_InWave,
 		GAMESTATE_BetweenWaves,
 		GAMESTATE_GameOver,
-		GAMESTATE_Menu,
+		GAMESTATE_SplashScreen,
+		GAMESTATE_MainMenu,
 	};
 
 class Game {

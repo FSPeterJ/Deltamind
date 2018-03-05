@@ -373,7 +373,6 @@ void ControllerObject::SetGunData(int slot, Gun::FireType _fireType, float _fire
 
 
 void ControllerObject::Enable(bool destroyOnEnd) {
-	menuController->Render(false);
 	GameObject::Enable(destroyOnEnd);
 }
 

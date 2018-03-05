@@ -94,7 +94,7 @@ void Game::RemoveObstacleEvent(EventMessageBase* e) {
 }
 void Game::StartEvent() {
 	switch (gameData.state) {
-		case GAMESTATE_Menu:
+		case GAMESTATE_SplashScreen:
 			{
 				char* sceneName = new char[gameData.nextScene.length() + 1];
 				memcpy(sceneName, gameData.nextScene.c_str(), gameData.nextScene.length() + 1);
@@ -194,8 +194,8 @@ void Game::ChangeScene(const char* sceneName) {
 				else if (!strcmp("MenuScene", xmlReader->getNodeName())) {
 					gameData.sceneTimeLimit = xmlReader->getAttributeValueAsFloat("sceneTimeLimit");
 					gameData.nextScene = xmlReader->getAttributeValue("nextScene");
-					gameData.state = GAMESTATE_Menu;
-					gameData.prevState = GAMESTATE_Menu;
+					gameData.state = GAMESTATE_SplashScreen;
+					gameData.prevState = GAMESTATE_SplashScreen;
 				}
 				else if (!strcmp("Logo", xmlReader->getNodeName())) {
 					Logo logo;
@@ -350,21 +350,13 @@ void Game::Update() {
 				engine->ExecuteLateUpdate();
 			}
 			break;
-		case GAMESTATE_Menu:
+		case GAMESTATE_SplashScreen:
 			{
-
-				//if first time
-				if (gameData.currentLogoIndex == -1) {
-					++gameData.currentLogoIndex;
-					int id = ObjectFactory::CreatePrefab(&gameData.logos[gameData.currentLogoIndex].fileName);
-					MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(id, { 0, 1, 3 }, &gameData.currentLogo));
-				}
-
 				//update time
 				gameData.timeInScene += dt;
 
 				//if time is up, switch scenes
-				if (gameData.sceneTimeLimit != -1) {
+				if (gameData.sceneTimeLimit > 0) {
 					if (gameData.timeInScene >= gameData.sceneTimeLimit) {
 						StartEvent();
 					}
@@ -372,28 +364,66 @@ void Game::Update() {
 
 				//If we have logos to go through
 				if (gameData.logos.size()) {
-
-					//else if logo duration is up, switch logos
-					if (gameData.timeInScene >= gameData.logos[gameData.currentLogoIndex].duration) {
-						if (gameData.currentLogoIndex + 1 >= gameData.logos.size()) {
-							//we just finished last logo
+					//if first time
+					if (gameData.currentLogoIndex == -1) {
+						//Spawn first logo
+						if (gameData.logos[++gameData.currentLogoIndex].fileName != "") {
+							int id = ObjectFactory::CreatePrefab(&gameData.logos[gameData.currentLogoIndex].fileName);
+							MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(id, { 0, 1.5f, 20 }, &gameData.currentLogo));
+						}
+					}
+					else if (gameData.timeInScene >= gameData.logos[gameData.currentLogoIndex].duration) {
+						//If this duration is not special, delete it
+						if (gameData.logos[gameData.currentLogoIndex].duration != -1) {
+							if (gameData.currentLogo) gameData.currentLogo->Destroy();
+							gameData.currentLogo = nullptr;
+						}
+						//If there is a next option
+						if (gameData.currentLogoIndex + 1 < gameData.logos.size()) {
+							//Update your index to it, and update the duration to be a new timer if not special
+							if (gameData.logos[++gameData.currentLogoIndex].duration != -1) {
+								gameData.logos[gameData.currentLogoIndex].duration += gameData.timeInScene;
+							}
+							if (gameData.logos[gameData.currentLogoIndex].fileName != "") {
+								int id = ObjectFactory::CreatePrefab(&gameData.logos[gameData.currentLogoIndex].fileName);
+								MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(id, { 0, 1.5f, 20 }, &gameData.currentLogo));
+							}
+						}
+						else {
+							if (gameData.currentLogo && gameData.logos[gameData.currentLogoIndex].duration != -1) gameData.currentLogo->Destroy();
 							while (gameData.logos.size()) {
 								gameData.logos.erase(gameData.logos.begin());
 							}
-							gameData.currentLogo->Destroy();
 							gameData.currentLogo = nullptr;
-						}
-						else {
-							if (gameData.currentLogo) gameData.currentLogo->Destroy();
-							gameData.logos[++gameData.currentLogoIndex].duration += gameData.timeInScene;
-							int id = ObjectFactory::CreatePrefab(&gameData.logos[gameData.currentLogoIndex].fileName);
-							MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(id, { 0, 1, 3 }, &gameData.currentLogo));
-
+							if (gameData.sceneTimeLimit == -2) {
+								StartEvent();
+							}
 						}
 					}
 				}
+
+				player->leftHand.controller->PausedUpdate();
+				player->rightHand.controller->PausedUpdate();
+
+				player->leftHand.controller->DisableNow();
+				player->rightHand.controller->DisableNow();
 				engine->ExecuteUpdate();
 				engine->ExecuteLateUpdate();
+				player->leftHand.controller->Enable(false);
+				player->rightHand.controller->Enable(false);
+			}
+			break;
+		case GAMESTATE_MainMenu:
+			{
+				player->leftHand.controller->PausedUpdate();
+				player->rightHand.controller->PausedUpdate();
+
+				player->leftHand.controller->DisableNow();
+				player->rightHand.controller->DisableNow();
+				engine->ExecuteUpdate();
+				engine->ExecuteLateUpdate();
+				player->leftHand.controller->Enable(false);
+				player->rightHand.controller->Enable(false);
 			}
 			break;
 		default:

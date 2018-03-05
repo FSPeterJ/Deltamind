@@ -13,6 +13,7 @@ public:
 	const DirectX::XMFLOAT4X4& GetMatrix() const;
 	const DirectX::XMFLOAT3 GetPosition() const;
 	void SetMatrix(const DirectX::XMFLOAT4X4& mat);
+	void MoveToOrigin(float height = 0);
 	void SetPosition(const float x, const float y, const float z);
 	void SetPosition(const DirectX::XMFLOAT3& pos);
 	void SetRotationDegrees(const float x, const float y, const float z);

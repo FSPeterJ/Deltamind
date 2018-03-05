@@ -4,7 +4,7 @@
 #include "DebugRenderer.h"
 #include "Console.h"
 
-#define ArcSegments 15
+#define ArcSegments 20
 
 namespace {
 	DirectX::XMFLOAT3 Lerp(const DirectX::XMFLOAT3& A, const DirectX::XMFLOAT3& B, const float t) {

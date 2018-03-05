@@ -10,10 +10,12 @@ Player::Player() {
 	Enable(false);
 	VRManager::GetInstance().Init(&transform);
 	transform.SetPosition(0, 1.7f, 0);
+	transform.LookAt({ 0, 1.7f, 1 });
 }
 
 void Player::Update() {
 	float dt = (float)GhostTime::DeltaTime();
+
 	if (IsVR()) 
 		transform.SetMatrix(VRManager::GetInstance().GetPlayerPosition());
 	else {
@@ -80,25 +82,28 @@ void Player::Update() {
 }
 void Player::PausedUpdate() {
 	float dt = (float)GhostTime::DeltaTime();
-	if (rotationY < -DirectX::XM_2PI || rotationY > DirectX::XM_2PI)
-		rotationY = 0.0f;
-	if (rotationX < -DirectX::XM_2PI || rotationX > DirectX::XM_2PI)
-		rotationX = 0.0f;
 
-	if (KeyIsDown(Control::CameraLeftRight)) {
-		//position._41 -= 50.0f * dt;
-		rotationY += Amount(CameraLeftRight) * dt;
-		ResetKey(Control::CameraLeftRight);
-		//ResetKey(Control::left);
-	}
-	if (KeyIsDown(Control::CameraUpDown)) {
-		//position._41 += 50.0f * dt;
-		rotationX += Amount(CameraUpDown) * dt;
-		ResetKey(Control::CameraUpDown);
-		//ResetKey(Control::right);
-	}
+	if (!IsVR()) {
+		if (rotationY < -DirectX::XM_2PI || rotationY > DirectX::XM_2PI)
+			rotationY = 0.0f;
+		if (rotationX < -DirectX::XM_2PI || rotationX > DirectX::XM_2PI)
+			rotationX = 0.0f;
 
-	transform.SetRotationRadians(rotationX, rotationY, 0.0f);
+		if (KeyIsDown(Control::CameraLeftRight)) {
+			//position._41 -= 50.0f * dt;
+			rotationY += Amount(CameraLeftRight) * dt;
+			ResetKey(Control::CameraLeftRight);
+			//ResetKey(Control::left);
+		}
+		if (KeyIsDown(Control::CameraUpDown)) {
+			//position._41 += 50.0f * dt;
+			rotationX += Amount(CameraUpDown) * dt;
+			ResetKey(Control::CameraUpDown);
+			//ResetKey(Control::right);
+		}
+
+		transform.SetRotationRadians(rotationX, rotationY, 0.0f);
+	}
 }
 
 void Player::Teleport() {

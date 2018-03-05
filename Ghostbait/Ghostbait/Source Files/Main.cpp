@@ -141,6 +141,9 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<ResumeButton>(1);
 	ObjectFactory::RegisterPrefabBase<RestartButton>(1);
 	ObjectFactory::RegisterPrefabBase<QuitButton>(1);
+	ObjectFactory::RegisterPrefabBase<PlayButton>(1);
+	ObjectFactory::RegisterPrefabBase<OptionsButton>(1);
+	ObjectFactory::RegisterPrefabBase<ExitButton>(1);
 
 	ObjectFactory::RegisterPrefabBase<AStarEnemy>(10);
 	Console::WriteLine << "Prefab base registered......";
@@ -174,6 +177,9 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<ResumeButton>("ResumeButton");
 	TypeMap::RegisterObjectAlias<RestartButton>("RestartButton");
 	TypeMap::RegisterObjectAlias<QuitButton>("QuitButton");
+	TypeMap::RegisterObjectAlias<PlayButton>("PlayButton");
+	TypeMap::RegisterObjectAlias<OptionsButton>("OptionsButton");
+	TypeMap::RegisterObjectAlias<ExitButton>("ExitButton");
 
 	TypeMap::RegisterObjectAlias<AStarEnemy>("AStarEnemy");
 	TypeMap::RegisterObjectAlias<Turret>("Turret");
@@ -206,10 +212,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/Gun.ghost"), "GunTest", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/TestProjectile.ghost"), "TestProjectile");
 	ObjectFactory::CreatePrefab(&std::string("Assets/AStarEnemyEdit.ghost"), "AStarEnemy");
-	ObjectFactory::CreatePrefab(&std::string("Assets/ResumeButton.ghost"), "ResumeButton");
 	unsigned basicTurret = ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost"), "TestTurret", true);
-	ObjectFactory::CreatePrefab(&std::string("Assets/RestartButton.ghost"), "RestartButton");
-	ObjectFactory::CreatePrefab(&std::string("Assets/QuitButton.ghost"), "QuitButton");
 	
 
 	//ObjectFactory::CreatePrefab(&std::string("Assets/TeleportSphere.ghost"));

@@ -20,10 +20,8 @@ enum Control {
 	right,
 	teleportDown,
 	teleportUp,
-	menu,
+	pause,
 	releaseKey,
-	leftCyclePrefab,
-	rightCyclePrefab,
 
 	rightItem0,
 	rightItem1,
@@ -31,6 +29,7 @@ enum Control {
 	rightItem3,
 	rightAttack,
 	rightTouch,
+	rightCyclePrefab,
 
 	leftItem0,
 	leftItem1,
@@ -38,6 +37,7 @@ enum Control {
 	leftItem3,
 	leftAttack,
 	leftTouch,
+	leftCyclePrefab,
 
 	TestInputU,
 	TestInputI,

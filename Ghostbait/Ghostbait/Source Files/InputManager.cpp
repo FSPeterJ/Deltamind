@@ -63,7 +63,7 @@ InputManager::VRInput::VRInput() {
 	MapKey(teleportUp, 6);
 	MapKey(leftAttack, 7);
 	MapKey(rightAttack, 8);
-	MapKey(menu, 9);
+	MapKey(pause, 9);
 	MapKey(leftTouch, 10);
 	MapKey(rightTouch, 11);
 
@@ -142,7 +142,8 @@ void InputManager::VRInput::CheckForInput() {
 				switch(event.data.controller.button) {
 					case vr::k_EButton_ApplicationMenu:
 						if(event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
-							MessageEvents::SendMessage(EVENT_GamePause, EventMessageBase());
+							//TODO::Move this to controller logic
+							MessageEvents::SendMessage(EVENT_PauseInputDetected, EventMessageBase());
 						}
 						else {
 							input = teleportDown;
@@ -283,7 +284,7 @@ void InputManager::VRInput::CheckForInput() {
 
 //Keyboard
 InputManager::KeyboardInput::KeyboardInput() {
-	MapKey(menu, VK_ESCAPE);
+	MapKey(pause, VK_ESCAPE);
 	MapKey(forward, 'W');
 	MapKey(backward, 'S');
 	MapKey(left, 'A');
@@ -384,10 +385,9 @@ void InputManager::KeyboardInput::CheckForInput() {
 				break;
 			case KeyboardDown:
 				switch(input) {
-					case menu:
+					case pause:
 					{
-
-						MessageEvents::SendMessage(EVENT_GamePause, EventMessageBase());
+						MessageEvents::SendMessage(EVENT_PauseInputDetected, EventMessageBase());
 						break;
 					}
 					case releaseKey:

@@ -28,15 +28,10 @@ void Menu::AssignPrefabIDs() {
 	buttonPrefabMap[BUTTON_Resume] = ObjectFactory::CreatePrefab(&std::string("Assets/ResumeButton.ghost"));
 	buttonPrefabMap[BUTTON_Restart] = ObjectFactory::CreatePrefab(&std::string("Assets/RestartButton.ghost"));
 	buttonPrefabMap[BUTTON_Quit] = ObjectFactory::CreatePrefab(&std::string("Assets/QuitButton.ghost"));
-	buttonPrefabMap[BUTTON_Options] = buttonPrefabMap[BUTTON_Resume];
-	buttonPrefabMap[BUTTON_StartGame] = buttonPrefabMap[BUTTON_Resume];
+	buttonPrefabMap[BUTTON_Play] = ObjectFactory::CreatePrefab(&std::string("Assets/PlayButton.ghost"));
+	buttonPrefabMap[BUTTON_Exit] = ObjectFactory::CreatePrefab(&std::string("Assets/ExitButton.ghost"));
+	buttonPrefabMap[BUTTON_Options] = ObjectFactory::CreatePrefab(&std::string("Assets/OptionsButton.ghost"));
 	buttonPrefabMap[BUTTON_ChangeLevel] = buttonPrefabMap[BUTTON_Resume];
-}
-void Menu::GamePauseEvent() {
-	if (active)
-		Hide();
-	else
-		Show();
 }
 
 void Menu::SetParent(Menu* _parent) {
@@ -78,19 +73,20 @@ void Menu::Create(Template t, std::vector<Button> _buttons) {
 	switch (t) {
 		case MENU_Main:
 			buttons.empty();
-			buttons.resize(4);
-			buttons[0] = BUTTON_StartGame;
-			buttons[1] = BUTTON_ChangeLevel;
-			buttons[2] = BUTTON_Options;
-			buttons[3] = BUTTON_Quit;
+			buttons.resize(3);
+			buttons[0] = BUTTON_Play;
+			buttons[1] = BUTTON_Options;
+			buttons[2] = BUTTON_Quit;
 			break;
 		case MENU_Pause:
 			buttons.empty();
 			buttons.resize(3);
 			buttons[0] = BUTTON_Resume;
 			buttons[1] = BUTTON_Restart;
-			buttons[2] = BUTTON_Quit;
-			MessageEvents::Subscribe(EVENT_GamePause, [=](EventMessageBase* e) {this->GamePauseEvent(); });
+			buttons[2] = BUTTON_Exit;
+			MessageEvents::Subscribe(EVENT_GamePause, [=](EventMessageBase* e) {this->Show(); });
+			MessageEvents::Subscribe(EVENT_GameUnPause, [=](EventMessageBase* e) {this->Hide(); });
+
 			break;
 		case MENU_Custom:
 			buttons.empty();
@@ -99,6 +95,7 @@ void Menu::Create(Template t, std::vector<Button> _buttons) {
 	}
 }
 void Menu::Show(DirectX::XMFLOAT4X4* spawnPos) {
+	if (active) return;
 	active = true;
 	options.resize(buttons.size());
 	DirectX::XMFLOAT4X4 center = spawnPos ? *spawnPos : FindCenter();
@@ -115,6 +112,7 @@ void Menu::Show(DirectX::XMFLOAT4X4* spawnPos) {
 	}
 }
 void Menu::Hide() {
+	if (!active) return;
 	active = false;
 	for (int i = 0; i < options.size(); ++i) {
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {options[i]->Destroy(); });
@@ -126,25 +124,31 @@ void Menu::Hide() {
 
 void ResumeButton::Select() {
 	MenuOption::Select();
-	MessageEvents::SendMessage(EVENT_GamePause, EventMessageBase());
+	MessageEvents::SendMessage(EVENT_GameUnPause, EventMessageBase());
 }
 void RestartButton::Select() {
 	MenuOption::Select();
-	MessageEvents::SendMessage(EVENT_GamePause, EventMessageBase());
+	MessageEvents::SendMessage(EVENT_GameUnPause, EventMessageBase());
 	MessageEvents::SendMessage(EVENT_GameRestart, EventMessageBase());
 }
 void QuitButton::Select() {
 	MenuOption::Select();
-	MessageEvents::SendMessage(EVENT_GameQuit, EventMessageBase());
+	MessageEvents::SendMessage(EVENT_GameUnPause, EventMessageBase());
+	MessageEvents::SendQueueMessage(EVENT_Late, []() { MessageEvents::SendMessage(EVENT_GameQuit, EventMessageBase()); });
+}
+void ExitButton::Select() {
+	MenuOption::Select();
+	MessageEvents::SendMessage(EVENT_GameUnPause, EventMessageBase());
+	MessageEvents::SendQueueMessage(EVENT_Late, []() { MessageEvents::SendMessage(EVENT_GameExit, EventMessageBase()); });
 }
 
 void OptionsButton::Select() {
 	MenuOption::Select();
-
 }
-void StartGameButton::Select() {
+void PlayButton::Select() {
+	menu->Hide();
 	MenuOption::Select();
-
+	MessageEvents::SendMessage(EVENT_Start, EventMessageBase());
 }
 void ChangeLevelButton::Select() {
 	MenuOption::Select();

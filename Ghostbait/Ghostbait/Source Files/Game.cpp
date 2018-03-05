@@ -35,20 +35,35 @@ void Game::GameData::Reset() {
 
 Game::Game() {
 	pauseMenu = new Menu(MENU_Pause);
+	mainMenu = new Menu(MENU_Main);
 	MessageEvents::Subscribe(EVENT_SpawnerCreated, [=](EventMessageBase* e) {this->SpawnerCreatedEvent(e); });
 	MessageEvents::Subscribe(EVENT_EnemyDied, [=](EventMessageBase* e) {this->EnemyDiedEvent(); });
-	MessageEvents::Subscribe(EVENT_Start, [=](EventMessageBase* e) {this->StartNextWave(); });
-	MessageEvents::Subscribe(EVENT_GamePause, [=](EventMessageBase* e) {this->PausePressedEvent(); });
+	MessageEvents::Subscribe(EVENT_Start, [=](EventMessageBase* e) {this->StartEvent(); });
+	MessageEvents::Subscribe(EVENT_PauseInputDetected, [=](EventMessageBase* e) {this->PauseInputEvent(); });
+	MessageEvents::Subscribe(EVENT_GamePause, [=](EventMessageBase* e) {this->PauseGame(); });
+	MessageEvents::Subscribe(EVENT_GameUnPause, [=](EventMessageBase* e) {this->ResumeGame(); });
 	MessageEvents::Subscribe(EVENT_GameRestart, [=](EventMessageBase* e) {this->RestartLevel(); });
 	MessageEvents::Subscribe(EVENT_SnapRequest, [=](EventMessageBase* e) {this->SnapRequestEvent(e); });
 	MessageEvents::Subscribe(EVENT_AddObstacle, [=](EventMessageBase* e) {this->AddObstacleEvent(e); });
 	MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {this->RemoveObstacleEvent(e); });
 	MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) {this->Lose(); });
 	MessageEvents::Subscribe(EVENT_GameQuit, [=](EventMessageBase* e) {this->Quit(); });
+	MessageEvents::Subscribe(EVENT_GameExit, [=](EventMessageBase* e) {this->ExitToMenu(); });
 	PathPlanner::SetGrid(&hexGrid);
 }
 
 //Catch Events
+void Game::PauseInputEvent() {
+	if (gameData.state == GAMESTATE_SplashScreen || gameData.state == GAMESTATE_MainMenu) return;
+	if (paused) {
+		ResumeGame();
+		MessageEvents::SendMessage(EVENT_GameUnPause, EventMessageBase());
+	}
+	else {
+		PauseGame();
+		MessageEvents::SendMessage(EVENT_GamePause, EventMessageBase());
+	}
+}
 void Game::SpawnerCreatedEvent(EventMessageBase* e) {
 	Spawner* spawner = dynamic_cast<Spawner*>(((SpawnerCreatedMessage*)e)->RetrieveObject());
 	if (spawner)
@@ -60,16 +75,6 @@ void Game::EnemyDiedEvent() {
 	gameData.enemiesLeftAlive--;
 	if (gameData.enemiesLeftAlive <= 0) {
 		ChangeState(GAMESTATE_BetweenWaves);
-	}
-}
-void Game::PausePressedEvent() {
-	if (gameData.state == GAMESTATE_Paused) {
-		ChangeState(gameData.prevState);
-		Console::WriteLine << "Game is UnPaused";
-	}
-	else {
-		ChangeState(GAMESTATE_Paused);
-		Console::WriteLine << "Game is Paused";
 	}
 }
 void Game::SnapRequestEvent(EventMessageBase* e) {
@@ -104,6 +109,9 @@ void Game::StartEvent() {
 		case GAMESTATE_BetweenWaves:
 			StartNextWave();
 			break;
+		case GAMESTATE_MainMenu:
+			ChangeScene("level0");
+			break;
 	}
 }
 
@@ -113,19 +121,10 @@ void Game::ChangeState(State newState) {
 		gameData.prevState = gameData.state;
 		gameData.state = newState;
 
-		if (gameData.prevState == GAMESTATE_Paused) {
-			ResumeGame();
-		}
 
 		switch (newState) {
-		case GAMESTATE_Paused:
-			{
-				PauseGame();
-			}
-			break;
-		case GAMESTATE_BetweenWaves:
-			{
-				if (!gameData.prevState == GAMESTATE_Paused) {
+			case GAMESTATE_BetweenWaves:
+				{
 					//if upcoming wave doesnt exist...
 					int nextWave = gameData.waveManager.currentWave + 1;
 					if (nextWave >= gameData.waveManager.waves.size()) {
@@ -143,23 +142,24 @@ void Game::ChangeState(State newState) {
 						startCube->Enable();
 					}
 				}
-			}
-			break;
-		case GAMESTATE_InWave:
-			{
+				break;
+			case GAMESTATE_InWave:
+				{
 
-			}
-			break;
-		case GAMESTATE_GameOver:
-			{
-				//gameData.Reset();
-			}
-			break;
-		case GAMESTATE_SplashScreen:
-			{
+				}
+				break;
+			case GAMESTATE_GameOver:
+				{
+					//gameData.Reset();
+				}
+				break;
+			case GAMESTATE_SplashScreen:
+				{
 
-			}
-			break;
+				}
+				break;
+			case GAMESTATE_MainMenu:
+				break;
 		}
 	}
 }
@@ -172,6 +172,20 @@ void Game::ChangeScene(const char* sceneName) {
 
 	//Load scene assets
 	sceneManager->LoadScene(sceneName, &corePos);
+
+	//TODO: TEMPORARY main menu code--------
+	if (!strcmp(sceneName, "mainMenu")) {
+		DirectX::XMFLOAT4X4 menuPos = DirectX::XMFLOAT4X4(1, 0, 0, 0, 
+															0, 1, 0, 0, 
+															0, 0, 1, 0, 
+															0, 1.7f, 2, 1);
+		gameData.state = GAMESTATE_MainMenu;
+		mainMenu->Show(&menuPos);
+		player->leftController->SetControllerState(CSTATE_MenuController);
+		player->rightController->SetControllerState(CSTATE_None);
+		player->transform.MoveToOrigin(player->playerHeight);
+	}
+	//--------------------------------------
 
 	//If it has level/wave data, load it
 	if (sceneManager->GetCurrentScene().levelFiles.size() > 0) {
@@ -248,12 +262,15 @@ void Game::RestartLevel() {
 }
 void Game::ResumeGame() {
 	//Logic to run when game first gets unPaused
+	if (!paused) return;
+	paused = false;
 	player->leftController->SetControllerStateToPrevious();
 	player->rightController->SetControllerStateToPrevious();
 }
 void Game::PauseGame() {
-
 	//Logic to run when game first gets paused
+	if (paused) return;
+	paused = true;
 	player->leftController->SetControllerState(CSTATE_MenuController);
 	player->rightController->SetControllerState(CSTATE_ModelOnly);
 }
@@ -281,6 +298,9 @@ void Game::Win() {
 void Game::Quit() {
 	run = false;
 }
+void Game::ExitToMenu() {
+	ChangeScene("mainMenu");
+}
 
 //Main loop elements
 void Game::Start(Player* _player, EngineStructure* _engine, char* startScene) {
@@ -305,22 +325,13 @@ void Game::Start(Player* _player, EngineStructure* _engine, char* startScene) {
 	//enemy->Enable();
 }
 void Game::Update() {
-
-	if (restartNextFrame) {
-		RestartLevel();
-		restartNextFrame = false;
-		return;
-	}
-
 	auto playerPos = player->transform.GetMatrix();
 	hexGrid.Display(DirectX::XMFLOAT2(playerPos._41, playerPos._43));
 	float dt = (float)GhostTime::DeltaTime();
+
+	if (paused) return;
+
 	switch (gameData.state) {
-		case GAMESTATE_Paused:
-			{
-				//player->leftController.SetControllerState(CSTATE_MenuController);
-			}
-			break;
 		case GAMESTATE_InWave:
 			{
 				//--------Spawn Enemies if it's their time
@@ -429,15 +440,8 @@ void Game::Update() {
 			break;
 		case GAMESTATE_MainMenu:
 			{
-				player->leftController->PausedUpdate();
-				player->rightController->PausedUpdate();
-
-				player->leftController->DisableNow();
-				player->rightController->DisableNow();
 				engine->ExecuteUpdate();
 				engine->ExecuteLateUpdate();
-				player->leftController->Enable(false);
-				player->rightController->Enable(false);
 			}
 			break;
 		default:
@@ -447,5 +451,6 @@ void Game::Update() {
 }
 void Game::Clean() {
 	delete pauseMenu;
+	delete mainMenu;
 	delete sceneManager;
 }

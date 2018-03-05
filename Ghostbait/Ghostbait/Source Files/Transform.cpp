@@ -178,6 +178,9 @@ void Transform::SetPosition(const float x, const float y, const float z) {
 void Transform::SetPosition(const DirectX::XMFLOAT3& pos) {
 	SetPosition(pos.x, pos.y, pos.z);
 }
+void Transform::MoveToOrigin(float height) {
+	SetPosition(0, height, 0);
+}
 
 void Transform::SetRotationRadians(const float x, const float y, const float z) {
 	XMFLOAT4X4 rotatedBy;

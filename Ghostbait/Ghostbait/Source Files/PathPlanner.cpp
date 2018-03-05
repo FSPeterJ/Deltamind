@@ -43,8 +43,8 @@ struct PriorityQueue {
 
 template<typename K, typename V>
 struct PriorityQueueMap {
-	//typedef std::pair<K, V> pair;
-	std::deque<std::pair<K, V>> q;
+	typedef std::pair<K, V> pair;
+	std::deque<pair> q;
 
 	//this would ideally be a passed in template arg
 	static bool Predicate(pair const& p1, pair const& p2) { return p1.second > p2.second; }
@@ -444,6 +444,23 @@ class DStarLite {
 					}
 					UpdateVertex(neighbor);
 				});
+
+				//Not ideal, need to extract lamda function
+				if (PathPlanner::EpsilonIsEqual(rhs[u], PathPlanner::ClampInfinity(u->weight + gold))) {
+					if (u != goal) {
+						mostMinimum = grid->BlockWeight();
+
+						ForEachSuccessor(u, [=](HexTile*const neighbor2) {
+							float minposib = neighbor2->weight + cumulativeCost[neighbor2];
+							mostMinimum = PathPlanner::ClampInfinity(min(minposib, mostMinimum));
+						});
+
+						rhs[u] = mostMinimum;
+					}
+				}
+				UpdateVertex(u);
+				// Is this neccessary? 
+
 			}
 		}
 		//Replan();
@@ -516,10 +533,10 @@ public:
 
 							ForEachSuccessor(pred, [=](HexTile*const neighbor2) {
 								float minposib = neighbor2->weight + cumulativeCost[neighbor2];
-								mostMinimum = min(minposib, mostMinimum); //clamp inf here instead?
+								mostMinimum = min(minposib, mostMinimum); //clamp inf not needed. If mostMinimun was set a inf, min should not be greater than inf
 							});
 
-							rhs[pred] = PathPlanner::ClampInfinity(mostMinimum);
+							rhs[pred] = PathPlanner::ClampInfinity(mostMinimum); //clamp inf probably not neccessary
 						}
 					}
 					UpdateVertex(pred);

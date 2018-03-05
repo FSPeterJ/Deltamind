@@ -175,9 +175,10 @@ void Renderer::renderToEye(eye * eyeTo) {
 	float color[] = {0.5f, 0.5f, 1.0f, 1.0f};
 	context->ClearRenderTargetView(eyeTo->renderInfo.rtv, color);
 	context->ClearDepthStencilView(eyeTo->renderInfo.dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	context->UpdateSubresource(cameraBuffer, 0, NULL, &eyeTo->camera, 0, 0);
+	drawSkyboxTo(eyeTo->renderInfo.rtv, eyeTo->renderInfo.dsv, eyeTo->renderInfo.viewport, eyeTo->camPos);
 	context->OMSetRenderTargets(1, &eyeTo->renderInfo.rtv, eyeTo->renderInfo.dsv);
 	context->RSSetViewports(1, &eyeTo->renderInfo.viewport);
-	context->UpdateSubresource(cameraBuffer, 0, NULL, &eyeTo->camera, 0, 0);
 
 	for(size_t i = 0; i < renderedObjects.size(); ++i) {
 		renderObjectDefaultState((Object*) renderedObjects[i]);
@@ -197,8 +198,10 @@ void Renderer::renderToEye(eye * eyeTo) {
 	//context->IASetInputLayout(ILStandard);
 }
 
-void Renderer::drawSkyboxTo(ID3D11RenderTargetView * rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport)
+void Renderer::drawSkyboxTo(ID3D11RenderTargetView * rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport, DirectX::XMFLOAT3& pos)
 {
+	if (!currSkybox)
+		return;
 	UINT stride = sizeof(VertexPositionTextureNormalAnim);
 	UINT offset = 0;
 
@@ -206,12 +209,15 @@ void Renderer::drawSkyboxTo(ID3D11RenderTargetView * rtv, ID3D11DepthStencilView
 	context->RSSetViewports(1, &viewport);
 	context->VSSetShader(SkyboxVS, NULL, NULL);
 	context->PSSetShader(SkyboxPS, NULL, NULL);
-	context->UpdateSubresource(modelBuffer, NULL, NULL, &XMMatrixTranspose(XMMatrixTranslationFromVector(XMLoadFloat3(&LightManager::getLightBuffer()->cameraPos))), NULL, NULL);
+	context->UpdateSubresource(modelBuffer, NULL, NULL, &XMMatrixTranspose(XMMatrixTranslationFromVector(XMLoadFloat3(&pos))), NULL, NULL);
 	context->IASetVertexBuffers(0, 1, &skyball->vertexBuffer, &stride, &offset);
 	context->IASetIndexBuffer(skyball->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	context->PSSetShaderResources(0, 1, &currSkybox->srv);
 	context->DrawIndexed(skyball->indexCount, 0, 0);
 	context->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	context->VSSetShader(StandardVertexShader, NULL, NULL);
+	context->PSSetShader(StandardPixelShader, NULL, NULL);
 }
 
 void Renderer::loadPipelineState(pipeline_state_t * pipeline) {
@@ -327,8 +333,8 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 #if _DEBUG
 	DebugRenderer::Initialize(device, context, modelBuffer, PassThroughPositionColorVS, PassThroughPS, ILPositionColor, defaultPipeline.rasterizer_state);
 #endif
-	setSkybox("Space", "spaceBox");
-	//skyball = meshManagement->GetReferenceComponent("Assets/Skyball.mesh", nullptr);
+	setSkybox("Ghostbait", "ghostbait");
+	skyball = meshManagement->GetReferenceComponent("Assets/Skyball.mesh", nullptr);
 }
 
 void Renderer::Destroy() {
@@ -456,12 +462,14 @@ void Renderer::Render() {
 	context->OMSetRenderTargets(1, &defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view);
 	context->RSSetViewports(1, &defaultPipeline.viewport);
 
+	DirectX::XMFLOAT3 camPos;
 	if (VRManager::GetInstance().IsEnabled())
-		LightManager::getLightBuffer()->cameraPos = leftEye.camPos;
+		camPos = leftEye.camPos;
 	else
-		LightManager::getLightBuffer()->cameraPos = DirectX::XMFLOAT3(cameraPos->GetMatrix()._41, cameraPos->GetMatrix()._42, cameraPos->GetMatrix()._43);
+		camPos = DirectX::XMFLOAT3(cameraPos->GetMatrix()._41, cameraPos->GetMatrix()._42, cameraPos->GetMatrix()._43);
+	LightManager::getLightBuffer()->cameraPos = camPos;
 	context->UpdateSubresource(lightBuffer, NULL, NULL, LightManager::getLightBuffer(), 0, 0);
-	drawSkyboxTo(defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport);
+	drawSkyboxTo(defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport, camPos);
 	for(size_t i = 0; i < renderedObjects.size(); ++i) {
 		renderObjectDefaultState((Object*) renderedObjects[i]);
 	}

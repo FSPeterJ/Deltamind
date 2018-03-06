@@ -183,7 +183,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<AStarEnemy>("AStarEnemy");
 	TypeMap::RegisterObjectAlias<DStarEnemy>("DStarEnemy");
 	TypeMap::RegisterObjectAlias<Turret>("Turret");
-	TypeMap::RegisterObjectAlias<DStarEnemy>("MTDSLEnemy");
+	TypeMap::RegisterObjectAlias<MTDSLEnemy>("MTDSLEnemy");
 
 
 	Console::WriteLine << "Object Alias registered......";

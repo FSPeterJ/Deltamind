@@ -338,7 +338,7 @@ struct DStarCommon {
 	PriorityQueueMap<HexTile*, FloatPair> open;
 
 	float km;
-	HexTile * start = nullptr, *const goal = nullptr;
+	HexTile *start = nullptr, *goal = nullptr;
 
 	HexGrid *const grid = nullptr;
 
@@ -381,24 +381,24 @@ struct DStarCommon {
 
 	void ForEachPredessor(HexTile*const tile, NeighborFunction exec, UnionType includeSelf = None) {
 		//pred = non blocked neighbors
-		if(includeSelf == UnionSelf && !grid->IsBlocked(tile)) { exec(tile); }//Not sure if the union with self should check if itself is blocked or not
 		for(auto& element : tile->Neighbors()) {
 			HexTile* neighbor = grid->GetTileExact(element);
 			if(!neighbor || grid->IsBlocked(neighbor)) { continue; }
 			exec(neighbor);
 		}
+		if(includeSelf == UnionSelf && !grid->IsBlocked(tile)) { exec(tile); }//Not sure if the union with self should check if itself is blocked or not
 	}
 
 	void ForEachSuccessor(HexTile*const tile, NeighborFunction exec, UnionType includeSelf = None) {
 		//succ = if you blocked, no res, else return all
 		if(grid->IsBlocked(tile)) return;
 
-		if(includeSelf == UnionSelf) { exec(tile); }
 		for(auto& element : tile->Neighbors()) {
 			HexTile* neighbor = grid->GetTileExact(element);
 			if(!neighbor) { continue; }
 			exec(neighbor);
 		}
+		if(includeSelf == UnionSelf) { exec(tile); }
 	}
 
 	virtual void Update() = 0;
@@ -541,6 +541,7 @@ public:
 				last = start;
 
 				float c_old = grid->GetCostDelta()[neighbor];
+				//This WILL NOT WORK when there are multiple enemies trying to detect change on neighbor
 				grid->GetCostDelta().erase(neighbor);
 
 				ForEachPredessor(neighbor, [=](HexTile* const pred) {
@@ -563,12 +564,25 @@ public:
 };
 
 class MTDStarLite: DStarCommon {
+	HexPath* path = nullptr;
 	std::vector<HexTile*> deleted;
-
 	VisitedMap parent;
+	DirectX::XMFLOAT4X4* goalReference = nullptr, *startReference = nullptr;
 
 	void ForEachInSearchTreeButNotSubtreeRootedAt(HexTile*const tile, NeighborFunction exec) {
 		//figure what to put here
+		HexTile* nextParent;
+		for (auto& element : parent) {
+			nextParent = element.second;
+			while (nextParent) {
+				if (nextParent == tile) break;
+				else if (!parent[nextParent]) {
+					exec(element.first);
+					break;
+				}
+				nextParent = parent[nextParent];
+			}
+		}
 	}
 
 	FloatPair CalculateKey(HexTile *const tile) {
@@ -625,6 +639,8 @@ class MTDStarLite: DStarCommon {
 				}, UnionSelf);
 			}
 		}
+		path->clear();
+		(*path).BuildPath(start, goal, parent); //might need to BuildPathReverse?
 	}
 
 	void OptimizedDelete() {
@@ -660,30 +676,36 @@ class MTDStarLite: DStarCommon {
 	}
 
 public:
-	MTDStarLite(HexGrid *const _grid, HexTile *const _start, HexTile *const _goal) : DStarCommon(_start, _goal, _grid) {
+	MTDStarLite & operator=(const MTDStarLite& other) {
+		//is this ever called
+		return *this;
+	}
 
+	MTDStarLite(HexGrid *const _grid, DirectX::XMFLOAT4X4* _startRef, DirectX::XMFLOAT4X4* _goalRef, HexPath* _path) :
+		path(_path), goalReference(_goalRef), startReference(_startRef), DStarCommon(nullptr, nullptr, _grid) {
+
+		//this may not be neccessary
 		grid->ForEach([=](HexTile*const tile) {rhs[tile] = cumulativeCost[tile] = grid->BlockWeight(); parent[tile] = nullptr; });
 
-		rhs[start] = 0;
+		goal = grid->PointToTile(DirectX::XMFLOAT2(goalReference->_41, goalReference->_43));
+		start = grid->PointToTile(DirectX::XMFLOAT2(startReference->_41, startReference->_43));
 
+		rhs[start] = 0;
 		open.insert(start, CalculateKey(start));
+		ComputeCostMinimalPath();
 	}
+
 
 	void Update() {
 		//while(start != goal)
-
 			HexTile* oldStart = start;
 			HexTile* oldGoal = goal;
 
-			ComputeCostMinimalPath();
 			if(PathPlanner::EpsilonIsEqual(rhs[start], grid->BlockWeight())) {
 				//no path exists
 				Console::WriteLine << "There's no PATH for MEE!!!!!";
 				return;
 			}
-
-			HexPath path;
-			path.BuildPath(start, goal, parent); //might need to BuildPathReverse?
 
 			//while(target not caught && on path from start to goal) {
 
@@ -692,15 +714,15 @@ public:
 					//return;
 				//}
 
-				km += PathPlanner::heuristicFunction(oldGoal, goal);
-
-				if(oldStart != start) {
-					//shift map
-					OptimizedDelete();
-				}
-
 				//for all directed edges with cost change
-				if(grid->GetCostDelta().size()) {
+				if(grid->GetCostDelta().size() || !path->find(goal)) {
+					goal = grid->PointToTile(DirectX::XMFLOAT2(goalReference->_41, goalReference->_43));
+					start = grid->PointToTile(DirectX::XMFLOAT2(startReference->_41, startReference->_43));
+					km += PathPlanner::heuristicFunction(oldGoal, goal);
+					if(oldStart != start) {
+						//shift map
+						OptimizedDelete();
+					}
 					HexTile* u = start; //? Not sure? maybe goal?
 
 					for(HexTile& n : u->Neighbors()) {
@@ -732,8 +754,13 @@ public:
 						}
 					}
 				}
+				ComputeCostMinimalPath();
 			//}
 		//}
+	}
+
+	void UpdateGoal(HexTile* newgoal) {
+		goal = newgoal;
 	}
 };
 
@@ -750,6 +777,21 @@ std::size_t PathPlanner::DStarLiteSearch(HexTile *const start, HexTile *const go
 
 void PathPlanner::UpdateDStarLite(std::size_t dstarId) {
 	dstarList[dstarId].Update();
+}
+
+std::vector<MTDStarLite> PathPlanner::mtdstarList;
+std::size_t PathPlanner::mtdstars = 0;
+std::size_t PathPlanner::MTDStarLiteSearch(DirectX::XMFLOAT4X4* startRef, DirectX::XMFLOAT4X4* goalRef, HexPath* toPath, HeuristicFunction Heuristic) {
+	PathPlanner::SetHeuristic(Heuristic);
+
+	auto ds = MTDStarLite(grid, startRef, goalRef, toPath);
+	mtdstarList.insert(mtdstarList.begin() + mtdstars, ds);
+
+	return mtdstars++;
+}
+
+void PathPlanner::UpdateMTDStarLite(std::size_t mtdstarId) {
+	mtdstarList[mtdstarId].Update();
 }
 
 HexPath PathPlanner::CalculatePathWithinXSteps(HexTile *const start, HexTile *const goal, size_t steps) {

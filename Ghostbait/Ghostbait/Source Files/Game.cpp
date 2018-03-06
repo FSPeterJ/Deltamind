@@ -289,7 +289,7 @@ void Game::Start(Player* _player, EngineStructure* _engine, char* startScene) {
 	MTDSLEnemy* ted;
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MTDSLEnemy>("MTDSLEnemy", { 40,0,40 }, &ted));
 	ted->SetGrid(&hexGrid);
-	ted->SetGoal(DirectX::XMFLOAT2(corePos.x, corePos.z));
+	ted->SetGoalReference(&(player->transform.matrix));
 	ted->Enable();
 }
 void Game::Update() {

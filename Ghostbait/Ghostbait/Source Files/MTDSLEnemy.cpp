@@ -27,6 +27,10 @@ void MTDSLEnemy::SetGoal(DirectX::XMFLOAT2 _goal) {
 	if (goalTile) { goal = goalTile; }
 }
 
+void MTDSLEnemy::SetGoalReference(DirectX::XMFLOAT4X4* _goal) {
+	goalReference = _goal;
+}
+
 void MTDSLEnemy::SetGrid(HexGrid* _grid) {
 	grid = _grid;
 }
@@ -41,16 +45,17 @@ void MTDSLEnemy::Start() {
 
 	rb = &(GetComponent<PhysicsComponent>()->rigidBody);
 
-	if (!goal) { Console::ErrorLine << "No Goal! I'm gonna blowwwwww!!!!"; }
+	if (!goalReference) { Console::ErrorLine << "No Goal! I'm gonna blowwwwww!!!!"; }
+
+	goal = grid->PointToTile(DirectX::XMFLOAT2(goalReference->_41, goalReference->_43));
+	if (!goal) { Console::ErrorLine << "Goal Tile DOESN'T EXIST!!!"; }
 
 	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
-
 	if (!curTile) { Console::ErrorLine << "Ahhhh! Initalize me on the grid please!!"; }
 
 	next = curTile; //is this needed or can i pass a ref to a null var below
 	grid->RemoveObstacle(curTile);//Remove on final build
-	dstarId = PathPlanner::DStarLiteSearch(curTile, goal, &next, Heuristics::OctileDistance);
-
+	mtdstarId = PathPlanner::MTDStarLiteSearch(&(transform.matrix), goalReference, &path, Heuristics::OctileDistance);
 
 	rb->SetTerminalSpeed(maxSpeed);
 }
@@ -58,6 +63,10 @@ void MTDSLEnemy::Start() {
 void MTDSLEnemy::Update() {
 	EnemyBase::Update();
 
+	grid->Color(path, DirectX::XMFLOAT3(0.0f, 0.0f, 1.0f), 3);
+	if (goalReference) {
+		goal = grid->PointToTile(DirectX::XMFLOAT2(goalReference->_41, goalReference->_43));
+	}
 	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
 	if (curTile) {
 		if (curTile == next) {
@@ -70,8 +79,9 @@ void MTDSLEnemy::Update() {
 			}
 			else {
 				if (KeyIsHit(Control::TestInputO)) {
-					PathPlanner::UpdateDStarLite(dstarId);
+					PathPlanner::UpdateMTDStarLite(mtdstarId);
 
+					next = path.Next(curTile);
 					auto nextPathPoint = grid->TileToPoint(next);
 
 					DirectX::XMVECTOR nextDirection = DirectX::XMVectorSet(nextPathPoint.x - transform.matrix._41, 0.0f, nextPathPoint.y - transform.matrix._43, 1.0f);

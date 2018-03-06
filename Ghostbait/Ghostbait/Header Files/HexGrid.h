@@ -209,5 +209,7 @@ public:
 	/// <param name="player">The player.</param>
 	void Display(DirectX::XMFLOAT2& player);
 
-	void Color(HexRegion r, DirectX::XMFLOAT3 color, int fill);
+	void Color(HexRegion& r, DirectX::XMFLOAT3 color, int fill);
+	void Color(HexPath& p, DirectX::XMFLOAT3 color, int fill);
+
 };

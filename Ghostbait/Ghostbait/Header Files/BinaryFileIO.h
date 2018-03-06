@@ -15,6 +15,11 @@ namespace Reader {
 		stream.read((char*)&value, sizeof(float));
 		return value;
 	}
+	static float ReadDouble(std::ifstream& stream) {
+		float value;
+		stream.read((char*) &value, sizeof(double));
+		return value;
+	}
 	static char ReadChar(std::ifstream& stream) {
 		char value;
 		stream.read(&value, sizeof(char));
@@ -44,6 +49,9 @@ namespace Reader {
 	static float ReadFloat() {
 		return ReadFloat(*defaultStream);
 	}
+	static float ReadDouble() {
+		return ReadDouble(*defaultStream);
+	}
 	static char ReadChar() {
 		return ReadChar(*defaultStream);
 	}
@@ -72,6 +80,10 @@ namespace Writer {
 	static void WriteFloat(std::ofstream& stream, float val) {
 		stream.write((char*)&val, sizeof(float));
 	}
+
+	static void WriteDouble(std::ofstream& stream, double val) {
+		stream.write((char*) &val, sizeof(double));
+	}
 	static void WriteChar(std::ofstream& stream, char val) {
 		stream.write(&val, sizeof(char));
 	}
@@ -98,6 +110,10 @@ namespace Writer {
 	}
 	static void WriteFloat(float val) {
 		WriteFloat(*defaultStream, val);
+	}
+
+	static void WriteDouble(double val) {
+		WriteDouble(*defaultStream, val);
 	}
 	static void WriteChar(char val) {
 		WriteChar(*defaultStream, val);

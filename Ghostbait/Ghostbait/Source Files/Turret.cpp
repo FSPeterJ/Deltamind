@@ -36,7 +36,8 @@ void Turret::Awake(Object* obj) {
 	target = nullptr;
 	firerate = turret->firerate;
 	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
-	turretPitch = GetComponent<Animator>()->getJointByName("Yaw");
+	turretPitch = GetComponent<Animator>()->getJointByName("Pitch");
+	turretYaw = GetComponent<Animator>()->getJointByName("Yaw");
 	assert(turretPitch);
 	launcherorigin = GetComponent<Animator>()->getJointByName("Launcher_1");
 	assert(launcherorigin);
@@ -47,26 +48,67 @@ void Turret::Update() {
 	timeSinceLastShot += dt;
 	if(target != nullptr) {
 		using namespace DirectX;
-		//XMVECTOR jointoffset = XMLoadFloat3(&(XMFLOAT3)turretPitch->m[3]);
-		XMVECTOR jointoffset = { 0,1.0f,0 };
-		XMVECTOR pos = XMLoadFloat3(&(XMFLOAT3)transform.GetMatrix().m[3]);
-		pos += jointoffset;
-		XMFLOAT3 newpos;
-		XMStoreFloat3(&newpos, pos);
-		DebugRenderer::AddLine(newpos, (XMFLOAT3)target->transform.GetMatrix().m[3], (XMFLOAT3)turretPitch->m[3]);
-		XMVECTOR bulletpos = DirectX::XMLoadFloat4(&(XMFLOAT4)turretPitch->m[3]);
-		XMVECTOR targetPos = DirectX::XMLoadFloat4(&(XMFLOAT4)target->transform.GetMatrix().m[3]) + XMVectorSet(0,1,0,0);
-		XMVECTOR Z(XMVector3Normalize(targetPos - bulletpos));
-		XMVECTOR X(XMVector3Normalize(XMVector3Cross(XMVectorSet(0, 1, 0, 1), Z)));
-		XMVECTOR Y(XMVector3Normalize(XMVector3Cross(Z, X)));
-		XMMATRIX lookat(
+		////XMVECTOR jointoffset = XMLoadFloat3(&(XMFLOAT3)turretPitch->m[3]);
+		//XMVECTOR jointoffset = { 0,1.0f,0 };
+		//XMVECTOR pos = XMLoadFloat3(&(XMFLOAT3)transform.GetMatrix().m[3]);
+		////pos += jointoffset;
+		//XMFLOAT3 newpos;
+		//XMStoreFloat3(&newpos, pos);
+		XMVECTOR XMturretYaw = DirectX::XMLoadFloat4(&(XMFLOAT4)turretYaw->m[3]);
+		XMVECTOR XMturretPitch = DirectX::XMLoadFloat4(&(XMFLOAT4)turretPitch->m[3]);
+		XMVECTOR targetPos = DirectX::XMLoadFloat4(&(XMFLOAT4)target->transform.GetMatrix().m[3]); //+ XMVectorSet(0,1,0,0);
+		DebugRenderer::AddLine((XMFLOAT3)turretPitch->m[3], (XMFLOAT3)target->transform.GetMatrix().m[3], { 0,0.6f, 0.2f });
+
+		XMVECTOR mX(XMVector3Normalize(XMVector3Cross(XMVectorSet(0, 1, 0, 0), XMVector3Normalize(targetPos - XMturretYaw))));
+		XMVECTOR mZ(XMVector3Normalize(XMVector3Cross(mX, XMVectorSet(0, 1, 0, 0))));
+		XMVECTOR mY(XMVector3Normalize(XMVector3Cross(mZ, mX)));
+		XMMATRIX lookatYaw(
+			mX,
+			mY,
+			mZ,
+			XMVectorSet(0, 0, 0, 1)
+		);
+
+
+		//XMVECTOR Z(XMVector3Normalize(XMVector3Cross(XMVectorSet(1, 0, 0, 0), XMVector3Normalize(targetPos - XMturretPitch))));
+		//XMVECTOR Y(XMVector3Normalize(XMVector3Cross(Z , XMVectorSet(1, 0, 0, 0))));
+		//XMVECTOR X(XMVector3Normalize(XMVector3Cross(Y, Z)));
+		//XMMATRIX lookatPitch(
+		//	X,
+		//	Y,
+		//	Z,
+		//	XMVectorSet(0, 0, 0, 1)
+		//);
+
+
+
+		XMVECTOR Y(XMVector3Normalize(XMVector3Cross(XMVectorSet(1, 0, 0, 0),  XMVector3Normalize(XMVector3TransformNormal(XMVector3Normalize(targetPos - XMturretPitch), XMMatrixInverse(nullptr, lookatYaw) ))))); // forces pitch
+		XMVECTOR X(XMVector3Normalize(XMVector3Cross(Y, XMVectorSet(0, 0, 1, 0))));
+		XMVECTOR Z(XMVector3Normalize(XMVector3Cross(X, Y )));
+		XMMATRIX lookatPitch(
 			X,
 			Y,
 			Z,
-			bulletpos
+			XMVectorSet(0, 0, 0, 1)
 		);
+
+		//XMVECTOR X(XMVector3Normalize(XMVector3Cross(XMVector3Normalize(targetPos - XMturretPitch), XMVectorSet(1, 0, 0, 0))));
+		//XMVECTOR Z(XMVector3Normalize(XMVector3Cross(X, XMVectorSet(1, 0, 0, 0))));
+		//XMVECTOR Y(XMVector3Normalize(XMVector3Cross(Z, X)));
+		//XMMATRIX lookatPitch(
+		//	X,
+		//	Y,
+		//	Z,
+		//	XMVectorSet(0, 0, 0, 1)
+		//);
+
+
+		GetComponent<Animator>()->ManipulateJointByName("Yaw", lookatYaw);
+		GetComponent<Animator>()->ManipulateJointByName("Pitch", lookatPitch);
+
 		//lookat =  lookat * DirectX::XMMatrixTranslationFromVector(bulletpos);
-		DirectX::XMStoreFloat4x4(turretPitch, lookat);
+		//DirectX::XMStoreFloat4x4(turretPitch, lookat);
+
 		targetDistance = CalculateDistance(target);
 		if(CanShoot(firerate)) {
 			Shoot();

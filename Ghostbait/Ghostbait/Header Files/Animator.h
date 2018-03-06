@@ -2,6 +2,7 @@
 #include "AnimationManager.h"
 #include "ComponentBase.h"
 #include <unordered_map>
+#include "PhysicsRegistry.h"
 
 namespace DirectX {
 	
@@ -37,5 +38,7 @@ public:
 	Animation* getCurrentAnimation() { return currAnim; }
 	DirectX::XMFLOAT4X4* getJointByName(const std::string& name);
 	void ManipulateJointByName(const std::string &name, const DirectX::XMFLOAT4X4  &transform);
+	void ManipulateJointByName(const std::string& name, const DirectX::XMMATRIX& _transformation);
 	void ManipulateJoint(animJoint* animationJoint, const DirectX::XMFLOAT4X4& _transformation);
+	void ManipulateJoint(animJoint* animationJoint, const DirectX::XMMATRIX& _transformation);
 };

@@ -12,6 +12,7 @@ class Turret: public GameObject {
 	float timeSinceLastShot = 0;
 	DirectX::XMFLOAT4X4* turretPitch;
 	DirectX::XMFLOAT4X4* launcherorigin;
+	DirectX::XMFLOAT4X4* turretYaw;
 
 public:
 	Turret();

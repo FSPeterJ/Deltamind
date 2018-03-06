@@ -279,16 +279,16 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	((PhysicsTestObj*)test1)->isControllable = true;
 	((PhysicsTestObj*)test1)->isRayCasting = true;
 
-	test1->Enable();
+	test1->Enable(false);
 
 
 
 
-	Turret *debugTurret;
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Turret>({ 0,0,0 }, &debugTurret));
-	//assert(debugTurret->GetComponent<Animator>()->setState("default"));
-	//debugTurret->GetComponent<Animator>()->SetTime(3.0f);
-	debugTurret->Enable(false);
+	//Turret *debugTurret;
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Turret>({ 0,0,0 }, &debugTurret));
+	////assert(debugTurret->GetComponent<Animator>()->setState("default"));
+	////debugTurret->GetComponent<Animator>()->SetTime(3.0f);
+	//debugTurret->Enable(false);
 
 	GhostTime::Initalize();
 	MessageEvents::Initilize();

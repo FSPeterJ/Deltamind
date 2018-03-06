@@ -75,13 +75,38 @@ void Animator::ManipulateJointByName(const std::string &name, const DirectX::XMF
 		XMMATRIX transformation = XMLoadFloat4x4(&_transformation);
 		while(true) {
 			XMMATRIX transform = XMLoadFloat4x4(&animationJoint->transform);
-			transform *= transformation;
+			transform = transformation * transform;
 			XMStoreFloat4x4(&animationJoint->transform, transform);
 			// It should be possible to do this better?  I mean there is do while but... is that really better?
 			if(animationJoint->child_count > 0) {
+				transform.r[3] = transformation.r[3];
 				for(int i = 0; i < animationJoint->child_count; ++i) {
+					ManipulateJoint(&tweens[animationJoint->child_index[i]], transform);
+				}
+				break;
+			}
+			else {
+				break;
+			}
+		}
+	}
+}
 
-					ManipulateJoint(&tweens[animationJoint->child_index[i]], animationJoint->transform);
+//TODO: Manipulate joint by NOT STRING option
+void Animator::ManipulateJointByName(const std::string &name, const DirectX::XMMATRIX &_transformation) {
+	std::unordered_map<std::string, int>::iterator check = jointPointers.find(name);
+	if(check != jointPointers.end()) {
+		animJoint* animationJoint = &tweens[(*check).second];
+		XMMATRIX transformation = _transformation;
+		while(true) {
+			XMMATRIX transform = XMLoadFloat4x4(&animationJoint->transform);
+			transform = transformation * transform;
+			XMStoreFloat4x4(&animationJoint->transform, transform);
+			// It should be possible to do this better?  I mean there is do while but... is that really better?
+			if(animationJoint->child_count > 0) {
+				transform.r[3] = transformation.r[3];
+				for(int i = 0; i < animationJoint->child_count; ++i) {
+					ManipulateJoint(&tweens[animationJoint->child_index[i]], transform);
 				}
 				break;
 			}
@@ -97,14 +122,40 @@ void Animator::ManipulateJoint(animJoint* animationJoint, const DirectX::XMFLOAT
 	XMMATRIX transformation = XMLoadFloat4x4(&_transformation);
 	while(true) {
 		XMMATRIX transform = XMLoadFloat4x4(&animationJoint->transform);
-		transform *= transformation;
+
+		transform = transform * transformation;
 		XMStoreFloat4x4(&animationJoint->transform, transform);
 		// It should be possible to do this better?  I mean there is do while but... is that really better?
 		if(animationJoint->child_count > 0) {
 
-			for (int i = 0; i < animationJoint->child_count; ++i) {
+			transform.r[3] = transformation.r[3];
+			for(int i = 0; i < animationJoint->child_count; ++i) {
+				ManipulateJoint(&tweens[animationJoint->child_index[i]], transform);
+			}
+			break;
+		}
+		else {
+			break;
+		}
+	}
+}
 
-				ManipulateJoint(&tweens[animationJoint->child_index[i]], animationJoint->transform);
+
+void Animator::ManipulateJoint(animJoint* animationJoint, const DirectX::XMMATRIX &_transformation) {
+
+	XMMATRIX transformation = _transformation;
+	while(true) {
+		XMMATRIX transform = XMLoadFloat4x4(&animationJoint->transform);
+
+		//transform.r[3]-= transformation.r[3];
+		transform = transform * transformation;
+		XMStoreFloat4x4(&animationJoint->transform, transform);
+		// It should be possible to do this better?  I mean there is do while but... is that really better?
+		if(animationJoint->child_count > 0) {
+
+			for(int i = 0; i < animationJoint->child_count; ++i) {
+
+				ManipulateJoint(&tweens[animationJoint->child_index[i]], transform);
 			}
 			break;
 		}

@@ -569,19 +569,27 @@ class MTDStarLite: DStarCommon {
 	VisitedMap parent;
 	DirectX::XMFLOAT4X4* goalReference = nullptr, *startReference = nullptr;
 
+	HexTile* GetParent(HexTile* const tile) {
+		HexTile* me = (parent.find(tile) == parent.end()) ? (parent[tile] = nullptr) : parent[tile];
+		//if (parent.find(tile) == parent.end()) { parent[tile] = nullptr; }
+		return me;//parent[tile];
+	}
 	void ForEachInSearchTreeButNotSubtreeRootedAt(HexTile*const tile, NeighborFunction exec) {
 		//figure what to put here
-		HexTile* nextParent;
+		HexTile* nextParent, *prevParent = nullptr;
 		for (auto& element : parent) {
 			nextParent = element.second;
 			while (nextParent) {
 				if (nextParent == tile) break;
-				else if (!parent[nextParent]) {
+				prevParent = nextParent;
+				nextParent = parent[nextParent];
+				if (prevParent == nextParent) {
 					exec(element.first);
 					break;
 				}
-				nextParent = parent[nextParent];
 			}
+			if (nextParent) continue;
+			exec(element.first);
 		}
 	}
 
@@ -685,16 +693,16 @@ public:
 		path(_path), goalReference(_goalRef), startReference(_startRef), DStarCommon(nullptr, nullptr, _grid) {
 
 		//this may not be neccessary
-		grid->ForEach([=](HexTile*const tile) {rhs[tile] = cumulativeCost[tile] = grid->BlockWeight(); parent[tile] = nullptr; });
+		grid->ForEach([=](HexTile*const tile) {rhs[tile] = cumulativeCost[tile] = grid->BlockWeight(); /*parent[tile] = nullptr;*/ });
 
 		goal = grid->PointToTile(DirectX::XMFLOAT2(goalReference->_41, goalReference->_43));
 		start = grid->PointToTile(DirectX::XMFLOAT2(startReference->_41, startReference->_43));
 
+		parent[start] = nullptr;
 		rhs[start] = 0;
 		open.insert(start, CalculateKey(start));
 		ComputeCostMinimalPath();
 	}
-
 
 	void Update() {
 		//while(start != goal)

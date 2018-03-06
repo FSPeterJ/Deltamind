@@ -2,6 +2,9 @@
 #include "Item.h"
 
 
+
+#include "PhysicsExtension.h"
+
 class ControllerObject;
 
 class BuildTool : public Item {
@@ -20,6 +23,8 @@ class BuildTool : public Item {
 	Mode currentMode = SPAWN;
 	DirectX::XMFLOAT3 spawnPos;
 	GameObject* currentlySelectedItem = nullptr;
+
+	ArcObject buildArc;
 
 	void SpawnProjection();
 	void Spawn();

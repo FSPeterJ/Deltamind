@@ -184,6 +184,7 @@ void Game::ChangeScene(const char* sceneName) {
 		player->leftController->SetControllerState(CSTATE_MenuController);
 		player->rightController->SetControllerState(CSTATE_None);
 		player->transform.MoveToOrigin(player->playerHeight);
+		player->Teleport(&DirectX::XMFLOAT3( 0, 0, 0 ));
 	}
 	//--------------------------------------
 

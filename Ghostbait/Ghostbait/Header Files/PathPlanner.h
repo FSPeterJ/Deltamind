@@ -5,7 +5,7 @@ template <typename T>
 struct HexagonTile;
 typedef HexagonTile<int> HexTile;
 
-namespace DirectX { struct XMFLOAT2; }
+namespace DirectX { struct XMFLOAT2; struct XMFLOAT4X4; }
 
 class HexPath;
 class HexGrid;
@@ -87,6 +87,8 @@ class PathPlanner {
 
 	static std::vector<DStarLite> dstarList;
 	static std::size_t dstars;
+	static std::vector<MTDStarLite> mtdstarList;
+	static std::size_t mtdstars;
 public:
 
 	static void SetHeuristic(HeuristicFunction heuristic);
@@ -98,6 +100,8 @@ public:
 
 	static std::size_t DStarLiteSearch(HexTile *const start, HexTile *const goal, HexTile** nextTileInPath, HeuristicFunction Heuristic);
 	static void UpdateDStarLite(std::size_t dstarId);
+	static std::size_t MTDStarLiteSearch(DirectX::XMFLOAT4X4* startRef, DirectX::XMFLOAT4X4* goalRef, HexPath* toPath, HeuristicFunction Heuristic);
+	static void UpdateMTDStarLite(std::size_t mtdstarId);
 
 
 	template <PathingAlgorithm a>

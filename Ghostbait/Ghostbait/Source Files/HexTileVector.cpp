@@ -115,6 +115,7 @@ void HexPath::Color(HexagonalGridLayout * const layout, DirectX::XMFLOAT3 color,
 	}
 }
 
+
 void HexPath::BuildPath(HexTilePtr const start, HexTilePtr const goal, VisitedMap& came_from) {
 
 	HexTilePtr current = goal;
@@ -138,4 +139,15 @@ void HexPath::BuildPathReverse(HexTilePtr const start, HexTilePtr const goal, Vi
 
 	data.push_back(goal);
 	//std::reverse(data.begin(), data.end());
+}
+
+HexPath::HexTilePtr HexPath::Next(HexTilePtr const current) const {
+	auto it = std::find(data.begin(), data.end(), current);
+	if (it != data.end())
+		return it == data.end() - 1 ? nullptr : *(it + 1);
+	return nullptr;
+}
+
+bool HexPath::find(HexTilePtr const v) const {
+	return std::find(data.begin(), data.end(), v) != data.end();
 }

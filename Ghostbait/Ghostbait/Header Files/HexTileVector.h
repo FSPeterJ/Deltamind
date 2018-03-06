@@ -133,6 +133,10 @@ public:
 	void BuildPathReverse(HexTilePtr const start, HexTilePtr const goal, VisitedMap& came_from);
 
 	void Color(HexagonalGridLayout *const layout, DirectX::XMFLOAT3 color, float offset, ColorType c);
+
+	HexTilePtr Next(HexTilePtr const current) const;
+
+	bool find(HexTilePtr const v) const;
 };
 
 bool operator<(const HexPath&p, const HexPath&p2);

@@ -372,10 +372,13 @@ HexTile* HexGrid::GetRandomTile() {
 	return *begin;
 }
 
-void HexGrid::Color(HexRegion r, DirectX::XMFLOAT3 color, int fill) {
+void HexGrid::Color(HexRegion& r, DirectX::XMFLOAT3 color, int fill) {
 	r.Color(&layout, color, 0, (ColorType)fill);
 }
 
+void HexGrid::Color(HexPath& p, DirectX::XMFLOAT3 color, int fill) {
+	p.Color(&layout, color, 0, (ColorType)fill);
+}
 
 HexRegion HexGrid::Spiral(HexTile *const center, std::size_t radius) {
 	HexRegion ring;

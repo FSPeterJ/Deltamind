@@ -33,6 +33,8 @@ class Player : public GameObject, public Controlable {
 public:
 	ArcObject teleportArc;
 	ControllerObject *leftController = 0, *rightController = 0;
+	bool godMode = false;
+
 
 	float playerHeight = 1.7f;
 	Player();

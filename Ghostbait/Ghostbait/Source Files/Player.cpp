@@ -48,19 +48,19 @@ void Player::Update() {
 			//ResetKey(Control::right);
 		}
 		if (KeyIsDown(Control::forward)) {
-			transform.MoveAlongForward(10.0f);
+			transform.MoveAlongForward(godMode ? 30 : 10.0f);
 			//ResetKey(Control::forward);
 		}
 		if (KeyIsDown(Control::backward)) {
-			transform.MoveAlongForward(-10.0f);
+			transform.MoveAlongForward(godMode ? -30 : -10.0f);
 			//ResetKey(Control::backward);
 		}
 		if (KeyIsDown(Control::LeftAction)) {
-			transform.MoveAlongUp(10.0f);
+			transform.MoveAlongUp(godMode ? 30 : 10.0f);
 			//ResetKey(Control::leftAttack);
 		}
 		if (KeyIsDown(Control::RightAction)) {
-			transform.MoveAlongUp(-10.0f);
+			transform.MoveAlongUp(godMode ? -30 : -10.0f);
 			//ResetKey(Control::rightAttack);
 		}
 
@@ -73,20 +73,26 @@ void Player::Update() {
 			//ResetKey(Control::TestInputC);
 		}
 
+		if (KeyIsDown(Control::TestInputZ)) {
+			godMode = !godMode;
+			ResetKey(Control::TestInputZ);
+		}
+
 		transform.SetRotationRadians(rotationX, rotationY, 0.0f);
 
-
-		//Ground Clamp
-		DirectX::XMFLOAT3 start = { transform.GetMatrix()._41, transform.GetMatrix()._42 - playerHeight + 0.1f, transform.GetMatrix()._43 };
-		DirectX::XMFLOAT3 direction = {0, -1, 0};
-		DirectX::XMFLOAT3 end;
-		if (Raycast(start, direction, &end, nullptr, 100)) {
-			DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
-			newPos._42 = end.y + playerHeight;
-			transform.SetMatrix(newPos);
-		}
-		else {
-			transform.SetPosition(prevPos);
+		if (!godMode) {
+			//Ground Clamp
+			DirectX::XMFLOAT3 start = { transform.GetMatrix()._41, transform.GetMatrix()._42 - playerHeight + 0.1f, transform.GetMatrix()._43 };
+			DirectX::XMFLOAT3 direction = { 0, -1, 0 };
+			DirectX::XMFLOAT3 end;
+			if (Raycast(start, direction, &end, nullptr, 100)) {
+				DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
+				newPos._42 = end.y + playerHeight;
+				transform.SetMatrix(newPos);
+			}
+			else {
+				transform.SetPosition(prevPos);
+			}
 		}
 	}
 }
@@ -115,8 +121,6 @@ void Player::PausedUpdate() {
 		transform.SetRotationRadians(rotationX, rotationY, 0.0f);
 	}
 }
-
-
 
 void Player::Teleport(DirectX::XMFLOAT3* pos) {
 	if (IsVR()) {
@@ -151,18 +155,3 @@ void Player::LoadControllers(VRControllerTypes type) {
 bool Player::IsVR() const {
 	return VRManager::GetInstance().IsEnabled();
 }
-
-/*
-void Player::SetPosition(DirectX::XMFLOAT4X4 newPos) {
-	if(IsVR()) {
-		VRManager::GetInstance().MovePlayer({ newPos._41, newPos._42, newPos._43 });
-	}
-	position = newPos;
-}
-const DirectX::XMFLOAT4X4& Player::GetPosition() const {
-	if (IsVR()) {
-		return VRManager::GetInstance().GetPlayerPosition();
-	}
-	return position;
-}
-*/

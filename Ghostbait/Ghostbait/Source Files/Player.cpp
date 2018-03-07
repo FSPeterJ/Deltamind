@@ -6,6 +6,16 @@
 #include "PhysicsExtension.h"
 #include "ObjectFactory.h"
 
+
+
+/*
+static int i = 0;
+if (i == 0) {
+MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<GameObject>(ObjectFactory::CreatePrefab(&std::string("Assets/Arc2.ghost")), { 0, 0, 0 }, &arc));
+i = 1;
+}
+*/
+
 Player::Player() {
 	Enable(false);
 	VRManager::GetInstance().Init(&transform);
@@ -106,9 +116,14 @@ void Player::PausedUpdate() {
 	}
 }
 
-void Player::Teleport() {
-	if(IsVR()) {
-		VRManager::GetInstance().Teleport();
+
+
+void Player::Teleport(DirectX::XMFLOAT3* pos) {
+	if (IsVR()) {
+		if(pos)
+			VRManager::GetInstance().MovePlayer(*pos);
+		else
+			VRManager::GetInstance().Teleport();
 	}
 }
 void Player::LoadControllers(VRControllerTypes type) {

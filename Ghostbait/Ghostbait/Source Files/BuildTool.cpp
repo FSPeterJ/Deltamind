@@ -76,21 +76,27 @@ bool BuildTool::SetObstacle(DirectX::XMFLOAT2 pos, bool active) {
 }
 
 void BuildTool::SpawnProjection(){
-	if (ArcCast(&transform, &spawnPos)) {
-		//snap to center of grid
-		DirectX::XMFLOAT2 newPos = DirectX::XMFLOAT2(spawnPos.x, spawnPos.z);
-		Snap(&newPos);
-		spawnPos.x = newPos.x;
-		spawnPos.z = newPos.y;
-		//Move Object
-		if (prefabs[currentPrefabIndex].object) {
+	if (prefabs[currentPrefabIndex].object) {
+		if (ArcCast(&transform, &spawnPos, &buildArc)) {
+			//snap to center of grid
+			buildArc.Create();
+			DirectX::XMFLOAT2 newPos = DirectX::XMFLOAT2(spawnPos.x, spawnPos.z);
+			Snap(&newPos);
+			spawnPos.x = newPos.x;
+			spawnPos.z = newPos.y;
+
+			//Move Object
 			DirectX::XMFLOAT4X4 newPos1 = prefabs[currentPrefabIndex].object->transform.GetMatrix();
 			newPos1._41 = spawnPos.x;
 			newPos1._42 = spawnPos.y;
 			newPos1._43 = spawnPos.z;
 			prefabs[currentPrefabIndex].object->transform.SetMatrix(newPos1);
 		}
+		else {
+			buildArc.Destroy();
+		}
 	}
+
 }
 void BuildTool::Spawn() {
 	//Instantiate a stationary copy at this position to stay
@@ -184,6 +190,7 @@ void BuildTool::DeSelected() {
 		if (prefabs[currentPrefabIndex].object)
 			MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
 	}
+	buildArc.Destroy();
 }
 
 void BuildTool::Selected() {

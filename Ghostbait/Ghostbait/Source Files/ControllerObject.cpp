@@ -77,7 +77,7 @@ void ControllerObject::SwitchCurrentItem(int itemIndex) {
 			}
 		}
 	}
-	else {
+	else if(inventory.items[itemIndex] != inventory.currentItem) {
 		inventory.currentItem->DeSelected();
 		inventory.currentItem->Render(false);
 		SetPhysicsComponent(inventory.currentItem, false);
@@ -259,18 +259,22 @@ void ControllerObject::Update() {
 				if (player->IsVR()) {
 					DisplayInventory();
 
-					static bool teleport = false;
+					static bool teleportQueued = false;
+					DirectX::XMFLOAT3 endPos;
 					if (KeyIsDown(teleportDown) && hand == HAND_Right) {
-						DirectX::XMFLOAT3 endPos;
-						if (ArcCast(&transform, &endPos)) {
-							teleport = true;
+						if (ArcCast(&transform, &endPos, &player->teleportArc)) {
+							player->teleportArc.Create();
+							teleportQueued = true;
 						}
-						else
-							teleport = false;
+						else {
+							player->teleportArc.Destroy();
+							teleportQueued = false;
+						}
 					}
-					if (teleport && !KeyIsDown(teleportDown) && hand == HAND_Right) {
+					if (teleportQueued && !KeyIsDown(teleportDown) && hand == HAND_Right) {
+						player->teleportArc.Destroy();
 						player->Teleport();
-						teleport = false;
+						teleportQueued = false;
 					}
 				}
 				//Keboard Inputs

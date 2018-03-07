@@ -2,6 +2,16 @@
 #include "ControllerObject.h"
 #include "Camera.h"
 
+
+
+
+
+
+#include "PhysicsExtension.h"
+
+
+
+
 #define INVENTORY_FILE "Save Files\\Inventory.save"
 
 class InputManager;
@@ -18,8 +28,10 @@ class Player : public GameObject, public Controlable {
 
 	float rotationY = 0.0f;
 	float rotationX = 0.0f;
+	
 
 public:
+	ArcObject teleportArc;
 	ControllerObject *leftController = 0, *rightController = 0;
 
 	float playerHeight = 1.7f;
@@ -34,7 +46,7 @@ public:
 //	void SetPosition(DirectX::XMFLOAT4X4 newPos) override;
 //	const DirectX::XMFLOAT4X4& GetPosition() const override;
 
-	void Teleport();
+	void Teleport(DirectX::XMFLOAT3* pos = nullptr);
 
 	bool IsVR() const;
 };

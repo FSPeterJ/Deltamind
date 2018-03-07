@@ -35,8 +35,6 @@ class ControllerObject: public GameObject, public Controlable {
 	ControllerState state = CSTATE_None;
 	ControllerHand hand = HAND_Invalid;
 
-
-
 	void SetPhysicsComponent(const GameObject* obj, bool active);
 	void AddToInventory(int itemSlot, unsigned prefabID);
 	inline void SetControllerHand(ControllerHand _hand) { hand = _hand; };

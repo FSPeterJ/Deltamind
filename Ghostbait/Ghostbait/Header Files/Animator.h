@@ -35,6 +35,9 @@ public:
 	double getTimePos() { return timePos; }
 	std::unordered_map<std::string, Animation*>* getAnimations() { return &animations; }
 	const std::vector<animJoint>* getTweens();
+	void SetJointMatrix(const int jointIndex, const DirectX::XMFLOAT4X4& mat);
+	const DirectX::XMFLOAT4X4& GetJointMatrix(const int jointIndex) const;
+
 	Animation* getCurrentAnimation() { return currAnim; }
 	DirectX::XMFLOAT4X4* getJointByName(const std::string& name);
 	void ManipulateJointByName(const std::string &name, const DirectX::XMFLOAT4X4  &transform);

@@ -168,6 +168,7 @@ void Renderer::renderObjectDefaultState(Object * obj) {
 		obj->GetComponent<Material>()->bindToShader(context, factorBuffer);
 	else
 		materialManagement->GetNullMaterial()->bindToShader(context, factorBuffer);
+
 	Animator* anim = obj->GetComponent<Animator>();
 	if(anim) {
 		const std::vector<animJoint>* joints = anim->getTweens();
@@ -182,6 +183,11 @@ void Renderer::renderObjectDefaultState(Object * obj) {
 	context->UpdateSubresource(animDataBuffer, 0, NULL, &cpuAnimationData, 0, 0);
 	//materialManagement->GetElement(UINT_MAX)->bindToShader(context, factorBuffer);
 	context->DrawIndexed(obj->GetComponent<Mesh>()->indexCount, 0, 0);
+	context->PSSetShader(DeferredTargetPS, NULL, NULL);
+	context->OMSetRenderTargets(4, deferredTextures.RTVs, deferredTextures.DSV);
+	context->DrawIndexed(obj->GetComponent<Mesh>()->indexCount, 0, 0);
+	context->PSSetShader(StandardPixelShader, NULL, NULL);
+	context->OMSetRenderTargets(1, &defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view);
 }
 
 void Renderer::renderToEye(eye * eyeTo) {
@@ -282,11 +288,10 @@ void Renderer::createRTVandSRV(ID3D11Texture2D ** texture, ID3D11ShaderResourceV
 	D3D11_TEXTURE2D_DESC texDesc;
 	texDesc.Height = refDesc.Height;
 	texDesc.Width = refDesc.Width;
-	texDesc.Width = 512;
 	texDesc.Usage = D3D11_USAGE_DEFAULT;
 	texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 	texDesc.MipLevels = 1;
-	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	texDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
 	texDesc.ArraySize = 1;
 	texDesc.CPUAccessFlags = 0;
@@ -294,7 +299,7 @@ void Renderer::createRTVandSRV(ID3D11Texture2D ** texture, ID3D11ShaderResourceV
 	device->CreateTexture2D(&texDesc, nullptr, texture);
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
 	srvDesc.Texture2D.MostDetailedMip = 0;
@@ -431,6 +436,7 @@ void Renderer::Destroy() {
 	ParticlePS->Release();
 	SkyboxVS->Release();
 	SkyboxPS->Release();
+	DeferredTargetPS->Release();
 	backBuffer->Release();
 	swapchain->Release();
 	context->Release();
@@ -559,6 +565,11 @@ void Renderer::Render() {
 	float color[] = {0.5f, 0.5f, 1.0f, 1.0f};
 	context->ClearRenderTargetView(defaultPipeline.render_target_view, color);
 	context->ClearDepthStencilView(defaultPipeline.depth_stencil_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	for (int i = 0; i < 4; ++i)
+	{
+		context->ClearRenderTargetView(deferredTextures.RTVs[i], color);
+		context->ClearDepthStencilView(deferredTextures.DSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	}
 	context->OMSetRenderTargets(1, &defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view);
 	context->RSSetViewports(1, &defaultPipeline.viewport);
 
@@ -724,6 +735,12 @@ void Renderer::initShaders() {
 	device->CreatePixelShader(byteCode, byteCodeSize, NULL, &SkyboxPS);
 	delete[] byteCode;
 	byteCode = nullptr;
+
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "DeferredTargetPixelShader.cso");
+	device->CreatePixelShader(byteCode, byteCodeSize, NULL, &DeferredTargetPS);
+	delete[] byteCode;
+	byteCode = nullptr;
+
 	CD3D11_BUFFER_DESC constantBufferDesc(sizeof(viewProjectionConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
 	device->CreateBuffer(&constantBufferDesc, nullptr, &cameraBuffer);
 

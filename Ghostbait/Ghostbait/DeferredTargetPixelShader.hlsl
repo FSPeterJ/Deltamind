@@ -22,7 +22,7 @@ struct PixelShaderOutput
     float4 specular : SV_TARGET3;
 };
 
-cbuffer factorBuffer : register(b0)
+cbuffer factorBuffer : register(b1)
 {
     float diffuseFactor;
     float specularFactor;

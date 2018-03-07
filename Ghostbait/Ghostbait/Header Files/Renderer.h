@@ -13,6 +13,7 @@ class MaterialManager;
 class AnimationManager;
 class EventMessageBase;
 class LightManager;
+struct Mesh;
 
 enum renderState {
 	RENDER_STATE_DEFAULT, RENDER_STATE_TRANSPARENT
@@ -59,6 +60,13 @@ private:
 		bool willAnimate;
 		DirectX::XMFLOAT3 filler;
 	};
+
+	struct Skybox
+	{
+		ID3D11Texture2D* faces[6];
+		ID3D11Texture2D* box;
+		ID3D11ShaderResourceView* srv;
+	};
 #pragma endregion
 
 	ID3D11SamplerState* OnlySamplerState; //DirectX is a hoot
@@ -75,6 +83,8 @@ private:
 	ID3D11VertexShader* ParticleVS;
 	ID3D11GeometryShader* ParticleGS;
 	ID3D11PixelShader* ParticlePS;
+	ID3D11VertexShader* SkyboxVS;
+	ID3D11PixelShader* SkyboxPS;
 
 	ID3D11InputLayout* ILPositionColor;
 	ID3D11InputLayout* ILStandard;
@@ -88,11 +98,12 @@ private:
 	Transform* cameraPos;
 	viewProjectionConstantBuffer defaultCamera;
 	animDataBufferStruct cpuAnimationData;
+	Mesh* skyball;
 
-	//eye leftEye;
-	//eye rightEye;
+	Skybox* currSkybox = nullptr;
 
 	std::vector<const GameObject*> renderedObjects;
+	std::vector<const GameObject*> frontRenderedObjects;
 
 	MeshManager* meshManagement = nullptr;
 	MaterialManager* materialManagement = nullptr;
@@ -112,10 +123,12 @@ private:
 
 	void renderObjectDefaultState(Object* obj);
 	void renderToEye(eye* eyeTo);
-
+	void drawSkyboxTo(ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT& viewport, DirectX::XMFLOAT3& pos);
 	void loadPipelineState(pipeline_state_t* pipeline);
 
 	DirectX::XMFLOAT4X4 lookAt(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 up);
+
+	void loadSkyboxFaces(Skybox* toLoad, const char* directory, const char* filePrefix);
 
 public:
 	//test
@@ -162,7 +175,9 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////
 	void unregisterObject(EventMessageBase* e);
 
+	void moveToFront(EventMessageBase* e);
 	//////////////////////////////////////////////////////////////////////////////////
+	void setSkybox(const char* directoryName, const char* filePrefix);
 
 	MeshManager* getMeshManager();
 	MaterialManager* getMaterialManager();

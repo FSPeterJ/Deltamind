@@ -7,10 +7,10 @@
 
 struct Scene {
 	std::string sceneFile;
-	std::string levelFile;
+	std::vector<std::string> levelFiles;
 
-	Scene() : sceneFile(""), levelFile("") {}
-	Scene(std::string _sceneFile, std::string _levelFile) : sceneFile(_sceneFile), levelFile(_levelFile) {}
+	Scene() : sceneFile("") {}
+	Scene(std::string _sceneFile, std::vector<std::string> _levelFile) : sceneFile(_sceneFile), levelFiles(_levelFile) {}
 };
 
 class SceneManager {
@@ -22,7 +22,7 @@ class SceneManager {
 		};
 		std::string fileName;
 		std::string sceneName;
-		std::string levelName;
+		std::vector<std::string> levelName;
 		std::vector<Prefab> prefabs;
 	};
 

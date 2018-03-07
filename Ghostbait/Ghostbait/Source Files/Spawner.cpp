@@ -3,6 +3,7 @@
 #include "MessageEvents.h"
 #include "PhysicsComponent.h"
 #include "EnemyBase.h"
+#include "ObjectFactory.h"
 
 #include "HexGrid.h"
 void Spawner::Awake(Object* obj) {
@@ -16,7 +17,7 @@ void Spawner::SpawnObject(char* prefabName, HexGrid* grid, DirectX::XMFLOAT2 goa
 	grid->RemoveObstacle({ transform.GetMatrix()._41,transform.GetMatrix()._43});
 
 	EnemyBase* obj;
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<EnemyBase>(prefabName, {0, 0, 0}, &obj));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<EnemyBase>(ObjectFactory::CreatePrefab(&std::string(prefabName)), {0, 0, 0}, &obj));
 	obj->transform.SetMatrix(transform.GetMatrix());
 	obj->SetGrid(grid);
 	obj->SetGoal(goal);

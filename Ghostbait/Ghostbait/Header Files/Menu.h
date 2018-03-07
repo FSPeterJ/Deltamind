@@ -24,33 +24,34 @@ enum Button {
 	BUTTON_Resume,
 	BUTTON_Restart,
 	BUTTON_Options,
+	BUTTON_Exit,
 	BUTTON_Quit,
 
-	BUTTON_StartGame,
-	BUTTON_SelectLevel,
+	BUTTON_Play,
+	BUTTON_ChangeLevel,
 };
 
 class Menu {
 	bool active = false;
 	Template menu_template;
-	std::map<Button, char*> buttonPrefabMap;
+	std::map<Button, unsigned> buttonPrefabMap;
 	std::vector<Button> buttons;
 	std::vector<MenuOption*> options;
 	Transform* camera = nullptr;
+	Menu* parentMenu = nullptr;
 
 	DirectX::XMFLOAT4X4 FindCenter(float distFromPlayer = 1);
 	float FindDistanceFromCenter(int optionNumber, int optionCount, float optionHeight, float gapHeight);
 	void AssignPrefabIDs();
 
-	void GamePauseEvent();
 public:
 	Menu();
 	Menu(Template t, std::vector<Button> buttons = std::vector<Button>());
 	void Create(Template t, std::vector<Button> buttons = std::vector<Button>());
 	void SetCamera(Transform* _camera);
-	void Show();
+	void SetParent(Menu* _parent);
+	void Show(DirectX::XMFLOAT4X4* spawnPos = nullptr);
 	void Hide();
-	void Cleanup();
 };
 
 
@@ -70,9 +71,13 @@ class QuitButton : public MenuOption {
 	void Select() override;
 };
 
-class StartGameButton : public MenuOption {
+class ExitButton : public MenuOption {
 	void Select() override;
 };
-class SelectLevelButton : public MenuOption {
+
+class PlayButton : public MenuOption {
+	void Select() override;
+};
+class ChangeLevelButton : public MenuOption {
 	void Select() override;
 };

@@ -10,35 +10,31 @@ GameObject::GameObject() {
 
 
 void GameObject::Subscribe() {
-	if (destroyOnReset) {
+	if (destroyOnReset && !eventDeleteAllGameObjects) {
 		eventDeleteAllGameObjects = MessageEvents::Subscribe(EVENT_DeleteAllGameObjects, [=](EventMessageBase* e) { MessageEvents::SendQueueMessage(EVENT_Late, [=] {this->Destroy(); }); });
 	}
 }
 void GameObject::UnSubscribe() {
-	if (destroyOnReset) {
+	if (eventDeleteAllGameObjects) {
 		MessageEvents::UnSubscribe(EVENT_DeleteAllGameObjects, eventDeleteAllGameObjects);
+		eventDeleteAllGameObjects = 0;
 	}
 }
 void GameObject::Enable(bool _destroyOnReset) {
-	if (!enabled) {
-		destroyOnReset = _destroyOnReset;
-		GameObject::Subscribe();
-		enabled = true;
-		//This is potentially dangerous if used incorrectly.
-			//Double Enable emplaces a second update delegate that can never be removed.
-			//If check was added to prevent user error, but may be unecessary
-		if (!updateID) {
-			//Profile for if adding a delegate has any performance impact +/-
-				// Iterating & checking states of hundreds of pool active items per frame vs adding / removing one or two delegates every handful of frames
-			updateID = EngineStructure::Update.Add([=]() { Update(); });
-		}
+	destroyOnReset = _destroyOnReset;
+	GameObject::Subscribe();
+	//This is potentially dangerous if used incorrectly.
+		//Double Enable emplaces a second update delegate that can never be removed.
+		//If check was added to prevent user error, but may be unecessary
+	if (!updateID) {
+		//Profile for if adding a delegate has any performance impact +/-
+			// Iterating & checking states of hundreds of pool active items per frame vs adding / removing one or two delegates every handful of frames
+		updateID = EngineStructure::Update.Add([=]() { Update(); });
 	}
 }
 // Will disable the object after Update main loop is complete
 void GameObject::Disable() {
-	if (enabled) {
 		GameObject::UnSubscribe();
-		enabled = false;
 		// "Bad ID given.  You cannot remove permament delegates (ID of 0)";
 		//assert(updateID != 0);
 
@@ -55,7 +51,6 @@ void GameObject::Disable() {
 				//updateID = 0;
 			}
 		});
-	}
 }
 void GameObject::Update() {
 
@@ -70,7 +65,13 @@ void GameObject::Destroy() {
 
 void GameObject::OnCollision(GameObject* obj) {}
 void GameObject::OnTrigger(GameObject* obj) {}
-void GameObject::Awake(Object* obj) {}
+void GameObject::Awake(Object* obj) {
+	typeID = 0;
+	updateID = 0;
+	eventDeleteAllGameObjects = 0;
+
+	destroyOnReset = true;
+}
 
 void GameObject::DisableNow() {
 	EngineStructure::Update.Remove(updateID);

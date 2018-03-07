@@ -12,11 +12,11 @@ class Menu;
 class Player;
 
 enum State {
-		GAMESTATE_Paused,
 		GAMESTATE_InWave,
 		GAMESTATE_BetweenWaves,
 		GAMESTATE_GameOver,
-		GAMESTATE_Menu,
+		GAMESTATE_SplashScreen,
+		GAMESTATE_MainMenu,
 	};
 
 class Game {
@@ -67,9 +67,10 @@ class Game {
 	EngineStructure* engine;
 	SceneManager* sceneManager;
 	Menu* pauseMenu;
+	Menu* mainMenu;
 	Player* player;
 
-	bool restartNextFrame = false;
+	bool paused = false;
 
 	DirectX::XMFLOAT3 corePos = DirectX::XMFLOAT3(0, 0, 0);
 
@@ -78,11 +79,12 @@ class Game {
 	//Event Catchers
 	void SpawnerCreatedEvent(EventMessageBase* e);
 	void EnemyDiedEvent();
-	void PausePressedEvent();
 	void SnapRequestEvent(EventMessageBase* e);
 	void AddObstacleEvent(EventMessageBase* e);
 	void RemoveObstacleEvent(EventMessageBase* e);
+	void PauseInputEvent();
 	void StartEvent();
+	void ExitToMenu();
 
 	//Personal
 	void ChangeState(State newState);
@@ -108,5 +110,5 @@ public:
 	void Clean();
 
 	const inline bool Run() { return run; };
-	const inline bool IsPaused() const { return gameData.state == GAMESTATE_Paused; };
+	const inline bool IsPaused() const { return paused; };
 };

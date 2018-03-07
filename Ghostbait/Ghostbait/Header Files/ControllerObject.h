@@ -10,17 +10,32 @@ class Player;
 
 #define CONTROLLER_MAX_ITEMS 4
 
-class ControllerObject: public GameObject, public Controlable {
-	Player* player = nullptr;
-	MenuControllerItem* menuController = nullptr;
-	ControllerHand hand = HAND_Invalid;
-	Item* items[CONTROLLER_MAX_ITEMS] = { 0 };
-	Item* displayItems[CONTROLLER_MAX_ITEMS] = { 0 };
-	Item* currentGameItem = nullptr;
-	unsigned itemCount = 0;
+enum ControllerState {
+	CSTATE_None,
+	CSTATE_Inventory,
+	CSTATE_MenuController,
+	CSTATE_ModelOnly,
+};
 
-	//Find a better solution for this
-	unsigned itemPrefabs[CONTROLLER_MAX_ITEMS] = { 0 };
+class ControllerObject: public GameObject, public Controlable {
+	struct Inventory {
+		unsigned itemCount = 0;
+		//Find a better solution for this
+		unsigned itemPrefabs[CONTROLLER_MAX_ITEMS] = { 0 };
+		Item* items[CONTROLLER_MAX_ITEMS] = { 0 };
+		Item* displayItems[CONTROLLER_MAX_ITEMS] = { 0 };
+		Item* currentItem = nullptr;
+	};
+
+	Inventory inventory;
+	MenuControllerItem* menuController = nullptr;
+
+	Player* player = nullptr;
+	ControllerState prevState = CSTATE_None;
+	ControllerState state = CSTATE_None;
+	ControllerHand hand = HAND_Invalid;
+
+
 
 	void SetPhysicsComponent(const GameObject* obj, bool active);
 	void AddToInventory(int itemSlot, unsigned prefabID);
@@ -48,4 +63,8 @@ public:
 	void SetBuildItems(std::vector<unsigned> prefabIDs);
 	void SetGunData(int slot, Gun::FireType _fireType, float _fireRate, float _damage);
 	void Enable(bool destroyOnEnd);
+
+	void SetControllerState(ControllerState newState);
+	void SetControllerStateToPrevious();
+	inline const ControllerState& GetControllerState() const {return state;};
 };

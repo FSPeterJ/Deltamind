@@ -144,6 +144,9 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<ResumeButton>(1);
 	ObjectFactory::RegisterPrefabBase<RestartButton>(1);
 	ObjectFactory::RegisterPrefabBase<QuitButton>(1);
+	ObjectFactory::RegisterPrefabBase<PlayButton>(1);
+	ObjectFactory::RegisterPrefabBase<OptionsButton>(1);
+	ObjectFactory::RegisterPrefabBase<ExitButton>(1);
 
 	ObjectFactory::RegisterPrefabBase<AStarEnemy>(10);
 	Console::WriteLine << "Prefab base registered......";
@@ -177,6 +180,9 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<ResumeButton>("ResumeButton");
 	TypeMap::RegisterObjectAlias<RestartButton>("RestartButton");
 	TypeMap::RegisterObjectAlias<QuitButton>("QuitButton");
+	TypeMap::RegisterObjectAlias<PlayButton>("PlayButton");
+	TypeMap::RegisterObjectAlias<OptionsButton>("OptionsButton");
+	TypeMap::RegisterObjectAlias<ExitButton>("ExitButton");
 
 	TypeMap::RegisterObjectAlias<AStarEnemy>("AStarEnemy");
 	TypeMap::RegisterObjectAlias<Turret>("Turret");
@@ -209,7 +215,6 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/Gun.ghost"), "GunTest", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/TestProjectile.ghost"), "TestProjectile");
 	ObjectFactory::CreatePrefab(&std::string("Assets/AStarEnemyEdit.ghost"), "AStarEnemy");
-	ObjectFactory::CreatePrefab(&std::string("Assets/ResumeButton.ghost"), "ResumeButton");
 	unsigned basicTurret = ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost"), "TestTurret", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/RestartButton.ghost"), "RestartButton");
 	ObjectFactory::CreatePrefab(&std::string("Assets/QuitButton.ghost"), "QuitButton");
@@ -267,8 +272,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 
 	//********************* PHYSICS TEST CODE **********************************
-	PhysicsTestObj *test1; //, *test2;
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { 0.0f, 2.0f, 1.0f }, &test1));
+	//PhysicsTestObj *test1; //, *test2;
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { 0.0f, 2.0f, 1.0f }, &test1));
 	////DirectX::XMStoreFloat4x4(&test1->position, DirectX::XMLoadFloat4x4(&test1->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
 	////MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest3", { 0.0f, 1.0f, 0.0f }, &test2));
 	////DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
@@ -276,10 +281,10 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	////DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
 	////MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { -2.0f, 2.0f, 0.0f }, nullptr));
 
-	((PhysicsTestObj*)test1)->isControllable = true;
-	((PhysicsTestObj*)test1)->isRayCasting = true;
+	//((PhysicsTestObj*)test1)->isControllable = true;
+	//((PhysicsTestObj*)test1)->isRayCasting = true;
 
-	test1->Enable(false);
+	//test1->Enable();
 
 
 
@@ -293,13 +298,10 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	GhostTime::Initalize();
 	MessageEvents::Initilize();
 
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<GameObject>("EarthMage", { 0.0f, 0.0f, 25.0f }, &animationTest));
-
-
-
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<GameObject>("EarthMage", { 0.0f, 0.0f, 25.0f }));
 	Console::WriteLine << "Starting Game Loop......";
 	game = new Game();
-	game->Start(player, &engine, "level0");
+	game->Start(player, &engine);
 }
 
 void Loop() {
@@ -310,22 +312,19 @@ void Loop() {
 
 	}
 	else {
-		//TODO: Need a better way to do this...Maybe a paused Update delegate?
-		player->leftHand.controller->PausedUpdate();
-		player->rightHand.controller->PausedUpdate();
 		player->PausedUpdate();
 
 		phyMan->PausedUpdate();
 	}
+
+
 	game->Update();
-	//DirectX::XMFLOAT4X4* tempy = animationTest->GetComponent<Animator>()->getJointByName(std::string("R_Knee"));
-	animationTest->GetComponent<Animator>()->ManipulateJointByName(std::string("R_Knee"), DirectX::XMFLOAT4X4(1, 0, 0, 0,
-		0, 1, 0, 0,
-		0, 0, 1, 0,
-		0, 0, 0, 1));
-	
-	//tempy->_41 = 2.0f;
 	inputMan->HandleInput();
+
+	//TODO: Need a better way to do this...Maybe a paused Update delegate?
+	player->leftController->Update();
+	player->rightController->Update();
+	
 	rendInter->Render();
 }
 

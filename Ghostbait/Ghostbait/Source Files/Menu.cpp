@@ -100,10 +100,10 @@ void Menu::Show(DirectX::XMFLOAT4X4* spawnPos) {
 	options.resize(buttons.size());
 	DirectX::XMFLOAT4X4 center = spawnPos ? *spawnPos : FindCenter();
 	DirectX::XMMATRIX center_M = DirectX::XMLoadFloat4x4(&center);
-	for (int i = 0; i < buttons.size(); ++i) {
+	for (size_t i = 0; i < buttons.size(); ++i) {
 		MenuOption* newOption;
 		DirectX::XMFLOAT4X4 newObjPos;
-		float distFromCenter = FindDistanceFromCenter(i, (int)options.size(), 0.25f, 0.05f);
+		float distFromCenter = FindDistanceFromCenter((int)i, (int)options.size(), 0.25f, 0.05f);
 		DirectX::XMStoreFloat4x4(&newObjPos, center_M * DirectX::XMMatrixTranslation(0, distFromCenter, 0));
 		MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuOption>(buttonPrefabMap[buttons[i]], newObjPos, &newOption));
 		newOption->SetMenu(this);
@@ -115,7 +115,7 @@ void Menu::Show(DirectX::XMFLOAT4X4* spawnPos) {
 void Menu::Hide() {
 	if (!active) return;
 	active = false;
-	for (int i = 0; i < options.size(); ++i) {
+	for (size_t i = 0; i < options.size(); ++i) {
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {options[i]->Destroy(); });
 	}
 	options.empty();

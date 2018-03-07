@@ -38,14 +38,14 @@ void SceneManager::CreateSceneFile(SceneManager::TestSceneData& data) {
 
 		Writer::WriteIntString(data.sceneName);
 		Writer::WriteInt((int)data.levelName.size());
-		for (int i = 0; i < data.levelName.size(); ++i)
+		for (size_t i = 0; i < data.levelName.size(); ++i)
 			Writer::WriteIntString(data.levelName[i]);
 
 		Writer::WriteInt((int)data.prefabs.size());
-		for (int i = 0; i < data.prefabs.size(); ++i) {
+		for (size_t i = 0; i < data.prefabs.size(); ++i) {
 			Writer::WriteIntString(data.prefabs[i].ghostFile);
 			Writer::WriteInt(data.prefabs[i].positions.size());
-			for (int j = 0; j < data.prefabs[i].positions.size(); ++j) {
+			for (size_t j = 0; j < data.prefabs[i].positions.size(); ++j) {
 				Writer::WriteMatrix(data.prefabs[i].positions[j]);
 			}
 		}
@@ -170,7 +170,7 @@ void SceneManager::FetchAllSceneFiles(const char* folderPath) {
 		return;
 	}
 	std::string lastName;
-	for (int i = 0; i < paths.size(); ++i) {
+	for (size_t i = 0; i < paths.size(); ++i) {
 		//2. Read first two values of each file
 		std::ifstream file(paths[i], std::ios::binary);
 		if (file.is_open()) {

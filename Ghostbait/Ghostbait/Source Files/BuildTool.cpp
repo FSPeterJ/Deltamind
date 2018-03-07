@@ -13,7 +13,7 @@ void BuildTool::SetPrefabs(std::vector<unsigned> prefabIDs) {
 	prefabs.empty();
 	prefabs.resize(prefabIDs.size() + 1);
 
-	for (int i = 0; i < prefabIDs.size(); ++i) {
+	for (size_t i = 0; i < prefabIDs.size(); ++i) {
 		prefabs[i] = BuildItem();
 		prefabs[i].ID = prefabIDs[i];
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabIDs[i], { 0, 0, 0 }, &prefabs[i].object));
@@ -39,14 +39,14 @@ void BuildTool::Update() {
 }
 
 void BuildTool::Projection() {
-	if (currentPrefabIndex >= 0 && currentPrefabIndex < prefabs.size()) {
+	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
 		if (currentMode == SPAWN) SpawnProjection();
 		else RemoveProjection();
 	}
 }
 
 void BuildTool::Activate() {
-	if (currentPrefabIndex >= 0 && currentPrefabIndex < prefabs.size()) {
+	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
 		if (currentMode == SPAWN) Spawn();
 		else Remove();
 	}
@@ -122,7 +122,7 @@ void BuildTool::RemoveProjection() {
 	//Set shader to transparent thing
 }
 void BuildTool::Remove() {
-	for (int i = 0; i < builtItems.size(); ++i) {
+	for (size_t i = 0; i < builtItems.size(); ++i) {
 		if (currentlySelectedItem == builtItems[i]) {
 			DirectX::XMFLOAT2 pos = DirectX::XMFLOAT2(currentlySelectedItem->transform.GetMatrix()._41, currentlySelectedItem->transform.GetMatrix()._43);
 			if (SetObstacle(pos, false)) {
@@ -136,7 +136,7 @@ void BuildTool::Remove() {
 }
 
 void BuildTool::CycleForward() {
-	if (currentPrefabIndex >= 0 && currentPrefabIndex < prefabs.size()) {
+	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
 		if (prefabs[currentPrefabIndex].object)
 			MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
 
@@ -157,7 +157,7 @@ void BuildTool::CycleForward() {
 	}
 }
 void BuildTool::CycleBackward() {
-	if (currentPrefabIndex >= 0 && currentPrefabIndex < prefabs.size()) {
+	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
 		if (prefabs[currentPrefabIndex].object)
 			MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
 
@@ -186,7 +186,7 @@ void BuildTool::ActiveUpdate() {
 }
 
 void BuildTool::DeSelected() {
-	if (currentPrefabIndex >= 0 && currentPrefabIndex < prefabs.size()) {
+	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
 		if (prefabs[currentPrefabIndex].object)
 			MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
 	}
@@ -194,7 +194,7 @@ void BuildTool::DeSelected() {
 }
 
 void BuildTool::Selected() {
-	if (currentPrefabIndex >= 0 && currentPrefabIndex < prefabs.size()) {
+	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
 		if (prefabs[currentPrefabIndex].object)
 			MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
 	}

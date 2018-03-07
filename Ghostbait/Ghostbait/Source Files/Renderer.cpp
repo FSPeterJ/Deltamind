@@ -141,6 +141,18 @@ void Renderer::setupVRTargets() {
 		device->CreateDepthStencilView(rightEye.renderInfo.depthBuffer, &depthStencilDesc, &rightEye.renderInfo.dsv);
 }
 
+void Renderer::releaseDeferredTarget(DeferredRTVs * in)
+{
+	for (int i = 0; i < 4; ++i)
+	{
+		in->RTVs[i]->Release();
+		in->SRVs[i]->Release();
+		in->textures[i]->Release();
+	}
+	in->DSV->Release();
+	in->depthBuffer->Release();
+}
+
 void Renderer::renderObjectDefaultState(Object * obj) {
 	UINT stride = sizeof(VertexPositionTextureNormalAnim);
 	//UINT stride = 0;
@@ -450,6 +462,8 @@ void Renderer::Destroy() {
 		delete currSkybox;
 		currSkybox = nullptr;
 	}
+
+	releaseDeferredTarget(&deferredTextures);
 }
 
 void Renderer::registerObject(EventMessageBase* e) {

@@ -34,7 +34,7 @@ Animation * AnimationManager::LoadAnimation(const char * _animationFilePath, con
 				//TEMPORARY CODE - REMOVE LATER
 
 				if(joint.parent_index > -1) {
-					if(joint.parent_index >= ChildRecord_holyshit.size()) {
+					if(joint.parent_index >= (int)ChildRecord_holyshit.size()) {
 						ChildRecord_holyshit.resize(joint.parent_index +1);
 					}
 					ChildRecord_holyshit[joint.parent_index].push_back(index);
@@ -49,7 +49,7 @@ Animation * AnimationManager::LoadAnimation(const char * _animationFilePath, con
 			}
 			//TEMPORARY CODE - REMOVE LATER
 
-			for(int index = 0; index < ChildRecord_holyshit.size(); ++index) {
+			for(size_t index = 0; index < ChildRecord_holyshit.size(); ++index) {
 				if(!ChildRecord_holyshit[index].empty()) {
 
 					temp.joints[index].child_index = new int[ChildRecord_holyshit[index].size()];

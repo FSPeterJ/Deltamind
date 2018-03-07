@@ -127,7 +127,7 @@ void Game::ChangeState(State newState) {
 				{
 					//if upcoming wave doesnt exist...
 					int nextWave = gameData.waveManager.currentWave + 1;
-					if (nextWave >= gameData.waveManager.waves.size()) {
+					if (nextWave >= (int)gameData.waveManager.waves.size()) {
 						Win();
 					}
 					//if upcoming wave does exist
@@ -244,7 +244,7 @@ void Game::ChangeScene(const char* sceneName) {
 }
 void Game::StartNextWave() {
 	int nextWave = gameData.waveManager.currentWave + 1;
-	if (nextWave >= gameData.waveManager.waves.size()) {
+	if (nextWave >= (int)gameData.waveManager.waves.size()) {
 		Console::ErrorLine << "You tried to progress to a wave that doesnt exist!";
 	}
 	else {
@@ -338,7 +338,7 @@ void Game::Update() {
 				//--------Spawn Enemies if it's their time
 				{
 					//For each spawn entry in the level file
-					for (int i = 0; i < gameData.waveManager.waves[gameData.waveManager.currentWave].spawns.size(); ++i) {
+					for (size_t i = 0; i < gameData.waveManager.waves[gameData.waveManager.currentWave].spawns.size(); ++i) {
 						//Update this entry's timers
 						WaveManager::Wave::Spawners& spawner = gameData.waveManager.waves[gameData.waveManager.currentWave].spawns[i];
 						spawner.timeSinceLastSpawn += dt;
@@ -347,7 +347,7 @@ void Game::Update() {
 						if (spawner.timeSinceLastSpawn >= nextSpawnTime && spawner.enemiesSpawned < spawner.spawnCount) {
 							//Spawns enemy at location
 							if (gameData.spawners.size() == 0) Console::ErrorLine << "No spawners are in the scene! Wave will be infinite!";
-							else if (spawner.spawnerID >= gameData.spawners.size() || spawner.spawnerID < 0) {
+							else if (spawner.spawnerID >= (int)gameData.spawners.size() || spawner.spawnerID < 0) {
 								gameData.spawners[rand() % gameData.spawners.size()]->SpawnObject(const_cast<char*>(spawner.enemyName.c_str()), &hexGrid, DirectX::XMFLOAT2(corePos.x, corePos.z));
 								spawner.enemiesSpawned++;
 								Console::WriteLine << "Spawner Index out of range. Picking random value";
@@ -411,7 +411,7 @@ void Game::Update() {
 							gameData.currentLogo = nullptr;
 						}
 						//If there is a next option
-						if (gameData.currentLogoIndex + 1 < gameData.logos.size()) {
+						if (gameData.currentLogoIndex + 1 < (int)gameData.logos.size()) {
 							//Update your index to it, and update the duration to be a new timer if not special
 							if (gameData.logos[++gameData.currentLogoIndex].duration != -1) {
 								gameData.logos[gameData.currentLogoIndex].duration += gameData.timeInScene;

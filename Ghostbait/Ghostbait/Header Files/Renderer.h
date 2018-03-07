@@ -132,6 +132,7 @@ private:
 	void clearTextureMemory(renderTargetInfo* info);
 	bool LoadShaderFromCSO(char ** szByteCode, size_t& szByteCodeSize, const char* szFileName);
 	void setupVRTargets();
+	void releaseDeferredTarget(DeferredRTVs* in);
 
 	void renderObjectDefaultState(Object* obj);
 	void renderToEye(eye* eyeTo);

@@ -285,7 +285,7 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 		currBucketIndex = nextIndex;
 		compToTest = partitionSpace.GetComponentsToTest(currBucketIndex);
 		
-		for (int compIndex = 0; compIndex < compToTest.size(); ++compIndex) {
+		for (size_t compIndex = 0; compIndex < compToTest.size(); ++compIndex) {
 			if (!compToTest[compIndex]->isActive) continue;
 			if (tag && strcmp(dynamic_cast<GameObject*>(compToTest[compIndex]->parentObject)->GetTag().c_str(), tag)) continue;
 			if (RaycastCollisionCheck(vecOrigin, vecDirection, compToTest[compIndex], &tempCollidePt, &tempCollideObj, maxCastDistance)) {
@@ -300,7 +300,7 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 	}
 
 	std::vector<PhysicsComponent*>* staticComps = staticComponents.GetActiveList();
-	for (int i = 0; i < staticComps->size(); ++i) {
+	for (size_t i = 0; i < staticComps->size(); ++i) {
 		if (!(*staticComps)[i]->isActive) continue;
 		if (tag && strcmp(dynamic_cast<GameObject*>((*staticComps)[i]->parentObject)->GetTag().c_str(), tag)) continue;
 		if (RaycastCollisionCheck(vecOrigin, vecDirection, (*staticComps)[i], &tempCollidePt, &tempCollideObj, maxCastDistance)) {
@@ -1061,7 +1061,7 @@ bool PhysicsManager::RaycastCollisionCheck(XMVECTOR& origin, XMVECTOR& direction
 	if (colObject)
 		*colObject = nullptr;
 
-	for (int colliderIndex = 0; colliderIndex < collidingComp->colliders.size(); ++colliderIndex) {
+	for (size_t colliderIndex = 0; colliderIndex < collidingComp->colliders.size(); ++colliderIndex) {
 		if (collidingComp->colliders[colliderIndex].isTrigger) continue;
 		switch (collidingComp->colliders[colliderIndex].colliderData->colliderType)
 		{

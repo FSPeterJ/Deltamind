@@ -151,9 +151,7 @@ void SceneManager::Initialize() {
 
 void SceneManager::FetchAllSceneFiles(const char* folderPath) {
 
-	//3. Use values to create a new scene and store it
 
-	//1. Find all files in directory that end in .ghost
 	std::vector<std::string> paths;
 	{
 		std::string pattern(folderPath);

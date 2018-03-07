@@ -117,7 +117,6 @@ void HexPath::Color(HexagonalGridLayout * const layout, DirectX::XMFLOAT3 color,
 
 
 void HexPath::BuildPath(HexTilePtr const start, HexTilePtr const goal, VisitedMap& came_from) {
-
 	HexTilePtr current = goal;
 
 	while(current != start && current) {

@@ -7,7 +7,7 @@ class Turret: public GameObject {
 	unsigned projectiePID =0;
 	unsigned eventDestroy;
 	float targetDistance =0;
-	float firerate =0;
+	float firerate = 2;
 	float damage = 10;
 	float timeSinceLastShot = 0;
 	DirectX::XMFLOAT4X4* turretPitch;

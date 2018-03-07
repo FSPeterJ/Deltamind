@@ -50,13 +50,16 @@ void Turret::Update() {
 		using namespace DirectX;
 		////XMVECTOR jointoffset = XMLoadFloat3(&(XMFLOAT3)turretPitch->m[3]);
 		//XMVECTOR jointoffset = { 0,1.0f,0 };
-		//XMVECTOR pos = XMLoadFloat3(&(XMFLOAT3)transform.GetMatrix().m[3]);
+		XMVECTOR pos = XMLoadFloat3(&(XMFLOAT3)transform.matrix.m[3]);
 		////pos += jointoffset;
 		//XMFLOAT3 newpos;
 		//XMStoreFloat3(&newpos, pos);
 		XMVECTOR XMturretYaw = DirectX::XMLoadFloat4(&(XMFLOAT4)turretYaw->m[3]);
+		//XMturretYaw += pos;
 		XMVECTOR XMturretPitch = DirectX::XMLoadFloat4(&(XMFLOAT4)turretPitch->m[3]);
+		//XMturretPitch += pos;
 		XMVECTOR targetPos = DirectX::XMLoadFloat4(&(XMFLOAT4)target->transform.GetMatrix().m[3]); //+ XMVectorSet(0,1,0,0);
+		targetPos -= pos;
 		DebugRenderer::AddLine((XMFLOAT3)turretPitch->m[3], (XMFLOAT3)target->transform.GetMatrix().m[3], { 0,0.6f, 0.2f });
 
 		XMVECTOR mX(XMVector3Normalize(XMVector3Cross(XMVectorSet(0, 1, 0, 0), XMVector3Normalize(targetPos - XMturretYaw))));
@@ -82,9 +85,9 @@ void Turret::Update() {
 
 
 
-		XMVECTOR Y(XMVector3Normalize(XMVector3Cross(XMVectorSet(1, 0, 0, 0),  XMVector3Normalize(XMVector3TransformNormal(XMVector3Normalize(targetPos - XMturretPitch), XMMatrixInverse(nullptr, lookatYaw) ))))); // forces pitch
+		XMVECTOR Y(XMVector3Normalize(XMVector3Cross(XMVector3Normalize(XMVector3TransformNormal(XMVector3Normalize(targetPos - XMturretPitch), XMMatrixInverse(nullptr, lookatYaw))), XMVectorSet(1, 0, 0, 0)))); // forces pitch
 		XMVECTOR X(XMVector3Normalize(XMVector3Cross(Y, XMVectorSet(0, 0, 1, 0))));
-		XMVECTOR Z(XMVector3Normalize(XMVector3Cross(X, Y )));
+		XMVECTOR Z(XMVector3Normalize(XMVector3Cross(X, Y)));
 		XMMATRIX lookatPitch(
 			X,
 			Y,
@@ -103,11 +106,28 @@ void Turret::Update() {
 		//);
 
 
-		GetComponent<Animator>()->ManipulateJointByName("Yaw", lookatYaw);
 		GetComponent<Animator>()->ManipulateJointByName("Pitch", lookatPitch);
+		GetComponent<Animator>()->ManipulateJointByName("Yaw", lookatYaw);
 
 		//lookat =  lookat * DirectX::XMMatrixTranslationFromVector(bulletpos);
 		//DirectX::XMStoreFloat4x4(turretPitch, lookat);
+
+		DirectX::XMFLOAT4X4 newPos = *launcherorigin;
+
+		newPos._41 += transform.matrix._41;
+		newPos._42 += transform.matrix._42;
+		newPos._43 += transform.matrix._43;
+		DebugRenderer::DrawAxes(newPos, 1);
+		newPos = *turretYaw;
+		newPos._41 += transform.matrix._41;
+		newPos._42 += transform.matrix._42;
+		newPos._43 += transform.matrix._43;
+		DebugRenderer::DrawAxes(newPos, 1);
+		newPos = *turretPitch;
+		newPos._41 += transform.matrix._41;
+		newPos._42 += transform.matrix._42;
+		newPos._43 += transform.matrix._43;
+		DebugRenderer::DrawAxes(newPos, 1);
 
 		targetDistance = CalculateDistance(target);
 		if(CanShoot(firerate)) {
@@ -162,19 +182,19 @@ void Turret::Shoot() {
 	Projectile* obj;
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Projectile>(projectiePID, { 0, 0, 0 }, &obj));
 	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_WEN));
-	DirectX::XMFLOAT4X4 newPos;
-	newPos = *launcherorigin;
-	newPos._42 += 1.0f;
-	newPos._41 += newPos._31 * 0.2f;
-	newPos._42 += newPos._32 * 0.2f;
-	newPos._43 += newPos._33 * 0.2f;
+	DirectX::XMFLOAT4X4 newPos = *launcherorigin;
+
+	newPos._41 += transform.matrix._41;
+	newPos._42 += transform.matrix._42;
+	newPos._43 += transform.matrix._43;
 	obj->transform.SetMatrix(newPos);
 	PhysicsComponent* temp2 = obj->GetComponent<PhysicsComponent>();
 	RigidBody* temp = &temp2->rigidBody;
 	temp->AdjustGravityMagnitude(0);
+
 	//why arent we using 
 	//temp->SetVelocity(obj->position._31 * 10.0f, obj->position._32 * 10.0f, obj->position._33 * 10.0f);
-	obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(obj->transform.GetMatrix()._31 * 10.0f, obj->transform.GetMatrix()._32 * 10.0f, obj->transform.GetMatrix()._33 * 10.0f);
+	obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(launcherorigin->_31 * 35.0f, launcherorigin->_32 * 35.0f, launcherorigin->_33 * 35.0f);
 	obj->SetDamage(damage);
 	obj->Enable();
 	timeSinceLastShot = (float)GhostTime::DeltaTime();

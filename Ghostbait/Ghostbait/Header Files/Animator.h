@@ -41,4 +41,5 @@ public:
 	void ManipulateJointByName(const std::string& name, const DirectX::XMMATRIX& _transformation);
 	void ManipulateJoint(animJoint* animationJoint, const DirectX::XMFLOAT4X4& _transformation);
 	void ManipulateJoint(animJoint* animationJoint, const DirectX::XMMATRIX& _transformation);
+	void ManipulateChildrendJoints(animJoint* animationJoint, const DirectX::XMMATRIX& _transformation, const DirectX::XMMATRIX& animationJointParents);
 };

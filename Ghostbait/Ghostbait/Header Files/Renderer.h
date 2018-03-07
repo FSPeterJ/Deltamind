@@ -67,6 +67,15 @@ private:
 		ID3D11Texture2D* box;
 		ID3D11ShaderResourceView* srv;
 	};
+
+	struct DeferredRTVs
+	{
+		ID3D11Texture2D* textures[4];
+		ID3D11Texture2D* depthBuffer;
+		ID3D11RenderTargetView* RTVs[4];
+		ID3D11DepthStencilView* DSV;
+		ID3D11ShaderResourceView* SRVs[4];
+	};
 #pragma endregion
 
 	ID3D11SamplerState* OnlySamplerState; //DirectX is a hoot
@@ -75,6 +84,7 @@ private:
 	ID3D11DeviceContext* context;
 	IDXGISwapChain* swapchain;
 	ID3D11Texture2D* backBuffer;
+	DeferredRTVs deferredTextures;
 
 	ID3D11VertexShader* PassThroughPositionColorVS;
 	ID3D11PixelShader* PassThroughPS;
@@ -85,10 +95,12 @@ private:
 	ID3D11PixelShader* ParticlePS;
 	ID3D11VertexShader* SkyboxVS;
 	ID3D11PixelShader* SkyboxPS;
+	ID3D11PixelShader* DeferredTargetPS;
 
 	ID3D11InputLayout* ILPositionColor;
 	ID3D11InputLayout* ILStandard;
 	ID3D11InputLayout* ILParticle;
+
 	ID3D11Buffer* cameraBuffer;
 	ID3D11Buffer* modelBuffer;
 	ID3D11Buffer* factorBuffer;
@@ -125,6 +137,8 @@ private:
 	void renderToEye(eye* eyeTo);
 	void drawSkyboxTo(ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT& viewport, DirectX::XMFLOAT3& pos);
 	void loadPipelineState(pipeline_state_t* pipeline);
+	void createDeferredRTVs();
+	void createRTVandSRV(ID3D11Texture2D** texture, ID3D11ShaderResourceView** srv, ID3D11RenderTargetView** rtv);
 
 	DirectX::XMFLOAT4X4 lookAt(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 up);
 

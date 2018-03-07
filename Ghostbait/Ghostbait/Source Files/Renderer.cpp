@@ -236,6 +236,60 @@ void Renderer::loadPipelineState(pipeline_state_t * pipeline) {
 	context->PSSetShader(pipeline->pixel_shader, NULL, NULL);
 }
 
+void Renderer::createDeferredRTVs()
+{
+	for (int i = 0; i < 4; ++i)
+	{
+		createRTVandSRV(&deferredTextures.textures[i], &deferredTextures.SRVs[i], &deferredTextures.RTVs[i]);
+	}
+	D3D11_TEXTURE2D_DESC texDesc;
+	deferredTextures.textures[0]->GetDesc(&texDesc);
+
+	texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	texDesc.MiscFlags = NULL;
+	texDesc.Format = DXGI_FORMAT_D32_FLOAT;
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilDesc;
+	depthStencilDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	depthStencilDesc.Texture2D.MipSlice = 0;
+	depthStencilDesc.Flags = 0;
+	device->CreateTexture2D(&texDesc, nullptr, &deferredTextures.depthBuffer);
+	device->CreateDepthStencilView(deferredTextures.depthBuffer, &depthStencilDesc, &deferredTextures.DSV);
+}
+
+void Renderer::createRTVandSRV(ID3D11Texture2D ** texture, ID3D11ShaderResourceView ** srv, ID3D11RenderTargetView ** rtv)
+{
+	DXGI_SAMPLE_DESC sampleDesc;
+	sampleDesc.Count = 1;
+	sampleDesc.Quality = 0;
+
+	D3D11_TEXTURE2D_DESC refDesc;
+	backBuffer->GetDesc(&refDesc);
+
+	D3D11_TEXTURE2D_DESC texDesc;
+	texDesc.Height = refDesc.Height;
+	texDesc.Width = refDesc.Width;
+	texDesc.Width = 512;
+	texDesc.Usage = D3D11_USAGE_DEFAULT;
+	texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	texDesc.MipLevels = 1;
+	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	texDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+	texDesc.ArraySize = 1;
+	texDesc.CPUAccessFlags = 0;
+	texDesc.SampleDesc = sampleDesc;
+	device->CreateTexture2D(&texDesc, nullptr, texture);
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	device->CreateShaderResourceView(*texture, &srvDesc, srv);
+	device->CreateRenderTargetView(*texture, nullptr, rtv);
+}
+
 DirectX::XMFLOAT4X4 Renderer::lookAt(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 up) {
 	DirectX::XMFLOAT4X4 ret;
 	DirectX::XMStoreFloat4x4(&ret, XMMatrixIdentity());
@@ -342,6 +396,8 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 #endif
 	setSkybox("Ghostbait", "ghostbait");
 	skyball = meshManagement->GetReferenceComponent("Assets/Skyball.mesh", nullptr);
+
+	createDeferredRTVs();
 }
 
 void Renderer::Destroy() {

@@ -132,7 +132,7 @@ void Player::Teleport(DirectX::XMFLOAT3* pos) {
 }
 void Player::LoadControllers(VRControllerTypes type) {
 	//Read in from save file and assign the correct items
-	
+
 	//Left
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 0,0,0 }, &leftController));
 	leftController->Init(this, ControllerHand::HAND_Left);

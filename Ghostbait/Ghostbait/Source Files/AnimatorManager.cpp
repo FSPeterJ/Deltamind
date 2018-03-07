@@ -25,6 +25,7 @@ Animator* AnimatorManager::GetReferenceComponent(const char * _FilePath, const c
 	currIndex += strLength;
 	memcpy(&numOfAnims, &_data[currIndex], sizeof(numOfAnims));
 	currIndex += sizeof(numOfAnims);
+
 	for(int i = 0; i < numOfAnims; ++i) {
 		char* filePath, *name;
 		memcpy(&strLength, &_data[currIndex], sizeof(strLength));
@@ -38,6 +39,7 @@ Animator* AnimatorManager::GetReferenceComponent(const char * _FilePath, const c
 		name = new char[strLength];
 		memcpy(name, &_data[currIndex], strLength);
 		currIndex += strLength;
+
 
 		toReturn->addAnim(filePath, bindposePath, name);
 		delete[] filePath;

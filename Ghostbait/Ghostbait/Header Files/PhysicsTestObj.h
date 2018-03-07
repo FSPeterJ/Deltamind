@@ -9,6 +9,6 @@ public:
 
 	PhysicsTestObj();
 	~PhysicsTestObj();
-	void Update();
+	void Update() override;
 	void OnCollision(GameObject * _other);
 };

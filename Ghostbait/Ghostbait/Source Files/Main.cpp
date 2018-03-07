@@ -38,6 +38,9 @@ AnimatorManager* animMan;
 AudioManager* audioMan;
 Player* player;
 
+GameObject* animationTest;
+
+
 void ExecuteAsync() {
 	Console::WriteLine << "I am executed asyncly!";
 	throw std::invalid_argument("ERROR: This is a test showing we can know if a thread throws an exception on its work.\n");
@@ -213,7 +216,9 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/TestProjectile.ghost"), "TestProjectile");
 	ObjectFactory::CreatePrefab(&std::string("Assets/AStarEnemyEdit.ghost"), "AStarEnemy");
 	unsigned basicTurret = ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost"), "TestTurret", true);
-	
+	ObjectFactory::CreatePrefab(&std::string("Assets/RestartButton.ghost"), "RestartButton");
+	ObjectFactory::CreatePrefab(&std::string("Assets/QuitButton.ghost"), "QuitButton");
+
 
 	//ObjectFactory::CreatePrefab(&std::string("Assets/TeleportSphere.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
@@ -279,16 +284,16 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//((PhysicsTestObj*)test1)->isControllable = true;
 	//((PhysicsTestObj*)test1)->isRayCasting = true;
 
-	//test1->Enable();
+	//test1->Enable(false);
 
 
 
 
-	Turret *debugTurret;
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Turret>({ 0,0,0 }, &debugTurret));
-	//assert(debugTurret->GetComponent<Animator>()->setState("default"));
-	//debugTurret->GetComponent<Animator>()->SetTime(3.0f);
-	debugTurret->Enable();
+	//Turret *debugTurret;
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Turret>({ 1,0,0 }, &debugTurret));
+	//////assert(debugTurret->GetComponent<Animator>()->setState("default"));
+	//////debugTurret->GetComponent<Animator>()->SetTime(3.0f);
+	//debugTurret->Enable(false);
 
 	GhostTime::Initalize();
 	MessageEvents::Initilize();

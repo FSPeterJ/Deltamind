@@ -283,3 +283,8 @@ void Transform::MoveAlongSide(const float speed) {
 	matrix._42 += matrix._12 * speed * dt;
 	matrix._43 += matrix._13 * speed * dt;
 }
+
+//
+//void Transform::operator*(Transform operand) {
+//	
+//}

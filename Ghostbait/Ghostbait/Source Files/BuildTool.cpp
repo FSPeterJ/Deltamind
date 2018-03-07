@@ -19,7 +19,7 @@ void BuildTool::SetPrefabs(std::vector<unsigned> prefabIDs) {
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabIDs[i], { 0, 0, 0 }, &prefabs[i].object));
 		if(prefabs[i].ID) MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[i].object));
 		PhysicsComponent* physComp = prefabs[i].object->GetComponent<PhysicsComponent>();
-		prefabs[i].object->Enable(false);
+		//prefabs[i].object->Enable(false);
 		if(physComp) physComp->isActive = false;
 		//Set objects shader to be semi-transparent solid color
 	}

@@ -64,7 +64,9 @@ void SceneManager::Initialize() {
 		level0Data.levelName.push_back(std::string("Level Files//level0.xml"));
 		TestSceneData::Prefab ground;
 		{
-			ground.ghostFile = "Assets/PlaneMap1.ghost";
+			//ground.ghostFile = "Assets/PlaneMap1.ghost";
+			ground.ghostFile = "Assets/SpaceshipHull.ghost";
+
 			ground.name = "Ground";
 			ground.positions.push_back(identity);
 			level0Data.prefabs.push_back(ground);
@@ -119,24 +121,29 @@ void SceneManager::Initialize() {
 		//}
 	}
 	CreateSceneFile(splashScreenData);
-	*/
 	TestSceneData mainMenuData;
 	{
 		mainMenuData.fileName = "Scene Files//mainMenu.scene";
 
 		mainMenuData.sceneName = "mainMenu";
-		//mainMenuData.levelName.push_back(std::string("Level Files//splashScreen.xml"));
-		//TestSceneData::Prefab coreCube;
-		//{
-		//	coreCube.ghostFile = "Assets/ElonMuskQuad.ghost";
-		//	coreCube.name = "MuskQuad";
-		//	DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 5, 1);
-		//	coreCube.positions.push_back(mat1);
-		//	splashScreenData.prefabs.push_back(coreCube);
-		//}
+		TestSceneData::Prefab tutorialQuad;
+		{
+			tutorialQuad.ghostFile = "Assets/VRTutorialQuad.ghost";
+			tutorialQuad.name = "TutorialQuad";
+			DirectX::XMFLOAT4X4 mat1;
+			DirectX::XMMATRIX rotation = DirectX::XMMatrixMultiply(DirectX::XMMatrixRotationY(DirectX::XMConvertToRadians(180)), DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(90)));
+			DirectX::XMStoreFloat4x4(&mat1, rotation);
+			mat1._41 = 0;
+			mat1._42 = 1;
+			mat1._43 = -3;
+
+			tutorialQuad.positions.push_back(mat1);
+			mainMenuData.prefabs.push_back(tutorialQuad);
+		}
 	}
 	CreateSceneFile(mainMenuData);
 
+	*/
 
 	//Fill map of scenes using the ".scene" files from our "Scene Files" directory
 	FetchAllSceneFiles();

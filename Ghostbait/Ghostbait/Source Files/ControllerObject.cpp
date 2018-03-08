@@ -392,6 +392,7 @@ void ControllerObject::Update() {
 				menuController->transform.SetMatrix(transform.GetMatrix());
 				
 				if (KeyIsDown(attack)) {
+					ResetKey(attack);
 						menuController->Activate();
 					}
 				else {

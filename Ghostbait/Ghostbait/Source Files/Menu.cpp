@@ -15,7 +15,6 @@ void MenuOption::Highlight() {
 
 Menu::Menu() {
 	AssignPrefabIDs();
-	Create(MENU_Pause);
 }
 Menu::Menu(Template t, std::vector<Button> buttons) {
 	AssignPrefabIDs();
@@ -31,6 +30,7 @@ void Menu::AssignPrefabIDs() {
 	buttonPrefabMap[BUTTON_Play] = ObjectFactory::CreatePrefab(&std::string("Assets/PlayButton.ghost"));
 	buttonPrefabMap[BUTTON_Exit] = ObjectFactory::CreatePrefab(&std::string("Assets/ExitButton.ghost"));
 	buttonPrefabMap[BUTTON_Options] = ObjectFactory::CreatePrefab(&std::string("Assets/OptionsButton.ghost"));
+	buttonPrefabMap[BUTTON_Back] = ObjectFactory::CreatePrefab(&std::string("Assets/BackButton.ghost"));
 	buttonPrefabMap[BUTTON_ChangeLevel] = buttonPrefabMap[BUTTON_Resume];
 }
 
@@ -67,6 +67,7 @@ float Menu::FindDistanceFromCenter(int optionNumber, int optionCount, float opti
 	return (optionNumber < center ? distanceFromCenter : -distanceFromCenter);
 }
 void Menu::Create(Template t, std::vector<Button> _buttons) {
+	menu_template = t;
 	switch (t) {
 		case MENU_Main:
 			buttons.empty();
@@ -83,7 +84,12 @@ void Menu::Create(Template t, std::vector<Button> _buttons) {
 			buttons[2] = BUTTON_Exit;
 			MessageEvents::Subscribe(EVENT_GamePause, [=](EventMessageBase* e) {this->Show(); });
 			MessageEvents::Subscribe(EVENT_GameUnPause, [=](EventMessageBase* e) {this->Hide(); });
-
+			break;
+		case MENU_Options:
+			buttons.empty();
+			buttons.resize(2);
+			buttons[0] = BUTTON_Back;
+			buttons[1] = BUTTON_Options;
 			break;
 		case MENU_Custom:
 			buttons.empty();
@@ -91,11 +97,16 @@ void Menu::Create(Template t, std::vector<Button> _buttons) {
 			break;
 	}
 }
-void Menu::Show(DirectX::XMFLOAT4X4* spawnPos) {
+void Menu::Show(bool useCamera) {
 	if (active) return;
 	active = true;
+	if (child) {
+		delete child;
+		child = nullptr;
+	}
+
 	options.resize(buttons.size());
-	DirectX::XMFLOAT4X4 center = spawnPos ? *spawnPos : FindCenter();
+	DirectX::XMFLOAT4X4 center = (useCamera && camera) ? FindCenter() : spawnPos;
 	DirectX::XMMATRIX center_M = DirectX::XMLoadFloat4x4(&center);
 	for (size_t i = 0; i < buttons.size(); ++i) {
 		MenuOption* newOption;
@@ -116,8 +127,19 @@ void Menu::Hide() {
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {options[i]->Destroy(); });
 	}
 	options.empty();
-
-	if (parent) parent->Show();
+}
+void Menu::CreateAndLoadChild(Template t, std::vector<Button> buttons) {
+	child = new Menu(t, buttons);
+	child->SetCamera(camera);
+	child->SetSpawnPos(spawnPos);
+	child->SetParent(this);
+	MessageEvents::SendQueueMessage(EVENT_Late, [=] {child->Show(); });
+}
+void Menu::LoadParent() {
+	MessageEvents::SendQueueMessage(EVENT_Late, [=] { parent->Show();});
+}
+Menu::~Menu() {
+	if (child) delete child;
 }
 
 void ResumeButton::Select() {
@@ -139,8 +161,14 @@ void ExitButton::Select() {
 	MessageEvents::SendMessage(EVENT_GameUnPause, EventMessageBase());
 	MessageEvents::SendQueueMessage(EVENT_Late, []() { MessageEvents::SendMessage(EVENT_GameExit, EventMessageBase()); });
 }
-
 void OptionsButton::Select() {
+	menu->Hide();
+	menu->CreateAndLoadChild(MENU_Options);
+	MenuOption::Select();
+}
+void BackButton::Select() {
+	menu->Hide();
+	menu->LoadParent();
 	MenuOption::Select();
 }
 void PlayButton::Select() {

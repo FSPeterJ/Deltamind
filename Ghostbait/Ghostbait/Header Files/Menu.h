@@ -18,12 +18,14 @@ public:
 enum Template {
 	MENU_Main,
 	MENU_Pause,
+	MENU_Options,
 	MENU_Custom
 };
 enum Button {
 	BUTTON_Resume,
 	BUTTON_Restart,
 	BUTTON_Options,
+	BUTTON_Back,
 	BUTTON_Exit,
 	BUTTON_Quit,
 
@@ -38,6 +40,7 @@ class Menu {
 	std::vector<Button> buttons;
 	std::vector<MenuOption*> options;
 	Transform* camera = nullptr;
+	DirectX::XMFLOAT4X4 spawnPos = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 	Menu* parent = nullptr;
 	Menu* child = nullptr;
 
@@ -52,8 +55,12 @@ public:
 	void SetCamera(Transform* _camera);
 	inline void SetParent(Menu* _parent) { parent = _parent; };
 	inline void SetChild(Menu* _child) { child = _child; };
-	void Show(DirectX::XMFLOAT4X4* spawnPos = nullptr);
+	inline void SetSpawnPos(DirectX::XMFLOAT4X4& pos) { spawnPos = pos; }
+	void CreateAndLoadChild(Template t, std::vector<Button> buttons = std::vector<Button>());
+	void LoadParent();
+	void Show(bool useCamera = true);
 	void Hide();
+	~Menu();
 };
 
 
@@ -76,7 +83,9 @@ class QuitButton : public MenuOption {
 class ExitButton : public MenuOption {
 	void Select() override;
 };
-
+class BackButton : public MenuOption {
+	void Select() override;
+};
 class PlayButton : public MenuOption {
 	void Select() override;
 };

@@ -147,6 +147,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<PlayButton>(1);
 	ObjectFactory::RegisterPrefabBase<OptionsButton>(1);
 	ObjectFactory::RegisterPrefabBase<ExitButton>(1);
+	ObjectFactory::RegisterPrefabBase<BackButton>(1);
 
 	ObjectFactory::RegisterPrefabBase<AStarEnemy>(10);
 	Console::WriteLine << "Prefab base registered......";
@@ -183,6 +184,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<PlayButton>("PlayButton");
 	TypeMap::RegisterObjectAlias<OptionsButton>("OptionsButton");
 	TypeMap::RegisterObjectAlias<ExitButton>("ExitButton");
+	TypeMap::RegisterObjectAlias<BackButton>("BackButton");
 
 	TypeMap::RegisterObjectAlias<AStarEnemy>("AStarEnemy");
 	TypeMap::RegisterObjectAlias<Turret>("Turret");

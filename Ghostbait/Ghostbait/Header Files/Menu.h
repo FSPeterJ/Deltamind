@@ -38,7 +38,8 @@ class Menu {
 	std::vector<Button> buttons;
 	std::vector<MenuOption*> options;
 	Transform* camera = nullptr;
-	Menu* parentMenu = nullptr;
+	Menu* parent = nullptr;
+	Menu* child = nullptr;
 
 	DirectX::XMFLOAT4X4 FindCenter(float distFromPlayer = 1);
 	float FindDistanceFromCenter(int optionNumber, int optionCount, float optionHeight, float gapHeight);
@@ -49,7 +50,8 @@ public:
 	Menu(Template t, std::vector<Button> buttons = std::vector<Button>());
 	void Create(Template t, std::vector<Button> buttons = std::vector<Button>());
 	void SetCamera(Transform* _camera);
-	void SetParent(Menu* _parent);
+	inline void SetParent(Menu* _parent) { parent = _parent; };
+	inline void SetChild(Menu* _child) { child = _child; };
 	void Show(DirectX::XMFLOAT4X4* spawnPos = nullptr);
 	void Hide();
 };

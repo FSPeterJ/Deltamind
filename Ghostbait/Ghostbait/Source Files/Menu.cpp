@@ -34,9 +34,6 @@ void Menu::AssignPrefabIDs() {
 	buttonPrefabMap[BUTTON_ChangeLevel] = buttonPrefabMap[BUTTON_Resume];
 }
 
-void Menu::SetParent(Menu* _parent) {
-	parentMenu = _parent;
-}
 DirectX::XMFLOAT4X4 Menu::FindCenter(float distFromPlayer) {
 	DirectX::XMMATRIX center_M;
 	DirectX::XMMATRIX player_M = DirectX::XMLoadFloat4x4(&camera->GetMatrix());
@@ -120,7 +117,7 @@ void Menu::Hide() {
 	}
 	options.empty();
 
-	if (parentMenu) parentMenu->Show();
+	if (parent) parent->Show();
 }
 
 void ResumeButton::Select() {

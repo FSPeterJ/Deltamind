@@ -1,5 +1,5 @@
 #include "Renderer.h"
-//#include "vld.h"
+#include "vld.h"
 #include "InputManager.h"
 #include "Messagebox.h"
 #include "Game.h"

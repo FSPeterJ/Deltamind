@@ -10,7 +10,7 @@ protected:
 	Menu* menu;
 	DirectX::XMFLOAT4X4 oldPos;
 	DirectX::XMFLOAT3 oldColliderPoint;
-	float popDistance = 0.25f;
+	float popDistance = 0.15f;
 public:
 	inline void SetMenu(Menu* _menu) { menu = _menu; }
 	inline void SetOldPos(DirectX::XMFLOAT4X4 mat) { oldPos = mat; }

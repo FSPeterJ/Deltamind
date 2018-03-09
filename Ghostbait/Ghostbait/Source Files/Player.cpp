@@ -30,20 +30,21 @@ void Player::Update() {
 		transform.SetMatrix(VRManager::GetInstance().GetPlayerPosition());
 	else {
 		DirectX::XMFLOAT3 prevPos = transform.GetPosition();
-		if (rotationY < -DirectX::XM_2PI || rotationY > DirectX::XM_2PI)
+		if (rotationY < -DirectX::XM_2PI || rotationY > DirectX::XM_2PI) 
 			rotationY = 0.0f;
 		if (rotationX < -DirectX::XM_2PI || rotationX > DirectX::XM_2PI)
 			rotationX = 0.0f;
 
 		if (KeyIsDown(Control::CameraLeftRight)) {
 			//position._41 -= 50.0f * dt;
-			rotationY += Amount(CameraLeftRight) * dt;
+			float prevY = rotationY;
+			rotationY += Amount(CameraLeftRight) * 0.01f;
 			ResetKey(Control::CameraLeftRight);
 			//ResetKey(Control::left);
 		}
 		if (KeyIsDown(Control::CameraUpDown)) {
 			//position._41 += 50.0f * dt;
-			rotationX += Amount(CameraUpDown) * dt;
+			rotationX += Amount(CameraUpDown) * 0.01f;
 			ResetKey(Control::CameraUpDown);
 			//ResetKey(Control::right);
 		}
@@ -138,7 +139,7 @@ void Player::LoadControllers(VRControllerTypes type) {
 	leftController->Init(this, ControllerHand::HAND_Left);
 	leftController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
 	leftController->SetGunData(2, Gun::FireType::AUTO, 8, 25);
-	leftController->SetBuildItems({ /*TODO: FIX THIS LATER*/ ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost")) });
+	leftController->SetBuildItems({ /*TODO: FIX THIS LATER*/ ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost")), ObjectFactory::CreatePrefab(&std::string("Assets/HexPole.ghost")) });
 	//Right
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 1,0,1 }, &rightController));
 	rightController->Init(this, ControllerHand::HAND_Right);

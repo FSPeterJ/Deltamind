@@ -14,6 +14,10 @@
 #include "AnimatorStructs.h"
 #include "WICTextureLoader.h"
 
+
+//TODO: TEMP for testing a weird crash
+#include "Projectile.h"
+
 using namespace DirectX;
 
 void Renderer::createDeviceContextAndSwapchain(Window window) {
@@ -158,6 +162,10 @@ void Renderer::renderObjectDefaultState(Object * obj) {
 	//UINT stride = 0;
 	UINT offset = 0;
 	Mesh* y= obj->GetComponent<Mesh>();
+	if (!y) {
+		Console::ErrorLine << "instantiatedCount: " << instantiatedCount;
+		Console::ErrorLine << "destroyedCount: " << destroyedCount;
+	}
 	ID3D11Buffer* x = y->vertexBuffer;
 
 	context->IASetVertexBuffers(0, 1, &x, &stride, &offset);

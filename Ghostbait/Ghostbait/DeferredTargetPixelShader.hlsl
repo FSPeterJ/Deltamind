@@ -35,7 +35,7 @@ PixelShaderOutput main(PixelShaderInput input)
     PixelShaderOutput output;
     output.diffuse = diffuse.Sample(sample, input.uv) * diffuseFactor;
     output.emissive = emissive.Sample(sample, input.uv) * emissiveFactor;
-    output.normal = float4(input.norm, 1.0f);
+    output.normal = float4(((input.norm * 0.5f) + 0.5f), 1.0f);
     output.specular = specular.Sample(sample, input.uv) * specularFactor;
     return output;
 }

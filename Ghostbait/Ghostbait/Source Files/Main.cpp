@@ -314,17 +314,14 @@ void Loop() {
 	}
 	else {
 		player->PausedUpdate();
-
 		phyMan->PausedUpdate();
 	}
 
-
-	game->Update();
 	inputMan->HandleInput();
-
-	//TODO: Need a better way to do this...Maybe a paused Update delegate?
+	game->Update();
 	player->leftController->Update();
 	player->rightController->Update();
+
 	
 	rendInter->Render();
 }

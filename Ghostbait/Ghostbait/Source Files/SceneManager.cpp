@@ -55,7 +55,6 @@ void SceneManager::CreateSceneFile(SceneManager::TestSceneData& data) {
 
 void SceneManager::Initialize() {
 	DirectX::XMFLOAT4X4 identity = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-	/*
 	TestSceneData level0Data;
 	{
 		level0Data.fileName = "Scene Files//level0.scene";
@@ -64,8 +63,8 @@ void SceneManager::Initialize() {
 		level0Data.levelName.push_back(std::string("Level Files//level0.xml"));
 		TestSceneData::Prefab ground;
 		{
-			//ground.ghostFile = "Assets/PlaneMap1.ghost";
-			ground.ghostFile = "Assets/SpaceshipHull.ghost";
+			ground.ghostFile = "Assets/PlaneMap1.ghost";
+			//ground.ghostFile = "Assets/SpaceshipHull.ghost";
 
 			ground.name = "Ground";
 			ground.positions.push_back(identity);
@@ -87,6 +86,10 @@ void SceneManager::Initialize() {
 			spawner.positions.push_back(mat1);
 			DirectX::XMFLOAT4X4 mat2 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, 10, 0, 40, 1);
 			spawner.positions.push_back(mat2);
+			DirectX::XMFLOAT4X4 mat3 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, 5, 0, -30, 1);
+			spawner.positions.push_back(mat3);
+			DirectX::XMFLOAT4X4 mat4 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, -10, 0, -25, 1);
+			spawner.positions.push_back(mat4);
 			level0Data.prefabs.push_back(spawner);
 		}
 		TestSceneData::Prefab winCube;
@@ -99,12 +102,13 @@ void SceneManager::Initialize() {
 		{
 			coreCube.ghostFile = "Assets/CoreCube.ghost";
 			coreCube.name = "CoreCube";
-			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 5, 1);
+			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 5.25f, 1);
 			coreCube.positions.push_back(mat1);
 			level0Data.prefabs.push_back(coreCube);
 		}
 	}
 	CreateSceneFile(level0Data);
+	/*
 	TestSceneData splashScreenData;
 	{
 		splashScreenData.fileName = "Scene Files//splashScreen.scene";

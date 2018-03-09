@@ -89,11 +89,78 @@ void InputManager::VRInput::CheckForInput() {
 		VRManager::GetInstance().pVRHMD->GetControllerState(VRManager::GetInstance().leftController.index, &state, sizeof(state));
 		leftTPX = state.rAxis[0].x;
 		leftTPY = state.rAxis[0].y;
+
+		float rads;
+
+		rads = atan2(leftTPX, leftTPY);
+		if (rads < 0) rads += (float)(2 * RAD_PI);
+		if (rads >= RAD_PI_4 && rads < RAD_3PI_4) {
+			inputPoll.push(InputPackage(leftItem0, 0));
+			inputPoll.push(InputPackage(leftItem1, 0));
+			inputPoll.push(InputPackage(leftItem3, 0));
+
+			inputPoll.push(InputPackage(leftItem2, 0.5f));
+		}
+		else if (rads >= RAD_3PI_4 && rads < RAD_5PI_4) {
+			inputPoll.push(InputPackage(leftItem0, 0));
+			inputPoll.push(InputPackage(leftItem1, 0));
+			inputPoll.push(InputPackage(leftItem2, 0));
+
+			inputPoll.push(InputPackage(leftItem3, 0.5f));
+		}
+		else if (rads >= RAD_5PI_4 && rads < RAD_7PI_4) {
+			inputPoll.push(InputPackage(leftItem0, 0));
+			inputPoll.push(InputPackage(leftItem2, 0));
+			inputPoll.push(InputPackage(leftItem3, 0));
+
+			inputPoll.push(InputPackage(leftItem1, 0.5f));
+		}
+		else {
+			inputPoll.push(InputPackage(leftItem1, 0));
+			inputPoll.push(InputPackage(leftItem2, 0));
+			inputPoll.push(InputPackage(leftItem3, 0));
+
+			inputPoll.push(InputPackage(leftItem0, 0.5f));
+		}
+
 	}
 	if(rightTouchpadTouched) {
 		VRManager::GetInstance().pVRHMD->GetControllerState(VRManager::GetInstance().rightController.index, &state, sizeof(state));
 		rightTPX = state.rAxis[0].x;
 		rightTPY = state.rAxis[0].y;
+
+		float rads;
+
+		rads = atan2(rightTPX, rightTPY);
+		if (rads < 0) rads += (float)(2 * RAD_PI);
+		if (rads >= RAD_PI_4 && rads < RAD_3PI_4) {
+			inputPoll.push(InputPackage(rightItem0, 0));
+			inputPoll.push(InputPackage(rightItem1, 0));
+			inputPoll.push(InputPackage(rightItem3, 0));
+
+			inputPoll.push(InputPackage(rightItem2, 0.5f));
+		}
+		else if (rads >= RAD_3PI_4 && rads < RAD_5PI_4) {
+			inputPoll.push(InputPackage(rightItem0, 0));
+			inputPoll.push(InputPackage(rightItem1, 0));
+			inputPoll.push(InputPackage(rightItem2, 0));
+
+			inputPoll.push(InputPackage(rightItem3, 0.5f));
+		}
+		else if (rads >= RAD_5PI_4 && rads < RAD_7PI_4) {
+			inputPoll.push(InputPackage(rightItem0, 0));
+			inputPoll.push(InputPackage(rightItem2, 0));
+			inputPoll.push(InputPackage(rightItem3, 0));
+
+			inputPoll.push(InputPackage(rightItem1, 0.5f));
+		}
+		else {
+			inputPoll.push(InputPackage(rightItem1, 0));
+			inputPoll.push(InputPackage(rightItem2, 0));
+			inputPoll.push(InputPackage(rightItem3, 0));
+
+			inputPoll.push(InputPackage(rightItem0, 0.5f));
+		}
 	}
 
 	while(VRManager::GetInstance().pVRHMD->PollNextEvent(&event, sizeof(event))) {
@@ -106,7 +173,6 @@ void InputManager::VRInput::CheckForInput() {
 						VRManager::GetInstance().pVRHMD->GetControllerState(VRManager::GetInstance().leftController.index, &state, sizeof(state));
 						leftTPX = state.rAxis[0].x;
 						leftTPY = state.rAxis[0].y;
-						Console::WriteLine << "Touched!!";
 						input = leftTouch;
 						amount = 1.0f;
 					}
@@ -190,6 +256,10 @@ void InputManager::VRInput::CheckForInput() {
 							input = event.trackedDeviceIndex == VRManager::GetInstance().leftController.index ? leftItem0 : rightItem0;
 							amount = 1;
 						}
+
+						inputPoll.push(InputPackage(input, amount));
+
+
 						break;
 					case vr::k_EButton_SteamVR_Trigger:
 						if(event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {

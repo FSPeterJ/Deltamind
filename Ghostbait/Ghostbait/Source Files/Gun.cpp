@@ -49,9 +49,9 @@ void Gun::Overheat::Update(bool active) {
 		newPos._42 -= bar->transform.GetMatrix()._12 * 0.04f;
 		newPos._43 -= bar->transform.GetMatrix()._13 * 0.04f;
 
-		newPos._41 -= bar->transform.GetMatrix()._31 * 0.1f;
-		newPos._42 -= bar->transform.GetMatrix()._32 * 0.1f;
-		newPos._43 -= bar->transform.GetMatrix()._33 * 0.1f;
+		newPos._41 -= bar->transform.GetMatrix()._31 * 0.06f;
+		newPos._42 -= bar->transform.GetMatrix()._32 * 0.06f;
+		newPos._43 -= bar->transform.GetMatrix()._33 * 0.06f;
 
 		bar->transform.SetMatrix(newPos);
 

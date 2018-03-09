@@ -25,6 +25,8 @@ class ControllerObject: public GameObject, public Controlable {
 		Item* items[CONTROLLER_MAX_ITEMS] = { 0 };
 		Item* displayItems[CONTROLLER_MAX_ITEMS] = { 0 };
 		Item* currentItem = nullptr;
+		float displayRotation = 0;
+		int currentSpinningItem = -1;
 	};
 
 	Inventory inventory;
@@ -53,7 +55,6 @@ public:
 	void AddItem(int itemSlot, unsigned prefabID, std::vector<unsigned> prefabIDs);
 	void AddItem(int itemSlot, unsigned prefabID, Gun::FireType _fireType, float _fireRate, float _damage);
 	void Update();
-	void PausedUpdate();
 	void GivePID(unsigned pid, const char* tag) override;
 	void Awake(Object* obj);
 

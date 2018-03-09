@@ -25,6 +25,8 @@ class ControllerObject: public GameObject, public Controlable {
 		Item* items[CONTROLLER_MAX_ITEMS] = { 0 };
 		Item* displayItems[CONTROLLER_MAX_ITEMS] = { 0 };
 		Item* currentItem = nullptr;
+		float displayRotation = 0;
+		int currentSpinningItem = -1;
 	};
 
 	Inventory inventory;

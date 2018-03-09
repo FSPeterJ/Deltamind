@@ -48,28 +48,28 @@ void ControllerObject::SwitchCurrentItem(int itemIndex) {
 		Control item1 = (hand == HAND_Left ? leftItem1 : rightItem1);
 		Control item2 = (hand == HAND_Left ? leftItem2 : rightItem2);
 		Control item3 = (hand == HAND_Left ? leftItem3 : rightItem3);
-		if(KeyIsDown(item0)) {
+		if(Amount(item0) == 1) {
 			if(inventory.items[0]) {
 				SwitchCurrentItem(0);
 				ResetKey(item0);
 				return;
 			}
 		}
-		if(KeyIsDown(item1)) {
+		if(Amount(item1) == 1) {
 			if(inventory.items[1]) {
 				SwitchCurrentItem(1);
 				ResetKey(item1);
 				return;
 			}
 		}
-		if(KeyIsDown(item2)) {
+		if(Amount(item2) == 1) {
 			if(inventory.items[2]) {
 				SwitchCurrentItem(2);
 				ResetKey(item2);
 				return;
 			}
 		}
-		if(KeyIsDown(item3)) {
+		if(Amount(item3) == 1) {
 			if(inventory.items[3]) {
 				SwitchCurrentItem(3);
 				ResetKey(item3);
@@ -90,54 +90,71 @@ void ControllerObject::SwitchCurrentItem(int itemIndex) {
 }
 void ControllerObject::DisplayInventory() {
 	static bool leftJustTouched = false, rightJustTouched = false;
+	inventory.displayRotation += (float)GhostTime::DeltaTime() * 0.5f;
 
 	bool* justTouched = (hand == HAND_Left ? &leftJustTouched : &rightJustTouched);
 	Control touch = (hand == HAND_Left ? leftTouch : rightTouch);
+	Control item0 = (hand == HAND_Left ? leftItem0 : rightItem0);
+	Control item1 = (hand == HAND_Left ? leftItem1 : rightItem1);
+	Control item2 = (hand == HAND_Left ? leftItem2 : rightItem2);
+	Control item3 = (hand == HAND_Left ? leftItem3 : rightItem3);
 
 	if(KeyIsDown(touch)) {
 		for(unsigned int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
 			if(inventory.displayItems[i]) {
 				if(!*justTouched) inventory.displayItems[i]->Render(true);
 				DirectX::XMFLOAT4X4 newPos;
-				newPos._11 = transform.GetMatrix()._11 * 0.5f;
-				newPos._12 = transform.GetMatrix()._12 * 0.5f;
-				newPos._13 = transform.GetMatrix()._13 * 0.5f;
-				newPos._14 = transform.GetMatrix()._14;
-				newPos._21 = transform.GetMatrix()._21 * 0.5f;
-				newPos._22 = transform.GetMatrix()._22 * 0.5f;
-				newPos._23 = transform.GetMatrix()._23 * 0.5f;
-				newPos._24 = transform.GetMatrix()._24;
-				newPos._31 = transform.GetMatrix()._31 * 0.5f;
-				newPos._32 = transform.GetMatrix()._32 * 0.5f;
-				newPos._33 = transform.GetMatrix()._33 * 0.5f;
-				newPos._34 = transform.GetMatrix()._34;
-				newPos._41 = transform.GetMatrix()._41;
-				newPos._42 = transform.GetMatrix()._42;
-				newPos._43 = transform.GetMatrix()._43;
-				newPos._44 = transform.GetMatrix()._44;
+				DirectX::XMMATRIX result, scale, rotation, translation, parentMatrix;
+				result = DirectX::XMMatrixIdentity();
+				scale = DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f);
+				rotation = DirectX::XMMatrixIdentity();
+				parentMatrix = DirectX::XMLoadFloat4x4(&transform.GetMatrix());
+
 				switch(i) {
 					case 0:
-						newPos._41 += ((transform.GetMatrix()._21 * 0.2f) + (transform.GetMatrix()._31 * 0.1f));
-						newPos._42 += ((transform.GetMatrix()._22 * 0.2f) + (transform.GetMatrix()._32 * 0.1f));
-						newPos._43 += ((transform.GetMatrix()._23 * 0.2f) + (transform.GetMatrix()._33 * 0.1f));
+						translation = DirectX::XMMatrixTranslation(0, 0.2f, 0.1f);
+						if (Amount(item0) == 0.5f) {
+							if (inventory.currentSpinningItem != 0) {
+								inventory.displayRotation = 0;
+								inventory.currentSpinningItem = 0;
+							}
+							rotation = DirectX::XMMatrixRotationRollPitchYaw(0, inventory.displayRotation * 2, 0);
+						}
 						break;
 					case 1:
-						newPos._41 += ((-transform.GetMatrix()._11 * 0.2f) + (transform.GetMatrix()._31 * 0.1f));
-						newPos._42 += ((-transform.GetMatrix()._12 * 0.2f) + (transform.GetMatrix()._32 * 0.1f));
-						newPos._43 += ((-transform.GetMatrix()._13 * 0.2f) + (transform.GetMatrix()._33 * 0.1f));
+						translation = DirectX::XMMatrixTranslation(-0.2f, 0, 0.1f);
+						if (Amount(item1) == 0.5f) {
+							if (inventory.currentSpinningItem != 1) {
+								inventory.displayRotation = 0;
+								inventory.currentSpinningItem = 1;
+							}
+							rotation = DirectX::XMMatrixRotationRollPitchYaw(0, inventory.displayRotation * 2, 0);
+						}
 						break;
 					case 2:
-						newPos._41 += ((transform.GetMatrix()._11 * 0.2f) + (transform.GetMatrix()._31 * 0.1f));
-						newPos._42 += ((transform.GetMatrix()._12 * 0.2f) + (transform.GetMatrix()._32 * 0.1f));
-						newPos._43 += ((transform.GetMatrix()._13 * 0.2f) + (transform.GetMatrix()._33 * 0.1f));
+						translation = DirectX::XMMatrixTranslation(0.2f, 0, 0.1f);
+						if (Amount(item2) == 0.5f) {
+							if (inventory.currentSpinningItem != 2) {
+								inventory.displayRotation = 0;
+								inventory.currentSpinningItem = 2;
+							}
+							rotation = DirectX::XMMatrixRotationRollPitchYaw(0, inventory.displayRotation * 2, 0);
+						}
 						break;
 					case 3:
-						newPos._41 += ((-transform.GetMatrix()._21 * 0.2f) + (transform.GetMatrix()._31 * 0.1f));
-						newPos._42 += ((-transform.GetMatrix()._22 * 0.2f) + (transform.GetMatrix()._32 * 0.1f));
-						newPos._43 += ((-transform.GetMatrix()._23 * 0.2f) + (transform.GetMatrix()._33 * 0.1f));
+						translation = DirectX::XMMatrixTranslation(0, -0.2f, 0.1f);
+						if (Amount(item3) == 0.5f) {
+							if (inventory.currentSpinningItem != 3) {
+								inventory.displayRotation = 0;
+								inventory.currentSpinningItem = 3;
+							}
+							rotation = DirectX::XMMatrixRotationRollPitchYaw(0, inventory.displayRotation * 2, 0);
+						}
 						break;
 				}
 
+				result = scale * rotation * translation * parentMatrix;
+				DirectX::XMStoreFloat4x4(&newPos, result);
 				inventory.displayItems[i]->transform.SetMatrix(newPos);
 			}
 		}

@@ -15,9 +15,9 @@ public:
 		Gun* parent;
 		ProgressBar* bar;
 		float energyBulletCost = 1; //Energy output per bullet
-		float energyWaitCooldown = 5; //How long you go(seconds) without shooting to begin cooling down
-		float energyOverheatDelay = 7; //How long you need to wait (seconds) after reaching/exceeding energy limit to begin cooldown
-		float energyLimit = 20; //Max amount of energy before overheat
+		float energyWaitCooldown = 4; //How long you go(seconds) without shooting to begin cooling down
+		float energyOverheatDelay = 6; //How long you need to wait (seconds) after reaching/exceeding energy limit to begin cooldown
+		float energyLimit = 25; //Max amount of energy before overheat
 
 		bool AddEnergy(float energy);
 		bool CanShoot(float fireRate);

@@ -2,15 +2,31 @@
 #include "MessageEvents.h"
 #include "Console.h"
 #include "ObjectFactory.h"
+#include "PhysicsComponent.h"
 
 void MenuOption::Select() {
 	//Console::WriteLine << "Menu Option: " << this << " was selected!";
 }
 void MenuOption::UnHighlight() {
 	//Console::WriteLine << "Menu Option: " << this << " was Un-highlighted!";
+	transform.SetMatrix(oldPos);
+	PhysicsComponent* comp = GetComponent<PhysicsComponent>();
+	if (comp && comp->colliders.size()) {
+		comp->colliders[0].colliderData->colliderInfo.boxCollider.topRightFrontCorner = oldColliderPoint;
+	}
+
 }
 void MenuOption::Highlight() {
 	//Console::WriteLine << "Menu Option: " << this << " was highlighted!";
+	DirectX::XMFLOAT3 newPos = { oldPos._41, oldPos._42, oldPos._43 };
+	newPos.x -= oldPos._31 * popDistance;
+	newPos.y -= oldPos._32 * popDistance;
+	newPos.z -= oldPos._33 * popDistance;
+	transform.SetPosition(newPos);
+	PhysicsComponent* comp = GetComponent<PhysicsComponent>();
+	if (comp && comp->colliders.size()) {
+		comp->colliders[0].colliderData->colliderInfo.boxCollider.topRightFrontCorner.z += popDistance * 2;
+	}
 }
 
 Menu::Menu() {
@@ -117,6 +133,10 @@ void Menu::Show(bool useCamera) {
 		newOption->SetMenu(this);
 		newOption->Enable(false);
 		options[i] = newOption;
+		options[i]->SetOldPos(options[i]->transform.GetMatrix());
+		options[i]->SetOldColliderPoint(options[i]->GetComponent<PhysicsComponent>()->colliders[0].colliderData->colliderInfo.boxCollider.topRightFrontCorner);
+		options[i]->UnHighlight();
+
 		MessageEvents::SendMessage(EVENT_Rendertofront, NewObjectMessage(newOption));
 	}
 }
@@ -124,6 +144,7 @@ void Menu::Hide() {
 	if (!active) return;
 	active = false;
 	for (size_t i = 0; i < options.size(); ++i) {
+		options[i]->UnHighlight();
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {options[i]->Destroy(); });
 	}
 	options.empty();

@@ -183,6 +183,8 @@ void Game::ChangeScene(const char* sceneName) {
 		player->rightController->SetControllerState(CSTATE_None);
 		player->transform.MoveToOrigin(player->playerHeight);
 		player->Teleport(&DirectX::XMFLOAT3( 0, 0, 0 ));
+		player->transform.LookAt({ menuPos._41, menuPos._42, menuPos._43 });
+
 	}
 	//--------------------------------------
 

@@ -429,25 +429,6 @@ void ControllerObject::Update() {
 
 	GameObject::Update();
 }
-void ControllerObject::PausedUpdate() {
-	if(hand == HAND_Invalid) return;
-	Control attack = (hand == HAND_Left ? leftAttack : rightAttack);
-
-	if (!player->IsVR()) {
-		PositionNonVRController();
-	}
-
-	menuController->Render(true);
-	menuController->transform.SetMatrix(transform.GetMatrix());
-
-	if(KeyIsDown(attack)) {
-		menuController->Activate();
-		//ResetKey(attack);
-	}
-	else {
-		menuController->UpdateRay();
-	}
-}
 
 void ControllerObject::GivePID(unsigned pid, const char* tag) {
 

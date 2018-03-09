@@ -136,7 +136,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<GameObject>(512);
 	ObjectFactory::RegisterPrefabBase<Projectile>(512);
 	ObjectFactory::RegisterPrefabBase<Spawner>(24);
-	ObjectFactory::RegisterPrefabBase<EnemyBase>(32);
+	ObjectFactory::RegisterPrefabBase<EnemyBase>(300);
 	ObjectFactory::RegisterPrefabBase<MenuCube>(5);
 	ObjectFactory::RegisterPrefabBase<CoreCube>(5);
 	ObjectFactory::RegisterPrefabBase<BuildTool>(24);
@@ -147,8 +147,9 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<PlayButton>(1);
 	ObjectFactory::RegisterPrefabBase<OptionsButton>(1);
 	ObjectFactory::RegisterPrefabBase<ExitButton>(1);
+	ObjectFactory::RegisterPrefabBase<BackButton>(1);
 
-	ObjectFactory::RegisterPrefabBase<AStarEnemy>(10);
+	ObjectFactory::RegisterPrefabBase<AStarEnemy>(300);
 	Console::WriteLine << "Prefab base registered......";
 
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
@@ -183,6 +184,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<PlayButton>("PlayButton");
 	TypeMap::RegisterObjectAlias<OptionsButton>("OptionsButton");
 	TypeMap::RegisterObjectAlias<ExitButton>("ExitButton");
+	TypeMap::RegisterObjectAlias<BackButton>("BackButton");
 
 	TypeMap::RegisterObjectAlias<AStarEnemy>("AStarEnemy");
 	TypeMap::RegisterObjectAlias<Turret>("Turret");
@@ -210,9 +212,9 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost"), "BuildTool");
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest3.ghost"), "PhyTest3");
 	ObjectFactory::CreatePrefab(&std::string("Assets/MenuControllerItem.ghost"), "MenuController", true);
-	unsigned Gun1 = ObjectFactory::CreatePrefab(&std::string("Assets/Gun.ghost"), "GunTest");
+	unsigned Gun1 = ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost"), "Pistol", true);
 	unsigned Gun2 = ObjectFactory::CreatePrefab(&std::string("Assets/Gun2.ghost"), "GunTest2");
-	ObjectFactory::CreatePrefab(&std::string("Assets/Gun.ghost"), "GunTest", true);
+	//ObjectFactory::CreatePrefab(&std::string("Assets/Gun.ghost"), "GunTest", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/TestProjectile.ghost"), "TestProjectile");
 	ObjectFactory::CreatePrefab(&std::string("Assets/AStarEnemyEdit.ghost"), "AStarEnemy");
 	unsigned basicTurret = ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost"), "TestTurret", true);

@@ -4,7 +4,6 @@
 #include "MessageEvents.h"
 #include "GhostTime.h"
 #include "EngineStructure.h"
-#include "Menu.h"
 #include "../Dependencies/XML_Library/irrXML.h"
 #include "AStarEnemy.h"
 #include "SceneManager.h"
@@ -34,8 +33,6 @@ void Game::GameData::Reset() {
 }
 
 Game::Game() {
-	pauseMenu = new Menu(MENU_Pause);
-	mainMenu = new Menu(MENU_Main);
 	MessageEvents::Subscribe(EVENT_SpawnerCreated, [=](EventMessageBase* e) {this->SpawnerCreatedEvent(e); });
 	MessageEvents::Subscribe(EVENT_EnemyDied, [=](EventMessageBase* e) {this->EnemyDiedEvent(); });
 	MessageEvents::Subscribe(EVENT_Start, [=](EventMessageBase* e) {this->StartEvent(); });
@@ -180,7 +177,8 @@ void Game::ChangeScene(const char* sceneName) {
 															0, 0, 1, 0, 
 															0, 1.7f, 2, 1);
 		gameData.state = GAMESTATE_MainMenu;
-		mainMenu->Show(&menuPos);
+		mainMenu.SetSpawnPos(menuPos);
+		mainMenu.Show(false);
 		player->leftController->SetControllerState(CSTATE_MenuController);
 		player->rightController->SetControllerState(CSTATE_None);
 		player->transform.MoveToOrigin(player->playerHeight);
@@ -308,7 +306,9 @@ void Game::Start(Player* _player, EngineStructure* _engine, char* startScene) {
 	srand((unsigned int)time(NULL));
 	engine = _engine;
 	player = _player;
-	pauseMenu->SetCamera(&player->transform);
+	mainMenu.Create(MENU_Main);
+	pauseMenu.Create(MENU_Pause);
+	pauseMenu.SetCamera(&player->transform);
 	sceneManager = new SceneManager();
 	sceneManager->Initialize();
 	gameData.Reset();
@@ -451,7 +451,5 @@ void Game::Update() {
 	}
 }
 void Game::Clean() {
-	delete pauseMenu;
-	delete mainMenu;
 	delete sceneManager;
 }

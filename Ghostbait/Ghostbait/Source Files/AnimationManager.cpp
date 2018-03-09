@@ -105,9 +105,15 @@ AnimationManager::AnimationManager() {}
 AnimationManager::~AnimationManager() {}
 
 void AnimationManager::Destroy() {
-	for(size_t i = 0; i < animations.size(); ++i)
+	for (size_t i = 0; i < animations.size(); ++i) {
+		for (size_t j = 0; j < animations[i]->keyframes.size(); ++j) {
+			for (size_t k = 0; k < animations[i]->keyframes[j].joints.size(); ++k) {
+				delete[] animations[i]->keyframes[j].joints[k].child_index;
+			}
+		}
 		delete animations[i];
-	for(size_t i = 0; i < bindPoses.size(); ++i)
+	}
+	for (size_t i = 0; i < bindPoses.size(); ++i)
 		delete bindPoses[i];
 }
 

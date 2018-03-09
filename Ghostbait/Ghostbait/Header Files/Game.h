@@ -3,12 +3,12 @@
 #include "HexagonalGridLayout.h"
 #include "HexGrid.h"
 #include <vector>
+#include "Menu.h"
 
 class SceneManager;
 class Spawner;
 class EventMessageBase;
 class EngineStructure;
-class Menu;
 class Player;
 
 enum State {
@@ -66,9 +66,10 @@ class Game {
 	
 	EngineStructure* engine;
 	SceneManager* sceneManager;
-	Menu* pauseMenu;
-	Menu* mainMenu;
 	Player* player;
+	
+	Menu pauseMenu;
+	Menu mainMenu;
 
 	bool paused = false;
 

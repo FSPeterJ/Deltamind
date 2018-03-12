@@ -1,5 +1,6 @@
 #include "HexTileVector.h"
 #include "HexGrid.h"
+#include "Console.h"
 
 bool operator<(const HexPath&p, const HexPath&p2) { return p.cost() <= p2.cost(); } //in case of a cost tie, std::pair will compare the second element so this is needed to satisfy it
 
@@ -122,6 +123,7 @@ void HexPath::BuildPath(HexTilePtr const start, HexTilePtr const goal, VisitedMa
 	while(current != start && current) {
 		data.push_back(current);
 		current = came_from[current];
+		if (std::find(data.begin(), data.end(), current) != data.end()) { Console::WriteLine << "Circular parent dependency!!!"; break; }
 	}
 
 	data.push_back(start);

@@ -2,6 +2,8 @@
 #include <DirectXMath.h>
 
 class Transform {
+	//Unless get/set needs to do anything besides assign or retrieve, the extra indirection is not needed for the data.
+public:
 	DirectX::XMFLOAT4X4 matrix = DirectX::XMFLOAT4X4(1, 0, 0, 0,
 													 0, 1, 0, 0,
 													 0, 0, 1, 0,
@@ -9,10 +11,10 @@ class Transform {
 	//DirectX::XMFLOAT3 position = DirectX::XMFLOAT3(0, 0, 0);
 	//DirectX::XMFLOAT3 rotation = DirectX::XMFLOAT3(0, 0, 0); //stored in radians
 	//DirectX::XMFLOAT3 scale = DirectX::XMFLOAT3(0, 0, 0);
-public:
 	const DirectX::XMFLOAT4X4& GetMatrix() const;
 	const DirectX::XMFLOAT3 GetPosition() const;
 	void SetMatrix(const DirectX::XMFLOAT4X4& mat);
+	void MoveToOrigin(float height = 0);
 	void SetPosition(const float x, const float y, const float z);
 	void SetPosition(const DirectX::XMFLOAT3& pos);
 	void SetRotationDegrees(const float x, const float y, const float z);

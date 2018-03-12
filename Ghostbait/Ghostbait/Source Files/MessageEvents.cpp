@@ -31,16 +31,13 @@ void MessageEvents::SendMessage(const EVENT_TYPES eventtype, EventMessageBase& m
 
 void MessageEvents::SendQueueMessage(const EVENT_TYPES eventtype, std::function<void(void)> execute) {
 	//execute(T...);
-	queuedEvents.push([=]() {
-		execute();
-	});
+	queuedEvents.push(execute);
 	//HandleMessage(eventtype, message);
 }
 
 void MessageEvents::ProcessEvents() {
 	while(!queuedEvents.empty()) {
-		auto f = queuedEvents.front();
-		f();
+		queuedEvents.front()();
 		queuedEvents.pop();
 	}
 }

@@ -4,14 +4,12 @@
 #include "MessageEvents.h"
 #include "GhostTime.h"
 #include "EngineStructure.h"
-#include "Menu.h"
 #include "../Dependencies/XML_Library/irrXML.h"
 #include "AStarEnemy.h"
 #include "SceneManager.h"
 #include "PathPlanner.h"
 #include "ObjectFactory.h"
 #include "Player.h"
-
 
 void Game::GameData::Reset() {
 	state = GAMESTATE_BetweenWaves;
@@ -35,21 +33,34 @@ void Game::GameData::Reset() {
 }
 
 Game::Game() {
-	pauseMenu = new Menu(MENU_Pause);
 	MessageEvents::Subscribe(EVENT_SpawnerCreated, [=](EventMessageBase* e) {this->SpawnerCreatedEvent(e); });
 	MessageEvents::Subscribe(EVENT_EnemyDied, [=](EventMessageBase* e) {this->EnemyDiedEvent(); });
-	MessageEvents::Subscribe(EVENT_Start, [=](EventMessageBase* e) {this->StartNextWave(); });
-	MessageEvents::Subscribe(EVENT_GamePause, [=](EventMessageBase* e) {this->PausePressedEvent(); });
+	MessageEvents::Subscribe(EVENT_Start, [=](EventMessageBase* e) {this->StartEvent(); });
+	MessageEvents::Subscribe(EVENT_PauseInputDetected, [=](EventMessageBase* e) {this->PauseInputEvent(); });
+	MessageEvents::Subscribe(EVENT_GamePause, [=](EventMessageBase* e) {this->PauseGame(); });
+	MessageEvents::Subscribe(EVENT_GameUnPause, [=](EventMessageBase* e) {this->ResumeGame(); });
 	MessageEvents::Subscribe(EVENT_GameRestart, [=](EventMessageBase* e) {this->RestartLevel(); });
 	MessageEvents::Subscribe(EVENT_SnapRequest, [=](EventMessageBase* e) {this->SnapRequestEvent(e); });
 	MessageEvents::Subscribe(EVENT_AddObstacle, [=](EventMessageBase* e) {this->AddObstacleEvent(e); });
 	MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {this->RemoveObstacleEvent(e); });
 	MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) {this->Lose(); });
 	MessageEvents::Subscribe(EVENT_GameQuit, [=](EventMessageBase* e) {this->Quit(); });
+	MessageEvents::Subscribe(EVENT_GameExit, [=](EventMessageBase* e) {this->ExitToMenu(); });
 	PathPlanner::SetGrid(&hexGrid);
 }
 
 //Catch Events
+void Game::PauseInputEvent() {
+	if (gameData.state == GAMESTATE_SplashScreen || gameData.state == GAMESTATE_MainMenu) return;
+	if (paused) {
+		ResumeGame();
+		MessageEvents::SendMessage(EVENT_GameUnPause, EventMessageBase());
+	}
+	else {
+		PauseGame();
+		MessageEvents::SendMessage(EVENT_GamePause, EventMessageBase());
+	}
+}
 void Game::SpawnerCreatedEvent(EventMessageBase* e) {
 	Spawner* spawner = dynamic_cast<Spawner*>(((SpawnerCreatedMessage*)e)->RetrieveObject());
 	if (spawner)
@@ -61,16 +72,6 @@ void Game::EnemyDiedEvent() {
 	gameData.enemiesLeftAlive--;
 	if (gameData.enemiesLeftAlive <= 0) {
 		ChangeState(GAMESTATE_BetweenWaves);
-	}
-}
-void Game::PausePressedEvent() {
-	if (gameData.state == GAMESTATE_Paused) {
-		ChangeState(gameData.prevState);
-		Console::WriteLine << "Game is UnPaused";
-	}
-	else {
-		ChangeState(GAMESTATE_Paused);
-		Console::WriteLine << "Game is Paused";
 	}
 }
 void Game::SnapRequestEvent(EventMessageBase* e) {
@@ -94,7 +95,7 @@ void Game::RemoveObstacleEvent(EventMessageBase* e) {
 }
 void Game::StartEvent() {
 	switch (gameData.state) {
-		case GAMESTATE_Menu:
+		case GAMESTATE_SplashScreen:
 			{
 				char* sceneName = new char[gameData.nextScene.length() + 1];
 				memcpy(sceneName, gameData.nextScene.c_str(), gameData.nextScene.length() + 1);
@@ -105,6 +106,9 @@ void Game::StartEvent() {
 		case GAMESTATE_BetweenWaves:
 			StartNextWave();
 			break;
+		case GAMESTATE_MainMenu:
+			ChangeScene("level0");
+			break;
 	}
 }
 
@@ -113,45 +117,46 @@ void Game::ChangeState(State newState) {
 	if (gameData.state != newState) {
 		gameData.prevState = gameData.state;
 		gameData.state = newState;
-		switch (newState) {
-		case GAMESTATE_Paused:
-			{
-				PauseGame();
-			}
-			break;
-		case GAMESTATE_BetweenWaves:
-			{
-				if (gameData.prevState == GAMESTATE_Paused) ResumeGame();
-				else {
 
+
+		switch (newState) {
+			case GAMESTATE_BetweenWaves:
+				{
 					//if upcoming wave doesnt exist...
 					int nextWave = gameData.waveManager.currentWave + 1;
-					if (nextWave >= gameData.waveManager.waves.size()) {
+					if (nextWave >= (int)gameData.waveManager.waves.size()) {
 						Win();
 					}
 					//if upcoming wave does exist
 					else if (gameData.prevState == GAMESTATE_InWave) {
 						//Spawn start cube
 						MenuCube* startCube;
-						MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("StartCube", { 0, 1.5f, 0.0f }, &startCube));
+						unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"));
+						MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(ID, { 0, 1.5f, 0.0f }, &startCube));
 						DirectX::XMFLOAT4X4 newPos;
 						DirectX::XMStoreFloat4x4(&newPos, DirectX::XMLoadFloat4x4(&startCube->transform.GetMatrix()) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
 						startCube->transform.SetMatrix(newPos);
 						startCube->Enable();
 					}
 				}
-			}
-			break;
-		case GAMESTATE_InWave:
-			{
-				if (gameData.prevState == GAMESTATE_Paused) ResumeGame();
-			}
-			break;
-		case GAMESTATE_GameOver:
-			{
-				//gameData.Reset();
-			}
-			break;
+				break;
+			case GAMESTATE_InWave:
+				{
+
+				}
+				break;
+			case GAMESTATE_GameOver:
+				{
+					//gameData.Reset();
+				}
+				break;
+			case GAMESTATE_SplashScreen:
+				{
+
+				}
+				break;
+			case GAMESTATE_MainMenu:
+				break;
 		}
 	}
 }
@@ -165,14 +170,46 @@ void Game::ChangeScene(const char* sceneName) {
 	//Load scene assets
 	sceneManager->LoadScene(sceneName, &corePos);
 
+	//TODO: TEMPORARY main menu code--------
+	if (!strcmp(sceneName, "mainMenu")) {
+		DirectX::XMFLOAT4X4 menuPos = DirectX::XMFLOAT4X4(1, 0, 0, 0, 
+															0, 1, 0, 0, 
+															0, 0, 1, 0, 
+															0, 1.7f, 2, 1);
+		gameData.state = GAMESTATE_MainMenu;
+		mainMenu.SetSpawnPos(menuPos);
+		mainMenu.Show(false);
+		player->leftController->SetControllerState(CSTATE_MenuController);
+		player->rightController->SetControllerState(CSTATE_None);
+		player->transform.MoveToOrigin(player->playerHeight);
+		player->Teleport(&DirectX::XMFLOAT3( 0, 0, 0 ));
+		player->transform.LookAt({ menuPos._41, menuPos._42, menuPos._43 });
+
+	}
+	//--------------------------------------
+
 	//If it has level/wave data, load it
-	if (sceneManager->GetCurrentScene().levelFile != "") {
-		irr::io::IrrXMLReader *xmlReader = irr::io::createIrrXMLReader(sceneManager->GetCurrentScene().levelFile.c_str());
+	if (sceneManager->GetCurrentScene().levelFiles.size() > 0) {
+		irr::io::IrrXMLReader *xmlReader = irr::io::createIrrXMLReader(sceneManager->GetCurrentScene().levelFiles[0].c_str());
 
 		WaveManager::Wave* newWave = nullptr;
 		while (xmlReader->read()) {
 			if (xmlReader->getNodeType() == irr::io::EXN_ELEMENT) {
-				if (!strcmp("Wave", xmlReader->getNodeName())) {
+				if (!strcmp("Level", xmlReader->getNodeName())) {
+					gameData.state = GAMESTATE_BetweenWaves;
+					gameData.prevState = GAMESTATE_BetweenWaves;
+					player->leftController->SetControllerState(CSTATE_Inventory);
+					player->rightController->SetControllerState(CSTATE_Inventory);
+				}
+				else if (!strcmp("MenuScene", xmlReader->getNodeName())) {
+					gameData.sceneTimeLimit = xmlReader->getAttributeValueAsFloat("sceneTimeLimit");
+					gameData.nextScene = xmlReader->getAttributeValue("nextScene");
+					gameData.state = GAMESTATE_SplashScreen;
+					gameData.prevState = GAMESTATE_SplashScreen;
+					player->leftController->SetControllerState(CSTATE_ModelOnly);
+					player->rightController->SetControllerState(CSTATE_ModelOnly);
+				}
+				else if (!strcmp("Wave", xmlReader->getNodeName())) {
 					if (newWave) {
 						gameData.waveManager.waves.push_back(*newWave);
 						delete newWave;
@@ -189,12 +226,6 @@ void Game::ChangeScene(const char* sceneName) {
 					newSpawner.runDelay = xmlReader->getAttributeValueAsFloat("runDelay");
 					(*newWave).spawns.push_back(newSpawner);
 					(*newWave).enemyCount += newSpawner.spawnCount;
-				}
-				else if (!strcmp("MenuScene", xmlReader->getNodeName())) {
-					gameData.sceneTimeLimit = xmlReader->getAttributeValueAsFloat("sceneTimeLimit");
-					gameData.nextScene = xmlReader->getAttributeValue("nextScene");
-					gameData.state = GAMESTATE_Menu;
-					gameData.prevState = GAMESTATE_Menu;
 				}
 				else if (!strcmp("Logo", xmlReader->getNodeName())) {
 					Logo logo;
@@ -213,7 +244,7 @@ void Game::ChangeScene(const char* sceneName) {
 }
 void Game::StartNextWave() {
 	int nextWave = gameData.waveManager.currentWave + 1;
-	if (nextWave >= gameData.waveManager.waves.size()) {
+	if (nextWave >= (int)gameData.waveManager.waves.size()) {
 		Console::ErrorLine << "You tried to progress to a wave that doesnt exist!";
 	}
 	else {
@@ -232,14 +263,23 @@ void Game::RestartLevel() {
 }
 void Game::ResumeGame() {
 	//Logic to run when game first gets unPaused
+	if (!paused) return;
+	paused = false;
+	player->leftController->SetControllerStateToPrevious();
+	player->rightController->SetControllerStateToPrevious();
 }
 void Game::PauseGame() {
 	//Logic to run when game first gets paused
+	if (paused) return;
+	paused = true;
+	player->leftController->SetControllerState(CSTATE_MenuController);
+	player->rightController->SetControllerState(CSTATE_ModelOnly);
 }
 void Game::Lose() {
 	//Logic to run when the player loses
 	MenuCube* loseCube;
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("LoseCube", { 0, 0.75f, 0 }, &loseCube));
+	unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(ID, { 0, 0.75f, 0 }, &loseCube));
 	DirectX::XMFLOAT4X4 newPos;
 	DirectX::XMStoreFloat4x4(&newPos, DirectX::XMLoadFloat4x4(&loseCube->transform.GetMatrix()) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));
 	loseCube->transform.SetMatrix(newPos);
@@ -252,11 +292,15 @@ void Game::Win() {
 	MessageEvents::SendMessage(EVENT_GameWin, EventMessageBase());
 	Console::WriteLine << "GAME WAS WON";
 	MenuCube* winCube;
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("WinCube", { 0, 0.75f, 0 }, &winCube));
+	unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(ID, { 0, 0.75f, 0 }, &winCube));
 	winCube->Enable();
 }
 void Game::Quit() {
 	run = false;
+}
+void Game::ExitToMenu() {
+	ChangeScene("mainMenu");
 }
 
 //Main loop elements
@@ -264,7 +308,9 @@ void Game::Start(Player* _player, EngineStructure* _engine, char* startScene) {
 	srand((unsigned int)time(NULL));
 	engine = _engine;
 	player = _player;
-	pauseMenu->SetCamera(&player->transform);
+	mainMenu.Create(MENU_Main);
+	pauseMenu.Create(MENU_Pause);
+	pauseMenu.SetCamera(&player->transform);
 	sceneManager = new SceneManager();
 	sceneManager->Initialize();
 	gameData.Reset();
@@ -282,28 +328,19 @@ void Game::Start(Player* _player, EngineStructure* _engine, char* startScene) {
 	//enemy->Enable();
 }
 void Game::Update() {
-
-	if (restartNextFrame) {
-		RestartLevel();
-		restartNextFrame = false;
-		return;
-	}
-
 	auto playerPos = player->transform.GetMatrix();
 	hexGrid.Display(DirectX::XMFLOAT2(playerPos._41, playerPos._43));
 	float dt = (float)GhostTime::DeltaTime();
+
+	if (paused) return;
+
 	switch (gameData.state) {
-		case GAMESTATE_Paused:
-			{
-				
-			}
-			break;
 		case GAMESTATE_InWave:
 			{
 				//--------Spawn Enemies if it's their time
 				{
 					//For each spawn entry in the level file
-					for (int i = 0; i < gameData.waveManager.waves[gameData.waveManager.currentWave].spawns.size(); ++i) {
+					for (size_t i = 0; i < gameData.waveManager.waves[gameData.waveManager.currentWave].spawns.size(); ++i) {
 						//Update this entry's timers
 						WaveManager::Wave::Spawners& spawner = gameData.waveManager.waves[gameData.waveManager.currentWave].spawns[i];
 						spawner.timeSinceLastSpawn += dt;
@@ -312,7 +349,7 @@ void Game::Update() {
 						if (spawner.timeSinceLastSpawn >= nextSpawnTime && spawner.enemiesSpawned < spawner.spawnCount) {
 							//Spawns enemy at location
 							if (gameData.spawners.size() == 0) Console::ErrorLine << "No spawners are in the scene! Wave will be infinite!";
-							else if (spawner.spawnerID >= gameData.spawners.size() || spawner.spawnerID < 0) {
+							else if (spawner.spawnerID >= (int)gameData.spawners.size() || spawner.spawnerID < 0) {
 								gameData.spawners[rand() % gameData.spawners.size()]->SpawnObject(const_cast<char*>(spawner.enemyName.c_str()), &hexGrid, DirectX::XMFLOAT2(corePos.x, corePos.z));
 								spawner.enemiesSpawned++;
 								Console::WriteLine << "Spawner Index out of range. Picking random value";
@@ -347,21 +384,13 @@ void Game::Update() {
 				engine->ExecuteLateUpdate();
 			}
 			break;
-		case GAMESTATE_Menu:
+		case GAMESTATE_SplashScreen:
 			{
-
-				//if first time
-				if (gameData.currentLogoIndex == -1) {
-					++gameData.currentLogoIndex;
-					int id = ObjectFactory::CreatePrefab(&gameData.logos[gameData.currentLogoIndex].fileName);
-					MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(id, { 0, 1, 3 }, &gameData.currentLogo));
-				}
-
 				//update time
 				gameData.timeInScene += dt;
 
 				//if time is up, switch scenes
-				if (gameData.sceneTimeLimit != -1) {
+				if (gameData.sceneTimeLimit > 0) {
 					if (gameData.timeInScene >= gameData.sceneTimeLimit) {
 						StartEvent();
 					}
@@ -369,26 +398,51 @@ void Game::Update() {
 
 				//If we have logos to go through
 				if (gameData.logos.size()) {
-
-					//else if logo duration is up, switch logos
-					if (gameData.timeInScene >= gameData.logos[gameData.currentLogoIndex].duration) {
-						if (gameData.currentLogoIndex + 1 >= gameData.logos.size()) {
-							//we just finished last logo
+					//if first time
+					if (gameData.currentLogoIndex == -1) {
+						//Spawn first logo
+						if (gameData.logos[++gameData.currentLogoIndex].fileName != "") {
+							int id = ObjectFactory::CreatePrefab(&gameData.logos[gameData.currentLogoIndex].fileName);
+							MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(id, { 0, 1.5f, 20 }, &gameData.currentLogo));
+						}
+					}
+					else if (gameData.timeInScene >= gameData.logos[gameData.currentLogoIndex].duration) {
+						//If this duration is not special, delete it
+						if (gameData.logos[gameData.currentLogoIndex].duration != -1) {
+							if (gameData.currentLogo) gameData.currentLogo->Destroy();
+							gameData.currentLogo = nullptr;
+						}
+						//If there is a next option
+						if (gameData.currentLogoIndex + 1 < (int)gameData.logos.size()) {
+							//Update your index to it, and update the duration to be a new timer if not special
+							if (gameData.logos[++gameData.currentLogoIndex].duration != -1) {
+								gameData.logos[gameData.currentLogoIndex].duration += gameData.timeInScene;
+							}
+							if (gameData.logos[gameData.currentLogoIndex].fileName != "") {
+								int id = ObjectFactory::CreatePrefab(&gameData.logos[gameData.currentLogoIndex].fileName);
+								MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(id, { 0, 1.5f, 20 }, &gameData.currentLogo));
+							}
+						}
+						else {
+							if (gameData.currentLogo && gameData.logos[gameData.currentLogoIndex].duration != -1) gameData.currentLogo->Destroy();
 							while (gameData.logos.size()) {
 								gameData.logos.erase(gameData.logos.begin());
 							}
-							gameData.currentLogo->Destroy();
 							gameData.currentLogo = nullptr;
-						}
-						else {
-							if (gameData.currentLogo) gameData.currentLogo->Destroy();
-							gameData.logos[++gameData.currentLogoIndex].duration += gameData.timeInScene;
-							int id = ObjectFactory::CreatePrefab(&gameData.logos[gameData.currentLogoIndex].fileName);
-							MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(id, { 0, 1, 3 }, &gameData.currentLogo));
-
+							if (gameData.sceneTimeLimit == -2) {
+								StartEvent();
+							}
 						}
 					}
 				}
+
+
+				engine->ExecuteUpdate();
+				engine->ExecuteLateUpdate();
+			}
+			break;
+		case GAMESTATE_MainMenu:
+			{
 				engine->ExecuteUpdate();
 				engine->ExecuteLateUpdate();
 			}
@@ -399,6 +453,5 @@ void Game::Update() {
 	}
 }
 void Game::Clean() {
-	delete pauseMenu;
 	delete sceneManager;
 }

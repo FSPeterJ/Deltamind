@@ -13,13 +13,13 @@ void BuildTool::SetPrefabs(std::vector<unsigned> prefabIDs) {
 	prefabs.empty();
 	prefabs.resize(prefabIDs.size() + 1);
 
-	for (int i = 0; i < prefabIDs.size(); ++i) {
+	for (size_t i = 0; i < prefabIDs.size(); ++i) {
 		prefabs[i] = BuildItem();
 		prefabs[i].ID = prefabIDs[i];
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabIDs[i], { 0, 0, 0 }, &prefabs[i].object));
 		if(prefabs[i].ID) MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[i].object));
 		PhysicsComponent* physComp = prefabs[i].object->GetComponent<PhysicsComponent>();
-		prefabs[i].object->Enable(false);
+		//prefabs[i].object->Enable(false);
 		if(physComp) physComp->isActive = false;
 		//Set objects shader to be semi-transparent solid color
 	}
@@ -39,14 +39,14 @@ void BuildTool::Update() {
 }
 
 void BuildTool::Projection() {
-	if (currentPrefabIndex >= 0 && currentPrefabIndex < prefabs.size()) {
+	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
 		if (currentMode == SPAWN) SpawnProjection();
 		else RemoveProjection();
 	}
 }
 
 void BuildTool::Activate() {
-	if (currentPrefabIndex >= 0 && currentPrefabIndex < prefabs.size()) {
+	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
 		if (currentMode == SPAWN) Spawn();
 		else Remove();
 	}
@@ -76,21 +76,27 @@ bool BuildTool::SetObstacle(DirectX::XMFLOAT2 pos, bool active) {
 }
 
 void BuildTool::SpawnProjection(){
-	if (ArcCast(&transform, &spawnPos)) {
-		//snap to center of grid
-		DirectX::XMFLOAT2 newPos = DirectX::XMFLOAT2(spawnPos.x, spawnPos.z);
-		Snap(&newPos);
-		spawnPos.x = newPos.x;
-		spawnPos.z = newPos.y;
-		//Move Object
-		if (prefabs[currentPrefabIndex].object) {
+	if (prefabs[currentPrefabIndex].object) {
+		if (ArcCast(&transform, &spawnPos, &buildArc)) {
+			//snap to center of grid
+			buildArc.Create();
+			DirectX::XMFLOAT2 newPos = DirectX::XMFLOAT2(spawnPos.x, spawnPos.z);
+			Snap(&newPos);
+			spawnPos.x = newPos.x;
+			spawnPos.z = newPos.y;
+
+			//Move Object
 			DirectX::XMFLOAT4X4 newPos1 = prefabs[currentPrefabIndex].object->transform.GetMatrix();
 			newPos1._41 = spawnPos.x;
 			newPos1._42 = spawnPos.y;
 			newPos1._43 = spawnPos.z;
 			prefabs[currentPrefabIndex].object->transform.SetMatrix(newPos1);
 		}
+		else {
+			buildArc.Destroy();
+		}
 	}
+
 }
 void BuildTool::Spawn() {
 	//Instantiate a stationary copy at this position to stay
@@ -116,7 +122,7 @@ void BuildTool::RemoveProjection() {
 	//Set shader to transparent thing
 }
 void BuildTool::Remove() {
-	for (int i = 0; i < builtItems.size(); ++i) {
+	for (size_t i = 0; i < builtItems.size(); ++i) {
 		if (currentlySelectedItem == builtItems[i]) {
 			DirectX::XMFLOAT2 pos = DirectX::XMFLOAT2(currentlySelectedItem->transform.GetMatrix()._41, currentlySelectedItem->transform.GetMatrix()._43);
 			if (SetObstacle(pos, false)) {
@@ -130,7 +136,7 @@ void BuildTool::Remove() {
 }
 
 void BuildTool::CycleForward() {
-	if (currentPrefabIndex >= 0 && currentPrefabIndex < prefabs.size()) {
+	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
 		if (prefabs[currentPrefabIndex].object)
 			MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
 
@@ -151,7 +157,7 @@ void BuildTool::CycleForward() {
 	}
 }
 void BuildTool::CycleBackward() {
-	if (currentPrefabIndex >= 0 && currentPrefabIndex < prefabs.size()) {
+	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
 		if (prefabs[currentPrefabIndex].object)
 			MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
 
@@ -180,14 +186,15 @@ void BuildTool::ActiveUpdate() {
 }
 
 void BuildTool::DeSelected() {
-	if (currentPrefabIndex >= 0 && currentPrefabIndex < prefabs.size()) {
+	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
 		if (prefabs[currentPrefabIndex].object)
 			MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
 	}
+	buildArc.Destroy();
 }
 
 void BuildTool::Selected() {
-	if (currentPrefabIndex >= 0 && currentPrefabIndex < prefabs.size()) {
+	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
 		if (prefabs[currentPrefabIndex].object)
 			MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
 	}

@@ -9,6 +9,7 @@
 #include "PhysicsExtension.h"
 #include "Player.h"
 
+
 ControllerObject::ControllerObject() {
 }
 
@@ -18,8 +19,8 @@ void ControllerObject::Init(Player* _player, ControllerHand _hand) {
 	//SetControllerHand(_hand); //Not needed anymore?
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuControllerItem>({ 0,0,0 }, &menuController));
 	int temp = sizeof(MenuControllerItem);
-	currentGameItem = items[0];
-	Enable(false);
+	inventory.currentItem = inventory.items[0];
+	//Enable(false);
 }
 void ControllerObject::SetPhysicsComponent(const GameObject* obj, bool active) {
 	PhysicsComponent* physComp = obj->GetComponent<PhysicsComponent>();
@@ -27,20 +28,18 @@ void ControllerObject::SetPhysicsComponent(const GameObject* obj, bool active) {
 }
 void ControllerObject::AddToInventory(int itemSlot, unsigned prefabID) {
 	//Actual Inventory
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Item>(prefabID, { 0,0,0 }, (Item**)&items[itemSlot]));
-	if(!currentGameItem) {
-		currentGameItem = items[itemSlot];
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Item>(prefabID, { 0,0,0 }, (Item**)&inventory.items[itemSlot]));
+	if(!inventory.currentItem) {
+		inventory.currentItem = inventory.items[itemSlot];
 		//currentGameItem->Selected();
 	}
-	else {
-		items[itemSlot]->Render(false);
-		SetPhysicsComponent(items[itemSlot], false);
-	}
+	inventory.items[itemSlot]->Render(false);
+	SetPhysicsComponent(inventory.items[itemSlot], false);
 
 	//Inventory Display
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Item>(prefabID, { 0,0,0 }, (Item**)&displayItems[itemSlot]));
-	displayItems[itemSlot]->Render(false);
-	SetPhysicsComponent(displayItems[itemSlot], false);
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Item>(prefabID, { 0,0,0 }, (Item**)&inventory.displayItems[itemSlot]));
+	inventory.displayItems[itemSlot]->Render(false);
+	SetPhysicsComponent(inventory.displayItems[itemSlot], false);
 }
 
 void ControllerObject::SwitchCurrentItem(int itemIndex) {
@@ -49,97 +48,114 @@ void ControllerObject::SwitchCurrentItem(int itemIndex) {
 		Control item1 = (hand == HAND_Left ? leftItem1 : rightItem1);
 		Control item2 = (hand == HAND_Left ? leftItem2 : rightItem2);
 		Control item3 = (hand == HAND_Left ? leftItem3 : rightItem3);
-		if(KeyIsDown(item0)) {
-			if(items[0]) {
+		if(Amount(item0) == 1) {
+			if(inventory.items[0]) {
 				SwitchCurrentItem(0);
 				ResetKey(item0);
 				return;
 			}
 		}
-		if(KeyIsDown(item1)) {
-			if(items[1]) {
+		if(Amount(item1) == 1) {
+			if(inventory.items[1]) {
 				SwitchCurrentItem(1);
 				ResetKey(item1);
 				return;
 			}
 		}
-		if(KeyIsDown(item2)) {
-			if(items[2]) {
+		if(Amount(item2) == 1) {
+			if(inventory.items[2]) {
 				SwitchCurrentItem(2);
 				ResetKey(item2);
 				return;
 			}
 		}
-		if(KeyIsDown(item3)) {
-			if(items[3]) {
+		if(Amount(item3) == 1) {
+			if(inventory.items[3]) {
 				SwitchCurrentItem(3);
 				ResetKey(item3);
 				return;
 			}
 		}
 	}
-	else {
-		currentGameItem->DeSelected();
-		currentGameItem->Render(false);
-		SetPhysicsComponent(currentGameItem, false);
-		currentGameItem = items[itemIndex];
-		currentGameItem->Selected();
-		currentGameItem->Render(true);
-		SetPhysicsComponent(currentGameItem, true);
+	else if(inventory.items[itemIndex] != inventory.currentItem) {
+		inventory.currentItem->DeSelected();
+		inventory.currentItem->Render(false);
+		SetPhysicsComponent(inventory.currentItem, false);
+		inventory.currentItem = inventory.items[itemIndex];
+		inventory.currentItem->Selected();
+		inventory.currentItem->Render(true);
+		SetPhysicsComponent(inventory.currentItem, true);
 		return;
 	}
 }
 void ControllerObject::DisplayInventory() {
 	static bool leftJustTouched = false, rightJustTouched = false;
+	inventory.displayRotation += (float)GhostTime::DeltaTime() * 0.5f;
 
 	bool* justTouched = (hand == HAND_Left ? &leftJustTouched : &rightJustTouched);
 	Control touch = (hand == HAND_Left ? leftTouch : rightTouch);
+	Control item0 = (hand == HAND_Left ? leftItem0 : rightItem0);
+	Control item1 = (hand == HAND_Left ? leftItem1 : rightItem1);
+	Control item2 = (hand == HAND_Left ? leftItem2 : rightItem2);
+	Control item3 = (hand == HAND_Left ? leftItem3 : rightItem3);
 
 	if(KeyIsDown(touch)) {
 		for(unsigned int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
-			if(displayItems[i]) {
-				if(!*justTouched) displayItems[i]->Render(true);
+			if(inventory.displayItems[i]) {
+				if(!*justTouched) inventory.displayItems[i]->Render(true);
 				DirectX::XMFLOAT4X4 newPos;
-				newPos._11 = transform.GetMatrix()._11 * 0.5f;
-				newPos._12 = transform.GetMatrix()._12 * 0.5f;
-				newPos._13 = transform.GetMatrix()._13 * 0.5f;
-				newPos._14 = transform.GetMatrix()._14;
-				newPos._21 = transform.GetMatrix()._21 * 0.5f;
-				newPos._22 = transform.GetMatrix()._22 * 0.5f;
-				newPos._23 = transform.GetMatrix()._23 * 0.5f;
-				newPos._24 = transform.GetMatrix()._24;
-				newPos._31 = transform.GetMatrix()._31 * 0.5f;
-				newPos._32 = transform.GetMatrix()._32 * 0.5f;
-				newPos._33 = transform.GetMatrix()._33 * 0.5f;
-				newPos._34 = transform.GetMatrix()._34;
-				newPos._41 = transform.GetMatrix()._41;
-				newPos._42 = transform.GetMatrix()._42;
-				newPos._43 = transform.GetMatrix()._43;
-				newPos._44 = transform.GetMatrix()._44;
+				DirectX::XMMATRIX result, scale, rotation, translation, parentMatrix;
+				result = DirectX::XMMatrixIdentity();
+				scale = DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f);
+				rotation = DirectX::XMMatrixIdentity();
+				parentMatrix = DirectX::XMLoadFloat4x4(&transform.GetMatrix());
+
 				switch(i) {
 					case 0:
-						newPos._41 += ((transform.GetMatrix()._21 * 0.2f) + (transform.GetMatrix()._31 * 0.1f));
-						newPos._42 += ((transform.GetMatrix()._22 * 0.2f) + (transform.GetMatrix()._32 * 0.1f));
-						newPos._43 += ((transform.GetMatrix()._23 * 0.2f) + (transform.GetMatrix()._33 * 0.1f));
+						translation = DirectX::XMMatrixTranslation(0, 0.2f, 0.1f);
+						if (Amount(item0) == 0.5f) {
+							if (inventory.currentSpinningItem != 0) {
+								inventory.displayRotation = 0;
+								inventory.currentSpinningItem = 0;
+							}
+							rotation = DirectX::XMMatrixRotationRollPitchYaw(0, inventory.displayRotation * 2, 0);
+						}
 						break;
 					case 1:
-						newPos._41 += ((-transform.GetMatrix()._11 * 0.2f) + (transform.GetMatrix()._31 * 0.1f));
-						newPos._42 += ((-transform.GetMatrix()._12 * 0.2f) + (transform.GetMatrix()._32 * 0.1f));
-						newPos._43 += ((-transform.GetMatrix()._13 * 0.2f) + (transform.GetMatrix()._33 * 0.1f));
+						translation = DirectX::XMMatrixTranslation(-0.2f, 0, 0.1f);
+						if (Amount(item1) == 0.5f) {
+							if (inventory.currentSpinningItem != 1) {
+								inventory.displayRotation = 0;
+								inventory.currentSpinningItem = 1;
+							}
+							rotation = DirectX::XMMatrixRotationRollPitchYaw(0, inventory.displayRotation * 2, 0);
+						}
 						break;
 					case 2:
-						newPos._41 += ((transform.GetMatrix()._11 * 0.2f) + (transform.GetMatrix()._31 * 0.1f));
-						newPos._42 += ((transform.GetMatrix()._12 * 0.2f) + (transform.GetMatrix()._32 * 0.1f));
-						newPos._43 += ((transform.GetMatrix()._13 * 0.2f) + (transform.GetMatrix()._33 * 0.1f));
+						translation = DirectX::XMMatrixTranslation(0.2f, 0, 0.1f);
+						if (Amount(item2) == 0.5f) {
+							if (inventory.currentSpinningItem != 2) {
+								inventory.displayRotation = 0;
+								inventory.currentSpinningItem = 2;
+							}
+							rotation = DirectX::XMMatrixRotationRollPitchYaw(0, inventory.displayRotation * 2, 0);
+						}
 						break;
 					case 3:
-						newPos._41 += ((-transform.GetMatrix()._21 * 0.2f) + (transform.GetMatrix()._31 * 0.1f));
-						newPos._42 += ((-transform.GetMatrix()._22 * 0.2f) + (transform.GetMatrix()._32 * 0.1f));
-						newPos._43 += ((-transform.GetMatrix()._23 * 0.2f) + (transform.GetMatrix()._33 * 0.1f));
+						translation = DirectX::XMMatrixTranslation(0, -0.2f, 0.1f);
+						if (Amount(item3) == 0.5f) {
+							if (inventory.currentSpinningItem != 3) {
+								inventory.displayRotation = 0;
+								inventory.currentSpinningItem = 3;
+							}
+							rotation = DirectX::XMMatrixRotationRollPitchYaw(0, inventory.displayRotation * 2, 0);
+						}
 						break;
 				}
 
-				displayItems[i]->transform.SetMatrix(newPos);
+				result = scale * rotation * translation * parentMatrix;
+				DirectX::XMStoreFloat4x4(&newPos, result);
+				inventory.displayItems[i]->transform.SetMatrix(newPos);
 			}
 		}
 		*justTouched = true;
@@ -147,7 +163,7 @@ void ControllerObject::DisplayInventory() {
 	else {
 		if(*justTouched) {
 			for(unsigned int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
-				if(displayItems[i]) displayItems[i]->Render(false);
+				if(inventory.displayItems[i]) inventory.displayItems[i]->Render(false);
 			}
 			*justTouched = false;
 		}
@@ -157,8 +173,8 @@ void ControllerObject::DisplayInventory() {
 void ControllerObject::AddItem(int itemSlot, unsigned prefabID) {
 	AddToInventory(itemSlot, prefabID);
 
-	Gun* gun = dynamic_cast<Gun*>(items[itemSlot]);
-	BuildTool* tool = dynamic_cast<BuildTool*>(items[itemSlot]);
+	Gun* gun = dynamic_cast<Gun*>(inventory.items[itemSlot]);
+	BuildTool* tool = dynamic_cast<BuildTool*>(inventory.items[itemSlot]);
 	if(gun) {
 		gun->SetStats(Gun::FireType::SEMI, 60, 1);
 	}
@@ -166,8 +182,8 @@ void ControllerObject::AddItem(int itemSlot, unsigned prefabID) {
 void ControllerObject::AddItem(int itemSlot, unsigned prefabID, std::vector<unsigned> prefabIDs) {
 	AddToInventory(itemSlot, prefabID);
 
-	Gun* gun = dynamic_cast<Gun*>(items[itemSlot]);
-	BuildTool* buildTool = dynamic_cast<BuildTool*>(items[itemSlot]);
+	Gun* gun = dynamic_cast<Gun*>(inventory.items[itemSlot]);
+	BuildTool* buildTool = dynamic_cast<BuildTool*>(inventory.items[itemSlot]);
 	if(gun) {
 		gun->SetStats(Gun::FireType::SEMI, 60, 1);
 	}
@@ -178,198 +194,274 @@ void ControllerObject::AddItem(int itemSlot, unsigned prefabID, std::vector<unsi
 void ControllerObject::AddItem(int itemSlot, unsigned prefabID, Gun::FireType _fireType, float _fireRate, float _damage) {
 	AddToInventory(itemSlot, prefabID);
 
-	Gun* gun = dynamic_cast<Gun*>(items[itemSlot]);
+	Gun* gun = dynamic_cast<Gun*>(inventory.items[itemSlot]);
 	if(gun) {
 		gun->SetStats(_fireType, _fireRate, _damage);
 	}
 }
 
+void ControllerObject::SetControllerState(ControllerState newState) {
+	prevState = state;
+	state = newState;
+
+	//Deactivate old state data
+	switch (prevState) {
+		case ControllerState::CSTATE_Inventory:
+			{
+				inventory.currentItem->Render(false);
+				SetPhysicsComponent(inventory.currentItem, false);
+			}
+			break;
+		case ControllerState::CSTATE_MenuController:
+			{
+				menuController->Render(false);
+			}
+			break;
+		case ControllerState::CSTATE_ModelOnly:
+			{
+				menuController->Render(false);
+			}
+			break;
+		case ControllerState::CSTATE_None:
+			{
+
+			}
+			break;
+	}
+	//Activate new state data
+	switch (newState) {
+		case ControllerState::CSTATE_Inventory:
+			{
+				inventory.currentItem->Render(true);
+				SetPhysicsComponent(inventory.currentItem, true);
+			}
+			break;
+		case ControllerState::CSTATE_MenuController:
+			{
+				menuController->Render(true);
+			}
+			break;
+		case ControllerState::CSTATE_ModelOnly:
+			{
+				menuController->Render(true);
+			}
+			break;
+		case ControllerState::CSTATE_None:
+			{
+
+			}
+			break;
+	}
+}
+void ControllerObject::SetControllerStateToPrevious() {
+	SetControllerState(prevState);
+}
+
 void ControllerObject::Update() {
 	if (hand == HAND_Invalid) return;
 	float dt = (float)GhostTime::DeltaTime();
-	if (menuController) menuController->Render(false);
 
 	//All Inputs
-	Control attack = (hand == HAND_Left ? leftAttack : rightAttack);
-	Control cyclePrefab = (hand == HAND_Left ? leftCyclePrefab : rightCyclePrefab);
-	SwitchCurrentItem();
 
-	//VR Inputs
-	if (player->IsVR()) {
-		DisplayInventory();
-
-		static bool teleport = false;
-		if (KeyIsDown(teleportDown) && hand == HAND_Right) {
-			ArcCast(&transform, {});
-			teleport = true;
-		}
-		if (teleport && !KeyIsDown(teleportDown) && hand == HAND_Right) {
-			player->Teleport();
-			teleport = false;
-		}
-	}
-	//Keboard Inputs
-	else {
-		PositionNonVRController();
-
-		//Keyboard Inputs
-		if (KeyIsDown(Control::TestInputU)) {
-			DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
-			newPos._42 += dt;
-			transform.SetMatrix(newPos);
-			//ResetKey(Control::TestInputU);
-		}
-		if (KeyIsDown(Control::TestInputO)) {
-			DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
-			newPos._42 -= dt;
-			transform.SetMatrix(newPos);
-			//ResetKey(Control::TestInputO);
-		}
-		if (KeyIsDown(Control::TestInputI)) {
-			DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
-			newPos._43 += dt;
-			transform.SetMatrix(newPos);
-			//ResetKey(Control::TestInputI);
-		}
-		if (KeyIsDown(Control::TestInputK)) {
-			DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
-			newPos._43 -= dt;
-			transform.SetMatrix(newPos);
-			//ResetKey(Control::TestInputK);
-		}
-		if (KeyIsDown(Control::TestInputJ)) {
-			DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
-			newPos._41 -= dt;
-			transform.SetMatrix(newPos);
-			//ResetKey(Control::TestInputJ);
-		}
-		if (KeyIsDown(Control::TestInputL)) {
-			DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
-			newPos._41 += dt;
-			transform.SetMatrix(newPos);
-			//ResetKey(Control::TestInputL);
-		}
-	}
+	switch (state) {
+		case ControllerState::CSTATE_Inventory:
+			{
+				Control attack = (hand == HAND_Left ? leftAttack : rightAttack);
+				Control cyclePrefab = (hand == HAND_Left ? leftCyclePrefab : rightCyclePrefab);
 
 
-	//Update Items
-	#pragma region Update Inactive Items
-		for (unsigned int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
-			if (items[i] && items[i] != currentGameItem) {
-				items[i]->InactiveUpdate();
-			}
-		}
-	#pragma endregion
-	#pragma region Update Current Item
-			if (currentGameItem) {
-				currentGameItem->transform.SetMatrix(transform.GetMatrix());
-				currentGameItem->ActiveUpdate();
+				SwitchCurrentItem();
 
-				//Specific States
-				switch (currentGameItem->state) {
-					case Item::State::GUN:
-						{
-							if (KeyIsDown(attack)) {
-								if (!((Gun*)currentGameItem)->Shoot()) {
-									ResetKey(attack);
-								}
-							}
+				//VR Inputs
+				if (player->IsVR()) {
+					DisplayInventory();
+
+					static bool teleportQueued = false;
+					DirectX::XMFLOAT3 endPos;
+					if (KeyIsDown(teleportDown) && hand == HAND_Right) {
+						if (ArcCast(&transform, &endPos, &player->teleportArc)) {
+							player->teleportArc.Create();
+							teleportQueued = true;
 						}
-						break;
-					case Item::State::CONTROLLER:
-						{
+						else {
+							player->teleportArc.Destroy();
+							teleportQueued = false;
 						}
-						break;
-					case Item::State::BUILD:
-						{
-							//static bool leftCycled = false, rightCycled = false;
-							if (/*!(hand == HAND_Left ? leftCycled : rightCycled) && */KeyIsDown(cyclePrefab)) {
-								((BuildTool*)currentGameItem)->CycleForward();
-								ResetKey(cyclePrefab);
-								//if(hand == HAND_Left) leftCycled = true;
-								//else if (hand == HAND_Right) rightCycled = true;
-							}
-							//if (!KeyIsDown(cyclePrefab)) {
-							//	if (hand == HAND_Left) leftCycled = false;
-							//	else if (hand == HAND_Right) rightCycled = false;
-							//}
+					}
+					if (teleportQueued && !KeyIsDown(teleportDown) && hand == HAND_Right) {
+						player->teleportArc.Destroy();
+						player->Teleport();
+						teleportQueued = false;
+					}
+				}
+				//Keboard Inputs
+				else {
+					PositionNonVRController();
 
-							//static bool leftAttacked = false, rightAttacked = false;
-							if (/*!(hand == HAND_Left ? leftAttacked : rightAttacked) && */KeyIsDown(attack)) {
-								((BuildTool*)currentGameItem)->Activate();
-								//if (hand == HAND_Left) leftAttacked = true;
-								//else if (hand == HAND_Right) rightAttacked = true;
-								ResetKey(attack);
-							}
-							if (!KeyIsDown(attack)) {
-								((BuildTool*)currentGameItem)->Projection();
-								//	if (hand == HAND_Left) leftAttacked = false;
-								//	else if (hand == HAND_Right) rightAttacked = false;
-							}
-						}
-						break;
-					case Item::State::INVALID:
-						break;
+					//Keyboard Inputs
+					if (KeyIsDown(Control::TestInputU)) {
+						DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
+						newPos._42 += dt;
+						transform.SetMatrix(newPos);
+						//ResetKey(Control::TestInputU);
+					}
+					if (KeyIsDown(Control::TestInputO)) {
+						DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
+						newPos._42 -= dt;
+						transform.SetMatrix(newPos);
+						//ResetKey(Control::TestInputO);
+					}
+					if (KeyIsDown(Control::TestInputI)) {
+						DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
+						newPos._43 += dt;
+						transform.SetMatrix(newPos);
+						//ResetKey(Control::TestInputI);
+					}
+					if (KeyIsDown(Control::TestInputK)) {
+						DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
+						newPos._43 -= dt;
+						transform.SetMatrix(newPos);
+						//ResetKey(Control::TestInputK);
+					}
+					if (KeyIsDown(Control::TestInputJ)) {
+						DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
+						newPos._41 -= dt;
+						transform.SetMatrix(newPos);
+						//ResetKey(Control::TestInputJ);
+					}
+					if (KeyIsDown(Control::TestInputL)) {
+						DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
+						newPos._41 += dt;
+						transform.SetMatrix(newPos);
+						//ResetKey(Control::TestInputL);
+					}
 				}
 
+				//Update Items
+				#pragma region Update Inactive Items
+					for (unsigned int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
+						if (inventory.items[i] && inventory.items[i] != inventory.currentItem) {
+							inventory.items[i]->InactiveUpdate();
+						}
+					}
+				#pragma endregion
+				#pragma region Update Current Item
+				if (inventory.currentItem) {
+					inventory.currentItem->transform.SetMatrix(transform.GetMatrix());
+					inventory.currentItem->ActiveUpdate();
+
+					//Specific States
+					switch (inventory.currentItem->state) {
+						case Item::State::GUN:
+							{
+								if (KeyIsDown(attack)) {
+									if (!((Gun*)inventory.currentItem)->Shoot()) {
+										ResetKey(attack);
+									}
+								}
+							}
+							break;
+						case Item::State::CONTROLLER:
+							{
+							}
+							break;
+						case Item::State::BUILD:
+							{
+								//static bool leftCycled = false, rightCycled = false;
+								if (/*!(hand == HAND_Left ? leftCycled : rightCycled) && */KeyIsDown(cyclePrefab)) {
+									((BuildTool*)inventory.currentItem)->CycleForward();
+									ResetKey(cyclePrefab);
+									//if(hand == HAND_Left) leftCycled = true;
+									//else if (hand == HAND_Right) rightCycled = true;
+								}
+								//if (!KeyIsDown(cyclePrefab)) {
+								//	if (hand == HAND_Left) leftCycled = false;
+								//	else if (hand == HAND_Right) rightCycled = false;
+								//}
+
+								//static bool leftAttacked = false, rightAttacked = false;
+								if (/*!(hand == HAND_Left ? leftAttacked : rightAttacked) && */KeyIsDown(attack)) {
+									((BuildTool*)inventory.currentItem)->Activate();
+									//if (hand == HAND_Left) leftAttacked = true;
+									//else if (hand == HAND_Right) rightAttacked = true;
+									ResetKey(attack);
+								}
+								if (!KeyIsDown(attack)) {
+									((BuildTool*)inventory.currentItem)->Projection();
+									//	if (hand == HAND_Left) leftAttacked = false;
+									//	else if (hand == HAND_Right) rightAttacked = false;
+								}
+							}
+							break;
+						case Item::State::INVALID:
+							break;
+					}
+
+				}
+				#pragma endregion
 			}
-	#pragma endregion
+			break;
+		case ControllerState::CSTATE_MenuController:
+			{
+				Control attack = (hand == HAND_Left ? leftAttack : rightAttack);
+
+				if (!player->IsVR()) PositionNonVRController();
+				menuController->transform.SetMatrix(transform.GetMatrix());
+				
+				if (KeyIsDown(attack)) {
+					ResetKey(attack);
+						menuController->Activate();
+					}
+				else {
+						menuController->UpdateRay();
+					}
+			}
+			break;
+		case ControllerState::CSTATE_ModelOnly:
+			{
+				if (!player->IsVR()) PositionNonVRController();
+				menuController->transform.SetMatrix(transform.GetMatrix());
+			}
+			break;
+		case ControllerState::CSTATE_None:
+			break;
+	}
 
 	GameObject::Update();
-}
-void ControllerObject::PausedUpdate() {
-	if(hand == HAND_Invalid) return;
-	Control attack = (hand == HAND_Left ? leftAttack : rightAttack);
-
-	if (!player->IsVR()) {
-		PositionNonVRController();
-	}
-
-	menuController->Render(true);
-	menuController->transform.SetMatrix(transform.GetMatrix());
-
-	if(KeyIsDown(attack)) {
-		menuController->Activate();
-		//ResetKey(attack);
-	}
-	else {
-		menuController->UpdateRay();
-	}
 }
 
 void ControllerObject::GivePID(unsigned pid, const char* tag) {
 
 	//This is should be changed if other data is to be passed in.
 	//The stupid setup of this is taking the character '1'
-	itemPrefabs[*tag - '0'] = pid;
+	inventory.itemPrefabs[*tag - '0'] = pid;
 }
 
 void ControllerObject::Awake(Object* obj) {
-	memcpy(itemPrefabs, ((ControllerObject*)obj)->itemPrefabs, sizeof(unsigned) * CONTROLLER_MAX_ITEMS);
+	memcpy(inventory.itemPrefabs, ((ControllerObject*)obj)->inventory.itemPrefabs, sizeof(unsigned) * CONTROLLER_MAX_ITEMS);
 	for(int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
-		if(itemPrefabs[i] > 0) {
-			AddItem(i, itemPrefabs[i]);
+		if(inventory.itemPrefabs[i] > 0) {
+			AddItem(i, inventory.itemPrefabs[i]);
 		}
 	}
 }
 
 // TEMPORARY - CHANGE OR REMOVE LATER
 void ControllerObject::SetBuildItems(std::vector<unsigned> prefabIDs) {
-	BuildTool* buildTool = (BuildTool*)items[3];
+	BuildTool* buildTool = (BuildTool*)inventory.items[3];
 	assert(buildTool);
 	buildTool->SetPrefabs(prefabIDs);
 }
 
 // TEMPORARY - CHANGE OR REMOVE LATER
 void ControllerObject::SetGunData(int slot, Gun::FireType _fireType, float _fireRate, float _damage) {
-	Gun* gun = (Gun*)items[slot];
+	Gun* gun = (Gun*)inventory.items[slot];
 	gun->SetStats(_fireType, _fireRate, _damage);
 
 }
 
 
 void ControllerObject::Enable(bool destroyOnEnd) {
-	menuController->Render(false);
 	GameObject::Enable(destroyOnEnd);
 }
 

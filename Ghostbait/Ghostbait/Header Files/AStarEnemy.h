@@ -10,15 +10,15 @@ class HexGrid;
 class AStarEnemy:public EnemyBase, public Controlable {
 	HexPath path;
 	size_t howFarAlong = 0;
-	HexGrid* grid;
-	RigidBody* rb;
+	HexGrid* grid = 0;
+	RigidBody* rb = 0;
 	HexTile* goal = 0;
 	HexTile* next = 0;
 
 
 	bool start = false;
-	unsigned eventAdd;
-	unsigned eventRemove;
+	unsigned eventAdd = 0;
+	unsigned eventRemove = 0;
 
 	void CalcPath(DirectX::XMFLOAT2 where);
 	void CalcPath(HexTile* where);

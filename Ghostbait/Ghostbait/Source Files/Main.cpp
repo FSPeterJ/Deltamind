@@ -38,6 +38,9 @@ AnimatorManager* animMan;
 AudioManager* audioMan;
 Player* player;
 
+GameObject* animationTest;
+
+
 void ExecuteAsync() {
 	Console::WriteLine << "I am executed asyncly!";
 	throw std::invalid_argument("ERROR: This is a test showing we can know if a thread throws an exception on its work.\n");
@@ -133,7 +136,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<GameObject>(512);
 	ObjectFactory::RegisterPrefabBase<Projectile>(512);
 	ObjectFactory::RegisterPrefabBase<Spawner>(24);
-	ObjectFactory::RegisterPrefabBase<EnemyBase>(32);
+	ObjectFactory::RegisterPrefabBase<EnemyBase>(300);
 	ObjectFactory::RegisterPrefabBase<MenuCube>(5);
 	ObjectFactory::RegisterPrefabBase<CoreCube>(5);
 	ObjectFactory::RegisterPrefabBase<BuildTool>(24);
@@ -141,8 +144,12 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<ResumeButton>(1);
 	ObjectFactory::RegisterPrefabBase<RestartButton>(1);
 	ObjectFactory::RegisterPrefabBase<QuitButton>(1);
+	ObjectFactory::RegisterPrefabBase<PlayButton>(1);
+	ObjectFactory::RegisterPrefabBase<OptionsButton>(1);
+	ObjectFactory::RegisterPrefabBase<ExitButton>(1);
+	ObjectFactory::RegisterPrefabBase<BackButton>(1);
 
-	ObjectFactory::RegisterPrefabBase<AStarEnemy>(10);
+	ObjectFactory::RegisterPrefabBase<AStarEnemy>(300);
 	Console::WriteLine << "Prefab base registered......";
 
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
@@ -174,6 +181,10 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<ResumeButton>("ResumeButton");
 	TypeMap::RegisterObjectAlias<RestartButton>("RestartButton");
 	TypeMap::RegisterObjectAlias<QuitButton>("QuitButton");
+	TypeMap::RegisterObjectAlias<PlayButton>("PlayButton");
+	TypeMap::RegisterObjectAlias<OptionsButton>("OptionsButton");
+	TypeMap::RegisterObjectAlias<ExitButton>("ExitButton");
+	TypeMap::RegisterObjectAlias<BackButton>("BackButton");
 
 	TypeMap::RegisterObjectAlias<AStarEnemy>("AStarEnemy");
 	TypeMap::RegisterObjectAlias<Turret>("Turret");
@@ -201,16 +212,15 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost"), "BuildTool");
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest3.ghost"), "PhyTest3");
 	ObjectFactory::CreatePrefab(&std::string("Assets/MenuControllerItem.ghost"), "MenuController", true);
-	unsigned Gun1 = ObjectFactory::CreatePrefab(&std::string("Assets/Gun.ghost"), "GunTest");
+	unsigned Gun1 = ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost"), "Pistol", true);
 	unsigned Gun2 = ObjectFactory::CreatePrefab(&std::string("Assets/Gun2.ghost"), "GunTest2");
-	ObjectFactory::CreatePrefab(&std::string("Assets/Gun.ghost"), "GunTest", true);
+	//ObjectFactory::CreatePrefab(&std::string("Assets/Gun.ghost"), "GunTest", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/TestProjectile.ghost"), "TestProjectile");
 	ObjectFactory::CreatePrefab(&std::string("Assets/AStarEnemyEdit.ghost"), "AStarEnemy");
-	ObjectFactory::CreatePrefab(&std::string("Assets/ResumeButton.ghost"), "ResumeButton");
 	unsigned basicTurret = ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost"), "TestTurret", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/RestartButton.ghost"), "RestartButton");
 	ObjectFactory::CreatePrefab(&std::string("Assets/QuitButton.ghost"), "QuitButton");
-	
+
 
 	//ObjectFactory::CreatePrefab(&std::string("Assets/TeleportSphere.ghost"));
 	//ObjectFactory::CreatePrefab(&std::string("Object.ghost"));
@@ -276,24 +286,24 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//((PhysicsTestObj*)test1)->isControllable = true;
 	//((PhysicsTestObj*)test1)->isRayCasting = true;
 
-	//test1->Enable();
+	//test1->Enable(false);
 
 
 
 
-	Turret *debugTurret;
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Turret>({ 0,0,0 }, &debugTurret));
-	//assert(debugTurret->GetComponent<Animator>()->setState("default"));
-	//debugTurret->GetComponent<Animator>()->SetTime(3.0f);
-	debugTurret->Enable();
+	//Turret *debugTurret;
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Turret>({ 1,0,0 }, &debugTurret));
+	//////assert(debugTurret->GetComponent<Animator>()->setState("default"));
+	//////debugTurret->GetComponent<Animator>()->SetTime(3.0f);
+	//debugTurret->Enable(false);
 
 	GhostTime::Initalize();
 	MessageEvents::Initilize();
 
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<GameObject>("EarthMage", { 0.0f, 0.0f, 25.0f }));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<GameObject>("EarthMage", { 0.0f, 0.0f, 25.0f }));
 	Console::WriteLine << "Starting Game Loop......";
 	game = new Game();
-	game->Start(player, &engine, "level0");
+	game->Start(player, &engine);
 }
 
 void Loop() {
@@ -304,15 +314,16 @@ void Loop() {
 
 	}
 	else {
-		//TODO: Need a better way to do this...Maybe a paused Update delegate?
-		player->leftHand.controller->PausedUpdate();
-		player->rightHand.controller->PausedUpdate();
 		player->PausedUpdate();
-
 		phyMan->PausedUpdate();
 	}
-	game->Update();
+
 	inputMan->HandleInput();
+	game->Update();
+	player->leftController->Update();
+	player->rightController->Update();
+
+	
 	rendInter->Render();
 }
 

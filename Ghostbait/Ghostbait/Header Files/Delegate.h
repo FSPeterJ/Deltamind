@@ -54,13 +54,14 @@ public:
 	}
 
 	void Remove(unsigned id) {
-		//Bad ID given.  You cannot remove permament delegates as all permament delegates are give the same ID of 0
+		// Bad ID given.  You either did not store the correct id for the caller's delegate or you attempted to remove a permament delegate
+		// You cannot remove permament delegates (id of 0) as all permament delegates are give the same ID of 0
 		assert(id != 0);
 
 		//Error: You cannot call remove on a delegate from within that same delegate process loop!
 		//(you cannot remove a vector element while iterating that vector)
-		//Example: While processing all update functions in the Update delegate, you remove thisobject.Update from the Update delegate.
-		//Please use a deffered removal method
+		//Example: While processing all update functions in the Update delegate, you try to remove thisobject.Update from the Update delegate.
+		//Please use a deferred removal method
 		assert(delegate_iteration == 0);
 
 		Delegate_Entry data = {id, nullptr};

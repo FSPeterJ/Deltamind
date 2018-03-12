@@ -14,15 +14,13 @@ protected:
 	};
 	
 	State currState = IDLE;
-	float maxSpeed = 2.0f;
+	float maxSpeed = 4.0f;
 	DirectX::XMFLOAT3 target = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 
-	unsigned eventLose;
-
+	unsigned eventLose = 0;
 	bool hurt = false;
 	double hurtTimer = 0;
 	double hurtDuration = 1;
-
 	bool sentDeathMessage = false;
 
 public:

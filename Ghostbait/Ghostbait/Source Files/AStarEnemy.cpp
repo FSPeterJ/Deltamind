@@ -12,19 +12,28 @@ AStarEnemy::AStarEnemy() {
 //Main Overrides
 
 void AStarEnemy::Awake(Object* obj) {
+	howFarAlong = 0;
+	grid = 0;
+	rb = 0;
+	goal = 0;
+	next = 0;
+
+
+	start = false;
+	eventAdd = 0;
+	eventRemove = 0;
+	
 	EnemyBase::Awake(obj);
 	rb = &(GetComponent<PhysicsComponent>()->rigidBody);
-
 }
 
 void AStarEnemy::Subscribe() {
-	eventAdd = MessageEvents::Subscribe(EVENT_AddObstacle, [=](EventMessageBase* e) {this->Repath(); });
-	eventRemove = MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {this->Repath(); });
-
+	if(!eventAdd) eventAdd = MessageEvents::Subscribe(EVENT_AddObstacle, [=](EventMessageBase* e) {this->Repath(); });
+	if(!eventRemove) eventRemove = MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {this->Repath(); });
 }
 void AStarEnemy::UnSubscribe() {
-	MessageEvents::UnSubscribe(EVENT_AddObstacle, eventAdd);
-	MessageEvents::UnSubscribe(EVENT_RemoveObstacle, eventRemove);
+	if (eventAdd) { MessageEvents::UnSubscribe(EVENT_AddObstacle, eventAdd); eventAdd = 0; }
+	if (eventRemove) { MessageEvents::UnSubscribe(EVENT_RemoveObstacle, eventRemove); eventRemove = 0; }
 }
 void AStarEnemy::Enable(bool _destroyOnReset) {
 	if(!goal) {
@@ -32,17 +41,12 @@ void AStarEnemy::Enable(bool _destroyOnReset) {
 	}
 	rb->SetTerminalSpeed(maxSpeed);
 	next = path.start();
-	if (!enabled) { // What does this do?
-		AStarEnemy::Subscribe();
-		EnemyBase::Enable(_destroyOnReset);
-	}
-	GameObject::Enable();
+	AStarEnemy::Subscribe();
+	EnemyBase::Enable(_destroyOnReset);
 }
 void AStarEnemy::Disable() {
-	if (enabled) {
-		AStarEnemy::UnSubscribe();
-		EnemyBase::Disable();
-	}
+	AStarEnemy::UnSubscribe();
+	EnemyBase::Disable();
 }
 void AStarEnemy::Destroy() {
 	EnemyBase::Destroy();

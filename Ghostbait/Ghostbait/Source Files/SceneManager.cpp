@@ -37,13 +37,15 @@ void SceneManager::CreateSceneFile(SceneManager::TestSceneData& data) {
 		Writer::defaultStream = &file;
 
 		Writer::WriteIntString(data.sceneName);
-		Writer::WriteIntString(data.levelName);
-		
-		for (int i = 0; i < data.prefabs.size(); ++i) {
+		Writer::WriteInt((int)data.levelName.size());
+		for (size_t i = 0; i < data.levelName.size(); ++i)
+			Writer::WriteIntString(data.levelName[i]);
+
+		Writer::WriteInt((int)data.prefabs.size());
+		for (size_t i = 0; i < data.prefabs.size(); ++i) {
 			Writer::WriteIntString(data.prefabs[i].ghostFile);
-			Writer::WriteIntString(data.prefabs[i].name);
- 			Writer::WriteInt(data.prefabs[i].positions.size());
-			for (int j = 0; j < data.prefabs[i].positions.size(); ++j) {
+			Writer::WriteInt(data.prefabs[i].positions.size());
+			for (size_t j = 0; j < data.prefabs[i].positions.size(); ++j) {
 				Writer::WriteMatrix(data.prefabs[i].positions[j]);
 			}
 		}
@@ -56,12 +58,14 @@ void SceneManager::Initialize() {
 	TestSceneData level0Data;
 	{
 		level0Data.fileName = "Scene Files//level0.scene";
-	
+
 		level0Data.sceneName = "level0";
-		level0Data.levelName = "Level Files//level0.xml";
+		level0Data.levelName.push_back(std::string("Level Files//level0.xml"));
 		TestSceneData::Prefab ground;
 		{
 			ground.ghostFile = "Assets/PlaneMap1.ghost";
+			//ground.ghostFile = "Assets/SpaceshipHull.ghost";
+
 			ground.name = "Ground";
 			ground.positions.push_back(identity);
 			level0Data.prefabs.push_back(ground);
@@ -70,7 +74,7 @@ void SceneManager::Initialize() {
 		{
 			startCube.ghostFile = "Assets/StartCube.ghost";
 			startCube.name = "StartCube";
-			DirectX::XMFLOAT4X4 mat = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0,	0, 1.5f, 3, 1);
+			DirectX::XMFLOAT4X4 mat = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 1.5f, 3, 1);
 			startCube.positions.push_back(mat);
 			level0Data.prefabs.push_back(startCube);
 		}
@@ -78,10 +82,14 @@ void SceneManager::Initialize() {
 		{
 			spawner.ghostFile = "Assets/Spawner.ghost";
 			spawner.name = "Spawner";
-				DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0,		-40, 0, 10, 1);
-				spawner.positions.push_back(mat1);
-				DirectX::XMFLOAT4X4 mat2 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0,		10, 0, 40, 1);
-				spawner.positions.push_back(mat2);
+			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, -40, 0, 10, 1);
+			spawner.positions.push_back(mat1);
+			DirectX::XMFLOAT4X4 mat2 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, 10, 0, 40, 1);
+			spawner.positions.push_back(mat2);
+			DirectX::XMFLOAT4X4 mat3 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, 5, 0, -30, 1);
+			spawner.positions.push_back(mat3);
+			DirectX::XMFLOAT4X4 mat4 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, -10, 0, -25, 1);
+			spawner.positions.push_back(mat4);
 			level0Data.prefabs.push_back(spawner);
 		}
 		TestSceneData::Prefab winCube;
@@ -94,18 +102,19 @@ void SceneManager::Initialize() {
 		{
 			coreCube.ghostFile = "Assets/CoreCube.ghost";
 			coreCube.name = "CoreCube";
-			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0,			0, 1, 5, 1);
+			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 5.25f, 1);
 			coreCube.positions.push_back(mat1);
 			level0Data.prefabs.push_back(coreCube);
 		}
 	}
 	CreateSceneFile(level0Data);
+	/*
 	TestSceneData splashScreenData;
 	{
 		splashScreenData.fileName = "Scene Files//splashScreen.scene";
 
 		splashScreenData.sceneName = "splashScreen";
-		splashScreenData.levelName = "Level Files//splashScreen.xml";
+		splashScreenData.levelName.push_back(std::string("Level Files//splashScreen.xml"));
 		//TestSceneData::Prefab coreCube;
 		//{
 		//	coreCube.ghostFile = "Assets/ElonMuskQuad.ghost";
@@ -116,17 +125,37 @@ void SceneManager::Initialize() {
 		//}
 	}
 	CreateSceneFile(splashScreenData);
+	TestSceneData mainMenuData;
+	{
+		mainMenuData.fileName = "Scene Files//mainMenu.scene";
 
-	
+		mainMenuData.sceneName = "mainMenu";
+		TestSceneData::Prefab tutorialQuad;
+		{
+			tutorialQuad.ghostFile = "Assets/VRTutorialQuad.ghost";
+			tutorialQuad.name = "TutorialQuad";
+			DirectX::XMFLOAT4X4 mat1;
+			DirectX::XMMATRIX rotation = DirectX::XMMatrixMultiply(DirectX::XMMatrixRotationY(DirectX::XMConvertToRadians(180)), DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(90)));
+			DirectX::XMStoreFloat4x4(&mat1, rotation);
+			mat1._41 = 0;
+			mat1._42 = 1;
+			mat1._43 = -3;
+
+			tutorialQuad.positions.push_back(mat1);
+			mainMenuData.prefabs.push_back(tutorialQuad);
+		}
+	}
+	CreateSceneFile(mainMenuData);
+
+	*/
+
 	//Fill map of scenes using the ".scene" files from our "Scene Files" directory
 	FetchAllSceneFiles();
 }
 
 void SceneManager::FetchAllSceneFiles(const char* folderPath) {
-	
-	//3. Use values to create a new scene and store it
 
-	//1. Find all files in directory that end in .ghost
+
 	std::vector<std::string> paths;
 	{
 		std::string pattern(folderPath);
@@ -150,7 +179,7 @@ void SceneManager::FetchAllSceneFiles(const char* folderPath) {
 		return;
 	}
 	std::string lastName;
-	for (int i = 0; i < paths.size(); ++i) {
+	for (size_t i = 0; i < paths.size(); ++i) {
 		//2. Read first two values of each file
 		std::ifstream file(paths[i], std::ios::binary);
 		if (file.is_open()) {
@@ -158,10 +187,16 @@ void SceneManager::FetchAllSceneFiles(const char* folderPath) {
 			int nameLength = Reader::ReadInt();
 			std::string name = Reader::ReadString(nameLength);
 			lastName = name;
-			int levelLength = Reader::ReadInt();
-			std::string level = Reader::ReadString(levelLength);
-			
-			Scene newScene = Scene(paths[i], level);
+			std::vector<std::string> levels;
+			int levelAmount = Reader::ReadInt();
+			for (int index = 0; index < levelAmount; ++index)
+			{
+				int levelLength = Reader::ReadInt();
+				std::string level = Reader::ReadString(levelLength);
+				levels.push_back(level);
+			}
+
+			Scene newScene = Scene(paths[i], levels);
 			scenes[name] = newScene;
 		}
 		file.close();
@@ -170,7 +205,7 @@ void SceneManager::FetchAllSceneFiles(const char* folderPath) {
 
 const Scene SceneManager::ResetCurrentScene() {
 	//Destroy everything
-	
+
 	//Reset currentScene
 	Scene prevScene = *currentScene;
 	currentScene = nullptr;
@@ -191,34 +226,37 @@ void SceneManager::LoadScene(const char* sceneName, DirectX::XMFLOAT3* _corePos)
 			int nameLen = Reader::ReadInt();
 			std::string name = Reader::ReadString(nameLen);
 
-			int levelLen = Reader::ReadInt();
-			std::string level = Reader::ReadString(levelLen);
+			int levelCount = Reader::ReadInt();
+			for (int i = 0; i < levelCount; ++i)
+			{
+				int levelLen = Reader::ReadInt();
+				std::string level = Reader::ReadString(levelLen);
+			}
 
-			int ghostLen = Reader::ReadInt();
-			while (!file.eof()) {
+			int pCount = Reader::ReadInt();
+			for (int i = 0; i < pCount; ++i)
+			{
+				int ghostLen = Reader::ReadInt();
 				std::string ghostName = Reader::ReadString(ghostLen);
-				int prefabNameLen = Reader::ReadInt();
-				std::string prefabName = Reader::ReadString(prefabNameLen);
 
-				unsigned int prefabID = ObjectFactory::CreatePrefab(&ghostName, prefabName.c_str());
+				unsigned int prefabID = ObjectFactory::CreatePrefab(&ghostName);
 
 				int ghostCount = Reader::ReadInt();
 				for (int i = 0; i < ghostCount; ++i) {
 					DirectX::XMFLOAT4X4 mat = Reader::ReadMatrix();
 					GameObject* newObj;
 					MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0, 0, 0 }, &newObj));
-					if (_corePos && !strcmp(newObj->GetTag().c_str(),"Core")) {
+					if (_corePos && !strcmp(newObj->GetTag().c_str(), "Core")) {
 						*_corePos = DirectX::XMFLOAT3(mat._41, mat._42, mat._43);
 					}
 					newObj->transform.SetMatrix(mat);
-					
+
 					//TODO: TEMPORARY SOLUTION 
 					MessageEvents::SendQueueMessage(EVENT_Late, [=] { newObj->Enable(); });
 					//------------------------
 
 				}
 				//Will be garbage if the file is empty. Should only be garbage on the last call
-				ghostLen = Reader::ReadInt();
 			}
 
 		}
@@ -240,14 +278,14 @@ void SceneManager::LoadScene(Scene& scene, DirectX::XMFLOAT3* _corePos) {
 }
 
 const Scene SceneManager::GetSceneFromName(const char* sceneName) {
-	if(scenes.find(sceneName) != scenes.end())
+	if (scenes.find(sceneName) != scenes.end())
 		return scenes[sceneName];
 	return Scene();
 }
 const std::string SceneManager::GetNameFromScene(const Scene& scene) {
 	for (auto e : scenes) {
 		if (e.second.sceneFile == scene.sceneFile &&
-			e.second.levelFile == scene.levelFile) {
+			e.second.levelFiles == scene.levelFiles) {
 			return e.first;
 		}
 	}

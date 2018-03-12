@@ -7,15 +7,16 @@ class Turret: public GameObject {
 	unsigned projectiePID =0;
 	unsigned eventDestroy;
 	float targetDistance =0;
-	float firerate =0;
+	float firerate = 2;
 	float damage = 10;
 	float timeSinceLastShot = 0;
 	DirectX::XMFLOAT4X4* turretPitch;
 	DirectX::XMFLOAT4X4* launcherorigin;
+	DirectX::XMFLOAT4X4* turretYaw;
 
 public:
 	Turret();
-	void Enable();
+	void Enable(bool DestroyOnEnd =true) override;
 	void Disable();
 	void Awake(Object* obj);
 	void Update();

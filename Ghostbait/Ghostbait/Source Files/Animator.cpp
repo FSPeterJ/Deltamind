@@ -4,6 +4,8 @@
 #include "EngineStructure.h"
 #include "AnimatorStructs.h"
 
+using namespace DirectX;
+
 DirectX::XMFLOAT3X3 Animator::pullRotation(DirectX::XMFLOAT4X4 pullFrom) {
 	DirectX::XMFLOAT3X3 ret;
 	ret._11 = pullFrom._11;
@@ -54,7 +56,16 @@ const std::vector<animJoint>* Animator::getTweens() {
 	return &tweens;
 }
 
-DirectX::XMFLOAT4X4* Animator::getJointByName(std::string name) {
+void Animator::SetJointMatrix(const int jointIndex, const DirectX::XMFLOAT4X4& mat) {
+	tweens[jointIndex].transform = mat;
+}
+
+const DirectX::XMFLOAT4X4& Animator::GetJointMatrix(const int jointIndex) const {
+	return tweens[jointIndex].transform;
+}
+
+
+DirectX::XMFLOAT4X4* Animator::getJointByName(const std::string &name) {
 	//Accessing a map with [] without certantity that the map contains x is undefined behavior (The map will create a null value with key x since it does not exist)
 	std::unordered_map<std::string, int>::iterator check = jointPointers.find(name);
 	if(check == jointPointers.end()) {
@@ -63,11 +74,134 @@ DirectX::XMFLOAT4X4* Animator::getJointByName(std::string name) {
 	return &tweens[(*check).second].transform;
 }
 
-void Animator::ManipulateJointByName(std::string name, DirectX::XMFLOAT4X4) {
+
+//TODO: Manipulate joint by NOT STRING option
+void Animator::ManipulateJointByName(const std::string &name, const DirectX::XMFLOAT4X4 &_transformation) {
 	std::unordered_map<std::string, int>::iterator check = jointPointers.find(name);
 	if(check != jointPointers.end()) {
-		&tweens[(*check).second].transform;
+		animJoint* animationJoint = &tweens[(*check).second];
+		XMMATRIX transformation = XMLoadFloat4x4(&_transformation);
+		while(true) {
+			XMMATRIX transform = XMLoadFloat4x4(&animationJoint->transform);
+			transform = transformation * transform;
+			XMStoreFloat4x4(&animationJoint->transform, transform);
+			// It should be possible to do this better?  I mean there is do while but... is that really better?
+			if(animationJoint->child_count > 0) {
+				transform.r[3] = transformation.r[3];
+				for(int i = 0; i < animationJoint->child_count; ++i) {
+					ManipulateChildrendJoints(&tweens[animationJoint->child_index[i]], transformation, transform);
+				}
+				break;
+			}
+			else {
+				break;
+			}
+		}
 	}
+}
+
+//TODO: Manipulate joint by NOT STRING option
+void Animator::ManipulateJointByName(const std::string &name, const DirectX::XMMATRIX &_transformation) {
+	std::unordered_map<std::string, int>::iterator check = jointPointers.find(name);
+	if(check != jointPointers.end()) {
+		animJoint* animationJoint = &tweens[(*check).second];
+		XMMATRIX transformation = _transformation;
+		while(true) {
+			XMMATRIX transform = XMLoadFloat4x4(&animationJoint->transform);
+			transform = transformation * transform;
+			XMStoreFloat4x4(&animationJoint->transform, transform);
+			// It should be possible to do this better?  I mean there is do while but... is that really better?
+			if(animationJoint->child_count > 0) {
+				//transform.r[3] = transformation.r[3];
+				for(int i = 0; i < animationJoint->child_count; ++i) {
+					ManipulateChildrendJoints(&tweens[animationJoint->child_index[i]], transformation, transform);
+				}
+				break;
+			}
+			else {
+				break;
+			}
+		}
+	}
+}
+
+void Animator::ManipulateJoint(animJoint* animationJoint, const DirectX::XMFLOAT4X4 &_transformation) {
+
+	XMMATRIX transformation = XMLoadFloat4x4(&_transformation);
+	while(true) {
+		XMMATRIX transform = XMLoadFloat4x4(&animationJoint->transform);
+
+		transform = transform * transformation;
+		XMStoreFloat4x4(&animationJoint->transform, transform);
+		// It should be possible to do this better?  I mean there is do while but... is that really better?
+		if(animationJoint->child_count > 0) {
+
+			transform.r[3] = transformation.r[3];
+			for(int i = 0; i < animationJoint->child_count; ++i) {
+				ManipulateJoint(&tweens[animationJoint->child_index[i]], transform);
+			}
+			break;
+		}
+		else {
+			break;
+		}
+	}
+}
+
+
+
+
+
+void Animator::ManipulateJoint(animJoint* animationJoint, const DirectX::XMMATRIX &_transformation) {
+
+	XMMATRIX transformation = _transformation;
+	while(true) {
+		XMMATRIX transform = XMLoadFloat4x4(&animationJoint->transform);
+
+		//transform.r[3]-= transformation.r[3];
+		transform = transformation * transform;
+		XMStoreFloat4x4(&animationJoint->transform, transform);
+		// It should be possible to do this better?  I mean there is do while but... is that really better?
+		if(animationJoint->child_count > 0) {
+
+			for(int i = 0; i < animationJoint->child_count; ++i) {
+
+				ManipulateChildrendJoints(&tweens[animationJoint->child_index[i]], transformation, transform);
+			}
+			break;
+		}
+		else {
+			break;
+		}
+	}
+
+}
+
+void Animator::ManipulateChildrendJoints(animJoint* animationJoint, const DirectX::XMMATRIX &_transformation, const XMMATRIX& animationJointParent) {
+
+	XMMATRIX transformation = _transformation;
+	while(true) {
+		XMMATRIX transform = XMLoadFloat4x4(&animationJoint->transform);
+		//XMMATRIX BA = transform;
+		transform.r[3] -= animationJointParent.r[3];
+		transform = transform * transformation;
+		//transform = transformation * transform;
+		transform.r[3] += animationJointParent.r[3];
+		XMStoreFloat4x4(&animationJoint->transform, transform);
+		// It should be possible to do this better?  I mean there is do while but... is that really better?
+		if(animationJoint->child_count > 0) {
+
+			for(int i = 0; i < animationJoint->child_count; ++i) {
+
+				ManipulateChildrendJoints(&tweens[animationJoint->child_index[i]], transformation, transform);
+			}
+			break;
+		}
+		else {
+			break;
+		}
+	}
+
 }
 
 void Animator::Destroy() {
@@ -82,6 +216,7 @@ void Animator::Initialize(AnimationManager* animManIn) {
 }
 
 void Animator::Update() {
+
 	timePos += GhostTime::DeltaTime();
 	bool loopState = false;
 	if(timePos < 0.0) {
@@ -130,6 +265,11 @@ void Animator::Update() {
 		tweens[i].transform._31 = interpolatedMat._31;
 		tweens[i].transform._32 = interpolatedMat._32;
 		tweens[i].transform._33 = interpolatedMat._33;
+		for(int x = 0; x < tweens[i].child_count; ++x) {
+
+			DebugRenderer::AddLine((XMFLOAT3)tweens[tweens[i].child_index[x]].transform.m[3], (XMFLOAT3)tweens[i].transform.m[3], { 0.1f, 1, 0 });
+		}
+
 	}
 }
 

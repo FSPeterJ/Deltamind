@@ -1,6 +1,7 @@
 #include "MenuControllerItem.h"
 #include "PhysicsExtension.h"
 #include "Menu.h"
+#include "MessageEvents.h"
 
 
 MenuControllerItem::MenuControllerItem() {
@@ -30,4 +31,18 @@ void MenuControllerItem::Activate() {
 	if (currentMenuItem) {
 		currentMenuItem->Select();
 	}
+}
+
+void MenuControllerItem::Render(bool render) {
+	if (render == isRendered) return;
+	
+	if (render) {
+		MessageEvents::SendMessage(EVENT_Rendertofront, StandardObjectMessage(this));
+		isRendered = true;
+	}
+	else {
+		MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(this));
+		isRendered = false;
+	}
+	Item::Render(render);
 }

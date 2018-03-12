@@ -551,5 +551,17 @@
     <FxCompile Include="ParticleGS.hlsl">
       <Filter>Shaders\Geometry Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="SkyboxVertexShader.hlsl">
+      <Filter>Shaders\Vertex Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="SkyboxPixelShader.hlsl">
+      <Filter>Shaders\Pixel Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="DeferredTargetPixelShader.hlsl">
+      <Filter>Shaders\Pixel Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="PointToNDCQuadGS.hlsl">
+      <Filter>Shaders\Geometry Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

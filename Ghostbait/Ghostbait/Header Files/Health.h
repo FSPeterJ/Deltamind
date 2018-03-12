@@ -10,6 +10,9 @@ public:
 	Health(float _maxHealth, float _startingHealth);
 
 	//Purpose: 
+	//	Reset Health to maximum
+	inline void SetToFullHealth() { health = maxHealth; }
+	//Purpose: 
 	//	Get the current health as a percentage
 	//Returns:
 	//	the currentHealth / the maxHealth

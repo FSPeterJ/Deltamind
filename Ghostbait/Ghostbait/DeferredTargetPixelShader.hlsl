@@ -20,6 +20,8 @@ struct PixelShaderOutput
     float4 emissive : SV_TARGET1;
     float4 normal : SV_TARGET2;
     float4 specular : SV_TARGET3;
+    float4 depth : SV_TARGET4;
+    float4 unlit : SV_TARGET5;
 };
 
 cbuffer factorBuffer : register(b1)
@@ -37,5 +39,8 @@ PixelShaderOutput main(PixelShaderInput input)
     output.emissive = emissive.Sample(sample, input.uv) * emissiveFactor;
     output.normal = float4(((input.norm * 0.5f) + 0.5f), 1.0f);
     output.specular = specular.Sample(sample, input.uv) * specularFactor;
+    float getout = input.pos.z;
+    output.depth = float4(getout, getout, getout, getout);
+    output.unlit = float4(0.0f, 0.0f, 0.0f, 1.0f);
     return output;
 }

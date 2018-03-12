@@ -305,8 +305,8 @@ void DebugRenderer::DrawAxes(DirectX::XMFLOAT4X4 toDraw, float length) {
 	AddLine(p1temp, p2temp, DirectX::XMFLOAT3(0.0f, 0.0f, 1.0f));
 }
 
-void DebugRenderer::drawTo(ID3D11RenderTargetView * rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport) {
-	context->OMSetRenderTargets(1, &rtv, dsv);
+void DebugRenderer::drawTo(ID3D11RenderTargetView ** rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport) {
+	context->OMSetRenderTargets(6, rtv, dsv);
 	context->RSSetViewports(1, &viewport);
 	context->VSSetShader(vShader, NULL, NULL);
 	context->PSSetShader(pShader, NULL, NULL);
@@ -333,7 +333,7 @@ void DebugRenderer::drawTo(ID3D11RenderTargetView * rtv, ID3D11DepthStencilView 
 	context->RSSetState(defaultState);
 }
 
-void DebugRenderer::flushTo(ID3D11RenderTargetView * rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport) {
+void DebugRenderer::flushTo(ID3D11RenderTargetView ** rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport) {
 	drawTo(rtv, dsv, viewport);
 	v_count = 0;
 	tri_count = 0;

@@ -51,12 +51,11 @@ private:
 
 	struct DeferredRTVs
 	{
-		ID3D11Texture2D* textures[4];
+		ID3D11Texture2D* textures[6];
 		ID3D11Texture2D* depthBuffer;
-		ID3D11RenderTargetView* RTVs[4];
+		ID3D11RenderTargetView* RTVs[6];
 		ID3D11DepthStencilView* DSV;
-		ID3D11ShaderResourceView* SRVs[4];
-		ID3D11ShaderResourceView* DSRV;
+		ID3D11ShaderResourceView* SRVs[6];
 	};
 
 	struct eye {
@@ -143,7 +142,7 @@ private:
 
 	void renderObjectDefaultState(Object* obj);
 	void renderToEye(eye* eyeTo);
-	void drawSkyboxTo(ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT& viewport, DirectX::XMFLOAT3& pos);
+	void drawSkyboxTo(ID3D11RenderTargetView** rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT& viewport, DirectX::XMFLOAT3& pos);
 	void loadPipelineState(pipeline_state_t* pipeline);
 	void createDeferredRTVs(DeferredRTVs* toWrite, ID3D11Texture2D* refTex);
 	void createRTVandSRV(ID3D11Texture2D** texture, ID3D11ShaderResourceView** srv, ID3D11RenderTargetView** rtv, ID3D11Texture2D* refTex);

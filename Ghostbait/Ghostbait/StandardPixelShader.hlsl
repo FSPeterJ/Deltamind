@@ -2,7 +2,8 @@ Texture2D diffuse : register(t0);
 Texture2D emissive : register(t1);
 Texture2D normal : register(t2);
 Texture2D specular : register(t3);
-Texture2D depth : register(t8);  //It's on a late register in case I want to add other registers
+Texture2D depth : register(t4);
+Texture2D unlit : register(t5);
 
 SamplerState sample : register(s0);
 
@@ -122,16 +123,22 @@ float4 calcSpec(int i, float atten, float3 worldPos, float3 norm, float specInte
 
 float4 main(PixelShaderInput input) : SV_TARGET
 {
+    float willBeUnlit = unlit.Sample(sample, input.uv).x;
+    if(willBeUnlit == 1.0f)
+    {
+        return saturate(diffuse.Sample(sample, input.uv) + emissive.Sample(sample, input.uv));
+    }
     float4 finalLight = float4(ambientColor * ambientIntensity, 1.0f);
     float4 finalSpec = float4(0.0f, 0.0f, 0.0f, 0.0f);
     float3 norm = (normal.Sample(sample, input.uv) - 0.5f).xyz * 2.0f;
     float specIntense = specular.Sample(sample, input.uv).x;
-    float tempDepth = depth.Sample(sample, input.uv).x;
+    float tempDepth = depth.Sample(sample, input.uv).a;
     float x = input.uv.x * 2.0f - 1.0f;
     float y = (1.0f - input.uv.y) * 2.0f - 1.0f;
-    float4x4 invViewProj = mul(view, projection);
-    float4 posAlmost = mul(float4(x, y, tempDepth, 1.0f), invViewProj);
-    float3 worldPos = posAlmost.xyz / posAlmost.w;
+    float4 posAlmost = mul(projection, float4(x, y, tempDepth, 1.0f));
+    posAlmost = float4(posAlmost.xyz / posAlmost.w, 1.0f);
+    posAlmost = mul(view, posAlmost);
+    float3 worldPos = posAlmost.xyz;
     [unroll(83)] for (int i = 0; i < 83; ++i)
     {
         if (lights[i].color.w == 0.0f)

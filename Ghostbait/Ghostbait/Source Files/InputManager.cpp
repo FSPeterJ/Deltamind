@@ -397,7 +397,6 @@ InputManager::KeyboardInput::KeyboardInput() {
 void InputManager::KeyboardInput::CheckForInput() {
 	Control input = none;
 	float amount = 0;
-
 	while(inputQueue.size() > 0) {
 		input = keyBind[inputQueue.front().wParam];
 		static int screenX, screenY;

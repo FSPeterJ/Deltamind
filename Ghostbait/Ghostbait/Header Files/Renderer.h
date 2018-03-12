@@ -56,6 +56,7 @@ private:
 		ID3D11RenderTargetView* RTVs[4];
 		ID3D11DepthStencilView* DSV;
 		ID3D11ShaderResourceView* SRVs[4];
+		ID3D11ShaderResourceView* DSRV;
 	};
 
 	struct eye {
@@ -116,6 +117,7 @@ private:
 	animDataBufferStruct cpuAnimationData;
 	Mesh* skyball;
 
+	ID3D11Buffer* emptyFloat3Buffer; //Needed to upload to the shaders that don't need specific vertex values (may replace with techniques later)
 	Skybox* currSkybox = nullptr;
 
 	std::vector<const GameObject*> renderedObjects;
@@ -137,6 +139,7 @@ private:
 	bool LoadShaderFromCSO(char ** szByteCode, size_t& szByteCodeSize, const char* szFileName);
 	void setupVRTargets();
 	void releaseDeferredTarget(DeferredRTVs* in);
+	void combineDeferredTargets(DeferredRTVs* in, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT& viewport);
 
 	void renderObjectDefaultState(Object* obj);
 	void renderToEye(eye* eyeTo);

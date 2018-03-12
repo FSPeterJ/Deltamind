@@ -8,6 +8,7 @@
 #include <map>
 #include <functional>
 #include <iterator>
+#include <set>
 
 #define PrintParentConnnection(t, p) "Tile (" << t->q << ", " << t->r << ") -> ParentTile (" << p->q << ", " << p->r << ")"
 #define PrintParentConnnectionNull(t) "Tile (" << t->q << ", " << t->r << ") -> ParentTile (null)"
@@ -389,15 +390,15 @@ struct DStarCommon {
 		//pred = non blocked neighbors
 		for(auto& element : tile->Neighbors()) {
 			HexTile* neighbor = grid->GetTileExact(element);
-			if(!neighbor || grid->IsBlocked(neighbor)) { continue; }
+			if(!neighbor || (grid->IsBlocked(neighbor) && grid->GetCostDelta().count(neighbor) == 0)) { continue; }
 			exec(neighbor);
 		}
-		if(includeSelf == UnionSelf && !grid->IsBlocked(tile)) { exec(tile); }//Not sure if the union with self should check if itself is blocked or not
+		if(includeSelf == UnionSelf ) { exec(tile); }//&& !(grid->IsBlocked(tile) && grid->GetCostDelta().count(tile) == 0)) { exec(tile); }//Not sure if the union with self should check if itself is blocked or not
 	}
 
 	void ForEachSuccessor(HexTile*const tile, NeighborFunction exec, UnionType includeSelf = None) {
 		//succ = if you blocked, no res, else return all
-		if(grid->IsBlocked(tile)) return;
+		if(grid->IsBlocked(tile) && grid->GetCostDelta().count(tile) == 0) return;
 
 		for(auto& element : tile->Neighbors()) {
 			HexTile* neighbor = grid->GetTileExact(element);
@@ -575,6 +576,7 @@ class MTDStarLite: DStarCommon {
 	VisitedMap parent;
 	DirectX::XMFLOAT4X4* goalReference = nullptr, *startReference = nullptr;
 
+
 	HexTile* GetParent(HexTile* const tile) {
 		HexTile* me = (parent.find(tile) == parent.end()) ? (parent[tile] = nullptr) : parent[tile];
 		//if (parent.find(tile) == parent.end()) { parent[tile] = nullptr; }
@@ -588,11 +590,17 @@ class MTDStarLite: DStarCommon {
 		for (auto& element : parent) {
 			if (element.first == tile) continue;
 			nextParent = element.second;
-			traveled.clear();
+			//traveled.clear();
 			while (nextParent) {
 				if (nextParent == tile) break;
-				/*if (std::find(traveled.begin(), traveled.end(), nextParent) != traveled.end()) break;
-				traveled.push_back(nextParent);*/
+				if (std::find(traveled.begin(), traveled.end(), nextParent) != traveled.end()) {
+					nextParent = nullptr;
+					break;
+				}
+				traveled.push_back(nextParent);
+				//if (parent.find(nextParent) == parent.end()) {
+				//	parent[nextParent] = nullptr;
+				//}
 				nextParent = parent[nextParent];
 			}
 			if (nextParent) continue;
@@ -625,23 +633,23 @@ class MTDStarLite: DStarCommon {
 	}
 
 	void UpdateState(HexTile *const tile) {
-		//if(parent[tile]) Console::Write << PrintTileInfo(tile, cumulativeCost[tile], rhs[tile], parent[tile]);
-		//else Console::Write << PrintTileInfoNull(tile, cumulativeCost[tile], rhs[tile]);
+		if(parent[tile]) Console::Write << PrintTileInfo(tile, cumulativeCost[tile], rhs[tile], parent[tile]);
+		else Console::Write << PrintTileInfoNull(tile, cumulativeCost[tile], rhs[tile]);
 		if(!PathPlanner::EpsilonIsEqual(cumulativeCost[tile], rhs[tile])) {
-			//Console::WriteLine << " Tile was Inconsistent";
+			Console::WriteLine << " Tile was Inconsistent";
 			if(open.contains(tile)) {
 				open.update(tile, CalculateKey(tile));
 			} else {
 				open.insert(tile, CalculateKey(tile));
 			}
 		} else if(PathPlanner::EpsilonIsEqual(cumulativeCost[tile], rhs[tile]) && open.contains(tile)) {
-			//Console::WriteLine << " Tile was Consistent";
+			Console::WriteLine << " Tile was Consistent";
 			open.remove(tile);
 		}
 	}
 
 	void ComputeCostMinimalPath() {
-		//Console::WriteLine << "Computing Cost Minimal Path";
+		Console::WriteLine << "Computing Cost Minimal Path";
 		while(!open.empty() && (open.front().second < CalculateKey(goal) || rhs[goal] > cumulativeCost[goal])) {
 			HexTile* u = open.front().first;
 			FloatPair kold = open.front().second;
@@ -652,33 +660,36 @@ class MTDStarLite: DStarCommon {
 			} else if(cumulativeCost[u] > rhs[u]) {
 				cumulativeCost[u] = rhs[u];
 				open.remove(u);
-				//if (parent[u]) Console::Write << PrintTileInfo(u, cumulativeCost[u], rhs[u], parent[u]);
-				//else Console::Write << PrintTileInfoNull(u, cumulativeCost[u], rhs[u]);
-				//Console::WriteLine << " Tile was Over-consistent";
+				if (parent[u]) Console::Write << PrintTileInfo(u, cumulativeCost[u], rhs[u], parent[u]);
+				else Console::Write << PrintTileInfoNull(u, cumulativeCost[u], rhs[u]);
+				Console::WriteLine << " Tile was Over-consistent";
+				Console::WriteLine << " Updating susccessor neighbors...";
+
 				ForEachSuccessor(u, [=](HexTile*const neighbor) {
-					if(neighbor != start && (rhs[neighbor] > cumulativeCost[u] + neighbor->weight)) {
+					if(neighbor != start && (rhs[neighbor] > cumulativeCost[u] + GetCost(neighbor))) {
 						parent[neighbor] = u;
 						//Console::WriteLine << PrintParentConnnection(neighbor, u);
-						rhs[neighbor] = PathPlanner::ClampInfinity(cumulativeCost[u] + neighbor->weight);
+						rhs[neighbor] = PathPlanner::ClampInfinity(cumulativeCost[u] + GetCost(neighbor));
 						UpdateState(neighbor);
 					}
 				});
 			} else {
 				cumulativeCost[u] = grid->BlockWeight();
-				//if (parent[u]) Console::Write << PrintTileInfo(u, cumulativeCost[u], rhs[u], parent[u]);
-				//else Console::Write << PrintTileInfoNull(u, cumulativeCost[u], rhs[u]);
-				//Console::WriteLine << "Tile was Under-consistent";
+				if (parent[u]) Console::Write << PrintTileInfo(u, cumulativeCost[u], rhs[u], parent[u]);
+				else Console::Write << PrintTileInfoNull(u, cumulativeCost[u], rhs[u]);
+				Console::WriteLine << "Tile was Under-consistent";
+				Console::WriteLine << " Checking susccessor neighbors...";
 				ForEachSuccessor(u, [=](HexTile*const neighbor) {
 					if(neighbor != start && parent[neighbor] == u) {
-						rhs[neighbor] = GetMinimumFrom( PredessorsOf, neighbor, [=](HexTile*const prime) {return cumulativeCost[prime] + neighbor->weight; });
+						rhs[neighbor] = GetMinimumFrom( PredessorsOf, neighbor, [=](HexTile*const prime) {return cumulativeCost[prime] + GetCost(neighbor); });
 
 						if(PathPlanner::EpsilonIsEqual(rhs[neighbor], grid->BlockWeight())) {
 							parent[neighbor] = nullptr;
-							//Console::WriteLine << "Path through here is Blocked";
+							Console::WriteLine << "Path through here is Blocked";
 							//Console::WriteLine << PrintParentConnnectionNull(neighbor);
 						} else {
-							HexTile* minTile = GetMinimumTileFrom(PredessorsOf, neighbor, [=](HexTile*const prime) {return cumulativeCost[prime] + neighbor->weight; });
-							//Console::WriteLine << "Find new Path from here";
+							HexTile* minTile = GetMinimumTileFrom(PredessorsOf, neighbor, [=](HexTile*const prime) {return cumulativeCost[prime] + GetCost(neighbor); });
+							Console::WriteLine << "Finding new Path from here";
 							if(minTile) { parent[neighbor] = minTile; /*Console::WriteLine << PrintParentConnnection(neighbor, minTile);*/}
 							//parent[neighbor] = minTile;
 						}
@@ -687,29 +698,33 @@ class MTDStarLite: DStarCommon {
 				}, UnionSelf);
 			}
 		}
-		//Console::WriteLine << "End Calculation";
+		Console::WriteLine << "End Calculation";
 
 		path->clear();
-		//Console::WriteLine << "Begin building path";
+		Console::WriteLine << "Begin building path";
 		(*path).BuildPath(start, goal, parent); //might need to BuildPathReverse?
-		//Console::WriteLine << "Path built";
-
+		Console::WriteLine << "Path built: ";
+		for (int i = 0; i < path->size(); ++i) {
+			HexTile* pathNode = (*path)[i];
+			if (parent[pathNode]) Console::WriteLine << PrintTileInfo(pathNode, cumulativeCost[pathNode], rhs[pathNode], parent[pathNode]);
+			else Console::WriteLine << PrintTileInfoNull(pathNode, cumulativeCost[pathNode], rhs[pathNode]);
+		}
 	}
 
 	void OptimizedDelete() {
-		//Console::WriteLine << "Optimized Delete";
+		Console::WriteLine << "Optimized Delete";
 		deleted.clear();
 
 		parent[start] = nullptr;
-		//Console::WriteLine << PrintParentConnnectionNull(start);
+		Console::WriteLine << PrintTileInfoNull(start, cumulativeCost[start], rhs[start]);
 
 		ForEachInSearchTreeButNotSubtreeRootedAt(start, [=](HexTile*const s) {
 
 			parent[s] = nullptr;
-			//Console::WriteLine << "Dropping parent";
 			//Console::WriteLine << PrintParentConnnectionNull(s);
 			rhs[s] = cumulativeCost[s] = grid->BlockWeight();
-			//Console::WriteLine << PrintTileInfoNull(s, cumulativeCost[s], rhs[s]);
+			Console::Write << PrintTileInfoNull(s, cumulativeCost[s], rhs[s]);
+			Console::WriteLine << " Dropped parent";
 
 			if(open.contains(s)) {
 				open.remove(s);
@@ -721,11 +736,11 @@ class MTDStarLite: DStarCommon {
 		for(auto& del : deleted) {
 
 			ForEachPredessor(del, [=](HexTile*const sPrime) {
-				if(rhs[del] > PathPlanner::ClampInfinity(cumulativeCost[sPrime] + del->weight)) {
-					rhs[del] = PathPlanner::ClampInfinity(cumulativeCost[sPrime] + del->weight); //can opt to only calc this once
+				if(rhs[del] > PathPlanner::ClampInfinity(cumulativeCost[sPrime] + GetCost(del))) {
+					rhs[del] = PathPlanner::ClampInfinity(cumulativeCost[sPrime] + GetCost(del)); //can opt to only calc this once
 					parent[del] = sPrime;
-					//Console::WriteLine << "Something Happened...";
-					//Console::WriteLine << PrintTileInfo(del, cumulativeCost[del], rhs[del], sPrime);
+					Console::Write << PrintTileInfo(del, cumulativeCost[del], rhs[del], sPrime);
+					Console::WriteLine << "Updated parent";
 				}
 			});
 
@@ -733,9 +748,15 @@ class MTDStarLite: DStarCommon {
 				open.insert(del, CalculateKey(del));
 			}
 		}
-		//Console::WriteLine << "End Optimized Delete";
+		Console::WriteLine << "End Optimized Delete";
 	}
 
+	float GetCost(HexTile* tile) {
+		if (grid->GetCostDelta().count(tile)) {
+			return grid->GetCostDelta()[tile];
+		}
+		return tile->weight;
+	}
 public:
 	MTDStarLite & operator=(const MTDStarLite& other) {
 		//is this ever called
@@ -760,13 +781,13 @@ public:
 	}
 
 	void Update() {
-		//Console::WriteLine << "Updating";
+		Console::WriteLine << "Updating";
 		//while(start != goal)
 			HexTile* oldStart = start;
 			HexTile* oldGoal = goal;
 			//ComputeCostMinimalPath();
 
-			if(PathPlanner::EpsilonIsEqual(rhs[start], grid->BlockWeight())) {
+			if(PathPlanner::EpsilonIsEqual(rhs[goal], grid->BlockWeight())) {
 				//no path exists
 				Console::WriteLine << "There's no PATH for MEE!!!!!";
 				return;
@@ -782,63 +803,89 @@ public:
 				//for all directed edges with cost change
 				goal = grid->PointToTile(DirectX::XMFLOAT2(goalReference->_41, goalReference->_43));
 				start = grid->PointToTile(DirectX::XMFLOAT2(startReference->_41, startReference->_43));
-				if(grid->GetCostDelta().size() || !path->find(goal)) {
-					//Console::WriteLine << "StartTile (" << start->q << ", " << start->r << ")  GoalTile (" << goal->q << ", " << goal->r << ")";
-					km += PathPlanner::heuristicFunction(oldGoal, goal);
-					if(oldStart != start) {
-						//shift map
-						OptimizedDelete();
-						//BasicDeletion(oldStart);
-					}
+				bool deleteUpdated = false;
+				Console::WriteLine << "StartTile (" << start->q << ", " << start->r << ")  GoalTile (" << goal->q << ", " << goal->r << ")";
+				if (!path->find(goal)) { km += PathPlanner::heuristicFunction(oldGoal, goal); }
+				if (grid->GetCostDelta().size()) {
 					HexTile* u = start; //? Not sure? maybe goal?
 
-					for(HexTile& n : u->Neighbors()) {
+					for (HexTile& n : u->Neighbors()) {
 						HexTile* neighbor = grid->GetTileExact(n);
 						//with changed edge costs
-						if(!neighbor || !grid->GetCostDelta().count(neighbor)) { continue; }
+						if (!neighbor || !grid->GetCostDelta().count(neighbor)) { continue; }
+						
+						deleteUpdated = true;
 
+						Console::WriteLine << "Cost change detected at:";
+						if (parent.find(neighbor) != parent.end() && parent[neighbor]) Console::WriteLine << PrintTileInfo(neighbor, cumulativeCost[neighbor], rhs[neighbor], parent[neighbor]);
+						else Console::WriteLine << PrintTileInfoNull(neighbor, cumulativeCost[neighbor], rhs[neighbor]);
+
+						Console::WriteLine << "Cost delta size was: " << grid->GetCostDelta().size();
 						float c_old = grid->GetCostDelta()[neighbor];
 						grid->GetCostDelta().erase(neighbor);
+						Console::WriteLine << "Cost delta size is now: " << grid->GetCostDelta().size();
+						std::vector<HexTile*> queueThingy;
 
-						ForEachPredessor(neighbor, [=](HexTile* const pred) {
-							if (pred != start) {
-								if (c_old > neighbor->weight) {
-									if (rhs[pred] > cumulativeCost[neighbor] + pred->weight) { //clamp infinity?
-										//Console::WriteLine << "EdgeCost lowered";
-										parent[pred] = neighbor;
-										//Console::WriteLine << PrintParentConnnection(neighbor, u);
-										rhs[pred] = cumulativeCost[u] + pred->weight;
-										UpdateState(pred);
+						queueThingy.push_back(neighbor);
+						int index = 0;
+
+						while (index < queueThingy.size()){
+							HexTile* queueFront = queueThingy[index];
+
+							Console::Write << "QueueThingy Front: ";
+							if (parent.find(queueFront) != parent.end() && parent[queueFront]) Console::WriteLine << PrintTileInfo(queueFront, cumulativeCost[queueFront], rhs[queueFront], parent[queueFront]);
+							else Console::WriteLine << PrintTileInfoNull(queueFront, cumulativeCost[queueFront], rhs[queueFront]);
+
+							ForEachPredessor(queueFront, [&](HexTile* const pred) {
+								Console::Write << "Predecessor: ";
+								if (parent.find(pred) != parent.end() && parent[pred]) Console::WriteLine << PrintTileInfo(pred, cumulativeCost[pred], rhs[pred], parent[pred]);
+								else Console::WriteLine << PrintTileInfoNull(pred, cumulativeCost[pred], rhs[pred]);
+
+								if (pred != start) {
+									if (c_old > queueFront->weight) {
+										if (rhs[pred] > cumulativeCost[queueFront] + GetCost(pred)) { //clamp infinity?
+											Console::WriteLine << "Edge Cost lowered";
+											parent[pred] = queueFront;
+											//Console::WriteLine << PrintParentConnnection(neighbor, u);
+											rhs[pred] = cumulativeCost[u] + GetCost(pred);
+											UpdateState(pred);
+											if (std::find(queueThingy.begin(), queueThingy.end(), pred) == queueThingy.end()) { queueThingy.push_back(pred); }
+										}
+									}
+									else {
+										if (parent[pred] == queueFront) {
+											rhs[pred] = GetMinimumFrom(PredessorsOf, pred, [=](HexTile*const prime) {return cumulativeCost[prime] + GetCost(pred); });
+
+											if (PathPlanner::EpsilonIsEqual(rhs[pred], grid->BlockWeight())) {
+												parent[pred] = nullptr;
+												Console::WriteLine << "Path to goal is blocked";
+												//Console::WriteLine << PrintParentConnnectionNull(neighbor);
+											}
+											else {
+												Console::WriteLine << "Finding the new connection";
+												HexTile* minTile = GetMinimumTileFrom(PredessorsOf, pred, [=](HexTile*const prime) {return cumulativeCost[prime] + GetCost(pred); });
+												//if (minTile) { parent[pred] = minTile; /*Console::WriteLine << PrintParentConnnection(neighbor, minTile);*/ }
+												parent[pred] = minTile;
+											}
+											UpdateState(pred);
+											if (std::find(queueThingy.begin(), queueThingy.end(), pred) == queueThingy.end()) { queueThingy.push_back(pred); }
+										}
 									}
 								}
-								else {
-									if (parent[pred] == neighbor) {
-										rhs[pred] = GetMinimumFrom(PredessorsOf, pred, [=](HexTile*const prime) {return cumulativeCost[prime] + pred->weight; });
-
-										if (PathPlanner::EpsilonIsEqual(rhs[pred], grid->BlockWeight())) {
-											parent[pred] = nullptr;
-											//Console::WriteLine << "Path to goal is blocked";
-											//Console::WriteLine << PrintParentConnnectionNull(neighbor);
-										}
-										else {
-											//Console::WriteLine << "Find the new path";
-											HexTile* minTile = GetMinimumTileFrom(PredessorsOf, pred, [=](HexTile*const prime) {return cumulativeCost[prime] + pred->weight; });
-											if (minTile) { parent[pred] = minTile; /*Console::WriteLine << PrintParentConnnection(neighbor, minTile);*/ }
-											//parent[neighbor] = minTile;
-										}
-										UpdateState(pred);
-									}
-								}
-							}
-						});
-
-						
+							});
+							++index;
+						}
 					}
+				}
+				if (deleteUpdated && oldStart != start) {
+					//shift map
+					OptimizedDelete();
+					//BasicDeletion(oldStart);
 				}
 				ComputeCostMinimalPath();
 			//}
 		//}
-				//Console::WriteLine << "End Update";
+				Console::WriteLine << "End Update";
 
 	}
 

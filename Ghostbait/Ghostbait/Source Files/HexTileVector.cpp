@@ -144,7 +144,7 @@ HexPath::HexTilePtr HexPath::Next(HexTilePtr const current) const {
 	auto it = std::find(data.begin(), data.end(), current);
 	if (it != data.end())
 		return it == data.end() - 1 ? nullptr : *(it + 1);
-	return nullptr;
+	return *(data.begin());
 }
 
 bool HexPath::find(HexTilePtr const v) const {

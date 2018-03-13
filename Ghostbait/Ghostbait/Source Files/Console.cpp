@@ -70,8 +70,6 @@ class Console::Logger : public std::streambuf {
 	int overflow(int c) {
 		auto res = this->sbuf->sputc(c);
 		stream << (char)c;
-		
-
 		return res;
 	}
 	int sync() {
@@ -84,7 +82,6 @@ public:
 	~Logger() {
 		stream.close();
 	}
-
 };
 
 Console::OutputWriter Console::outputStream;
@@ -101,14 +98,13 @@ Console::Writer Console::Error(&errorPrefix);
 Console::Writer Console::Warning(&warningPrefix);
 Console::Writer Console::Out(&outputStream);
 Console::Writer Console::ErrorOut(&outErrorPrefix);
-Console::Writer Console::LogWrite(&logger);
 
 Console::WriteLiner	Console::WriteLine(std::cout.rdbuf());
 Console::WriteLiner	Console::ErrorLine(&errorPrefix);
 Console::WriteLiner	Console::WarningLine(&warningPrefix);
 Console::WriteLiner	Console::OutLine(&outputStream);
 Console::WriteLiner Console::ErrorOutLine(&outErrorPrefix);
-Console::WriteLiner Console::LogWriteLine(&logger);
+Console::WriteLiner Console::Log(&logger);
 
 
 void* Console::hConsole;

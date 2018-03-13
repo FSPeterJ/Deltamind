@@ -142,7 +142,6 @@ void Turret::Update() {
 		if(targetDistance > 5) {
 			target = nullptr;
 			targetDistance = 99999;
-
 		}
 
 	}

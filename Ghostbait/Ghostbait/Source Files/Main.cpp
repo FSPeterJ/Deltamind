@@ -50,7 +50,6 @@ void ExecuteAsync() {
 void Setup(HINSTANCE hInstance, int nCmdShow) {
 	Console::Allocate();
 	Window wnd(1024, 900);
-	Console::LogWrite << LOG_STAMP << "TEST!";
 
 	if(!wnd.Initialize(hInstance, nCmdShow)) { Messagebox::ShowError("Error!!", "Main window is not initialized!"); }
 	wnd.UpdateTitle(L"Ghostbait");

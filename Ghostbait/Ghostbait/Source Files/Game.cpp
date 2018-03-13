@@ -330,7 +330,7 @@ void Game::Start(Player* _player, EngineStructure* _engine, char* startScene) {
 }
 void Game::Update() {
 	auto playerPos = player->transform.GetMatrix();
-	hexGrid.Display(DirectX::XMFLOAT2(playerPos._41, playerPos._43));
+	//hexGrid.Display(DirectX::XMFLOAT2(playerPos._41, playerPos._43));
 	float dt = (float)GhostTime::DeltaTime();
 
 	if (paused) return;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ostream> //required for koenig lookups
+#include <time.h>
 
 enum class ConsoleColor {
 	LightGray = 7,
@@ -22,7 +23,7 @@ enum class ConsoleColor {
 #define FUNC__GHOST __FUNCTION__
 #define TIME__GHOST (Console::time_formatter(time(0)).c_str())
 
-#define LOG_STAMP TIME__GHOST << "[" << FILE__GHOST << " - " << FUNC__GHOST << " - " << LINE__GHOST << "]" << ": "
+#define LOG_STAMP TIME__GHOST << "[" << FILE__GHOST << "-" << FUNC__GHOST << "-" << LINE__GHOST << "]" << ": "
 
 #define VERBOSE FILE__GHOST << " at " << FUNC__GHOST << "(" << LINE__GHOST << ") "
 
@@ -82,8 +83,7 @@ public:
 	static WriteLiner   OutLine;
 	static Writer		ErrorOut;
 	static WriteLiner   ErrorOutLine;
-	static Writer		LogWrite;
-	static WriteLiner	LogWriteLine;
+	static WriteLiner	Log;
 
 	static std::string file_formatter(char* source);
 	static std::string time_formatter(const time_t time);

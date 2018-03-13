@@ -8,6 +8,8 @@
 #include "GhostTime.h"
 #include "PhysicsExtension.h"
 #include "Player.h"
+#include "HexGrid.h"
+#include "Material.h"
 
 
 ControllerObject::ControllerObject() {
@@ -281,7 +283,16 @@ void ControllerObject::Update() {
 					if (KeyIsDown(teleportDown) && hand == HAND_Right) {
 						if (ArcCast(&transform, &endPos, &player->teleportArc)) {
 							player->teleportArc.Create();
-							teleportQueued = true;
+							if (!(player->GetBuildGrid()->IsBlocked(DirectX::XMFLOAT2(endPos.x, endPos.z))) && (player->teleportArc.Get()->componentVarients.find("valid") != player->teleportArc.Get()->componentVarients.end())) {
+								int id = TypeMap::GetComponentTypeID<Material>();
+								player->teleportArc.Get()->SetComponent(player->teleportArc.Get()->componentVarients["valid"], id);
+								teleportQueued = true;
+							}
+							else if (player->teleportArc.Get()->componentVarients.find("invalid") != player->teleportArc.Get()->componentVarients.end()) {
+								int id = TypeMap::GetComponentTypeID<Material>();
+								player->teleportArc.Get()->SetComponent(player->teleportArc.Get()->componentVarients["invalid"], id);
+								teleportQueued = false;
+							}
 						}
 						else {
 							player->teleportArc.Destroy();

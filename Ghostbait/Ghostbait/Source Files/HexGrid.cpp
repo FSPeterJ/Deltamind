@@ -329,7 +329,7 @@ void HexGrid::Display(DirectX::XMFLOAT2& player) {
 	//draw everything
 	for(const auto& t : map) {
 		auto realT = const_cast<HexTile*&>(t);
-		realT->Draw(layout, {1,1,1}, 0.2f);
+		realT->DrawX(layout, {1,1,1}, 0.2f);
 	}
 	//blocked.Color(&layout, {0,0,0}, 0, ColorType::__CheapFill);
 
@@ -357,7 +357,7 @@ HexTile* HexGrid::GetRandomTile() {
 }
 
 HexGrid::HexGrid(const char* _filename, float _radius, HexagonalGridLayout _layout) : map_radius(_radius), layout(_layout) {
-
+	static int dupCount = 0;
 	std::fstream file;
 
 	file.open(_filename, std::ios_base::binary | std::ios_base::in);
@@ -381,11 +381,20 @@ HexGrid::HexGrid(const char* _filename, float _radius, HexagonalGridLayout _layo
 
 				HexTile* t = new HexTile(q, r, s);
 				t->weight = 1.0f;
-
+				if (q == -15 && r == 34) {
+					int i = 0;
+				}
+				if (map.find(t) != map.end()) {
+					++dupCount;
+				}
 				map.insert(t);
 			}
 		}
 		file.close();
 		
 	}
+
+	int i = 0;
+	HexTile tile = HexTile(-15, 34);
+	DirectX::XMFLOAT2 pos = tile.Center(HexagonalGridLayout::FlatLayout);
 }

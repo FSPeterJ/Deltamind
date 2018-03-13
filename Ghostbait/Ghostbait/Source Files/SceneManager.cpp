@@ -63,11 +63,11 @@ void SceneManager::Initialize() {
 		level0Data.levelName.push_back(std::string("Level Files//level0.xml"));
 		TestSceneData::Prefab ground;
 		{
-			ground.ghostFile = "Assets/PlaneMap1.ghost";
-			//ground.ghostFile = "Assets/SpaceshipHull.ghost";
-
+			//ground.ghostFile = "Assets/PlaneMap1.ghost";
+			ground.ghostFile = "Assets/SpaceshipHull.ghost";
+			DirectX::XMFLOAT4X4 mat0 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 1);
 			ground.name = "Ground";
-			ground.positions.push_back(identity);
+			ground.positions.push_back(mat0);
 			level0Data.prefabs.push_back(ground);
 		}
 		TestSceneData::Prefab startCube;

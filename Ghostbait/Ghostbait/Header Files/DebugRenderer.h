@@ -4,7 +4,7 @@
 namespace DirectX { struct XMFLOAT3;  struct XMFLOAT4X4; }
 struct ColliderData;
 
-#define MAX_VERTS 131072
+#define MAX_VERTS 262144
 class DebugRenderer {
 	static ID3D11Device* device;
 	static ID3D11DeviceContext* context;

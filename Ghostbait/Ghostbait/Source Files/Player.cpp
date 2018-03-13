@@ -5,6 +5,8 @@
 #include "GhostTime.h"
 #include "PhysicsExtension.h"
 #include "ObjectFactory.h"
+#include "HexGrid.h"
+#include "BuildTool.h"
 
 
 
@@ -150,6 +152,18 @@ void Player::LoadControllers(VRControllerTypes type) {
 
 	if (IsVR()) {
 		VRManager::GetInstance().SetControllers(leftController, rightController);
+	}
+}
+
+void Player::SetBuildGrid(HexGrid* _grid) {
+	grid = _grid;
+	BuildTool* buildTool = leftController->GetBuildTool();
+	if (buildTool) {
+		buildTool->SetGrid(_grid);
+	}
+	buildTool = rightController->GetBuildTool();
+	if (buildTool) {
+		buildTool->SetGrid(_grid);
 	}
 }
 

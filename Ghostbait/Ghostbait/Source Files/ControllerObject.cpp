@@ -500,3 +500,13 @@ void ControllerObject::PositionNonVRController() {
 	transform.SetMatrix(newPos);
 	transform.LookAt(colPoint);
 }
+
+BuildTool* ControllerObject::GetBuildTool() { 
+	BuildTool* build = nullptr;
+	for (int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
+		build = dynamic_cast<BuildTool*>(inventory.items[i]);
+		if (build) return build;
+	}
+	return nullptr;
+}
+

@@ -315,6 +315,7 @@ void Game::Start(Player* _player, EngineStructure* _engine, char* startScene) {
 	sceneManager->Initialize();
 	gameData.Reset();
 	hexGrid.Fill(false);
+	player->SetBuildGrid(&hexGrid);
 
 	ChangeScene(startScene);
 

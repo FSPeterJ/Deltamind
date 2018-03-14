@@ -6,13 +6,13 @@
 #include "ObjectFactory.h"
 
 #include "HexGrid.h"
-void Spawner::Awake(Object* obj) {
+void SpawnerObject::Awake(Object* obj) {
 	SetTag("Spawner");
 	MessageEvents::SendMessage(EVENT_SpawnerCreated, SpawnerCreatedMessage(this));
 }
-Spawner::Spawner() {
+SpawnerObject::SpawnerObject() {
 }
-void Spawner::SpawnObject(char* prefabName, HexGrid* grid, DirectX::XMFLOAT2 goal) {
+void SpawnerObject::SpawnObject(const char* prefabName, HexGrid* grid, const DirectX::XMFLOAT2& goal) {
 	grid->RemoveObstacle(goal);
 	grid->RemoveObstacle({ transform.GetMatrix()._41,transform.GetMatrix()._43});
 

@@ -99,6 +99,21 @@ void Player::Update() {
 			godMode = !godMode;
 			ResetKey(Control::TestInputZ);
 		}
+		if (KeyIsDown(Control::TestInputC)) {
+			switch (stance) {
+				case STANCE_Stand:
+					stance = STANCE_Crouch;
+					playerHeight = crouchHeight;
+					transform.SetPosition(transform.GetPosition().x, playerHeight, transform.GetPosition().z);
+					break;
+				case STANCE_Crouch:
+					stance = STANCE_Stand;
+					playerHeight = standHeight;
+					transform.SetPosition(transform.GetPosition().x, playerHeight, transform.GetPosition().z);
+					break;
+			}
+			ResetKey(Control::TestInputC);
+		}
 
 		if (rotationX < -rotationLimit) {
 			rotationX = -rotationLimit;
@@ -184,15 +199,17 @@ void Player::LoadControllers(VRControllerTypes type) {
 	}
 }
 
-void Player::SetBuildGrid(HexGrid* _grid) {
+void Player::SetBuildToolData(HexGrid* _grid, unsigned* _gears) {
 	grid = _grid;
 	BuildTool* buildTool = leftController->GetBuildTool();
 	if (buildTool) {
 		buildTool->SetGrid(_grid);
+		buildTool->SetGears(_gears);
 	}
 	buildTool = rightController->GetBuildTool();
 	if (buildTool) {
 		buildTool->SetGrid(_grid);
+		buildTool->SetGears(_gears);
 	}
 }
 

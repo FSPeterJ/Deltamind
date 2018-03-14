@@ -49,8 +49,18 @@ private:
 		D3D11_VIEWPORT viewport;
 	};
 
+	struct DeferredRTVs
+	{
+		ID3D11Texture2D* textures[6];
+		ID3D11Texture2D* depthBuffer;
+		ID3D11RenderTargetView* RTVs[6];
+		ID3D11DepthStencilView* DSV;
+		ID3D11ShaderResourceView* SRVs[6];
+	};
+
 	struct eye {
 		renderTargetInfo renderInfo;
+		DeferredRTVs targets;
 		viewProjectionConstantBuffer camera;
 		DirectX::XMFLOAT3 camPos;
 	};
@@ -66,15 +76,6 @@ private:
 		ID3D11Texture2D* faces[6];
 		ID3D11Texture2D* box;
 		ID3D11ShaderResourceView* srv;
-	};
-
-	struct DeferredRTVs
-	{
-		ID3D11Texture2D* textures[4];
-		ID3D11Texture2D* depthBuffer;
-		ID3D11RenderTargetView* RTVs[4];
-		ID3D11DepthStencilView* DSV;
-		ID3D11ShaderResourceView* SRVs[4];
 	};
 #pragma endregion
 
@@ -96,10 +97,13 @@ private:
 	ID3D11VertexShader* SkyboxVS;
 	ID3D11PixelShader* SkyboxPS;
 	ID3D11PixelShader* DeferredTargetPS;
+	ID3D11VertexShader* PassThroughPositionVS;
+	ID3D11GeometryShader* NDCQuadGS;
 
 	ID3D11InputLayout* ILPositionColor;
 	ID3D11InputLayout* ILStandard;
 	ID3D11InputLayout* ILParticle;
+	ID3D11InputLayout* ILPosition;
 
 	ID3D11Buffer* cameraBuffer;
 	ID3D11Buffer* modelBuffer;
@@ -112,6 +116,7 @@ private:
 	animDataBufferStruct cpuAnimationData;
 	Mesh* skyball;
 
+	ID3D11Buffer* emptyFloat3Buffer; //Needed to upload to the shaders that don't need specific vertex values (may replace with techniques later)
 	Skybox* currSkybox = nullptr;
 
 	std::vector<const GameObject*> renderedObjects;
@@ -133,13 +138,14 @@ private:
 	bool LoadShaderFromCSO(char ** szByteCode, size_t& szByteCodeSize, const char* szFileName);
 	void setupVRTargets();
 	void releaseDeferredTarget(DeferredRTVs* in);
+	void combineDeferredTargets(DeferredRTVs* in, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT& viewport);
 
 	void renderObjectDefaultState(Object* obj);
 	void renderToEye(eye* eyeTo);
-	void drawSkyboxTo(ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT& viewport, DirectX::XMFLOAT3& pos);
+	void drawSkyboxTo(ID3D11RenderTargetView** rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT& viewport, DirectX::XMFLOAT3& pos);
 	void loadPipelineState(pipeline_state_t* pipeline);
-	void createDeferredRTVs();
-	void createRTVandSRV(ID3D11Texture2D** texture, ID3D11ShaderResourceView** srv, ID3D11RenderTargetView** rtv);
+	void createDeferredRTVs(DeferredRTVs* toWrite, ID3D11Texture2D* refTex);
+	void createRTVandSRV(ID3D11Texture2D** texture, ID3D11ShaderResourceView** srv, ID3D11RenderTargetView** rtv, ID3D11Texture2D* refTex);
 
 	DirectX::XMFLOAT4X4 lookAt(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 up);
 

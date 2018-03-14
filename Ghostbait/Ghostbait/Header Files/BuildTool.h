@@ -21,8 +21,9 @@ class BuildTool : public Item {
 	Mode currentMode = SPAWN;
 	DirectX::XMFLOAT3 spawnPos;
 	GameObject* currentlySelectedItem = nullptr;
-	bool prevLocationValid = false;
+	bool prevLocationValid = true;
 	HexGrid* grid = nullptr;
+	unsigned* gears = nullptr; 
 	ArcObject buildArc;
 
 	void SpawnProjection();
@@ -37,6 +38,7 @@ public:
 	BuildTool();
 
 	inline void SetGrid(HexGrid* _grid) { grid = _grid; };
+	inline void SetGears(unsigned* _gears) { gears = _gears; };
 	void SetPrefabs(std::vector<unsigned> prefabIDs);
 	void Enable();
 	void Disable();

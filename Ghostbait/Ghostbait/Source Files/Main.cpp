@@ -26,6 +26,7 @@
 #include "AStarEnemy.h"
 #include "Turret.h"
 #include "Player.h"
+#include "Logger.h"
 
 Renderer* rendInter;
 Game* game;
@@ -48,7 +49,6 @@ void ExecuteAsync() {
 
 void Setup(HINSTANCE hInstance, int nCmdShow) {
 	Console::Allocate();
-
 	Window wnd(1024, 900);
 
 	if(!wnd.Initialize(hInstance, nCmdShow)) { Messagebox::ShowError("Error!!", "Main window is not initialized!"); }

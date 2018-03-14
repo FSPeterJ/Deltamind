@@ -20,6 +20,7 @@ public:
 	void Disable();
 	void Awake(Object* obj);
 	void Update();
+	void Destroy() override;
 	float CalculateDistance(GameObject* obj);
 	~Turret();
 	void OnTrigger(GameObject* object);

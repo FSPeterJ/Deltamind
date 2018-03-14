@@ -7,6 +7,7 @@
 #include "VRStructs.h"
 
 class Player;
+class BuildTool;
 
 #define CONTROLLER_MAX_ITEMS 4
 
@@ -66,4 +67,5 @@ public:
 	void SetControllerState(ControllerState newState);
 	void SetControllerStateToPrevious();
 	inline const ControllerState& GetControllerState() const {return state;};
+	BuildTool* GetBuildTool();
 };

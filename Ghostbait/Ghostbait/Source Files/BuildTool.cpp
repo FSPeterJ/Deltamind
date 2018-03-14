@@ -4,6 +4,8 @@
 #include "Console.h"
 #include "PhysicsComponent.h"
 #include "PhysicsExtension.h"
+#include "HexGrid.h"
+#include "Material.h"
 
 BuildTool::BuildTool() { 
 	state = BUILD;
@@ -91,6 +93,21 @@ void BuildTool::SpawnProjection(){
 			newPos1._42 = spawnPos.y;
 			newPos1._43 = spawnPos.z;
 			prefabs[currentPrefabIndex].object->transform.SetMatrix(newPos1);
+
+			if (grid->IsBlocked(newPos.x, newPos.y) && prevLocationValid) {
+				if (prefabs[currentPrefabIndex].object->componentVarients.find("invalid") != prefabs[currentPrefabIndex].object->componentVarients.end()) {
+					int id = TypeMap::GetComponentTypeID<Material>();
+					prefabs[currentPrefabIndex].object->SetComponent(prefabs[currentPrefabIndex].object->componentVarients["invalid"], id);
+					prevLocationValid = false;
+				}
+			}
+			else if(!grid->IsBlocked(newPos.x, newPos.y) && !prevLocationValid) {
+				if (prefabs[currentPrefabIndex].object->componentVarients.find("valid") != prefabs[currentPrefabIndex].object->componentVarients.end()) {
+					int id = TypeMap::GetComponentTypeID<Material>();
+					prefabs[currentPrefabIndex].object->SetComponent(prefabs[currentPrefabIndex].object->componentVarients["valid"], id);
+					prevLocationValid = true;
+				}
+			}
 		}
 		else {
 			buildArc.Destroy();

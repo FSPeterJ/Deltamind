@@ -1,11 +1,9 @@
 #pragma once
 #include "Item.h"
 
-
-
 #include "PhysicsExtension.h"
 
-class ControllerObject;
+class HexGrid;
 
 class BuildTool : public Item {
 	struct BuildItem {
@@ -23,7 +21,8 @@ class BuildTool : public Item {
 	Mode currentMode = SPAWN;
 	DirectX::XMFLOAT3 spawnPos;
 	GameObject* currentlySelectedItem = nullptr;
-
+	bool prevLocationValid = false;
+	HexGrid* grid = nullptr;
 	ArcObject buildArc;
 
 	void SpawnProjection();
@@ -37,6 +36,7 @@ class BuildTool : public Item {
 public:
 	BuildTool();
 
+	inline void SetGrid(HexGrid* _grid) { grid = _grid; };
 	void SetPrefabs(std::vector<unsigned> prefabIDs);
 	void Enable(bool onEndDestroy);
 	void Disable();

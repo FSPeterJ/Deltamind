@@ -5,6 +5,8 @@
 #include "GhostTime.h"
 #include "PhysicsExtension.h"
 #include "ObjectFactory.h"
+#include "HexGrid.h"
+#include "BuildTool.h"
 
 
 
@@ -30,10 +32,7 @@ void Player::Update() {
 		transform.SetMatrix(VRManager::GetInstance().GetPlayerPosition());
 	else {
 		DirectX::XMFLOAT3 prevPos = transform.GetPosition();
-		if (rotationY < -DirectX::XM_2PI || rotationY > DirectX::XM_2PI) 
-			rotationY = 0.0f;
-		if (rotationX < -DirectX::XM_2PI || rotationX > DirectX::XM_2PI)
-			rotationX = 0.0f;
+		float rotationLimit = DirectX::XMConvertToRadians(80);
 
 		if (KeyIsDown(Control::CameraLeftRight)) {
 			//position._41 -= 50.0f * dt;
@@ -49,10 +48,31 @@ void Player::Update() {
 			//ResetKey(Control::right);
 		}
 		if (KeyIsDown(Control::forward)) {
+			if (!godMode) {
+				//Oriented Matrix
+				DirectX::XMMATRIX newMat_M = DirectX::XMLoadFloat4x4(&transform.GetMatrix());
+				newMat_M.r[1] = DirectX::XMVectorSet(0, 1, 0, 0);
+				newMat_M.r[2] = DirectX::XMVector3Cross(newMat_M.r[0], newMat_M.r[1]);
+
+				//Translate from oriented mat
+				DirectX::XMFLOAT4X4 tempMat;
+				DirectX::XMStoreFloat4x4(&tempMat, newMat_M);
+				transform.SetMatrix(tempMat);
+			}
 			transform.MoveAlongForward(godMode ? 30 : 10.0f);
-			//ResetKey(Control::forward);
 		}
 		if (KeyIsDown(Control::backward)) {
+			if (!godMode) {
+				//Oriented Matrix
+				DirectX::XMMATRIX newMat_M = DirectX::XMLoadFloat4x4(&transform.GetMatrix());
+				newMat_M.r[1] = DirectX::XMVectorSet(0, 1, 0, 0);
+				newMat_M.r[2] = DirectX::XMVector3Cross(newMat_M.r[0], newMat_M.r[1]);
+
+				//Translate from oriented mat
+				DirectX::XMFLOAT4X4 tempMat;
+				DirectX::XMStoreFloat4x4(&tempMat, newMat_M);
+				transform.SetMatrix(tempMat);
+			}
 			transform.MoveAlongForward(godMode ? -30 : -10.0f);
 			//ResetKey(Control::backward);
 		}
@@ -79,6 +99,15 @@ void Player::Update() {
 			ResetKey(Control::TestInputZ);
 		}
 
+		if (rotationX < -rotationLimit) {
+			rotationX = -rotationLimit;
+		}
+		if (rotationX > rotationLimit) {
+			rotationX = rotationLimit;
+		}
+		if (rotationY < -DirectX::XM_2PI || rotationY > DirectX::XM_2PI) {
+			rotationY = 0.0f;
+		}
 		transform.SetRotationRadians(rotationX, rotationY, 0.0f);
 
 		if (!godMode) {
@@ -86,7 +115,8 @@ void Player::Update() {
 			DirectX::XMFLOAT3 start = { transform.GetMatrix()._41, transform.GetMatrix()._42 - playerHeight + 0.1f, transform.GetMatrix()._43 };
 			DirectX::XMFLOAT3 direction = { 0, -1, 0 };
 			DirectX::XMFLOAT3 end;
-			if (Raycast(start, direction, &end, nullptr, 100)) {
+			HexTile* tile = grid->PointToTile(DirectX::XMFLOAT2(transform.GetPosition().x, transform.GetPosition().z));
+			if (Raycast(start, direction, &end, nullptr, 100) && tile && !grid->IsBlocked(tile)) {
 				DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
 				newPos._42 = end.y + playerHeight;
 				transform.SetMatrix(newPos);
@@ -150,6 +180,18 @@ void Player::LoadControllers(VRControllerTypes type) {
 
 	if (IsVR()) {
 		VRManager::GetInstance().SetControllers(leftController, rightController);
+	}
+}
+
+void Player::SetBuildGrid(HexGrid* _grid) {
+	grid = _grid;
+	BuildTool* buildTool = leftController->GetBuildTool();
+	if (buildTool) {
+		buildTool->SetGrid(_grid);
+	}
+	buildTool = rightController->GetBuildTool();
+	if (buildTool) {
+		buildTool->SetGrid(_grid);
 	}
 }
 

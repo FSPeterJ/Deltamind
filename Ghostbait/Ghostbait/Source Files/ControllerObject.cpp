@@ -8,6 +8,8 @@
 #include "GhostTime.h"
 #include "PhysicsExtension.h"
 #include "Player.h"
+#include "HexGrid.h"
+#include "Material.h"
 
 
 ControllerObject::ControllerObject() {
@@ -281,7 +283,16 @@ void ControllerObject::Update() {
 					if (KeyIsDown(teleportDown) && hand == HAND_Right) {
 						if (ArcCast(&transform, &endPos, &player->teleportArc)) {
 							player->teleportArc.Create();
-							teleportQueued = true;
+							if (!(player->GetBuildGrid()->IsBlocked(DirectX::XMFLOAT2(endPos.x, endPos.z))) && (player->teleportArc.Get()->componentVarients.find("valid") != player->teleportArc.Get()->componentVarients.end())) {
+								int id = TypeMap::GetComponentTypeID<Material>();
+								player->teleportArc.Get()->SetComponent(player->teleportArc.Get()->componentVarients["valid"], id);
+								teleportQueued = true;
+							}
+							else if (player->teleportArc.Get()->componentVarients.find("invalid") != player->teleportArc.Get()->componentVarients.end()) {
+								int id = TypeMap::GetComponentTypeID<Material>();
+								player->teleportArc.Get()->SetComponent(player->teleportArc.Get()->componentVarients["invalid"], id);
+								teleportQueued = false;
+							}
 						}
 						else {
 							player->teleportArc.Destroy();
@@ -500,3 +511,13 @@ void ControllerObject::PositionNonVRController() {
 	transform.SetMatrix(newPos);
 	transform.LookAt(colPoint);
 }
+
+BuildTool* ControllerObject::GetBuildTool() { 
+	BuildTool* build = nullptr;
+	for (int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
+		build = dynamic_cast<BuildTool*>(inventory.items[i]);
+		if (build) return build;
+	}
+	return nullptr;
+}
+

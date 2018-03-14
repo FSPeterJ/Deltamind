@@ -478,7 +478,7 @@ void Renderer::registerObject(EventMessageBase* e) {
 	//TODO: Need logic to determine which objects group to push to
 	//based off of what the object has - may include instructions in the future
 	NewObjectMessage* instantiate = (NewObjectMessage*) e;
-	if(instantiate->RetrieveObject()->GetComponent<Mesh>()) {
+	if(instantiate->obj->GetComponent<Mesh>()) {
 		renderedObjects.push_back(instantiate->RetrieveObject());
 	}
 }

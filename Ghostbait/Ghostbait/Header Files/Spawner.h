@@ -7,4 +7,5 @@ public:
 	SpawnerObject();
 	void Awake(Object* obj);
 	void SpawnObject(const char* prefabName, HexGrid* grid, const DirectX::XMFLOAT2& goal);
+	void Destroy() override;
 };

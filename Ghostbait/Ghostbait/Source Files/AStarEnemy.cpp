@@ -54,6 +54,14 @@ void AStarEnemy::Destroy() {
 }
 void AStarEnemy::Update() {
 	EnemyBase::Update();
+
+	DirectX::XMFLOAT3 vel;
+	DirectX::XMStoreFloat3(&vel, rb->GetVelocity());
+	DirectX::XMFLOAT3 newPoint = { transform.GetPosition().x + vel.x, transform.GetPosition().y, transform.GetPosition().z + vel.z };
+	transform.TurnTowards(newPoint, 1);
+
+
+	//Update Path
 	HexTile* curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.GetMatrix()._41, transform.GetMatrix()._43));
 	if(curTile) {
 		if(curTile == next) {

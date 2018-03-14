@@ -22,7 +22,13 @@ void ControllerObject::Init(Player* _player, ControllerHand _hand) {
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuControllerItem>({ 0,0,0 }, &menuController));
 	int temp = sizeof(MenuControllerItem);
 	inventory.currentItem = inventory.items[0];
-	Enable();
+	menuController->PersistOnReset();
+	for (int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
+		if (inventory.items[i]) {
+			inventory.items[i]->PersistOnReset();
+		}
+	}
+
 	PersistOnReset();
 }
 void ControllerObject::SetPhysicsComponent(const GameObject* obj, bool active) {

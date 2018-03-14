@@ -91,6 +91,7 @@ void GameObject::Destroy() {
 		flags |= DESTROYED;
 		//recycle memory, pool::deactivatememory
 		MessageEvents::SendMessage(EVENT_Destroy, StandardObjectMessage(this));
+		PersistentUnSubscribe();
 		DestroyComponents();
 		Components.Clear();
 		Disable();
@@ -105,7 +106,7 @@ void GameObject::Awake(Object* obj) {
 	updateID = 0;
 	eventDeleteAllGameObjects = 0;
 	flags = 0;
-
+	PersistentSubscribe();
 	destroyOnReset = true;
 }
 

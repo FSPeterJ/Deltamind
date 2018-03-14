@@ -9,6 +9,7 @@
 void SpawnerObject::Awake(Object* obj) {
 	SetTag("Spawner");
 	MessageEvents::SendMessage(EVENT_SpawnerCreated, SpawnerCreatedMessage(this));
+	GameObject::Awake(obj);
 }
 SpawnerObject::SpawnerObject() {
 }
@@ -24,4 +25,8 @@ void SpawnerObject::SpawnObject(const char* prefabName, HexGrid* grid, const Dir
 	obj->Repath();
 	obj->Enable();
 	//obj->GetComponent<PhysicsComponent>()->rigidBody.AddForce(100);
+}
+
+void SpawnerObject::Destroy() {
+	GameObject::Destroy();
 }

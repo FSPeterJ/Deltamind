@@ -19,6 +19,7 @@ void EnemyBase::Awake(Object* obj) {
 
 	eventLose = 0;
 	SetToFullHealth();
+	GameObject::Awake(obj);
 }
 void EnemyBase::Subscribe() {
 	if(!eventLose) eventLose = MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) { MessageEvents::SendQueueMessage(EVENT_Late, [=] {this->Destroy(); }); });

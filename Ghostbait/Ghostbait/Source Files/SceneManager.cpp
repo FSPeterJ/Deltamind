@@ -245,17 +245,15 @@ void SceneManager::LoadScene(const char* sceneName, DirectX::XMFLOAT3* _corePos)
 				int ghostCount = Reader::ReadInt();
 				for (int i = 0; i < ghostCount; ++i) {
 					DirectX::XMFLOAT4X4 mat = Reader::ReadMatrix();
-					GameObject* newObj;
-					MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0, 0, 0 }, &newObj));
-					if (_corePos && !strcmp(newObj->GetTag().c_str(), "Core")) {
-						*_corePos = DirectX::XMFLOAT3(mat._41, mat._42, mat._43);
-					}
-					newObj->transform.SetMatrix(mat);
-
-					//TODO: TEMPORARY SOLUTION 
-					MessageEvents::SendQueueMessage(EVENT_Late, [=] { newObj->Enable(); });
-					//------------------------
-
+					MessageEvents::SendQueueMessage(EVENT_Late, [=] {  
+						GameObject* newObj;
+						MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0, 0, 0 }, &newObj));
+						if (_corePos && !strcmp(newObj->GetTag().c_str(), "Core")) {
+							*_corePos = DirectX::XMFLOAT3(mat._41, mat._42, mat._43);
+						}
+						newObj->transform.SetMatrix(mat);
+						newObj->Enable();
+						});
 				}
 				//Will be garbage if the file is empty. Should only be garbage on the last call
 			}

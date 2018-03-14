@@ -131,7 +131,8 @@ void Menu::Show(bool useCamera) {
 		DirectX::XMStoreFloat4x4(&newObjPos, center_M * DirectX::XMMatrixTranslation(0, distFromCenter, 0));
 		MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuOption>(buttonPrefabMap[buttons[i]], newObjPos, &newOption));
 		newOption->SetMenu(this);
-		newOption->Enable(false);
+		newOption->Enable();
+		newOption->PersistOnReset();
 		options[i] = newOption;
 		options[i]->SetOldPos(options[i]->transform.GetMatrix());
 		options[i]->SetOldColliderPoint(options[i]->GetComponent<PhysicsComponent>()->colliders[0].colliderData->colliderInfo.boxCollider.topRightFrontCorner);
@@ -199,4 +200,45 @@ void PlayButton::Select() {
 }
 void ChangeLevelButton::Select() {
 	MenuOption::Select();
+}
+
+
+
+//Other
+void MenuCube::Update() {
+	//position.m[3][1] += 0.4f * (float) GhostTime::DeltaTime();
+	//if(position.m[3][1] > 1.5f) {
+	//	Disable();
+	//}
+	GameObject::Update();
+}
+
+void MenuCube::OnCollision(GameObject* other) {
+	if(other->GetTag() == "Bullet") {
+		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
+		Console::WriteLine << "StartCube Shot!";
+		MessageEvents::SendMessage(EVENT_Start, EventMessageBase());
+		//GameObject* obj;
+		//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(8/*Core*/, {0, 1.5f, 0}, &obj));
+		//DirectX::XMStoreFloat4x4(&obj->position,
+		//	DirectX::XMLoadFloat4x4(&obj->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
+	}
+	GameObject::OnCollision(other);
+}
+
+void CoreCube::OnCollision(GameObject* other) {
+	if(!strcmp(other->GetTag().c_str(), "Enemy")) {
+		if(!enemyTouched) {
+			Console::WriteLine << "YOU LOSE!";
+			Console::OutLine << "YOU LOSE!";
+			MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
+			MessageEvents::SendMessage(EVENT_GameLose, EventMessageBase());
+			enemyTouched = true;
+		}
+	}
+	GameObject::OnCollision(other);
+}
+
+void CoreCube::Destroy() {
+	GameObject::Destroy();
 }

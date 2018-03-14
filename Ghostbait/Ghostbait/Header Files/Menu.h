@@ -97,3 +97,31 @@ class PlayButton : public MenuOption {
 class ChangeLevelButton : public MenuOption {
 	void Select() override;
 };
+
+
+
+
+
+
+
+//Other
+class MenuCube: public GameObject {
+	void Update();
+public:
+	void OnCollision(GameObject* other);
+
+	void Enable() override {
+		GameObject::Enable();
+	}
+
+	void Destroy() {
+		GameObject::Destroy();
+	};
+};
+class CoreCube: public GameObject {
+	bool enemyTouched = false;
+public:
+	CoreCube() { SetTag("Core"); };
+	void OnCollision(GameObject* other);
+	void Destroy() override;
+};

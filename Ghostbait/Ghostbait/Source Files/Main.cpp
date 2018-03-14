@@ -320,8 +320,8 @@ void Loop() {
 
 	inputMan->HandleInput();
 	game->Update();
-	player->leftController->Update();
-	player->rightController->Update();
+	//player->leftController->Update();
+	//player->rightController->Update();
 
 	
 	rendInter->Render();

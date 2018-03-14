@@ -19,7 +19,8 @@ i = 1;
 */
 
 Player::Player() {
-	Enable(false);
+	Enable();
+	PersistOnReset();
 	VRManager::GetInstance().Init(&transform);
 	transform.SetPosition(0, 1.7f, 0);
 	transform.LookAt({ 0, 1.7f, 1 });

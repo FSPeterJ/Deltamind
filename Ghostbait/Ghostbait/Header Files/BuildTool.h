@@ -38,7 +38,7 @@ public:
 
 	inline void SetGrid(HexGrid* _grid) { grid = _grid; };
 	void SetPrefabs(std::vector<unsigned> prefabIDs);
-	void Enable(bool onEndDestroy);
+	void Enable();
 	void Disable();
 	void Update();
 

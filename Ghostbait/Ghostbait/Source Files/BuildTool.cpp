@@ -30,7 +30,7 @@ void BuildTool::SetPrefabs(std::vector<unsigned> prefabIDs) {
 	prefabs[prefabs.size() - 1].ID = 0;
 }
 
-void BuildTool::Enable(bool onEndDestroy) {
+void BuildTool::Enable() {
 }
 
 void BuildTool::Disable() {

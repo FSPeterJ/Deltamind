@@ -2,9 +2,9 @@
 #include "GameObject.h"
 class HexGrid;
 
-class Spawner : public GameObject {
+class SpawnerObject : public GameObject {
 public:
-	Spawner();
+	SpawnerObject();
 	void Awake(Object* obj);
-	void SpawnObject(char* prefabName, HexGrid* grid, DirectX::XMFLOAT2 goal);
+	void SpawnObject(const char* prefabName, HexGrid* grid, const DirectX::XMFLOAT2& goal);
 };

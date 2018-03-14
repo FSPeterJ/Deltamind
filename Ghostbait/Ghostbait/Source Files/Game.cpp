@@ -14,14 +14,22 @@
 void Game::GameData::Reset() {
 	state = GAMESTATE_BetweenWaves;
 	prevState = GAMESTATE_BetweenWaves;
-	while (spawners.size() > 0) {
-		spawners.erase(spawners.begin()); //can we not use .clear?
+	gears = 0;
+
+	waveManager.Reset();
+	ssManager.Reset();
+}
+void Game::WaveManager::Reset() {
+	while (spawnerObjects.size() > 0) {
+		spawnerObjects.erase(spawnerObjects.begin()); //can we not use .clear?
 	}
 	enemiesLeftAlive = 10000;
-	while (waveManager.waves.size() > 0) {
-		waveManager.waves.erase(waveManager.waves.begin()); //can we not use .clear?
+	while (waves.size() > 0) {
+		waves.erase(waves.begin()); //can we not use .clear?
 	}
-	waveManager.currentWave = -1;
+	currentWave = -1;
+}
+void Game::SplashScreenManager::Reset() {
 	nextScene = "";
 	timeInScene = 0;
 	sceneTimeLimit = -1;
@@ -30,6 +38,24 @@ void Game::GameData::Reset() {
 	while (logos.size()) {
 		logos.erase(logos.begin()); //can we not use .clear?
 	}
+}
+void Game::GameData::UpdateState(const State& newState) {
+	if (state != newState) { 
+		prevState = state; 
+		state = newState; 
+	}
+}
+void Game::WaveManager::SpawnEnemy(WaveManager::Wave::SpawnerData* spawnerData, const int& spawnerObjectIndex, HexGrid* grid, const DirectX::XMFLOAT2& pos) {
+	int index = 0;
+	if (spawnerObjectIndex < 0)
+		index = rand() % (int)spawnerObjects.size();
+	else
+		index = spawnerObjectIndex;
+	spawnerObjects[index]->SpawnObject(const_cast<char*>(spawnerData->enemyName.c_str()), grid, pos);
+	spawnerData->enemiesSpawned++;
+}
+void Game::WaveManager::MoveToNextWave() {
+	enemiesLeftAlive = waves[++currentWave].enemyCount;
 }
 
 Game::Game() {
@@ -51,7 +77,7 @@ Game::Game() {
 
 //Catch Events
 void Game::PauseInputEvent() {
-	if (gameData.state == GAMESTATE_SplashScreen || gameData.state == GAMESTATE_MainMenu) return;
+	if (gameData.GetState() == GAMESTATE_SplashScreen || gameData.GetState() == GAMESTATE_MainMenu) return;
 	if (paused) {
 		ResumeGame();
 		MessageEvents::SendMessage(EVENT_GameUnPause, EventMessageBase());
@@ -62,15 +88,16 @@ void Game::PauseInputEvent() {
 	}
 }
 void Game::SpawnerCreatedEvent(EventMessageBase* e) {
-	Spawner* spawner = dynamic_cast<Spawner*>(((SpawnerCreatedMessage*)e)->RetrieveObject());
+	SpawnerObject* spawner = dynamic_cast<SpawnerObject*>(((SpawnerCreatedMessage*)e)->RetrieveObject());
 	if (spawner)
-		gameData.spawners.push_back(spawner);
+		gameData.waveManager.AddSpawnerObject(spawner);
 	else
 		Console::ErrorLine << "A non-spawner Object was send to Game.h in the SpawnerCreated Message!";
 }
 void Game::EnemyDiedEvent() {
-	gameData.enemiesLeftAlive--;
-	if (gameData.enemiesLeftAlive <= 0) {
+	gameData.waveManager.EnemyKilled();
+	gameData.AddGears(50);
+	if (gameData.waveManager.GetAliveEnemyCount() <= 0) {
 		ChangeState(GAMESTATE_BetweenWaves);
 	}
 }
@@ -94,11 +121,11 @@ void Game::RemoveObstacleEvent(EventMessageBase* e) {
 	}
 }
 void Game::StartEvent() {
-	switch (gameData.state) {
+	switch (gameData.GetState()) {
 		case GAMESTATE_SplashScreen:
 			{
-				char* sceneName = new char[gameData.nextScene.length() + 1];
-				memcpy(sceneName, gameData.nextScene.c_str(), gameData.nextScene.length() + 1);
+				char* sceneName = new char[gameData.ssManager.GetNextScene().length() + 1];
+				memcpy(sceneName, gameData.ssManager.GetNextScene().c_str(), gameData.ssManager.GetNextScene().length() + 1);
 				ChangeScene(sceneName);
 				delete sceneName;
 			}
@@ -114,21 +141,21 @@ void Game::StartEvent() {
 
 //Helpers
 void Game::ChangeState(State newState) {
-	if (gameData.state != newState) {
-		gameData.prevState = gameData.state;
-		gameData.state = newState;
-
+	if (gameData.GetState() != newState) {
+		gameData.UpdateState(newState);
 
 		switch (newState) {
 			case GAMESTATE_BetweenWaves:
 				{
 					//if upcoming wave doesnt exist...
-					int nextWave = gameData.waveManager.currentWave + 1;
-					if (nextWave >= (int)gameData.waveManager.waves.size()) {
+					if (!gameData.waveManager.NextWaveExists()) {
 						Win();
 					}
 					//if upcoming wave does exist
-					else if (gameData.prevState == GAMESTATE_InWave) {
+					else if (gameData.GetPrevState() == GAMESTATE_InWave) {
+						//Add wave reward
+						gameData.AddGears(gameData.waveManager.GetCurrentWaveReward());
+
 						//Spawn start cube
 						MenuCube* startCube;
 						unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"));
@@ -176,13 +203,15 @@ void Game::ChangeScene(const char* sceneName) {
 															0, 1, 0, 0, 
 															0, 0, 1, 0, 
 															0, 1.7f, 2, 1);
-		gameData.state = GAMESTATE_MainMenu;
+		gameData.SetStateHard(GAMESTATE_MainMenu);
 		mainMenu.SetSpawnPos(menuPos);
 		mainMenu.Show(false);
 		player->leftController->SetControllerState(CSTATE_MenuController);
 		player->rightController->SetControllerState(CSTATE_None);
 		player->transform.MoveToOrigin(player->playerHeight);
-		player->Teleport(&DirectX::XMFLOAT3( 0, 0, 0 ));
+		player->ResetStance();
+		DirectX::XMFLOAT3 temp = DirectX::XMFLOAT3(0, 0, 0);
+		player->Teleport(&temp);
 		player->transform.LookAt({ menuPos._41, menuPos._42, menuPos._43 });
 
 	}
@@ -196,29 +225,30 @@ void Game::ChangeScene(const char* sceneName) {
 		while (xmlReader->read()) {
 			if (xmlReader->getNodeType() == irr::io::EXN_ELEMENT) {
 				if (!strcmp("Level", xmlReader->getNodeName())) {
-					gameData.state = GAMESTATE_BetweenWaves;
-					gameData.prevState = GAMESTATE_BetweenWaves;
+					gameData.AddGears(xmlReader->getAttributeValueAsInt("startGears"));
+					gameData.SetStateHard(GAMESTATE_BetweenWaves);
+					gameData.SetPrevStateHard(GAMESTATE_BetweenWaves);
 					player->leftController->SetControllerState(CSTATE_Inventory);
 					player->rightController->SetControllerState(CSTATE_Inventory);
 				}
 				else if (!strcmp("MenuScene", xmlReader->getNodeName())) {
-					gameData.sceneTimeLimit = xmlReader->getAttributeValueAsFloat("sceneTimeLimit");
-					gameData.nextScene = xmlReader->getAttributeValue("nextScene");
-					gameData.state = GAMESTATE_SplashScreen;
-					gameData.prevState = GAMESTATE_SplashScreen;
+					gameData.ssManager.SetSceneTimeLimit(xmlReader->getAttributeValueAsFloat("sceneTimeLimit"));
+					gameData.ssManager.SetNextScene(xmlReader->getAttributeValue("nextScene"));
+					gameData.SetStateHard(GAMESTATE_SplashScreen);
+					gameData.SetPrevStateHard(GAMESTATE_SplashScreen);
 					player->leftController->SetControllerState(CSTATE_ModelOnly);
 					player->rightController->SetControllerState(CSTATE_ModelOnly);
 				}
 				else if (!strcmp("Wave", xmlReader->getNodeName())) {
 					if (newWave) {
-						gameData.waveManager.waves.push_back(*newWave);
+						gameData.waveManager.AddWave(*newWave);
 						delete newWave;
 					}
 					newWave = new WaveManager::Wave();
 					(*newWave).reward = xmlReader->getAttributeValueAsInt("reward");
 				}
 				else if (!strcmp("Spawner", xmlReader->getNodeName())) {
-					WaveManager::Wave::Spawners newSpawner;
+					WaveManager::Wave::SpawnerData newSpawner;
 					newSpawner.spawnerID = xmlReader->getAttributeValueAsInt("spawnerID");
 					newSpawner.enemyName = xmlReader->getAttributeValueSafe("enemyName");
 					newSpawner.spawnCount = xmlReader->getAttributeValueAsInt("spawnCount");
@@ -228,27 +258,26 @@ void Game::ChangeScene(const char* sceneName) {
 					(*newWave).enemyCount += newSpawner.spawnCount;
 				}
 				else if (!strcmp("Logo", xmlReader->getNodeName())) {
-					Logo logo;
+					SplashScreenManager::LogoData logo;
 					logo.fileName = xmlReader->getAttributeValue("ghostFile");
-					logo.duration = xmlReader->getAttributeValueAsFloat("duration");
-					gameData.logos.push_back(logo);
+					logo.spawnTime = xmlReader->getAttributeValueAsFloat("duration");
+					gameData.ssManager.AddLogo(logo);
 				}
 			}
 		}
 		if (newWave) {
-			gameData.waveManager.waves.push_back(*newWave);
+			gameData.waveManager.AddWave(*newWave);
 			delete newWave;
 		}
 		delete xmlReader;
 	}
 }
 void Game::StartNextWave() {
-	int nextWave = gameData.waveManager.currentWave + 1;
-	if (nextWave >= (int)gameData.waveManager.waves.size()) {
+	if (!gameData.waveManager.NextWaveExists()) {
 		Console::ErrorLine << "You tried to progress to a wave that doesnt exist!";
 	}
 	else {
-		gameData.enemiesLeftAlive = gameData.waveManager.waves[++gameData.waveManager.currentWave].enemyCount;
+		gameData.waveManager.MoveToNextWave();
 		ChangeState(GAMESTATE_InWave);
 	}
 }
@@ -333,34 +362,29 @@ void Game::Update() {
 	//hexGrid.Display(DirectX::XMFLOAT2(playerPos._41, playerPos._43));
 	float dt = (float)GhostTime::DeltaTime();
 
+	Console::WriteLine << "Gears: " << gameData.GetGears();
+
 	if (paused) return;
 
-	switch (gameData.state) {
+	switch (gameData.GetState()) {
 		case GAMESTATE_InWave:
 			{
 				//--------Spawn Enemies if it's their time
 				{
 					//For each spawn entry in the level file
-					for (size_t i = 0; i < gameData.waveManager.waves[gameData.waveManager.currentWave].spawns.size(); ++i) {
+					for (int i = 0; i < gameData.waveManager.GetSpawnCount(); ++i) {
 						//Update this entry's timers
-						WaveManager::Wave::Spawners& spawner = gameData.waveManager.waves[gameData.waveManager.currentWave].spawns[i];
-						spawner.timeSinceLastSpawn += dt;
-						float nextSpawnTime = (!spawner.enemiesSpawned ? spawner.initialDelay : spawner.runDelay);
+						WaveManager::Wave::SpawnerData* spawner = gameData.waveManager.GetSpawnerData(i);
+						spawner->UpdateTimer(dt);
+						float nextSpawnTime = (!spawner->enemiesSpawned ? spawner->initialDelay : spawner->runDelay);
+
 						//if this entry's timer is ready to go and still has enemies to spawn
-						if (spawner.timeSinceLastSpawn >= nextSpawnTime && spawner.enemiesSpawned < spawner.spawnCount) {
+						if (spawner->ReadyToSpawn(nextSpawnTime) && spawner->EnemiesToSpawn()) {
 							//Spawns enemy at location
-							if (gameData.spawners.size() == 0) Console::ErrorLine << "No spawners are in the scene! Wave will be infinite!";
-							else if (spawner.spawnerID >= (int)gameData.spawners.size() || spawner.spawnerID < 0) {
-								gameData.spawners[rand() % gameData.spawners.size()]->SpawnObject(const_cast<char*>(spawner.enemyName.c_str()), &hexGrid, DirectX::XMFLOAT2(corePos.x, corePos.z));
-								spawner.enemiesSpawned++;
-								Console::WriteLine << "Spawner Index out of range. Picking random value";
-							}
-							else {
-								gameData.spawners[spawner.spawnerID]->SpawnObject(const_cast<char*>(spawner.enemyName.c_str()), &hexGrid, DirectX::XMFLOAT2(corePos.x, corePos.z));
-								spawner.enemiesSpawned++;
-							}
+							if (gameData.waveManager.GetSpawnObjectCount() == 0) Console::ErrorLine << "No spawners are in the scene! Wave will be infinite!";
+							else gameData.waveManager.SpawnEnemy(spawner, spawner->spawnerID, &hexGrid, DirectX::XMFLOAT2(corePos.x, corePos.z));
 							//Reset this entry's timeSinceLastSpawn
-							spawner.timeSinceLastSpawn = 0;
+							spawner->RestartTimer();
 						}
 					}
 				}
@@ -388,49 +412,52 @@ void Game::Update() {
 		case GAMESTATE_SplashScreen:
 			{
 				//update time
-				gameData.timeInScene += dt;
+				gameData.ssManager.UpdateTimeInScene(dt);
 
 				//if time is up, switch scenes
-				if (gameData.sceneTimeLimit > 0) {
-					if (gameData.timeInScene >= gameData.sceneTimeLimit) {
+				if (gameData.ssManager.HasTimeLimit()) {
+					if (gameData.ssManager.TimeLimitReached()) {
 						StartEvent();
 					}
 				}
 
 				//If we have logos to go through
-				if (gameData.logos.size()) {
+				if (gameData.ssManager.GetLogoCount()) {
 					//if first time
-					if (gameData.currentLogoIndex == -1) {
+					if (gameData.ssManager.GetCurrentLogoIndex() == -1) {
 						//Spawn first logo
-						if (gameData.logos[++gameData.currentLogoIndex].fileName != "") {
-							int id = ObjectFactory::CreatePrefab(&gameData.logos[gameData.currentLogoIndex].fileName);
-							MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(id, { 0, 1.5f, 20 }, &gameData.currentLogo));
+						gameData.ssManager.MoveToNextLogo();
+						if (gameData.ssManager.GetCurrentLogoData().fileName != "") {
+							int id = ObjectFactory::CreatePrefab(&gameData.ssManager.GetCurrentLogoData().fileName);
+							GameObject* newLogo;
+							MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(id, { 0, 1.5f, 20 }, &newLogo));
+							gameData.ssManager.SetCurrentLogoObject(newLogo);
 						}
 					}
-					else if (gameData.timeInScene >= gameData.logos[gameData.currentLogoIndex].duration) {
+					else if (gameData.ssManager.TimeToSpawnNextLogo()) {
 						//If this duration is not special, delete it
-						if (gameData.logos[gameData.currentLogoIndex].duration != -1) {
-							if (gameData.currentLogo) gameData.currentLogo->Destroy();
-							gameData.currentLogo = nullptr;
+						if (gameData.ssManager.GetCurrentLogoData().spawnTime != -1) {
+							if (gameData.ssManager.GetCurrentLogoObject()) gameData.ssManager.GetCurrentLogoObject()->Destroy();
+							gameData.ssManager.SetCurrentLogoObject(nullptr);
 						}
 						//If there is a next option
-						if (gameData.currentLogoIndex + 1 < (int)gameData.logos.size()) {
+						if (gameData.ssManager.NextLogoExists()) {
 							//Update your index to it, and update the duration to be a new timer if not special
-							if (gameData.logos[++gameData.currentLogoIndex].duration != -1) {
-								gameData.logos[gameData.currentLogoIndex].duration += gameData.timeInScene;
+							if (gameData.ssManager.GetCurrentLogoData().spawnTime != -1) {
+								gameData.ssManager.UpdateCurrentLogoSpawnTime();
 							}
-							if (gameData.logos[gameData.currentLogoIndex].fileName != "") {
-								int id = ObjectFactory::CreatePrefab(&gameData.logos[gameData.currentLogoIndex].fileName);
-								MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(id, { 0, 1.5f, 20 }, &gameData.currentLogo));
+							if (gameData.ssManager.GetCurrentLogoData().fileName != "") {
+								int id = ObjectFactory::CreatePrefab(&gameData.ssManager.GetCurrentLogoData().fileName);
+								GameObject* newLogo;
+								MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(id, { 0, 1.5f, 20 }, &newLogo));
+								gameData.ssManager.SetCurrentLogoObject(newLogo);
 							}
 						}
 						else {
-							if (gameData.currentLogo && gameData.logos[gameData.currentLogoIndex].duration != -1) gameData.currentLogo->Destroy();
-							while (gameData.logos.size()) {
-								gameData.logos.erase(gameData.logos.begin());
-							}
-							gameData.currentLogo = nullptr;
-							if (gameData.sceneTimeLimit == -2) {
+							if (gameData.ssManager.GetCurrentLogoObject() && gameData.ssManager.GetCurrentLogoData().spawnTime != -1) gameData.ssManager.GetCurrentLogoObject()->Destroy();
+							gameData.ssManager.ClearLogos();
+							gameData.ssManager.SetCurrentLogoObject(nullptr);
+							if (gameData.ssManager.TimeLimitReached()) {
 								StartEvent();
 							}
 						}

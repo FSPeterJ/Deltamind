@@ -21,6 +21,10 @@ enum VRControllerTypes {
 };
 
 class Player : public GameObject, public Controlable {
+	enum Stance {
+		STANCE_Stand,
+		STANCE_Crouch,
+	};
 	std::vector<unsigned> ownedItems;
 
 	//void LoadInventory(const char* fileName = INVENTORY_FILE);
@@ -28,20 +32,24 @@ class Player : public GameObject, public Controlable {
 	float rotationY = 0.0f;
 	float rotationX = 0.0f;
 	HexGrid* grid = nullptr;
+	bool godMode = false;
+	Stance stance = STANCE_Stand;
 
+	float standHeight = 1.7f;
+	float crouchHeight = 1;
 public:
 	ArcObject teleportArc;
 	ControllerObject *leftController = 0, *rightController = 0;
-	bool godMode = false;
-
 
 	float playerHeight = 1.7f;
+
 	Player();
 
 	void Update() override;
 	void PausedUpdate();
 	void MenuUpdate();
 	
+	inline void ResetStance() { stance = STANCE_Stand; }
 	void LoadControllers(VRControllerTypes type = CONTROLLER_Full);
 	void SetBuildGrid(HexGrid* _grid);
 	inline HexGrid* GetBuildGrid() { return grid; }

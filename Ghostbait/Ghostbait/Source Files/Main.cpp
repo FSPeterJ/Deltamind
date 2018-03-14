@@ -135,7 +135,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<MenuControllerItem>(23);
 	ObjectFactory::RegisterPrefabBase<GameObject>(512);
 	ObjectFactory::RegisterPrefabBase<Projectile>(512);
-	ObjectFactory::RegisterPrefabBase<Spawner>(24);
+	ObjectFactory::RegisterPrefabBase<SpawnerObject>(24);
 	ObjectFactory::RegisterPrefabBase<EnemyBase>(300);
 	ObjectFactory::RegisterPrefabBase<MenuCube>(5);
 	ObjectFactory::RegisterPrefabBase<CoreCube>(5);
@@ -170,7 +170,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<Item>("Item");
 	TypeMap::RegisterObjectAlias<ProgressBar>("ProgressBar");
 	TypeMap::RegisterObjectAlias<Projectile>("Projectile");
-	TypeMap::RegisterObjectAlias<Spawner>("Spawner");
+	TypeMap::RegisterObjectAlias<SpawnerObject>("Spawner");
 	TypeMap::RegisterObjectAlias<EnemyBase>("EnemyBase");
 	TypeMap::RegisterObjectAlias<MenuCube>("MenuCube");
 	TypeMap::RegisterObjectAlias<CoreCube>("CoreCube");

@@ -6,7 +6,7 @@
 #include "Menu.h"
 
 class SceneManager;
-class Spawner;
+class SpawnerObject;
 class EventMessageBase;
 class EngineStructure;
 class Player;
@@ -26,7 +26,7 @@ class Game {
 
 	struct WaveManager {
 		struct Wave {
-			struct Spawners {
+			struct SpawnerData {
 				int spawnerID = 0;
 				std::string enemyName;
 				int spawnCount = 0;
@@ -34,32 +34,91 @@ class Game {
 				float runDelay = 0;
 				float timeSinceLastSpawn = 0;
 				int enemiesSpawned = 0;
+				inline void UpdateTimer(const float& dt) { timeSinceLastSpawn += dt; }
+				inline void RestartTimer() { timeSinceLastSpawn = 0; }
+				inline const int EnemiesToSpawn() const { return spawnCount - enemiesSpawned; }
+				inline const bool ReadyToSpawn(const float& nextSpawnTime) const { return timeSinceLastSpawn >= nextSpawnTime; }
 			};
 			int reward = 0;
 			int enemyCount = 0;
-			std::vector<Spawners> spawns;
+			std::vector<SpawnerData> spawns;
 		};
+	private:
 		std::vector<Wave> waves;
 		int currentWave = -1;
-
-	};
-	struct Logo {
-		std::string fileName;
-		float duration;
-	};
-	struct GameData {
-		State state = GAMESTATE_BetweenWaves;
-		State prevState = GAMESTATE_BetweenWaves;
-		std::vector<Spawner*> spawners;
+		std::vector<SpawnerObject*> spawnerObjects;
 		int enemiesLeftAlive = 0;
-		WaveManager waveManager;
+	public:
+		void MoveToNextWave();
+		inline const bool NextWaveExists() const { return (currentWave + 1 < (int)waves.size()); }
+		inline const int GetCurrentWaveReward() const { return waves[currentWave].reward; }
+		inline void AddWave(const WaveManager::Wave& newWave) { waves.push_back(newWave); }
+		inline const int GetWaveCount() const { return (int)waves.size(); }
+		inline const int GetAliveEnemyCount() const { return enemiesLeftAlive; }
+		inline void EnemyKilled(const int& enemyCount = 1) { enemiesLeftAlive -= enemyCount; }
 
+		inline const int GetSpawnObjectCount() const { return (int)spawnerObjects.size(); }
+		inline void AddSpawnerObject(SpawnerObject* spawner) { spawnerObjects.push_back(spawner); }
+		inline const SpawnerObject* GetSpawnObject(const int& index) { return spawnerObjects[index]; }
+		inline const int GetSpawnCount() const { return (int)waves[currentWave].spawns.size(); }
+		inline WaveManager::Wave::SpawnerData* GetSpawnerData(const int& index) { return &waves[currentWave].spawns[index]; }
+		void SpawnEnemy(WaveManager::Wave::SpawnerData* spawnerData, const int& spawnerObjectIndex, HexGrid* grid, const DirectX::XMFLOAT2& pos);
+		
+		void Reset();
+	};
+	struct SplashScreenManager {
+		struct LogoData {
+		std::string fileName;
+		float spawnTime;
+	};
+	private:
 		std::string nextScene = "";
 		float timeInScene = 0;
 		float sceneTimeLimit = -1;
 		int currentLogoIndex = -1;
 		GameObject* currentLogo = nullptr;
-		std::vector<Logo> logos;
+		std::vector<LogoData> logos;
+	public:
+		inline void UpdateTimeInScene(const float dt) { timeInScene += dt; }
+		inline void SetSceneTimeLimit(const float& timeLimit) { sceneTimeLimit = timeLimit; }
+		inline void SetNextScene(const std::string& sceneName) { nextScene = sceneName; }
+		inline const std::string& GetNextScene() const { return nextScene; }
+		inline const bool TimeLimitReached() const { return timeInScene >= sceneTimeLimit; }
+		inline const bool HasTimeLimit() const { return sceneTimeLimit > 0; }
+		inline const bool TimeLimitOnLastObject() const { return sceneTimeLimit == -2; }
+		inline const bool TimeToSpawnNextLogo() const { return timeInScene >= logos[currentLogoIndex].spawnTime; }
+
+		inline void AddLogo(const SplashScreenManager::LogoData& newLogo) { logos.push_back(newLogo); }
+		inline GameObject* GetCurrentLogoObject() const { return currentLogo; }
+		inline void SetCurrentLogoObject(GameObject* newLogo) { currentLogo = newLogo; }
+		inline const LogoData& GetCurrentLogoData() const { return logos[currentLogoIndex]; }
+		inline const int GetCurrentLogoIndex() const { return currentLogoIndex; }
+		inline const int GetLogoCount() const { return (int)logos.size(); }
+		inline void ClearLogos() { while (logos.size()) logos.erase(logos.begin()); }
+		inline const bool NextLogoExists() { return (currentLogoIndex + 1 < (int)logos.size()); }
+		inline void MoveToNextLogo() { ++currentLogoIndex; }
+		inline void UpdateCurrentLogoSpawnTime() { logos[currentLogoIndex].spawnTime += timeInScene; }
+
+		void Reset();
+	};
+	class GameData {
+		State state = GAMESTATE_BetweenWaves;
+		State prevState = GAMESTATE_BetweenWaves;
+		unsigned gears = 0;
+
+	public:
+		WaveManager waveManager;
+		SplashScreenManager ssManager;
+
+		inline void AddGears(const int _gears) { gears += _gears; }
+		inline const int GetGears() const { return gears; }
+
+		inline const State& GetState() const { return state; }
+		inline const State& GetPrevState() const { return prevState; }
+		inline void SetPrevStateHard(const State& newState) { prevState = newState; }
+		inline void SetStateHard(const State& newState) { state = newState; }
+		void UpdateState(const State& newState);
+
 
 		void Reset();
 	} gameData;

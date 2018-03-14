@@ -108,7 +108,7 @@ GameObject* ObjectFactory::ActivateObject(PrefabId pid) {
 	return newobject;
 }
 
-unsigned ObjectFactory::CreatePrefab(std::string* _filename, const char* DEBUG_STRING_NAME, bool objectPrefabOverride) {
+unsigned ObjectFactory::CreatePrefab(const std::string* _filename, const char* DEBUG_STRING_NAME, bool objectPrefabOverride) {
 	int prefabID = prefabNames[*_filename];
 	if(prefabID) {
 		//This Prefab already exists.

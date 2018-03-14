@@ -287,6 +287,7 @@
     <ClCompile Include="Source Files\AnimatorManager.cpp" />
     <ClCompile Include="Source Files\AStarEnemy.cpp" />
     <ClCompile Include="Source Files\AudioManager.cpp" />
+    <ClCompile Include="Source Files\BinaryFileIO.cpp" />
     <ClCompile Include="Source Files\BuildTool.cpp" />
     <ClCompile Include="Source Files\Camera.cpp" />
     <ClCompile Include="Source Files\Console.cpp" />

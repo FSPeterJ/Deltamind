@@ -34,14 +34,14 @@ void SceneManager::CreateSceneFile(SceneManager::TestSceneData& data) {
 	std::ofstream file(data.fileName, std::ios::binary);
 
 	if (file.is_open()) {
-		Writer::defaultStream = &file;
+		Writer::OpenStream(file);
 
-		Writer::WriteIntString(data.sceneName);
-		Writer::WriteIntString(data.levelName);
+		Writer::WriteStringWithSize(data.sceneName);
+		Writer::WriteStringWithSize(data.levelName);
 		
 		for (int i = 0; i < data.prefabs.size(); ++i) {
-			Writer::WriteIntString(data.prefabs[i].ghostFile);
-			Writer::WriteIntString(data.prefabs[i].name);
+			Writer::WriteStringWithSize(data.prefabs[i].ghostFile);
+			Writer::WriteStringWithSize(data.prefabs[i].name);
  			Writer::WriteInt(data.prefabs[i].positions.size());
 			for (int j = 0; j < data.prefabs[i].positions.size(); ++j) {
 				Writer::WriteMatrix(data.prefabs[i].positions[j]);
@@ -154,7 +154,7 @@ void SceneManager::FetchAllSceneFiles(const char* folderPath) {
 		//2. Read first two values of each file
 		std::ifstream file(paths[i], std::ios::binary);
 		if (file.is_open()) {
-			Reader::defaultStream = &file;
+			Reader::OpenStream(file);
 			int nameLength = Reader::ReadInt();
 			std::string name = Reader::ReadString(nameLength);
 			lastName = name;
@@ -187,7 +187,7 @@ void SceneManager::LoadScene(const char* sceneName, DirectX::XMFLOAT3* _corePos)
 
 		std::ifstream file(scene.sceneFile, std::ios::binary);
 		if (file.is_open()) {
-			Reader::defaultStream = &file;
+			Reader::OpenStream(file);
 			int nameLen = Reader::ReadInt();
 			std::string name = Reader::ReadString(nameLen);
 

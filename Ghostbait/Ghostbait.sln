@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GhostbaitModelCreator", "Gh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GhostbaitSceneCreator", "GhostbaitSceneCreator\GhostbaitSceneCreator.csproj", "{035B078F-99C7-497E-B825-BA5BA99BB4C9}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GhostMind", "GhostAI\GhostAI.vcxproj", "{2DD2BD2A-94B0-4FBE-B5E9-1C7B131588FA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GhostMind", "GhostMind\GhostMind.vcxproj", "{2DD2BD2A-94B0-4FBE-B5E9-1C7B131588FA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

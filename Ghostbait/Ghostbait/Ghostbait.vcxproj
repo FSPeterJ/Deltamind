@@ -223,6 +223,7 @@
     <ClInclude Include="Header Files\IComponentManager.h" />
     <ClInclude Include="Header Files\Item.h" />
     <ClInclude Include="Header Files\LightManager.h" />
+    <ClInclude Include="Header Files\Logger.h" />
     <ClInclude Include="Header Files\Material.h" />
     <ClInclude Include="Header Files\MaterialManager.h" />
     <ClInclude Include="Header Files\MemoryManager.h" />
@@ -306,6 +307,7 @@
     <ClCompile Include="Source Files\InputManager.cpp" />
     <ClCompile Include="Source Files\Item.cpp" />
     <ClCompile Include="Source Files\LightManager.cpp" />
+    <ClCompile Include="Source Files\Logger.cpp" />
     <ClCompile Include="Source Files\Main.cpp" />
     <ClCompile Include="Source Files\Material.cpp" />
     <ClCompile Include="Source Files\MaterialManager.cpp" />

@@ -5,8 +5,6 @@
 
 
 
-
-
 #include "PhysicsExtension.h"
 
 
@@ -15,6 +13,7 @@
 #define INVENTORY_FILE "Save Files\\Inventory.save"
 
 class InputManager;
+class HexGrid;
 
 enum VRControllerTypes {
 	CONTROLLER_Full,
@@ -28,7 +27,7 @@ class Player : public GameObject, public Controlable {
 
 	float rotationY = 0.0f;
 	float rotationX = 0.0f;
-	
+	HexGrid* grid = nullptr;
 
 public:
 	ArcObject teleportArc;
@@ -44,6 +43,8 @@ public:
 	void MenuUpdate();
 	
 	void LoadControllers(VRControllerTypes type = CONTROLLER_Full);
+	void SetBuildGrid(HexGrid* _grid);
+	inline HexGrid* GetBuildGrid() { return grid; }
 
 //	void SetPosition(DirectX::XMFLOAT4X4 newPos) override;
 //	const DirectX::XMFLOAT4X4& GetPosition() const override;

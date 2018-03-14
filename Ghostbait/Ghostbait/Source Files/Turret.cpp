@@ -10,6 +10,11 @@
 #include "PhysicsComponent.h"
 #include "GhostTime.h"
 
+
+
+#include "Material.h"
+#include "MeshManager.h"
+
 Turret::Turret() {
 	tag = std::string("Turret");
 }
@@ -41,6 +46,7 @@ void Turret::Awake(Object* obj) {
 	assert(turretPitch);
 	launcherorigin = GetComponent<Animator>()->getJointByName("Launcher_1");
 	assert(launcherorigin);
+	GameObject::Awake(obj);
 }
 
 void Turret::Update() {
@@ -136,11 +142,9 @@ void Turret::Update() {
 		if(targetDistance > 5) {
 			target = nullptr;
 			targetDistance = 99999;
-
 		}
 
 	}
-
 }
 
 float Turret::CalculateDistance(GameObject* obj) {
@@ -200,6 +204,12 @@ void Turret::Shoot() {
 	timeSinceLastShot = (float)GhostTime::DeltaTime();
 }
 
+void Turret::Destroy() {
+	bool success;
+	MessageEvents::SendMessage(EVENT_RemoveObstacle, SnapMessage(&DirectX::XMFLOAT2(transform.GetPosition().x, transform.GetPosition().z), &success));
+	if (!success) Console::ErrorLine << "Obstacle not removed on turret destruction!";
+	GameObject::Destroy();
+}
 
 void Turret::GivePID(unsigned pid, const char* tag) {
 	// Look into a better system

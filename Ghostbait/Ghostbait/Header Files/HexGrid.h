@@ -188,4 +188,6 @@ public:
 	/// <param name="player">The player.</param>
 	void Display(DirectX::XMFLOAT2& player);
 
+	HexGrid(const char* _filename, float _radius = 1.0f, HexagonalGridLayout _layout = HexagonalGridLayout::FlatLayout);
+
 };

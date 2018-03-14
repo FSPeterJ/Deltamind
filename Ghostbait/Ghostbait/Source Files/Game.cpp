@@ -15,11 +15,11 @@ void Game::GameData::Reset() {
 	state = GAMESTATE_BetweenWaves;
 	prevState = GAMESTATE_BetweenWaves;
 	while (spawners.size() > 0) {
-		spawners.erase(spawners.begin());
+		spawners.erase(spawners.begin()); //can we not use .clear?
 	}
 	enemiesLeftAlive = 10000;
 	while (waveManager.waves.size() > 0) {
-		waveManager.waves.erase(waveManager.waves.begin());
+		waveManager.waves.erase(waveManager.waves.begin()); //can we not use .clear?
 	}
 	waveManager.currentWave = -1;
 	nextScene = "";
@@ -28,7 +28,7 @@ void Game::GameData::Reset() {
 	currentLogoIndex = -1;
 	currentLogo = nullptr;
 	while (logos.size()) {
-		logos.erase(logos.begin());
+		logos.erase(logos.begin()); //can we not use .clear?
 	}
 }
 
@@ -314,7 +314,8 @@ void Game::Start(Player* _player, EngineStructure* _engine, char* startScene) {
 	sceneManager = new SceneManager();
 	sceneManager->Initialize();
 	gameData.Reset();
-	hexGrid.Fill(false);
+	//hexGrid.Fill(false);
+	player->SetBuildGrid(&hexGrid);
 
 	ChangeScene(startScene);
 
@@ -329,7 +330,7 @@ void Game::Start(Player* _player, EngineStructure* _engine, char* startScene) {
 }
 void Game::Update() {
 	auto playerPos = player->transform.GetMatrix();
-	hexGrid.Display(DirectX::XMFLOAT2(playerPos._41, playerPos._43));
+	//hexGrid.Display(DirectX::XMFLOAT2(playerPos._41, playerPos._43));
 	float dt = (float)GhostTime::DeltaTime();
 
 	if (paused) return;

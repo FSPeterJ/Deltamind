@@ -663,12 +663,12 @@ bool PhysicsManager::CapsuleToCapsuleCollision(Collider& col1, XMMATRIX& pos1, C
 	XMVECTOR dP = w + (sc * u) - (tc * v);  // =  S1(sc) - S2(tc)
 	float dist = XMVectorGetX(XMVector3LengthSq(dP));
 
-#if _DEBUG
-		XMFLOAT3 start, end;
-		XMStoreFloat3(&start, sc * u + cap1Start);
-		XMStoreFloat3(&end, tc * v + cap2Start);
-		DebugRenderer::AddLine(start, end, XMFLOAT3(0.0f, 0.0f, 1.0f));
-#endif
+//#if _DEBUG
+//		XMFLOAT3 start, end;
+//		XMStoreFloat3(&start, sc * u + cap1Start);
+//		XMStoreFloat3(&end, tc * v + cap2Start);
+//		DebugRenderer::AddLine(start, end, XMFLOAT3(0.0f, 0.0f, 1.0f));
+//#endif
 
 	return dist < combineRadiusSq;   // return the closest distance
 }
@@ -1106,9 +1106,9 @@ bool PhysicsManager::RayToSphere(XMVECTOR& origin, XMVECTOR& direction, Collider
 	//If origin is inside the Sphere, it does not test it. 
 	XMVECTOR collCenter = objectPos + XMLoadFloat3(&collidingComp.centerOffset);
 	float radiusSq = collidingComp.colliderData->colliderInfo.sphereCollider.radius;
-#ifdef _DEBUG
-	DebugRenderer::AddSphere(XMFLOAT3(XMVectorGetX(objectPos), XMVectorGetY(objectPos), XMVectorGetZ(objectPos)), radiusSq, XMFLOAT3(1.0f, 1.0f, 0.0f));
-#endif
+//#ifdef _DEBUG
+//	DebugRenderer::AddSphere(XMFLOAT3(XMVectorGetX(objectPos), XMVectorGetY(objectPos), XMVectorGetZ(objectPos)), radiusSq, XMFLOAT3(1.0f, 1.0f, 0.0f));
+//#endif
 	radiusSq *= radiusSq;
 	if(isInside)
 		*isInside = false;

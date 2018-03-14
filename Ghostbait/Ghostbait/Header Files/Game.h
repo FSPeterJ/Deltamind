@@ -20,7 +20,7 @@ enum State {
 	};
 
 class Game {
-	HexGrid hexGrid = HexGrid(50, HexagonalGridLayout::FlatLayout);
+	HexGrid hexGrid = HexGrid("Assets/Level0.ghostGrid", 500, HexagonalGridLayout::FlatLayout);
 
 	bool run = true;
 

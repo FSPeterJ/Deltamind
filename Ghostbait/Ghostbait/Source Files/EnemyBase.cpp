@@ -9,8 +9,6 @@
 
 
 void EnemyBase::Awake(Object* obj) {
-	componentVarients = obj->componentVarients;
-
 	currState = IDLE;
 	maxSpeed = 2.0f;
 	target = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);

@@ -38,4 +38,5 @@ void Projectile::SetDamage(float _damage) {
 
 void Projectile::Destroy() {
 	++destroyedCount;
+	GameObject::Destroy();
 }

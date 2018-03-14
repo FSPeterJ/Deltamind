@@ -92,20 +92,27 @@ GameObject* ObjectFactory::ActivateObject(PrefabId pid) {
 	GameObject* newobject = objMan->Instantiate(prefabs[pid].objectTypeID);
 	auto TypeGathered = registeredCasters[prefabs[pid].objectTypeID](newobject);
 	newobject->DestroyComponents.Clear();
+	int compCount = 0;
 	for(int i = 0; i < 64; i++) {
 		if(prefabs[pid].fastclone[i]) {
 			newobject->SetComponent(prefabs[pid].instantiatedComponents[i], i);
+			++compCount;
 		}
 		else if(prefabs[pid].instantiatedComponents[i] != nullptr) {
 			InstantiatedCompBase* comptemp = (InstantiatedCompBase *)managers[i]->CloneComponent(prefabs[pid].instantiatedComponents[i]);
 			comptemp->parentObject = newobject; // This will crash if this is not an InstantiatedCompBase
 			newobject->SetComponent(comptemp, i);
+			++compCount;
 			newobject->DestroyComponents.Add([=]() {
 				managers[i]->ResetComponent(comptemp);
 			});
 		}
 	}
 	TypeGathered->Awake(prefabs[pid].object);
+	if (compCount == 0) {
+		int i = 0;
+	}
+
 	return newobject;
 }
 

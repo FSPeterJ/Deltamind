@@ -61,7 +61,7 @@ public:
 
 	void ForEach(std::function<void(HexTile*const)> f);
 
-	CostDelta GetCostDelta(void) const { return cost_delta; }
+	CostDelta& GetCostDelta(void) { return cost_delta; }
 
 	float BlockWeight() const { return Blocked; }
 

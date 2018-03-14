@@ -54,7 +54,7 @@ void MTDSLEnemy::Start() {
 	if (!curTile) { Console::ErrorLine << "Ahhhh! Initalize me on the grid please!!"; }
 
 	next = curTile; //is this needed or can i pass a ref to a null var below
-	grid->RemoveObstacle(curTile);//Remove on final build
+	//grid->RemoveObstacle(curTile);//Remove on final build
 	mtdstarId = PathPlanner::MTDStarLiteSearch(&(transform.matrix), goalReference, &path, Heuristics::OctileDistance);
 
 	rb->SetTerminalSpeed(maxSpeed);
@@ -69,27 +69,45 @@ void MTDSLEnemy::Update() {
 	}
 	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
 	if (curTile) {
-		if (curTile == next) {
-			rb->Stop();
-			HexRegion neigh = grid->Spiral(curTile, 3);
-			grid->Color(neigh, { 1.0f, 0.0f, 0.0f }, 3);
+		//if (curTile == next) {
+		//	rb->Stop();
+		//	//HexRegion neigh = grid->Spiral(curTile, 3);
+		//	//grid->Color(neigh, { 1.0f, 0.0f, 0.0f }, 3);
+		//	grid->GetTileExact(3, 4)->DrawCheapFill(HexagonalGridLayout::FlatLayout, {0.0f, 1.0f, 0.0f});
+		//	grid->GetTileExact(-1, 8)->DrawCheapFill(HexagonalGridLayout::FlatLayout, { 0.0f, 1.0f, 1.0f });
+		//	grid->GetTileExact(2, 6)->DrawCheapFill(HexagonalGridLayout::FlatLayout, { 1.0f, 1.0f, 1.0f });
+
+		//	//blocked
+		//	grid->GetTileExact(1, 5)->DrawCheapFill(HexagonalGridLayout::FlatLayout, { 1.0f, 1.0f, 0.0f });
+		//	grid->GetTileExact(0, 5)->DrawCheapFill(HexagonalGridLayout::FlatLayout, { 1.0f, 1.0f, 0.0f });
+		//	grid->GetTileExact(-1, 5)->DrawCheapFill(HexagonalGridLayout::FlatLayout, { 1.0f, 1.0f, 0.0f });
+		//	grid->GetTileExact(-2, 5)->DrawCheapFill(HexagonalGridLayout::FlatLayout, { 1.0f, 1.0f, 0.0f });
+
+		//	grid->GetTileExact(2, 5)->DrawCheapFill(HexagonalGridLayout::FlatLayout, { 1.0f, 1.0f, 0.0f });
+		//	grid->GetTileExact(3, 6)->DrawCheapFill(HexagonalGridLayout::FlatLayout, { 1.0f, 1.0f, 0.0f });
+		//	grid->GetTileExact(3, 7)->DrawCheapFill(HexagonalGridLayout::FlatLayout, { 1.0f, 1.0f, 0.0f });
+		//	grid->GetTileExact(3, 5)->DrawCheapFill(HexagonalGridLayout::FlatLayout, { 1.0f, 1.0f, 0.0f });
+
+
 			if (goal == curTile) {
 				Console::WriteLine << "We made it to our goal.";
 				rb->Stop();
 			}
 			else {
-				if (KeyIsHit(Control::TestInputO)) {
+				/*if (KeyIsHit(Control::TestInputO)) {*/
 					PathPlanner::UpdateMTDStarLite(mtdstarId);
 
 					next = path.Next(curTile);
-					auto nextPathPoint = grid->TileToPoint(next);
+					if (next) {
+						auto nextPathPoint = grid->TileToPoint(next);
 
-					DirectX::XMVECTOR nextDirection = DirectX::XMVectorSet(nextPathPoint.x - transform.matrix._41, 0.0f, nextPathPoint.y - transform.matrix._43, 1.0f);
-					DirectX::XMVECTOR velocity = rb->GetVelocity();
-					rb->AddForce(3.0f * (DirectX::XMVectorGetX(DirectX::XMVector3Dot(nextDirection, velocity)) + 1.0f), nextPathPoint.x - transform.matrix._41, 0.0f, nextPathPoint.y - transform.matrix._43, 0.5f);
-				}
+						DirectX::XMVECTOR nextDirection = DirectX::XMVectorSet(nextPathPoint.x - transform.matrix._41, 0.0f, nextPathPoint.y - transform.matrix._43, 1.0f);
+						DirectX::XMVECTOR velocity = rb->GetVelocity();
+						rb->AddForce(3.0f * (DirectX::XMVectorGetX(DirectX::XMVector3Dot(nextDirection, velocity)) + 1.0f), nextPathPoint.x - transform.matrix._41, 0.0f, nextPathPoint.y - transform.matrix._43, 0.5f);
+					}
+				//}
 			}
-		}
+		//}
 	}
 
 }

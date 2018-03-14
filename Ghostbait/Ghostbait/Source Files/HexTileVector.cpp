@@ -1,5 +1,6 @@
 #include "HexTileVector.h"
 #include "HexGrid.h"
+#include "Console.h"
 
 bool operator<(const HexPath&p, const HexPath&p2) { return p.cost() <= p2.cost(); } //in case of a cost tie, std::pair will compare the second element so this is needed to satisfy it
 
@@ -117,12 +118,12 @@ void HexPath::Color(HexagonalGridLayout * const layout, DirectX::XMFLOAT3 color,
 
 
 void HexPath::BuildPath(HexTilePtr const start, HexTilePtr const goal, VisitedMap& came_from) {
-
 	HexTilePtr current = goal;
 
 	while(current != start && current) {
 		data.push_back(current);
 		current = came_from[current];
+		if (std::find(data.begin(), data.end(), current) != data.end()) { Console::WriteLine << "Circular parent dependency!!!"; break; }
 	}
 
 	data.push_back(start);
@@ -145,7 +146,7 @@ HexPath::HexTilePtr HexPath::Next(HexTilePtr const current) const {
 	auto it = std::find(data.begin(), data.end(), current);
 	if (it != data.end())
 		return it == data.end() - 1 ? nullptr : *(it + 1);
-	return nullptr;
+	return *(data.begin());
 }
 
 bool HexPath::find(HexTilePtr const v) const {

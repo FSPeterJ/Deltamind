@@ -287,7 +287,7 @@ void Game::Start(Player* _player, EngineStructure* _engine, char* startScene) {
 	//enemy->Repath();
 	//enemy->Enable();
 	MTDSLEnemy* ted;
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MTDSLEnemy>("MTDSLEnemy", { 40,0,40 }, &ted));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MTDSLEnemy>("MTDSLEnemy", { 5,0,5 }, &ted));
 	ted->SetGrid(&hexGrid);
 	ted->SetGoalReference(&(player->transform.matrix));
 	ted->Enable();

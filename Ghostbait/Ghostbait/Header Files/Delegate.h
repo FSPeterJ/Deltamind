@@ -53,6 +53,10 @@ public:
 		return data.id;
 	}
 
+	void Clear() {
+		delegates.clear();
+	}
+
 	void Remove(unsigned id) {
 		// Bad ID given.  You either did not store the correct id for the caller's delegate or you attempted to remove a permament delegate
 		// You cannot remove permament delegates (id of 0) as all permament delegates are give the same ID of 0

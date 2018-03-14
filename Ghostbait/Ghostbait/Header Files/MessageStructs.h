@@ -193,8 +193,8 @@ public:
 
 //Duplicate is unnessessary
 class NewObjectMessage: public EventMessageBase {
-	GameObject* obj = nullptr;
 public:
+	GameObject* obj = nullptr;
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="NewObjectMessage"/> class.

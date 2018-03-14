@@ -51,11 +51,8 @@ public:
 	
 	inline void ResetStance() { stance = STANCE_Stand; }
 	void LoadControllers(VRControllerTypes type = CONTROLLER_Full);
-	void SetBuildGrid(HexGrid* _grid);
+	void SetBuildToolData(HexGrid* _grid, unsigned* _gears);
 	inline HexGrid* GetBuildGrid() { return grid; }
-
-//	void SetPosition(DirectX::XMFLOAT4X4 newPos) override;
-//	const DirectX::XMFLOAT4X4& GetPosition() const override;
 
 	void Teleport(DirectX::XMFLOAT3* pos = nullptr);
 

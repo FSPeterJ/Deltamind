@@ -6,6 +6,7 @@
 #include "PhysicsExtension.h"
 #include "HexGrid.h"
 #include "Material.h"
+#include "Turret.h"
 
 BuildTool::BuildTool() { 
 	state = BUILD;
@@ -94,14 +95,19 @@ void BuildTool::SpawnProjection(){
 			newPos1._43 = spawnPos.z;
 			prefabs[currentPrefabIndex].object->transform.SetMatrix(newPos1);
 
-			if (grid->IsBlocked(newPos.x, newPos.y) && prevLocationValid) {
+			Turret* turret = dynamic_cast<Turret*>(prefabs[currentPrefabIndex].object);
+			bool hasEnoughMoney = true;
+			if (turret) hasEnoughMoney = *gears >= turret->GetBuildCost();
+
+
+			if ((grid->IsBlocked(newPos.x, newPos.y) || !hasEnoughMoney) && prevLocationValid) {
 				if (prefabs[currentPrefabIndex].object->componentVarients.find("invalid") != prefabs[currentPrefabIndex].object->componentVarients.end()) {
 					int id = TypeMap::GetComponentTypeID<Material>();
 					prefabs[currentPrefabIndex].object->SetComponent(prefabs[currentPrefabIndex].object->componentVarients["invalid"], id);
 					prevLocationValid = false;
 				}
 			}
-			else if(!grid->IsBlocked(newPos.x, newPos.y) && !prevLocationValid) {
+			else if(!grid->IsBlocked(newPos.x, newPos.y) && !prevLocationValid && hasEnoughMoney) {
 				if (prefabs[currentPrefabIndex].object->componentVarients.find("valid") != prefabs[currentPrefabIndex].object->componentVarients.end()) {
 					int id = TypeMap::GetComponentTypeID<Material>();
 					prefabs[currentPrefabIndex].object->SetComponent(prefabs[currentPrefabIndex].object->componentVarients["valid"], id);
@@ -118,9 +124,13 @@ void BuildTool::SpawnProjection(){
 void BuildTool::Spawn() {
 	//Instantiate a stationary copy at this position to stay
 	//Only spawn if grid position is empty
+	Turret* turret = dynamic_cast<Turret*>(prefabs[currentPrefabIndex].object);
+	bool hasEnoughMoney = true;
+	if (turret) hasEnoughMoney = *gears >= turret->GetBuildCost();
 	DirectX::XMFLOAT2 pos = DirectX::XMFLOAT2(spawnPos.x, spawnPos.z);
-	if (Snap(&pos)) {
+	if (Snap(&pos) && hasEnoughMoney) {
 		if (SetObstacle(pos, true)) {
+			*gears -= turret->GetBuildCost();
 			spawnPos.x = pos.x;
 			spawnPos.z = pos.y;
 			GameObject* newObj;

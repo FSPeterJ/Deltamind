@@ -198,15 +198,17 @@ void Player::LoadControllers(VRControllerTypes type) {
 	}
 }
 
-void Player::SetBuildGrid(HexGrid* _grid) {
+void Player::SetBuildToolData(HexGrid* _grid, unsigned* _gears) {
 	grid = _grid;
 	BuildTool* buildTool = leftController->GetBuildTool();
 	if (buildTool) {
 		buildTool->SetGrid(_grid);
+		buildTool->SetGears(_gears);
 	}
 	buildTool = rightController->GetBuildTool();
 	if (buildTool) {
 		buildTool->SetGrid(_grid);
+		buildTool->SetGears(_gears);
 	}
 }
 

@@ -104,14 +104,11 @@ class Game {
 	class GameData {
 		State state = GAMESTATE_BetweenWaves;
 		State prevState = GAMESTATE_BetweenWaves;
-		unsigned gears = 0;
 
 	public:
+		unsigned gears = 0;
 		WaveManager waveManager;
 		SplashScreenManager ssManager;
-
-		inline void AddGears(const int _gears) { gears += _gears; }
-		inline const int GetGears() const { return gears; }
 
 		inline const State& GetState() const { return state; }
 		inline const State& GetPrevState() const { return prevState; }

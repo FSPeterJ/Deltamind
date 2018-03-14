@@ -96,7 +96,7 @@ void Game::SpawnerCreatedEvent(EventMessageBase* e) {
 }
 void Game::EnemyDiedEvent() {
 	gameData.waveManager.EnemyKilled();
-	gameData.AddGears(50);
+	gameData.gears += 50;
 	if (gameData.waveManager.GetAliveEnemyCount() <= 0) {
 		ChangeState(GAMESTATE_BetweenWaves);
 	}
@@ -154,7 +154,7 @@ void Game::ChangeState(State newState) {
 					//if upcoming wave does exist
 					else if (gameData.GetPrevState() == GAMESTATE_InWave) {
 						//Add wave reward
-						gameData.AddGears(gameData.waveManager.GetCurrentWaveReward());
+						gameData.gears += gameData.waveManager.GetCurrentWaveReward();
 
 						//Spawn start cube
 						MenuCube* startCube;
@@ -225,7 +225,7 @@ void Game::ChangeScene(const char* sceneName) {
 		while (xmlReader->read()) {
 			if (xmlReader->getNodeType() == irr::io::EXN_ELEMENT) {
 				if (!strcmp("Level", xmlReader->getNodeName())) {
-					gameData.AddGears(xmlReader->getAttributeValueAsInt("startGears"));
+					gameData.gears += xmlReader->getAttributeValueAsInt("startGears");
 					gameData.SetStateHard(GAMESTATE_BetweenWaves);
 					gameData.SetPrevStateHard(GAMESTATE_BetweenWaves);
 					player->leftController->SetControllerState(CSTATE_Inventory);
@@ -344,7 +344,7 @@ void Game::Start(Player* _player, EngineStructure* _engine, char* startScene) {
 	sceneManager->Initialize();
 	gameData.Reset();
 	//hexGrid.Fill(false);
-	player->SetBuildGrid(&hexGrid);
+	player->SetBuildToolData(&hexGrid, &gameData.gears);
 
 	ChangeScene(startScene);
 
@@ -362,7 +362,7 @@ void Game::Update() {
 	//hexGrid.Display(DirectX::XMFLOAT2(playerPos._41, playerPos._43));
 	float dt = (float)GhostTime::DeltaTime();
 
-	Console::WriteLine << "Gears: " << gameData.GetGears();
+	Console::WriteLine << "Gears: " << gameData.gears;
 
 	if (paused) return;
 

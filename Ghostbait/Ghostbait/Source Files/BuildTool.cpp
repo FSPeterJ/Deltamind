@@ -25,6 +25,11 @@ void BuildTool::SetPrefabs(std::vector<unsigned> prefabIDs) {
 		//prefabs[i].object->Enable(false);
 		if(physComp) physComp->isActive = false;
 		//Set objects shader to be semi-transparent solid color
+		if (prefabs[currentPrefabIndex].object->componentVarients.find("invalid") != prefabs[currentPrefabIndex].object->componentVarients.end()) {
+			int id = TypeMap::GetComponentTypeID<Material>();
+			prefabs[currentPrefabIndex].object->SetComponent(prefabs[currentPrefabIndex].object->componentVarients["invalid"], id);
+			prevLocationValid = false;
+		}
 	}
 	//Add removal tool
 	prefabs[prefabs.size() - 1] = BuildItem();

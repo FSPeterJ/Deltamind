@@ -143,11 +143,14 @@ void Renderer::setupVRTargets() {
 	device->CreateTexture2D(&texDesc, nullptr, &rightEye.renderInfo.depthBuffer);
 	if(rightEye.renderInfo.depthBuffer)
 		device->CreateDepthStencilView(rightEye.renderInfo.depthBuffer, &depthStencilDesc, &rightEye.renderInfo.dsv);
+
+	createDeferredRTVs(&leftEye.targets, leftEye.renderInfo.texture);
+	createDeferredRTVs(&rightEye.targets, rightEye.renderInfo.texture);
 }
 
 void Renderer::releaseDeferredTarget(DeferredRTVs * in)
 {
-	for (int i = 0; i < 4; ++i)
+	for (int i = 0; i < 6; ++i)
 	{
 		in->RTVs[i]->Release();
 		in->SRVs[i]->Release();
@@ -157,9 +160,34 @@ void Renderer::releaseDeferredTarget(DeferredRTVs * in)
 	in->depthBuffer->Release();
 }
 
+void Renderer::combineDeferredTargets(DeferredRTVs * in, ID3D11RenderTargetView * rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport)
+{
+	float color[] = { 0.5f, 0.5f, 1.0f, 1.0f };
+	UINT stride = sizeof(XMFLOAT4);
+	UINT offset = 0;
+	context->ClearRenderTargetView(rtv, color);
+	context->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	context->OMSetRenderTargets(1, &rtv, dsv);
+	context->RSSetViewports(1, &viewport);
+	context->VSSetShader(PassThroughPositionVS, NULL, NULL);
+	context->GSSetShader(NDCQuadGS, NULL, NULL);
+	context->PSSetShader(StandardPixelShader, NULL, NULL);
+	context->PSSetShaderResources(0, 6, in->SRVs);
+	context->PSSetConstantBuffers(2, 1, &cameraBuffer);
+	context->IASetVertexBuffers(0, 1, &emptyFloat3Buffer, &stride, &offset);
+	context->IASetInputLayout(ILPosition);
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+	context->Draw(1, 0);
+	ID3D11GeometryShader* temp = nullptr;
+	context->GSSetShader(temp, NULL, NULL);
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	ID3D11ShaderResourceView* getemouttahere[] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+	context->PSSetShaderResources(0, 6, getemouttahere);
+	context->IASetInputLayout(ILStandard);
+}
+
 void Renderer::renderObjectDefaultState(Object * obj) {
 	UINT stride = sizeof(VertexPositionTextureNormalAnim);
-	//UINT stride = 0;
 	UINT offset = 0;
 	Mesh* y= obj->GetComponent<Mesh>();
 	if (!y) {
@@ -176,6 +204,7 @@ void Renderer::renderObjectDefaultState(Object * obj) {
 		obj->GetComponent<Material>()->bindToShader(context, factorBuffer);
 	else
 		materialManagement->GetNullMaterial()->bindToShader(context, factorBuffer);
+
 	Animator* anim = obj->GetComponent<Animator>();
 	if(anim) {
 		const std::vector<animJoint>* joints = anim->getTweens();
@@ -188,29 +217,35 @@ void Renderer::renderObjectDefaultState(Object * obj) {
 	} else
 		cpuAnimationData.willAnimate = false;
 	context->UpdateSubresource(animDataBuffer, 0, NULL, &cpuAnimationData, 0, 0);
+	context->PSSetShader(DeferredTargetPS, NULL, NULL);
 	//materialManagement->GetElement(UINT_MAX)->bindToShader(context, factorBuffer);
 	context->DrawIndexed(obj->GetComponent<Mesh>()->indexCount, 0, 0);
 }
 
 void Renderer::renderToEye(eye * eyeTo) {
-	float color[] = {0.5f, 0.5f, 1.0f, 1.0f};
-	context->ClearRenderTargetView(eyeTo->renderInfo.rtv, color);
-	context->ClearDepthStencilView(eyeTo->renderInfo.dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	float color[] = {0.0f, 0.0f, 0.0f, 1.0f};
+	for (int i = 0; i < 6; ++i)
+	{
+		context->ClearRenderTargetView(eyeTo->targets.RTVs[i], color);
+	}
+	context->ClearDepthStencilView(eyeTo->targets.DSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
 	context->UpdateSubresource(cameraBuffer, 0, NULL, &eyeTo->camera, 0, 0);
-	drawSkyboxTo(eyeTo->renderInfo.rtv, eyeTo->renderInfo.dsv, eyeTo->renderInfo.viewport, eyeTo->camPos);
-	context->OMSetRenderTargets(1, &eyeTo->renderInfo.rtv, eyeTo->renderInfo.dsv);
+	drawSkyboxTo(eyeTo->targets.RTVs, eyeTo->targets.DSV, eyeTo->renderInfo.viewport, eyeTo->camPos);
+	context->OMSetRenderTargets(6, eyeTo->targets.RTVs, eyeTo->targets.DSV);
 	context->RSSetViewports(1, &eyeTo->renderInfo.viewport);
 
 	for(size_t i = 0; i < renderedObjects.size(); ++i) {
 		renderObjectDefaultState((Object*) renderedObjects[i]);
 	}
 #if _DEBUG
-	DebugRenderer::drawTo(eyeTo->renderInfo.rtv, eyeTo->renderInfo.dsv, eyeTo->renderInfo.viewport);
+	DebugRenderer::drawTo(eyeTo->targets.RTVs, eyeTo->targets.DSV, eyeTo->renderInfo.viewport);
 	context->VSSetShader(StandardVertexShader, NULL, NULL);
-	context->PSSetShader(StandardPixelShader, NULL, NULL);
+	context->PSSetShader(DeferredTargetPS, NULL, NULL);
+	context->OMSetRenderTargets(6, eyeTo->targets.RTVs, eyeTo->targets.DSV);
 	context->IASetInputLayout(ILStandard);
 #endif
-	context->ClearDepthStencilView(eyeTo->renderInfo.dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	context->ClearDepthStencilView(eyeTo->targets.DSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	for (size_t i = 0; i < frontRenderedObjects.size(); ++i)
 	{
 		renderObjectDefaultState((Object*)frontRenderedObjects[i]);
@@ -222,16 +257,18 @@ void Renderer::renderToEye(eye * eyeTo) {
 	//context->VSSetShader(StandardVertexShader, NULL, NULL);
 	//context->PSSetShader(StandardPixelShader, NULL, NULL);
 	//context->IASetInputLayout(ILStandard);
+	combineDeferredTargets(&eyeTo->targets, eyeTo->renderInfo.rtv, eyeTo->renderInfo.dsv, eyeTo->renderInfo.viewport);
+	
 }
 
-void Renderer::drawSkyboxTo(ID3D11RenderTargetView * rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport, DirectX::XMFLOAT3& pos)
+void Renderer::drawSkyboxTo(ID3D11RenderTargetView ** rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport, DirectX::XMFLOAT3& pos)
 {
 	if (!currSkybox)
 		return;
 	UINT stride = sizeof(VertexPositionTextureNormalAnim);
 	UINT offset = 0;
 
-	context->OMSetRenderTargets(1, &rtv, dsv);
+	context->OMSetRenderTargets(6, rtv, dsv);
 	context->RSSetViewports(1, &viewport);
 	context->VSSetShader(SkyboxVS, NULL, NULL);
 	context->PSSetShader(SkyboxPS, NULL, NULL);
@@ -256,45 +293,45 @@ void Renderer::loadPipelineState(pipeline_state_t * pipeline) {
 	context->PSSetShader(pipeline->pixel_shader, NULL, NULL);
 }
 
-void Renderer::createDeferredRTVs()
+void Renderer::createDeferredRTVs(DeferredRTVs* toWrite, ID3D11Texture2D* refTex)
 {
-	for (int i = 0; i < 4; ++i)
+	for (int i = 0; i < 6; ++i)
 	{
-		createRTVandSRV(&deferredTextures.textures[i], &deferredTextures.SRVs[i], &deferredTextures.RTVs[i]);
+		createRTVandSRV(&toWrite->textures[i], &toWrite->SRVs[i], &toWrite->RTVs[i], refTex);
 	}
 	D3D11_TEXTURE2D_DESC texDesc;
-	deferredTextures.textures[0]->GetDesc(&texDesc);
+	toWrite->textures[0]->GetDesc(&texDesc);
 
 	texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	texDesc.MiscFlags = NULL;
-	texDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	texDesc.Format = DXGI_FORMAT_R32_TYPELESS;
 
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilDesc;
 	depthStencilDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
 	depthStencilDesc.Texture2D.MipSlice = 0;
 	depthStencilDesc.Flags = 0;
-	device->CreateTexture2D(&texDesc, nullptr, &deferredTextures.depthBuffer);
-	device->CreateDepthStencilView(deferredTextures.depthBuffer, &depthStencilDesc, &deferredTextures.DSV);
+
+	device->CreateTexture2D(&texDesc, nullptr, &toWrite->depthBuffer);
+	device->CreateDepthStencilView(toWrite->depthBuffer, &depthStencilDesc, &toWrite->DSV);
 }
 
-void Renderer::createRTVandSRV(ID3D11Texture2D ** texture, ID3D11ShaderResourceView ** srv, ID3D11RenderTargetView ** rtv)
+void Renderer::createRTVandSRV(ID3D11Texture2D ** texture, ID3D11ShaderResourceView ** srv, ID3D11RenderTargetView ** rtv, ID3D11Texture2D* refTex)
 {
 	DXGI_SAMPLE_DESC sampleDesc;
 	sampleDesc.Count = 1;
 	sampleDesc.Quality = 0;
 
 	D3D11_TEXTURE2D_DESC refDesc;
-	backBuffer->GetDesc(&refDesc);
+	refTex->GetDesc(&refDesc);
 
 	D3D11_TEXTURE2D_DESC texDesc;
 	texDesc.Height = refDesc.Height;
 	texDesc.Width = refDesc.Width;
-	texDesc.Width = 512;
 	texDesc.Usage = D3D11_USAGE_DEFAULT;
 	texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 	texDesc.MipLevels = 1;
-	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	texDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	texDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
 	texDesc.ArraySize = 1;
 	texDesc.CPUAccessFlags = 0;
@@ -302,7 +339,7 @@ void Renderer::createRTVandSRV(ID3D11Texture2D ** texture, ID3D11ShaderResourceV
 	device->CreateTexture2D(&texDesc, nullptr, texture);
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	srvDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
 	srvDesc.Texture2D.MostDetailedMip = 0;
@@ -417,10 +454,11 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 	setSkybox("Ghostbait", "ghostbait");
 	skyball = meshManagement->GetReferenceComponent("Assets/Skyball.mesh", nullptr);
 
-	createDeferredRTVs();
+	createDeferredRTVs(&deferredTextures, backBuffer);
 }
 
 void Renderer::Destroy() {
+	emptyFloat3Buffer->Release();
 	OnlySamplerState->Release();
 	cameraBuffer->Release();
 	modelBuffer->Release();
@@ -430,15 +468,19 @@ void Renderer::Destroy() {
 	ILPositionColor->Release();
 	ILStandard->Release();
 	ILParticle->Release();
+	ILPosition->Release();
 	PassThroughPositionColorVS->Release();
+	PassThroughPositionVS->Release();
 	PassThroughPS->Release();
 	StandardVertexShader->Release();
 	StandardPixelShader->Release();
 	ParticleVS->Release();
 	ParticleGS->Release();
+	NDCQuadGS->Release();
 	ParticlePS->Release();
 	SkyboxVS->Release();
 	SkyboxPS->Release();
+	DeferredTargetPS->Release();
 	backBuffer->Release();
 	swapchain->Release();
 	context->Release();
@@ -446,6 +488,8 @@ void Renderer::Destroy() {
 	defaultPipeline.render_target_view->Release();
 	clearPipelineMemory(&defaultPipeline);
 	if(VRManager::GetInstance().IsEnabled()) {
+		releaseDeferredTarget(&leftEye.targets);
+		releaseDeferredTarget(&rightEye.targets);
 		clearTextureMemory(&leftEye.renderInfo);
 		clearTextureMemory(&rightEye.renderInfo);
 	}
@@ -478,7 +522,7 @@ void Renderer::registerObject(EventMessageBase* e) {
 	//TODO: Need logic to determine which objects group to push to
 	//based off of what the object has - may include instructions in the future
 	NewObjectMessage* instantiate = (NewObjectMessage*) e;
-	if(instantiate->RetrieveObject()->GetComponent<Mesh>()) {
+	if(instantiate->obj->GetComponent<Mesh>()) {
 		renderedObjects.push_back(instantiate->RetrieveObject());
 	}
 }
@@ -564,11 +608,15 @@ void Renderer::Render() {
 		VRManager::GetInstance().SendToHMD((void*) leftEye.renderInfo.texture, (void*) rightEye.renderInfo.texture);
 		context->UpdateSubresource(cameraBuffer, 0, NULL, &(leftEye.camera), 0, 0);
 	} else context->UpdateSubresource(cameraBuffer, 0, NULL, &defaultCamera, 0, 0);
-	float color[] = {0.5f, 0.5f, 1.0f, 1.0f};
+	float color[] = {0.0f, 0.0f, 0.0f, 1.0f};
 	context->ClearRenderTargetView(defaultPipeline.render_target_view, color);
 	context->ClearDepthStencilView(defaultPipeline.depth_stencil_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	context->OMSetRenderTargets(1, &defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view);
-	context->RSSetViewports(1, &defaultPipeline.viewport);
+	for (int i = 0; i < 6; ++i)
+	{
+		context->ClearRenderTargetView(deferredTextures.RTVs[i], color);
+	}
+	context->ClearDepthStencilView(deferredTextures.DSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	
 
 	DirectX::XMFLOAT3 camPos;
 	if (VRManager::GetInstance().IsEnabled())
@@ -577,17 +625,23 @@ void Renderer::Render() {
 		camPos = DirectX::XMFLOAT3(cameraPos->GetMatrix()._41, cameraPos->GetMatrix()._42, cameraPos->GetMatrix()._43);
 	LightManager::getLightBuffer()->cameraPos = camPos;
 	context->UpdateSubresource(lightBuffer, NULL, NULL, LightManager::getLightBuffer(), 0, 0);
-	drawSkyboxTo(defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport, camPos);
+	drawSkyboxTo(deferredTextures.RTVs, deferredTextures.DSV, defaultPipeline.viewport, camPos);
+
+	context->RSSetViewports(1, &defaultPipeline.viewport);
+
+#if _DEBUG
+	DebugRenderer::flushTo(deferredTextures.RTVs, deferredTextures.DSV, defaultPipeline.viewport);
+	context->VSSetShader(StandardVertexShader, NULL, NULL);
+	context->PSSetShader(DeferredTargetPS, NULL, NULL);
+	context->OMSetRenderTargets(6, deferredTextures.RTVs, deferredTextures.DSV);
+	context->IASetInputLayout(ILStandard);
+#endif
+
 	for(size_t i = 0; i < renderedObjects.size(); ++i) {
 		renderObjectDefaultState((Object*) renderedObjects[i]);
 	}
-#if _DEBUG
-	DebugRenderer::flushTo(defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport);
-	context->VSSetShader(StandardVertexShader, NULL, NULL);
-	context->PSSetShader(StandardPixelShader, NULL, NULL);
-	context->IASetInputLayout(ILStandard);
-#endif
-	context->ClearDepthStencilView(defaultPipeline.depth_stencil_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	context->ClearDepthStencilView(deferredTextures.DSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	for (size_t i = 0; i < frontRenderedObjects.size(); ++i)
 	{
 		renderObjectDefaultState((Object*)frontRenderedObjects[i]);
@@ -606,6 +660,19 @@ void Renderer::Render() {
 	//ParticleManager::RenderParticlesTo(defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport, view, proj);
 	//context->VSSetConstantBuffers(0, 1, &cameraBuffer);
 
+	viewProjectionConstantBuffer buff;
+	if (VRManager::GetInstance().IsEnabled())
+	{
+		XMStoreFloat4x4(&buff.view, XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat4x4(&leftEye.camera.view)), XMLoadFloat4x4(&leftEye.camera.view)));
+		XMStoreFloat4x4(&buff.projection, XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat4x4(&leftEye.camera.projection)), XMLoadFloat4x4(&leftEye.camera.projection)));
+	}
+	else
+	{
+		XMStoreFloat4x4(&buff.view, XMMatrixInverse(nullptr, XMLoadFloat4x4(&defaultCamera.view)));
+		XMStoreFloat4x4(&buff.projection, XMMatrixInverse(nullptr, XMLoadFloat4x4(&defaultCamera.projection)));
+	}
+	context->UpdateSubresource(cameraBuffer, NULL, NULL, &buff, NULL, NULL);
+	combineDeferredTargets(&deferredTextures, defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport);
 	swapchain->Present(0, 0);
 }
 
@@ -732,6 +799,27 @@ void Renderer::initShaders() {
 	device->CreatePixelShader(byteCode, byteCodeSize, NULL, &SkyboxPS);
 	delete[] byteCode;
 	byteCode = nullptr;
+
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "DeferredTargetPixelShader.cso");
+	device->CreatePixelShader(byteCode, byteCodeSize, NULL, &DeferredTargetPS);
+	delete[] byteCode;
+	byteCode = nullptr;
+
+	D3D11_INPUT_ELEMENT_DESC deferredVSDesc[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "PassThroughPositionVS.cso");
+	device->CreateVertexShader(byteCode, byteCodeSize, NULL, &PassThroughPositionVS);
+
+	device->CreateInputLayout(deferredVSDesc, ARRAYSIZE(deferredVSDesc), byteCode, byteCodeSize, &ILPosition);
+	delete[] byteCode;
+
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "PointToNDCQuadGS.cso");
+	device->CreateGeometryShader(byteCode, byteCodeSize, NULL, &NDCQuadGS);
+	delete[] byteCode;
+
 	CD3D11_BUFFER_DESC constantBufferDesc(sizeof(viewProjectionConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
 	device->CreateBuffer(&constantBufferDesc, nullptr, &cameraBuffer);
 
@@ -746,6 +834,14 @@ void Renderer::initShaders() {
 
 	CD3D11_BUFFER_DESC animBufferDesc(sizeof(animDataBufferStruct), D3D11_BIND_CONSTANT_BUFFER);
 	device->CreateBuffer(&animBufferDesc, nullptr, &animDataBuffer);
+
+	DirectX::XMFLOAT4 IseriouslyNeedthis = { 0.0f, 0.0f, 0.0f, 1.0f };
+	CD3D11_BUFFER_DESC pointBufferDesc(sizeof(IseriouslyNeedthis), D3D11_BIND_VERTEX_BUFFER);
+	D3D11_SUBRESOURCE_DATA bufferData = { 0 };
+	bufferData.pSysMem = &IseriouslyNeedthis;
+	bufferData.SysMemPitch = 0;
+	bufferData.SysMemSlicePitch = 0;
+	device->CreateBuffer(&pointBufferDesc, &bufferData, &emptyFloat3Buffer);
 }
 
 void Renderer::initViewport(const RECT window, pipeline_state_t * pipelineTo) {

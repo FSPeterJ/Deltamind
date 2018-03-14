@@ -91,6 +91,7 @@ void ObjectFactory::InstantiateByName(EventMessageBase *e) {
 GameObject* ObjectFactory::ActivateObject(PrefabId pid) {
 	GameObject* newobject = objMan->Instantiate(prefabs[pid].objectTypeID);
 	auto TypeGathered = registeredCasters[prefabs[pid].objectTypeID](newobject);
+	newobject->DestroyComponents.Clear();
 	for(int i = 0; i < 64; i++) {
 		if(prefabs[pid].fastclone[i]) {
 			newobject->SetComponent(prefabs[pid].instantiatedComponents[i], i);

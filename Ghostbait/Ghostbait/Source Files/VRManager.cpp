@@ -49,8 +49,8 @@ bool VRManager::Init(Transform* _player) {
 		return false;
 	}
 
-	leftProj = VRProjectionToDirectXMatrix(vr::EVREye::Eye_Left, 0.01f, 100.0f);
-	rightProj = VRProjectionToDirectXMatrix(vr::EVREye::Eye_Right, 0.01f, 100.0f);
+	leftProj = VRProjectionToDirectXMatrix(vr::EVREye::Eye_Left, 0.01f, 500.0f);
+	rightProj = VRProjectionToDirectXMatrix(vr::EVREye::Eye_Right, 0.01f, 500.0f);
 	leftEyeToHead = VRMatrix34ToDirectXMatrix44(pVRHMD->GetEyeToHeadTransform(vr::EVREye::Eye_Left));
 	rightEyeToHead = VRMatrix34ToDirectXMatrix44(pVRHMD->GetEyeToHeadTransform(vr::EVREye::Eye_Right));
 	isEnabled = true;

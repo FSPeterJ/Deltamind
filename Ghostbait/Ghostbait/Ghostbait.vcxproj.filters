@@ -569,5 +569,8 @@
     <FxCompile Include="PointToNDCQuadGS.hlsl">
       <Filter>Shaders\Geometry Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="PassThroughPositionVS.hlsl">
+      <Filter>Shaders\Vertex Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

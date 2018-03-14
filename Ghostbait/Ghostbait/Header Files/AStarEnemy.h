@@ -43,7 +43,7 @@ public:
 
 	void Subscribe() override;
 	void UnSubscribe() override;
-	void Enable(bool _destroyOnReset = true) override;
+	void Enable() override;
 	void Disable() override;
 	void Destroy() override;
 	void Update() override;

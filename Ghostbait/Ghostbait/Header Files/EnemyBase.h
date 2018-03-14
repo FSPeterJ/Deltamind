@@ -25,7 +25,7 @@ protected:
 
 public:
 	EnemyBase() { tag = std::string("Enemy");  };
-	void Enable(bool _destroyOnReset = true) override;
+	void Enable() override;
 	void Disable() override;
 	void Destroy() override;
 	void Awake(Object* obj) override;

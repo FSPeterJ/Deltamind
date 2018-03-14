@@ -22,7 +22,8 @@ void ControllerObject::Init(Player* _player, ControllerHand _hand) {
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuControllerItem>({ 0,0,0 }, &menuController));
 	int temp = sizeof(MenuControllerItem);
 	inventory.currentItem = inventory.items[0];
-	//Enable(false);
+	Enable();
+	PersistOnReset();
 }
 void ControllerObject::SetPhysicsComponent(const GameObject* obj, bool active) {
 	PhysicsComponent* physComp = obj->GetComponent<PhysicsComponent>();
@@ -472,8 +473,8 @@ void ControllerObject::SetGunData(int slot, Gun::FireType _fireType, float _fire
 }
 
 
-void ControllerObject::Enable(bool destroyOnEnd) {
-	GameObject::Enable(destroyOnEnd);
+void ControllerObject::Enable() {
+	GameObject::Enable();
 }
 
 void ControllerObject::PositionNonVRController() {

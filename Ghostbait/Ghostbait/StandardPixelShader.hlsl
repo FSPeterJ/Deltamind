@@ -132,7 +132,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
     float4 finalSpec = float4(0.0f, 0.0f, 0.0f, 0.0f);
     float3 norm = (normal.Sample(sample, input.uv) - 0.5f).xyz * 2.0f;
     float specIntense = specular.Sample(sample, input.uv).x;
-    float tempDepth = depth.Sample(sample, input.uv).a;
+    float tempDepth = depth.Sample(sample, input.uv).x;
     float x = input.uv.x * 2.0f - 1.0f;
     float y = (1.0f - input.uv.y) * 2.0f - 1.0f;
     float4 posAlmost = mul(projection, float4(x, y, tempDepth, 1.0f));

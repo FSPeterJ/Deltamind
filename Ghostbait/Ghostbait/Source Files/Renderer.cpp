@@ -455,7 +455,6 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 	skyball = meshManagement->GetReferenceComponent("Assets/Skyball.mesh", nullptr);
 
 	createDeferredRTVs(&deferredTextures, backBuffer);
-	LightManager::addPointLight({ 1.0f, 0.0f, 0.0f }, { 0.0f, 3.0f, 0.0f }, 10.0f);
 }
 
 void Renderer::Destroy() {
@@ -669,8 +668,8 @@ void Renderer::Render() {
 	}
 	else
 	{
-		XMStoreFloat4x4(&buff.view, XMLoadFloat4x4(&cameraPos->GetMatrix()));
-		XMStoreFloat4x4(&buff.projection, XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(XMMatrixTranspose(XMLoadFloat4x4(&defaultCamera.projection))), XMMatrixTranspose(XMLoadFloat4x4(&defaultCamera.projection)))));
+		XMStoreFloat4x4(&buff.view, XMMatrixInverse(nullptr, XMLoadFloat4x4(&defaultCamera.view)));
+		XMStoreFloat4x4(&buff.projection, XMMatrixInverse(nullptr, XMLoadFloat4x4(&defaultCamera.projection)));
 	}
 	context->UpdateSubresource(cameraBuffer, NULL, NULL, &buff, NULL, NULL);
 	combineDeferredTargets(&deferredTextures, defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport);

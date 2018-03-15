@@ -60,12 +60,15 @@ void ControllerObject::AddToInventory(int itemSlot, unsigned prefabID) {
 		//currentGameItem->Selected();
 	}
 	inventory.items[itemSlot]->Render(false);
+	inventory.items[itemSlot]->PersistOnReset();
 	SetPhysicsComponent(inventory.items[itemSlot], false);
 
 	//Inventory Display
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Item>(prefabID, { 0,0,0 }, (Item**)&inventory.displayItems[itemSlot]));
 	inventory.displayItems[itemSlot]->Render(false);
+	inventory.displayItems[itemSlot]->PersistOnReset();
 	SetPhysicsComponent(inventory.displayItems[itemSlot], false);
+
 }
 
 void ControllerObject::SwitchCurrentItem(int itemIndex) {

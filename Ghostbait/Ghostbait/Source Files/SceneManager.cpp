@@ -83,14 +83,18 @@ void SceneManager::Initialize() {
 		{
 			spawner.ghostFile = "Assets/Spawner.ghost";
 			spawner.name = "Spawner";
-			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, -40, 0, 10, 1);
+			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, -50, 0, 50, 1);
 			spawner.positions.push_back(mat1);
-			DirectX::XMFLOAT4X4 mat2 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, 10, 0, 40, 1);
+			DirectX::XMFLOAT4X4 mat2 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, -50, 0, -50, 1);
 			spawner.positions.push_back(mat2);
-			DirectX::XMFLOAT4X4 mat3 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, 5, 0, -30, 1);
+			DirectX::XMFLOAT4X4 mat3 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, 50, 0, 50, 1);
 			spawner.positions.push_back(mat3);
-			DirectX::XMFLOAT4X4 mat4 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, -10, 0, -25, 1);
+			DirectX::XMFLOAT4X4 mat4 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, 50, 0, -50, 1);
 			spawner.positions.push_back(mat4);
+			DirectX::XMFLOAT4X4 mat5 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, 50, 0, 0, 1);
+			spawner.positions.push_back(mat5);
+			DirectX::XMFLOAT4X4 mat6 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, -50, 0, 0, 1);
+			spawner.positions.push_back(mat6);
 			level0Data.prefabs.push_back(spawner);
 		}
 		TestSceneData::Prefab winCube;

@@ -135,7 +135,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<MenuControllerItem>(2);
 	ObjectFactory::RegisterPrefabBase<GameObject>(512);
 	ObjectFactory::RegisterPrefabBase<Projectile>(512);
-	ObjectFactory::RegisterPrefabBase<SpawnerObject>(4);
+	ObjectFactory::RegisterPrefabBase<SpawnerObject>(6);
 	ObjectFactory::RegisterPrefabBase<EnemyBase>(300);
 	ObjectFactory::RegisterPrefabBase<MenuCube>(1);
 	ObjectFactory::RegisterPrefabBase<CoreCube>(1);

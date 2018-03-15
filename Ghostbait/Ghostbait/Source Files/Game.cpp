@@ -209,7 +209,7 @@ void Game::ChangeScene(const char* sceneName) {
 		mainMenu.SetSpawnPos(menuPos);
 		mainMenu.Show(false);
 		player->leftController->SetControllerState(CSTATE_MenuController);
-		player->rightController->SetControllerState(CSTATE_ModelOnly);
+		player->rightController->SetControllerState(player->IsVR() ? CSTATE_MenuController : CSTATE_ModelOnly);
 		player->transform.MoveToOrigin(player->playerHeight);
 		player->ResetStance();
 		DirectX::XMFLOAT3 temp = DirectX::XMFLOAT3(0, 0, 0);

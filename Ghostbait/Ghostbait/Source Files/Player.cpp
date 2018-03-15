@@ -185,13 +185,13 @@ void Player::LoadControllers(VRControllerTypes type) {
 	leftController->Init(this, ControllerHand::HAND_Left);
 	leftController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
 	leftController->SetGunData(2, Gun::FireType::AUTO, 8, 25);
-	leftController->SetBuildItems({ /*TODO: FIX THIS LATER*/ ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost")), ObjectFactory::CreatePrefab(&std::string("Assets/HexPole.ghost")) });
+	leftController->SetBuildItems({ /*TODO: FIX THIS LATER*/ ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost"))});
 	//Right
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 1,0,1 }, &rightController));
 	rightController->Init(this, ControllerHand::HAND_Right);
 	rightController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
 	rightController->SetGunData(2, Gun::FireType::AUTO, 8, 25);
-	rightController->SetBuildItems({ /*TODO: FIX THIS LATER*/ ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost")) });
+	rightController->SetBuildItems({ /*TODO: FIX THIS LATER*/ ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost"))});
 
 
 	if (IsVR()) {
@@ -211,6 +211,7 @@ void Player::SetBuildToolData(HexGrid* _grid, unsigned* _gears, unsigned* _turre
 	if (buildTool) {
 		buildTool->SetGrid(_grid);
 		buildTool->SetGears(_gears);
+		buildTool->SetTurretCap(_turretsSpawned, _maxTurrets);
 	}
 }
 

@@ -30,9 +30,6 @@ void ArcObject::Destroy() {
 }
 
 
-
-
-
 namespace {
 	DirectX::XMFLOAT3 Lerp(const DirectX::XMFLOAT3& A, const DirectX::XMFLOAT3& B, const float t) {
 		//A + t(B - A)

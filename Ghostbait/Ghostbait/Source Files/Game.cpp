@@ -445,6 +445,7 @@ void Game::Update() {
 						//If there is a next option
 						if (gameData.ssManager.NextLogoExists()) {
 							//Update your index to it, and update the duration to be a new timer if not special
+							gameData.ssManager.MoveToNextLogo();
 							if (gameData.ssManager.GetCurrentLogoData().spawnTime != -1) {
 								gameData.ssManager.UpdateCurrentLogoSpawnTime();
 							}

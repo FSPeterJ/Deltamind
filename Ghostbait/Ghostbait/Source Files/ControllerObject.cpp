@@ -19,7 +19,7 @@ ControllerObject::ControllerObject() {
 void ControllerObject::Init(Player* _player, ControllerHand _hand) {
 	player = _player;
 	hand = _hand;
-	
+
 	//Create MenuController
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuControllerItem>({ 0,0,0 }, &menuController));
 	menuController->Render(false);
@@ -533,7 +533,7 @@ void ControllerObject::PositionNonVRController() {
 	DirectX::XMFLOAT3 startPoint = { player->transform.GetMatrix()._41, player->transform.GetMatrix()._42, player->transform.GetMatrix()._43 };
 	DirectX::XMFLOAT3 direction = { player->transform.GetMatrix()._31, player->transform.GetMatrix()._32, player->transform.GetMatrix()._33 };
 	DirectX::XMFLOAT3 colPoint;
-	if (!Raycast(startPoint, direction, &colPoint, nullptr, maxDist)) {
+	if (!Raycast(startPoint, direction, &colPoint, nullptr, nullptr, maxDist)) {
 		colPoint = { startPoint.x + (direction.x * maxDist), startPoint.y + (direction.y * maxDist), startPoint.z + (direction.z * maxDist) };
 	}
 

@@ -38,7 +38,7 @@ class Player : public GameObject, public Controlable {
 	float standHeight = 1.7f;
 	float crouchHeight = 1;
 public:
-	ArcObject teleportArc;
+	CastObject teleportArc;
 	ControllerObject *leftController = 0, *rightController = 0;
 
 	float playerHeight = 1.7f;

@@ -20,11 +20,13 @@ class BuildTool : public Item {
 	std::vector<GameObject*> builtItems;
 	Mode currentMode = SPAWN;
 	DirectX::XMFLOAT3 spawnPos;
+	int currentlySelectedItemIndex = -1;
 	GameObject* currentlySelectedItem = nullptr;
 	bool prevLocationValid = true;
 	HexGrid* grid = nullptr;
 	unsigned* gears = nullptr; 
-	ArcObject buildArc;
+	CastObject buildArc;
+	CastObject deleteRay;
 	unsigned* turretsSpawned = nullptr;
 	unsigned* maxTurrets = nullptr;
 
@@ -58,4 +60,6 @@ public:
 
 	void DeSelected();
 	void Selected() override;
+
+	void Awake(Object* obj) override;
 };

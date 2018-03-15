@@ -150,21 +150,39 @@ void BuildTool::Spawn() {
 }
 void BuildTool::RemoveProjection() {
 	DirectX::XMFLOAT3 endPos;
-	if (!Raycast(DirectX::XMFLOAT3(transform.GetMatrix()._41, transform.GetMatrix()._42, transform.GetMatrix()._43), DirectX::XMFLOAT3(transform.GetMatrix()._31, transform.GetMatrix()._32, transform.GetMatrix()._33), &endPos, &currentlySelectedItem, 4)) {
-		currentlySelectedItem = nullptr;
+	GameObject* colObject = nullptr;
+	if (!Raycast(DirectX::XMFLOAT3(transform.GetMatrix()._41, transform.GetMatrix()._42, transform.GetMatrix()._43), DirectX::XMFLOAT3(transform.GetMatrix()._31, transform.GetMatrix()._32, transform.GetMatrix()._33), &endPos, &colObject, &deleteRay, 4)) {
+		if (currentlySelectedItem) {
+			if (currentlySelectedItem->componentVarients.find("default") != currentlySelectedItem->componentVarients.end()) {
+				int id = TypeMap::GetComponentTypeID<Material>();
+				currentlySelectedItem->SetComponent(currentlySelectedItem->componentVarients["default"], id);
+			}
+			currentlySelectedItemIndex = -1;
+			currentlySelectedItem = nullptr;
+		}
+		return;
 	}
-	//Set shader to transparent thing
-}
-void BuildTool::Remove() {
+	//check if I spawned it
 	for (size_t i = 0; i < builtItems.size(); ++i) {
-		if (currentlySelectedItem == builtItems[i]) {
-			DirectX::XMFLOAT2 pos = DirectX::XMFLOAT2(currentlySelectedItem->transform.GetMatrix()._41, currentlySelectedItem->transform.GetMatrix()._43);
-			if (SetObstacle(pos, false)) {
-				MessageEvents::SendQueueMessage(EVENT_Late, [=] { currentlySelectedItem->Destroy(); });
-				builtItems.erase(builtItems.begin() + i);
-				//Console::WriteLine << currentlySelectedItem << "was removed at position (" << currentlySelectedItem->position._41 << ", " << currentlySelectedItem->position._42 << ", " << currentlySelectedItem->position._43 << ")!";
+		if (colObject == builtItems[i]) {
+			currentlySelectedItemIndex = (int)i;
+			currentlySelectedItem = colObject;
+			//TODO: Temp...Dont't call this every frame either.
+			if (currentlySelectedItem->componentVarients.find("invalid") != currentlySelectedItem->componentVarients.end()) {
+				int id = TypeMap::GetComponentTypeID<Material>();
+				currentlySelectedItem->SetComponent(currentlySelectedItem->componentVarients["invalid"], id);
 			}
 			break;
+		}
+	}
+}
+void BuildTool::Remove() {
+	if (currentlySelectedItem) {
+		DirectX::XMFLOAT2 pos = DirectX::XMFLOAT2(currentlySelectedItem->transform.GetMatrix()._41, currentlySelectedItem->transform.GetMatrix()._43);
+		if (SetObstacle(pos, false)) {
+			MessageEvents::SendQueueMessage(EVENT_Late, [=] { currentlySelectedItem->Destroy(); });
+			builtItems.erase(builtItems.begin() + currentlySelectedItemIndex);
+			(*turretsSpawned) = (*turretsSpawned) - 1;
 		}
 	}
 }
@@ -180,10 +198,14 @@ void BuildTool::CycleForward() {
 			tempIndex = 0;
 		}
 
-		if (prefabs[tempIndex].ID == 0)
-			currentMode = Mode::REMOVE; // Unreachable code
-		else
+		if (prefabs[tempIndex].ID == 0) {
+			currentMode = Mode::REMOVE;
+			deleteRay.Create();
+		}
+		else {
 			currentMode = Mode::SPAWN;
+			deleteRay.Destroy();
+		}
 
 		currentPrefabIndex = tempIndex;
 		if (prefabs[currentPrefabIndex].object)
@@ -225,6 +247,7 @@ void BuildTool::DeSelected() {
 			MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
 	}
 	buildArc.Destroy();
+	deleteRay.Destroy();
 }
 
 void BuildTool::Selected() {
@@ -232,5 +255,11 @@ void BuildTool::Selected() {
 		if (prefabs[currentPrefabIndex].object)
 			MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
 	}
+}
+
+void BuildTool::Awake(Object* obj) {
+	buildArc.SetFile("Assets/Arc2.ghost");
+	deleteRay.SetFile("Assets/Ray.ghost");
+	GameObject::Awake(obj);
 }
 

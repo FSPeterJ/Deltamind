@@ -21,6 +21,7 @@ i = 1;
 Player::Player() {
 	Enable();
 	PersistOnReset();
+	teleportArc.SetFile("Assets/Arc2.ghost");
 	VRManager::GetInstance().Init(&transform);
 	transform.SetPosition(0, 1.7f, 0);
 	transform.LookAt({ 0, 1.7f, 1 });
@@ -132,7 +133,7 @@ void Player::Update() {
 			DirectX::XMFLOAT3 direction = { 0, -1, 0 };
 			DirectX::XMFLOAT3 end;
 			HexTile* tile = grid->PointToTile(DirectX::XMFLOAT2(transform.GetPosition().x, transform.GetPosition().z));
-			if (Raycast(start, direction, &end, nullptr, 100) && tile && !grid->IsBlocked(tile)) {
+			if (Raycast(start, direction, &end, nullptr, nullptr, 100) && tile && !grid->IsBlocked(tile)) {
 				DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
 				newPos._42 = end.y + playerHeight;
 				transform.SetMatrix(newPos);

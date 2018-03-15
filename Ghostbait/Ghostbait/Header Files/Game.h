@@ -86,7 +86,7 @@ class Game {
 		inline const bool TimeLimitReached() const { return timeInScene >= sceneTimeLimit; }
 		inline const bool HasTimeLimit() const { return sceneTimeLimit > 0; }
 		inline const bool TimeLimitOnLastObject() const { return sceneTimeLimit == -2; }
-		inline const bool TimeToSpawnNextLogo() const { return timeInScene >= logos[currentLogoIndex].spawnTime; }
+		inline const bool TimeToSpawnNextLogo() const { return ((currentLogoIndex <= (int)logos.size() && currentLogoIndex >= 0) ? timeInScene >= logos[currentLogoIndex].spawnTime : -1); }
 
 		inline void AddLogo(const SplashScreenManager::LogoData& newLogo) { logos.push_back(newLogo); }
 		inline GameObject* GetCurrentLogoObject() const { return currentLogo; }

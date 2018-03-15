@@ -11,18 +11,14 @@
 
 #define ArcPoints 20
 
-
-void ArcObject::Create() {
+void CastObject::Create() {
 	if (!object) {
-		MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<GameObject>(ObjectFactory::CreatePrefab(&std::string("Assets/Arc2.ghost")), { 0, 0, 0 }, &object));
+		MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<GameObject>(ObjectFactory::CreatePrefab(&std::string(fileName)), { 0, 0, 0 }, &object));
 		object->PersistOnReset();
 		backup = object;
 	}
 }
-GameObject* ArcObject::Get() {
-	return object;
-}
-void ArcObject::Destroy() {
+void CastObject::Destroy() {
 	if (object) {
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] { backup->Destroy(); backup = nullptr; });
 		object = nullptr;
@@ -47,7 +43,7 @@ namespace {
 		return Q2;
 	}
 
-	void DrawArc(Transform* transform, const DirectX::XMFLOAT3& end, ArcObject* arc, const float arcHeight = 1) {
+	void DrawArc(Transform* transform, const DirectX::XMFLOAT3& end, CastObject* arc, const float arcHeight = 1) {
 		if (arcHeight < 0) {
 			//Calculate specific height
 		}
@@ -81,15 +77,45 @@ namespace {
 			//DebugRenderer::DrawAxes(arc->GetComponent<Animator>()->GetJointMatrix(i), 0.25f);
 		}
 	}
+	void DrawRay(DirectX::XMFLOAT3& origin, const DirectX::XMFLOAT3& end, CastObject* ray) {
+		ray->Get()->transform.SetPosition(origin);
+		ray->Get()->transform.LookAt(end);
+		/*
+		float dist = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&end), DirectX::XMLoadFloat3(&origin))));
+		DirectX::XMFLOAT4X4 newMat;
+		DirectX::XMStoreFloat4x4(&newMat, DirectX::XMMatrixScaling(1, 1, dist));
+		ray->Get()->transform.SetMatrix(newMat);
+		ray->Get()->transform.SetPosition(origin);
+		ray->Get()->transform.LookAt(end);
+		*/
+	}
+
 }
 
 
 
-bool Raycast(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction, DirectX::XMFLOAT3* colPoint, GameObject ** colObject, float maxCastDistance, const char* tag) {
-	return PhysicsManager::Raycast(origin, direction, colPoint, colObject, maxCastDistance, tag);
+bool Raycast(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction, DirectX::XMFLOAT3* colPoint, GameObject ** colObject, CastObject* ray, float maxCastDistance, const char* tag) {
+	DirectX::XMFLOAT3 endPoint;
+	bool success;
+	if(!colPoint)
+		success = PhysicsManager::Raycast(origin, direction, &endPoint, colObject, maxCastDistance, tag);
+	else {
+		success = PhysicsManager::Raycast(origin, direction, colPoint, colObject, maxCastDistance, tag);
+		endPoint = *colPoint;
+	}
+
+	if (!success) {
+		endPoint.x = origin.x + (direction.x * maxCastDistance);
+		endPoint.y = origin.y + (direction.y * maxCastDistance);
+		endPoint.z = origin.z + (direction.z * maxCastDistance);
+	}
+
+	if (ray && ray->Get()) 
+		DrawRay(origin, endPoint, ray);
+	return success;
 }
 
-bool ArcCast(Transform* transform, DirectX::XMFLOAT3* outPos, ArcObject* arc, float maxDistance, float minAngle, float maxAngle, float castHeight, const char* tag) {
+bool ArcCast(Transform* transform, DirectX::XMFLOAT3* outPos, CastObject* arc, float maxDistance, float minAngle, float maxAngle, float castHeight, const char* tag) {
 	DirectX::XMMATRIX controllerMat = DirectX::XMLoadFloat4x4(&transform->GetMatrix());
 	DirectX::XMVECTOR planeNormalVec = DirectX::XMVectorSet(0, 1, 0, 0);
 	DirectX::XMVECTOR forwardVec = DirectX::XMVector3Normalize(controllerMat.r[2]);
@@ -133,7 +159,7 @@ bool ArcCast(Transform* transform, DirectX::XMFLOAT3* outPos, ArcObject* arc, fl
 		DirectX::XMFLOAT3 rayStart, rayDirection;
 		DirectX::XMStoreFloat3(&rayStart, castPoint);
 		DirectX::XMStoreFloat3(&rayDirection, castDirection);
-		if (Raycast(rayStart, rayDirection, outPos, nullptr, 100, tag)) {
+		if (Raycast(rayStart, rayDirection, outPos, nullptr, nullptr, 100, tag)) {
 			if (arc && arc->Get()) DrawArc(transform, *outPos, arc);
 			return true;
 		}

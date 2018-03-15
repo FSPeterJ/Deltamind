@@ -25,9 +25,7 @@ void BuildTool::SetPrefabs(std::vector<unsigned> prefabIDs) {
 		prefabs[i].object->PersistOnReset();
 		if(physComp) physComp->isActive = false;
 		//Set objects shader to be semi-transparent solid color
-		if (prefabs[currentPrefabIndex].object->componentVarients.find("invalid") != prefabs[currentPrefabIndex].object->componentVarients.end()) {
-			int id = TypeMap::GetComponentTypeID<Material>();
-			prefabs[currentPrefabIndex].object->SetComponent(prefabs[currentPrefabIndex].object->componentVarients["invalid"], id);
+		if (prefabs[currentPrefabIndex].object->SwapComponentVarient<Material>("invalid")) {
 			prevLocationValid = false;
 		}
 	}
@@ -77,10 +75,12 @@ bool BuildTool::Snap(DirectX::XMFLOAT2* pos) {
 	return occupied;
 }
 bool BuildTool::SetObstacle(DirectX::XMFLOAT2 pos, bool active) {
-	bool success;
-	if(active)MessageEvents::SendMessage(EVENT_AddObstacle, SnapMessage(&pos, &success));
-	else MessageEvents::SendMessage(EVENT_RemoveObstacle, SnapMessage(&pos, &success));
-	return success;
+	if (grid->IsBlocked(pos) == active) {
+		return false;
+	}
+	if (active) grid->AddObstacle(pos);
+	if (!active) grid->RemoveObstacle(pos);
+	return true;
 }
 
 void BuildTool::SpawnProjection(){
@@ -106,16 +106,12 @@ void BuildTool::SpawnProjection(){
 			bool maxTurretsSpawned = (*maxTurrets - *turretsSpawned) <= 0;
 
 			if ((grid->IsBlocked(newPos.x, newPos.y) || !hasEnoughMoney || maxTurretsSpawned) && prevLocationValid) {
-				if (prefabs[currentPrefabIndex].object->componentVarients.find("invalid") != prefabs[currentPrefabIndex].object->componentVarients.end()) {
-					int id = TypeMap::GetComponentTypeID<Material>();
-					prefabs[currentPrefabIndex].object->SetComponent(prefabs[currentPrefabIndex].object->componentVarients["invalid"], id);
+				if (prefabs[currentPrefabIndex].object->SwapComponentVarient<Material>("invalid")) {
 					prevLocationValid = false;
 				}
 			}
 			else if(!grid->IsBlocked(newPos.x, newPos.y) && !prevLocationValid && hasEnoughMoney && !maxTurretsSpawned) {
-				if (prefabs[currentPrefabIndex].object->componentVarients.find("valid") != prefabs[currentPrefabIndex].object->componentVarients.end()) {
-					int id = TypeMap::GetComponentTypeID<Material>();
-					prefabs[currentPrefabIndex].object->SetComponent(prefabs[currentPrefabIndex].object->componentVarients["valid"], id);
+				if (prefabs[currentPrefabIndex].object->SwapComponentVarient<Material>("valid")) {
 					prevLocationValid = true;
 				}
 			}
@@ -153,25 +149,22 @@ void BuildTool::RemoveProjection() {
 	GameObject* colObject = nullptr;
 	if (!Raycast(DirectX::XMFLOAT3(transform.GetMatrix()._41, transform.GetMatrix()._42, transform.GetMatrix()._43), DirectX::XMFLOAT3(transform.GetMatrix()._31, transform.GetMatrix()._32, transform.GetMatrix()._33), &endPos, &colObject, &deleteRay, 4)) {
 		if (currentlySelectedItem) {
-			if (currentlySelectedItem->componentVarients.find("default") != currentlySelectedItem->componentVarients.end()) {
-				int id = TypeMap::GetComponentTypeID<Material>();
-				currentlySelectedItem->SetComponent(currentlySelectedItem->componentVarients["default"], id);
-			}
+			currentlySelectedItem->SwapComponentVarient<Material>("default");
 			currentlySelectedItemIndex = -1;
 			currentlySelectedItem = nullptr;
 		}
 		return;
 	}
 	//check if I spawned it
+	if (colObject != currentlySelectedItem && currentlySelectedItem) {
+		currentlySelectedItem->SwapComponentVarient<Material>("default");
+	}
 	for (size_t i = 0; i < builtItems.size(); ++i) {
 		if (colObject == builtItems[i]) {
 			currentlySelectedItemIndex = (int)i;
 			currentlySelectedItem = colObject;
 			//TODO: Temp...Dont't call this every frame either.
-			if (currentlySelectedItem->componentVarients.find("invalid") != currentlySelectedItem->componentVarients.end()) {
-				int id = TypeMap::GetComponentTypeID<Material>();
-				currentlySelectedItem->SetComponent(currentlySelectedItem->componentVarients["invalid"], id);
-			}
+			currentlySelectedItem->SwapComponentVarient<Material>("invalid");
 			break;
 		}
 	}
@@ -204,6 +197,10 @@ void BuildTool::CycleForward() {
 		}
 		else {
 			currentMode = Mode::SPAWN;
+			if (currentlySelectedItem) {
+				currentlySelectedItem->SwapComponentVarient<Material>("default");
+				currentlySelectedItem = nullptr;
+			}
 			deleteRay.Destroy();
 		}
 
@@ -225,10 +222,18 @@ void BuildTool::CycleBackward() {
 		}
 
 		//if index is removal tool...
-		if (prefabs[tempIndex].ID == 0)
+		if (prefabs[tempIndex].ID == 0) {
 			currentMode = Mode::REMOVE;
-		else
+			deleteRay.Create();
+		}
+		else {
 			currentMode = Mode::SPAWN;
+			if (currentlySelectedItem) {
+				currentlySelectedItem->SwapComponentVarient<Material>("default");
+				currentlySelectedItem = nullptr;
+			}
+			deleteRay.Destroy();
+		}
 
 		currentPrefabIndex = tempIndex;
 		if (prefabs[currentPrefabIndex].object)
@@ -245,6 +250,10 @@ void BuildTool::DeSelected() {
 	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
 		if (prefabs[currentPrefabIndex].object)
 			MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
+	}
+	if (currentlySelectedItem) {
+		currentlySelectedItem->SwapComponentVarient<Material>("default");
+		currentlySelectedItem = nullptr;
 	}
 	buildArc.Destroy();
 	deleteRay.Destroy();

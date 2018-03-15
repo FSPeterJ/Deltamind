@@ -103,16 +103,16 @@ void BuildTool::SpawnProjection(){
 			Turret* turret = dynamic_cast<Turret*>(prefabs[currentPrefabIndex].object);
 			bool hasEnoughMoney = true;
 			if (turret) hasEnoughMoney = *gears >= turret->GetBuildCost();
+			bool maxTurretsSpawned = (*maxTurrets - *turretsSpawned) <= 0;
 
-
-			if ((grid->IsBlocked(newPos.x, newPos.y) || !hasEnoughMoney) && prevLocationValid) {
+			if ((grid->IsBlocked(newPos.x, newPos.y) || !hasEnoughMoney || maxTurretsSpawned) && prevLocationValid) {
 				if (prefabs[currentPrefabIndex].object->componentVarients.find("invalid") != prefabs[currentPrefabIndex].object->componentVarients.end()) {
 					int id = TypeMap::GetComponentTypeID<Material>();
 					prefabs[currentPrefabIndex].object->SetComponent(prefabs[currentPrefabIndex].object->componentVarients["invalid"], id);
 					prevLocationValid = false;
 				}
 			}
-			else if(!grid->IsBlocked(newPos.x, newPos.y) && !prevLocationValid && hasEnoughMoney) {
+			else if(!grid->IsBlocked(newPos.x, newPos.y) && !prevLocationValid && hasEnoughMoney && !maxTurretsSpawned) {
 				if (prefabs[currentPrefabIndex].object->componentVarients.find("valid") != prefabs[currentPrefabIndex].object->componentVarients.end()) {
 					int id = TypeMap::GetComponentTypeID<Material>();
 					prefabs[currentPrefabIndex].object->SetComponent(prefabs[currentPrefabIndex].object->componentVarients["valid"], id);
@@ -132,8 +132,10 @@ void BuildTool::Spawn() {
 	Turret* turret = dynamic_cast<Turret*>(prefabs[currentPrefabIndex].object);
 	bool hasEnoughMoney = true;
 	if (turret) hasEnoughMoney = *gears >= turret->GetBuildCost();
+	bool maxTurretsSpawned = (*maxTurrets - *turretsSpawned) <= 0;
+
 	DirectX::XMFLOAT2 pos = DirectX::XMFLOAT2(spawnPos.x, spawnPos.z);
-	if (Snap(&pos) && hasEnoughMoney) {
+	if (Snap(&pos) && hasEnoughMoney && !maxTurretsSpawned) {
 		if (SetObstacle(pos, true)) {
 			*gears -= turret->GetBuildCost();
 			spawnPos.x = pos.x;
@@ -142,7 +144,7 @@ void BuildTool::Spawn() {
 			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabs[currentPrefabIndex].ID, spawnPos, &newObj));
 			builtItems.push_back(newObj);
 			newObj->Enable();
-			//Console::WriteLine << newObj << "was built at position (" << newObj->position._41 << ", " << newObj->position._42 << ", " << newObj->position._43 << ")!";
+			(*turretsSpawned) = (*turretsSpawned) + 1;
 		}
 	}
 }

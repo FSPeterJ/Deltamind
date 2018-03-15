@@ -10,7 +10,8 @@
 #include "Player.h"
 #include "HexGrid.h"
 #include "Material.h"
-
+//Only here to safely instantiate something. Should be done differently later
+#include "ObjectFactory.h"
 
 ControllerObject::ControllerObject() {
 }
@@ -18,17 +19,33 @@ ControllerObject::ControllerObject() {
 void ControllerObject::Init(Player* _player, ControllerHand _hand) {
 	player = _player;
 	hand = _hand;
-	//SetControllerHand(_hand); //Not needed anymore?
+	
+	//Create MenuController
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuControllerItem>({ 0,0,0 }, &menuController));
-	int temp = sizeof(MenuControllerItem);
-	inventory.currentItem = inventory.items[0];
+	menuController->Render(false);
+	//Create ModelOnly controller
+	unsigned modelOnlyID;
+	if(player->IsVR()) modelOnlyID = ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost"));
+	else modelOnlyID = ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost"));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Item>(modelOnlyID, { 0,0,0 }, &modelOnly));
+	modelOnly->Render(false);
+
+	//Assign current item
+	for (int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
+		if (inventory.items[i]) {
+			inventory.currentItem = inventory.items[0];
+			break;
+		}
+	}
+
+	//Tell all controller items not to destroy on reset
 	menuController->PersistOnReset();
+	modelOnly->PersistOnReset();
 	for (int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
 		if (inventory.items[i]) {
 			inventory.items[i]->PersistOnReset();
 		}
 	}
-
 	PersistOnReset();
 }
 void ControllerObject::SetPhysicsComponent(const GameObject* obj, bool active) {
@@ -186,6 +203,7 @@ void ControllerObject::AddItem(int itemSlot, unsigned prefabID) {
 	BuildTool* tool = dynamic_cast<BuildTool*>(inventory.items[itemSlot]);
 	if(gun) {
 		gun->SetStats(Gun::FireType::SEMI, 60, 1);
+		gun->overheat.CreateBar(gun);
 	}
 }
 void ControllerObject::AddItem(int itemSlot, unsigned prefabID, std::vector<unsigned> prefabIDs) {
@@ -195,6 +213,7 @@ void ControllerObject::AddItem(int itemSlot, unsigned prefabID, std::vector<unsi
 	BuildTool* buildTool = dynamic_cast<BuildTool*>(inventory.items[itemSlot]);
 	if(gun) {
 		gun->SetStats(Gun::FireType::SEMI, 60, 1);
+		gun->overheat.CreateBar(gun);
 	}
 	else if(buildTool) {
 		buildTool->SetPrefabs(prefabIDs);
@@ -206,6 +225,7 @@ void ControllerObject::AddItem(int itemSlot, unsigned prefabID, Gun::FireType _f
 	Gun* gun = dynamic_cast<Gun*>(inventory.items[itemSlot]);
 	if(gun) {
 		gun->SetStats(_fireType, _fireRate, _damage);
+		gun->overheat.CreateBar(gun);
 	}
 }
 
@@ -228,7 +248,7 @@ void ControllerObject::SetControllerState(ControllerState newState) {
 			break;
 		case ControllerState::CSTATE_ModelOnly:
 			{
-				menuController->Render(false);
+				modelOnly->Render(false);
 			}
 			break;
 		case ControllerState::CSTATE_None:
@@ -252,7 +272,7 @@ void ControllerObject::SetControllerState(ControllerState newState) {
 			break;
 		case ControllerState::CSTATE_ModelOnly:
 			{
-				menuController->Render(true);
+				modelOnly->Render(true);
 			}
 			break;
 		case ControllerState::CSTATE_None:
@@ -438,7 +458,7 @@ void ControllerObject::Update() {
 		case ControllerState::CSTATE_ModelOnly:
 			{
 				if (!player->IsVR()) PositionNonVRController();
-				menuController->transform.SetMatrix(transform.GetMatrix());
+				modelOnly->transform.SetMatrix(transform.GetMatrix());
 			}
 			break;
 		case ControllerState::CSTATE_None:

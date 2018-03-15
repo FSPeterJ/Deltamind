@@ -8,8 +8,11 @@
 
 
 
-void Gun::Overheat::CreateBar() {
+void Gun::Overheat::CreateBar(Gun* _parent) {
+	parent = _parent;
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ProgressBar>(overheatBarPID, { 0.0f, 0.0f, 0.0f }, &bar)); // stop using magic number prefab ID
+	bar->Enable();
+	bar->PersistOnReset();
 }
 bool Gun::Overheat::CanShoot(float fireRate) {
 	return timeSinceLastShot > (1 / fireRate) && !energyOverheatDelayTimeLeft;
@@ -24,8 +27,6 @@ bool Gun::Overheat::AddEnergy(float energy) {
 	return true;
 }
 void Gun::Overheat::Update(bool active) {
-
-
 	//Update Overheat Stats
 	float dt = (float)GhostTime::DeltaTime();
 	timeSinceLastShot += dt;
@@ -48,7 +49,7 @@ void Gun::Overheat::Update(bool active) {
 		newPos._41 -= bar->transform.GetMatrix()._11 * 0.04f;
 		newPos._42 -= bar->transform.GetMatrix()._12 * 0.04f;
 		newPos._43 -= bar->transform.GetMatrix()._13 * 0.04f;
-
+		
 		newPos._41 -= bar->transform.GetMatrix()._31 * 0.06f;
 		newPos._42 -= bar->transform.GetMatrix()._32 * 0.06f;
 		newPos._43 -= bar->transform.GetMatrix()._33 * 0.06f;
@@ -58,6 +59,7 @@ void Gun::Overheat::Update(bool active) {
 		bar->SetBarPercentage(currentEnergy / energyLimit);
 	}
 	else bar->SetBarPercentage(0);
+
 
 	//Console Write
 	//Console::WriteLine << currentEnergy << "__" << energyLimit << " : " << energyOverheatDelayTimeLeft << " : " << timeSinceLastShot;
@@ -71,12 +73,10 @@ void Gun::Awake(Object* obj) {
 	state = GUN;
 	Gun* gun = ((Gun*)obj);
 	overheat.overheatBarPID = gun->overheat.overheatBarPID;
-	overheat.CreateBar(); // may want to reethink this?
 	projectiePID = gun->projectiePID;
 	fireRate = gun->fireRate;
 	damage = gun->damage;
 	type = gun->type;
-	overheat.parent = this;
 	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
 }
 

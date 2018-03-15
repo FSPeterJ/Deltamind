@@ -15,6 +15,8 @@ void Game::GameData::Reset() {
 	state = GAMESTATE_BetweenWaves;
 	prevState = GAMESTATE_BetweenWaves;
 	gears = 0;
+	turretsSpawned = 0;
+	maxTurrets = 4;
 
 	waveManager.Reset();
 	ssManager.Reset();
@@ -207,7 +209,7 @@ void Game::ChangeScene(const char* sceneName) {
 		mainMenu.SetSpawnPos(menuPos);
 		mainMenu.Show(false);
 		player->leftController->SetControllerState(CSTATE_MenuController);
-		player->rightController->SetControllerState(CSTATE_None);
+		player->rightController->SetControllerState(CSTATE_ModelOnly);
 		player->transform.MoveToOrigin(player->playerHeight);
 		player->ResetStance();
 		DirectX::XMFLOAT3 temp = DirectX::XMFLOAT3(0, 0, 0);
@@ -302,7 +304,7 @@ void Game::PauseGame() {
 	if (paused) return;
 	paused = true;
 	player->leftController->SetControllerState(CSTATE_MenuController);
-	player->rightController->SetControllerState(CSTATE_ModelOnly);
+	player->rightController->SetControllerState(player->IsVR() ? CSTATE_MenuController : CSTATE_ModelOnly);
 }
 void Game::Lose() {
 	//Logic to run when the player loses
@@ -344,7 +346,7 @@ void Game::Start(Player* _player, EngineStructure* _engine, char* startScene) {
 	sceneManager->Initialize();
 	gameData.Reset();
 	//hexGrid.Fill(false);
-	player->SetBuildToolData(&hexGrid, &gameData.gears);
+	player->SetBuildToolData(&hexGrid, &gameData.gears, &gameData.turretsSpawned, &gameData.maxTurrets);
 
 	ChangeScene(startScene);
 
@@ -362,7 +364,7 @@ void Game::Update() {
 	//hexGrid.Display(DirectX::XMFLOAT2(playerPos._41, playerPos._43));
 	float dt = (float)GhostTime::DeltaTime();
 
-	Console::WriteLine << "Gears: " << gameData.gears;
+	//Console::WriteLine << "Gears: " << gameData.gears;
 
 	if (paused) return;
 

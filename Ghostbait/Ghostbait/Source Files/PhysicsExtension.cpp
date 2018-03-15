@@ -15,6 +15,7 @@
 void ArcObject::Create() {
 	if (!object) {
 		MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<GameObject>(ObjectFactory::CreatePrefab(&std::string("Assets/Arc2.ghost")), { 0, 0, 0 }, &object));
+		object->PersistOnReset();
 		backup = object;
 	}
 }

@@ -74,7 +74,7 @@ namespace {
 			tran.SetPosition(points[i]);
 			if(i < ArcPoints - 1) tran.LookAt(points[i + 1]);
 			arc->Get()->GetComponent<Animator>()->SetJointMatrix(i, tran.GetMatrix());
-			//DebugRenderer::DrawAxes(arc->GetComponent<Animator>()->GetJointMatrix(i), 0.25f);
+			DebugRenderer::DrawAxes(arc->Get()->GetComponent<Animator>()->GetJointMatrix(i), 0.25f);
 		}
 	}
 	void DrawRay(DirectX::XMFLOAT3& origin, const DirectX::XMFLOAT3& end, CastObject* ray) {

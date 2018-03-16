@@ -115,8 +115,6 @@ namespace {
 		DirectX::XMFLOAT4X4 finalMat;
 		DirectX::XMStoreFloat4x4(&finalMat, scale * rotation * translation);
 		ray->Get()->transform.SetMatrix(finalMat);
-		DebugRenderer::DrawAxes(ray->Get()->transform.GetMatrix(), 0.5f);
-		
 		
 		//ray->Get()->transform.SetPosition(transform->GetPosition());
 		//ray->Get()->transform.LookAt(end);

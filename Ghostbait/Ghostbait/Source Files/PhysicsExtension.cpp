@@ -29,9 +29,6 @@ void CastObject::Create() {
 				object->GetComponent<Animator>()->SetJointMatrix(i, temp);
 			}
 		}
-		else {
-			//MessageEvents::SendMessage(EVENT_Rendertofront, StandardObjectMessage((GameObject*)this));
-		}
 	}
 }
 void CastObject::Destroy() {

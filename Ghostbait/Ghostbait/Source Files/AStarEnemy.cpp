@@ -28,6 +28,7 @@ void AStarEnemy::Awake(Object* obj) {
 }
 
 void AStarEnemy::Subscribe() {
+	//Why 2 events?  Are adds different than removes or just futureproof?
 	if(!eventAdd) eventAdd = MessageEvents::Subscribe(EVENT_AddObstacle, [=](EventMessageBase* e) {this->Repath(); });
 	if(!eventRemove) eventRemove = MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {this->Repath(); });
 }
@@ -35,14 +36,14 @@ void AStarEnemy::UnSubscribe() {
 	if (eventAdd) { MessageEvents::UnSubscribe(EVENT_AddObstacle, eventAdd); eventAdd = 0; }
 	if (eventRemove) { MessageEvents::UnSubscribe(EVENT_RemoveObstacle, eventRemove); eventRemove = 0; }
 }
-void AStarEnemy::Enable(bool _destroyOnReset) {
+void AStarEnemy::Enable() {
 	if(!goal) {
 		NewRandPath();
 	}
 	rb->SetTerminalSpeed(maxSpeed);
 	next = path.start();
 	AStarEnemy::Subscribe();
-	EnemyBase::Enable(_destroyOnReset);
+	EnemyBase::Enable();
 }
 void AStarEnemy::Disable() {
 	AStarEnemy::UnSubscribe();
@@ -53,6 +54,14 @@ void AStarEnemy::Destroy() {
 }
 void AStarEnemy::Update() {
 	EnemyBase::Update();
+
+	DirectX::XMFLOAT3 vel;
+	DirectX::XMStoreFloat3(&vel, rb->GetVelocity());
+	DirectX::XMFLOAT3 newPoint = { transform.GetPosition().x + vel.x, transform.GetPosition().y, transform.GetPosition().z + vel.z };
+	transform.TurnTowards(newPoint, 1);
+
+
+	//Update Path
 	HexTile* curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.GetMatrix()._41, transform.GetMatrix()._43));
 	if(curTile) {
 		if(curTile == next) {

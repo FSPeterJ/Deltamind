@@ -10,7 +10,7 @@ MenuControllerItem::MenuControllerItem() {
 
 void MenuControllerItem::UpdateRay() {
 	GameObject* temp = nullptr;
-	if (Raycast(DirectX::XMFLOAT3(transform.GetMatrix()._41, transform.GetMatrix()._42, transform.GetMatrix()._43 ), DirectX::XMFLOAT3(transform.GetMatrix()._31, transform.GetMatrix()._32, transform.GetMatrix()._33), nullptr, (&temp), 4)) {
+	if (Raycast(DirectX::XMFLOAT3(transform.GetMatrix()._41, transform.GetMatrix()._42, transform.GetMatrix()._43 ), DirectX::XMFLOAT3(transform.GetMatrix()._31, transform.GetMatrix()._32, transform.GetMatrix()._33), nullptr, (&temp), &ray, 4)) {
 		MenuOption* newMenuItem = dynamic_cast<MenuOption*>(temp);
 		//Did we collide with an option?
 		if (newMenuItem) {
@@ -39,10 +39,17 @@ void MenuControllerItem::Render(bool render) {
 	if (render) {
 		MessageEvents::SendMessage(EVENT_Rendertofront, StandardObjectMessage(this));
 		isRendered = true;
+		ray.Create();
 	}
 	else {
 		MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(this));
 		isRendered = false;
+		ray.Destroy();
 	}
 	Item::Render(render);
+}
+
+void MenuControllerItem::Awake(Object* obj) {
+	ray.SetFile("Assets/Ray.ghost");
+	GameObject::Awake(obj);
 }

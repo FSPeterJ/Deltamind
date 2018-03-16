@@ -20,10 +20,15 @@ class BuildTool : public Item {
 	std::vector<GameObject*> builtItems;
 	Mode currentMode = SPAWN;
 	DirectX::XMFLOAT3 spawnPos;
+	int currentlySelectedItemIndex = -1;
 	GameObject* currentlySelectedItem = nullptr;
-	bool prevLocationValid = false;
+	bool prevLocationValid = true;
 	HexGrid* grid = nullptr;
-	ArcObject buildArc;
+	unsigned* gears = nullptr; 
+	CastObject buildArc;
+	CastObject deleteRay;
+	unsigned* turretsSpawned = nullptr;
+	unsigned* maxTurrets = nullptr;
 
 	void SpawnProjection();
 	void Spawn();
@@ -37,8 +42,10 @@ public:
 	BuildTool();
 
 	inline void SetGrid(HexGrid* _grid) { grid = _grid; };
+	inline void SetGears(unsigned* _gears) { gears = _gears; };
+	inline void SetTurretCap(unsigned* _turretsSpawned, unsigned* _maxTurrets) { turretsSpawned = _turretsSpawned; maxTurrets = _maxTurrets; };
 	void SetPrefabs(std::vector<unsigned> prefabIDs);
-	void Enable(bool onEndDestroy);
+	void Enable();
 	void Disable();
 	void Update();
 
@@ -53,4 +60,6 @@ public:
 
 	void DeSelected();
 	void Selected() override;
+
+	void Awake(Object* obj) override;
 };

@@ -192,8 +192,8 @@ void Renderer::renderObjectDefaultState(Object * obj) {
 	UINT offset = 0;
 	Mesh* y= obj->GetComponent<Mesh>();
 	if (!y) {
-		Console::ErrorLine << "instantiatedCount: " << instantiatedCount;
-		Console::ErrorLine << "destroyedCount: " << destroyedCount;
+		Console::ErrorLine << "Object does not have a mesh component!";
+		assert(1 == 0);
 	}
 	ID3D11Buffer* x = y->vertexBuffer;
 

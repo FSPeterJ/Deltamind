@@ -127,18 +127,18 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::Initialize(objMan, "NOT USED STRING");
 
 	Console::WriteLine << "Object Factory Initialized......";
-	ObjectFactory::RegisterPrefabBase<Turret>(35);
-	ObjectFactory::RegisterPrefabBase<Item>(22);
-	ObjectFactory::RegisterPrefabBase<ControllerObject>(20);
-	ObjectFactory::RegisterPrefabBase<Gun>(20);
-	ObjectFactory::RegisterPrefabBase<ProgressBar>(21);
-	ObjectFactory::RegisterPrefabBase<MenuControllerItem>(23);
+	ObjectFactory::RegisterPrefabBase<Turret>(100);
+	ObjectFactory::RegisterPrefabBase<Item>(16);
+	ObjectFactory::RegisterPrefabBase<ControllerObject>(2);
+	ObjectFactory::RegisterPrefabBase<Gun>(8);
+	ObjectFactory::RegisterPrefabBase<ProgressBar>(8);
+	ObjectFactory::RegisterPrefabBase<MenuControllerItem>(2);
 	ObjectFactory::RegisterPrefabBase<GameObject>(512);
 	ObjectFactory::RegisterPrefabBase<Projectile>(512);
-	ObjectFactory::RegisterPrefabBase<Spawner>(24);
+	ObjectFactory::RegisterPrefabBase<SpawnerObject>(6);
 	ObjectFactory::RegisterPrefabBase<EnemyBase>(300);
-	ObjectFactory::RegisterPrefabBase<MenuCube>(5);
-	ObjectFactory::RegisterPrefabBase<CoreCube>(5);
+	ObjectFactory::RegisterPrefabBase<MenuCube>(1);
+	ObjectFactory::RegisterPrefabBase<CoreCube>(1);
 	ObjectFactory::RegisterPrefabBase<BuildTool>(24);
 	ObjectFactory::RegisterPrefabBase<PhysicsTestObj>(32);
 	ObjectFactory::RegisterPrefabBase<ResumeButton>(1);
@@ -170,7 +170,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<Item>("Item");
 	TypeMap::RegisterObjectAlias<ProgressBar>("ProgressBar");
 	TypeMap::RegisterObjectAlias<Projectile>("Projectile");
-	TypeMap::RegisterObjectAlias<Spawner>("Spawner");
+	TypeMap::RegisterObjectAlias<SpawnerObject>("Spawner");
 	TypeMap::RegisterObjectAlias<EnemyBase>("EnemyBase");
 	TypeMap::RegisterObjectAlias<MenuCube>("MenuCube");
 	TypeMap::RegisterObjectAlias<CoreCube>("CoreCube");

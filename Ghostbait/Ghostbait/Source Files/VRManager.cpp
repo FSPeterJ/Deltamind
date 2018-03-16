@@ -29,7 +29,7 @@ bool VRManager::Init(Transform* _player) {
 
 	if(error != vr::VRInitError_None) {
 		pVRHMD = nullptr;
-		Console::ErrorLine << "Unable to initialize VR: " << vr::VR_GetVRInitErrorAsSymbol(error);
+		Console::WarningLine << "Unable to initialize VR: " << vr::VR_GetVRInitErrorAsSymbol(error);
 		return false;
 	}
 

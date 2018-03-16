@@ -19,16 +19,20 @@ void EnemyBase::Awake(Object* obj) {
 
 	eventLose = 0;
 	SetToFullHealth();
+	GameObject::Awake(obj);
 }
 void EnemyBase::Subscribe() {
 	if(!eventLose) eventLose = MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) { MessageEvents::SendQueueMessage(EVENT_Late, [=] {this->Destroy(); }); });
 }
 void EnemyBase::UnSubscribe() {
-	if (eventLose) { MessageEvents::UnSubscribe(EVENT_GameLose, eventLose); eventLose = 0; }
+	if (eventLose) {
+		MessageEvents::UnSubscribe(EVENT_GameLose, eventLose); 
+		eventLose = 0;
+	}
 }
-void EnemyBase::Enable(bool _destroyOnReset) {
+void EnemyBase::Enable() {
 	EnemyBase::Subscribe();
-	GameObject::Enable(_destroyOnReset);
+	GameObject::Enable();
 }
 void EnemyBase::Disable() {
 	EnemyBase::UnSubscribe();

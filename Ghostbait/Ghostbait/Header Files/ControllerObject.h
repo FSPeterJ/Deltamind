@@ -32,6 +32,7 @@ class ControllerObject: public GameObject, public Controlable {
 
 	Inventory inventory;
 	MenuControllerItem* menuController = nullptr;
+	Item* modelOnly = nullptr;
 
 	Player* player = nullptr;
 	ControllerState prevState = CSTATE_None;
@@ -40,7 +41,6 @@ class ControllerObject: public GameObject, public Controlable {
 
 	void SetPhysicsComponent(const GameObject* obj, bool active);
 	void AddToInventory(int itemSlot, unsigned prefabID);
-	inline void SetControllerHand(ControllerHand _hand) { hand = _hand; };
 
 	void SwitchCurrentItem(int itemIndex = -1);
 	void DisplayInventory();
@@ -62,7 +62,7 @@ public:
 	//TEMPORARY FUNCTION
 	void SetBuildItems(std::vector<unsigned> prefabIDs);
 	void SetGunData(int slot, Gun::FireType _fireType, float _fireRate, float _damage);
-	void Enable(bool destroyOnEnd);
+	void Enable();
 
 	void SetControllerState(ControllerState newState);
 	void SetControllerStateToPrevious();

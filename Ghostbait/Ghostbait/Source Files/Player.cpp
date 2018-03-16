@@ -19,7 +19,9 @@ i = 1;
 */
 
 Player::Player() {
-	Enable(false);
+	Enable();
+	PersistOnReset();
+	teleportArc.SetFile("Assets/Arc2.ghost");
 	VRManager::GetInstance().Init(&transform);
 	transform.SetPosition(0, 1.7f, 0);
 	transform.LookAt({ 0, 1.7f, 1 });
@@ -98,6 +100,21 @@ void Player::Update() {
 			godMode = !godMode;
 			ResetKey(Control::TestInputZ);
 		}
+		if (KeyIsDown(Control::TestInputC)) {
+			switch (stance) {
+				case STANCE_Stand:
+					stance = STANCE_Crouch;
+					playerHeight = crouchHeight;
+					transform.SetPosition(transform.GetPosition().x, playerHeight, transform.GetPosition().z);
+					break;
+				case STANCE_Crouch:
+					stance = STANCE_Stand;
+					playerHeight = standHeight;
+					transform.SetPosition(transform.GetPosition().x, playerHeight, transform.GetPosition().z);
+					break;
+			}
+			ResetKey(Control::TestInputC);
+		}
 
 		if (rotationX < -rotationLimit) {
 			rotationX = -rotationLimit;
@@ -116,7 +133,7 @@ void Player::Update() {
 			DirectX::XMFLOAT3 direction = { 0, -1, 0 };
 			DirectX::XMFLOAT3 end;
 			HexTile* tile = grid->PointToTile(DirectX::XMFLOAT2(transform.GetPosition().x, transform.GetPosition().z));
-			if (Raycast(start, direction, &end, nullptr, 100) && tile && !grid->IsBlocked(tile)) {
+			if (Raycast(start, direction, &end, nullptr, nullptr, 100) && tile && !grid->IsBlocked(tile)) {
 				DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
 				newPos._42 = end.y + playerHeight;
 				transform.SetMatrix(newPos);
@@ -169,13 +186,13 @@ void Player::LoadControllers(VRControllerTypes type) {
 	leftController->Init(this, ControllerHand::HAND_Left);
 	leftController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
 	leftController->SetGunData(2, Gun::FireType::AUTO, 8, 25);
-	leftController->SetBuildItems({ /*TODO: FIX THIS LATER*/ ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost")), ObjectFactory::CreatePrefab(&std::string("Assets/HexPole.ghost")) });
+	leftController->SetBuildItems({ /*TODO: FIX THIS LATER*/ ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost"))});
 	//Right
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 1,0,1 }, &rightController));
 	rightController->Init(this, ControllerHand::HAND_Right);
 	rightController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
 	rightController->SetGunData(2, Gun::FireType::AUTO, 8, 25);
-	rightController->SetBuildItems({ /*TODO: FIX THIS LATER*/ ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost")) });
+	rightController->SetBuildItems({ /*TODO: FIX THIS LATER*/ ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost"))});
 
 
 	if (IsVR()) {
@@ -183,15 +200,19 @@ void Player::LoadControllers(VRControllerTypes type) {
 	}
 }
 
-void Player::SetBuildGrid(HexGrid* _grid) {
+void Player::SetBuildToolData(HexGrid* _grid, unsigned* _gears, unsigned* _turretsSpawned, unsigned* _maxTurrets) {
 	grid = _grid;
 	BuildTool* buildTool = leftController->GetBuildTool();
 	if (buildTool) {
 		buildTool->SetGrid(_grid);
+		buildTool->SetGears(_gears);
+		buildTool->SetTurretCap(_turretsSpawned, _maxTurrets);
 	}
 	buildTool = rightController->GetBuildTool();
 	if (buildTool) {
 		buildTool->SetGrid(_grid);
+		buildTool->SetGears(_gears);
+		buildTool->SetTurretCap(_turretsSpawned, _maxTurrets);
 	}
 }
 

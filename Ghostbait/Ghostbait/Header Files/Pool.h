@@ -6,7 +6,7 @@
 class _Pool_Base {
 	void RemoveObjectFromActive(const void* o) {
 		auto it = std::find(activeList.begin(), activeList.end(), o);
-		assert(it != activeList.end()); //This is a minor error but can be safely ignored
+		//assert(it != activeList.end()); //This is a minor error but can be safely ignored
 		if(it != activeList.end()) {
 			std::swap(*it, activeList.back());
 			activeList.pop_back();

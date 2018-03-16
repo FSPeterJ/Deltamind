@@ -57,6 +57,7 @@ void Renderer::clearPipelineMemory(pipeline_state_t * pipeline) {
 	pipeline->depth_stencil_state->Release();
 	pipeline->depth_stencil_view->Release();
 	pipeline->rasterizer_state->Release();
+	pipeline->blend_state->Release();
 }
 
 void Renderer::clearTextureMemory(renderTargetInfo * info) {
@@ -402,6 +403,7 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 	initDepthStencilBuffer(&defaultPipeline);
 	initDepthStencilState(&defaultPipeline);
 	initDepthStencilView(&defaultPipeline);
+	initBlendState(&defaultPipeline);
 	initRasterState(&defaultPipeline);
 	initShaders();
 	//ParticleManager::Initialize(device, context, ParticleVS, ParticleGS, ParticlePS, ILParticle);
@@ -455,6 +457,7 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 	skyball = meshManagement->GetReferenceComponent("Assets/Skyball.mesh", nullptr);
 
 	createDeferredRTVs(&deferredTextures, backBuffer);
+	context->OMSetBlendState(defaultPipeline.blend_state, 0, 0xffffffff);
 }
 
 void Renderer::Destroy() {
@@ -704,6 +707,23 @@ void Renderer::initDepthStencilState(pipeline_state_t * pipelineTo) {
 void Renderer::initDepthStencilView(pipeline_state_t * pipelineTo) {
 	CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc(D3D11_DSV_DIMENSION_TEXTURE2D);
 	device->CreateDepthStencilView((ID3D11Resource*) pipelineTo->depth_stencil_buffer, &depthStencilViewDesc, &pipelineTo->depth_stencil_view);
+}
+
+void Renderer::initBlendState(pipeline_state_t * pipelineTo)
+{
+	D3D11_BLEND_DESC blendDesc;
+	blendDesc.AlphaToCoverageEnable = false;
+	blendDesc.IndependentBlendEnable = false;
+	blendDesc.RenderTarget[0].BlendEnable = true;
+	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	device->CreateBlendState(&blendDesc, &pipelineTo->blend_state);
 }
 
 void Renderer::initRasterState(pipeline_state_t * pipelineTo, bool wireFrame) {

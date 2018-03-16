@@ -33,6 +33,7 @@ private:
 		ID3D11DepthStencilState* depth_stencil_state;
 		ID3D11DepthStencilView* depth_stencil_view;
 		ID3D11RasterizerState* rasterizer_state;
+		ID3D11BlendState* blend_state;
 		D3D11_VIEWPORT viewport;
 	};
 
@@ -129,6 +130,7 @@ private:
 	void initDepthStencilBuffer(pipeline_state_t* pipelineTo);
 	void initDepthStencilState(pipeline_state_t* pipelineTo);
 	void initDepthStencilView(pipeline_state_t* pipelineTo);
+	void initBlendState(pipeline_state_t* pipelineTo);
 	void initRasterState(pipeline_state_t* pipelineTo, bool wireFrame = false);
 	void initShaders();
 	void initViewport(RECT window, pipeline_state_t* pipelineTo);

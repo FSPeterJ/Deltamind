@@ -149,5 +149,5 @@ float4 main(PixelShaderInput input) : SV_TARGET
     }
     float4 diffuseColor = diffuse.Sample(sample, input.uv);
     float4 emissiveColor = emissive.Sample(sample, input.uv);
-    return saturate((finalLight * diffuseColor) + emissiveColor + finalSpec);
+    return float4(saturate((float4(finalLight.xyz, 1.0f) * diffuseColor) + emissiveColor + finalSpec).xyz, 1.0f);
 }

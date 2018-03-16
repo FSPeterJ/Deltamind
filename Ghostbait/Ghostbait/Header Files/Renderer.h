@@ -33,6 +33,7 @@ private:
 		ID3D11DepthStencilState* depth_stencil_state;
 		ID3D11DepthStencilView* depth_stencil_view;
 		ID3D11RasterizerState* rasterizer_state;
+		ID3D11BlendState* blend_state;
 		D3D11_VIEWPORT viewport;
 	};
 
@@ -121,6 +122,7 @@ private:
 
 	std::vector<const GameObject*> renderedObjects;
 	std::vector<const GameObject*> frontRenderedObjects;
+	std::vector<const GameObject*> transparentObjects;
 
 	MeshManager* meshManagement = nullptr;
 	MaterialManager* materialManagement = nullptr;
@@ -129,6 +131,7 @@ private:
 	void initDepthStencilBuffer(pipeline_state_t* pipelineTo);
 	void initDepthStencilState(pipeline_state_t* pipelineTo);
 	void initDepthStencilView(pipeline_state_t* pipelineTo);
+	void initBlendState(pipeline_state_t* pipelineTo);
 	void initRasterState(pipeline_state_t* pipelineTo, bool wireFrame = false);
 	void initShaders();
 	void initViewport(RECT window, pipeline_state_t* pipelineTo);
@@ -139,7 +142,10 @@ private:
 	void setupVRTargets();
 	void releaseDeferredTarget(DeferredRTVs* in);
 	void combineDeferredTargets(DeferredRTVs* in, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT& viewport);
+	bool compareDistToCam(const DirectX::XMFLOAT3& t1, const DirectX::XMFLOAT3& t2, const DirectX::XMFLOAT3& camPos);
+	float manhat(const DirectX::XMFLOAT3& center1, const DirectX::XMFLOAT3& center2);
 
+	void sortTransparentObjects(DirectX::XMFLOAT3 &camPos);
 	void renderObjectDefaultState(Object* obj);
 	void renderToEye(eye* eyeTo);
 	void drawSkyboxTo(ID3D11RenderTargetView** rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT& viewport, DirectX::XMFLOAT3& pos);
@@ -197,7 +203,8 @@ public:
 	void unregisterObject(EventMessageBase* e);
 
 	void moveToFront(EventMessageBase* e);
-	//////////////////////////////////////////////////////////////////////////////////
+	void moveToTransparent(EventMessageBase* e);
+
 	void setSkybox(const char* directoryName, const char* filePrefix);
 
 	MeshManager* getMeshManager();

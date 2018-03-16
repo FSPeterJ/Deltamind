@@ -554,11 +554,11 @@ void Renderer::moveToFront(EventMessageBase * e)
 	{
 		if (*iter == move->RetrieveObject())
 		{
+			frontRenderedObjects.push_back(move->RetrieveObject());
 			renderedObjects.erase(iter);
 			break;
 		}
 	}
-	frontRenderedObjects.push_back(move->RetrieveObject());
 }
 
 XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {

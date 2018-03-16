@@ -187,6 +187,45 @@ void Renderer::combineDeferredTargets(DeferredRTVs * in, ID3D11RenderTargetView 
 	context->IASetInputLayout(ILStandard);
 }
 
+bool Renderer::compareDistToCam(const XMFLOAT3 & t1, const XMFLOAT3 & t2, const XMFLOAT3& camPos)
+{
+	return manhat(t1, camPos) > manhat(t2, camPos);
+}
+
+float Renderer::manhat(const XMFLOAT3 & center1, const XMFLOAT3 &center2)
+{
+	float distX = center2.x - center1.x;
+	if (distX < 0.0f) distX *= -1.0f;
+
+	float distY = center2.y - center1.y;
+	if (distY < 0.0f) distY *= -1.0f;
+
+	float distZ = center2.z - center1.z;
+	if (distZ < 0.0f) distZ *= -1.0f;
+	return distX + distY + distZ;
+}
+
+void Renderer::sortTransparentObjects(DirectX::XMFLOAT3 &camPos)
+{
+	if (transparentObjects.size() <= 1)
+		return;
+	//Insertion sort simply because I don't anticipate the size of this pool getting too large
+	for (int outer = 0; outer < transparentObjects.size() - 1; outer++)
+	{
+		int counter = outer + 1;
+		while (counter>0)
+		{
+			if (compareDistToCam(transparentObjects[counter]->transform.GetPosition(), transparentObjects[counter-1]->transform.GetPosition(), camPos))
+			{
+				const GameObject* temp = transparentObjects[counter];
+				transparentObjects[counter] = transparentObjects[counter - 1];
+				transparentObjects[counter - 1] = temp;
+			}
+			counter--;
+		}
+	}
+}
+
 void Renderer::renderObjectDefaultState(Object * obj) {
 	UINT stride = sizeof(VertexPositionTextureNormalAnim);
 	UINT offset = 0;
@@ -246,6 +285,10 @@ void Renderer::renderToEye(eye * eyeTo) {
 	context->OMSetRenderTargets(6, eyeTo->targets.RTVs, eyeTo->targets.DSV);
 	context->IASetInputLayout(ILStandard);
 #endif
+	for (size_t i = 0; i < transparentObjects.size(); ++i)
+	{
+		renderObjectDefaultState((Object*)transparentObjects[i]);
+	}
 	context->ClearDepthStencilView(eyeTo->targets.DSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	for (size_t i = 0; i < frontRenderedObjects.size(); ++i)
 	{
@@ -449,7 +492,7 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 	MessageEvents::Subscribe(EVENT_Unrender, [this](EventMessageBase * _e) {this->unregisterObject(_e); });
 	MessageEvents::Subscribe(EVENT_Addrender, [this](EventMessageBase * _e) {this->registerObject(_e); });
 	MessageEvents::Subscribe(EVENT_Rendertofront, [this](EventMessageBase * _e) {this->moveToFront(_e); });
-
+	MessageEvents::Subscribe(EVENT_Rendertransparent, [this](EventMessageBase * _e) {this->moveToTransparent(_e); });
 #if _DEBUG
 	DebugRenderer::Initialize(device, context, modelBuffer, PassThroughPositionColorVS, PassThroughPS, ILPositionColor, defaultPipeline.rasterizer_state);
 #endif
@@ -522,8 +565,6 @@ void Renderer::Destroy() {
 }
 
 void Renderer::registerObject(EventMessageBase* e) {
-	//TODO: Need logic to determine which objects group to push to
-	//based off of what the object has - may include instructions in the future
 	NewObjectMessage* instantiate = (NewObjectMessage*) e;
 	if(instantiate->obj->GetComponent<Mesh>()) {
 		renderedObjects.push_back(instantiate->RetrieveObject());
@@ -532,7 +573,6 @@ void Renderer::registerObject(EventMessageBase* e) {
 
 void Renderer::unregisterObject(EventMessageBase* e) {
 	StandardObjectMessage* removeobjMessage = (StandardObjectMessage*) e;
-	//TODO: Need logic for which register it is under
 	for(std::vector<const GameObject*>::iterator iter = renderedObjects.begin(); iter != renderedObjects.end(); ++iter) {
 		if(*iter == removeobjMessage->RetrieveObject()) {
 			renderedObjects.erase(iter);
@@ -544,6 +584,14 @@ void Renderer::unregisterObject(EventMessageBase* e) {
 	{
 		if (*iter == removeobjMessage->RetrieveObject()) {
 			frontRenderedObjects.erase(iter);
+			return;
+		}
+	}
+
+	for (std::vector<const GameObject*>::iterator iter = transparentObjects.begin(); iter != transparentObjects.end(); ++iter)
+	{
+		if (*iter == removeobjMessage->RetrieveObject()) {
+			transparentObjects.erase(iter);
 			return;
 		}
 	}
@@ -562,6 +610,21 @@ void Renderer::moveToFront(EventMessageBase * e)
 		}
 	}
 	frontRenderedObjects.push_back(move->RetrieveObject());
+}
+
+void Renderer::moveToTransparent(EventMessageBase * e)
+{
+	NewObjectMessage* move = (NewObjectMessage*)e;
+	auto iter = renderedObjects.begin();
+	for (; iter != renderedObjects.end(); ++iter)
+	{
+		if (*iter == move->RetrieveObject())
+		{
+			renderedObjects.erase(iter);
+			break;
+		}
+	}
+	transparentObjects.push_back(move->RetrieveObject());
 }
 
 XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
@@ -598,6 +661,7 @@ void Renderer::Render() {
 		XMStoreFloat4x4(&leftEye.camera.projection, XMMatrixTranspose(XMLoadFloat4x4(&leftEye.camera.projection)));
 		XMStoreFloat4x4(&rightEye.camera.projection, XMMatrixTranspose(XMLoadFloat4x4(&rightEye.camera.projection)));
 		leftEye.camPos = DirectX::XMFLOAT3(leftEye.camera.view._41, leftEye.camera.view._42, leftEye.camera.view._43);
+		sortTransparentObjects(leftEye.camPos);
 		rightEye.camPos = DirectX::XMFLOAT3(rightEye.camera.view._41, rightEye.camera.view._42, rightEye.camera.view._43);
 		XMStoreFloat4x4(&leftEye.camera.view, XMMatrixTranspose(XMMatrixInverse(&XMVectorSet(0, 0, 0, 0), XMLoadFloat4x4(&leftEye.camera.view))));
 		XMStoreFloat4x4(&rightEye.camera.view, XMMatrixTranspose(XMMatrixInverse(&XMVectorSet(0, 0, 0, 0), XMLoadFloat4x4(&rightEye.camera.view))));
@@ -610,7 +674,13 @@ void Renderer::Render() {
 		renderToEye(&rightEye);
 		VRManager::GetInstance().SendToHMD((void*) leftEye.renderInfo.texture, (void*) rightEye.renderInfo.texture);
 		context->UpdateSubresource(cameraBuffer, 0, NULL, &(leftEye.camera), 0, 0);
-	} else context->UpdateSubresource(cameraBuffer, 0, NULL, &defaultCamera, 0, 0);
+	}
+	else
+	{
+		context->UpdateSubresource(cameraBuffer, 0, NULL, &defaultCamera, 0, 0);
+		DirectX::XMFLOAT3 tempPos = cameraPos->GetPosition();
+		sortTransparentObjects(tempPos);
+	}
 	float color[] = {0.0f, 0.0f, 0.0f, 1.0f};
 	context->ClearRenderTargetView(defaultPipeline.render_target_view, color);
 	context->ClearDepthStencilView(defaultPipeline.depth_stencil_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -644,6 +714,10 @@ void Renderer::Render() {
 		renderObjectDefaultState((Object*) renderedObjects[i]);
 	}
 
+	for (size_t i = 0; i < transparentObjects.size(); ++i)
+	{
+		renderObjectDefaultState((Object*)transparentObjects[i]);
+	}
 	context->ClearDepthStencilView(deferredTextures.DSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	for (size_t i = 0; i < frontRenderedObjects.size(); ++i)
 	{

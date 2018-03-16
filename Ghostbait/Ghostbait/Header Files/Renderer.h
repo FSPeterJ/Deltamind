@@ -122,6 +122,7 @@ private:
 
 	std::vector<const GameObject*> renderedObjects;
 	std::vector<const GameObject*> frontRenderedObjects;
+	std::vector<const GameObject*> transparentObjects;
 
 	MeshManager* meshManagement = nullptr;
 	MaterialManager* materialManagement = nullptr;
@@ -141,7 +142,10 @@ private:
 	void setupVRTargets();
 	void releaseDeferredTarget(DeferredRTVs* in);
 	void combineDeferredTargets(DeferredRTVs* in, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT& viewport);
+	bool compareDistToCam(const DirectX::XMFLOAT3& t1, const DirectX::XMFLOAT3& t2, const DirectX::XMFLOAT3& camPos);
+	float manhat(const DirectX::XMFLOAT3& center1, const DirectX::XMFLOAT3& center2);
 
+	void sortTransparentObjects(DirectX::XMFLOAT3 &camPos);
 	void renderObjectDefaultState(Object* obj);
 	void renderToEye(eye* eyeTo);
 	void drawSkyboxTo(ID3D11RenderTargetView** rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT& viewport, DirectX::XMFLOAT3& pos);
@@ -199,7 +203,8 @@ public:
 	void unregisterObject(EventMessageBase* e);
 
 	void moveToFront(EventMessageBase* e);
-	//////////////////////////////////////////////////////////////////////////////////
+	void moveToTransparent(EventMessageBase* e);
+
 	void setSkybox(const char* directoryName, const char* filePrefix);
 
 	MeshManager* getMeshManager();

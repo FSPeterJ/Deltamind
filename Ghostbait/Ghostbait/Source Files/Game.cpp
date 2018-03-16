@@ -215,8 +215,9 @@ void Game::ChangeScene(const char* sceneName) {
 		DirectX::XMFLOAT3 temp = DirectX::XMFLOAT3(0, 0, 0);
 		player->Teleport(&temp);
 		player->transform.LookAt({ menuPos._41, menuPos._42, menuPos._43 });
-
+		
 	}
+	
 	//--------------------------------------
 
 	//If it has level/wave data, load it

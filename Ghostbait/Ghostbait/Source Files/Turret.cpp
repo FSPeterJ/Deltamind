@@ -51,12 +51,14 @@ void Turret::Awake(Object* obj) {
 
 void Turret::Update() {
 	float dt = (float)GhostTime::DeltaTime();
+
+
 	timeSinceLastShot += dt;
 	if(target != nullptr) {
 		using namespace DirectX;
 		////XMVECTOR jointoffset = XMLoadFloat3(&(XMFLOAT3)turretPitch->m[3]);
 		//XMVECTOR jointoffset = { 0,1.0f,0 };
-		XMVECTOR pos = XMLoadFloat3(&(XMFLOAT3)transform.matrix.m[3]);
+		XMVECTOR pos = XMLoadFloat3(&(XMFLOAT3)transform.matrix.m[3]); //This can probably be cached
 		////pos += jointoffset;
 		//XMFLOAT3 newpos;
 		//XMStoreFloat3(&newpos, pos);
@@ -66,6 +68,7 @@ void Turret::Update() {
 		//XMturretPitch += pos;
 		XMVECTOR targetPos = DirectX::XMLoadFloat4(&(XMFLOAT4)target->transform.GetMatrix().m[3]); //+ XMVectorSet(0,1,0,0);
 		targetPos -= pos;
+		targetPos += XMVectorSet(0,1,0,0); // so they don't shoot the floor
 		//DebugRenderer::AddLine((XMFLOAT3)turretPitch->m[3], (XMFLOAT3)target->transform.GetMatrix().m[3], { 0,0.6f, 0.2f });
 
 		XMVECTOR mX(XMVector3Normalize(XMVector3Cross(XMVectorSet(0, 1, 0, 0), XMVector3Normalize(targetPos - XMturretYaw))));

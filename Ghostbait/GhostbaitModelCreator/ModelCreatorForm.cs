@@ -408,7 +408,7 @@ namespace GhostbaitModelCreator
                 string meshFile = path + "/" + baseName + ".mesh";
                 string matFile = path + "/" + baseName + ".mat";
                 string bindPoseFile = path + "/" + baseName + ".bind";
-                string animFile = path + "/" + baseName + ".anim";
+                string animFile = path + "\\" + baseName + ".anim";
 
                 if (get_mesh_from_scene(open.FileName, meshFile) != -1)
                 {

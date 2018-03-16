@@ -28,6 +28,9 @@ void Projectile::OnCollision(GameObject* object) {
 	{
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 	}
+	else {
+		throw "hit a turret";
+	}
 
 	timeSinceShot = 0;
 }

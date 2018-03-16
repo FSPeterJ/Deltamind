@@ -16,7 +16,7 @@ void Game::GameData::Reset() {
 	prevState = GAMESTATE_BetweenWaves;
 	gears = 0;
 	turretsSpawned = 0;
-	maxTurrets = 4;
+	maxTurrets = 400;
 
 	waveManager.Reset();
 	ssManager.Reset();

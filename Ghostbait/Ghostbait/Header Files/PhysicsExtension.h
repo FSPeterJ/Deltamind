@@ -20,7 +20,7 @@ public:
 
 
 
-bool Raycast(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction, DirectX::XMFLOAT3* colPoint = nullptr, GameObject** colObject = nullptr, CastObject* ray = nullptr, float maxCastDistance = 100.0f, const char* tag = nullptr);
+bool Raycast(Transform* transform, DirectX::XMFLOAT3& direction, DirectX::XMFLOAT3* colPoint = nullptr, GameObject** colObject = nullptr, CastObject* ray = nullptr, float maxCastDistance = 100.0f, const char* tag = nullptr);
 
 bool ArcCast(Transform* transform, DirectX::XMFLOAT3* outPos, CastObject* arc = nullptr, float maxDistance = 3, float minAngle = 60, float maxAngle = 120, float
 	castHeight = 1, const char* tag = nullptr);

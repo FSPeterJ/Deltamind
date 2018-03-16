@@ -90,6 +90,8 @@ void EnemyBase::OnCollision(GameObject* _other) {
 			MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 		}
 	}
+
+	GameObject::OnCollision(_other);
 }
 
 

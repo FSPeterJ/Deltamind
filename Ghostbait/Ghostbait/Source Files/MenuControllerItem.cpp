@@ -10,7 +10,7 @@ MenuControllerItem::MenuControllerItem() {
 
 void MenuControllerItem::UpdateRay() {
 	GameObject* temp = nullptr;
-	if (Raycast(DirectX::XMFLOAT3(transform.GetMatrix()._41, transform.GetMatrix()._42, transform.GetMatrix()._43 ), DirectX::XMFLOAT3(transform.GetMatrix()._31, transform.GetMatrix()._32, transform.GetMatrix()._33), nullptr, (&temp), &ray, 4)) {
+	if (Raycast(&transform, DirectX::XMFLOAT3(transform.GetMatrix()._31, transform.GetMatrix()._32, transform.GetMatrix()._33), nullptr, (&temp), &ray, 4)) {
 		MenuOption* newMenuItem = dynamic_cast<MenuOption*>(temp);
 		//Did we collide with an option?
 		if (newMenuItem) {

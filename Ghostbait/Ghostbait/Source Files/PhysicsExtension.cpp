@@ -99,11 +99,29 @@ namespace {
 			DebugRenderer::DrawAxes(arc->Get()->GetComponent<Animator>()->GetJointMatrix(i), 0.25f);
 		}
 	}
-	void DrawRay(DirectX::XMFLOAT3& origin, const DirectX::XMFLOAT3& end, CastObject* ray) {
-		ray->Get()->transform.SetPosition(origin);
-		ray->Get()->transform.LookAt(end);
+	void DrawRay(Transform* transform, const DirectX::XMFLOAT3& end, CastObject* ray) {
+		float dist = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&end), DirectX::XMLoadFloat3(&transform->GetPosition()))));
+		Console::WriteLine << "Dist: " << dist;
+		DirectX::XMMATRIX scale =  DirectX::XMMatrixScaling(1, 1, dist);
+		DirectX::XMFLOAT4X4 controllerMat = transform->GetMatrix();
+		controllerMat._41 = 0;
+		controllerMat._42 = 0;
+		controllerMat._43 = 0;
+		DirectX::XMMATRIX rotation = DirectX::XMLoadFloat4x4(&controllerMat);
+		DirectX::XMFLOAT4X4 newRotation;
+		DirectX::XMStoreFloat4x4(&newRotation, rotation);
+		DirectX::XMMATRIX translation = DirectX::XMMatrixTranslation(transform->GetPosition().x, transform->GetPosition().y, transform->GetPosition().z);
+		
+		DirectX::XMFLOAT4X4 finalMat;
+		DirectX::XMStoreFloat4x4(&finalMat, scale * rotation * translation);
+		ray->Get()->transform.SetMatrix(finalMat);
+		DebugRenderer::DrawAxes(ray->Get()->transform.GetMatrix(), 0.5f);
+		
+		
+		//ray->Get()->transform.SetPosition(transform->GetPosition());
+		//ray->Get()->transform.LookAt(end);
+		
 		/*
-		float dist = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&end), DirectX::XMLoadFloat3(&origin))));
 		DirectX::XMFLOAT4X4 newMat;
 		DirectX::XMStoreFloat4x4(&newMat, DirectX::XMMatrixScaling(1, 1, dist));
 		ray->Get()->transform.SetMatrix(newMat);
@@ -116,9 +134,10 @@ namespace {
 
 
 
-bool Raycast(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction, DirectX::XMFLOAT3* colPoint, GameObject ** colObject, CastObject* ray, float maxCastDistance, const char* tag) {
+bool Raycast(Transform* transform, DirectX::XMFLOAT3& direction, DirectX::XMFLOAT3* colPoint, GameObject ** colObject, CastObject* ray, float maxCastDistance, const char* tag) {
 	DirectX::XMFLOAT3 endPoint;
 	bool success;
+	DirectX::XMFLOAT3 origin = transform->GetPosition();
 	if(!colPoint)
 		success = PhysicsManager::Raycast(origin, direction, &endPoint, colObject, maxCastDistance, tag);
 	else {
@@ -133,7 +152,7 @@ bool Raycast(DirectX::XMFLOAT3& origin, DirectX::XMFLOAT3& direction, DirectX::X
 	}
 
 	if (ray && ray->Get()) 
-		DrawRay(origin, endPoint, ray);
+		DrawRay(transform, endPoint, ray);
 	return success;
 }
 
@@ -181,7 +200,9 @@ bool ArcCast(Transform* transform, DirectX::XMFLOAT3* outPos, CastObject* arc, f
 		DirectX::XMFLOAT3 rayStart, rayDirection;
 		DirectX::XMStoreFloat3(&rayStart, castPoint);
 		DirectX::XMStoreFloat3(&rayDirection, castDirection);
-		if (Raycast(rayStart, rayDirection, outPos, nullptr, nullptr, 100, tag)) {
+		Transform tran;
+		tran.SetPosition(rayStart);
+		if (Raycast(&tran, rayDirection, outPos, nullptr, nullptr, 100, tag)) {
 			if (arc && arc->Get()) DrawArc(transform, *outPos, arc);
 			return true;
 		}

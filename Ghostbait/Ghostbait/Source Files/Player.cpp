@@ -129,11 +129,12 @@ void Player::Update() {
 
 		if (!godMode) {
 			//Ground Clamp
-			DirectX::XMFLOAT3 start = { transform.GetMatrix()._41, transform.GetMatrix()._42 - playerHeight + 0.1f, transform.GetMatrix()._43 };
+			Transform start;
+			start.SetPosition(transform.GetMatrix()._41, transform.GetMatrix()._42 - playerHeight + 0.1f, transform.GetMatrix()._43);
 			DirectX::XMFLOAT3 direction = { 0, -1, 0 };
 			DirectX::XMFLOAT3 end;
 			HexTile* tile = grid->PointToTile(DirectX::XMFLOAT2(transform.GetPosition().x, transform.GetPosition().z));
-			if (Raycast(start, direction, &end, nullptr, nullptr, 100) && tile && !grid->IsBlocked(tile)) {
+			if (Raycast(&start, direction, &end, nullptr, nullptr, 100) && tile && !grid->IsBlocked(tile)) {
 				DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
 				newPos._42 = end.y + playerHeight;
 				transform.SetMatrix(newPos);

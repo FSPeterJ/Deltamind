@@ -17,6 +17,10 @@ protected:
 	float maxSpeed = 4.0f;
 	DirectX::XMFLOAT3 target = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 
+	bool reachedCore = false;
+	float attackSpeed = 1;
+	float attackDamage = 10;
+
 	unsigned eventLose = 0;
 	bool hurt = false;
 	double hurtTimer = 0;

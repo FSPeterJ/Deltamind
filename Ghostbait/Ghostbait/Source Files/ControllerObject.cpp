@@ -539,11 +539,10 @@ void ControllerObject::PositionNonVRController() {
 
 	//Find Angle of Controllers
 	float maxDist = 100;
-	DirectX::XMFLOAT3 startPoint = { player->transform.GetMatrix()._41, player->transform.GetMatrix()._42, player->transform.GetMatrix()._43 };
 	DirectX::XMFLOAT3 direction = { player->transform.GetMatrix()._31, player->transform.GetMatrix()._32, player->transform.GetMatrix()._33 };
 	DirectX::XMFLOAT3 colPoint;
-	if (!Raycast(startPoint, direction, &colPoint, nullptr, nullptr, maxDist)) {
-		colPoint = { startPoint.x + (direction.x * maxDist), startPoint.y + (direction.y * maxDist), startPoint.z + (direction.z * maxDist) };
+	if (!Raycast(&player->transform, direction, &colPoint, nullptr, nullptr, maxDist)) {
+		colPoint = { player->transform.GetPosition().x + (direction.x * maxDist), player->transform.GetPosition().y + (direction.y * maxDist), player->transform.GetPosition().z + (direction.z * maxDist) };
 	}
 
 	//Set Position and angle of controllers

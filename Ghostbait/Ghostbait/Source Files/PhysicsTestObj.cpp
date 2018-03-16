@@ -16,7 +16,7 @@ void PhysicsTestObj::Update() {
 	float dt = (float)GhostTime::DeltaTime();
 	if (!isControllable) return;
 	if (isRayCasting)
-		Raycast(DirectX::XMFLOAT3(transform.GetMatrix()._41, transform.GetMatrix()._42, transform.GetMatrix()._43), DirectX::XMFLOAT3(transform.GetMatrix()._31, transform.GetMatrix()._32, transform.GetMatrix()._33));
+		Raycast(&transform, DirectX::XMFLOAT3(transform.GetMatrix()._31, transform.GetMatrix()._32, transform.GetMatrix()._33));
 
 	if (KeyIsDown(Control::TestInputU))
 	{

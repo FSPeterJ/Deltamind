@@ -240,8 +240,17 @@ void ControllerObject::SetControllerState(ControllerState newState) {
 	switch (prevState) {
 		case ControllerState::CSTATE_Inventory:
 			{
+				for (int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
+					if (inventory.displayItems[i])
+						inventory.displayItems[i]->Render(false);
+				}
 				inventory.currentItem->Render(false);
 				SetPhysicsComponent(inventory.currentItem, false);
+				BuildTool* bt = GetBuildTool();
+				if (bt) {
+					bt->buildArc.Destroy();
+					bt->deleteRay.Destroy();
+				}
 			}
 			break;
 		case ControllerState::CSTATE_MenuController:

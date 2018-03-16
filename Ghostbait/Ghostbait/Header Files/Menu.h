@@ -12,6 +12,10 @@ protected:
 	DirectX::XMFLOAT3 oldColliderPoint;
 	float popDistance = 0.15f;
 public:
+	void Awake(Object* obj) override {
+		menu = menu;
+		GameObject::Awake(obj);
+	}
 	inline void SetMenu(Menu* _menu) { menu = _menu; }
 	inline void SetOldPos(DirectX::XMFLOAT4X4 mat) { oldPos = mat; }
 	inline void SetOldColliderPoint(DirectX::XMFLOAT3 pos) { oldColliderPoint = pos; }

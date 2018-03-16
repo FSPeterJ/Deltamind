@@ -605,11 +605,11 @@ void Renderer::moveToFront(EventMessageBase * e)
 	{
 		if (*iter == move->RetrieveObject())
 		{
+			frontRenderedObjects.push_back(move->RetrieveObject());
 			renderedObjects.erase(iter);
 			break;
 		}
 	}
-	frontRenderedObjects.push_back(move->RetrieveObject());
 }
 
 void Renderer::moveToTransparent(EventMessageBase * e)

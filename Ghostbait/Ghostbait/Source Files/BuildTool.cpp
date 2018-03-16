@@ -194,6 +194,7 @@ void BuildTool::CycleForward() {
 		if (prefabs[tempIndex].ID == 0) {
 			currentMode = Mode::REMOVE;
 			deleteRay.Create();
+			buildArc.Destroy();
 		}
 		else {
 			currentMode = Mode::SPAWN;
@@ -202,6 +203,7 @@ void BuildTool::CycleForward() {
 				currentlySelectedItem = nullptr;
 			}
 			deleteRay.Destroy();
+			buildArc.Create();
 		}
 
 		currentPrefabIndex = tempIndex;
@@ -225,6 +227,7 @@ void BuildTool::CycleBackward() {
 		if (prefabs[tempIndex].ID == 0) {
 			currentMode = Mode::REMOVE;
 			deleteRay.Create();
+			buildArc.Destroy();
 		}
 		else {
 			currentMode = Mode::SPAWN;
@@ -233,6 +236,7 @@ void BuildTool::CycleBackward() {
 				currentlySelectedItem = nullptr;
 			}
 			deleteRay.Destroy();
+			buildArc.Create();
 		}
 
 		currentPrefabIndex = tempIndex;
@@ -263,6 +267,9 @@ void BuildTool::Selected() {
 	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
 		if (prefabs[currentPrefabIndex].object)
 			MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
+		if (prefabs[currentPrefabIndex].ID == 0) {
+			deleteRay.Create();
+		}
 	}
 }
 

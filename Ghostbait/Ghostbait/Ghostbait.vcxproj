@@ -206,6 +206,7 @@
     <ClInclude Include="Header Files\EnemyBase.h" />
     <ClInclude Include="Header Files\EngineStructure.h" />
     <ClInclude Include="Header Files\Examples.h" />
+    <ClInclude Include="Header Files\Font.h" />
     <ClInclude Include="Header Files\Game.h" />
     <ClInclude Include="Header Files\GameObject.h" />
     <ClInclude Include="Header Files\GameObjectComponent.h" />
@@ -292,6 +293,7 @@
     <ClCompile Include="Source Files\DebugRenderer.cpp" />
     <ClCompile Include="Source Files\EnemyBase.cpp" />
     <ClCompile Include="Source Files\EngineStructure.cpp" />
+    <ClCompile Include="Source Files\Font.cpp" />
     <ClCompile Include="Source Files\Game.cpp" />
     <ClCompile Include="Source Files\GameObject.cpp" />
     <ClCompile Include="Source Files\GhostTime.cpp" />

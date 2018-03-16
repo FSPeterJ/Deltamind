@@ -129,15 +129,15 @@ void Menu::Show(bool useCamera) {
 		DirectX::XMFLOAT4X4 newObjPos;
 		float distFromCenter = FindDistanceFromCenter((int)i, (int)options.size(), 0.25f, 0.05f);
 		DirectX::XMStoreFloat4x4(&newObjPos, center_M * DirectX::XMMatrixTranslation(0, distFromCenter, 0));
-			MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuOption>(buttonPrefabMap[buttons[i]], newObjPos, &newOption));
-			newOption->SetMenu(this);
-			newOption->Enable();
-			newOption->PersistOnReset();
-			options[i] = newOption;
-			options[i]->SetOldPos(options[i]->transform.GetMatrix());
-			options[i]->SetOldColliderPoint(options[i]->GetComponent<PhysicsComponent>()->colliders[0].colliderData->colliderInfo.boxCollider.topRightFrontCorner);
-			options[i]->UnHighlight();
-			MessageEvents::SendMessage(EVENT_Rendertofront, NewObjectMessage(newOption));
+		MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuOption>(buttonPrefabMap[buttons[i]], newObjPos, &newOption));
+		newOption->SetMenu(this);
+		newOption->Enable();
+		newOption->PersistOnReset();
+		options[i] = newOption;
+		options[i]->SetOldPos(options[i]->transform.GetMatrix());
+		options[i]->SetOldColliderPoint(options[i]->GetComponent<PhysicsComponent>()->colliders[0].colliderData->colliderInfo.boxCollider.topRightFrontCorner);
+		options[i]->UnHighlight();
+		MessageEvents::SendMessage(EVENT_Rendertofront, NewObjectMessage(newOption));
 	}
 }
 void Menu::Hide() {

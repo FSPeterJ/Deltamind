@@ -25,8 +25,6 @@ class BuildTool : public Item {
 	bool prevLocationValid = true;
 	HexGrid* grid = nullptr;
 	unsigned* gears = nullptr; 
-	CastObject buildArc;
-	CastObject deleteRay;
 	unsigned* turretsSpawned = nullptr;
 	unsigned* maxTurrets = nullptr;
 
@@ -39,6 +37,9 @@ class BuildTool : public Item {
 	bool Snap(DirectX::XMFLOAT2* pos);
 	bool SetObstacle(DirectX::XMFLOAT2 pos, bool active);
 public:
+	CastObject buildArc;
+	CastObject deleteRay;
+
 	BuildTool();
 
 	inline void SetGrid(HexGrid* _grid) { grid = _grid; };

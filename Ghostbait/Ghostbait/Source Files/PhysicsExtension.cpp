@@ -16,6 +16,19 @@ void CastObject::Create() {
 		MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<GameObject>(ObjectFactory::CreatePrefab(&std::string(fileName)), { 0, 0, 0 }, &object));
 		object->PersistOnReset();
 		backup = object;
+		if (object->GetComponent<Animator>()) {
+			for (int i = 0; i < ArcPoints; ++i) {
+				DirectX::XMFLOAT4X4 temp = object->GetComponent<Animator>()->GetJointMatrix(i);
+				temp._11 *= -1;
+				temp._12 *= -1;
+				temp._13 *= -1;
+				
+				temp._31 *= -1;
+				temp._32 *= -1;
+				temp._33 *= -1;
+				object->GetComponent<Animator>()->SetJointMatrix(i, temp);
+			}
+		}
 	}
 }
 void CastObject::Destroy() {
@@ -73,7 +86,16 @@ namespace {
 			Transform tran;
 			tran.SetPosition(points[i]);
 			if(i < ArcPoints - 1) tran.LookAt(points[i + 1]);
-			arc->Get()->GetComponent<Animator>()->SetJointMatrix(i, tran.GetMatrix());
+			else tran.LookAt(end);
+
+			DirectX::XMFLOAT4X4 newMat = tran.GetMatrix();
+			newMat._11 *= -1;
+			newMat._12 *= -1;
+			newMat._13 *= -1;
+			newMat._31 *= -1;
+			newMat._32 *= -1;
+			newMat._33 *= -1;
+			arc->Get()->GetComponent<Animator>()->SetJointMatrix(i, newMat);
 			DebugRenderer::DrawAxes(arc->Get()->GetComponent<Animator>()->GetJointMatrix(i), 0.25f);
 		}
 	}

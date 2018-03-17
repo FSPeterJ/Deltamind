@@ -201,7 +201,7 @@ int write_scene_to_file(const char * fbx_file_path, const char * output_file_pat
 		toPush.m31 *= -1.0f;
 		toPush.m32 *= -1.0f;
 
-		toPush.m43 *= -1.0f;
+		toPush.m41 *= -1.0f;
 		toWrite.prefabs[name].matrices.push_back(toPush);
 	}
 	export_scene_to_binary(output_file_path, toWrite);
@@ -278,9 +278,9 @@ simple_mesh make_friendly_mesh(FbxMesh * mesh, std::vector<influence_set>& influ
 		for(int i = 0; i < vCount; ++i) {
 			simple_vert toPush;
 			FbxVector4 currPos = positions[i];
-			toPush.pos[0] = (float)currPos[0];
+			toPush.pos[0] = -(float)currPos[0];
 			toPush.pos[1] = (float)currPos[1];
-			toPush.pos[2] = -(float)currPos[2];
+			toPush.pos[2] = (float)currPos[2];
 			toPush.pos[3] = 1.0f;
 
 			if(hasNormal) {
@@ -289,9 +289,9 @@ simple_mesh make_friendly_mesh(FbxMesh * mesh, std::vector<influence_set>& influ
 					index = normals->GetIndexArray().GetAt(index);
 
 				FbxVector4 currNorm = normals->GetDirectArray().GetAt(index);
-				toPush.norm[0] = (float)currNorm[0];
+				toPush.norm[0] = -(float)currNorm[0];
 				toPush.norm[1] = (float)currNorm[1];
-				toPush.norm[2] = -(float)currNorm[2];
+				toPush.norm[2] = (float)currNorm[2];
 			}
 
 			if(hasUV) {
@@ -316,17 +316,17 @@ simple_mesh make_friendly_mesh(FbxMesh * mesh, std::vector<influence_set>& influ
 				indices.push_back(vertexPlace);
 				simple_vert toPush;
 				FbxVector4 currPos = positions[index];
-				toPush.pos[0] = (float)currPos[0];
+				toPush.pos[0] = -(float)currPos[0];
 				toPush.pos[1] = (float)currPos[1];
-				toPush.pos[2] = -(float)currPos[2];
+				toPush.pos[2] = (float)currPos[2];
 				toPush.pos[3] = 1.0f;
 
 				if(hasNormal) {
 					FbxVector4 currNorm;
 					mesh->GetPolygonVertexNormal(i, j, currNorm);
-					toPush.norm[0] = (float)currNorm[0];
+					toPush.norm[0] = -(float)currNorm[0];
 					toPush.norm[1] = (float)currNorm[1];
-					toPush.norm[2] = -(float)currNorm[2];
+					toPush.norm[2] = (float)currNorm[2];
 				}
 
 				if(hasUV) {
@@ -461,7 +461,7 @@ std::vector<output_joint> convertFbxJointsToOutput(std::vector<fbx_joint>& joint
 		temp.global_xform.m31 *= -1.0f;
 		temp.global_xform.m32 *= -1.0f;
 		//temp.global_xform[10] *= -1.0f;
-		temp.global_xform.m43 *= -1.0f;
+		temp.global_xform.m41 *= -1.0f;
 		temp.parent_index = joints[i].parent_index;
 		temp.name = joints[i].name;
 		temp.nameLen = (unsigned int)(strlen(temp.name) + 1);
@@ -492,7 +492,7 @@ std::vector<output_joint> evaluateTransformsAtTime(std::vector<fbx_joint>& joint
 		temp.global_xform.m31 *= -1.0f;
 		temp.global_xform.m32 *= -1.0f;
 		//temp.global_xform[10] *= -1.0f;
-		temp.global_xform.m43 *= -1.0f;
+		temp.global_xform.m41 *= -1.0f;
 		temp.parent_index = joints[i].parent_index;
 		temp.name = joints[i].name;
 		temp.nameLen = (unsigned int)(strlen(temp.name) + 1);

@@ -2,6 +2,11 @@
 #include <vector>
 #include <array>
 #include <map>
+#include <WindowsNumerics.h>
+
+
+using namespace Windows::Foundation::Numerics;
+
 
 #define MAX_INFLUENCES 4
 
@@ -44,10 +49,10 @@ struct fbx_joint
 
 struct output_joint
 {
-	float global_xform[16];
 	int parent_index;
-	const char* name;
+	float4x4 global_xform;
 	unsigned int nameLen;
+	const char* name;
 };
 
 struct keyframe
@@ -76,7 +81,7 @@ struct influence_set
 struct prefab
 {
 	std::string name;
-	std::vector<std::array<float, 16>> matrices;
+	std::vector<float4x4> matrices;
 };
 
 struct extracted_scene

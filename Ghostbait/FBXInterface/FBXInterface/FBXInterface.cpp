@@ -186,24 +186,22 @@ int write_scene_to_file(const char * fbx_file_path, const char * output_file_pat
 		name = name.substr(0, index);
 		name.append(".ghost");
 		toWrite.prefabs[name].name = name;
-		FbxMatrix m = node->EvaluateGlobalTransform();
-		std::array<float, 16> toPush;
-		for(int x = 0; x < 4; ++x) {
-			for(int y = 0; y < 4; ++y) {
-				toPush[(y * 4) + x] = (float)m.Get(y, x);
-			}
+		FbxAMatrix m = node->EvaluateGlobalTransform();
+		float4x4 toPush;
+		//Rapid matrix conversion
+		auto src = &m[0][0];
+		auto dst = (float*)&toPush;
+		for(int c = 0; c < 16; ++c) {
+			dst[c] = (float)src[c];
 		}
-		//temp.global_xform[0] *= -1.0f;
-		//temp.global_xform[1] *= -1.0f;
-		toPush[2] *= -1.0f;
 
-		//temp.global_xform[4] *= -1.0f;
-		//temp.global_xform[5] *= -1.0f;
-		toPush[6] *= -1.0f;
-		toPush[8] *= -1.0f;
-		toPush[9] *= -1.0f;
-		//temp.global_xform[10] *= -1.0f;
-		toPush[14] *= -1.0f;
+		toPush.m13 *= -1.0f;
+		toPush.m23 *= -1.0f;
+
+		toPush.m31 *= -1.0f;
+		toPush.m32 *= -1.0f;
+
+		toPush.m43 *= -1.0f;
 		toWrite.prefabs[name].matrices.push_back(toPush);
 	}
 	export_scene_to_binary(output_file_path, toWrite);
@@ -446,23 +444,24 @@ std::vector<output_joint> convertFbxJointsToOutput(std::vector<fbx_joint>& joint
 	std::vector<output_joint> ret;
 	for(size_t i = 0; i < joints.size(); ++i) {
 		output_joint temp;
-		FbxMatrix globalxform = joints[i].node->EvaluateGlobalTransform();
-		for(int x = 0; x < 4; ++x) {
-			for(int y = 0; y < 4; ++y) {
-				temp.global_xform[(y * 4) + x] = (float)globalxform.Get(y, x);
-			}
+		FbxAMatrix globalxform = joints[i].node->EvaluateGlobalTransform();
+		const auto src = &globalxform[0][0];
+		const auto dst = (float*)&temp.global_xform;
+		for(int c = 0; c < 16; ++c) {
+			dst[c] = (float)src[c];
 		}
 		//temp.global_xform[0] *= -1.0f;
 		//temp.global_xform[1] *= -1.0f;
-		temp.global_xform[2] *= -1.0f;
+
+		temp.global_xform.m13 *= -1.0f;
+		temp.global_xform.m23 *= -1.0f;
 
 		//temp.global_xform[4] *= -1.0f;
 		//temp.global_xform[5] *= -1.0f;
-		temp.global_xform[6] *= -1.0f;
-		temp.global_xform[8] *= -1.0f;
-		temp.global_xform[9] *= -1.0f;
+		temp.global_xform.m31 *= -1.0f;
+		temp.global_xform.m32 *= -1.0f;
 		//temp.global_xform[10] *= -1.0f;
-		temp.global_xform[14] *= -1.0f;
+		temp.global_xform.m43 *= -1.0f;
 		temp.parent_index = joints[i].parent_index;
 		temp.name = joints[i].name;
 		temp.nameLen = (unsigned int)(strlen(temp.name) + 1);
@@ -475,23 +474,25 @@ std::vector<output_joint> evaluateTransformsAtTime(std::vector<fbx_joint>& joint
 	std::vector<output_joint> ret;
 	for(size_t i = 0; i < joints.size(); ++i) {
 		output_joint temp;
-		FbxMatrix globalxform = joints[i].node->EvaluateGlobalTransform(time);
-		for(int x = 0; x < 4; ++x) {
-			for(int y = 0; y < 4; ++y) {
-				temp.global_xform[(y * 4) + x] = (float)globalxform.Get(y, x);
-			}
+		FbxAMatrix globalxform = joints[i].node->EvaluateGlobalTransform(time);
+		//Rapid matrix conversion
+		const auto src = &globalxform[0][0];
+		const auto dst = (float*)&temp.global_xform;
+		for(int c = 0; c < 16; ++c) {
+			dst[c] = (float)src[c];
 		}
+
 		//temp.global_xform[0] *= -1.0f;
 		//temp.global_xform[1] *= -1.0f;
-		temp.global_xform[2] *= -1.0f;
+		temp.global_xform.m13 *= -1.0f;
+		temp.global_xform.m23 *= -1.0f;
 
 		//temp.global_xform[4] *= -1.0f;
 		//temp.global_xform[5] *= -1.0f;
-		temp.global_xform[6] *= -1.0f;
-		temp.global_xform[8] *= -1.0f;
-		temp.global_xform[9] *= -1.0f;
+		temp.global_xform.m31 *= -1.0f;
+		temp.global_xform.m32 *= -1.0f;
 		//temp.global_xform[10] *= -1.0f;
-		temp.global_xform[14] *= -1.0f;
+		temp.global_xform.m43 *= -1.0f;
 		temp.parent_index = joints[i].parent_index;
 		temp.name = joints[i].name;
 		temp.nameLen = (unsigned int)(strlen(temp.name) + 1);
@@ -598,22 +599,27 @@ void createAnimationClip(animClip & clip, FbxAnimStack * animStack, std::vector<
 }
 
 void export_animClip_to_binary(const char * output_file_path, animClip & clip) {
-	std::fstream writer;
+	std::ofstream writer;
 	writer.open(output_file_path, std::ios_base::binary | std::ios_base::out);
 	writer.write((char*)&clip.duration, sizeof(clip.duration));
 	int numFrames = (int)clip.keyframes.size();
 	writer.write((char*)&numFrames, sizeof(numFrames));
+
 	for(size_t i = 0; i < numFrames; ++i) {
-		writer.write((char*)&clip.keyframes[i].time, sizeof(clip.keyframes[i].time));
-		int len = (int)clip.keyframes[i].joints.size();
+		keyframe kframe = clip.keyframes[i];
+		writer.write((char*)&kframe.time, sizeof(kframe.time));
+		int len = (int)kframe.joints.size();
 		writer.write((char*)&len, sizeof(len));
 		for(size_t index = 0; index < len; ++index) {
-			writer.write((char*)&clip.keyframes[i].joints[index].parent_index, sizeof(clip.keyframes[i].joints[index].parent_index));
-			for(int almostThere = 0; almostThere < 16; ++almostThere)
-				writer.write((char*)&clip.keyframes[i].joints[index].global_xform[almostThere], sizeof(clip.keyframes[i].joints[index].global_xform[almostThere]));
 
-			writer.write((char*)&clip.keyframes[i].joints[index].nameLen, sizeof(clip.keyframes[i].joints[index].nameLen));
-			writer.write(clip.keyframes[i].joints[index].name, clip.keyframes[i].joints[index].nameLen);
+			output_joint joint = kframe.joints[index];
+			writer.write((char*)&joint.parent_index, sizeof(joint.parent_index));
+			const auto dst = (float*)&joint.global_xform;
+			for(int almostThere = 0; almostThere < 16; ++almostThere) {
+				writer.write((char*)&dst[almostThere], sizeof(float));
+			}
+			writer.write((char*)&joint.nameLen, sizeof(joint.nameLen));
+			writer.write(joint.name, joint.nameLen);
 		}
 	}
 	writer.close();
@@ -668,12 +674,21 @@ void export_bindpose_to_binary(const char * output_file_path, std::vector<output
 	int len = (int)joints.size();
 	writer.write((char*)&len, sizeof(len));
 	for(int i = 0; i < len; ++i) {
-		writer.write((char*)&joints[i].parent_index, sizeof(joints[i].parent_index));
-		for(int index = 0; index < 16; ++index)
+		output_joint joint = joints[i];
+
+		writer.write((char*)&joint.parent_index, sizeof(joint.parent_index));
+		const auto dst = (float*)&joint.global_xform;
+		for(int almostThere = 0; almostThere < 16; ++almostThere) {
+			writer.write((char*)&dst[almostThere], sizeof(float));
+		}
+		writer.write((char*)&joint.nameLen, sizeof(joint.nameLen));
+		writer.write(joint.name, joint.nameLen);
+		/*writer.write((char*)&joints[i].parent_index, sizeof(joints[i].parent_index));
+		for (int index = 0; index < 16; ++index)
 			writer.write((char*)&joints[i].global_xform[index], sizeof(joints[i].global_xform[index]));
 
 		writer.write((char*)&joints[i].nameLen, sizeof(joints[i].nameLen));
-		writer.write(joints[i].name, joints[i].nameLen);
+		writer.write(joints[i].name, joints[i].nameLen);*/
 	}
 	writer.close();
 }

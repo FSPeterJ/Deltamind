@@ -1,5 +1,6 @@
-#include "C:\Users\Carter\Documents\FBXInterface\FBXInterface\FBXInterface.h"
 #include <iostream>
+#include "../FBXInterface/FBXInterface.h"
+
 int main()
 {
 	

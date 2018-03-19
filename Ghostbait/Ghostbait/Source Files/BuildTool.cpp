@@ -102,7 +102,7 @@ void BuildTool::SpawnProjection(){
 
 			Turret* turret = dynamic_cast<Turret*>(prefabs[currentPrefabIndex].object);
 			bool hasEnoughMoney = true;
-			if (turret) hasEnoughMoney = *gears >= turret->GetBuildCost();
+			if (turret) hasEnoughMoney = *gears >= turret->GetBuildCost(); //Disable for testing
 			bool maxTurretsSpawned = (*maxTurrets - *turretsSpawned) <= 0;
 
 			if ((grid->IsBlocked(newPos.x, newPos.y) || !hasEnoughMoney || maxTurretsSpawned) && prevLocationValid) {

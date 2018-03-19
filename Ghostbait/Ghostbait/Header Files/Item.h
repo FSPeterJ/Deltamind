@@ -4,6 +4,7 @@
 class Item: public GameObject {
 protected:
 	bool isRendered = true;
+	bool physicsIsOn = true;
 public:
 	enum State {
 		INVALID,
@@ -16,9 +17,10 @@ public:
 	Item();
 
 	virtual void Render(bool render = true);
+	virtual void SetPhysicsComponent(bool active = true);
 	virtual void InactiveUpdate() {}
 	virtual void ActiveUpdate() {}
 
-	virtual void Selected() {}
-	virtual void DeSelected() {}
+	virtual void Selected();
+	virtual void DeSelected();
 };

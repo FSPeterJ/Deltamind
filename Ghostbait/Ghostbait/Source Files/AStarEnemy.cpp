@@ -4,6 +4,7 @@
 #include "Console.h"
 #include "MessageEvents.h"
 #include "PathPlanner.h"
+#include "GhostTime.h"
 
 AStarEnemy::AStarEnemy() {
 	tag = std::string("Enemy");
@@ -66,7 +67,8 @@ void AStarEnemy::Update() {
 	if(curTile) {
 		if(curTile == next) {
 			if(path.goal() == curTile) {
-				Console::WriteLine << "We made it to our goal.";
+				//Console::WriteLine << "We made it to our goal.";
+				Attack();
 				rb->Stop();
 			}
 			else {
@@ -84,6 +86,25 @@ void AStarEnemy::Update() {
 		}
 	}
 }
+void AStarEnemy::Attack() {
+	if (timeSinceLastAttack == -1) {
+		if (core) core->AdjustHealth(-attackDamage);
+		Console::WriteLine << "Core health: " << core->PercentHealth();
+		timeSinceLastAttack = 0;
+		return;
+	}
+
+	float dt = (float)GhostTime::DeltaTime();
+	timeSinceLastAttack += dt;
+
+	float timeToAttack = 1 / attackSpeed;
+	if (timeSinceLastAttack >= timeToAttack) {
+		core->AdjustHealth(-attackDamage);
+		Console::WriteLine << "Core health: " << core->PercentHealth();
+		timeSinceLastAttack = 0;
+	}
+}
+
 
 //Other Overrides
 void AStarEnemy::Repath() {
@@ -92,8 +113,9 @@ void AStarEnemy::Repath() {
 void AStarEnemy::SetGrid(HexGrid* _grid) {
 	grid = _grid;
 }
-void AStarEnemy::SetGoal(DirectX::XMFLOAT2 _goal) {
-	HexTile* goalTile = grid->PointToTile(_goal);
+void AStarEnemy::SetCore(Core* _core) {
+	EnemyBase::SetCore(_core);
+	HexTile* goalTile = grid->PointToTile({ core->transform.GetPosition().x, core->transform.GetPosition().z });
 	if(goalTile) { goal = goalTile; }
 }
 

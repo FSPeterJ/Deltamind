@@ -27,6 +27,7 @@
 #include "Turret.h"
 #include "Player.h"
 #include "Logger.h"
+#include "Core.h"
 
 Renderer* rendInter;
 Game* game;
@@ -138,7 +139,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<SpawnerObject>(6);
 	ObjectFactory::RegisterPrefabBase<EnemyBase>(300);
 	ObjectFactory::RegisterPrefabBase<MenuCube>(1);
-	ObjectFactory::RegisterPrefabBase<CoreCube>(1);
+	ObjectFactory::RegisterPrefabBase<Core>(1);
 	ObjectFactory::RegisterPrefabBase<BuildTool>(24);
 	ObjectFactory::RegisterPrefabBase<PhysicsTestObj>(32);
 	ObjectFactory::RegisterPrefabBase<ResumeButton>(1);
@@ -173,7 +174,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<SpawnerObject>("Spawner");
 	TypeMap::RegisterObjectAlias<EnemyBase>("EnemyBase");
 	TypeMap::RegisterObjectAlias<MenuCube>("MenuCube");
-	TypeMap::RegisterObjectAlias<CoreCube>("CoreCube");
+	TypeMap::RegisterObjectAlias<Core>("CoreCube");
 	TypeMap::RegisterObjectAlias<GameObject>("GameObject");
 	TypeMap::RegisterObjectAlias<GameObject>("ghost");
 	TypeMap::RegisterObjectAlias<PhysicsTestObj>("PhysicsTestObj");

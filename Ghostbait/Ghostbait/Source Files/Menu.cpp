@@ -202,7 +202,6 @@ void ChangeLevelButton::Select() {
 }
 
 
-
 //Other
 void MenuCube::Update() {
 	//position.m[3][1] += 0.4f * (float) GhostTime::DeltaTime();
@@ -223,21 +222,4 @@ void MenuCube::OnCollision(GameObject* other) {
 		//	DirectX::XMLoadFloat4x4(&obj->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
 	}
 	GameObject::OnCollision(other);
-}
-
-void CoreCube::OnCollision(GameObject* other) {
-	if(!strcmp(other->GetTag().c_str(), "Enemy")) {
-		if(!enemyTouched) {
-			Console::WriteLine << "YOU LOSE!";
-			Console::OutLine << "YOU LOSE!";
-			MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
-			MessageEvents::SendMessage(EVENT_GameLose, EventMessageBase());
-			enemyTouched = true;
-		}
-	}
-	GameObject::OnCollision(other);
-}
-
-void CoreCube::Destroy() {
-	GameObject::Destroy();
 }

@@ -251,6 +251,7 @@ void BuildTool::ActiveUpdate() {
 }
 
 void BuildTool::DeSelected() {
+	Item::DeSelected();
 	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
 		if (prefabs[currentPrefabIndex].object)
 			MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
@@ -264,6 +265,7 @@ void BuildTool::DeSelected() {
 }
 
 void BuildTool::Selected() {
+	Item::Selected();
 	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
 		if (prefabs[currentPrefabIndex].object)
 			MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));

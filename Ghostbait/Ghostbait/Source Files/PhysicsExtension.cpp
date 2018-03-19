@@ -132,7 +132,6 @@ namespace {
 }
 
 
-
 bool Raycast(Transform* transform, DirectX::XMFLOAT3& direction, DirectX::XMFLOAT3* colPoint, GameObject ** colObject, CastObject* ray, float maxCastDistance, const char* tag) {
 	DirectX::XMFLOAT3 endPoint;
 	bool success;

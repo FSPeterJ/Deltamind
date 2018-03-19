@@ -40,7 +40,7 @@ PixelShaderOutput main(PixelShaderInput input)
     output.emissive = emissive.Sample(sample, input.uv) * emissiveFactor;
     output.normal = float4(((input.norm * 0.5f) + 0.5f), 1.0f);
     output.specular = float4((specular.Sample(sample, input.uv) * specularFactor).xyz, 1.0f);
-    output.depth = float4(input.pos.z, input.pos.z, input.pos.z, 1.0f);
+    output.depth = float4(input.pos.z, input.pos.w, input.pos.z, 1.0f);
     output.unlit = float4(0.0f, 0.0f, 0.0f, 1.0f);
     return output;
 }

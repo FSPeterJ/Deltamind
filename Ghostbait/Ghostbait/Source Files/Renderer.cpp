@@ -501,6 +501,8 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 
 	createDeferredRTVs(&deferredTextures, backBuffer);
 	context->OMSetBlendState(defaultPipeline.blend_state, 0, 0xffffffff);
+
+	LightManager::addPointLight({ 5.0f, 0.0f, 0.0f }, { 0.0f, 3.0f, 0.0f }, 15.0f);
 }
 
 void Renderer::Destroy() {

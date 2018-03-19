@@ -147,7 +147,7 @@ void BuildTool::Spawn() {
 void BuildTool::RemoveProjection() {
 	DirectX::XMFLOAT3 endPos;
 	GameObject* colObject = nullptr;
-	if (!Raycast(&transform, DirectX::XMFLOAT3(transform.GetMatrix()._31, transform.GetMatrix()._32, transform.GetMatrix()._33), &endPos, &colObject, &deleteRay, 4)) {
+	if (!Raycast(DirectX::XMFLOAT3(transform.GetMatrix()._41, transform.GetMatrix()._42, transform.GetMatrix()._43), DirectX::XMFLOAT3(transform.GetMatrix()._31, transform.GetMatrix()._32, transform.GetMatrix()._33), &endPos, &colObject, &deleteRay, 4)) {
 		if (currentlySelectedItem) {
 			currentlySelectedItem->SwapComponentVarient<Material>("default");
 			currentlySelectedItemIndex = -1;
@@ -194,7 +194,6 @@ void BuildTool::CycleForward() {
 		if (prefabs[tempIndex].ID == 0) {
 			currentMode = Mode::REMOVE;
 			deleteRay.Create();
-			buildArc.Destroy();
 		}
 		else {
 			currentMode = Mode::SPAWN;
@@ -203,7 +202,6 @@ void BuildTool::CycleForward() {
 				currentlySelectedItem = nullptr;
 			}
 			deleteRay.Destroy();
-			buildArc.Create();
 		}
 
 		currentPrefabIndex = tempIndex;
@@ -227,7 +225,6 @@ void BuildTool::CycleBackward() {
 		if (prefabs[tempIndex].ID == 0) {
 			currentMode = Mode::REMOVE;
 			deleteRay.Create();
-			buildArc.Destroy();
 		}
 		else {
 			currentMode = Mode::SPAWN;
@@ -236,7 +233,6 @@ void BuildTool::CycleBackward() {
 				currentlySelectedItem = nullptr;
 			}
 			deleteRay.Destroy();
-			buildArc.Create();
 		}
 
 		currentPrefabIndex = tempIndex;
@@ -251,7 +247,6 @@ void BuildTool::ActiveUpdate() {
 }
 
 void BuildTool::DeSelected() {
-	Item::DeSelected();
 	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
 		if (prefabs[currentPrefabIndex].object)
 			MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
@@ -265,13 +260,9 @@ void BuildTool::DeSelected() {
 }
 
 void BuildTool::Selected() {
-	Item::Selected();
 	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
 		if (prefabs[currentPrefabIndex].object)
 			MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
-		if (prefabs[currentPrefabIndex].ID == 0) {
-			deleteRay.Create();
-		}
 	}
 }
 

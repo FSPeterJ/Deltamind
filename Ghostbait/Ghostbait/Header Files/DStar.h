@@ -133,6 +133,8 @@ struct DStarCommon {
 
 	void SetRHS(HexTile* tile, float value);
 
+	void SetCost(HexTile* tile, float value);
+
 	void UpdateOpenList(HexTile*const tile);
 
 	virtual void Update() = 0;

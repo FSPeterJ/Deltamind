@@ -301,6 +301,13 @@ void Renderer::renderToEye(eye * eyeTo) {
 	//context->VSSetShader(StandardVertexShader, NULL, NULL);
 	//context->PSSetShader(StandardPixelShader, NULL, NULL);
 	//context->IASetInputLayout(ILStandard);
+
+	viewProjectionConstantBuffer buff;
+	
+	XMStoreFloat4x4(&buff.view, XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat4x4(&eyeTo->camera.view)), XMLoadFloat4x4(&eyeTo->camera.view)));
+	XMStoreFloat4x4(&buff.projection, XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat4x4(&eyeTo->camera.projection)), XMLoadFloat4x4(&eyeTo->camera.projection)));
+	
+	context->UpdateSubresource(cameraBuffer, NULL, NULL, &buff, NULL, NULL);
 	combineDeferredTargets(&eyeTo->targets, eyeTo->renderInfo.rtv, eyeTo->renderInfo.dsv, eyeTo->renderInfo.viewport);
 	
 }
@@ -602,6 +609,8 @@ void Renderer::unregisterObject(EventMessageBase* e) {
 void Renderer::moveToFront(EventMessageBase * e)
 {
 	NewObjectMessage* move = (NewObjectMessage*)e;
+	if (!move->RetrieveObject()->GetComponent<Mesh>())
+		return;
 	auto iter = renderedObjects.begin();
 	for (; iter != renderedObjects.end(); ++iter)
 	{
@@ -609,21 +618,25 @@ void Renderer::moveToFront(EventMessageBase * e)
 		{
 			frontRenderedObjects.push_back(move->RetrieveObject());
 			renderedObjects.erase(iter);
-			break;
+			return;
 		}
 	}
+	frontRenderedObjects.push_back(move->RetrieveObject());
+
 }
 
 void Renderer::moveToTransparent(EventMessageBase * e)
 {
 	NewObjectMessage* move = (NewObjectMessage*)e;
 	auto iter = renderedObjects.begin();
+	if (!move->RetrieveObject()->GetComponent<Mesh>())
+		return;
 	for (; iter != renderedObjects.end(); ++iter)
 	{
 		if (*iter == move->RetrieveObject())
 		{
 			renderedObjects.erase(iter);
-			break;
+			return;
 		}
 	}
 	transparentObjects.push_back(move->RetrieveObject());

@@ -5,10 +5,10 @@
 //#include "TraversalResult.h"
 //#include <queue>
 //#include <functional>
+//#include <set>
 #include "Console.h"
 #include <map>
 #include <iterator>
-#include <set>
 #include "DStar.h"
 
 HeuristicFunction PathPlanner::heuristicFunction = nullptr;
@@ -293,14 +293,10 @@ void PathPlanner::UpdateMTDStarLite(std::size_t mtdstarId) {
 
 void PathPlanner::CostChangeNotice(HexTile* tile, float prevCost) {
 	for (int i = 0; i < dstarList.size(); ++i) {
-		if (dstarList[i].costChange.count(tile) < 1) {
-			dstarList[i].costChange[tile] = prevCost;
-		}
+		dstarList[i].changedTiles.insert(tile);
 	}
 	for (int i = 0; i < mtdstarList.size(); ++i) {
-		if (mtdstarList[i].costChange.count(tile) < 1) {
-			mtdstarList[i].costChange[tile] = prevCost;
-		}
+		mtdstarList[i].changedTiles.insert(tile);
 	}
 
 }

@@ -2,6 +2,8 @@
 #include "TraversalResult.h" //hate
 #include <functional>
 #include <queue>
+#include <unordered_set>
+
 
 
 enum SearchType {
@@ -89,6 +91,10 @@ struct PriorityQueueMap {
 	void update(K const& key, V const& value) { remove(key); insert(key, value); }
 };
 
+struct TileInfo {
+	float g, rhs, cost;
+};
+
 struct DStarCommon {
 	friend class PathPlanner;
 
@@ -96,9 +102,11 @@ struct DStarCommon {
 	HexTile *start = nullptr, *goal = nullptr;
 	PriorityQueueMap<HexTile*, FloatPair> open;
 
-	CostMap cumulativeCost; //g-value
-	CostMap rhs; //min of next cost
-	CostMap costChange; //pending cost changes
+	//CostMap cumulativeCost; //g-value
+	//CostMap rhs; //min of next cost
+	//CostMap costChange; //pending cost changes
+	std::unordered_map<HexTile*, TileInfo> knownTiles;
+	std::unordered_set<HexTile*> changedTiles;
 	float km;
 
 	DStarCommon & operator=(const DStarCommon& other) { return *this; } //is this ever called? If so need to fix
@@ -115,7 +123,15 @@ struct DStarCommon {
 
 	FloatPair CalculateKey(HexTile*const tile);
 
+	float GetGVal(HexTile* tile);
+
+	float GetRHS(HexTile* tile);
+
 	float GetCost(HexTile* tile);
+
+	void SetGVal(HexTile* tile, float value);
+
+	void SetRHS(HexTile* tile, float value);
 
 	void UpdateOpenList(HexTile*const tile);
 
@@ -140,7 +156,7 @@ class DStarLite : DStarCommon {
 	//
 	//		mostMinimum = grid->BlockWeight();
 	//		ForEachSuccessor(curNode, [=](HexTile*const sPrime) {
-	//			float minposib = sPrime->weight + cumulativeCost[sPrime];
+	//			float minposib = sPrime->weight + GetGVal(sPrime];
 	//			if(minposib < mostMinimum) {
 	//				mostMinimum = minposib;
 	//				curNode = sPrime;

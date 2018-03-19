@@ -11,11 +11,14 @@
 
 #define ArcPoints 20
 
-void CastObject::Create() {
+void CastObject::Create(bool renderToFront) {
 	if (!object) {
 		MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<GameObject>(ObjectFactory::CreatePrefab(&std::string(fileName)), { 0, 0, 0 }, &object));
 		object->PersistOnReset();
 		backup = object;
+		if (renderToFront) {
+			MessageEvents::SendMessage(EVENT_Rendertofront, StandardObjectMessage(object)); 
+		}
 		if (object->GetComponent<Animator>()) {
 			for (int i = 0; i < ArcPoints; ++i) {
 				DirectX::XMFLOAT4X4 temp = object->GetComponent<Animator>()->GetJointMatrix(i);

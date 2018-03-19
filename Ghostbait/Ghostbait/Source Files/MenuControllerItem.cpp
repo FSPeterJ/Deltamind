@@ -37,9 +37,10 @@ void MenuControllerItem::Render(bool render) {
 	if (render == isRendered) return;
 	
 	if (render) {
+		MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(this));
 		MessageEvents::SendMessage(EVENT_Rendertofront, StandardObjectMessage(this));
 		isRendered = true;
-		ray.Create();
+		ray.Create(true);
 	}
 	else {
 		MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(this));
@@ -48,6 +49,7 @@ void MenuControllerItem::Render(bool render) {
 	}
 	Item::Render(render);
 }
+
 
 void MenuControllerItem::Awake(Object* obj) {
 	ray.SetFile("Assets/Ray.ghost");

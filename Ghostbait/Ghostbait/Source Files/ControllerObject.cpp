@@ -48,26 +48,23 @@ void ControllerObject::Init(Player* _player, ControllerHand _hand) {
 	}
 	PersistOnReset();
 }
-void ControllerObject::SetPhysicsComponent(const GameObject* obj, bool active) {
-	PhysicsComponent* physComp = obj->GetComponent<PhysicsComponent>();
-	if(physComp) physComp->isActive = active;
-}
 void ControllerObject::AddToInventory(int itemSlot, unsigned prefabID) {
 	//Actual Inventory
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Item>(prefabID, { 0,0,0 }, (Item**)&inventory.items[itemSlot]));
 	if(!inventory.currentItem) {
 		inventory.currentItem = inventory.items[itemSlot];
-		//currentGameItem->Selected();
+		inventory.currentItem->Selected();
 	}
 	inventory.items[itemSlot]->Render(false);
 	inventory.items[itemSlot]->PersistOnReset();
-	SetPhysicsComponent(inventory.items[itemSlot], false);
+	inventory.items[itemSlot]->SetPhysicsComponent(false);
 
 	//Inventory Display
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Item>(prefabID, { 0,0,0 }, (Item**)&inventory.displayItems[itemSlot]));
 	inventory.displayItems[itemSlot]->Render(false);
 	inventory.displayItems[itemSlot]->PersistOnReset();
-	SetPhysicsComponent(inventory.displayItems[itemSlot], false);
+	inventory.displayItems[itemSlot]->SetPhysicsComponent(false);
+
 
 }
 
@@ -108,12 +105,8 @@ void ControllerObject::SwitchCurrentItem(int itemIndex) {
 	}
 	else if(inventory.items[itemIndex] != inventory.currentItem) {
 		inventory.currentItem->DeSelected();
-		inventory.currentItem->Render(false);
-		SetPhysicsComponent(inventory.currentItem, false);
 		inventory.currentItem = inventory.items[itemIndex];
 		inventory.currentItem->Selected();
-		inventory.currentItem->Render(true);
-		SetPhysicsComponent(inventory.currentItem, true);
 		return;
 	}
 }
@@ -244,13 +237,14 @@ void ControllerObject::SetControllerState(ControllerState newState) {
 					if (inventory.displayItems[i])
 						inventory.displayItems[i]->Render(false);
 				}
-				inventory.currentItem->Render(false);
-				SetPhysicsComponent(inventory.currentItem, false);
-				BuildTool* bt = GetBuildTool();
-				if (bt) {
-					bt->buildArc.Destroy();
-					bt->deleteRay.Destroy();
-				}
+				inventory.currentItem->DeSelected();
+				//inventory.currentItem->Render(false);
+				//SetPhysicsComponent(inventory.currentItem, false);
+				//BuildTool* bt = GetBuildTool();
+				//if (bt) {
+				//	bt->buildArc.Destroy();
+				//	bt->deleteRay.Destroy();
+				//}
 			}
 			break;
 		case ControllerState::CSTATE_MenuController:
@@ -273,8 +267,7 @@ void ControllerObject::SetControllerState(ControllerState newState) {
 	switch (newState) {
 		case ControllerState::CSTATE_Inventory:
 			{
-				inventory.currentItem->Render(true);
-				SetPhysicsComponent(inventory.currentItem, true);
+				inventory.currentItem->Selected();
 			}
 			break;
 		case ControllerState::CSTATE_MenuController:

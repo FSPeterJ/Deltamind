@@ -13,7 +13,7 @@ class CastObject {
 	char* fileName;
 public:
 	inline void SetFile(char* _fileName) {fileName = _fileName;}
-	void Create();
+	void Create(bool renderToFront = false);
 	inline GameObject* Get() const { return object; };
 	void Destroy();
 };

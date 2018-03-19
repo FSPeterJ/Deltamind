@@ -257,6 +257,7 @@
     <ClInclude Include="Header Files\StdHeader.h" />
     <ClInclude Include="Header Files\targetver.h" />
     <ClInclude Include="Header Files\TestObject.h" />
+    <ClInclude Include="Header Files\TextManager.h" />
     <ClInclude Include="Header Files\ThreadPool.h" />
     <ClInclude Include="Header Files\Transform.h" />
     <ClInclude Include="Header Files\TraversalResult.h" />
@@ -340,6 +341,7 @@
     <ClCompile Include="Source Files\SceneManager.cpp" />
     <ClCompile Include="Source Files\SpatialPartition.cpp" />
     <ClCompile Include="Source Files\Spawner.cpp" />
+    <ClCompile Include="Source Files\TextManager.cpp" />
     <ClCompile Include="Source Files\ThreadPool.cpp" />
     <ClCompile Include="Source Files\Transform.cpp" />
     <ClCompile Include="Source Files\Turret.cpp" />

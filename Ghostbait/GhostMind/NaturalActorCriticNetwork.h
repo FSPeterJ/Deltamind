@@ -2,7 +2,7 @@
 #include "NeuralNetwork.h"
 #include <vector>
 using namespace ActivationFunctions;
-
+//can you see this
 namespace GhostMind {
 	class NaturalActorCriticNetwork: public NeuralNetwork {
 

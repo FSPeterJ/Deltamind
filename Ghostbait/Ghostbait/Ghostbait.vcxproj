@@ -203,6 +203,7 @@
     <ClInclude Include="Header Files\ControllerObject.h" />
     <ClInclude Include="Header Files\DebugRenderer.h" />
     <ClInclude Include="Header Files\Delegate.h" />
+    <ClInclude Include="Header Files\DStar.h" />
     <ClInclude Include="Header Files\DStarEnemy.h" />
     <ClInclude Include="Header Files\EnemyBase.h" />
     <ClInclude Include="Header Files\EngineStructure.h" />
@@ -292,6 +293,7 @@
     <ClCompile Include="Source Files\Controlable.cpp" />
     <ClCompile Include="Source Files\ControllerObject.cpp" />
     <ClCompile Include="Source Files\DebugRenderer.cpp" />
+    <ClCompile Include="Source Files\DStar.cpp" />
     <ClCompile Include="Source Files\EnemyBase.cpp" />
     <ClCompile Include="Source Files\EngineStructure.cpp" />
     <ClCompile Include="Source Files\Game.cpp" />

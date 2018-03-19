@@ -21,8 +21,8 @@ class HexPath;
 class HexGrid {
 	using GridContainer = std::unordered_set<HexTile*, std::hash<HexTile*>, EqualComparator>;
 
-	using CostDelta = std::unordered_map<HexTile*, float, std::hash<HexTile*>, EqualComparator>;
-	CostDelta cost_delta;
+	//using CostDelta = std::unordered_map<HexTile*, float, std::hash<HexTile*>, EqualComparator>;
+	//CostDelta cost_delta;
 
 	float map_radius = 0;
 
@@ -61,7 +61,7 @@ public:
 
 	void ForEach(std::function<void(HexTile*const)> f);
 
-	CostDelta& GetCostDelta(void) { return cost_delta; }
+	//CostDelta& GetCostDelta(void) { return cost_delta; }
 
 	float BlockWeight() const { return Blocked; }
 

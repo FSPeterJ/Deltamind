@@ -69,8 +69,8 @@ void MTDSLEnemy::Update() {
 	}
 	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
 	if (curTile) {
-		//if (curTile == next) {
-		//	rb->Stop();
+		if (curTile == next) {
+			rb->Stop();
 		//	//HexRegion neigh = grid->Spiral(curTile, 3);
 		//	//grid->Color(neigh, { 1.0f, 0.0f, 0.0f }, 3);
 		//	grid->GetTileExact(3, 4)->DrawCheapFill(HexagonalGridLayout::FlatLayout, {0.0f, 1.0f, 0.0f});
@@ -94,7 +94,7 @@ void MTDSLEnemy::Update() {
 				rb->Stop();
 			}
 			else {
-				/*if (KeyIsHit(Control::TestInputO)) {*/
+				if (KeyIsHit(Control::TestInputO)) {
 					PathPlanner::UpdateMTDStarLite(mtdstarId);
 
 					next = path.Next(curTile);
@@ -105,9 +105,9 @@ void MTDSLEnemy::Update() {
 						DirectX::XMVECTOR velocity = rb->GetVelocity();
 						rb->AddForce(3.0f * (DirectX::XMVectorGetX(DirectX::XMVector3Dot(nextDirection, velocity)) + 1.0f), nextPathPoint.x - transform.matrix._41, 0.0f, nextPathPoint.y - transform.matrix._43, 0.5f);
 					}
-				//}
+				}
 			}
-		//}
+		}
 	}
 
 }

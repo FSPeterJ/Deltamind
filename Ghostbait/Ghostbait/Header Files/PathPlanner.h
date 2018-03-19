@@ -31,6 +31,7 @@ enum class PathingAlgorithm {
 class PathPlanner {
 	static HeuristicFunction heuristicFunction;
 	static HexGrid* grid;
+	friend struct DStarCommon;
 	friend class DStarLite;
 	friend class MTDStarLite;
 
@@ -89,6 +90,8 @@ class PathPlanner {
 	static std::size_t dstars;
 	static std::vector<MTDStarLite> mtdstarList;
 	static std::size_t mtdstars;
+
+
 public:
 
 	static void SetHeuristic(HeuristicFunction heuristic);
@@ -103,6 +106,7 @@ public:
 	static std::size_t MTDStarLiteSearch(DirectX::XMFLOAT4X4* startRef, DirectX::XMFLOAT4X4* goalRef, HexPath* toPath, HeuristicFunction Heuristic);
 	static void UpdateMTDStarLite(std::size_t mtdstarId);
 
+	static void CostChangeNotice(HexTile* const tile, float prevCost);
 
 	template <PathingAlgorithm a>
 	typename std::enable_if<a == PathingAlgorithm::BreadthFirst || a == PathingAlgorithm::Dijkstra, TraversalResult>::type

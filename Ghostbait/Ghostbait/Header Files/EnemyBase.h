@@ -1,6 +1,7 @@
 #pragma once
 #include "GameObject.h"
 #include "Health.h"
+#include "Core.h"
 
 class HexGrid;
 
@@ -17,9 +18,12 @@ protected:
 	float maxSpeed = 4.0f;
 	DirectX::XMFLOAT3 target = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 
+	Core* core = nullptr;
+
 	bool reachedCore = false;
 	float attackSpeed = 1;
 	float attackDamage = 10;
+	float timeSinceLastAttack = -1;
 
 	unsigned eventLose = 0;
 	bool hurt = false;
@@ -40,6 +44,6 @@ public:
 
 
 	virtual void SetGrid(HexGrid* _grid) {};
-	virtual void SetGoal(DirectX::XMFLOAT2 _goal) {};
+	virtual void SetCore(Core* _core) { core = _core; };
 	virtual void Repath() {};
 };

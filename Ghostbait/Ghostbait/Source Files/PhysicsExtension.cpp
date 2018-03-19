@@ -104,7 +104,6 @@ namespace {
 	}
 	void DrawRay(Transform* transform, const DirectX::XMFLOAT3& end, CastObject* ray) {
 		float dist = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&end), DirectX::XMLoadFloat3(&transform->GetPosition()))));
-		Console::WriteLine << "Dist: " << dist;
 		DirectX::XMMATRIX scale =  DirectX::XMMatrixScaling(1, 1, dist);
 		DirectX::XMFLOAT4X4 controllerMat = transform->GetMatrix();
 		controllerMat._41 = 0;
@@ -130,7 +129,6 @@ namespace {
 		ray->Get()->transform.LookAt(end);
 		*/
 	}
-
 }
 
 

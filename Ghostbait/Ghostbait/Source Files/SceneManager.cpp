@@ -217,7 +217,7 @@ const Scene SceneManager::ResetCurrentScene() {
 	return prevScene;
 }
 
-void SceneManager::LoadScene(const char* sceneName, DirectX::XMFLOAT3* _corePos) {
+void SceneManager::LoadScene(const char* sceneName, Core** _core) {
 	Scene& scene = scenes[sceneName];
 	if (scene.sceneFile == "")
 		Console::ErrorLine << "Trying to load a scene named " << sceneName << " that does not exist in SceneManager!";
@@ -252,8 +252,8 @@ void SceneManager::LoadScene(const char* sceneName, DirectX::XMFLOAT3* _corePos)
 					MessageEvents::SendQueueMessage(EVENT_Late, [=] {  
 						GameObject* newObj;
 						MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0, 0, 0 }, &newObj));
-						if (_corePos && !strcmp(newObj->GetTag().c_str(), "Core")) {
-							*_corePos = DirectX::XMFLOAT3(mat._41, mat._42, mat._43);
+						if (_core && !strcmp(newObj->GetTag().c_str(), "Core")) {
+							*_core = (Core*)newObj;
 						}
 						newObj->transform.SetMatrix(mat);
 						newObj->Enable();
@@ -272,12 +272,12 @@ void SceneManager::LoadScene(const char* sceneName, DirectX::XMFLOAT3* _corePos)
 	return;
 
 }
-void SceneManager::LoadScene(Scene& scene, DirectX::XMFLOAT3* _corePos) {
+void SceneManager::LoadScene(Scene& scene, Core** _core) {
 	if (scene.sceneFile == "") {
 		Console::ErrorLine << "Trying to load an unknown scene that does not exist in SceneManager!";
 		return;
 	}
-	LoadScene(GetNameFromScene(scene).c_str(), _corePos);
+	LoadScene(GetNameFromScene(scene).c_str(), _core);
 }
 
 const Scene SceneManager::GetSceneFromName(const char* sceneName) {

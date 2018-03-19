@@ -27,4 +27,8 @@ public:
 	//Returns:
 	//	true if the object still has health, false if the object has <= 0 health
 	bool IsAlive();
+
+	//Purpose: 
+	//	Child classes should override this to react to their death (when they reach 0 health)
+	virtual void Death() {};
 };

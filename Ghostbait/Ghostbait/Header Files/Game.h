@@ -10,6 +10,7 @@ class SpawnerObject;
 class EventMessageBase;
 class EngineStructure;
 class Player;
+class Core;
 
 enum State {
 		GAMESTATE_InWave,
@@ -62,7 +63,7 @@ class Game {
 		inline const SpawnerObject* GetSpawnObject(const int& index) { return spawnerObjects[index]; }
 		inline const int GetSpawnCount() const { return (int)waves[currentWave].spawns.size(); }
 		inline WaveManager::Wave::SpawnerData* GetSpawnerData(const int& index) { return &waves[currentWave].spawns[index]; }
-		void SpawnEnemy(WaveManager::Wave::SpawnerData* spawnerData, const int& spawnerObjectIndex, HexGrid* grid, const DirectX::XMFLOAT2& pos);
+		void SpawnEnemy(WaveManager::Wave::SpawnerData* spawnerData, const int& spawnerObjectIndex, HexGrid* grid, Core* _core);
 		
 		void Reset();
 	};
@@ -131,9 +132,7 @@ class Game {
 
 	bool paused = false;
 
-	DirectX::XMFLOAT3 corePos = DirectX::XMFLOAT3(0, 0, 0);
-
-
+	Core* core = nullptr;
 
 	//Event Catchers
 	void SpawnerCreatedEvent(EventMessageBase* e);

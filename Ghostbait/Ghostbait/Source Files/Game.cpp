@@ -47,13 +47,13 @@ void Game::GameData::UpdateState(const State& newState) {
 		state = newState; 
 	}
 }
-void Game::WaveManager::SpawnEnemy(WaveManager::Wave::SpawnerData* spawnerData, const int& spawnerObjectIndex, HexGrid* grid, const DirectX::XMFLOAT2& pos) {
+void Game::WaveManager::SpawnEnemy(WaveManager::Wave::SpawnerData* spawnerData, const int& spawnerObjectIndex, HexGrid* grid, Core* _core) {
 	int index = 0;
 	if (spawnerObjectIndex < 0)
 		index = rand() % (int)spawnerObjects.size();
 	else
 		index = spawnerObjectIndex;
-	spawnerObjects[index]->SpawnObject(const_cast<char*>(spawnerData->enemyName.c_str()), grid, pos);
+	spawnerObjects[index]->SpawnObject(const_cast<char*>(spawnerData->enemyName.c_str()), grid, _core);
 	spawnerData->enemiesSpawned++;
 }
 void Game::WaveManager::MoveToNextWave() {
@@ -197,7 +197,7 @@ void Game::ChangeScene(const char* sceneName) {
 	gameData.Reset();
 
 	//Load scene assets
-	sceneManager->LoadScene(sceneName, &corePos);
+	sceneManager->LoadScene(sceneName, &core);
 
 	//TODO: TEMPORARY main menu code--------
 	if (!strcmp(sceneName, "mainMenu")) {
@@ -385,7 +385,7 @@ void Game::Update() {
 						if (spawner->ReadyToSpawn(nextSpawnTime) && spawner->EnemiesToSpawn()) {
 							//Spawns enemy at location
 							if (gameData.waveManager.GetSpawnObjectCount() == 0) Console::ErrorLine << "No spawners are in the scene! Wave will be infinite!";
-							else gameData.waveManager.SpawnEnemy(spawner, spawner->spawnerID, &hexGrid, DirectX::XMFLOAT2(corePos.x, corePos.z));
+							else gameData.waveManager.SpawnEnemy(spawner, spawner->spawnerID, &hexGrid, core);
 							//Reset this entry's timeSinceLastSpawn
 							spawner->RestartTimer();
 						}

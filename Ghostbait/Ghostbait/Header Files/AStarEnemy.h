@@ -7,7 +7,7 @@ class RigidBody;
 
 namespace DirectX { struct XMFLOAT2; }
 class HexGrid;
-class AStarEnemy:public EnemyBase, public Controlable {
+class AStarEnemy: public EnemyBase, public Controlable {
 	HexPath path;
 	size_t howFarAlong = 0;
 	HexGrid* grid = 0;
@@ -37,9 +37,11 @@ public:
 
 
 	void SetGoal(HexTile* _goal);
-	void SetGoal(DirectX::XMFLOAT2 _goal) override;
+	void SetCore(Core* _core) override;
 	void SetGrid(HexGrid* _grid) override;
 	void Repath() override;
+
+	void Attack();
 
 	void Subscribe() override;
 	void UnSubscribe() override;

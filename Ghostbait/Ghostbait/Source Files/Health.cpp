@@ -27,6 +27,7 @@ float Health::PercentHealth() {
 void Health::AdjustHealth(float amount) {
 	health += amount;
 	Clamp(0, maxHealth, &health);
+	if (health == 0) Death();
 }
 bool Health::IsAlive() {
 	if (health <= 0) return false;

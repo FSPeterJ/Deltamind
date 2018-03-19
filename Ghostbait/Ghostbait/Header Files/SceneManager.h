@@ -4,6 +4,7 @@
 						 //namespace DirectX {
 						 //	class XMFLOAT4X4;
 						 //}
+class Core;
 
 struct Scene {
 	std::string sceneFile;
@@ -47,8 +48,8 @@ public:
 	//---------
 
 	const Scene ResetCurrentScene();
-	void LoadScene(const char* sceneName, DirectX::XMFLOAT3* _corePos = nullptr);
-	void LoadScene(Scene& scene, DirectX::XMFLOAT3* _corePos = nullptr);
+	void LoadScene(const char* sceneName, Core** _core = nullptr);
+	void LoadScene(Scene& scene, Core** _core = nullptr);
 	inline void ReloadScene() { LoadScene(*currentScene); };
 
 	const Scene GetSceneFromName(const char* sceneName);

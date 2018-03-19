@@ -122,10 +122,4 @@ public:
 		GameObject::Destroy();
 	};
 };
-class CoreCube: public GameObject {
-	bool enemyTouched = false;
-public:
-	CoreCube() { SetTag("Core"); };
-	void OnCollision(GameObject* other);
-	void Destroy() override;
-};
+

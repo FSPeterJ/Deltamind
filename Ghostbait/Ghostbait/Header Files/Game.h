@@ -108,7 +108,7 @@ class Game {
 	public:
 		unsigned gears = 0;
 		unsigned turretsSpawned = 0;
-		unsigned maxTurrets = 400;
+		unsigned maxTurrets = 4;
 		WaveManager waveManager;
 		SplashScreenManager ssManager;
 

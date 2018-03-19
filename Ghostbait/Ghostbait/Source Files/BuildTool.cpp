@@ -102,7 +102,7 @@ void BuildTool::SpawnProjection(){
 
 			Turret* turret = dynamic_cast<Turret*>(prefabs[currentPrefabIndex].object);
 			bool hasEnoughMoney = true;
-			//if (turret) hasEnoughMoney = *gears >= turret->GetBuildCost(); //Disabled for testing
+			if (turret) hasEnoughMoney = *gears >= turret->GetBuildCost(); //Disable for testing
 			bool maxTurretsSpawned = (*maxTurrets - *turretsSpawned) <= 0;
 
 			if ((grid->IsBlocked(newPos.x, newPos.y) || !hasEnoughMoney || maxTurretsSpawned) && prevLocationValid) {
@@ -127,7 +127,7 @@ void BuildTool::Spawn() {
 	//Only spawn if grid position is empty
 	Turret* turret = dynamic_cast<Turret*>(prefabs[currentPrefabIndex].object);
 	bool hasEnoughMoney = true;
-	//if (turret) hasEnoughMoney = *gears >= turret->GetBuildCost();
+	if (turret) hasEnoughMoney = *gears >= turret->GetBuildCost();
 	bool maxTurretsSpawned = (*maxTurrets - *turretsSpawned) <= 0;
 
 	DirectX::XMFLOAT2 pos = DirectX::XMFLOAT2(spawnPos.x, spawnPos.z);

@@ -26,7 +26,7 @@ public:
 	static void Initialize(ID3D11Device* _device, ID3D11DeviceContext* _context);
 	static void Destroy();
 
-	static void LoadFont(std::string _fileName, std::string _texturePath, ID3D11Device* device, ID3D11DeviceContext* context);
+	static void LoadFont(std::string _fileName, std::string _texturePath);
 	static textOutput DrawTextTo(std::string _fontTexturePath, std::string _sentence);
 	static void DrawTextExistingMat(std::string _fontTexturePath, std::string _sentence, Material* _mat);
 };

@@ -13,7 +13,7 @@
 #include "GameObject.h"
 #include "AnimatorStructs.h"
 #include "WICTextureLoader.h"
-
+#include "TextManager.h"
 
 //TODO: TEMP for testing a weird crash
 #include "Projectile.h"
@@ -510,6 +510,10 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 	context->OMSetBlendState(defaultPipeline.blend_state, 0, 0xffffffff);
 
 	LightManager::addPointLight({ 5.0f, 0.0f, 0.0f }, { 0.0f, 3.0f, 0.0f }, 15.0f);
+	TextManager::Initialize(device, context);
+	TextManager::LoadFont("Assets/Fonts/defaultFontIndex.txt", "Assets/Fonts/defaultFont");
+	TextManager::DrawTextTo("Assets/Fonts/defaultFont", "This is a \ntest.");
+	TextManager::Destroy();
 }
 
 void Renderer::Destroy() {

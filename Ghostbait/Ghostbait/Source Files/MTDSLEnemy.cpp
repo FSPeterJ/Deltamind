@@ -1,7 +1,7 @@
 #include "MTDSLEnemy.h"
 #include "Heuristics.h"
 #include "PhysicsComponent.h"
-#include "Console.h"
+//#include "Console.h"
 #include "MessageEvents.h"
 #include "PathPlanner.h"
 

@@ -10,8 +10,6 @@ class NeuralEnemy {
 
 	void Update() {
 
-
-
 	}
 
 

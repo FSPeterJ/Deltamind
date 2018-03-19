@@ -1,7 +1,16 @@
 #pragma once
 
-struct _object;
-typedef _object PyObject;
+
+#ifdef _DEBUG
+#undef _DEBUG
+#include <Python.h>
+#define _DEBUG
+#else
+#include <Python.h>
+#endif
+
+//struct _object;
+//typedef _object PyObject;
 #include <unordered_map>
 
 class PythonInterface {
@@ -30,3 +39,43 @@ public:
 	bool ExecuteFile(const char* _fileName);
 	bool ExecuteFile(const char* folderName, const char* _fileName);
 };
+
+
+template<typename ReturnType, typename... Params>
+ReturnType PythonInterface::ExecuteFunction(const char* function, Params... params) {
+	if(!defs.count(function)) {
+		defs[function] = PyObject_GetAttrString(pModule, function);
+	}
+
+	PyObject *pFunc = defs[function];
+	if(!pFunc || !PyCallable_Check(pFunc)) { throw "Function not callable or does not exist."; }
+
+	pArgs = PyTuple_New(sizeof...(params));
+
+	int i = -1;
+	SetParam([&](auto param) { PyTuple_SetItem(pArgs, ++i, ParseArg(param)); }, params...);
+
+	PyObject* pResult = PyObject_CallObject(pFunc, pArgs);
+
+	if(pResult) {
+		if(typeid(int) == typeid(ReturnType)) {
+			return (int) PyLong_AsLong(pResult);
+		}
+		if(typeid(double) == typeid(ReturnType)) {
+			return PyFloat_AsDouble(pResult);
+		}
+	}
+	throw "failed or no type conversion avaliable for return.";
+}
+
+
+template <typename T>
+PyObject* PythonInterface::ParseArg(T param) {
+	if(typeid(int) == typeid(T)) {
+		return PyLong_FromLong((long) param);
+	}
+	if(typeid(double) == typeid(T)) {
+		return PyFloat_FromDouble(param);
+	}
+	throw "no type conversion avaliable for argument.";
+}

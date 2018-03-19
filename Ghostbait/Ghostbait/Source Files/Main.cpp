@@ -29,6 +29,9 @@
 #include "Turret.h"
 #include "Player.h"
 
+#include "..\Omiracron\Omiracron\Omiracron.h"
+using namespace Omiracron;
+
 Renderer* rendInter;
 Game* game;
 MemoryManager MemMan;
@@ -46,6 +49,10 @@ void ExecuteAsync() {
 }
 
 void Setup(HINSTANCE hInstance, int nCmdShow) {
+	Functions::Beep();
+	
+	
+	
 	Console::Allocate();
 
 	Window wnd(1024, 900);

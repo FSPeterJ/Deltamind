@@ -78,7 +78,7 @@ bool HexGrid::AddObstacle(const DirectX::XMFLOAT2& obstaclePosition) {
 }
 bool HexGrid::AddObstacle(HexTile*const obstaclePosition) {
 	if (obstaclePosition) {
-		Console::WriteLine << "Obstacle added: Tile (" << obstaclePosition->q << ", " << obstaclePosition->r << ")";
+//		Console::WriteLine << "Obstacle added: Tile (" << obstaclePosition->q << ", " << obstaclePosition->r << ")";
 		cost_delta[obstaclePosition] = obstaclePosition->weight;
 		obstaclePosition->weight = Blocked;
 		blocked.push_back(*obstaclePosition);

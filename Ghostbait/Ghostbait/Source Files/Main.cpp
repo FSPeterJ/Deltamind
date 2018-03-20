@@ -29,8 +29,8 @@
 #include "Turret.h"
 #include "Player.h"
 
-#include "..\Omiracron\Omiracron\Omiracron.h"
-using namespace Omiracron;
+//#include "..\Omiracron\Omiracron\Omiracron.h"
+//using namespace Omiracron;
 
 Renderer* rendInter;
 Game* game;
@@ -49,7 +49,7 @@ void ExecuteAsync() {
 }
 
 void Setup(HINSTANCE hInstance, int nCmdShow) {
-	Functions::Beep();
+	//Functions::Beep();
 	
 	
 	Console::Allocate();

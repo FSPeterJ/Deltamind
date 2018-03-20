@@ -1,6 +1,7 @@
 #include "Console.h"
 #include <windows.h>
 #include <iostream>
+
 const char* Console::file_formatter(char* source) {
 	std::string src(source);
 	size_t start = src.find_last_of('\\') + 1;
@@ -76,7 +77,7 @@ void Console::Allocate() {
 	FILE* new_std_out;
 	freopen_s(&new_std_out, "CONOUT$", "w", stdout);
 	//freopen_s(&new_std_out, "CONOUT$", "w", stderr);
-	//freopen_s(&new_std_in_out, "CONIN$", "r", stdin);
+	//freopen_s(&new_std_out, "CONIN$", "r", stdin);
 	std::wcout.clear();
 	std::cout.clear();
 	std::wcerr.clear();

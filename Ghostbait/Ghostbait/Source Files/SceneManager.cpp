@@ -38,7 +38,7 @@ void SceneManager::CreateSceneFile(SceneManager::TestSceneData& data) {
 
 		Writer::WriteStringWithSize(data.sceneName);
 		Writer::WriteStringWithSize(data.levelName);
-		
+
 		for (int i = 0; i < data.prefabs.size(); ++i) {
 			Writer::WriteStringWithSize(data.prefabs[i].ghostFile);
 			Writer::WriteStringWithSize(data.prefabs[i].name);
@@ -48,7 +48,7 @@ void SceneManager::CreateSceneFile(SceneManager::TestSceneData& data) {
 			}
 		}
 	}
-	file.close();
+	Writer::CloseStream();
 }
 
 void SceneManager::Initialize() {
@@ -155,16 +155,14 @@ void SceneManager::FetchAllSceneFiles(const char* folderPath) {
 		std::ifstream file(paths[i], std::ios::binary);
 		if (file.is_open()) {
 			Reader::OpenStream(file);
-			int nameLength = Reader::ReadInt();
-			std::string name = Reader::ReadString(nameLength);
+			std::string name = Reader::ReadStringWithSize();
 			lastName = name;
-			int levelLength = Reader::ReadInt();
-			std::string level = Reader::ReadString(levelLength);
+			std::string level = Reader::ReadStringWithSize();
 			
 			Scene newScene = Scene(paths[i], level);
 			scenes[name] = newScene;
+			Reader::CloseStream();
 		}
-		file.close();
 	}
 }
 
@@ -221,12 +219,11 @@ void SceneManager::LoadScene(const char* sceneName, DirectX::XMFLOAT3* _corePos)
 				ghostLen = Reader::ReadInt();
 			}
 
-		}
-		else {
+		} else {
 			Console::ErrorLine << "Failed to open the scene file " << scene.sceneFile << "!";
 			return;
 		}
-		file.close();
+		//file.close();
 	}
 	return;
 
@@ -237,6 +234,7 @@ void SceneManager::LoadScene(Scene& scene, DirectX::XMFLOAT3* _corePos) {
 		return;
 	}
 	LoadScene(GetNameFromScene(scene).c_str(), _corePos);
+	Reader::CloseStream();
 }
 
 const Scene SceneManager::GetSceneFromName(const char* sceneName) {

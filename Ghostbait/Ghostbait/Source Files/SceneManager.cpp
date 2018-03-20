@@ -243,7 +243,6 @@ void SceneManager::LoadScene(const char* sceneName, Core** _core) {
 			{
 				int ghostLen = Reader::ReadInt();
 				std::string ghostName = Reader::ReadString(ghostLen);
-
 				unsigned int prefabID = ObjectFactory::CreatePrefab(&ghostName);
 
 				int ghostCount = Reader::ReadInt();

@@ -29,6 +29,12 @@ public:
 	bool IsAlive();
 
 	//Purpose: 
+	//	Child classes should override this to react to taking damage
+	virtual void HurtEvent() {};
+	//Purpose: 
+	//	Child classes should override this to react to receiving health
+	virtual void HealedEvent() {};
+	//Purpose: 
 	//	Child classes should override this to react to their death (when they reach 0 health)
-	virtual void Death() {};
+	virtual void DeathEvent() {};
 };

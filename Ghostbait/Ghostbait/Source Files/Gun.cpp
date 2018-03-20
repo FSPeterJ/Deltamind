@@ -6,8 +6,6 @@
 #include "Console.h"
 #include "Wwise_IDs.h"
 
-
-
 void Gun::Overheat::CreateBar(Gun* _parent) {
 	parent = _parent;
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ProgressBar>(overheatBarPID, { 0.0f, 0.0f, 0.0f }, &bar)); // stop using magic number prefab ID
@@ -80,7 +78,6 @@ void Gun::Awake(Object* obj) {
 	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
 }
 
-
 void Gun::GivePID(unsigned pid, const char* tag) {
 	// Look into a better system
 	if(!strcmp(tag, "projectile") ) {
@@ -147,8 +144,6 @@ void Gun::InactiveUpdate() {
 void Gun::ActiveUpdate() {
 	overheat.Update(true);
 }
-
-
 
 #ifdef _DEBUG
 void Gun::SmokeTest() {

@@ -233,28 +233,25 @@ void ControllerObject::SetControllerState(ControllerState newState) {
 	switch (prevState) {
 		case ControllerState::CSTATE_Inventory:
 			{
-				for (int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
-					if (inventory.displayItems[i])
+				int startItemIndex = 0;
+				for (int i = CONTROLLER_MAX_ITEMS - 1; i >= 0 ; --i) {
+					if (inventory.displayItems[i]) {
+						startItemIndex = i;
 						inventory.displayItems[i]->Render(false);
+					}
 				}
 				inventory.currentItem->DeSelected();
-				//inventory.currentItem->Render(false);
-				//SetPhysicsComponent(inventory.currentItem, false);
-				//BuildTool* bt = GetBuildTool();
-				//if (bt) {
-				//	bt->buildArc.Destroy();
-				//	bt->deleteRay.Destroy();
-				//}
+				inventory.currentItem = inventory.items[startItemIndex];
 			}
 			break;
 		case ControllerState::CSTATE_MenuController:
 			{
-				menuController->Render(false);
+				menuController->DeSelected();
 			}
 			break;
 		case ControllerState::CSTATE_ModelOnly:
 			{
-				modelOnly->Render(false);
+				modelOnly->DeSelected();
 			}
 			break;
 		case ControllerState::CSTATE_None:
@@ -272,12 +269,12 @@ void ControllerObject::SetControllerState(ControllerState newState) {
 			break;
 		case ControllerState::CSTATE_MenuController:
 			{
-				menuController->Render(true);
+				menuController->Selected();
 			}
 			break;
 		case ControllerState::CSTATE_ModelOnly:
 			{
-				modelOnly->Render(true);
+				modelOnly->Selected();
 			}
 			break;
 		case ControllerState::CSTATE_None:

@@ -11,6 +11,8 @@
 #include "ObjectFactory.h"
 #include "Player.h"
 
+
+
 void Game::GameData::Reset() {
 	state = GAMESTATE_BetweenWaves;
 	prevState = GAMESTATE_BetweenWaves;
@@ -75,6 +77,8 @@ Game::Game() {
 	MessageEvents::Subscribe(EVENT_GameQuit, [=](EventMessageBase* e) {this->Quit(); });
 	MessageEvents::Subscribe(EVENT_GameExit, [=](EventMessageBase* e) {this->ExitToMenu(); });
 	PathPlanner::SetGrid(&hexGrid);
+	light.SetAsPoint({ 0, 0, 1 }, { 0, 1, 0 }, 3);
+	light.Enable();
 }
 
 //Catch Events
@@ -215,7 +219,11 @@ void Game::ChangeScene(const char* sceneName) {
 		DirectX::XMFLOAT3 temp = DirectX::XMFLOAT3(0, 0, 0);
 		player->Teleport(&temp);
 		player->transform.LookAt({ menuPos._41, menuPos._42, menuPos._43 });
+		light.SetColor({ 0, 0, 1 });
 		
+	}
+	else {
+		light.SetColor({ 0, 1, 0 });
 	}
 	
 	//--------------------------------------
@@ -364,7 +372,9 @@ void Game::Update() {
 	auto playerPos = player->transform.GetMatrix();
 	//hexGrid.Display(DirectX::XMFLOAT2(playerPos._41, playerPos._43));
 	float dt = (float)GhostTime::DeltaTime();
-
+	static float value = 0;
+	value += dt;
+	light.transform.SetPosition(cos(value), 1, 0);
 	//Console::WriteLine << "Gears: " << gameData.gears;
 
 	if (paused) return;

@@ -48,25 +48,21 @@ void ControllerObject::Init(Player* _player, ControllerHand _hand) {
 	}
 	PersistOnReset();
 }
-void ControllerObject::AddToInventory(int itemSlot, unsigned prefabID) {
-	//Actual Inventory
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Item>(prefabID, { 0,0,0 }, (Item**)&inventory.items[itemSlot]));
-	if(!inventory.currentItem) {
-		inventory.currentItem = inventory.items[itemSlot];
-		inventory.currentItem->Selected();
+void ControllerObject::Awake(Object* obj) {
+	memcpy(inventory.itemPrefabs, ((ControllerObject*)obj)->inventory.itemPrefabs, sizeof(unsigned) * CONTROLLER_MAX_ITEMS);
+	for(int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
+		if(inventory.itemPrefabs[i] > 0) {
+			AddItem(i, inventory.itemPrefabs[i]);
+		}
 	}
-	inventory.items[itemSlot]->Render(false);
-	inventory.items[itemSlot]->PersistOnReset();
-	inventory.items[itemSlot]->SetPhysicsComponent(false);
-
-	//Inventory Display
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Item>(prefabID, { 0,0,0 }, (Item**)&inventory.displayItems[itemSlot]));
-	inventory.displayItems[itemSlot]->Render(false);
-	inventory.displayItems[itemSlot]->PersistOnReset();
-	inventory.displayItems[itemSlot]->SetPhysicsComponent(false);
-
-
 }
+void ControllerObject::GivePID(unsigned pid, const char* tag) {
+
+	//This is should be changed if other data is to be passed in.
+	//The stupid setup of this is taking the character '1'
+	inventory.itemPrefabs[*tag - '0'] = pid;
+}
+
 
 void ControllerObject::SwitchCurrentItem(int itemIndex) {
 	if(itemIndex == -1) {
@@ -192,6 +188,35 @@ void ControllerObject::DisplayInventory() {
 	}
 }
 
+
+void ControllerObject::AddToInventory(int itemSlot, unsigned prefabID) {
+	if (!inventory.items[itemSlot]) ++inventory.itemCount;
+	//Actual Inventory
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Item>(prefabID, { 0,0,0 }, (Item**)&inventory.items[itemSlot]));
+	if(!inventory.currentItem) {
+		inventory.currentItem = inventory.items[itemSlot];
+		inventory.currentItem->Selected();
+	}
+	inventory.items[itemSlot]->Render(false);
+	inventory.items[itemSlot]->PersistOnReset();
+	inventory.items[itemSlot]->SetPhysicsComponent(false);
+
+	//Inventory Display
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Item>(prefabID, { 0,0,0 }, (Item**)&inventory.displayItems[itemSlot]));
+	inventory.displayItems[itemSlot]->Render(false);
+	inventory.displayItems[itemSlot]->PersistOnReset();
+	inventory.displayItems[itemSlot]->SetPhysicsComponent(false);
+
+
+}
+
+void ControllerObject::RemoveItem(int itemSlot) {
+	if (inventory.items[itemSlot]) {
+		inventory.items[itemSlot] = nullptr;
+		inventory.displayItems[itemSlot] = nullptr;
+		--inventory.itemCount;
+	}
+}
 void ControllerObject::AddItem(int itemSlot, unsigned prefabID) {
 	AddToInventory(itemSlot, prefabID);
 
@@ -470,21 +495,7 @@ void ControllerObject::Update() {
 	GameObject::Update();
 }
 
-void ControllerObject::GivePID(unsigned pid, const char* tag) {
 
-	//This is should be changed if other data is to be passed in.
-	//The stupid setup of this is taking the character '1'
-	inventory.itemPrefabs[*tag - '0'] = pid;
-}
-
-void ControllerObject::Awake(Object* obj) {
-	memcpy(inventory.itemPrefabs, ((ControllerObject*)obj)->inventory.itemPrefabs, sizeof(unsigned) * CONTROLLER_MAX_ITEMS);
-	for(int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
-		if(inventory.itemPrefabs[i] > 0) {
-			AddItem(i, inventory.itemPrefabs[i]);
-		}
-	}
-}
 
 // TEMPORARY - CHANGE OR REMOVE LATER
 void ControllerObject::SetBuildItems(std::vector<unsigned> prefabIDs) {

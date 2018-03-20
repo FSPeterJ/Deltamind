@@ -4,6 +4,8 @@
 #include "HexGrid.h"
 #include <vector>
 #include "Menu.h"
+#include "Light.h"
+
 
 class SceneManager;
 class SpawnerObject;
@@ -22,7 +24,8 @@ enum State {
 
 class Game {
 	HexGrid hexGrid = HexGrid("Assets/Level0.ghostGrid", 500, HexagonalGridLayout::FlatLayout);
-
+	
+	Light light;
 	bool run = true;
 
 	struct WaveManager {

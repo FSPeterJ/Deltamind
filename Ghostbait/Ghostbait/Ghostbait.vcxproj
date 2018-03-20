@@ -224,6 +224,7 @@
     <ClInclude Include="Header Files\InputManager.h" />
     <ClInclude Include="Header Files\IComponentManager.h" />
     <ClInclude Include="Header Files\Item.h" />
+    <ClInclude Include="Header Files\Light.h" />
     <ClInclude Include="Header Files\LightManager.h" />
     <ClInclude Include="Header Files\Logger.h" />
     <ClInclude Include="Header Files\Material.h" />
@@ -311,6 +312,7 @@
     <ClCompile Include="Source Files\HexTileVector.cpp" />
     <ClCompile Include="Source Files\InputManager.cpp" />
     <ClCompile Include="Source Files\Item.cpp" />
+    <ClCompile Include="Source Files\Light.cpp" />
     <ClCompile Include="Source Files\LightManager.cpp" />
     <ClCompile Include="Source Files\Logger.cpp" />
     <ClCompile Include="Source Files\Main.cpp" />

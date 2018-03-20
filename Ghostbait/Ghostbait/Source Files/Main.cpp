@@ -52,7 +52,6 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	Functions::Beep();
 	
 	
-	
 	Console::Allocate();
 
 	Window wnd(1024, 900);

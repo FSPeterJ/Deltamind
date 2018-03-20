@@ -115,7 +115,7 @@ namespace GhostMind {
 			n.Activation = ActivationFunctions::LeakyRectifiedLinearUnit;
 			n.ActivationDerivative = ActivationFunctions::LeakyRectifiedLinearUnitDerivative;
 			break;
-		default: Console::ErrorLine << "Could not find specified activation function. Did you forget to add it to the switch?";
+		default:// Console::ErrorLine << "Could not find specified activation function. Did you forget to add it to the switch?";
 			break;
 		}
 	}

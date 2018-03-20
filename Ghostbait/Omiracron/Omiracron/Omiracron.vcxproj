@@ -74,22 +74,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>C:\Users\K\AppData\Local\Programs\Python\Python35\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\K\AppData\Local\Programs\Python\Python35\libs;$(LibraryPath)</LibraryPath>
+    <LibraryPath>Omiracron;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\K\AppData\Local\Programs\Python\Python35\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\K\AppData\Local\Programs\Python\Python35\libs;$(LibraryPath)</LibraryPath>
+    <IncludePath>include;$(IncludePath)</IncludePath>
+    <LibraryPath>Omiracron;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>C:\Users\K\AppData\Local\Programs\Python\Python35\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\K\AppData\Local\Programs\Python\Python35\libs;$(LibraryPath)</LibraryPath>
+    <LibraryPath>Omiracron;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>C:\Users\K\AppData\Local\Programs\Python\Python35\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\K\AppData\Local\Programs\Python\Python35\libs;$(LibraryPath)</LibraryPath>
+    <LibraryPath>Omiracron;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -193,16 +193,11 @@
     <ClCompile Include="TrainingData.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Python\A3C.py" />
-    <None Include="Python\actornetwork.py" />
-    <None Include="Python\AsyncAgent.py" />
-    <None Include="Python\go2sea\a3C.py" />
     <None Include="Python\HelloWorld.py" />
-    <None Include="Python\HistoryBuffer.py" />
-    <None Include="Python\Network.py" />
-    <None Include="Python\Ops.py" />
+    <None Include="Python\hong\a3c.py" />
+    <None Include="Python\hong\test.py" />
+    <None Include="Python\hong\train.py" />
     <None Include="Python\Test.py" />
-    <None Include="Python\__init__.py" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

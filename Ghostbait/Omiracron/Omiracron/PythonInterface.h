@@ -36,6 +36,9 @@ public:
 	template<typename ReturnType, typename... Params>
 	ReturnType ExecuteFunction(const char* function, Params... params);
 
+	template<typename ReturnType>
+	ReturnType ExecuteFunction(const char* function);
+
 	bool ExecuteFile(const char* _fileName);
 	bool ExecuteFile(const char* folderName, const char* _fileName);
 };
@@ -67,7 +70,27 @@ ReturnType PythonInterface::ExecuteFunction(const char* function, Params... para
 	}
 	throw "failed or no type conversion avaliable for return.";
 }
+template<typename ReturnType>
+ReturnType PythonInterface::ExecuteFunction(const char* function) {
+	if(!defs.count(function)) {
+		defs[function] = PyObject_GetAttrString(pModule, function);
+	}
 
+	PyObject *pFunc = defs[function];
+	if(!pFunc || !PyCallable_Check(pFunc)) { throw "Function not callable or does not exist."; }
+
+	PyObject* pResult = PyObject_CallObject(pFunc, 0);
+
+	if(pResult) {
+		if(typeid(int) == typeid(ReturnType)) {
+			return (int) PyLong_AsLong(pResult);
+		}
+		if(typeid(double) == typeid(ReturnType)) {
+			return PyFloat_AsDouble(pResult);
+		}
+	}
+	throw "failed or no type conversion avaliable for return.";
+}
 
 template <typename T>
 PyObject* PythonInterface::ParseArg(T param) {

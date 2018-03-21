@@ -103,9 +103,8 @@ void Menu::Create(Template t, std::vector<Button> _buttons) {
 			break;
 		case MENU_Options:
 			buttons.empty();
-			buttons.resize(2);
+			buttons.resize(1);
 			buttons[0] = BUTTON_Back;
-			buttons[1] = BUTTON_Options;
 			break;
 		case MENU_Custom:
 			buttons.empty();

@@ -70,6 +70,7 @@ Game::Game() {
 	MessageEvents::Subscribe(EVENT_GamePause, [=](EventMessageBase* e) {this->PauseGame(); });
 	MessageEvents::Subscribe(EVENT_GameUnPause, [=](EventMessageBase* e) {this->ResumeGame(); });
 	MessageEvents::Subscribe(EVENT_GameRestart, [=](EventMessageBase* e) {this->RestartLevel(); });
+	MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {this->RemoveObstacleEvent(e); });
 	MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) {this->Lose(); });
 	MessageEvents::Subscribe(EVENT_GameQuit, [=](EventMessageBase* e) {this->Quit(); });
 	MessageEvents::Subscribe(EVENT_GameExit, [=](EventMessageBase* e) {this->ExitToMenu(); });
@@ -97,6 +98,10 @@ void Game::SpawnerCreatedEvent(EventMessageBase* e) {
 		gameData.waveManager.AddSpawnerObject(spawner);
 	else
 		Console::ErrorLine << "A non-spawner Object was send to Game.h in the SpawnerCreated Message!";
+}
+void Game::RemoveObstacleEvent(EventMessageBase* e) {
+	SnapMessage* message = (SnapMessage*)e;
+	hexGrid.RemoveObstacle(*message->position);
 }
 void Game::EnemyDiedEvent() {
 	if (gameData.GetState() == GAMESTATE_GameOver) return;

@@ -187,8 +187,7 @@ public:
 class SnapMessage : public EventMessageBase {
 public:
 	DirectX::XMFLOAT2* position;
-	bool* success;
-	SnapMessage(DirectX::XMFLOAT2* _position, bool* _success) : position(_position), success(_success) {}
+	SnapMessage(DirectX::XMFLOAT2* _position) : position(_position){}
 };
 
 //Duplicate is unnessessary

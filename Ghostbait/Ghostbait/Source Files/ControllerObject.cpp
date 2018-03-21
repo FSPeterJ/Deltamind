@@ -266,7 +266,7 @@ void ControllerObject::SetControllerState(ControllerState newState) {
 					}
 				}
 				inventory.currentItem->DeSelected();
-				inventory.currentItem = inventory.items[startItemIndex];
+				//inventory.currentItem = inventory.items[startItemIndex];
 			}
 			break;
 		case ControllerState::CSTATE_MenuController:

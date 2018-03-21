@@ -36,7 +36,8 @@ void CastObject::Create(bool renderToFront) {
 }
 void CastObject::Destroy() {
 	if (object) {
-		MessageEvents::SendQueueMessage(EVENT_Late, [=] { backup->Destroy(); backup = nullptr; });
+		//MessageEvents::SendQueueMessage(EVENT_Late, [=] { 
+			backup->Destroy(); backup = nullptr;// });
 		object = nullptr;
 	}
 }

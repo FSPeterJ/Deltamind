@@ -15,6 +15,8 @@ class TextManager {
 		ID3D11DepthStencilView* dsv;
 		ID3D11Texture2D* depthTex;
 		D3D11_VIEWPORT viewport;
+		float width;
+		float height;
 	};
 
 	struct windowSizeBuffer
@@ -47,6 +49,7 @@ public:
 	static void Destroy();
 
 	static void LoadFont(std::string _fileName, std::string _texturePath);
+	static Material* CreateRenderableTexture(float height, float width);
 	static textOutput DrawTextTo(std::string _fontTexturePath, std::string _sentence);
 	static void DrawTextExistingMat(std::string _fontTexturePath, std::string _sentence, Material* _mat);
 };

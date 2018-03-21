@@ -14,7 +14,6 @@ class AnimationManager;
 class EventMessageBase;
 class LightManager;
 struct Mesh;
-struct Material;
 
 enum renderState {
 	RENDER_STATE_DEFAULT, RENDER_STATE_TRANSPARENT
@@ -103,9 +102,7 @@ private:
 	ID3D11GeometryShader* NDCQuadGS;
 	ID3D11VertexShader* TextVertexShader;
 	ID3D11PixelShader* PositionTexturePixelShader;
-
-	Material* tempText;
-
+	
 	ID3D11InputLayout* ILPositionColor;
 	ID3D11InputLayout* ILPositionTexture;
 	ID3D11InputLayout* ILStandard;

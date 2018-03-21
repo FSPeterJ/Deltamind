@@ -241,8 +241,7 @@ void Renderer::renderObjectDefaultState(Object * obj) {
 	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(XMLoadFloat4x4(&obj->transform.GetMatrix())), 0, 0);
 	Material* mat = obj->GetComponent<Material>();
 	if (mat)
-		//obj->GetComponent<Material>()->bindToShader(context, factorBuffer);
-		tempText->bindToShader(context, factorBuffer);
+		obj->GetComponent<Material>()->bindToShader(context, factorBuffer);
 	else
 		materialManagement->GetNullMaterial()->bindToShader(context, factorBuffer);
 
@@ -512,8 +511,7 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 
 	TextManager::Initialize(device, context, TextVertexShader, PositionTexturePixelShader, ILPositionTexture);
 	TextManager::LoadFont("Assets/Fonts/defaultFontIndex.txt", "Assets/Fonts/defaultFont.png");
-	TextManager::textOutput out = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "This is a test!\nALL SYSTEMS\nFULL POWERRR\nGRAGH\nHE'S NOT GOING TO GET AWAY WITH THIS!");
-	tempText = out.mat;
+	TextManager::textOutput out = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "This is a test!");
 }
 
 void Renderer::Destroy() {
@@ -672,7 +670,7 @@ XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 }
 
 void Renderer::Render() {
-	TextManager::textOutput out = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "This is a \ntest.");
+	//TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", "Did it work???????????????????????????", tempText);
 	loadPipelineState(&defaultPipeline);
 	XMMATRIX cameraObj = XMMatrixTranspose(XMLoadFloat4x4(&cameraPos->GetMatrix()));
 	XMStoreFloat4x4(&defaultCamera.view, XMMatrixInverse(&XMMatrixDeterminant(cameraObj), cameraObj));

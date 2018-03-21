@@ -11,12 +11,15 @@ class TextManager {
 		Material* mat;
 		ID3D11RenderTargetView* rtv;
 		ID3D11DepthStencilView* dsv;
+		ID3D11Texture2D* depthTex;
 		D3D11_VIEWPORT viewport;
 	};
 	static ID3D11Device* device;
 	static ID3D11DeviceContext* context;
 	static std::unordered_map<std::string, Font*> fonts;
 	static std::vector<renderableMat> managedMaterials;
+
+	static renderableMat createTextMaterial(float width, float height);
 public:
 	struct textOutput
 	{

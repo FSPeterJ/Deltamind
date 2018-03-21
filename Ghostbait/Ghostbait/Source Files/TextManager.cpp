@@ -6,6 +6,64 @@ ID3D11DeviceContext* TextManager::context;
 std::unordered_map<std::string, Font*> TextManager::fonts; 
 std::vector<TextManager::renderableMat> TextManager::managedMaterials;
 
+TextManager::renderableMat TextManager::createTextMaterial(float width, float height)
+{
+	renderableMat toPush;
+	toPush.mat = new Material();
+	toPush.viewport = D3D11_VIEWPORT();
+	toPush.viewport.Height = height;
+	toPush.viewport.Width = width;
+	toPush.viewport.MaxDepth = 1.0f;
+	toPush.viewport.MinDepth = 0.0f;
+	toPush.viewport.TopLeftX = 0.0f;
+	toPush.viewport.TopLeftY = 0.0f;
+
+	DXGI_SAMPLE_DESC sampleDesc;
+	sampleDesc.Count = 1;
+	sampleDesc.Quality = 0;
+
+	D3D11_TEXTURE2D_DESC texDesc;
+	texDesc.Height = (UINT)height;
+	texDesc.Width = (UINT)width;
+	texDesc.Usage = D3D11_USAGE_DEFAULT;
+	texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	texDesc.MipLevels = 1;
+	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	texDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+	texDesc.ArraySize = 1;
+	texDesc.CPUAccessFlags = 0;
+	texDesc.SampleDesc = sampleDesc;
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc;
+	viewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	viewDesc.Texture2D.MipLevels = texDesc.MipLevels;
+	viewDesc.Texture2D.MostDetailedMip = 0;
+
+	device->CreateTexture2D(&texDesc, nullptr, (ID3D11Texture2D**)&toPush.mat->diffuse.texture);
+	device->CreateShaderResourceView(toPush.mat->diffuse.texture, &viewDesc, &toPush.mat->diffuse.texView);
+	toPush.mat->diffuse.factor = 1.0f;
+	toPush.mat->emissive.factor = 0.0f;
+	toPush.mat->specular.factor = 0.0f;
+
+	device->CreateRenderTargetView(toPush.mat->diffuse.texture, nullptr, &toPush.rtv);
+
+	texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	texDesc.MiscFlags = NULL;
+	texDesc.Format = DXGI_FORMAT_D32_FLOAT;
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilDesc;
+	depthStencilDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	depthStencilDesc.Texture2D.MipSlice = 0;
+	depthStencilDesc.Flags = 0;
+
+	device->CreateTexture2D(&texDesc, nullptr, &toPush.depthTex);
+	device->CreateDepthStencilView(toPush.depthTex, &depthStencilDesc, &toPush.dsv);
+	managedMaterials.push_back(toPush);
+	return toPush;
+}
+
 void TextManager::Initialize(ID3D11Device * _device, ID3D11DeviceContext * _context)
 {
 	device = _device;
@@ -22,6 +80,7 @@ void TextManager::Destroy()
 		delete managedMaterials[i].mat;
 		managedMaterials[i].rtv->Release();
 		managedMaterials[i].dsv->Release();
+		managedMaterials[i].depthTex->Release();
 	}
 }
 

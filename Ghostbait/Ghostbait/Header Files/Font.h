@@ -19,7 +19,7 @@ class Font {
 	ID3D11ShaderResourceView* srv;
 	
 
-	bool LoadIndexFile(std::string _fileName);
+	bool LoadIndexFile(std::string _fileName, float width);
 	bool LoadTexture(std::string _fileName, ID3D11Device* device, ID3D11DeviceContext* context);
 public:
 	Font();
@@ -31,5 +31,5 @@ public:
 
 	inline const CharPos InvalidCharPos() const { return CharPos(-1, -1, -1); }
 
-	inline const ID3D11ShaderResourceView* GetShaderResourceView() { return srv; }
+	inline ID3D11ShaderResourceView* GetShaderResourceView() { return srv; }
 };

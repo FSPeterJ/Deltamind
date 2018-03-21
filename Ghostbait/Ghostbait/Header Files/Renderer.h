@@ -100,8 +100,11 @@ private:
 	ID3D11PixelShader* DeferredTargetPS;
 	ID3D11VertexShader* PassThroughPositionVS;
 	ID3D11GeometryShader* NDCQuadGS;
-
+	ID3D11VertexShader* TextVertexShader;
+	ID3D11PixelShader* PositionTexturePixelShader;
+	
 	ID3D11InputLayout* ILPositionColor;
+	ID3D11InputLayout* ILPositionTexture;
 	ID3D11InputLayout* ILStandard;
 	ID3D11InputLayout* ILParticle;
 	ID3D11InputLayout* ILPosition;

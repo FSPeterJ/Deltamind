@@ -36,6 +36,8 @@ PixelShaderOutput main(PixelShaderInput input)
 {
     PixelShaderOutput output;
     float4 diffuseFloat = diffuse.Sample(sample, input.uv);
+    if(diffuseFloat.w == 0.0f)
+        discard;
     output.diffuse = float4(diffuseFloat.xyz * diffuseFactor, diffuseFloat.w);
     output.emissive = float4((emissive.Sample(sample, input.uv) * emissiveFactor).xyz, 1.0f);
     output.normal = float4(((input.norm * 0.5f) + 0.5f), 1.0f);

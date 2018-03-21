@@ -15,7 +15,7 @@ CharPos::CharPos(float _startX, float _endX, float _size) {
 }
 
 
-bool Font::LoadIndexFile(std::string _fileName)
+bool Font::LoadIndexFile(std::string _fileName, float width)
 {
 	std::ifstream reader;
 	reader.open(_fileName);
@@ -23,6 +23,7 @@ bool Font::LoadIndexFile(std::string _fileName)
 		return false;
 
 	char readTo;
+	float currPlace = -1.0f;
 	for (int i = 0; i < 95; ++i)
 	{
 		reader.get(readTo);
@@ -34,6 +35,9 @@ bool Font::LoadIndexFile(std::string _fileName)
 		reader >> temp.startU;
 		reader >> temp.endU;
 		reader >> temp.size;
+		temp.startU = currPlace / width;
+		temp.endU = (currPlace + temp.size) / width;
+		currPlace += temp.size + 1.0f;
 		charMap[letter] = temp;
 	}
 	reader.close();
@@ -53,8 +57,12 @@ Font::Font() {
 
 }
 Font::Font(std::string _fileName, std::string _texturePath, ID3D11Device* device, ID3D11DeviceContext* context) {
-	if(LoadIndexFile(_fileName))
-		LoadTexture(_texturePath, device, context);
+	if (LoadTexture(_texturePath, device, context))
+	{
+		D3D11_TEXTURE2D_DESC desc;
+		tex->GetDesc(&desc);
+		LoadIndexFile(_fileName, (float)desc.Width);
+	}
 }
 
 Font::~Font()

@@ -1,4 +1,5 @@
 #include "ProgressBar.h"
+#include "DebugRenderer.h"
 
 void ProgressBar::SetBarPercentage(float percent) {
 	percentage = percent;

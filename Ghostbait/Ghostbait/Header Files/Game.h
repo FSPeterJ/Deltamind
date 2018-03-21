@@ -141,6 +141,7 @@ class Game {
 
 	//Event Catchers
 	void SpawnerCreatedEvent(EventMessageBase* e);
+	void RemoveObstacleEvent(EventMessageBase* e);
 	void CoreDamaged();
 	void EnemyDiedEvent();
 	void PauseInputEvent();

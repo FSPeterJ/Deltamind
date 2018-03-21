@@ -75,7 +75,7 @@ Game::Game() {
 	MessageEvents::Subscribe(EVENT_GameExit, [=](EventMessageBase* e) {this->ExitToMenu(); });
 	MessageEvents::Subscribe(EVENT_CoreDamaged, [=](EventMessageBase* e) {this->CoreDamaged(); });
 	PathPlanner::SetGrid(&hexGrid);
-	light.SetAsPoint({ 0, 0, 1 }, { 0, 1, 0 }, 1000);
+	light.SetAsPoint({ 0, 0, 0 }, { 0, 1, 0 }, 1000);
 	light.Enable();
 }
 
@@ -362,7 +362,7 @@ void Game::Update() {
 				if (gameData.panicTimer != -1) {
 					if (gameData.panicTimer >= gameData.panicTimerDone) {
 						gameData.panicTimer = -1;
-						light.SetColor({ 0, 0, 1 });
+						light.SetColor({ 0, 0, 0 });
 					}
 					else {
 						gameData.panicTimer += dt;
@@ -398,7 +398,7 @@ void Game::Update() {
 		case GAMESTATE_BetweenWaves:
 			{
 				gameData.panicTimer = -1;
-				light.SetColor({ 0, 0, 1 });
+				light.SetColor({ 0, 0, 0 });
 				//--------Update Engine Structure
 				engine->ExecuteUpdate();
 				engine->ExecuteLateUpdate();

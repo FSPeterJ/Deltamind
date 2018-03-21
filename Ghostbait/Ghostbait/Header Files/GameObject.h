@@ -11,7 +11,6 @@ enum GAMEOBJECT_FLAGS {
 	OTHER = 4,
 	OTHERI = 8,
 	OTHERII = 16,
-	AHHHH = 32,
 };
 
 class GameObject: public Object {

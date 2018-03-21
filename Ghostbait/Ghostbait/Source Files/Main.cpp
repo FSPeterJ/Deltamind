@@ -195,7 +195,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest3.ghost"), "PhyTest3");
 	ObjectFactory::CreatePrefab(&std::string("Assets/MenuControllerItem.ghost"), "MenuController", true);
 	unsigned Gun1 = ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost"), "Pistol", true);
-	unsigned Gun2 = ObjectFactory::CreatePrefab(&std::string("Assets/Gun2.ghost"), "GunTest2");
+	unsigned Gun2 = ObjectFactory::CreatePrefab(&std::string("Assets/smg.ghost"), "smg");
 	//ObjectFactory::CreatePrefab(&std::string("Assets/Gun.ghost"), "GunTest", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/TestProjectile.ghost"), "TestProjectile");
 	ObjectFactory::CreatePrefab(&std::string("Assets/AStarEnemyEdit.ghost"), "AStarEnemy");

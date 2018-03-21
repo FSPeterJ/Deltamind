@@ -30,9 +30,11 @@ bool Font::LoadIndexFile(std::string _fileName)
 			reader.get(readTo);
 		reader.get(readTo);
 		char letter = readTo;
-		reader >> charMap[letter].startU;
-		reader >> charMap[letter].endU;
-		reader >> charMap[letter].size;
+		CharPos temp;
+		reader >> temp.startU;
+		reader >> temp.endU;
+		reader >> temp.size;
+		charMap[letter] = temp;
 	}
 	reader.close();
 	return true;

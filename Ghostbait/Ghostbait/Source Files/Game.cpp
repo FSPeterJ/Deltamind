@@ -11,6 +11,8 @@
 #include "ObjectFactory.h"
 #include "Player.h"
 
+
+
 void Game::GameData::Reset() {
 	state = GAMESTATE_BetweenWaves;
 	prevState = GAMESTATE_BetweenWaves;
@@ -68,13 +70,13 @@ Game::Game() {
 	MessageEvents::Subscribe(EVENT_GamePause, [=](EventMessageBase* e) {this->PauseGame(); });
 	MessageEvents::Subscribe(EVENT_GameUnPause, [=](EventMessageBase* e) {this->ResumeGame(); });
 	MessageEvents::Subscribe(EVENT_GameRestart, [=](EventMessageBase* e) {this->RestartLevel(); });
-	MessageEvents::Subscribe(EVENT_SnapRequest, [=](EventMessageBase* e) {this->SnapRequestEvent(e); });
-	MessageEvents::Subscribe(EVENT_AddObstacle, [=](EventMessageBase* e) {this->AddObstacleEvent(e); });
-	MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {this->RemoveObstacleEvent(e); });
 	MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) {this->Lose(); });
 	MessageEvents::Subscribe(EVENT_GameQuit, [=](EventMessageBase* e) {this->Quit(); });
 	MessageEvents::Subscribe(EVENT_GameExit, [=](EventMessageBase* e) {this->ExitToMenu(); });
+	MessageEvents::Subscribe(EVENT_CoreDamaged, [=](EventMessageBase* e) {this->CoreDamaged(); });
 	PathPlanner::SetGrid(&hexGrid);
+	light.SetAsPoint({ 0, 0, 1 }, { 0, 1, 0 }, 1000);
+	light.Enable();
 }
 
 //Catch Events
@@ -97,29 +99,11 @@ void Game::SpawnerCreatedEvent(EventMessageBase* e) {
 		Console::ErrorLine << "A non-spawner Object was send to Game.h in the SpawnerCreated Message!";
 }
 void Game::EnemyDiedEvent() {
+	if (gameData.GetState() == GAMESTATE_GameOver) return;
 	gameData.waveManager.EnemyKilled();
 	gameData.gears += 50;
 	if (gameData.waveManager.GetAliveEnemyCount() <= 0) {
 		ChangeState(GAMESTATE_BetweenWaves);
-	}
-}
-void Game::SnapRequestEvent(EventMessageBase* e) {
-	SnapMessage* message = (SnapMessage*)e;
-	DirectX::XMFLOAT2 givenPos = *message->position;
-	(*message->success) = hexGrid.Snap(givenPos, *message->position);
-}
-void Game::AddObstacleEvent(EventMessageBase* e) {
-	SnapMessage* message = (SnapMessage*)e;
-	*message->success = false;
-	if (!hexGrid.IsBlocked(*message->position)) {
-		*message->success = hexGrid.AddObstacle(*message->position);
-	}
-}
-void Game::RemoveObstacleEvent(EventMessageBase* e) {
-	SnapMessage* message = (SnapMessage*)e;
-	*message->success = false;
-	if (hexGrid.IsBlocked(*message->position)) {
-		(*message->success) = hexGrid.RemoveObstacle(*message->position);
 	}
 }
 void Game::StartEvent() {
@@ -139,6 +123,10 @@ void Game::StartEvent() {
 			ChangeScene("level0");
 			break;
 	}
+}
+void Game::CoreDamaged() {
+	gameData.panicTimer = 0;
+	light.SetColor({ 1, 0, 0});
 }
 
 //Helpers
@@ -215,9 +203,8 @@ void Game::ChangeScene(const char* sceneName) {
 		DirectX::XMFLOAT3 temp = DirectX::XMFLOAT3(0, 0, 0);
 		player->Teleport(&temp);
 		player->transform.LookAt({ menuPos._41, menuPos._42, menuPos._43 });
-		
 	}
-	
+
 	//--------------------------------------
 
 	//If it has level/wave data, load it
@@ -372,6 +359,16 @@ void Game::Update() {
 	switch (gameData.GetState()) {
 		case GAMESTATE_InWave:
 			{
+				if (gameData.panicTimer != -1) {
+					if (gameData.panicTimer >= gameData.panicTimerDone) {
+						gameData.panicTimer = -1;
+						light.SetColor({ 0, 0, 1 });
+					}
+					else {
+						gameData.panicTimer += dt;
+					}
+				}
+
 				//--------Spawn Enemies if it's their time
 				{
 					//For each spawn entry in the level file
@@ -400,6 +397,8 @@ void Game::Update() {
 			break;
 		case GAMESTATE_BetweenWaves:
 			{
+				gameData.panicTimer = -1;
+				light.SetColor({ 0, 0, 1 });
 				//--------Update Engine Structure
 				engine->ExecuteUpdate();
 				engine->ExecuteLateUpdate();

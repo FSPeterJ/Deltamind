@@ -7,5 +7,7 @@ class Core : public GameObject,  public Health {
 public:
 	Core() { SetTag("Core"); };
 	void Destroy() override;
-	void Death() override;
+	void HurtEvent() override;
+	void HealedEvent() override;
+	void DeathEvent() override;
 };

@@ -21,11 +21,12 @@ enum ControllerState {
 class ControllerObject: public GameObject, public Controlable {
 	struct Inventory {
 		unsigned itemCount = 0;
-		//Find a better solution for this
 		unsigned itemPrefabs[CONTROLLER_MAX_ITEMS] = { 0 };
+
 		Item* items[CONTROLLER_MAX_ITEMS] = { 0 };
-		Item* displayItems[CONTROLLER_MAX_ITEMS] = { 0 };
 		Item* currentItem = nullptr;
+
+		Item* displayItems[CONTROLLER_MAX_ITEMS] = { 0 };
 		float displayRotation = 0;
 		int currentSpinningItem = -1;
 	};
@@ -54,6 +55,7 @@ public:
 	void AddItem(int itemSlot, unsigned prefabID);
 	void AddItem(int itemSlot, unsigned prefabID, std::vector<unsigned> prefabIDs);
 	void AddItem(int itemSlot, unsigned prefabID, Gun::FireType _fireType, float _fireRate, float _damage);
+	void RemoveItem(int itemSlot);
 	void Update();
 	void GivePID(unsigned pid, const char* tag) override;
 	void Awake(Object* obj);

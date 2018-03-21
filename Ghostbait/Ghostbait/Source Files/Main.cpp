@@ -49,6 +49,7 @@ void ExecuteAsync() {
 }
 
 void Setup(HINSTANCE hInstance, int nCmdShow) {
+	ThreadPool::Start();
 	Console::Allocate();
 	Window wnd(1024, 900);
 
@@ -57,31 +58,11 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	_Pool_Base::RegisterMemory(&MemMan);
 	Console::WriteLine << "App has been initalized!";
-	//Minimize();
-
-#pragma region testing
-	//EngineStructure engine;
-	//SomeCoolObject* t = new SomeCoolObject();
-	//engine.ExecuteAwake();
-	//engine.ExecuteUpdate();
-	//delete t;
-	//MessageEvents::SendMessage(EVENT_Input, InputMessage(teleport, 0.567f));
-	//system("pause");
-	//CleanUp();
-	//Free();
-	//exit(0);
-#pragma endregion
-
-	//Memory Test
-	//=============================
-	//WriteLine((int)sizeof(Pool<Object>(15)));
-	//WriteLine((int)sizeof(Pool<SomeLeakyObject>(15)));
 
 	//=============================
 	//Multithreading Test
 	//=============================
 
-	ThreadPool::Start();
 	auto temp = ThreadPool::MakeJob(ExecuteAsync);
 
 	// check future for errors and / or completion
@@ -174,7 +155,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<SpawnerObject>("Spawner");
 	TypeMap::RegisterObjectAlias<EnemyBase>("EnemyBase");
 	TypeMap::RegisterObjectAlias<MenuCube>("MenuCube");
-	TypeMap::RegisterObjectAlias<Core>("CoreCube");
+	TypeMap::RegisterObjectAlias<Core>("Core");
 	TypeMap::RegisterObjectAlias<GameObject>("GameObject");
 	TypeMap::RegisterObjectAlias<GameObject>("ghost");
 	TypeMap::RegisterObjectAlias<PhysicsTestObj>("PhysicsTestObj");
@@ -201,7 +182,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost"), "Spawner");
 	ObjectFactory::CreatePrefab(&std::string("Assets/EnemyRobot.ghost"), "TestEnemy");
 	ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"), "startCube");
-	ObjectFactory::CreatePrefab(&std::string("Assets/CoreCube.ghost"), "CoreCube");
+	ObjectFactory::CreatePrefab(&std::string("Assets/Core.ghost"), "Core");
 	ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"), "WinCube");
 	ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"), "LoseCube");
 	ObjectFactory::CreatePrefab(&std::string("Assets/EarthMage.ghost"), "EarthMage");
@@ -236,37 +217,11 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//=============================
 
 	player->LoadControllers();
-	//if(VRManager::GetInstance().IsEnabled()) {
-	//	VRManager::GetInstance().CreateControllers();
-	//	VRManager::GetInstance().SetBuildItems({ basicTurret });
-	//}
-	//else {
-	//	//------
-	//	// Debug Controller
-	//	//=========================================================
-	//	ControllerObject *debugController;
-	//	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 0,2,-2 }, &debugController));
-	//	debugController->Init(ControllerHand::HAND_Left);
-	//	debugController->SetBuildItems({ basicTurret });
-	//	debugController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
-	//	debugController->SetGunData(2, Gun::FireType::AUTO, 8, 25);
-	//}
 
-	//GameObject* ground;
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<GameObject>("Ground", {4, 0.0f, 0.0f}, (GameObject**)&ground));
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(11, { 0, 0, 0 }, nullptr));
+
 	//GameObject* teddy;
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(11, {0, 0, 0}, &teddy));
 	//teddy->GetComponent<Animator>()->setState("Walk");
-
-
-	////********* TEMPORARY Start Cube ************
-	////TODO: Should move this to games start eventually when it is supported
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MenuCube>("startCube", {0, 1.5f, 0.0f}, &startCube));
-	//DirectX::XMStoreFloat4x4(&startCube->position, DirectX::XMLoadFloat4x4(&startCube->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
-	//startCube->Enable();
-
-	////*******************************************
 
 
 	//Spawner *spawner1, *spawner2;
@@ -288,22 +243,17 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	//((PhysicsTestObj*)test1)->isControllable = true;
 	//((PhysicsTestObj*)test1)->isRayCasting = true;
-
-	//test1->Enable(false);
-
-
+	//test1->PersistOnReset();
+	//test1->Enable();
 
 
-	//Turret *debugTurret;
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Turret>({ 1,0,0 }, &debugTurret));
-	//////assert(debugTurret->GetComponent<Animator>()->setState("default"));
-	//////debugTurret->GetComponent<Animator>()->SetTime(3.0f);
-	//debugTurret->Enable(false);
+
+
+
 
 	GhostTime::Initalize();
 	MessageEvents::Initilize();
 
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<GameObject>("EarthMage", { 0.0f, 0.0f, 25.0f }));
 	Console::WriteLine << "Starting Game Loop......";
 	game = new Game();
 	game->Start(player, &engine);

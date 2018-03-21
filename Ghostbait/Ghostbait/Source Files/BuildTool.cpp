@@ -60,19 +60,23 @@ void BuildTool::Activate() {
 
 bool BuildTool::Snap(GameObject** obj) {
 	DirectX::XMFLOAT2 pos = { (*obj)->transform.GetMatrix()._41, (*obj)->transform.GetMatrix()._43 };
-	if (Snap(&pos)) {
+	DirectX::XMFLOAT2 snappedPoint;
+	if (grid->Snap(pos, snappedPoint)) {
 		DirectX::XMFLOAT4X4 newPos = (*obj)->transform.GetMatrix();
-		newPos._41 = pos.x;
-		newPos._43 = pos.y;
+		newPos._41 = snappedPoint.x;
+		newPos._43 = snappedPoint.y;
 		(*obj)->transform.SetMatrix(newPos);
 		return true;
 	}
 	return false;
 }
 bool BuildTool::Snap(DirectX::XMFLOAT2* pos) {
-	bool occupied;
-	MessageEvents::SendMessage(EVENT_SnapRequest, SnapMessage(pos, &occupied));
-	return occupied;
+	DirectX::XMFLOAT2 snappedPoint;
+	if (grid->Snap(*pos, snappedPoint)) {
+		*pos = snappedPoint;
+		return true;
+	}
+	return false;
 }
 bool BuildTool::SetObstacle(DirectX::XMFLOAT2 pos, bool active) {
 	if (grid->IsBlocked(pos) == active) {
@@ -102,7 +106,7 @@ void BuildTool::SpawnProjection(){
 
 			Turret* turret = dynamic_cast<Turret*>(prefabs[currentPrefabIndex].object);
 			bool hasEnoughMoney = true;
-			if (turret) hasEnoughMoney = *gears >= turret->GetBuildCost();
+			if (turret) hasEnoughMoney = *gears >= turret->GetBuildCost(); //Disable for testing
 			bool maxTurretsSpawned = (*maxTurrets - *turretsSpawned) <= 0;
 
 			if ((grid->IsBlocked(newPos.x, newPos.y) || !hasEnoughMoney || maxTurretsSpawned) && prevLocationValid) {
@@ -147,7 +151,7 @@ void BuildTool::Spawn() {
 void BuildTool::RemoveProjection() {
 	DirectX::XMFLOAT3 endPos;
 	GameObject* colObject = nullptr;
-	if (!Raycast(&transform, DirectX::XMFLOAT3(transform.GetMatrix()._31, transform.GetMatrix()._32, transform.GetMatrix()._33), &endPos, &colObject, &deleteRay, 4)) {
+	if(!Raycast(&transform, DirectX::XMFLOAT3(transform.GetMatrix()._31, transform.GetMatrix()._32, transform.GetMatrix()._33), &endPos, &colObject, &deleteRay, 4)) {
 		if (currentlySelectedItem) {
 			currentlySelectedItem->SwapComponentVarient<Material>("default");
 			currentlySelectedItemIndex = -1;
@@ -194,7 +198,6 @@ void BuildTool::CycleForward() {
 		if (prefabs[tempIndex].ID == 0) {
 			currentMode = Mode::REMOVE;
 			deleteRay.Create();
-			buildArc.Destroy();
 		}
 		else {
 			currentMode = Mode::SPAWN;
@@ -203,7 +206,6 @@ void BuildTool::CycleForward() {
 				currentlySelectedItem = nullptr;
 			}
 			deleteRay.Destroy();
-			buildArc.Create();
 		}
 
 		currentPrefabIndex = tempIndex;
@@ -227,7 +229,6 @@ void BuildTool::CycleBackward() {
 		if (prefabs[tempIndex].ID == 0) {
 			currentMode = Mode::REMOVE;
 			deleteRay.Create();
-			buildArc.Destroy();
 		}
 		else {
 			currentMode = Mode::SPAWN;
@@ -236,7 +237,6 @@ void BuildTool::CycleBackward() {
 				currentlySelectedItem = nullptr;
 			}
 			deleteRay.Destroy();
-			buildArc.Create();
 		}
 
 		currentPrefabIndex = tempIndex;

@@ -28,8 +28,6 @@ void Projectile::OnCollision(GameObject* object) {
 	{
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 	}
-
-	timeSinceShot = 0;
 }
 
 void Projectile::SetDamage(float _damage) {

@@ -23,6 +23,8 @@ class BuildTool : public Item {
 	int currentlySelectedItemIndex = -1;
 	GameObject* currentlySelectedItem = nullptr;
 	bool prevLocationValid = true;
+
+	//Game values
 	HexGrid* grid = nullptr;
 	unsigned* gears = nullptr; 
 	unsigned* turretsSpawned = nullptr;

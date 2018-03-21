@@ -89,16 +89,12 @@ namespace {
 			Transform tran;
 			tran.SetPosition(points[i]);
 			if(i < ArcPoints - 1) tran.LookAt(points[i + 1]);
-			else tran.LookAt(end);
-
-			DirectX::XMFLOAT4X4 newMat = tran.GetMatrix();
-			newMat._11 *= -1;
-			newMat._12 *= -1;
-			newMat._13 *= -1;
-			newMat._31 *= -1;
-			newMat._32 *= -1;
-			newMat._33 *= -1;
-			arc->Get()->GetComponent<Animator>()->SetJointMatrix(i, newMat);
+			else {
+				DirectX::XMFLOAT4X4 endMat = tran.GetMatrix();
+				endMat._42 -= 1;
+				tran.LookAt(DirectX::XMFLOAT3(endMat.m[3]));
+			}
+			arc->Get()->GetComponent<Animator>()->SetJointMatrix(i, tran.GetMatrix());
 			DebugRenderer::DrawAxes(arc->Get()->GetComponent<Animator>()->GetJointMatrix(i), 0.25f);
 		}
 	}

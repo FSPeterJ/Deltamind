@@ -511,8 +511,8 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 
 	LightManager::addPointLight({ 5.0f, 0.0f, 0.0f }, { 0.0f, 3.0f, 0.0f }, 15.0f);
 	TextManager::Initialize(device, context);
-	TextManager::LoadFont("Assets/Fonts/defaultFontIndex.txt", "Assets/Fonts/defaultFont");
-	TextManager::DrawTextTo("Assets/Fonts/defaultFont", "This is a \ntest.");
+	TextManager::LoadFont("Assets/Fonts/defaultFontIndex.txt", "Assets/Fonts/defaultFont.png");
+	TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "This is a \ntest.");
 	TextManager::Destroy();
 }
 

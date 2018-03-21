@@ -33,6 +33,8 @@ void TextManager::LoadFont(std::string _fileName, std::string _texturePath)
 TextManager::textOutput TextManager::DrawTextTo(std::string _fontTexturePath, std::string _sentence)
 {
 	Font* font = fonts[_fontTexturePath];
+	if (!font)
+		return textOutput();
 	float width = 0.0f;
 	float height = 16.0f;
 	float tempWidth = 0.0f;

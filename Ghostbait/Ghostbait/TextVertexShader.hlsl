@@ -6,7 +6,7 @@ cbuffer screenBuffer : register(b3)
 
 struct VertexShaderInput
 {
-    float3 pos : SV_POSITION;
+    float3 pos : POSITION;
     float2 uv : TEXCOORD0;
 };
 

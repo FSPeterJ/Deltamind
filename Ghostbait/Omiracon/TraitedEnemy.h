@@ -8,6 +8,18 @@ enum Trait {
 	COUNT
 };
 
+enum MutationType {
+	//INSERT,
+	//INVERSION,
+	SCRAMBLE,
+	//SWAP,
+	//FLIP,
+	INTERCHANGING,
+	//REVERSING,
+	UNIFORM,
+	CREEP
+};
+
 class Traits {
 	friend class TraitedEnemy;
 
@@ -23,6 +35,8 @@ public:
 	void Reset(void) { memset(traitList, 0x0, Trait::COUNT * sizeof(float)); }
 	float const& operator[](const Trait trait) const { return traitList[static_cast<int>(trait)]; }
 	float& operator[](const Trait trait) { return traitList[static_cast<int>(trait)]; }
+	inline float& RandomTrait(void);
+	void Mutate(const MutationType mutation);
 };
 
 class Performance {
@@ -35,9 +49,9 @@ public:
 };
 
 class TraitedEnemy {
-	Traits traits;
 public:
+	Traits traits;
 	Performance measure;
-	TraitedEnemy();
-	~TraitedEnemy();
+	TraitedEnemy(void);
+	~TraitedEnemy(void);
 };

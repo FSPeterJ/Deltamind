@@ -6,8 +6,5 @@ namespace GhostRand {
 		Exclusive,
 	};
 	template<typename T = int, Type Interval = Type::Exclusive>
-	T RandomNumber(T min, T max);
-	
+	T const RandomNumber(const T min, const T max);
 }
-
-

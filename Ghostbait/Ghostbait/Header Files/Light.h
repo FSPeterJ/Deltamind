@@ -4,12 +4,14 @@
 struct genericLight;
 
 enum LightType {
+	LIGHT_None,
 	LIGHT_Point,
 	LIGHT_Spot,
 	LIGHT_Directional,
 };
 class Light : public GameObject {
 	int lightID = -1;
+	LightType type = LIGHT_None;
 
 	void RemoveLightFromManager();
 public:
@@ -19,6 +21,9 @@ public:
 
 	void SetColor(DirectX::XMFLOAT3 color);
 	void SetColor(DirectX::XMFLOAT4 color);
+	void SetRadius(const float radius);
+	void SetDirection(const DirectX::XMFLOAT3 dir);
+	void SetOuterRadius(const float outerRadius);
 
 	genericLight* GetData() const;
 

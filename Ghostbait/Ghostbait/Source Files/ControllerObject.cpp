@@ -332,31 +332,36 @@ void ControllerObject::Update() {
 				if (player->IsVR()) {
 					DisplayInventory();
 
-					static bool teleportQueued = false;
-					DirectX::XMFLOAT3 endPos;
-					if (KeyIsDown(teleportDown) && hand == HAND_Right) {
-						if (ArcCast(&transform, &endPos, &player->teleportArc)) {
-							player->teleportArc.Create();
-							if (!(player->GetBuildGrid()->IsBlocked(DirectX::XMFLOAT2(endPos.x, endPos.z))) && (player->teleportArc.Get()->componentVarients.find("valid") != player->teleportArc.Get()->componentVarients.end())) {
-								int id = TypeMap::GetComponentTypeID<Material>();
-								player->teleportArc.Get()->SetComponent(player->teleportArc.Get()->componentVarients["valid"], id);
-								teleportQueued = true;
+					if (!player->IsGod()) {
+						static bool teleportQueued = false;
+						DirectX::XMFLOAT3 endPos;
+						if (KeyIsDown(teleportDown) && hand == HAND_Right) {
+							if (ArcCast(&transform, &endPos, &player->teleportArc)) {
+								player->teleportArc.Create();
+								if (!(player->GetBuildGrid()->IsBlocked(DirectX::XMFLOAT2(endPos.x, endPos.z))) && (player->teleportArc.Get()->componentVarients.find("valid") != player->teleportArc.Get()->componentVarients.end())) {
+									int id = TypeMap::GetComponentTypeID<Material>();
+									player->teleportArc.Get()->SetComponent(player->teleportArc.Get()->componentVarients["valid"], id);
+									teleportQueued = true;
+								}
+								else if (player->teleportArc.Get()->componentVarients.find("invalid") != player->teleportArc.Get()->componentVarients.end()) {
+									int id = TypeMap::GetComponentTypeID<Material>();
+									player->teleportArc.Get()->SetComponent(player->teleportArc.Get()->componentVarients["invalid"], id);
+									teleportQueued = false;
+								}
 							}
-							else if (player->teleportArc.Get()->componentVarients.find("invalid") != player->teleportArc.Get()->componentVarients.end()) {
-								int id = TypeMap::GetComponentTypeID<Material>();
-								player->teleportArc.Get()->SetComponent(player->teleportArc.Get()->componentVarients["invalid"], id);
+							else {
+								player->teleportArc.Destroy();
 								teleportQueued = false;
 							}
 						}
-						else {
+						else if (!KeyIsDown(teleportDown) && hand == HAND_Right) {
 							player->teleportArc.Destroy();
+						}
+						if (teleportQueued && !KeyIsDown(teleportDown) && hand == HAND_Right) {
+							player->teleportArc.Destroy();
+							player->Teleport();
 							teleportQueued = false;
 						}
-					}
-					if (teleportQueued && !KeyIsDown(teleportDown) && hand == HAND_Right) {
-						player->teleportArc.Destroy();
-						player->Teleport();
-						teleportQueued = false;
 					}
 				}
 				//Keboard Inputs
@@ -494,7 +499,6 @@ void ControllerObject::Update() {
 
 	GameObject::Update();
 }
-
 
 
 // TEMPORARY - CHANGE OR REMOVE LATER

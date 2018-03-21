@@ -2,6 +2,7 @@
 #include <queue>
 #include <bitset>
 #include "MessageStructs.h"  // for Control
+#include "CodeSequence.h"
 
 enum InputType {
 	VR,
@@ -48,6 +49,8 @@ private:
 	VRManager* vrMan;
 
 	static bool mouseActivate;
+
+	static CodeSequence godModeCode;
 
 public:
 

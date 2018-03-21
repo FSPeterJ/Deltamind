@@ -50,6 +50,8 @@ InputManager::~InputManager() {
 };
 InputManager::InputManager(InputType type) {
 	SetInputType(type);
+	godModeCode.SetCode(CodeSequence::CodePreset::Konami);
+	godModeCode.SetCompletionFunction([=]() {MessageEvents::SendMessage(EVENT_Input, InputMessage(Control::GodMode, 1)); });
 };
 
 //VR
@@ -257,7 +259,7 @@ void InputManager::VRInput::CheckForInput() {
 							amount = 1;
 						}
 
-						inputPoll.push(InputPackage(input, amount));
+						//inputPoll.push(InputPackage(input, amount));
 
 
 						break;
@@ -347,6 +349,7 @@ void InputManager::VRInput::CheckForInput() {
 
 		if(keyStates[input] != amount > 0.0f ? 1 : 0) {
 			keyStates[input] = amount > 0.0f ? 1 : 0;
+			if(keyStates[input] == 1) godModeCode.CheckNewInput(input);
 			inputPoll.push(InputPackage(input, amount));
 		}
 	}
@@ -380,10 +383,10 @@ InputManager::KeyboardInput::KeyboardInput() {
 	MapKey(TestInputO, 'O');
 	MapKey(TestInputJ, 'J');
 	MapKey(TestInputK, 'K');
-	MapKey(TestInputZ, 'Z');
-	MapKey(TestInputC, 'C');
+	MapKey(Crouch, 'C');
 	MapKey(TestInputL, 'L');
 	MapKey(releaseKey, VK_MENU); // Alt Key
+	MapKey(Sprint, VK_SHIFT); // Alt Key
 
 	GetWindowRect(GetActiveWindow(), &winRect);
 	cursorX = ((winRect.right - winRect.left) * 0.5f);
@@ -504,6 +507,7 @@ void InputManager::KeyboardInput::CheckForInput() {
 
 		if(keyStates[input] != (amount > 0.0f ? 1 : 0)) {
 			keyStates[input] = amount > 0.0f ? 1 : 0;
+			if (keyStates[input] == 1) godModeCode.CheckNewInput(input);
 			inputPoll.push(InputPackage(input, amount));
 		}
 		inputQueue.pop();
@@ -537,6 +541,7 @@ std::queue<InputPackage> InputManager::inputPoll;
 std::bitset<(size_t)Control::Total> InputManager::keyStates;
 bool InputManager::mouseActivate = false;
 InputType InputManager::inputType = KEYBOARD;
+CodeSequence InputManager::godModeCode;
 
 void InputManager::HandleInput() {
 	bridge->CheckForInput();

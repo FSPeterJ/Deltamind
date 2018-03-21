@@ -178,6 +178,7 @@ void Game::ChangeState(State newState) {
 				}
 				break;
 			case GAMESTATE_MainMenu:
+				light.SetColor({ 0, 0, 0 });
 				break;
 		}
 	}
@@ -203,7 +204,7 @@ void Game::ChangeScene(const char* sceneName) {
 		mainMenu.Show(false);
 		player->leftController->SetControllerState(CSTATE_MenuController);
 		player->rightController->SetControllerState(player->IsVR() ? CSTATE_MenuController : CSTATE_ModelOnly);
-		player->transform.MoveToOrigin(player->playerHeight);
+		player->transform.MoveToOrigin(player->PlayerHeight());
 		player->ResetStance();
 		DirectX::XMFLOAT3 temp = DirectX::XMFLOAT3(0, 0, 0);
 		player->Teleport(&temp);
@@ -324,6 +325,7 @@ void Game::Quit() {
 	run = false;
 }
 void Game::ExitToMenu() {
+	ChangeState(GAMESTATE_MainMenu);
 	ChangeScene("mainMenu");
 }
 

@@ -27,14 +27,77 @@ Player::Player() {
 	transform.LookAt({ 0, 1.7f, 1 });
 }
 
+void Player::ChangeStance(Stance newStance) {
+	if (stance == newStance) return;
+	stance = newStance;
+	switch (newStance) {
+		case STANCE_Stand:
+			stance = STANCE_Stand;
+			playerHeight = standHeight;
+			playerSpeed = walkSpeed;
+			transform.SetPosition(transform.GetPosition().x, playerHeight, transform.GetPosition().z);
+			break;
+		case STANCE_Crouch:
+			stance = STANCE_Crouch;
+			playerHeight = crouchHeight;
+			playerSpeed = crouchSpeed;
+			transform.SetPosition(transform.GetPosition().x, playerHeight, transform.GetPosition().z);
+			break;
+		case STANCE_God:
+			playerHeight = standHeight;
+			playerSpeed = runSpeed;
+			transform.SetPosition(transform.GetPosition().x, playerHeight, transform.GetPosition().z);
+			break;
+	}
+}
+
 void Player::Update() {
 	float dt = (float)GhostTime::DeltaTime();
 
-	if (IsVR()) 
+	if (IsVR()) {
 		transform.SetMatrix(VRManager::GetInstance().GetPlayerPosition());
+
+		if (KeyIsDown(Control::GodMode)) {
+			if (stance == STANCE_God) ChangeStance(STANCE_Stand);
+			else ChangeStance(STANCE_God);
+		}
+	}
 	else {
 		DirectX::XMFLOAT3 prevPos = transform.GetPosition();
 		float rotationLimit = DirectX::XMConvertToRadians(80);
+		
+		if (KeyIsDown(Control::GodMode)) {
+			ResetKey(Control::GodMode);
+			if (stance == STANCE_God) ChangeStance(STANCE_Stand);
+			else ChangeStance(STANCE_God);
+		}
+		if (KeyIsDown(Control::Crouch)) {
+			ResetKey(Control::Crouch);
+			if (stance == STANCE_Stand) ChangeStance(STANCE_Crouch);
+			else if (stance == STANCE_Crouch) ChangeStance(STANCE_Stand);
+		}
+		if (KeyIsDown(Control::Sprint)) {
+			switch (stance) {
+				case STANCE_God:
+					playerSpeed = godSpeed;
+					break;
+				case STANCE_Crouch:
+					ChangeStance(STANCE_Stand);
+				case STANCE_Stand:
+					playerSpeed = runSpeed;
+					break;
+			}
+		}
+		else {
+			switch (stance) {
+				case STANCE_God:
+					playerSpeed = runSpeed;
+					break;
+				case STANCE_Stand:
+					playerSpeed = walkSpeed;
+					break;
+			}
+		}
 
 		if (KeyIsDown(Control::CameraLeftRight)) {
 			//position._41 -= 50.0f * dt;
@@ -50,7 +113,7 @@ void Player::Update() {
 			//ResetKey(Control::right);
 		}
 		if (KeyIsDown(Control::forward)) {
-			if (!godMode) {
+			if (stance != STANCE_God) {
 				//Oriented Matrix
 				DirectX::XMMATRIX newMat_M = DirectX::XMLoadFloat4x4(&transform.GetMatrix());
 				newMat_M.r[1] = DirectX::XMVectorSet(0, 1, 0, 0);
@@ -61,10 +124,10 @@ void Player::Update() {
 				DirectX::XMStoreFloat4x4(&tempMat, newMat_M);
 				transform.SetMatrix(tempMat);
 			}
-			transform.MoveAlongForward(godMode ? 30 : 10.0f);
+			transform.MoveAlongForward(playerSpeed);
 		}
 		if (KeyIsDown(Control::backward)) {
-			if (!godMode) {
+			if (stance != STANCE_God) {
 				//Oriented Matrix
 				DirectX::XMMATRIX newMat_M = DirectX::XMLoadFloat4x4(&transform.GetMatrix());
 				newMat_M.r[1] = DirectX::XMVectorSet(0, 1, 0, 0);
@@ -75,47 +138,28 @@ void Player::Update() {
 				DirectX::XMStoreFloat4x4(&tempMat, newMat_M);
 				transform.SetMatrix(tempMat);
 			}
-			transform.MoveAlongForward(godMode ? -30 : -10.0f);
+			transform.MoveAlongForward(-playerSpeed);
 			//ResetKey(Control::backward);
 		}
 		if (KeyIsDown(Control::LeftAction)) {
-			transform.MoveAlongUp(godMode ? 30 : 10.0f);
+			transform.MoveAlongUp(playerSpeed);
 			//ResetKey(Control::leftAttack);
 		}
 		if (KeyIsDown(Control::RightAction)) {
-			transform.MoveAlongUp(godMode ? -30 : -10.0f);
+			transform.MoveAlongUp(-playerSpeed);
 			//ResetKey(Control::rightAttack);
 		}
 
 		if (KeyIsDown(Control::left)) {
-			transform.MoveAlongSide(-10.0f);
+			transform.MoveAlongSide(-(playerSpeed * 0.6f));
 			//ResetKey(Control::TestInputZ);
 		}
 		if (KeyIsDown(Control::right)) {
-			transform.MoveAlongSide(10.0f);
+			transform.MoveAlongSide(playerSpeed * 0.6f);
 			//ResetKey(Control::TestInputC);
 		}
 
-		if (KeyIsDown(Control::TestInputZ)) {
-			godMode = !godMode;
-			ResetKey(Control::TestInputZ);
-		}
-		if (KeyIsDown(Control::TestInputC)) {
-			switch (stance) {
-				case STANCE_Stand:
-					stance = STANCE_Crouch;
-					playerHeight = crouchHeight;
-					transform.SetPosition(transform.GetPosition().x, playerHeight, transform.GetPosition().z);
-					break;
-				case STANCE_Crouch:
-					stance = STANCE_Stand;
-					playerHeight = standHeight;
-					transform.SetPosition(transform.GetPosition().x, playerHeight, transform.GetPosition().z);
-					break;
-			}
-			ResetKey(Control::TestInputC);
-		}
-
+		//Rotate Camera
 		if (rotationX < -rotationLimit) {
 			rotationX = -rotationLimit;
 		}
@@ -127,7 +171,8 @@ void Player::Update() {
 		}
 		transform.SetRotationRadians(rotationX, rotationY, 0.0f);
 
-		if (!godMode) {
+		//Ground Clamp
+		if (stance != STANCE_God) {
 			//Ground Clamp
 			Transform start;
 			start.SetPosition(transform.GetMatrix()._41, transform.GetMatrix()._42 - playerHeight + 0.1f, transform.GetMatrix()._43);

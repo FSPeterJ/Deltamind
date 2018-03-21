@@ -284,6 +284,30 @@ void Transform::MoveAlongSide(const float speed) {
 	matrix._43 += matrix._13 * speed * dt;
 }
 
+void Transform::NormalizeXAxis() {
+	float length = sqrtf((matrix._11 * matrix._11) + (matrix._12 * matrix._12) + (matrix._13 * matrix._13));
+	matrix._11 /= length;
+	matrix._12 /= length;
+	matrix._13 /= length;
+}
+void Transform::NormalizeYAxis() {
+	float length = sqrtf((matrix._21 * matrix._21) + (matrix._22 * matrix._22) + (matrix._23 * matrix._23));
+	matrix._21 /= length;
+	matrix._22 /= length;
+	matrix._23 /= length;
+}
+void Transform::NormalizeZAxis() {
+	float length = sqrtf((matrix._31 * matrix._31) + (matrix._32 * matrix._32) + (matrix._33 * matrix._33));
+	matrix._31 /= length;
+	matrix._32 /= length;
+	matrix._33 /= length;
+}
+void Transform::NormalizeAllAxis() {
+	NormalizeXAxis();
+	NormalizeYAxis();
+	NormalizeZAxis();
+}
+
 //
 //void Transform::operator*(Transform operand) {
 //	

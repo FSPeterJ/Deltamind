@@ -44,13 +44,14 @@ void Gun::Overheat::Update(bool active) {
 		//Update Bar itself
 		DirectX::XMFLOAT4X4 newPos;
 		newPos = parent->transform.GetMatrix();
+		bar->transform.NormalizeAllAxis();
 		newPos._41 -= bar->transform.GetMatrix()._11 * 0.04f;
 		newPos._42 -= bar->transform.GetMatrix()._12 * 0.04f;
 		newPos._43 -= bar->transform.GetMatrix()._13 * 0.04f;
 		
-		newPos._41 -= bar->transform.GetMatrix()._31 * 0.06f;
-		newPos._42 -= bar->transform.GetMatrix()._32 * 0.06f;
-		newPos._43 -= bar->transform.GetMatrix()._33 * 0.06f;
+		newPos._41 -= bar->transform.GetMatrix()._31 * 0.09f;
+		newPos._42 -= bar->transform.GetMatrix()._32 * 0.09f;
+		newPos._43 -= bar->transform.GetMatrix()._33 * 0.09f;
 
 		bar->transform.SetMatrix(newPos);
 

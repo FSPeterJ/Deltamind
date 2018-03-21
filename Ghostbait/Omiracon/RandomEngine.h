@@ -1,10 +1,13 @@
 #pragma once
 
-namespace GhostMind {
-	namespace GhostRand {
-		double RandomDoubleOpenMax(double inclusiveMin, double exclusiveMax);
-		int RandomIntOpenMax(int inclusiveMin, int exclusiveMax);
-		double RandomDoubleClosedMax(double inclusiveMin, double inclusiveMax);
-		int RandomIntClosedMax(int inclusiveMin, int inclusiveMax);
-	}
+namespace GhostRand {
+	enum class Type {
+		Inclusive,
+		Exclusive,
+	};
+	template<typename T = int, Type Interval = Type::Exclusive>
+	T RandomNumber(T min, T max);
+	
 }
+
+

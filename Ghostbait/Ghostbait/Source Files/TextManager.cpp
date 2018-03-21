@@ -3,6 +3,10 @@
 
 ID3D11Device* TextManager::device;
 ID3D11DeviceContext* TextManager::context;
+ID3D11VertexShader* TextManager::vs;
+ID3D11PixelShader* TextManager::ps;
+ID3D11InputLayout* TextManager::il;
+ID3D11Buffer* TextManager::windowSizeToShader;
 std::unordered_map<std::string, Font*> TextManager::fonts; 
 std::vector<TextManager::renderableMat> TextManager::managedMaterials;
 
@@ -62,6 +66,24 @@ TextManager::renderableMat TextManager::createTextMaterial(float width, float he
 	device->CreateDepthStencilView(toPush.depthTex, &depthStencilDesc, &toPush.dsv);
 	managedMaterials.push_back(toPush);
 	return toPush;
+}
+
+void TextManager::renderText(renderableMat * mat, std::string & sentence, std::vector<VertexPositionTexture>& vertices, ID3D11ShaderResourceView* font)
+{
+	ID3D11Buffer* vertexBuffer;
+	D3D11_SUBRESOURCE_DATA vertexBufferData = { 0 };
+	vertexBufferData.pSysMem = &vertices[0];
+	vertexBufferData.SysMemPitch = 0;
+	vertexBufferData.SysMemSlicePitch = 0;
+	CD3D11_BUFFER_DESC vertexBufferDesc(sizeof(VertexPositionTexture) * (UINT)vertices.size(), D3D11_BIND_VERTEX_BUFFER);
+
+	device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, &vertexBuffer);
+
+	context->VSSetShader(vs, NULL, NULL);
+	context->VSSetConstantBuffers(3, 1, &windowSizeToShader);
+
+	context->PSSetShader(ps, NULL, NULL);
+	context->PSSetShaderResources(0, 1, &font);
 }
 
 void TextManager::Initialize(ID3D11Device * _device, ID3D11DeviceContext * _context)
@@ -158,6 +180,7 @@ TextManager::textOutput TextManager::DrawTextTo(std::string _fontTexturePath, st
 			drawX = drawX + pos.size + 1.0f;
 		}
 	}
+	renderableMat mat = createTextMaterial(width, height);
 	return textOutput();
 }
 

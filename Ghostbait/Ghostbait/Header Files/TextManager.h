@@ -5,6 +5,8 @@
 #include <vector>
 #include "Material.h"
 
+struct VertexPositionTexture;
+
 class TextManager {
 	struct renderableMat
 	{
@@ -14,12 +16,24 @@ class TextManager {
 		ID3D11Texture2D* depthTex;
 		D3D11_VIEWPORT viewport;
 	};
+
+	struct windowSizeBuffer
+	{
+		float height;
+		float width;
+	};
+
 	static ID3D11Device* device;
 	static ID3D11DeviceContext* context;
+	static ID3D11VertexShader* vs;
+	static ID3D11PixelShader* ps;
+	static ID3D11InputLayout* il;
+	static ID3D11Buffer* windowSizeToShader;
 	static std::unordered_map<std::string, Font*> fonts;
 	static std::vector<renderableMat> managedMaterials;
 
 	static renderableMat createTextMaterial(float width, float height);
+	static void renderText(renderableMat* mat, std::string& sentence, std::vector<VertexPositionTexture> & vertices, ID3D11ShaderResourceView* font);
 public:
 	struct textOutput
 	{

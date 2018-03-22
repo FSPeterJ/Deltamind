@@ -100,6 +100,7 @@ private:
 	ID3D11PixelShader* DeferredTargetPS;
 	ID3D11VertexShader* PassThroughPositionVS;
 	ID3D11GeometryShader* NDCQuadGS;
+	ID3D11ComputeShader* ParticleComputeShader;
 
 	ID3D11InputLayout* ILPositionColor;
 	ID3D11InputLayout* ILStandard;
@@ -127,6 +128,10 @@ private:
 	MeshManager* meshManagement = nullptr;
 	MaterialManager* materialManagement = nullptr;
 	AnimationManager* animationManagement = nullptr;
+
+	//Contains randomized numbers since GPU's don't have a RdRand instruction
+	ID3D11Texture2D* randomTexture;
+	ID3D11ShaderResourceView* randomTextureSRV;
 
 	void initDepthStencilBuffer(pipeline_state_t* pipelineTo);
 	void initDepthStencilState(pipeline_state_t* pipelineTo);
@@ -211,5 +216,6 @@ public:
 	MaterialManager* getMaterialManager();
 	AnimationManager* getAnimationManager();
 	Transform* getCamera();
+	void FillRandomTexture();
 	void Render();
 };

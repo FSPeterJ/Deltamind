@@ -21,15 +21,18 @@ class DStarEnemy: public EnemyBase, public Controlable  {
 
 public:
 	void SetGrid(HexGrid* _grid) override;
-
+	void SetCore(Core* _core) override;
 	void SetGoal(HexTile* _goal);
-	void SetGoal(DirectX::XMFLOAT2 _goal) override;
+	void SetGoal(DirectX::XMFLOAT2 _goal);
 
 	void Repath() override {};
-	void Enable(bool _destroyOnReset = false);
-	void Disable();
-
+	void Enable() override;
+	void Disable() override;
+	void Subscribe() override;
+	void UnSubscribe() override;
+	void Destroy() override;
 	void Awake(Object* obj);
-	void Start();
+	void Attack();
 	void Update();
+
 };

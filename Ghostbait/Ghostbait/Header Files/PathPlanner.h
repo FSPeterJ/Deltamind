@@ -108,12 +108,16 @@ public:
 
 	static std::size_t DStarLiteSearch(HexTile *const start, HexTile *const goal, HexTile** nextTileInPath, HeuristicFunction Heuristic);
 	static std::size_t MTDStarLiteSearch(DirectX::XMFLOAT4X4* startRef, DirectX::XMFLOAT4X4* goalRef, HeuristicFunction Heuristic);
+
 	static void UpdateDStar(std::size_t dstarId);
 	static HexTile* GetDStarNextTile(std::size_t dstarId);
+	static bool RemoveDStar(std::size_t dstarId);
 
 	static void UpdateMTDSLTargetReference(std::size_t mtdstarId, DirectX::XMFLOAT4X4* goalRef);
 	static void UpdateMTDStar(std::size_t mtdstarId);
 	static HexTile* GetMTDStarNextTile(std::size_t mtdstarId);
+	static bool RemoveMTDStar(std::size_t mtdstarId);
+
 
 	static void CostChangeNotice(HexTile* const tile);
 

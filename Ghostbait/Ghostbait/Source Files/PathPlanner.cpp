@@ -308,6 +308,22 @@ void PathPlanner::UpdateMTDSLTargetReference(std::size_t mtdstarId, DirectX::XMF
 	mtdstarList[mtdstarId].UpdateGoalReference(goalRef);
 }
 
+bool PathPlanner::RemoveDStar(std::size_t dstarId) {
+	if (dstarList.count(dstarId)) {
+		dstarList.erase(dstarId);
+		return true;
+	}
+	return false;
+}
+
+bool PathPlanner::RemoveMTDStar(std::size_t mtdstarId) {
+	if (dstarList.count(mtdstarId)) {
+		dstarList.erase(mtdstarId);
+		return true;
+	}
+	return false;
+}
+
 //void PathPlanner::UpdateMTDStarLite(std::size_t mtdstarId) {
 //	dstarList[mtdstarId].Update();
 //}

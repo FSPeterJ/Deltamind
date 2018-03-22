@@ -134,7 +134,7 @@ void DStarCommon::UpdateOpenList(HexTile *const tile) {
 	//if (parent[tile]) Console::Write << PrintTileInfo(tile, GetGVal(tile], GetRHS(tile], parent[tile]);
 	//else Console::Write << PrintTileInfoNull(tile, GetGVal(tile], GetRHS(tile]);
 	if (!PathPlanner::EpsilonIsEqual(GetGVal(tile), GetRHS(tile))) {
-		Console::WriteLine << " Tile was Inconsistent";
+		//Console::WriteLine << " Tile was Inconsistent";
 		if (open.contains(tile)) {
 			open.update(tile, CalculateKey(tile));
 		}
@@ -143,7 +143,7 @@ void DStarCommon::UpdateOpenList(HexTile *const tile) {
 		}
 	}
 	else if (PathPlanner::EpsilonIsEqual(GetGVal(tile), GetRHS(tile)) && open.contains(tile)) {
-		Console::WriteLine << " Tile was Consistent";
+		//Console::WriteLine << " Tile was Consistent";
 		open.remove(tile);
 	}
 }
@@ -287,7 +287,7 @@ void MTDStarLite::ForEachInSearchTreeButNotSubtreeRootedAt(HexTile*const tile, N
 		traveled.clear();
 		while (nextParent) {
 			if (nextParent == tile) break;
-			if (traveled.count(tile) > 0) parent[nextParent] = nullptr;
+			if (traveled.count(nextParent) > 0) parent[nextParent] = nullptr;
 			traveled.insert(nextParent);
 			//if (parent.find(nextParent) == parent.end()) {
 			//	parent[nextParent] = nullptr;
@@ -322,7 +322,7 @@ void MTDStarLite::BasicDeletion(HexTile*const oldStart) {
 void MTDStarLite::ComputeCostMinimalPath() {
 	Console::WriteLine << "Computing Cost Minimal Path";
 	int iterations = 0;
-	int maxIter = (int)PathPlanner::heuristicFunction(start, goal) * 7;
+	int maxIter = (int)PathPlanner::heuristicFunction(start, goal) * 10;
 	bool hasPath = true;
 	while (!open.empty() && (open.front().second < CalculateKey(goal) || GetRHS(goal) > GetGVal(goal))) {
 		if (iterations++ > maxIter) {

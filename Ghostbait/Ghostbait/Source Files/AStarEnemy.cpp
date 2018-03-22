@@ -56,10 +56,10 @@ void AStarEnemy::Destroy() {
 void AStarEnemy::Update() {
 	EnemyBase::Update();
 
-	DirectX::XMFLOAT3 vel;
-	DirectX::XMStoreFloat3(&vel, rb->GetVelocity());
-	DirectX::XMFLOAT3 newPoint = { transform.GetPosition().x + vel.x, transform.GetPosition().y, transform.GetPosition().z + vel.z };
-	transform.TurnTowards(newPoint, 1);
+	//DirectX::XMFLOAT3 vel;
+	//DirectX::XMStoreFloat3(&vel, rb->GetVelocity());
+	//DirectX::XMFLOAT3 newPoint = { transform.GetPosition().x + vel.x, transform.GetPosition().y, transform.GetPosition().z + vel.z };
+	//transform.TurnTowards(newPoint, 1);
 
 
 	//Update Path

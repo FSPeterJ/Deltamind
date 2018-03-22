@@ -1,21 +1,43 @@
 #include "MTDSLEnemy.h"
 #include "Heuristics.h"
 #include "PhysicsComponent.h"
-//#include "Console.h"
 #include "MessageEvents.h"
 #include "PathPlanner.h"
+#include "GhostTime.h"
+//#include "Console.h"
 
-void MTDSLEnemy::Enable(bool _destroyOnReset) {
-	eventAdd = MessageEvents::Subscribe(EVENT_AddObstacle, [=](EventMessageBase* e) {this->Repath(); });
-	eventRemove = MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {this->Repath(); });
-	GameObject::Enable(_destroyOnReset);
-	Start();
+void MTDSLEnemy::Enable() {
+	tag = std::string("Enemy");
+	if (!goalReference) {
+		if (!core) { Console::ErrorLine << "No Goal! I'm gonna blowwwwww!!!!"; }
+		else { SetGoalReference(&core->transform.matrix); }
+	}
+
+	goal = grid->PointToTile(DirectX::XMFLOAT2(goalReference->_41, goalReference->_43));
+	if (!goal) { Console::ErrorLine << "Goal Tile DOESN'T EXIST!!!"; }
+
+	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
+	if (!curTile) { Console::ErrorLine << "Ahhhh! Initalize me on the grid please!!"; }
+
+	next = curTile; //is this needed or can i pass a ref to a null var below
+					//grid->RemoveObstacle(curTile);//Remove on final build
+	mtdstarId = PathPlanner::MTDStarLiteSearch(&(transform.matrix), goalReference, Heuristics::OctileDistance);
+
+	rb->SetTerminalSpeed(maxSpeed);
+	EnemyBase::Enable();
 }
 
 void MTDSLEnemy::Disable() {
-	MessageEvents::UnSubscribe(EVENT_AddObstacle, eventAdd);
-	MessageEvents::UnSubscribe(EVENT_RemoveObstacle, eventRemove);
+	MTDSLEnemy::UnSubscribe();
 	EnemyBase::Disable();
+}
+
+void MTDSLEnemy::Subscribe() {}
+
+void MTDSLEnemy::UnSubscribe() {}
+
+void MTDSLEnemy::Destroy() {
+	EnemyBase::Destroy();
 }
 
 void MTDSLEnemy::SetGoal(HexTile* _goal) {
@@ -35,29 +57,42 @@ void MTDSLEnemy::SetGrid(HexGrid* _grid) {
 	grid = _grid;
 }
 
-void MTDSLEnemy::Awake(Object* obj) {
-	EnemyBase::Awake(obj);
+void MTDSLEnemy::SetCore(Core* _core) {
+	EnemyBase::SetCore(_core);
 }
 
-void MTDSLEnemy::Start() {
+void MTDSLEnemy::Awake(Object* obj) {
+	grid = 0;
+	rb = 0;
+	goal = 0;
+	next = 0;
+	curTile = 0;
+	mtdstarId = 0;
+	goalReference = 0;
+	eventAdd = 0;
+	eventRemove = 0;
 
-	tag = std::string("Enemy");
-
+	EnemyBase::Awake(obj);
 	rb = &(GetComponent<PhysicsComponent>()->rigidBody);
+}
 
-	if (!goalReference) { Console::ErrorLine << "No Goal! I'm gonna blowwwwww!!!!"; }
+void MTDSLEnemy::Attack() {
+	if (timeSinceLastAttack == -1) {
+		if (core) core->AdjustHealth(-attackDamage);
+		Console::WriteLine << "Core health: " << core->PercentHealth();
+		timeSinceLastAttack = 0;
+		return;
+	}
 
-	goal = grid->PointToTile(DirectX::XMFLOAT2(goalReference->_41, goalReference->_43));
-	if (!goal) { Console::ErrorLine << "Goal Tile DOESN'T EXIST!!!"; }
+	float dt = (float)GhostTime::DeltaTime();
+	timeSinceLastAttack += dt;
 
-	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
-	if (!curTile) { Console::ErrorLine << "Ahhhh! Initalize me on the grid please!!"; }
-
-	next = curTile; //is this needed or can i pass a ref to a null var below
-	//grid->RemoveObstacle(curTile);//Remove on final build
-	mtdstarId = PathPlanner::MTDStarLiteSearch(&(transform.matrix), goalReference, Heuristics::OctileDistance);
-
-	rb->SetTerminalSpeed(maxSpeed);
+	float timeToAttack = 1 / attackSpeed;
+	if (timeSinceLastAttack >= timeToAttack) {
+		core->AdjustHealth(-attackDamage);
+		Console::WriteLine << "Core health: " << core->PercentHealth();
+		timeSinceLastAttack = 0;
+	}
 }
 
 void MTDSLEnemy::Update() {
@@ -92,6 +127,7 @@ void MTDSLEnemy::Update() {
 			if (goal == curTile) {
 				Console::WriteLine << "We made it to our goal.";
 				rb->Stop();
+				Attack();
 			}
 			else {
 				//if (KeyIsHit(Control::TestInputO)) {
@@ -106,7 +142,7 @@ void MTDSLEnemy::Update() {
 						DirectX::XMStoreFloat3(&nextDirection, DirectX::XMVector3Normalize(DirectX::XMVectorSet(nextPathPoint.x - transform.matrix._41, 0.0f, nextPathPoint.y - transform.matrix._43, 1.0f)));
 						float dotProd = (nextDirection.x * transform.matrix._31 + nextDirection.y * transform.matrix._32 + nextDirection.z * transform.matrix._33);
 						Console::WriteLine << "Dot Product:" << dotProd;
-						rb->AddForce(4.0f * (2.0f - dotProd), nextDirection.x, nextDirection.y, nextDirection.z, 0.02f);
+						rb->AddForce(3.0f * (2.0f - dotProd), nextDirection.x, nextDirection.y, nextDirection.z);
 						Console::WriteLine << "Current Pos: " << "(" << transform.matrix._41 << ", " << transform.matrix._42 << ", " << transform.matrix._43 << ")";
 						Console::WriteLine << "Next Point: " << "(" << nextPathPoint.x << ", " << 0.0f << ", " << nextPathPoint.y << ")";
 						Console::WriteLine << "Next Direction: " << "(" << nextDirection.x << ", " << nextDirection.y << ", " << nextDirection.z << ")";

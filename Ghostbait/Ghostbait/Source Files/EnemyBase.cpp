@@ -10,7 +10,7 @@
 
 void EnemyBase::Awake(Object* obj) {
 	currState = IDLE;
-	maxSpeed = (float)(rand() % 4);
+	maxSpeed = (float)(rand() % 3 + 1);
 	target = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	hurt = false;
 	hurtTimer = 0;

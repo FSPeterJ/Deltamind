@@ -81,6 +81,7 @@ void RigidBody::Update(XMMATRIX* _orientation) {
 	XMVECTOR normVelo = XMVector3Normalize(newVelo);
 	float newVelLengSq = XMVectorGetX(XMVector3LengthSq(newVelo));
 	if (newVelLengSq > FLT_EPSILON) {
+		_orientation->r[1] = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 		_orientation->r[0] = XMVector3Normalize(XMVector3Cross(_orientation->r[1], normVelo));
 		_orientation->r[2] = normVelo;
 	}

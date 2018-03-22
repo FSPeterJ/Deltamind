@@ -48,7 +48,7 @@ class Console {
 		template <typename T>
 		SuffixWriter operator<< (T&& value) {
 			SuffixWriter rc(sbuf); //temp obj to append
-			rc << std::forward<T>(value);
+				rc << std::forward<T>(value);
 			return rc;
 		}
 		SuffixWriter operator<< (std::ostream& (*manip)(std::ostream&)) {
@@ -78,29 +78,29 @@ public:
 
 	static const char* file_formatter(char* source);
 
-	/// <summary>
-	/// Allocates memory for the Console.
-	/// </summary>
+	///<summary>
+	///Allocates memory for the Console.
+	///<summary>
 	static void Allocate();
 
 	/// <summary>
 	/// Minimizes the console.
-	/// </summary>
+	/// <summary>
 	static inline void Minimize();
 
 	/// <summary>
 	/// Maximizes the console.
-	/// </summary>
+	/// <summary>
 	static inline void Maximize();
 
 	/// <summary>
 	/// Frees the memory allocated by the console.
-	/// </summary>
+	/// <summary>
 	static void Free();
 
-	/// <summary>
-	/// Sets the console color.
-	/// </summary>
-	/// <param name="color">The color.</param>
+	///<summary>
+	///Sets the console color.
+	///<summary>
+	///<param name="color">The color.<param>
 	static void SetColor(ConsoleColor color);
 };

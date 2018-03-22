@@ -123,7 +123,7 @@ void HexPath::BuildPath(HexTilePtr const start, HexTilePtr const goal, VisitedMa
 	while(current != start && current) {
 		data.push_back(current);
 		current = came_from[current];
-		if (std::find(data.begin(), data.end(), current) != data.end()) { Console::WriteLine << "Circular parent dependency!!!"; break; }
+//		if (std::find(data.begin(), data.end(), current) != data.end()) { Console::WriteLine << "Circular parent dependency!!!"; break; }
 	}
 
 	data.push_back(start);

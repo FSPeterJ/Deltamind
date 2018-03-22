@@ -5,6 +5,7 @@
 #include "MessageEvents.h"
 #include "Console.h"
 #include "Wwise_IDs.h"
+#include "TextManager.h"
 
 void Gun::Overheat::CreateBar(Gun* _parent) {
 	parent = _parent;
@@ -77,6 +78,7 @@ void Gun::Awake(Object* obj) {
 	damage = gun->damage;
 	type = gun->type;
 	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
+	TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", "This is a test!", GetComponent<Material>());
 }
 
 void Gun::GivePID(unsigned pid, const char* tag) {
@@ -90,7 +92,6 @@ void Gun::GivePID(unsigned pid, const char* tag) {
 }
 
 bool Gun::Shoot() {
-
 	// What does this switch statement do???
 	switch(type) {
 		case AUTO:

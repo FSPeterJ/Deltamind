@@ -50,8 +50,6 @@ InputManager::~InputManager() {
 };
 InputManager::InputManager(InputType type) {
 	SetInputType(type);
-	godModeCode.SetCode(CodeSequence::CodePreset::Konami);
-	godModeCode.SetCompletionFunction([=]() {MessageEvents::SendMessage(EVENT_Input, InputMessage(Control::GodMode, 1)); });
 };
 
 //VR
@@ -349,10 +347,11 @@ void InputManager::VRInput::CheckForInput() {
 
 		if(keyStates[input] != amount > 0.0f ? 1 : 0) {
 			keyStates[input] = amount > 0.0f ? 1 : 0;
-			if(keyStates[input] == 1) godModeCode.CheckNewInput(input);
+			if(keyStates[input] == 1) godMode.CheckNewInput(input);
 			inputPoll.push(InputPackage(input, amount));
 		}
 	}
+	//Console::WriteLine << godMode.GetPosition();
 }
 
 //Keyboard
@@ -507,7 +506,7 @@ void InputManager::KeyboardInput::CheckForInput() {
 
 		if(keyStates[input] != (amount > 0.0f ? 1 : 0)) {
 			keyStates[input] = amount > 0.0f ? 1 : 0;
-			if (keyStates[input] == 1) godModeCode.CheckNewInput(input);
+			if (keyStates[input] == 1) godMode.CheckNewInput(input);
 			inputPoll.push(InputPackage(input, amount));
 		}
 		inputQueue.pop();
@@ -541,7 +540,6 @@ std::queue<InputPackage> InputManager::inputPoll;
 std::bitset<(size_t)Control::Total> InputManager::keyStates;
 bool InputManager::mouseActivate = false;
 InputType InputManager::inputType = KEYBOARD;
-CodeSequence InputManager::godModeCode;
 
 void InputManager::HandleInput() {
 	bridge->CheckForInput();
@@ -569,3 +567,7 @@ void InputManager::SetInputType(InputType type) {
 			Messagebox::ShowError("Input Type Error", "No InputType is defined!");
 	}
 }
+
+
+//Cheats
+CheatCode InputManager::godMode(CheatCode::CodePreset::Konami, [=]() {MessageEvents::SendMessage(EVENT_Input, InputMessage(Control::GodMode, 1)); });

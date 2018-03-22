@@ -7,7 +7,7 @@
 #include "ObjectFactory.h"
 #include "HexGrid.h"
 #include "BuildTool.h"
-
+#include "DebugRenderer.h"
 
 
 /*
@@ -58,8 +58,20 @@ void Player::Update() {
 		transform.SetMatrix(VRManager::GetInstance().GetPlayerPosition());
 
 		if (KeyIsDown(Control::GodMode)) {
-			if (stance == STANCE_God) ChangeStance(STANCE_Stand);
-			else ChangeStance(STANCE_God);
+			ResetKey(Control::GodMode);
+			if (IsGod())
+				ChangeStance(STANCE_Stand);
+			else 
+				ChangeStance(STANCE_God);
+		}
+
+		if (KeyIsDown(Control::rightCyclePrefab) && IsGod()) {
+			DirectX::XMFLOAT4X4 playerMat = VRManager::GetInstance().GetPlayerPosition();
+			DirectX::XMFLOAT4X4 controllerMat = rightController->transform.GetMatrix();
+			playerMat._41 += controllerMat._31;
+			playerMat._42 += controllerMat._32;
+			playerMat._43 += controllerMat._33;
+			VRManager::GetInstance().MovePlayer({ playerMat._41, playerMat._42, playerMat._43 }, false);
 		}
 	}
 	else {
@@ -68,7 +80,7 @@ void Player::Update() {
 		
 		if (KeyIsDown(Control::GodMode)) {
 			ResetKey(Control::GodMode);
-			if (stance == STANCE_God) ChangeStance(STANCE_Stand);
+			if (IsGod()) ChangeStance(STANCE_Stand);
 			else ChangeStance(STANCE_God);
 		}
 		if (KeyIsDown(Control::Crouch)) {
@@ -172,7 +184,7 @@ void Player::Update() {
 		transform.SetRotationRadians(rotationX, rotationY, 0.0f);
 
 		//Ground Clamp
-		if (stance != STANCE_God) {
+		if (!IsGod()) {
 			//Ground Clamp
 			Transform start;
 			start.SetPosition(transform.GetMatrix()._41, transform.GetMatrix()._42 - playerHeight + 0.1f, transform.GetMatrix()._43);

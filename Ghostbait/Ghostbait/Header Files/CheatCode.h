@@ -11,7 +11,7 @@ Control::rightItem1, Control::rightItem2,
 Control::rightCyclePrefab, Control::rightAttack };
 */
 
-class CodeSequence {
+class CheatCode {
 	std::vector<Control> code;
 	std::vector<Control> validInputs = { Control::rightItem0, Control::leftItem0,
 		Control::rightItem1, Control::leftItem1,
@@ -29,6 +29,12 @@ public:
 	enum CodePreset {
 		Konami,
 	};
+
+	CheatCode() {};
+	CheatCode(CodePreset preset, std::function<void(void)> func);
+	CheatCode(std::vector<Control>& _code, std::function<void(void)> func);
+
+	inline const int GetPosition() const { return position; }
 
 	const bool CheckNewInput(const Control input);
 	void SetCode(std::vector<Control>& _code);

@@ -2,7 +2,7 @@
 #include <queue>
 #include <bitset>
 #include "MessageStructs.h"  // for Control
-#include "CodeSequence.h"
+#include "CheatCode.h"
 
 enum InputType {
 	VR,
@@ -50,7 +50,7 @@ private:
 
 	static bool mouseActivate;
 
-	static CodeSequence godModeCode;
+	static CheatCode godMode;
 
 public:
 

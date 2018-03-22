@@ -150,6 +150,7 @@ PhysicsComponent* PhysicsManager::GetReferenceComponent(const char * _FilePath, 
 }
 
 void PhysicsManager::ResetComponent(ComponentBase * reset) {
+	((PhysicsComponent*)reset)->rigidBody.Reset();
 	if (((PhysicsComponent*)reset)->isStatic) {
 		staticComponents.DeactivateMemory(reset);
 		return;
@@ -332,7 +333,6 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 	XMFLOAT3 line;
 	XMStoreFloat3(&line, closestCollision);
 	DebugRenderer::AddLine(origin, line, XMFLOAT3(0.0f, 1.0f, 1.0f));
-
 #endif
 	return collided;
 }

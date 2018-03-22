@@ -12,6 +12,7 @@
 #include "HexTileVector.h"
 #include <random>
 #include "PathPlanner.h"
+#include <fstream>
 
 const float HexGrid::Blocked = float(0xDEAD);
 
@@ -330,21 +331,21 @@ void HexGrid::Fill(bool withRandomObstacles) {
 HexRegion HexGrid::blocked;
 
 void HexGrid::Display(DirectX::XMFLOAT2& player) {
-	HexTile* pos = PointToTile(player);
-	if(pos) {
-		HexRegion playerView = GetTilesNStepsAway(pos, 3);
-		playerView.Color(&layout, {1,1,1}, 0, ColorType::__Outline);
-	} else {
-		HexRegion playerView = GetTilesNStepsAway(&HexTile(0, 0), 13);
-		playerView.Color(&layout, {1,1,1}, 0, ColorType::__Outline);
-	}
+	//HexTile* pos = PointToTile(player);
+	//if(pos) {
+	//	HexRegion playerView = GetTilesNStepsAway(pos, 3);
+	//	playerView.Color(&layout, {1,1,1}, 0, ColorType::__Outline);
+	//} else {
+	//	HexRegion playerView = GetTilesNStepsAway(&HexTile(0, 0), 13);
+	//	playerView.Color(&layout, {1,1,1}, 0, ColorType::__Outline);
+	//}
 
 	
 	//draw everything
-	//for(const auto& t : map) {
-	//	auto realT = const_cast<HexTile*&>(t);
-	//	realT->Draw(layout, {1,1,1});
-	//}
+	for(const auto& t : map) {
+		auto realT = const_cast<HexTile*&>(t);
+		realT->DrawX(layout, {1,1,1}, 0.2f);
+	}
 	blocked.Color(&layout, {0,0,0}, 0, ColorType::__CheapFill);
 
 	//DrawXStepsPath();
@@ -376,6 +377,48 @@ HexTile* HexGrid::GetRandomTile() {
 	return *begin;
 }
 
+HexGrid::HexGrid(const char* _filename, float _radius, HexagonalGridLayout _layout) : map_radius(_radius), layout(_layout) {
+	static int dupCount = 0;
+	std::fstream file;
+
+	file.open(_filename, std::ios_base::binary | std::ios_base::in);
+
+	if (file.is_open())
+	{
+		int geo_count;
+		file.read((char*)&geo_count, sizeof(geo_count));
+
+		for (int i = 0; i < geo_count; ++i)
+		{
+			unsigned int polyCount;
+			file.read((char*)&polyCount, sizeof(polyCount));
+
+			for (unsigned int i = 0; i < polyCount; ++i)
+			{
+				int q, r, s;
+				file.read((char*)&q, sizeof(int));
+				file.read((char*)&r, sizeof(int));
+				file.read((char*)&s, sizeof(int));
+
+				HexTile* t = new HexTile(q, r, s);
+				t->weight = 1.0f;
+				if (q == -15 && r == 34) {
+					int i = 0;
+				}
+				if (map.find(t) != map.end()) {
+					++dupCount;
+				}
+				map.insert(t);
+			}
+		}
+		file.close();
+		
+	}
+
+	//int i = 0;
+	//HexTile tile = HexTile(-15, 34);
+	//DirectX::XMFLOAT2 pos = tile.Center(HexagonalGridLayout::FlatLayout);
+}
 void HexGrid::Color(HexRegion& r, DirectX::XMFLOAT3 color, int fill) {
 	r.Color(&layout, color, 0, (ColorType)fill);
 }

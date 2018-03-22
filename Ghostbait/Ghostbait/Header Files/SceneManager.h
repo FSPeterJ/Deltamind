@@ -4,13 +4,14 @@
 						 //namespace DirectX {
 						 //	class XMFLOAT4X4;
 						 //}
+class Core;
 
 struct Scene {
 	std::string sceneFile;
-	std::string levelFile;
+	std::vector<std::string> levelFiles;
 
-	Scene() : sceneFile(""), levelFile("") {}
-	Scene(std::string _sceneFile, std::string _levelFile) : sceneFile(_sceneFile), levelFile(_levelFile) {}
+	Scene() : sceneFile("") {}
+	Scene(std::string _sceneFile, std::vector<std::string> _levelFile) : sceneFile(_sceneFile), levelFiles(_levelFile) {}
 };
 
 class SceneManager {
@@ -22,7 +23,7 @@ class SceneManager {
 		};
 		std::string fileName;
 		std::string sceneName;
-		std::string levelName;
+		std::vector<std::string> levelName;
 		std::vector<Prefab> prefabs;
 	};
 
@@ -47,8 +48,8 @@ public:
 	//---------
 
 	const Scene ResetCurrentScene();
-	void LoadScene(const char* sceneName, DirectX::XMFLOAT3* _corePos = nullptr);
-	void LoadScene(Scene& scene, DirectX::XMFLOAT3* _corePos = nullptr);
+	void LoadScene(const char* sceneName, Core** _core = nullptr);
+	void LoadScene(Scene& scene, Core** _core = nullptr);
 	inline void ReloadScene() { LoadScene(*currentScene); };
 
 	const Scene GetSceneFromName(const char* sceneName);

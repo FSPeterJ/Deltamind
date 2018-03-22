@@ -209,6 +209,8 @@ public:
 	/// <param name="player">The player.</param>
 	void Display(DirectX::XMFLOAT2& player);
 
+	HexGrid(const char* _filename, float _radius = 1.0f, HexagonalGridLayout _layout = HexagonalGridLayout::FlatLayout);
+
 	void Color(HexRegion& r, DirectX::XMFLOAT3 color, int fill);
 	void Color(HexPath& p, DirectX::XMFLOAT3 color, int fill);
 

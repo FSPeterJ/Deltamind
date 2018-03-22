@@ -1,8 +1,17 @@
 #pragma once
 #include "Object.h"
 #include "Controlable.h"
-
 #include "Console.h"
+
+
+enum GAMEOBJECT_FLAGS {
+	NONE = 0,
+	PERSIST_ON_RESET = 1,
+	DESTROYED = 2,
+	OTHER = 4,
+	OTHERI = 8,
+	OTHERII = 16,
+};
 
 class GameObject: public Object {
 	friend class ObjectFactory;
@@ -12,17 +21,20 @@ protected:
 	unsigned typeID = 0;
 	unsigned updateID = 0;  //Update Delegate ID
 	unsigned eventDeleteAllGameObjects = 0;
-
-	bool enabled = false;
+	unsigned flags = 0;
 	bool destroyOnReset = true;
 
 public:
 	GameObject();
+	void PersistentSubscribe();
+	void PersistentUnSubscribe();
+	void PersistOnReset();
+	void DestroyOnReset();
 	void DisableNow();
 
 	virtual void Subscribe();
 	virtual void UnSubscribe();
-	virtual void Enable(bool _destroyOnReset = true);
+	virtual void Enable();
 	virtual void Disable();
 	virtual void Update();
 	virtual void Destroy();
@@ -39,24 +51,13 @@ public:
 };
 
 
-//Other
-class MenuCube: public GameObject {
-	void Update();
-public:
-	void OnCollision(GameObject* other);
 
-	void Enable(bool _destroyOnReset = true) override{
-		GameObject::Enable(_destroyOnReset);
-	}
 
-	void Destroy() {
-		GameObject::Destroy();
-	};
-};
-class CoreCube: public GameObject {
-	bool enemyTouched = false;
-public:
-	CoreCube() { SetTag("Core"); };
-	void OnCollision(GameObject* other);
-	void Destroy() override;
-};
+
+
+
+
+
+
+
+

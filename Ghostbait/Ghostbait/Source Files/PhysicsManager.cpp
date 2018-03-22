@@ -285,7 +285,7 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 		currBucketIndex = nextIndex;
 		compToTest = partitionSpace.GetComponentsToTest(currBucketIndex);
 		
-		for (int compIndex = 0; compIndex < compToTest.size(); ++compIndex) {
+		for (size_t compIndex = 0; compIndex < compToTest.size(); ++compIndex) {
 			if (!compToTest[compIndex]->isActive) continue;
 			if (tag && strcmp(dynamic_cast<GameObject*>(compToTest[compIndex]->parentObject)->GetTag().c_str(), tag)) continue;
 			if (RaycastCollisionCheck(vecOrigin, vecDirection, compToTest[compIndex], &tempCollidePt, &tempCollideObj, maxCastDistance)) {
@@ -300,7 +300,7 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 	}
 
 	std::vector<PhysicsComponent*>* staticComps = staticComponents.GetActiveList();
-	for (int i = 0; i < staticComps->size(); ++i) {
+	for (size_t i = 0; i < staticComps->size(); ++i) {
 		if (!(*staticComps)[i]->isActive) continue;
 		if (tag && strcmp(dynamic_cast<GameObject*>((*staticComps)[i]->parentObject)->GetTag().c_str(), tag)) continue;
 		if (RaycastCollisionCheck(vecOrigin, vecDirection, (*staticComps)[i], &tempCollidePt, &tempCollideObj, maxCastDistance)) {
@@ -663,12 +663,12 @@ bool PhysicsManager::CapsuleToCapsuleCollision(Collider& col1, XMMATRIX& pos1, C
 	XMVECTOR dP = w + (sc * u) - (tc * v);  // =  S1(sc) - S2(tc)
 	float dist = XMVectorGetX(XMVector3LengthSq(dP));
 
-#if _DEBUG
-		XMFLOAT3 start, end;
-		XMStoreFloat3(&start, sc * u + cap1Start);
-		XMStoreFloat3(&end, tc * v + cap2Start);
-		DebugRenderer::AddLine(start, end, XMFLOAT3(0.0f, 0.0f, 1.0f));
-#endif
+//#if _DEBUG
+//		XMFLOAT3 start, end;
+//		XMStoreFloat3(&start, sc * u + cap1Start);
+//		XMStoreFloat3(&end, tc * v + cap2Start);
+//		DebugRenderer::AddLine(start, end, XMFLOAT3(0.0f, 0.0f, 1.0f));
+//#endif
 
 	return dist < combineRadiusSq;   // return the closest distance
 }
@@ -1061,7 +1061,7 @@ bool PhysicsManager::RaycastCollisionCheck(XMVECTOR& origin, XMVECTOR& direction
 	if (colObject)
 		*colObject = nullptr;
 
-	for (int colliderIndex = 0; colliderIndex < collidingComp->colliders.size(); ++colliderIndex) {
+	for (size_t colliderIndex = 0; colliderIndex < collidingComp->colliders.size(); ++colliderIndex) {
 		if (collidingComp->colliders[colliderIndex].isTrigger) continue;
 		switch (collidingComp->colliders[colliderIndex].colliderData->colliderType)
 		{
@@ -1106,9 +1106,9 @@ bool PhysicsManager::RayToSphere(XMVECTOR& origin, XMVECTOR& direction, Collider
 	//If origin is inside the Sphere, it does not test it. 
 	XMVECTOR collCenter = objectPos + XMLoadFloat3(&collidingComp.centerOffset);
 	float radiusSq = collidingComp.colliderData->colliderInfo.sphereCollider.radius;
-#ifdef _DEBUG
-	DebugRenderer::AddSphere(XMFLOAT3(XMVectorGetX(objectPos), XMVectorGetY(objectPos), XMVectorGetZ(objectPos)), radiusSq, XMFLOAT3(1.0f, 1.0f, 0.0f));
-#endif
+//#ifdef _DEBUG
+//	DebugRenderer::AddSphere(XMFLOAT3(XMVectorGetX(objectPos), XMVectorGetY(objectPos), XMVectorGetZ(objectPos)), radiusSq, XMFLOAT3(1.0f, 1.0f, 0.0f));
+//#endif
 	radiusSq *= radiusSq;
 	if(isInside)
 		*isInside = false;

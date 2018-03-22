@@ -8,6 +8,11 @@ Projectile::Projectile() {
 
 Projectile::~Projectile() {}
 
+void Projectile::Awake(Object* obj) {
+	++instantiatedCount;
+	GameObject::Awake(obj);
+}
+
 void Projectile::Update() {
 	timeSinceShot += (float)GhostTime::DeltaTime();
 
@@ -23,10 +28,13 @@ void Projectile::OnCollision(GameObject* object) {
 	{
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 	}
-
-	timeSinceShot = 0;
 }
 
 void Projectile::SetDamage(float _damage) {
 	damage = _damage;
+}
+
+void Projectile::Destroy() {
+	++destroyedCount;
+	GameObject::Destroy();
 }

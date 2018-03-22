@@ -1,6 +1,7 @@
 #pragma once
 #include "GameObject.h"
 #include "Health.h"
+#include "Core.h"
 
 class HexGrid;
 
@@ -14,20 +15,26 @@ protected:
 	};
 	
 	State currState = IDLE;
-	float maxSpeed = 2.0f;
+	float maxSpeed = 100.0f;
+	float speed = 100.0f;
 	DirectX::XMFLOAT3 target = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 
-	unsigned eventLose;
+	Core* core = nullptr;
 
+	bool reachedCore = false;
+	float attackSpeed = 1;
+	float attackDamage = 10;
+	float timeSinceLastAttack = -1;
+
+	unsigned eventLose = 0;
 	bool hurt = false;
 	double hurtTimer = 0;
 	double hurtDuration = 1;
-
 	bool sentDeathMessage = false;
 
 public:
 	EnemyBase() { tag = std::string("Enemy");  };
-	void Enable(bool _destroyOnReset = true) override;
+	void Enable() override;
 	void Disable() override;
 	void Destroy() override;
 	void Awake(Object* obj) override;
@@ -38,6 +45,7 @@ public:
 
 
 	virtual void SetGrid(HexGrid* _grid) {};
-	virtual void SetGoal(DirectX::XMFLOAT2 _goal) {};
+	virtual void SetCore(Core* _core) { core = _core; };
 	virtual void Repath() {};
+	virtual void RandomizeStats();
 };

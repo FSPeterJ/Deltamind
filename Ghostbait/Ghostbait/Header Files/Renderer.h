@@ -13,6 +13,7 @@ class MaterialManager;
 class AnimationManager;
 class EventMessageBase;
 class LightManager;
+struct Mesh;
 
 enum renderState {
 	RENDER_STATE_DEFAULT, RENDER_STATE_TRANSPARENT
@@ -32,6 +33,7 @@ private:
 		ID3D11DepthStencilState* depth_stencil_state;
 		ID3D11DepthStencilView* depth_stencil_view;
 		ID3D11RasterizerState* rasterizer_state;
+		ID3D11BlendState* blend_state;
 		D3D11_VIEWPORT viewport;
 	};
 
@@ -48,8 +50,18 @@ private:
 		D3D11_VIEWPORT viewport;
 	};
 
+	struct DeferredRTVs
+	{
+		ID3D11Texture2D* textures[6];
+		ID3D11Texture2D* depthBuffer;
+		ID3D11RenderTargetView* RTVs[6];
+		ID3D11DepthStencilView* DSV;
+		ID3D11ShaderResourceView* SRVs[6];
+	};
+
 	struct eye {
 		renderTargetInfo renderInfo;
+		DeferredRTVs targets;
 		viewProjectionConstantBuffer camera;
 		DirectX::XMFLOAT3 camPos;
 	};
@@ -59,6 +71,13 @@ private:
 		bool willAnimate;
 		DirectX::XMFLOAT3 filler;
 	};
+
+	struct Skybox
+	{
+		ID3D11Texture2D* faces[6];
+		ID3D11Texture2D* box;
+		ID3D11ShaderResourceView* srv;
+	};
 #pragma endregion
 
 	ID3D11SamplerState* OnlySamplerState; //DirectX is a hoot
@@ -67,6 +86,7 @@ private:
 	ID3D11DeviceContext* context;
 	IDXGISwapChain* swapchain;
 	ID3D11Texture2D* backBuffer;
+	DeferredRTVs deferredTextures;
 
 	ID3D11VertexShader* PassThroughPositionColorVS;
 	ID3D11PixelShader* PassThroughPS;
@@ -75,10 +95,20 @@ private:
 	ID3D11VertexShader* ParticleVS;
 	ID3D11GeometryShader* ParticleGS;
 	ID3D11PixelShader* ParticlePS;
-
+	ID3D11VertexShader* SkyboxVS;
+	ID3D11PixelShader* SkyboxPS;
+	ID3D11PixelShader* DeferredTargetPS;
+	ID3D11VertexShader* PassThroughPositionVS;
+	ID3D11GeometryShader* NDCQuadGS;
+	ID3D11VertexShader* TextVertexShader;
+	ID3D11PixelShader* PositionTexturePixelShader;
+	
 	ID3D11InputLayout* ILPositionColor;
+	ID3D11InputLayout* ILPositionTexture;
 	ID3D11InputLayout* ILStandard;
 	ID3D11InputLayout* ILParticle;
+	ID3D11InputLayout* ILPosition;
+
 	ID3D11Buffer* cameraBuffer;
 	ID3D11Buffer* modelBuffer;
 	ID3D11Buffer* factorBuffer;
@@ -88,11 +118,14 @@ private:
 	Transform* cameraPos;
 	viewProjectionConstantBuffer defaultCamera;
 	animDataBufferStruct cpuAnimationData;
+	Mesh* skyball;
 
-	//eye leftEye;
-	//eye rightEye;
+	ID3D11Buffer* emptyFloat3Buffer; //Needed to upload to the shaders that don't need specific vertex values (may replace with techniques later)
+	Skybox* currSkybox = nullptr;
 
 	std::vector<const GameObject*> renderedObjects;
+	std::vector<const GameObject*> frontRenderedObjects;
+	std::vector<const GameObject*> transparentObjects;
 
 	MeshManager* meshManagement = nullptr;
 	MaterialManager* materialManagement = nullptr;
@@ -101,6 +134,7 @@ private:
 	void initDepthStencilBuffer(pipeline_state_t* pipelineTo);
 	void initDepthStencilState(pipeline_state_t* pipelineTo);
 	void initDepthStencilView(pipeline_state_t* pipelineTo);
+	void initBlendState(pipeline_state_t* pipelineTo);
 	void initRasterState(pipeline_state_t* pipelineTo, bool wireFrame = false);
 	void initShaders();
 	void initViewport(RECT window, pipeline_state_t* pipelineTo);
@@ -109,13 +143,22 @@ private:
 	void clearTextureMemory(renderTargetInfo* info);
 	bool LoadShaderFromCSO(char ** szByteCode, size_t& szByteCodeSize, const char* szFileName);
 	void setupVRTargets();
+	void releaseDeferredTarget(DeferredRTVs* in);
+	void combineDeferredTargets(DeferredRTVs* in, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT& viewport);
+	bool compareDistToCam(const DirectX::XMFLOAT3& t1, const DirectX::XMFLOAT3& t2, const DirectX::XMFLOAT3& camPos);
+	float manhat(const DirectX::XMFLOAT3& center1, const DirectX::XMFLOAT3& center2);
 
+	void sortTransparentObjects(DirectX::XMFLOAT3 &camPos);
 	void renderObjectDefaultState(Object* obj);
 	void renderToEye(eye* eyeTo);
-
+	void drawSkyboxTo(ID3D11RenderTargetView** rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT& viewport, DirectX::XMFLOAT3& pos);
 	void loadPipelineState(pipeline_state_t* pipeline);
+	void createDeferredRTVs(DeferredRTVs* toWrite, ID3D11Texture2D* refTex);
+	void createRTVandSRV(ID3D11Texture2D** texture, ID3D11ShaderResourceView** srv, ID3D11RenderTargetView** rtv, ID3D11Texture2D* refTex);
 
 	DirectX::XMFLOAT4X4 lookAt(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 up);
+
+	void loadSkyboxFaces(Skybox* toLoad, const char* directory, const char* filePrefix);
 
 public:
 	//test
@@ -162,7 +205,10 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////
 	void unregisterObject(EventMessageBase* e);
 
-	//////////////////////////////////////////////////////////////////////////////////
+	void moveToFront(EventMessageBase* e);
+	void moveToTransparent(EventMessageBase* e);
+
+	void setSkybox(const char* directoryName, const char* filePrefix);
 
 	MeshManager* getMeshManager();
 	MaterialManager* getMaterialManager();

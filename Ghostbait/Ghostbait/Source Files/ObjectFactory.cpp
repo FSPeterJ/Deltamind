@@ -91,6 +91,7 @@ void ObjectFactory::InstantiateByName(EventMessageBase *e) {
 GameObject* ObjectFactory::ActivateObject(PrefabId pid) {
 	GameObject* newobject = objMan->Instantiate(prefabs[pid].objectTypeID);
 	auto TypeGathered = registeredCasters[prefabs[pid].objectTypeID](newobject);
+	newobject->DestroyComponents.Clear();
 	for(int i = 0; i < 64; i++) {
 		if(prefabs[pid].fastclone[i]) {
 			newobject->SetComponent(prefabs[pid].instantiatedComponents[i], i);
@@ -108,7 +109,7 @@ GameObject* ObjectFactory::ActivateObject(PrefabId pid) {
 	return newobject;
 }
 
-unsigned ObjectFactory::CreatePrefab(std::string* _filename, const char* DEBUG_STRING_NAME, bool objectPrefabOverride) {
+unsigned ObjectFactory::CreatePrefab(const std::string* _filename, const char* DEBUG_STRING_NAME, bool objectPrefabOverride) {
 	int prefabID = prefabNames[*_filename];
 	if(prefabID) {
 		//This Prefab already exists.

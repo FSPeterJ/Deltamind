@@ -4,8 +4,8 @@
 #include "StdHeader.h" //for PrefabId
 #include "Delegate.h"
 #include "Transform.h"
+#include "ComponentBase.h"
 
-class ComponentBase;
 //
 //namespace DirectX {
 //
@@ -59,6 +59,15 @@ public:
 	//	return Components.GetComponent<>(componentname);
 	//};
 
+	template<typename ComponentType>
+	bool SwapComponentVarient(const char* varientName) {
+		if (componentVarients.find(varientName) != componentVarients.end()) {
+			int id = TypeMap::GetComponentTypeID<ComponentType>();
+			SetComponent(componentVarients[varientName], id);
+			return true;
+		}
+		return false;
+	}
 
 	virtual void GiveComponent(ComponentBase * _component, const char* tag);
 

@@ -2,9 +2,18 @@
 #include "ControllerObject.h"
 #include "Camera.h"
 
+
+
+
+#include "PhysicsExtension.h"
+
+
+
+
 #define INVENTORY_FILE "Save Files\\Inventory.save"
 
 class InputManager;
+class HexGrid;
 
 enum VRControllerTypes {
 	CONTROLLER_Full,
@@ -12,36 +21,40 @@ enum VRControllerTypes {
 };
 
 class Player : public GameObject, public Controlable {
-	struct Hand {
-		int inventory[CONTROLLER_MAX_ITEMS] = { -1 };
-		ControllerObject* controller = nullptr;
+	enum Stance {
+		STANCE_Stand,
+		STANCE_Crouch,
 	};
-	
 	std::vector<unsigned> ownedItems;
-	//ControllerObject* leftController, *rightController;
-
-	//Camera cam;
 
 	//void LoadInventory(const char* fileName = INVENTORY_FILE);
 
 	float rotationY = 0.0f;
 	float rotationX = 0.0f;
+	HexGrid* grid = nullptr;
+	bool godMode = false;
+	Stance stance = STANCE_Stand;
 
+	float standHeight = 1.7f;
+	float crouchHeight = 1;
 public:
-	Hand leftHand, rightHand;
+	CastObject teleportArc;
+	ControllerObject *leftController = 0, *rightController = 0;
 
 	float playerHeight = 1.7f;
+
 	Player();
 
 	void Update() override;
 	void PausedUpdate();
+	void MenuUpdate();
 	
+	inline void ResetStance() { stance = STANCE_Stand; }
 	void LoadControllers(VRControllerTypes type = CONTROLLER_Full);
+	void SetBuildToolData(HexGrid* _grid, unsigned* _gears, unsigned* _turretsSpawned, unsigned* _maxTurrets);
+	inline HexGrid* GetBuildGrid() { return grid; }
 
-//	void SetPosition(DirectX::XMFLOAT4X4 newPos) override;
-//	const DirectX::XMFLOAT4X4& GetPosition() const override;
-
-	void Teleport();
+	void Teleport(DirectX::XMFLOAT3* pos = nullptr);
 
 	bool IsVR() const;
 };

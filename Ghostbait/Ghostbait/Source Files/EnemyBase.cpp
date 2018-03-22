@@ -9,26 +9,34 @@
 
 
 void EnemyBase::Awake(Object* obj) {
-	componentVarients = obj->componentVarients;
+	currState = IDLE;
+	maxSpeed = (float)(rand() % 4);
+	target = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	hurt = false;
+	hurtTimer = 0;
+	hurtDuration = 1;
+	sentDeathMessage = false;
+
+	eventLose = 0;
+	SetToFullHealth();
+	GameObject::Awake(obj);
 }
 void EnemyBase::Subscribe() {
-
-	eventLose = MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) { MessageEvents::SendQueueMessage(EVENT_Late, [=] {this->Destroy(); }); });
+	if(!eventLose) eventLose = MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) { MessageEvents::SendQueueMessage(EVENT_Late, [=] {this->Destroy(); }); });
 }
 void EnemyBase::UnSubscribe() {
-	MessageEvents::UnSubscribe(EVENT_GameLose, eventLose);
-}
-void EnemyBase::Enable(bool _destroyOnReset) {
-	if (!enabled) {
-		EnemyBase::Subscribe();
-		GameObject::Enable(_destroyOnReset);
+	if (eventLose) {
+		MessageEvents::UnSubscribe(EVENT_GameLose, eventLose); 
+		eventLose = 0;
 	}
+}
+void EnemyBase::Enable() {
+	EnemyBase::Subscribe();
+	GameObject::Enable();
 }
 void EnemyBase::Disable() {
-	if (enabled) {
-		EnemyBase::UnSubscribe();
-		GameObject::Disable();
-	}
+	EnemyBase::UnSubscribe();
+	GameObject::Disable();
 }
 void EnemyBase::Destroy() {
 	MessageEvents::SendMessage(EVENT_EnemyDied, EventMessageBase());
@@ -82,6 +90,11 @@ void EnemyBase::OnCollision(GameObject* _other) {
 			MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 		}
 	}
+
+	GameObject::OnCollision(_other);
+}
+void EnemyBase::RandomizeStats() {
+
 }
 
 

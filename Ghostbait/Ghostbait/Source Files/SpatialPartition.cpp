@@ -156,7 +156,7 @@ std::vector<uint32_t> SpatialPartition::Hash(const AABB aabb) {
 	}
 	
 	int index;
-	for(int point = 0; point < points.size(); ++point) {
+	for(size_t point = 0; point < points.size(); ++point) {
 		index = Hash(points[point]);
 		bool found = false;
 		//for (unsigned int exist = 0; exist < indicies.size(); ++exist) {

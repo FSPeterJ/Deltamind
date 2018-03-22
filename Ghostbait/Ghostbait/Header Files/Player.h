@@ -31,6 +31,7 @@ class Player : public GameObject, public Controlable {
 
 	float rotationY = 0.0f;
 	float rotationX = 0.0f;
+	float rotationLimit = DirectX::XMConvertToRadians(80);
 	HexGrid* grid = nullptr;
 
 	#pragma region Stats

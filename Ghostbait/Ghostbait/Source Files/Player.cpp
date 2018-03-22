@@ -10,14 +10,6 @@
 #include "DebugRenderer.h"
 
 
-/*
-static int i = 0;
-if (i == 0) {
-MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<GameObject>(ObjectFactory::CreatePrefab(&std::string("Assets/Arc2.ghost")), { 0, 0, 0 }, &arc));
-i = 1;
-}
-*/
-
 Player::Player() {
 	Enable();
 	PersistOnReset();
@@ -76,7 +68,6 @@ void Player::Update() {
 	}
 	else {
 		DirectX::XMFLOAT3 prevPos = transform.GetPosition();
-		float rotationLimit = DirectX::XMConvertToRadians(80);
 		
 		if (KeyIsDown(Control::GodMode)) {
 			ResetKey(Control::GodMode);
@@ -206,10 +197,6 @@ void Player::PausedUpdate() {
 	float dt = (float)GhostTime::DeltaTime();
 
 	if (!IsVR()) {
-		if (rotationY < -DirectX::XM_2PI || rotationY > DirectX::XM_2PI)
-			rotationY = 0.0f;
-		if (rotationX < -DirectX::XM_2PI || rotationX > DirectX::XM_2PI)
-			rotationX = 0.0f;
 
 		if (KeyIsDown(Control::CameraLeftRight)) {
 			//position._41 -= 50.0f * dt;
@@ -224,6 +211,15 @@ void Player::PausedUpdate() {
 			//ResetKey(Control::right);
 		}
 
+		if (rotationX < -rotationLimit) {
+			rotationX = -rotationLimit;
+		}
+		if (rotationX > rotationLimit) {
+			rotationX = rotationLimit;
+		}
+		if (rotationY < -DirectX::XM_2PI || rotationY > DirectX::XM_2PI) {
+			rotationY = 0.0f;
+		}
 		transform.SetRotationRadians(rotationX, rotationY, 0.0f);
 	}
 }

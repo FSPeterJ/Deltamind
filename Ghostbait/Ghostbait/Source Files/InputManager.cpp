@@ -351,7 +351,6 @@ void InputManager::VRInput::CheckForInput() {
 			inputPoll.push(InputPackage(input, amount));
 		}
 	}
-	//Console::WriteLine << godMode.GetPosition();
 }
 
 //Keyboard

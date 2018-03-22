@@ -78,7 +78,11 @@ void Gun::Awake(Object* obj) {
 	damage = gun->damage;
 	type = gun->type;
 	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
-	TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", "This is a test!", GetComponent<Material>());
+	//TextManager::textOutput out = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "This is a test!");
+	//Material* newMat = TextManager::CreateRenderableTexture(100, 100);
+	//TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", "This is a test!", newMat);
+	//TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", "This is a test!", GetComponent<Material>());
+	//SetComponent<Material>(out.mat);
 }
 
 void Gun::GivePID(unsigned pid, const char* tag) {

@@ -66,7 +66,7 @@ bool HexGrid::SetWeight(const DirectX::XMFLOAT2& tilePosition, float weight) {
 bool HexGrid::SetWeight(HexTile *const tile, float weight) {
 	if(tile) {
 		//cost_delta[tile] = tile->weight;
-		PathPlanner::CostChangeNotice(tile, tile->weight);
+		PathPlanner::CostChangeNotice(tile);
 		tile->weight = weight;
 		return true;
 	}
@@ -80,7 +80,7 @@ bool HexGrid::AddObstacle(const DirectX::XMFLOAT2& obstaclePosition) {
 bool HexGrid::AddObstacle(HexTile*const obstaclePosition) {
 	if (obstaclePosition) {
 		Console::WriteLine << "Obstacle added: Tile (" << obstaclePosition->q << ", " << obstaclePosition->r << ")";
-		PathPlanner::CostChangeNotice(obstaclePosition, obstaclePosition->weight);
+		PathPlanner::CostChangeNotice(obstaclePosition);
 		//cost_delta[obstaclePosition] = obstaclePosition->weight;
 		obstaclePosition->weight = Blocked;
 		blocked.push_back(*obstaclePosition);
@@ -96,7 +96,7 @@ bool HexGrid::RemoveObstacle(const DirectX::XMFLOAT2& obstaclePosition) {
 }
 bool HexGrid::RemoveObstacle(HexTile*const obstaclePosition) {
 	if (obstaclePosition) {
-		PathPlanner::CostChangeNotice(obstaclePosition, obstaclePosition->weight);
+		PathPlanner::CostChangeNotice(obstaclePosition);
 		//cost_delta[obstaclePosition] = obstaclePosition->weight;
 		obstaclePosition->weight = 1;
 		blocked.remove(*obstaclePosition);

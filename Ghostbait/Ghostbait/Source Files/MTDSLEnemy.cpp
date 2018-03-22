@@ -55,7 +55,7 @@ void MTDSLEnemy::Start() {
 
 	next = curTile; //is this needed or can i pass a ref to a null var below
 	//grid->RemoveObstacle(curTile);//Remove on final build
-	mtdstarId = PathPlanner::MTDStarLiteSearch(&(transform.matrix), goalReference, &path, Heuristics::OctileDistance);
+	mtdstarId = PathPlanner::MTDStarLiteSearch(&(transform.matrix), goalReference, Heuristics::OctileDistance);
 
 	rb->SetTerminalSpeed(maxSpeed);
 }
@@ -63,14 +63,14 @@ void MTDSLEnemy::Start() {
 void MTDSLEnemy::Update() {
 	EnemyBase::Update();
 
-	grid->Color(path, DirectX::XMFLOAT3(0.0f, 0.0f, 1.0f), 3);
+	//grid->Color(path, DirectX::XMFLOAT3(0.0f, 0.0f, 1.0f), 3);
 	if (goalReference) {
 		goal = grid->PointToTile(DirectX::XMFLOAT2(goalReference->_41, goalReference->_43));
 	}
 	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
 	if (curTile) {
-		if (curTile == next) {
-			rb->Stop();
+		//if (curTile == next) {
+		//	rb->Stop();
 		//	//HexRegion neigh = grid->Spiral(curTile, 3);
 		//	//grid->Color(neigh, { 1.0f, 0.0f, 0.0f }, 3);
 		//	grid->GetTileExact(3, 4)->DrawCheapFill(HexagonalGridLayout::FlatLayout, {0.0f, 1.0f, 0.0f});
@@ -94,20 +94,32 @@ void MTDSLEnemy::Update() {
 				rb->Stop();
 			}
 			else {
-				if (KeyIsHit(Control::TestInputO)) {
-					PathPlanner::UpdateMTDStarLite(mtdstarId);
+				//if (KeyIsHit(Control::TestInputO)) {
+				//if (curTile == next) {
+					PathPlanner::UpdateMTDStar(mtdstarId);
 
-					next = path.Next(curTile);
+					next = PathPlanner::GetMTDStarNextTile(mtdstarId);
 					if (next) {
 						auto nextPathPoint = grid->TileToPoint(next);
-
-						DirectX::XMVECTOR nextDirection = DirectX::XMVectorSet(nextPathPoint.x - transform.matrix._41, 0.0f, nextPathPoint.y - transform.matrix._43, 1.0f);
-						DirectX::XMVECTOR velocity = rb->GetVelocity();
-						rb->AddForce(3.0f * (DirectX::XMVectorGetX(DirectX::XMVector3Dot(nextDirection, velocity)) + 1.0f), nextPathPoint.x - transform.matrix._41, 0.0f, nextPathPoint.y - transform.matrix._43, 0.5f);
+						//transform.SetPosition(nextPathPoint.x, 0.0f, nextPathPoint.y);
+						DirectX::XMFLOAT3 nextDirection;
+						DirectX::XMStoreFloat3(&nextDirection, DirectX::XMVector3Normalize(DirectX::XMVectorSet(nextPathPoint.x - transform.matrix._41, 0.0f, nextPathPoint.y - transform.matrix._43, 1.0f)));
+						float dotProd = (nextDirection.x * transform.matrix._31 + nextDirection.y * transform.matrix._32 + nextDirection.z * transform.matrix._33);
+						Console::WriteLine << "Dot Product:" << dotProd;
+						rb->AddForce(4.0f * (2.0f - dotProd), nextDirection.x, nextDirection.y, nextDirection.z, 0.02f);
+						Console::WriteLine << "Current Pos: " << "(" << transform.matrix._41 << ", " << transform.matrix._42 << ", " << transform.matrix._43 << ")";
+						Console::WriteLine << "Next Point: " << "(" << nextPathPoint.x << ", " << 0.0f << ", " << nextPathPoint.y << ")";
+						Console::WriteLine << "Next Direction: " << "(" << nextDirection.x << ", " << nextDirection.y << ", " << nextDirection.z << ")";
+						//Console::WriteLine << "Velocity: " << "(" << DirectX::XMVectorGetX(velocity) << ", " << DirectX::XMVectorGetY(velocity) << ", " << DirectX::XMVectorGetZ(velocity) << ")";
 					}
-				}
+					else {
+						rb->Stop();
+						Console::WriteLine << "There's no next path for me to GO!!";
+					}
+				//}
 			}
-		}
+			//}
+		//}
 	}
 
 }

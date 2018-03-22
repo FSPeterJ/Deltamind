@@ -1,8 +1,9 @@
 #pragma once
-#include "TraversalResult.h" //hate
+//#include "TraversalResult.h" //hate
 #include <functional>
 #include <queue>
 #include <unordered_set>
+#include "HexTileVector.h"
 
 
 
@@ -63,7 +64,7 @@ template<typename K, typename V>
 struct PriorityQueueMap {
 	typedef std::pair<K, V> pair;
 	std::deque<pair> q;
-
+	
 	//this would ideally be a passed in template arg
 	static bool Predicate(pair const& p1, pair const& p2) { return p1.second > p2.second; }
 
@@ -89,6 +90,8 @@ struct PriorityQueueMap {
 	bool contains(K const& key) { return find(key) != q.end(); }
 
 	void update(K const& key, V const& value) { remove(key); insert(key, value); }
+
+	void swap(PriorityQueueMap& other) { this->q.swap(other.q); }
 };
 
 struct TileInfo {
@@ -98,8 +101,8 @@ struct TileInfo {
 struct DStarCommon {
 	friend class PathPlanner;
 
-	HexGrid *const grid = nullptr;
-	HexTile *start = nullptr, *goal = nullptr;
+	HexGrid *grid = nullptr;
+	HexTile *start = nullptr, *goal = nullptr, *next = nullptr;
 	PriorityQueueMap<HexTile*, FloatPair> open;
 
 	//CostMap cumulativeCost; //g-value
@@ -108,8 +111,11 @@ struct DStarCommon {
 	std::unordered_map<HexTile*, TileInfo> knownTiles;
 	std::unordered_set<HexTile*> changedTiles;
 	float km;
+	std::size_t perceptionRange = 3;
 
-	DStarCommon & operator=(const DStarCommon& other) { return *this; } //is this ever called? If so need to fix
+	DStarCommon &operator=(DStarCommon& other);
+
+	DStarCommon() {};
 
 	DStarCommon(HexTile*const _start, HexTile*const _goal, HexGrid*const _grid);
 
@@ -137,15 +143,16 @@ struct DStarCommon {
 
 	void UpdateOpenList(HexTile*const tile);
 
-	virtual void Update() = 0;
+	HexTile* GetNextTileInPath();
+
+	virtual void Update() {};// = 0;
 	//Update
 	//Compute
 };
 
-class DStarLite : DStarCommon {
+class DStarLite : public DStarCommon {
 	friend class PathPlanner;
 
-	std::size_t perceptionRange = 3;
 	HexTile *last = nullptr, *curNode = nullptr, **nextTileInPath = nullptr;
 
 	//void Replan() {
@@ -179,15 +186,16 @@ class DStarLite : DStarCommon {
 	void ComputeShortestPath();
 
 public:
+	DStarLite() = default;
 	DStarLite(HexGrid *const _grid, HexTile *const _start, HexTile *const _goal, HexTile** _nextTileInPath);
-	DStarLite & operator=(const DStarLite& other) { return *this; } //is this ever called? If so need to fix
+	DStarLite & operator=(DStarLite& other);
 	void Update();
 };
 
-class MTDStarLite : DStarCommon {
+class MTDStarLite : public DStarCommon {
 	friend class PathPlanner;
 
-	HexPath* path = nullptr;
+	HexPath path;
 	std::vector<HexTile*> deleted;
 	VisitedMap parent;
 	DirectX::XMFLOAT4X4* goalReference = nullptr, *startReference = nullptr;
@@ -198,7 +206,9 @@ class MTDStarLite : DStarCommon {
 	void OptimizedDelete();
 
 public:
-	MTDStarLite(HexGrid *const _grid, DirectX::XMFLOAT4X4* _startRef, DirectX::XMFLOAT4X4* _goalRef, HexPath* _path);
-	MTDStarLite & operator=(const MTDStarLite& other) { return *this; } //is this ever called? If so, MUST FIX
+	MTDStarLite() = default;
+	MTDStarLite(HexGrid *const _grid, DirectX::XMFLOAT4X4* _startRef, DirectX::XMFLOAT4X4* _goalRef);
+	MTDStarLite & operator=(MTDStarLite& other);
 	void Update();
+	void UpdateGoalReference(DirectX::XMFLOAT4X4* _goalRef);
 };

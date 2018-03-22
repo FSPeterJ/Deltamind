@@ -186,11 +186,11 @@ void PhysicsManager::Update() {
 
 		//This seems absurd, are we sure we can't use XMVECTOR and XMMATRIX in a more manageable manner?
 		if (!dynamicComponents[i].isActive) continue;
-		XMFLOAT4* objectPosition = (XMFLOAT4*) &dynamicComponents[i].parentObject->transform.GetMatrix().m[3];
-		XMVECTOR newposition = XMLoadFloat4(objectPosition);
-		dynamicComponents[i].rigidBody.Update();
-		newposition += dynamicComponents[i].rigidBody.GetVelocity() * delta;
-		XMStoreFloat4(objectPosition, newposition);
+		XMFLOAT4X4* objectPosition = &(dynamicComponents[i].parentObject->transform.matrix);
+		XMMATRIX newposition = XMLoadFloat4x4(objectPosition);
+		dynamicComponents[i].rigidBody.Update(&newposition);
+		newposition.r[3] += dynamicComponents[i].rigidBody.GetVelocity() * delta;
+		XMStoreFloat4x4(objectPosition, newposition);
 		UpdateAABB(dynamicComponents[i]);
 		partitionSpace.UpdateComponent(&dynamicComponents[i]);
 		//components[i].parentObject->position.r[3] += components[i].rigidBody.GetVelocity() * dt;
@@ -199,7 +199,7 @@ void PhysicsManager::Update() {
 		for(unsigned int colInd = 0; colInd < dynamicComponents[i].colliders.size(); ++colInd) {
 			XMVECTOR offset = XMLoadFloat3(&(dynamicComponents[i].colliders[colInd].centerOffset));
 			XMFLOAT3 colPos;
-			XMStoreFloat3(&colPos, newposition + offset);
+			XMStoreFloat3(&colPos, newposition.r[3] + offset);
 
 			switch(dynamicComponents[i].colliders[colInd].colliderData->colliderType) {
 			case SPHERE:

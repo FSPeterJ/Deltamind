@@ -60,26 +60,30 @@ void DStarEnemy::Update() {
 
 	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
 	if (curTile) {
-		if (curTile == next) {
-			rb->Stop();
-			HexRegion neigh = grid->Spiral(curTile, 3);
-			grid->Color(neigh, { 1.0f, 0.0f, 0.0f }, 3);
-			if (goal == curTile) {
-				Console::WriteLine << "We made it to our goal.";
-				rb->Stop();
-			}
-			else {
-				if (KeyIsHit(Control::TestInputO)) {
-					PathPlanner::UpdateDStarLite(dstarId);
 
+		if (goal == curTile) {
+			Console::WriteLine << "We made it to our goal.";
+			rb->Stop();
+		}
+		else {
+			//if (KeyIsHit(Control::TestInputO)) {
+			if (curTile == next) {
+				PathPlanner::UpdateDStar(dstarId);
+
+				next = PathPlanner::GetDStarNextTile(dstarId);
+				if (next) {
 					auto nextPathPoint = grid->TileToPoint(next);
 
 					DirectX::XMVECTOR nextDirection = DirectX::XMVectorSet(nextPathPoint.x - transform.matrix._41, 0.0f, nextPathPoint.y - transform.matrix._43, 1.0f);
 					DirectX::XMVECTOR velocity = rb->GetVelocity();
 					rb->AddForce(3.0f * (DirectX::XMVectorGetX(DirectX::XMVector3Dot(nextDirection, velocity)) + 1.0f), nextPathPoint.x - transform.matrix._41, 0.0f, nextPathPoint.y - transform.matrix._43, 0.5f);
+					Console::WriteLine << "Velocity: " << "(" << DirectX::XMVectorGetX(velocity) << ", " << DirectX::XMVectorGetY(velocity) << ", " << DirectX::XMVectorGetZ(velocity) << ")";
+				}
+				else {
+					rb->Stop();
+					Console::WriteLine << "There's no next path for me to GO!!";
 				}
 			}
 		}
 	}
-
 }

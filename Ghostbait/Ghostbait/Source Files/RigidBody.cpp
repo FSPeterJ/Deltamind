@@ -62,7 +62,7 @@ bool RigidBody::AddForce(float _magnitude, float x, float y, float z, float _tim
 void RigidBody::AdjustGravityMagnitude(float magnitude) {
 	actingForces[0].magnitude = magnitude;
 }
-void RigidBody::Update() {
+void RigidBody::Update(XMMATRIX* _orientation) {
 	float delta = (float) GhostTime::DeltaTime();
 	unsigned int i = 0;
 	while(i < actingForces.size()) {
@@ -78,8 +78,15 @@ void RigidBody::Update() {
 	}
 	CalculateNetAccelaration();
 	XMVECTOR newVelo = XMLoadFloat3(&velocity) + (XMLoadFloat3(&netAcceleration) * delta);
-	if (XMVectorGetX(XMVector3LengthSq(newVelo)) > terminalSpeed * terminalSpeed)
-		newVelo = XMVectorScale(XMVector3Normalize(newVelo), terminalSpeed);
+	XMVECTOR normVelo = XMVector3Normalize(newVelo);
+	float newVelLengSq = XMVectorGetX(XMVector3LengthSq(newVelo));
+	if (newVelLengSq > FLT_EPSILON) {
+		_orientation->r[0] = XMVector3Normalize(XMVector3Cross(_orientation->r[1], normVelo));
+		_orientation->r[2] = normVelo;
+	}
+
+	if (newVelLengSq > terminalSpeed * terminalSpeed)
+		newVelo = XMVectorScale(normVelo, terminalSpeed);
 
 	XMStoreFloat3(&velocity, newVelo);
 }

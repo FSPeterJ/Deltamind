@@ -18,7 +18,6 @@ class MTDSLEnemy : public EnemyBase, public Controlable {
 	HexTile* goal = nullptr;
 	HexTile* next = nullptr;
 	HexTile* curTile = nullptr;
-	HexPath path;
 
 	unsigned eventAdd;
 	unsigned eventRemove;

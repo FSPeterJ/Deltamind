@@ -74,10 +74,7 @@ Game::Game() {
 	MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) {this->Lose(); });
 	MessageEvents::Subscribe(EVENT_GameQuit, [=](EventMessageBase* e) {this->Quit(); });
 	MessageEvents::Subscribe(EVENT_GameExit, [=](EventMessageBase* e) {this->ExitToMenu(); });
-	MessageEvents::Subscribe(EVENT_CoreDamaged, [=](EventMessageBase* e) {this->CoreDamaged(); });
 	PathPlanner::SetGrid(&hexGrid);
-	light.SetAsPoint({ 0, 0, 0 }, { 0, 1, 0 }, 1000);
-	light.Enable();
 }
 
 //Catch Events
@@ -129,10 +126,6 @@ void Game::StartEvent() {
 			break;
 	}
 }
-void Game::CoreDamaged() {
-	gameData.panicTimer = 0;
-	light.SetColor({ 1, 0, 0});
-}
 
 //Helpers
 void Game::ChangeState(State newState) {
@@ -178,7 +171,6 @@ void Game::ChangeState(State newState) {
 				}
 				break;
 			case GAMESTATE_MainMenu:
-				light.SetColor({ 0, 0, 0 });
 				break;
 		}
 	}
@@ -366,16 +358,6 @@ void Game::Update() {
 	switch (gameData.GetState()) {
 		case GAMESTATE_InWave:
 			{
-				if (gameData.panicTimer != -1) {
-					if (gameData.panicTimer >= gameData.panicTimerDone) {
-						gameData.panicTimer = -1;
-						light.SetColor({ 0, 0, 0 });
-					}
-					else {
-						gameData.panicTimer += dt;
-					}
-				}
-
 				//--------Spawn Enemies if it's their time
 				{
 					//For each spawn entry in the level file
@@ -404,8 +386,6 @@ void Game::Update() {
 			break;
 		case GAMESTATE_BetweenWaves:
 			{
-				gameData.panicTimer = -1;
-				light.SetColor({ 0, 0, 0 });
 				//--------Update Engine Structure
 				engine->ExecuteUpdate();
 				engine->ExecuteLateUpdate();

@@ -8,84 +8,107 @@
 #include <vector>
 
 #include<functional>
-using Mutation = std::function<void(Traits& traits)>;
+namespace Omiracon {
+	namespace Genetics {
 
-//A random gene is selected and its value is changed with a random value between lower and upper bound.
-Mutation Creep = [&](Traits& traits) {
-	float mutationFactor = 0.1f;
-	traits.RandomTrait() += GhostRand::RandomNumber<float, GhostRand::Type::Inclusive>(-mutationFactor, mutationFactor);
-};
+	using Mutation = std::function<void(Traits& traits)>;
 
-//Changes the value of chosen gene with uniform random value selected between the user specified upper and lower bound for that gene.
-Mutation Uniform = [&](Traits& traits) {
-	//right now this is the same as Creep
-	float mutationFactor = 0.1f;
-	traits.RandomTrait() += GhostRand::RandomNumber<float, GhostRand::Type::Inclusive>(-mutationFactor, mutationFactor);
-};
+	//A random gene is selected and its value is changed with a random value between lower and upper bound.
+	Mutation Creep = [&](Traits& traits) {
+		float mutationFactor = 0.1f;
+		float& chosenTrait = traits.RandomTrait();
+		chosenTrait += Random::RandomNumber<float, Random::Type::Inclusive>(-mutationFactor, mutationFactor);
+		if(chosenTrait < 0.0f) chosenTrait = 0.0f;
+	};
 
-//Two random positions of the string are chosen and the bits corresponding to those positions are interchanged.
-Mutation Interchanging = [&](Traits& traits) {
-	std::swap(traits.RandomTrait(), traits.RandomTrait());
-};
+	//Changes the value of chosen gene with uniform random value selected between the user specified upper and lower bound for that gene.
+	Mutation Uniform = [&](Traits& traits) {
+		//right now this is the same as Creep
+		float mutationFactor = 0.1f;
+		traits.RandomTrait() += Random::RandomNumber<float, Random::Type::Inclusive>(-mutationFactor, mutationFactor);
+	};
 
-//Pick a subset of genes at random and then randomly rearrange the alleles in those positions.
-Mutation Scramble = [&](Traits& traits) {
-	std::size_t genesToScramble = GhostRand::RandomNumber(0, static_cast<int>(Trait::COUNT));
-	std::vector<float> geneSubset(genesToScramble);
-	for(std::size_t i = 0; i < genesToScramble; ++i) {
-		geneSubset[i] = traits.RandomTrait();
+	//Two random positions of the string are chosen and the bits corresponding to those positions are interchanged.
+	Mutation Interchanging = [&](Traits& traits) {
+		std::swap(traits.RandomTrait(), traits.RandomTrait());
+	};
+
+	//Pick a subset of genes at random and then randomly rearrange the alleles in those positions.
+	Mutation Scramble = [&](Traits& traits) {
+		std::size_t genesToScramble = Random::RandomNumber(0, static_cast<int>(Trait::COUNT));
+		std::vector<float> geneSubset(genesToScramble);
+		for(std::size_t i = 0; i < genesToScramble; ++i) {
+			geneSubset[i] = traits.RandomTrait();
+		}
+	};
+
+	void Traits::Mutate(const MutationType mutation) {
+		switch(mutation) {
+			//case INSERT: break;
+			//case INVERSION: break;
+		case SCRAMBLE: Scramble(*this); break;
+			//case SWAP: break;
+			//case FLIP: break;
+		case INTERCHANGING: Interchanging(*this); break;
+			//case REVERSING: break;
+		case UNIFORM: Uniform(*this); break;
+		default:case CREEP: Creep(*this); break;
+		}
+		Normalize();
 	}
-};
 
-void Traits::Mutate(const MutationType mutation) {
-	switch(mutation) {
-	//case INSERT: break;
-	//case INVERSION: break;
-	case SCRAMBLE: Scramble(*this); break;
-	//case SWAP: break;
-	//case FLIP: break;
-	case INTERCHANGING: Interchanging(*this); break;
-	//case REVERSING: break;
-	case UNIFORM: Uniform(*this); break;
-	default:case CREEP: Creep(*this); break;
+
+	void Traits::Randomize(void) {
+		for(float *i = &(traitList[0]), *end = &(traitList[Trait::COUNT]); i < end; *(i++) = Random::RandomNumber<float, Random::Type::Inclusive>(0.0, 1.0));
 	}
-	Normalize();
+	inline float const Traits::Sum(void) { float sum = 0.0f; for(float* i = &(traitList[0]), *end = &(traitList[Trait::COUNT]); i < end; sum += *i++); return sum; }
+
+	inline float & Traits::RandomTrait(void) { return traitList[Random::RandomNumber(0, static_cast<int>(Trait::COUNT))]; }
+
+	inline void Traits::Normalize(void) {
+		for(float n = 1.f / Sum(), *i = &(traitList[0]), *end = &(traitList[Trait::COUNT]); i < end; *(i++) *= n);
+		traitList[BALANCE] += 1.f - Sum();
+	}
+
+#define getPretty(f) (f*100.0f)
+#define NL  std::endl <<  std::endl
+	void Traits::Print(void) {
+		std::cout << std::setprecision(100);
+		std::cout << "INTELLIGENCE is now " << getPretty(operator[](INTELLIGENCE)) << '\n';
+		std::cout << "WISDOM is now " << getPretty(operator[](WISDOM)) << '\n';
+		std::cout << "EVASION is now " << getPretty(operator[](EVASION)) << '\n';
+		std::cout << "DEXTERITY is now " << getPretty(operator[](DEXTERITY)) << NL;
+
+
+		std::cout << "\nDEFENSE is now " << getPretty(operator[](DEFENSE)) << '\n';
+		std::cout << "ENDURANCE is now " << getPretty(operator[](ENDURANCE)) << '\n';
+		std::cout << "STAMINA is now " << getPretty(operator[](STAMINA)) << '\n';
+		std::cout << "RESISTANCE is now " << getPretty(operator[](RESISTANCE)) << NL;
+
+
+		std::cout << "\nSTRENGTH is now " << getPretty(operator[](STRENGTH)) << '\n';
+		std::cout << "POWER is now " << getPretty(operator[](POWER)) << '\n';
+		std::cout << "ACCURACY is now " << getPretty(operator[](ACCURACY)) << '\n';
+		std::cout << "LUCK is now " << getPretty(operator[](LUCK)) << NL;
+
+
+		std::cout << "\nSPEED is now " << getPretty(operator[](SPEED)) << '\n';
+		std::cout << "ENERGY is now " << getPretty(operator[](ENERGY)) << '\n';
+		std::cout << "COORDINATION is now " << getPretty(operator[](COORDINATION)) << '\n';
+		std::cout << "BALANCE is now " << getPretty(operator[](BALANCE)) << NL;
+
+	}
+	TraitedEnemy::TraitedEnemy(void) {
+		//thing_ = new thing();
+
+		//float s = traits.Sum();
+
+
+
+	}
+
+	TraitedEnemy::~TraitedEnemy(void) {
+		//	delete thing_;
+	}
 }
-
-
-void Traits::Randomize(void) { 
-	for(float *i = &(traitList[0]), *end = &(traitList[Trait::COUNT]); i < end; *(i++) = GhostRand::RandomNumber<float, GhostRand::Type::Inclusive>(0.0, 1.0)); 
 }
-inline float const Traits::Sum(void) { float sum = 0.0f; for(float* i = &(traitList[0]), *end = &(traitList[Trait::COUNT]); i < end; sum += *i++); return sum; }
-
-inline float & Traits::RandomTrait(void) { return traitList[GhostRand::RandomNumber(0, static_cast<int>(Trait::COUNT))]; }
-
-inline void Traits::Normalize(void) {
-	for(float n = 1.f / Sum(), *i = &(traitList[0]), *end = &(traitList[Trait::COUNT]); i < end; *(i++) *= n);
-	traitList[BALANCE] += 1.f - Sum();
-}
-
-TraitedEnemy::TraitedEnemy(void) {
-	float s = traits.Sum();
-	
-	std::cout << std::setprecision(100) << "sum is now " << s << '\n';
-	std::cout << "INTELLIGENCE is now " << traits[INTELLIGENCE] << '\n';
-	std::cout << "DEFENSE is now " << traits[DEFENSE]<< '\n';
-	std::cout << "STRENGTH is now " << traits[STRENGTH]<< '\n';
-	std::cout << "SPEED is now " << traits[SPEED]<< '\n';
-	std::cout << "WISDOM is now " << traits[WISDOM]<< '\n';
-	std::cout << "ENDURANCE is now " << traits[ENDURANCE]<< '\n';
-	std::cout << "POWER is now " << traits[POWER]<< '\n';
-	std::cout << "ENERGY is now " << traits[ENERGY]<< '\n';
-	std::cout << "EVASION is now " << traits[EVASION]<< '\n';
-	std::cout << "STAMINA is now " << traits[STAMINA]<< '\n';
-	std::cout << "ACCURACY is now " << traits[ACCURACY]<< '\n';
-	std::cout << "COORDINATION is now " << traits[COORDINATION]<< '\n';
-	std::cout << "DEXTERITY is now " << traits[DEXTERITY]<< '\n';
-	std::cout << "RESISTANCE is now " << traits[RESISTANCE]<< '\n';
-	std::cout << "LUCK is now " << traits[LUCK]<< '\n';
-	std::cout << "BALANCE is now " << traits[BALANCE]<< '\n';
-
-}
-
-TraitedEnemy::~TraitedEnemy(void) {}

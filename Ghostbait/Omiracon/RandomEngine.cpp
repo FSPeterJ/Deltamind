@@ -2,6 +2,7 @@
 #include "RandomEngine.h"
 #include <random>
 #include <functional>
+#include <algorithm>
 
 static std::random_device r;
 
@@ -10,8 +11,8 @@ std::mt19937 GetRnd() {
 	return std::mt19937(seed);
 }
 
-template<typename T, GhostRand::Type Interval>
-T const GhostRand::RandomNumber(const T lb, const T ub) {
+template<typename T, Omiracon::Random::Type Interval>
+T const Omiracon::Random::RandomNumber(const T lb, const T ub) {
 	using uniform_distribution = typename std::conditional<std::is_integral<T>::value,std::uniform_int_distribution<T>,std::uniform_real_distribution<T>>::type;
 	switch(Interval) {
 	case Type::Inclusive:
@@ -27,10 +28,15 @@ T const GhostRand::RandomNumber(const T lb, const T ub) {
 	}
 }
 
-template int const GhostRand::RandomNumber<int, GhostRand::Type::Inclusive>(const int min, const int max);
-template double const GhostRand::RandomNumber<double,GhostRand::Type::Inclusive>(const double min, const double max);
-template float const GhostRand::RandomNumber<float, GhostRand::Type::Inclusive>(const float min, const float max);
+template<typename T>
+void Omiracon::Random::ShuffleArray(T* arr, size_t size) {
+	std::random_shuffle(arr, arr+size, GetRnd());
+}
 
-template int const GhostRand::RandomNumber<int, GhostRand::Type::Exclusive>(const int min, const int max);
-template double const GhostRand::RandomNumber<double, GhostRand::Type::Exclusive>(const double min, const double max);
-template float const GhostRand::RandomNumber<float, GhostRand::Type::Exclusive>(const float min, const float max);
+template int const Omiracon::Random::RandomNumber<int, Omiracon::Random::Type::Inclusive>(const int min, const int max);
+template double const Omiracon::Random::RandomNumber<double, Omiracon::Random::Type::Inclusive>(const double min, const double max);
+template float const Omiracon::Random::RandomNumber<float, Omiracon::Random::Type::Inclusive>(const float min, const float max);
+
+template int const Omiracon::Random::RandomNumber<int, Omiracon::Random::Type::Exclusive>(const int min, const int max);
+template double const Omiracon::Random::RandomNumber<double, Omiracon::Random::Type::Exclusive>(const double min, const double max);
+template float const Omiracon::Random::RandomNumber<float, Omiracon::Random::Type::Exclusive>(const float min, const float max);

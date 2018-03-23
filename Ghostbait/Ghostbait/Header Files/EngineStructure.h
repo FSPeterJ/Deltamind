@@ -26,7 +26,7 @@ class EngineStructure {
 	static Delegate<> OnCollisionExit;
 
 	static Delegate<> Update;
-
+	static Delegate<> AnimationUpdate;
 	static Delegate<> LateUpdate;
 
 	static Delegate<> OnWillRenderObject;
@@ -58,6 +58,10 @@ public:
 		//WriteLine(" subscribers.");
 
 		Update();
+	}
+
+	void ExecuteAnimationUpdate() {
+		AnimationUpdate();
 	}
 
 	void ExecuteLateUpdate() {

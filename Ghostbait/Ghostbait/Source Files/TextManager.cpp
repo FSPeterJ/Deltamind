@@ -71,6 +71,109 @@ TextManager::renderableMat TextManager::createTextMaterial(float width, float he
 	return toPush;
 }
 
+TextManager::renderableMat TextManager::generateVertexBufferAndRender(Font * font, std::string _sentence, int index)
+{
+	bool preMade = index != -1;
+	float width = 0.0f;
+	float height = 16.0f;
+	float tempWidth = 0.0f;
+	for (size_t i = 0; i < _sentence.length(); ++i) //Getting the total width and height of the texture to create an aspect ratio
+	{
+		if (_sentence[i] == '\n')
+		{
+			height += 16.0f;
+			tempWidth = 0;
+			continue;
+		}
+		if (_sentence[i] == ' ')
+		{
+			tempWidth += 3.0f;
+			continue;
+		}
+		CharPos pos = font->GetCharPos(_sentence[i]);
+		tempWidth += pos.size + 1.0f;
+		if (tempWidth > width)
+			width = tempWidth;
+	}
+	float widRatio = 1.0f;
+	float heightRatio = 1.0f;
+
+	if (preMade)
+	{
+		widRatio = managedMaterials[index].width / width;
+		heightRatio = managedMaterials[index].height / height;
+	}
+
+
+	float heightOverWidthRatio = height / width; //Used to properly scale quads
+
+	float drawX = 0.0f;
+	float drawY = 0.0f;
+	std::vector<VertexPositionTexture> vertices;
+	for (size_t i = 0; i < _sentence.length(); ++i)
+	{
+		if (_sentence[i] == ' ')
+		{
+			drawX += 3.0f * widRatio;
+		}
+		else if (_sentence[i] == '\n')
+		{
+			drawY += 16.0f * heightRatio;
+			drawX = 0.0f;
+		}
+		else
+		{
+			CharPos pos = font->GetCharPos(_sentence[i]);
+			VertexPositionTexture toPush;
+			toPush.pos = DirectX::XMFLOAT3(drawX, drawY, 0.0f);
+			toPush.tex = DirectX::XMFLOAT2(pos.startU, 0.0f);
+			vertices.push_back(toPush);
+
+			toPush.pos = DirectX::XMFLOAT3(drawX + pos.size, drawY, 0.0f);
+			toPush.tex = DirectX::XMFLOAT2(pos.endU, 0.0f);
+			vertices.push_back(toPush);
+
+			toPush.pos = DirectX::XMFLOAT3(drawX, drawY + (16.0f*heightRatio), 0.0f);
+			toPush.tex = DirectX::XMFLOAT2(pos.startU, 1.0f);
+			vertices.push_back(toPush);
+
+			toPush.pos = DirectX::XMFLOAT3(drawX + pos.size, drawY, 0.0f);
+			toPush.tex = DirectX::XMFLOAT2(pos.endU, 0.0f);
+			vertices.push_back(toPush);
+
+			toPush.pos = DirectX::XMFLOAT3(drawX + pos.size, drawY + (16.0f*heightRatio), 0.0f);
+			toPush.tex = DirectX::XMFLOAT2(pos.endU, 1.0f);
+			vertices.push_back(toPush);
+
+			toPush.pos = DirectX::XMFLOAT3(drawX, drawY + (16.0f * heightRatio), 0.0f);
+			toPush.tex = DirectX::XMFLOAT2(pos.startU, 1.0f);
+			vertices.push_back(toPush);
+
+			drawX = drawX + ((pos.size + 1.0f) * widRatio);
+		}
+	}
+	renderableMat mat;
+
+	if (preMade)
+	{
+		sizeBuffer.height = managedMaterials[index].height;
+		sizeBuffer.width = managedMaterials[index].width;
+		mat = managedMaterials[index];
+	}
+	else
+	{
+		sizeBuffer.height = height;
+		sizeBuffer.width = width;
+		mat = createTextMaterial(width, height);
+	}
+	ID3D11ShaderResourceView * srv = font->GetShaderResourceView();
+	renderText(&mat, _sentence, vertices, srv);
+	
+	mat.height = height;
+	mat.width = width;
+	return mat;
+}
+
 void TextManager::renderText(renderableMat * mat, std::string & sentence, std::vector<VertexPositionTexture>& vertices, ID3D11ShaderResourceView * font)
 {
 	ID3D11Buffer* vertexBuffer;
@@ -135,7 +238,7 @@ void TextManager::LoadFont(std::string _fileName, std::string _texturePath)
 	fonts[_texturePath] = new Font(_fileName, _texturePath, device, context);
 }
 
-Material * TextManager::CreateRenderableTexture(float height, float width)
+Material * TextManager::CreateRenderableTexture(float width, float height)
 {
 	renderableMat mat = createTextMaterial(width, height);
 	return mat.mat;
@@ -146,167 +249,27 @@ TextManager::textOutput TextManager::DrawTextTo(std::string _fontTexturePath, st
 	Font* font = fonts[_fontTexturePath];
 	if (!font)
 		return textOutput();
-	float width = 0.0f;
-	float height = 16.0f;
-	float tempWidth = 0.0f;
-	for (size_t i = 0; i < _sentence.length(); ++i) //Getting the total width and height of the texture to create an aspect ratio
-	{
-		if (_sentence[i] == '\n')
-		{
-			height += 16.0f;
-			tempWidth = 0;
-			continue;
-		}
-		if (_sentence[i] == ' ')
-		{
-			tempWidth += 3.0f;
-			continue;
-		}
-		CharPos pos = font->GetCharPos(_sentence[i]);
-		tempWidth += pos.size + 1.0f;
-		if (tempWidth > width)
-			width = tempWidth;
-	}
 	
 	textOutput ret;
-	ret.heightOverWidthRatio = height / width; //Used to properly scale quads
-	float drawX = 0.0f;
-	float drawY = 0.0f;
-	std::vector<VertexPositionTexture> vertices;
-	for (size_t i = 0; i < _sentence.length(); ++i)
-	{
-		if (_sentence[i] == ' ')
-		{
-			drawX += 3.0f;
-		}
-		else if (_sentence[i] == '\n')
-		{
-			drawY += 16.0f;
-			drawX = 0.0f;
-		}
-		else
-		{
-			CharPos pos = font->GetCharPos(_sentence[i]);
-			VertexPositionTexture toPush;
-			toPush.pos = DirectX::XMFLOAT3(drawX, drawY, 0.0f);
-			toPush.tex = DirectX::XMFLOAT2(pos.startU, 0.0f);
-			vertices.push_back(toPush);
-
-			toPush.pos = DirectX::XMFLOAT3(drawX + pos.size, drawY, 0.0f);
-			toPush.tex = DirectX::XMFLOAT2(pos.endU, 0.0f);
-			vertices.push_back(toPush);
-
-			toPush.pos = DirectX::XMFLOAT3(drawX, drawY + 16.0f, 0.0f);
-			toPush.tex = DirectX::XMFLOAT2(pos.startU, 1.0f);
-			vertices.push_back(toPush);
-
-			toPush.pos = DirectX::XMFLOAT3(drawX + pos.size, drawY, 0.0f);
-			toPush.tex = DirectX::XMFLOAT2(pos.endU, 0.0f);
-			vertices.push_back(toPush);
-
-			toPush.pos = DirectX::XMFLOAT3(drawX + pos.size, drawY + 16.0f, 0.0f);
-			toPush.tex = DirectX::XMFLOAT2(pos.endU, 1.0f);
-			vertices.push_back(toPush);
-
-			toPush.pos = DirectX::XMFLOAT3(drawX, drawY + 16.0f, 0.0f);
-			toPush.tex = DirectX::XMFLOAT2(pos.startU, 1.0f);
-			vertices.push_back(toPush);
-
-			drawX = drawX + pos.size + 1.0f;
-		}
-	}
-	sizeBuffer.height = height;
-	sizeBuffer.width = width;
-	renderableMat mat = createTextMaterial(width, height);
-	ID3D11ShaderResourceView * srv = font->GetShaderResourceView();
-	renderText(&mat, _sentence, vertices, srv);
+	renderableMat mat = generateVertexBufferAndRender(font, _sentence);
+	
 	ret.mat = mat.mat;
+	ret.heightOverWidthRatio = mat.height / mat.width;
 	return ret;
 }
 
-void TextManager::DrawTextExistingMat(std::string _fontTexturePath, std::string _sentence, Material * _mat)
+float TextManager::DrawTextExistingMat(std::string _fontTexturePath, std::string _sentence, Material * _mat)
 {
+	Font* font = fonts[_fontTexturePath];
+	if (!font)
+		return -1.0f;
 	for (size_t i = 0; i < managedMaterials.size(); ++i)
 	{
 		if (_mat == managedMaterials[i].mat)
 		{
-			Font* font = fonts[_fontTexturePath];
-			if (!font)
-				return;
-			float width = 0.0f;
-			float height = 16.0f;
-			float tempWidth = 0.0f;
-			for (size_t i = 0; i < _sentence.length(); ++i) //Getting the total width and height of the texture to create an aspect ratio
-			{
-				if (_sentence[i] == '\n')
-				{
-					height += 16.0f;
-					tempWidth = 0;
-					continue;
-				}
-				if (_sentence[i] == ' ')
-				{
-					tempWidth += 3.0f;
-					continue;
-				}
-				CharPos pos = font->GetCharPos(_sentence[i]);
-				tempWidth += pos.size + 1.0f;
-				if (tempWidth > width)
-					width = tempWidth;
-			}
-			float widRatio = managedMaterials[i].width / width;
-			float heightRatio = managedMaterials[i].height / height;
-
-			float drawX = 0.0f;
-			float drawY = 0.0f;
-			std::vector<VertexPositionTexture> vertices;
-			for (size_t i = 0; i < _sentence.length(); ++i)
-			{
-				if (_sentence[i] == ' ')
-				{
-					drawX += 3.0f * widRatio;
-				}
-				else if (_sentence[i] == '\n')
-				{
-					drawY += 16.0f * heightRatio;
-					drawX = 0.0f;
-				}
-				else
-				{
-					CharPos pos = font->GetCharPos(_sentence[i]);
-					VertexPositionTexture toPush;
-					toPush.pos = DirectX::XMFLOAT3(drawX, drawY, 0.0f);
-					toPush.tex = DirectX::XMFLOAT2(pos.startU, 0.0f);
-					vertices.push_back(toPush);
-
-					toPush.pos = DirectX::XMFLOAT3(drawX + pos.size, drawY, 0.0f);
-					toPush.tex = DirectX::XMFLOAT2(pos.endU, 0.0f);
-					vertices.push_back(toPush);
-
-					toPush.pos = DirectX::XMFLOAT3(drawX, drawY + (16.0f*heightRatio), 0.0f);
-					toPush.tex = DirectX::XMFLOAT2(pos.startU, 1.0f);
-					vertices.push_back(toPush);
-
-					toPush.pos = DirectX::XMFLOAT3(drawX + pos.size, drawY, 0.0f);
-					toPush.tex = DirectX::XMFLOAT2(pos.endU, 0.0f);
-					vertices.push_back(toPush);
-
-					toPush.pos = DirectX::XMFLOAT3(drawX + pos.size, drawY + (16.0f*heightRatio), 0.0f);
-					toPush.tex = DirectX::XMFLOAT2(pos.endU, 1.0f);
-					vertices.push_back(toPush);
-
-					toPush.pos = DirectX::XMFLOAT3(drawX, drawY + (16.0f * heightRatio), 0.0f);
-					toPush.tex = DirectX::XMFLOAT2(pos.startU, 1.0f);
-					vertices.push_back(toPush);
-
-					drawX = drawX + ((pos.size + 1.0f) * widRatio);
-				}
-			}
-			sizeBuffer.height = managedMaterials[i].height;
-			sizeBuffer.width = managedMaterials[i].width;
-			ID3D11ShaderResourceView * srv = font->GetShaderResourceView();
-			renderText(&managedMaterials[i], _sentence, vertices, srv);
-			break;
+			renderableMat mat = generateVertexBufferAndRender(font, _sentence, (int)i);
+			return mat.height / mat.width;
 		}
 	}
+	return -1.0f;
 }

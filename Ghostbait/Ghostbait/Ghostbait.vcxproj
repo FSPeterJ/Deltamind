@@ -105,9 +105,12 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;openvr_api.lib;AkSoundEngine.lib;%(AdditionalDependencies);..\Omiracron\x64\Debug\Omiracron.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\Ghostbait\Dependencies\Wwise\$(Configuration);..\Ghostbait\openvr\lib\win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;openvr_api.lib;CommunicationCentral.lib;AkFlangerFX.lib;AkTremoloFX.lib;AkMemoryMgr.lib;AkSineSource.lib;AkSynthOneSource.lib;AkStereoDelayFX.lib;AkGuitarDistortionFX.lib;AkMeterFX.lib;AkSoundEngine.lib;AkSilenceSource.lib;AkSoundSeedImpactFX.lib;AkRoomVerbFX.lib;AkSoundSeedWooshSource.lib;AkSpatialAudio.lib;AkSoundSeedWindSource.lib;AkDelayFX.lib;AkCompressorFX.lib;AkMotionGeneratorSource.lib;AkMusicEngine.lib;AkTimeStretchFX.lib;AkPitchShifterFX.lib;AkToneSource.lib;AkGainFX.lib;AkVorbisDecoder.lib;AkPeakLimiterFX.lib;AkParametricEQFX.lib;AkRecorderFX.lib;AkMatrixReverbFX.lib;AkMotionSink.lib;AkStreamMgr.lib;AkHarmonizerFX.lib;AkAudioInputSource.lib;AkExpanderFX.lib;%(AdditionalDependencies);..\Omiracron\x64\Debug\Omiracron.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Ghostbait\Dependencies\Wwise\LibDebugx86\lib;..\Ghostbait\openvr\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -121,7 +124,7 @@
       <AdditionalUsingDirectories>d3dcompiler.h;directxmath.h;d3d11_1.h;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
       <EnablePREfast>false</EnablePREfast>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <BrowseInformation>true</BrowseInformation>
+      <BrowseInformation>false</BrowseInformation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -153,9 +156,12 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;openvr_api.lib;AkSoundEngine.lib;%(AdditionalDependencies);..\Omiracron\x64\Debug\Omiracron.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\Ghostbait\Dependencies\Wwise\$(Configuration);..\Ghostbait\openvr\lib\win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;openvr_api.lib;AkFlangerFX.lib;AkTremoloFX.lib;AkMemoryMgr.lib;AkSineSource.lib;AkSynthOneSource.lib;AkStereoDelayFX.lib;AkGuitarDistortionFX.lib;AkMeterFX.lib;AkSoundEngine.lib;AkSilenceSource.lib;AkSoundSeedImpactFX.lib;AkRoomVerbFX.lib;AkSoundSeedWooshSource.lib;AkSpatialAudio.lib;AkSoundSeedWindSource.lib;AkDelayFX.lib;AkCompressorFX.lib;AkMotionGeneratorSource.lib;AkMusicEngine.lib;AkTimeStretchFX.lib;AkPitchShifterFX.lib;AkToneSource.lib;AkGainFX.lib;AkVorbisDecoder.lib;AkPeakLimiterFX.lib;AkParametricEQFX.lib;AkRecorderFX.lib;AkMatrixReverbFX.lib;AkMotionSink.lib;AkStreamMgr.lib;AkHarmonizerFX.lib;AkAudioInputSource.lib;AkExpanderFX.lib;dxguid.lib;%(AdditionalDependencies);..\Omiracron\x64\Debug\Omiracron.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Ghostbait\Dependencies\Wwise\LibReleasex86\lib;..\Ghostbait\openvr\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -180,6 +186,9 @@
       <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;openvr_api.lib;AkFlangerFX.lib;AkTremoloFX.lib;AkMemoryMgr.lib;AkSineSource.lib;AkSynthOneSource.lib;AkStereoDelayFX.lib;AkGuitarDistortionFX.lib;AkMeterFX.lib;AkSoundEngine.lib;AkSilenceSource.lib;AkSoundSeedImpactFX.lib;AkRoomVerbFX.lib;AkSoundSeedWooshSource.lib;AkSpatialAudio.lib;AkSoundSeedWindSource.lib;AkDelayFX.lib;AkCompressorFX.lib;AkMotionGeneratorSource.lib;AkMusicEngine.lib;AkTimeStretchFX.lib;AkPitchShifterFX.lib;AkToneSource.lib;AkGainFX.lib;AkVorbisDecoder.lib;AkPeakLimiterFX.lib;AkParametricEQFX.lib;AkRecorderFX.lib;AkMatrixReverbFX.lib;AkMotionSink.lib;AkStreamMgr.lib;AkHarmonizerFX.lib;AkAudioInputSource.lib;AkExpanderFX.lib;dxguid.lib;%(AdditionalDependencies);..\Omiracron\x64\Debug\Omiracron.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\Ghostbait\Dependencies\Wwise\LibRelease\lib;..\Ghostbait\openvr\lib\win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Common\AkFileLocationBase.h" />
@@ -201,12 +210,15 @@
     <ClInclude Include="Header Files\Console.h" />
     <ClInclude Include="Header Files\Controlable.h" />
     <ClInclude Include="Header Files\ControllerObject.h" />
+    <ClInclude Include="Header Files\Core.h" />
     <ClInclude Include="Header Files\DebugRenderer.h" />
     <ClInclude Include="Header Files\Delegate.h" />
+    <ClInclude Include="Header Files\DStar.h" />
     <ClInclude Include="Header Files\DStarEnemy.h" />
     <ClInclude Include="Header Files\EnemyBase.h" />
     <ClInclude Include="Header Files\EngineStructure.h" />
     <ClInclude Include="Header Files\Examples.h" />
+    <ClInclude Include="Header Files\Font.h" />
     <ClInclude Include="Header Files\Game.h" />
     <ClInclude Include="Header Files\GameObject.h" />
     <ClInclude Include="Header Files\GameObjectComponent.h" />
@@ -223,7 +235,9 @@
     <ClInclude Include="Header Files\InputManager.h" />
     <ClInclude Include="Header Files\IComponentManager.h" />
     <ClInclude Include="Header Files\Item.h" />
+    <ClInclude Include="Header Files\Light.h" />
     <ClInclude Include="Header Files\LightManager.h" />
+    <ClInclude Include="Header Files\Logger.h" />
     <ClInclude Include="Header Files\Material.h" />
     <ClInclude Include="Header Files\MaterialManager.h" />
     <ClInclude Include="Header Files\MemoryManager.h" />
@@ -257,6 +271,7 @@
     <ClInclude Include="Header Files\StdHeader.h" />
     <ClInclude Include="Header Files\targetver.h" />
     <ClInclude Include="Header Files\TestObject.h" />
+    <ClInclude Include="Header Files\TextManager.h" />
     <ClInclude Include="Header Files\ThreadPool.h" />
     <ClInclude Include="Header Files\Transform.h" />
     <ClInclude Include="Header Files\TraversalResult.h" />
@@ -293,9 +308,12 @@
     <ClCompile Include="Source Files\Console.cpp" />
     <ClCompile Include="Source Files\Controlable.cpp" />
     <ClCompile Include="Source Files\ControllerObject.cpp" />
+    <ClCompile Include="Source Files\Core.cpp" />
     <ClCompile Include="Source Files\DebugRenderer.cpp" />
+    <ClCompile Include="Source Files\DStar.cpp" />
     <ClCompile Include="Source Files\EnemyBase.cpp" />
     <ClCompile Include="Source Files\EngineStructure.cpp" />
+    <ClCompile Include="Source Files\Font.cpp" />
     <ClCompile Include="Source Files\Game.cpp" />
     <ClCompile Include="Source Files\GameObject.cpp" />
     <ClCompile Include="Source Files\GhostTime.cpp" />
@@ -312,7 +330,9 @@
     <ClCompile Include="Source Files\HexTileVector.cpp" />
     <ClCompile Include="Source Files\InputManager.cpp" />
     <ClCompile Include="Source Files\Item.cpp" />
+    <ClCompile Include="Source Files\Light.cpp" />
     <ClCompile Include="Source Files\LightManager.cpp" />
+    <ClCompile Include="Source Files\Logger.cpp" />
     <ClCompile Include="Source Files\Main.cpp" />
     <ClCompile Include="Source Files\Material.cpp" />
     <ClCompile Include="Source Files\MaterialManager.cpp" />
@@ -342,6 +362,7 @@
     <ClCompile Include="Source Files\SceneManager.cpp" />
     <ClCompile Include="Source Files\SpatialPartition.cpp" />
     <ClCompile Include="Source Files\Spawner.cpp" />
+    <ClCompile Include="Source Files\TextManager.cpp" />
     <ClCompile Include="Source Files\ThreadPool.cpp" />
     <ClCompile Include="Source Files\Transform.cpp" />
     <ClCompile Include="Source Files\Turret.cpp" />
@@ -360,6 +381,20 @@
     <ResourceCompile Include="Resource Files\Ghostbait.rc" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="DeferredTargetPixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).cso</ObjectFileOutput>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="ParticleGS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Geometry</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
@@ -412,6 +447,16 @@
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).cso</ObjectFileOutput>
     </FxCompile>
+    <FxCompile Include="PassThroughPositionVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
     <FxCompile Include="PassThroughPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
@@ -421,6 +466,54 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile Include="PointToNDCQuadGS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Geometry</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Geometry</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Geometry</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Geometry</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile Include="PositionTexturePixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile Include="SkyboxPixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).cso</ObjectFileOutput>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="SkyboxVertexShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).cso</ObjectFileOutput>
@@ -459,6 +552,16 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="TextVertexShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).cso</ObjectFileOutput>
     </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,11 +1,24 @@
 #include "Console.h"
 #include <windows.h>
 #include <iostream>
+#include <fstream>
+#include <ctime>
+#include <string>
+#include <corecrt_wtime.h>
 
-const char* Console::file_formatter(char* source) {
+std::string Console::file_formatter(char* source) {
+
+//const char* Console::file_formatter(char* source) {
 	std::string src(source);
 	size_t start = src.find_last_of('\\') + 1;
-	return src.substr(start).c_str();
+	return src.substr(start);
+}
+std::string Console::time_formatter(const time_t time) {
+	tm dt;
+	char buffer[30];
+	localtime_s(&dt, &time);
+	strftime(buffer, sizeof(buffer), "%H:%M:%S", &dt);
+	return std::string(buffer);
 }
 
 class Console::OutputWriter: public std::streambuf {
@@ -52,11 +65,35 @@ public:
 	PrefixWriter(std::string prefix, std::streambuf* sbuf, ConsoleColor _color) : prefix(std::move(prefix)), sbuf(sbuf), color(_color) {}
 };
 
+class Console::Logger : public std::streambuf {
+	std::streambuf* sbuf;
+	std::ofstream stream;
+
+	int overflow(int c) {
+		auto res = this->sbuf->sputc(c);
+		stream << (char)c;
+		return res;
+	}
+	int sync() {
+		return this->sbuf->pubsync();
+	}
+public:
+	Logger(const char* filePath, std::streambuf* sbuf) : sbuf(sbuf) {
+		stream.open(filePath);
+	}
+	~Logger() {
+		stream.close();
+	}
+};
+
 Console::OutputWriter Console::outputStream;
 
 Console::PrefixWriter Console::errorPrefix("ERROR: ", std::cout.rdbuf(), ConsoleColor::Red);
 Console::PrefixWriter Console::warningPrefix("WARNING: ", std::cout.rdbuf(), ConsoleColor::Yellow);
 Console::PrefixWriter Console::outErrorPrefix("ERROR: ", &outputStream, ConsoleColor::Red);
+Console::Logger Console::logger("Log.txt", std::cout.rdbuf());
+
+
 
 Console::Writer Console::Write(std::cout.rdbuf());
 Console::Writer Console::Error(&errorPrefix);
@@ -69,6 +106,8 @@ Console::WriteLiner	Console::ErrorLine(&errorPrefix);
 Console::WriteLiner	Console::WarningLine(&warningPrefix);
 Console::WriteLiner	Console::OutLine(&outputStream);
 Console::WriteLiner Console::ErrorOutLine(&outErrorPrefix);
+Console::WriteLiner Console::Log(&logger);
+
 
 void* Console::hConsole;
 

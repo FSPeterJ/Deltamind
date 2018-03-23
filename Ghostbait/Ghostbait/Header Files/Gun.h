@@ -15,15 +15,15 @@ public:
 		Gun* parent;
 		ProgressBar* bar;
 		float energyBulletCost = 1; //Energy output per bullet
-		float energyWaitCooldown = 5; //How long you go(seconds) without shooting to begin cooling down
-		float energyOverheatDelay = 7; //How long you need to wait (seconds) after reaching/exceeding energy limit to begin cooldown
-		float energyLimit = 20; //Max amount of energy before overheat
+		float energyWaitCooldown = 4; //How long you go(seconds) without shooting to begin cooling down
+		float energyOverheatDelay = 6; //How long you need to wait (seconds) after reaching/exceeding energy limit to begin cooldown
+		float energyLimit = 25; //Max amount of energy before overheat
 
 		bool AddEnergy(float energy);
 		bool CanShoot(float fireRate);
 		inline void ResetTimeSinceLastShot() { timeSinceLastShot = 0; };
 		void Update(bool active = true);
-		void CreateBar();
+		void CreateBar(Gun* _parent = nullptr);
 	};
 	enum FireType {
 		AUTO,
@@ -31,7 +31,6 @@ public:
 	};
 protected:
 	unsigned projectiePID = 0;
-	Overheat overheat;
 private:
 	//Main Stats
 	FireType type = AUTO;
@@ -46,6 +45,7 @@ public:
 	bool Shoot();
 	void InactiveUpdate() override;
 	void ActiveUpdate() override;
+	Overheat overheat;
 	// This is essentially a copy constructor, but since objects are never truely instantiated post-start...
 #ifdef _DEBUG
 	void SmokeTest() override;

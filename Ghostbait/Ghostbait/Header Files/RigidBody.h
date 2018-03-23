@@ -33,6 +33,7 @@ public:
 	void GravityOn(bool _hasGravity);
 	void AdjustGravityMagnitude(float magnitude);
 	float GetSpeedSq();
+	void Reset();
 	
 
 	//bool operator==(const RigidBody other) {
@@ -69,6 +70,6 @@ public:
 	/// Sets velocity to zero and clear all forces except gravity </summary>
 	void Stop();
 
-	void Update();
+	void Update(DirectX::XMMATRIX* _orietation = nullptr);
 	DirectX::XMVECTOR GetVelocity();
 };

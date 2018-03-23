@@ -1,10 +1,12 @@
 #pragma once
 #include "GameObject.h"
 class HexGrid;
+class Core;
 
-class Spawner : public GameObject {
+class SpawnerObject : public GameObject {
 public:
-	Spawner();
+	SpawnerObject();
 	void Awake(Object* obj);
-	void SpawnObject(char* prefabName, HexGrid* grid, DirectX::XMFLOAT2 goal);
+	void SpawnObject(const char* prefabName, HexGrid* grid, Core* _core);
+	void Destroy() override;
 };

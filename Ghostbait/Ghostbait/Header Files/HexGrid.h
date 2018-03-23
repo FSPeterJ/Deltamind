@@ -21,8 +21,8 @@ class HexPath;
 class HexGrid {
 	using GridContainer = std::unordered_set<HexTile*, std::hash<HexTile*>, EqualComparator>;
 
-	using CostDelta = std::unordered_map<HexTile*, float, std::hash<HexTile*>, EqualComparator>;
-	CostDelta cost_delta;
+	//using CostDelta = std::unordered_map<HexTile*, float, std::hash<HexTile*>, EqualComparator>;
+	//CostDelta cost_delta;
 
 	float map_radius = 0;
 
@@ -55,13 +55,14 @@ class HexGrid {
 	/// <param name="zmax">The zmax.</param>
 	/// <returns>HexRegion.</returns>
 	HexRegion GetRegion(int xmin, int xmax, int ymin, int ymax, int zmin, int zmax);
-	
+	HexRegion DoRing(bool spiral, HexTile *const center, std::size_t radius);
+
 	static const float Blocked;
 public:
 
 	void ForEach(std::function<void(HexTile*const)> f);
 
-	CostDelta& GetCostDelta(void) { return cost_delta; }
+	//CostDelta& GetCostDelta(void) { return cost_delta; }
 
 	float BlockWeight() const { return Blocked; }
 
@@ -110,7 +111,6 @@ public:
 	/// <returns>HexRegion.</returns>
 	HexRegion GetTilesNStepsAway(HexTile *const tile, int n);
 
-	[[deprecated]]
 	HexRegion Ring(HexTile *const center, std::size_t radius);
 
 	HexRegion Spiral(HexTile *const center, std::size_t radius);
@@ -208,6 +208,8 @@ public:
 	/// </summary>
 	/// <param name="player">The player.</param>
 	void Display(DirectX::XMFLOAT2& player);
+
+	HexGrid(const char* _filename, float _radius = 1.0f, HexagonalGridLayout _layout = HexagonalGridLayout::FlatLayout);
 
 	void Color(HexRegion& r, DirectX::XMFLOAT3 color, int fill);
 	void Color(HexPath& p, DirectX::XMFLOAT3 color, int fill);

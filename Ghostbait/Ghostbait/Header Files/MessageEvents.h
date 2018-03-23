@@ -14,6 +14,8 @@ enum EVENT_TYPES {
 	EVENT_Destroy,
 	EVENT_Unrender,
 	EVENT_Addrender,
+	EVENT_Rendertofront,
+	EVENT_Rendertransparent,
 	EVENT_Late,
 	EVENT_LENGTH,
 	EVENT_RegisterNoisemaker,
@@ -27,12 +29,15 @@ enum EVENT_TYPES {
 	EVENT_GameWin,
 	EVENT_GameLose,
 	EVENT_GamePause,
+	EVENT_GameUnPause,
 	EVENT_GameRestart,
 	EVENT_DeleteAllGameObjects,
 	EVENT_GameQuit,
-	EVENT_SnapRequest,
+	EVENT_GameExit,
+	EVENT_CoreDamaged,
 	EVENT_AddObstacle,
 	EVENT_RemoveObstacle,
+	EVENT_PauseInputDetected,
 };
 
 class EventMessageBase;

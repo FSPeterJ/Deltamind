@@ -25,8 +25,11 @@ float Health::PercentHealth() {
 	return (health / maxHealth);
 }
 void Health::AdjustHealth(float amount) {
+	if (amount < 0) HurtEvent();
+	if (amount > 0) HealedEvent();
 	health += amount;
 	Clamp(0, maxHealth, &health);
+	if (health == 0) DeathEvent();
 }
 bool Health::IsAlive() {
 	if (health <= 0) return false;

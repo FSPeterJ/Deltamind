@@ -20,10 +20,8 @@ enum Control {
 	right,
 	teleportDown,
 	teleportUp,
-	menu,
+	pause,
 	releaseKey,
-	leftCyclePrefab,
-	rightCyclePrefab,
 
 	rightItem0,
 	rightItem1,
@@ -31,6 +29,7 @@ enum Control {
 	rightItem3,
 	rightAttack,
 	rightTouch,
+	rightCyclePrefab,
 
 	leftItem0,
 	leftItem1,
@@ -38,6 +37,7 @@ enum Control {
 	leftItem3,
 	leftAttack,
 	leftTouch,
+	leftCyclePrefab,
 
 	TestInputU,
 	TestInputI,
@@ -188,14 +188,13 @@ public:
 class SnapMessage : public EventMessageBase {
 public:
 	DirectX::XMFLOAT2* position;
-	bool* success;
-	SnapMessage(DirectX::XMFLOAT2* _position, bool* _success) : position(_position), success(_success) {}
+	SnapMessage(DirectX::XMFLOAT2* _position) : position(_position){}
 };
 
 //Duplicate is unnessessary
 class NewObjectMessage: public EventMessageBase {
-	GameObject* obj = nullptr;
 public:
+	GameObject* obj = nullptr;
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="NewObjectMessage"/> class.

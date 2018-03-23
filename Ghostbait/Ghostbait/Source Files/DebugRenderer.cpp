@@ -279,6 +279,11 @@ void DebugRenderer::AddSphere(DirectX::XMFLOAT3 pos, float radius, int LatLines,
 	//return new MeshObj(_pDevice, pDeviceContext, _pPixelShader, &vertices[0], (UINT)vertices.size(), &indices[0], (UINT)indices.size());
 }
 
+void DebugRenderer::AddCapsule(DirectX::XMFLOAT3& start, DirectX::XMFLOAT3& end, DirectX::XMFLOAT4X4& orientation, float radius, DirectX::XMFLOAT3& color) {
+
+}
+
+
 void DebugRenderer::DrawAxes(DirectX::XMFLOAT4X4 toDraw, float length) {
 	XMFLOAT3 xAxis;
 	xAxis.x = toDraw._11;
@@ -305,8 +310,8 @@ void DebugRenderer::DrawAxes(DirectX::XMFLOAT4X4 toDraw, float length) {
 	AddLine(p1temp, p2temp, DirectX::XMFLOAT3(0.0f, 0.0f, 1.0f));
 }
 
-void DebugRenderer::drawTo(ID3D11RenderTargetView * rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport) {
-	context->OMSetRenderTargets(1, &rtv, dsv);
+void DebugRenderer::drawTo(ID3D11RenderTargetView ** rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport) {
+	context->OMSetRenderTargets(6, rtv, dsv);
 	context->RSSetViewports(1, &viewport);
 	context->VSSetShader(vShader, NULL, NULL);
 	context->PSSetShader(pShader, NULL, NULL);
@@ -333,7 +338,7 @@ void DebugRenderer::drawTo(ID3D11RenderTargetView * rtv, ID3D11DepthStencilView 
 	context->RSSetState(defaultState);
 }
 
-void DebugRenderer::flushTo(ID3D11RenderTargetView * rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport) {
+void DebugRenderer::flushTo(ID3D11RenderTargetView ** rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport) {
 	drawTo(rtv, dsv, viewport);
 	v_count = 0;
 	tri_count = 0;

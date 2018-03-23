@@ -31,6 +31,7 @@ enum class PathingAlgorithm {
 class PathPlanner {
 	static HeuristicFunction heuristicFunction;
 	static HexGrid* grid;
+	friend struct DStarCommon;
 	friend class DStarLite;
 	friend class MTDStarLite;
 
@@ -85,10 +86,17 @@ class PathPlanner {
 	/// <returns>A path from the start to goal or an empty path if one is not found.</returns>
 	static HexPath AStarSearch(HexTile *const start, HexTile *const goal, HeuristicFunction Heuristic);
 
-	static std::vector<DStarLite> dstarList;
-	static std::size_t dstars;
-	static std::vector<MTDStarLite> mtdstarList;
-	static std::size_t mtdstars;
+	static std::unordered_map<std::size_t, DStarLite> dstarList;
+	static std::size_t dstarIndices;
+	static std::unordered_map<std::size_t, MTDStarLite> mtdstarList;
+	static std::size_t mtdstarIndices;
+
+	//static std::vector<DStarLite> dstarList;
+	//static std::size_t dstars;
+	//static std::vector<MTDStarLite> mtdstarList;
+	//static std::size_t mtdstars;
+
+
 public:
 
 	static void SetHeuristic(HeuristicFunction heuristic);
@@ -99,10 +107,19 @@ public:
 
 
 	static std::size_t DStarLiteSearch(HexTile *const start, HexTile *const goal, HexTile** nextTileInPath, HeuristicFunction Heuristic);
-	static void UpdateDStarLite(std::size_t dstarId);
-	static std::size_t MTDStarLiteSearch(DirectX::XMFLOAT4X4* startRef, DirectX::XMFLOAT4X4* goalRef, HexPath* toPath, HeuristicFunction Heuristic);
-	static void UpdateMTDStarLite(std::size_t mtdstarId);
+	static std::size_t MTDStarLiteSearch(DirectX::XMFLOAT4X4* startRef, DirectX::XMFLOAT4X4* goalRef, HeuristicFunction Heuristic);
 
+	static void UpdateDStar(std::size_t dstarId);
+	static HexTile* GetDStarNextTile(std::size_t dstarId);
+	static bool RemoveDStar(std::size_t dstarId);
+
+	static void UpdateMTDSLTargetReference(std::size_t mtdstarId, DirectX::XMFLOAT4X4* goalRef);
+	static void UpdateMTDStar(std::size_t mtdstarId);
+	static HexTile* GetMTDStarNextTile(std::size_t mtdstarId);
+	static bool RemoveMTDStar(std::size_t mtdstarId);
+
+
+	static void CostChangeNotice(HexTile* const tile);
 
 	template <PathingAlgorithm a>
 	typename std::enable_if<a == PathingAlgorithm::BreadthFirst || a == PathingAlgorithm::Dijkstra, TraversalResult>::type

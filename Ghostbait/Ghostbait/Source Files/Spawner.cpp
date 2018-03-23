@@ -3,24 +3,30 @@
 #include "MessageEvents.h"
 #include "PhysicsComponent.h"
 #include "EnemyBase.h"
+#include "ObjectFactory.h"
 
 #include "HexGrid.h"
-void Spawner::Awake(Object* obj) {
+void SpawnerObject::Awake(Object* obj) {
 	SetTag("Spawner");
 	MessageEvents::SendMessage(EVENT_SpawnerCreated, SpawnerCreatedMessage(this));
+	GameObject::Awake(obj);
 }
-Spawner::Spawner() {
+SpawnerObject::SpawnerObject() {
 }
-void Spawner::SpawnObject(char* prefabName, HexGrid* grid, DirectX::XMFLOAT2 goal) {
-	grid->RemoveObstacle(goal);
+void SpawnerObject::SpawnObject(const char* prefabName, HexGrid* grid, Core* _core) {
+	grid->RemoveObstacle({ _core->transform.GetPosition().x, _core->transform.GetPosition().z });
 	grid->RemoveObstacle({ transform.GetMatrix()._41,transform.GetMatrix()._43});
 
 	EnemyBase* obj;
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<EnemyBase>(prefabName, {0, 0, 0}, &obj));
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<EnemyBase>(ObjectFactory::CreatePrefab(&std::string(prefabName)), {0, 0, 0}, &obj));
 	obj->transform.SetMatrix(transform.GetMatrix());
 	obj->SetGrid(grid);
-	obj->SetGoal(goal);
+	obj->SetCore(_core);
 	obj->Repath();
 	obj->Enable();
 	//obj->GetComponent<PhysicsComponent>()->rigidBody.AddForce(100);
+}
+
+void SpawnerObject::Destroy() {
+	GameObject::Destroy();
 }

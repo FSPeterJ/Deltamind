@@ -6,10 +6,11 @@
 #include "Console.h"
 #include "Wwise_IDs.h"
 
-
-
-void Gun::Overheat::CreateBar() {
+void Gun::Overheat::CreateBar(Gun* _parent) {
+	parent = _parent;
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ProgressBar>(overheatBarPID, { 0.0f, 0.0f, 0.0f }, &bar)); // stop using magic number prefab ID
+	bar->Enable();
+	bar->PersistOnReset();
 }
 bool Gun::Overheat::CanShoot(float fireRate) {
 	return timeSinceLastShot > (1 / fireRate) && !energyOverheatDelayTimeLeft;
@@ -24,8 +25,6 @@ bool Gun::Overheat::AddEnergy(float energy) {
 	return true;
 }
 void Gun::Overheat::Update(bool active) {
-
-
 	//Update Overheat Stats
 	float dt = (float)GhostTime::DeltaTime();
 	timeSinceLastShot += dt;
@@ -45,19 +44,21 @@ void Gun::Overheat::Update(bool active) {
 		//Update Bar itself
 		DirectX::XMFLOAT4X4 newPos;
 		newPos = parent->transform.GetMatrix();
+		bar->transform.NormalizeAllAxis();
 		newPos._41 -= bar->transform.GetMatrix()._11 * 0.04f;
 		newPos._42 -= bar->transform.GetMatrix()._12 * 0.04f;
 		newPos._43 -= bar->transform.GetMatrix()._13 * 0.04f;
-
-		newPos._41 -= bar->transform.GetMatrix()._31 * 0.1f;
-		newPos._42 -= bar->transform.GetMatrix()._32 * 0.1f;
-		newPos._43 -= bar->transform.GetMatrix()._33 * 0.1f;
+		
+		newPos._41 -= bar->transform.GetMatrix()._31 * 0.09f;
+		newPos._42 -= bar->transform.GetMatrix()._32 * 0.09f;
+		newPos._43 -= bar->transform.GetMatrix()._33 * 0.09f;
 
 		bar->transform.SetMatrix(newPos);
 
 		bar->SetBarPercentage(currentEnergy / energyLimit);
 	}
 	else bar->SetBarPercentage(0);
+
 
 	//Console Write
 	//Console::WriteLine << currentEnergy << "__" << energyLimit << " : " << energyOverheatDelayTimeLeft << " : " << timeSinceLastShot;
@@ -71,15 +72,12 @@ void Gun::Awake(Object* obj) {
 	state = GUN;
 	Gun* gun = ((Gun*)obj);
 	overheat.overheatBarPID = gun->overheat.overheatBarPID;
-	overheat.CreateBar(); // may want to reethink this?
 	projectiePID = gun->projectiePID;
 	fireRate = gun->fireRate;
 	damage = gun->damage;
 	type = gun->type;
-	overheat.parent = this;
 	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
 }
-
 
 void Gun::GivePID(unsigned pid, const char* tag) {
 	// Look into a better system
@@ -108,7 +106,7 @@ bool Gun::Shoot() {
 				newPos._43 += newPos._33 * 0.2f;
 				obj->transform.SetMatrix(newPos);
 				obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
-				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(transform.GetMatrix()._31 * 10.0f, transform.GetMatrix()._32 * 10.0f, transform.GetMatrix()._33 * 10.0f);
+				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(transform.GetMatrix()._31 * 40.0f, transform.GetMatrix()._32 * 40.0f, transform.GetMatrix()._33 * 40.0f);
 				obj->SetDamage(damage);
 				obj->Enable();
 				overheat.AddEnergy(overheat.energyBulletCost);
@@ -130,7 +128,7 @@ bool Gun::Shoot() {
 				PhysicsComponent* temp2 = obj->GetComponent<PhysicsComponent>();
 				RigidBody* temp = &temp2->rigidBody;
 				temp->AdjustGravityMagnitude(0);
-				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(transform.GetMatrix()._31 * 10.0f, transform.GetMatrix()._32 * 10.0f, transform.GetMatrix()._33 * 10.0f);
+				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(transform.GetMatrix()._31 * 40.0f, transform.GetMatrix()._32 * 40.0f, transform.GetMatrix()._33 * 40.0f);
 				obj->SetDamage(damage);
 				obj->Enable();
 				overheat.AddEnergy(overheat.energyBulletCost);
@@ -147,8 +145,6 @@ void Gun::InactiveUpdate() {
 void Gun::ActiveUpdate() {
 	overheat.Update(true);
 }
-
-
 
 #ifdef _DEBUG
 void Gun::SmokeTest() {

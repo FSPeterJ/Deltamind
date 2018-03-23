@@ -12,6 +12,7 @@
 #include "HexTileVector.h"
 #include <random>
 #include "PathPlanner.h"
+#include <fstream>
 
 const float HexGrid::Blocked = float(0xDEAD);
 
@@ -65,7 +66,8 @@ bool HexGrid::SetWeight(const DirectX::XMFLOAT2& tilePosition, float weight) {
 
 bool HexGrid::SetWeight(HexTile *const tile, float weight) {
 	if(tile) {
-		cost_delta[tile] = tile->weight;
+		//cost_delta[tile] = tile->weight;
+		PathPlanner::CostChangeNotice(tile);
 		tile->weight = weight;
 		return true;
 	}
@@ -78,8 +80,9 @@ bool HexGrid::AddObstacle(const DirectX::XMFLOAT2& obstaclePosition) {
 }
 bool HexGrid::AddObstacle(HexTile*const obstaclePosition) {
 	if (obstaclePosition) {
-//		Console::WriteLine << "Obstacle added: Tile (" << obstaclePosition->q << ", " << obstaclePosition->r << ")";
-		cost_delta[obstaclePosition] = obstaclePosition->weight;
+		Console::WriteLine << "Obstacle added: Tile (" << obstaclePosition->q << ", " << obstaclePosition->r << ")";
+		PathPlanner::CostChangeNotice(obstaclePosition);
+		//cost_delta[obstaclePosition] = obstaclePosition->weight;
 		obstaclePosition->weight = Blocked;
 		blocked.push_back(*obstaclePosition);
 		return true;
@@ -94,7 +97,8 @@ bool HexGrid::RemoveObstacle(const DirectX::XMFLOAT2& obstaclePosition) {
 }
 bool HexGrid::RemoveObstacle(HexTile*const obstaclePosition) {
 	if (obstaclePosition) {
-		cost_delta[obstaclePosition] = obstaclePosition->weight;
+		PathPlanner::CostChangeNotice(obstaclePosition);
+		//cost_delta[obstaclePosition] = obstaclePosition->weight;
 		obstaclePosition->weight = 1;
 		blocked.remove(*obstaclePosition);
 		return true;
@@ -327,21 +331,21 @@ void HexGrid::Fill(bool withRandomObstacles) {
 HexRegion HexGrid::blocked;
 
 void HexGrid::Display(DirectX::XMFLOAT2& player) {
-	HexTile* pos = PointToTile(player);
-	if(pos) {
-		HexRegion playerView = GetTilesNStepsAway(pos, 3);
-		playerView.Color(&layout, {1,1,1}, 0, ColorType::__Outline);
-	} else {
-		HexRegion playerView = GetTilesNStepsAway(&HexTile(0, 0), 13);
-		playerView.Color(&layout, {1,1,1}, 0, ColorType::__Outline);
-	}
+	//HexTile* pos = PointToTile(player);
+	//if(pos) {
+	//	HexRegion playerView = GetTilesNStepsAway(pos, 3);
+	//	playerView.Color(&layout, {1,1,1}, 0, ColorType::__Outline);
+	//} else {
+	//	HexRegion playerView = GetTilesNStepsAway(&HexTile(0, 0), 13);
+	//	playerView.Color(&layout, {1,1,1}, 0, ColorType::__Outline);
+	//}
 
 	
 	//draw everything
-	//for(const auto& t : map) {
-	//	auto realT = const_cast<HexTile*&>(t);
-	//	realT->Draw(layout, {1,1,1});
-	//}
+	for(const auto& t : map) {
+		auto realT = const_cast<HexTile*&>(t);
+		realT->DrawX(layout, {1,1,1}, 0.2f);
+	}
 	blocked.Color(&layout, {0,0,0}, 0, ColorType::__CheapFill);
 
 	//DrawXStepsPath();
@@ -373,6 +377,48 @@ HexTile* HexGrid::GetRandomTile() {
 	return *begin;
 }
 
+HexGrid::HexGrid(const char* _filename, float _radius, HexagonalGridLayout _layout) : map_radius(_radius), layout(_layout) {
+	static int dupCount = 0;
+	std::fstream file;
+
+	file.open(_filename, std::ios_base::binary | std::ios_base::in);
+
+	if (file.is_open())
+	{
+		int geo_count;
+		file.read((char*)&geo_count, sizeof(geo_count));
+
+		for (int i = 0; i < geo_count; ++i)
+		{
+			unsigned int polyCount;
+			file.read((char*)&polyCount, sizeof(polyCount));
+
+			for (unsigned int i = 0; i < polyCount; ++i)
+			{
+				int q, r, s;
+				file.read((char*)&q, sizeof(int));
+				file.read((char*)&r, sizeof(int));
+				file.read((char*)&s, sizeof(int));
+
+				HexTile* t = new HexTile(q, r, s);
+				t->weight = 1.0f;
+				if (q == -15 && r == 34) {
+					int i = 0;
+				}
+				if (map.find(t) != map.end()) {
+					++dupCount;
+				}
+				map.insert(t);
+			}
+		}
+		file.close();
+		
+	}
+
+	//int i = 0;
+	//HexTile tile = HexTile(-15, 34);
+	//DirectX::XMFLOAT2 pos = tile.Center(HexagonalGridLayout::FlatLayout);
+}
 void HexGrid::Color(HexRegion& r, DirectX::XMFLOAT3 color, int fill) {
 	r.Color(&layout, color, 0, (ColorType)fill);
 }
@@ -381,26 +427,27 @@ void HexGrid::Color(HexPath& p, DirectX::XMFLOAT3 color, int fill) {
 	p.Color(&layout, color, 0, (ColorType)fill);
 }
 
-HexRegion HexGrid::Spiral(HexTile *const center, std::size_t radius) {
+HexRegion HexGrid::DoRing(bool spiral, HexTile *const center, std::size_t radius) {
 	HexRegion ring;
-	if(radius == 0) { return ring; }
+	if (radius == 0) { return ring; }
 
-	ring.push_back(*center);
-	for(std::size_t k = 1; k <= radius; ++k) {
+	if (spiral) { ring.push_back(*center); }
+	for (std::size_t k = spiral ? 1 : radius; k <= radius; ++k) {
 		HexTile H = *center + (center->Direction(NEIGHBOR_DIRECTION::BottomLeft) * (int)k);
-		for(std::size_t i = 0; i < Hexagon::NUMBER_OF_SIDES; ++i) {
-			for(std::size_t j = 0; j < k; ++j) {
+		for (std::size_t i = 0; i < Hexagon::NUMBER_OF_SIDES; ++i) {
+			for (std::size_t j = 0; j < k; ++j) {
 				ring.push_back(H);
 				H = H.Neighbor((NEIGHBOR_DIRECTION)i);
 			}
 		}
-
 	}
-	
 	return ring;
 }
 
+HexRegion HexGrid::Spiral(HexTile *const center, std::size_t radius) {
+	return DoRing(true, center, radius);
+}
 
 HexRegion HexGrid::Ring(HexTile *const center, std::size_t radius) {
-	return HexRegion();
+	return DoRing(false, center, radius);
 }

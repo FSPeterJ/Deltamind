@@ -10,6 +10,9 @@ public:
 	Health(float _maxHealth, float _startingHealth);
 
 	//Purpose: 
+	//	Reset Health to maximum
+	inline void SetToFullHealth() { health = maxHealth; }
+	//Purpose: 
 	//	Get the current health as a percentage
 	//Returns:
 	//	the currentHealth / the maxHealth
@@ -24,4 +27,14 @@ public:
 	//Returns:
 	//	true if the object still has health, false if the object has <= 0 health
 	bool IsAlive();
+
+	//Purpose: 
+	//	Child classes should override this to react to taking damage
+	virtual void HurtEvent() {};
+	//Purpose: 
+	//	Child classes should override this to react to receiving health
+	virtual void HealedEvent() {};
+	//Purpose: 
+	//	Child classes should override this to react to their death (when they reach 0 health)
+	virtual void DeathEvent() {};
 };

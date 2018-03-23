@@ -4,18 +4,34 @@
 #include "Console.h"
 #include "MessageEvents.h"
 #include "PathPlanner.h"
+#include "GhostTime.h"
 
-void DStarEnemy::Enable(bool _destroyOnReset) {
-	eventAdd = MessageEvents::Subscribe(EVENT_AddObstacle, [=](EventMessageBase* e) {this->Repath(); });
-	eventRemove = MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {this->Repath(); });
-	GameObject::Enable(_destroyOnReset);
-	Start();
+void DStarEnemy::Enable() {
+	tag = std::string("Enemy");
+	if (!goal) { Console::ErrorLine << "No Goal! I'm gonna blowwwwww!!!!"; }
+
+	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
+	if (!curTile) { Console::ErrorLine << "Ahhhh! Initalize me on the grid please!!"; }
+
+	next = curTile; //is this needed or can i pass a ref to a null var below
+	//grid->RemoveObstacle(curTile);//Remove on final build
+	dstarId = PathPlanner::DStarLiteSearch(curTile, goal, &next, Heuristics::OctileDistance);
+
+	rb->SetTerminalSpeed(maxSpeed);
+	EnemyBase::Enable();
 }
 
 void DStarEnemy::Disable() {
-	MessageEvents::UnSubscribe(EVENT_AddObstacle, eventAdd);
-	MessageEvents::UnSubscribe(EVENT_RemoveObstacle, eventRemove);
+	DStarEnemy::UnSubscribe();
 	EnemyBase::Disable();
+}
+
+void DStarEnemy::Subscribe() {}
+
+void DStarEnemy::UnSubscribe() {}
+
+void DStarEnemy::Destroy() {
+	EnemyBase::Destroy();
 }
 
 void DStarEnemy::SetGoal(HexTile* _goal) {
@@ -31,28 +47,42 @@ void DStarEnemy::SetGrid(HexGrid* _grid) {
 	grid = _grid;
 }
 
-void DStarEnemy::Awake(Object* obj) {
-	EnemyBase::Awake(obj);
+void DStarEnemy::SetCore(Core* _core) {
+	EnemyBase::SetCore(_core);
+	goal = grid->PointToTile({ core->transform.GetPosition().x, core->transform.GetPosition().z });
 }
 
-void DStarEnemy::Start() {
+void DStarEnemy::Awake(Object* obj) {
+	grid = 0;
+	rb = 0;
+	goal = 0;
+	next = 0;
+	curTile = 0;
+	dstarId = 0;
+	eventAdd = 0;
+	eventRemove = 0;
 
-	tag = std::string("Enemy");
-
+	EnemyBase::Awake(obj);
 	rb = &(GetComponent<PhysicsComponent>()->rigidBody);
+}
 
-	if(!goal) { Console::ErrorLine << "No Goal! I'm gonna blowwwwww!!!!"; }
+void DStarEnemy::Attack() {
+	if (timeSinceLastAttack == -1) {
+		if (core) core->AdjustHealth(-attackDamage);
+		Console::WriteLine << "Core health: " << core->PercentHealth();
+		timeSinceLastAttack = 0;
+		return;
+	}
 
-	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
+	float dt = (float)GhostTime::DeltaTime();
+	timeSinceLastAttack += dt;
 
-	if(!curTile) { Console::ErrorLine << "Ahhhh! Initalize me on the grid please!!"; }
-
-	next = curTile; //is this needed or can i pass a ref to a null var below
-	grid->RemoveObstacle(curTile);//Remove on final build
-	dstarId = PathPlanner::DStarLiteSearch(curTile, goal, &next, Heuristics::OctileDistance);
-	
-
-	rb->SetTerminalSpeed(maxSpeed);
+	float timeToAttack = 1 / attackSpeed;
+	if (timeSinceLastAttack >= timeToAttack) {
+		core->AdjustHealth(-attackDamage);
+		Console::WriteLine << "Core health: " << core->PercentHealth();
+		timeSinceLastAttack = 0;
+	}
 }
 
 void DStarEnemy::Update() {
@@ -60,26 +90,31 @@ void DStarEnemy::Update() {
 
 	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
 	if (curTile) {
-		if (curTile == next) {
-			rb->Stop();
-			HexRegion neigh = grid->Spiral(curTile, 3);
-			grid->Color(neigh, { 1.0f, 0.0f, 0.0f }, 3);
-			if (goal == curTile) {
-				Console::WriteLine << "We made it to our goal.";
-				rb->Stop();
-			}
-			else {
-				if (KeyIsHit(Control::TestInputO)) {
-					PathPlanner::UpdateDStarLite(dstarId);
 
+		if (goal == curTile) {
+			Console::WriteLine << "We made it to our goal.";
+			rb->Stop();
+			Attack();
+		}
+		else {
+			//if (KeyIsHit(Control::TestInputO)) {
+			if (curTile == next) {
+				PathPlanner::UpdateDStar(dstarId);
+
+				next = PathPlanner::GetDStarNextTile(dstarId);
+				if (next) {
 					auto nextPathPoint = grid->TileToPoint(next);
 
 					DirectX::XMVECTOR nextDirection = DirectX::XMVectorSet(nextPathPoint.x - transform.matrix._41, 0.0f, nextPathPoint.y - transform.matrix._43, 1.0f);
 					DirectX::XMVECTOR velocity = rb->GetVelocity();
 					rb->AddForce(3.0f * (DirectX::XMVectorGetX(DirectX::XMVector3Dot(nextDirection, velocity)) + 1.0f), nextPathPoint.x - transform.matrix._41, 0.0f, nextPathPoint.y - transform.matrix._43, 0.5f);
+					//Console::WriteLine << "Velocity: " << "(" << DirectX::XMVectorGetX(velocity) << ", " << DirectX::XMVectorGetY(velocity) << ", " << DirectX::XMVectorGetZ(velocity) << ")";
+				}
+				else {
+					rb->Stop();
+					Console::WriteLine << "There's no next path for me to GO!!";
 				}
 			}
 		}
 	}
-
 }

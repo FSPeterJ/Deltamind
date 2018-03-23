@@ -1,8 +1,8 @@
 #pragma once
 #include "AnimationManager.h"
 #include "ComponentBase.h"
-//#include <DirectXMath.h>       // for XMFLOAT3X3, XMFLOAT4X4 (ptr only)
 #include <unordered_map>
+#include "PhysicsRegistry.h"
 
 namespace DirectX {
 	
@@ -35,7 +35,14 @@ public:
 	double getTimePos() { return timePos; }
 	std::unordered_map<std::string, Animation*>* getAnimations() { return &animations; }
 	const std::vector<animJoint>* getTweens();
+	void SetJointMatrix(const int jointIndex, const DirectX::XMFLOAT4X4& mat);
+	const DirectX::XMFLOAT4X4& GetJointMatrix(const int jointIndex) const;
+
 	Animation* getCurrentAnimation() { return currAnim; }
-	DirectX::XMFLOAT4X4* getJointByName(std::string name);
-	void ManipulateJointByName(std::string name, DirectX::XMFLOAT4X4);
+	DirectX::XMFLOAT4X4* getJointByName(const std::string& name);
+	void ManipulateJointByName(const std::string &name, const DirectX::XMFLOAT4X4  &transform);
+	void ManipulateJointByName(const std::string& name, const DirectX::XMMATRIX& _transformation);
+	void ManipulateJoint(animJoint* animationJoint, const DirectX::XMFLOAT4X4& _transformation);
+	void ManipulateJoint(animJoint* animationJoint, const DirectX::XMMATRIX& _transformation);
+	void ManipulateChildrendJoints(animJoint* animationJoint, const DirectX::XMMATRIX& _transformation, const DirectX::XMMATRIX& animationJointParents);
 };

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "RandomEngine.h"
 namespace Omiracon {
 	namespace Genetics {
 
@@ -29,26 +28,22 @@ namespace Omiracon {
 
 			float traitList[Trait::COUNT];
 
-			Traits(void) {
-				//traitList = new float[Trait::COUNT];
-			}
-			~Traits(void) {
-				//	delete[] traitList;
-			}
+			Traits(void) {}
+			~Traits(void) {}
 		public:
 			void Randomize(void);
 			void Normalize(void);
 			float const Sum(void);
 
-			void Print(void);
+			void Print(void) const;
 
 			void Randormalize(void) { Randomize(), Normalize(); }
-			void Reset(void) { memset(traitList, 0x0, Trait::COUNT * sizeof(float)); }
+			void Reset(void);
+
 			float const& operator[](const Trait trait) const { return traitList[static_cast<int>(trait)]; }
 			float& operator[](const Trait trait) { return traitList[static_cast<int>(trait)]; }
 
 			float const& operator[](const int n) const { return traitList[n]; }
-
 
 			inline float& RandomTrait(void);
 			void Mutate(const MutationType mutation);
@@ -60,11 +55,9 @@ namespace Omiracon {
 			float damageDelt = 0;
 			float damageReceived = 0;
 			float nodesTraversed = 0;
+
 			void Reset(void) {
-				timeLasted = 0;
-				damageDelt = 0;
-				damageReceived = 0;
-				nodesTraversed = 0;
+				timeLasted = damageDelt = damageReceived = nodesTraversed = 0.0f;
 			}
 		};
 
@@ -73,20 +66,7 @@ namespace Omiracon {
 			Performance measure;
 			Traits traits;
 
-			void CreateSimulatedResults(void) {
-				float timeLasted = Random::RandomNumber<float, Random::Type::Inclusive>(1.0f, 60.0f)*traits[SPEED];
-				float damageDelt = Random::RandomNumber<float, Random::Type::Inclusive>(0.0f, 100.0f)*traits[STRENGTH];
-				float damageRecv = Random::RandomNumber<float, Random::Type::Inclusive>(0.0f, 100.0f)*(1.0f - traits[DEFENSE]);
-				float nodesTrav = Random::RandomNumber<float, Random::Type::Inclusive>(0.0f, 500.0f)*(1.0f - traits[INTELLIGENCE]);
-
-				measure.timeLasted = timeLasted + timeLasted * (traits[SPEED] + traits[ENERGY] * 0.5f + traits[COORDINATION] * 0.25f + traits[BALANCE] * 0.125f);
-				measure.damageDelt = damageDelt + damageDelt * (traits[STRENGTH] + traits[POWER] * 0.5f + traits[ACCURACY] * 0.25f + traits[LUCK] * 0.125f);
-				measure.damageReceived = damageRecv - damageRecv * (traits[DEFENSE] + traits[ENDURANCE] * 0.5f + traits[STAMINA] * 0.25f + traits[RESISTANCE] * 0.125f);
-				measure.nodesTraversed = nodesTrav - nodesTrav * (traits[INTELLIGENCE] + traits[WISDOM] * 0.5f + traits[EVASION] * 0.25f + traits[DEXTERITY] * 0.125f);
-
-				measure.damageReceived = measure.damageReceived < 0 ? 0 : measure.damageReceived;
-				measure.nodesTraversed = measure.nodesTraversed < 0 ? 0 : measure.nodesTraversed;
-			}
+			void CreateSimulatedResults(void);
 
 			TraitedEnemy(void);
 			~TraitedEnemy(void);

@@ -1,7 +1,8 @@
 #pragma once
 
-#include "TraitedEnemy.h"
-#include <vector>
+#include <vector> //asdfghjkl
+#include "TraitedEnemy.h" //ASDFGHJKL
+
 namespace Omiracon {
 	namespace Genetics {
 		typedef std::vector<TraitedEnemy> DominantPool;

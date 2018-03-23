@@ -1,11 +1,10 @@
-#include "stdafx.h"
-#include "Evolve.h"
-#include <functional>
 #include <algorithm>
-#include <random>
-
+#include <functional>
 #include <iostream>
 #include <iterator>  
+#include <random>
+#include "Evolve.h"
+
 namespace Omiracon {
 	namespace Genetics {
 

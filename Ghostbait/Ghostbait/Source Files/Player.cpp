@@ -42,19 +42,25 @@ void Player::ChangeStance(Stance newStance) {
 			break;
 	}
 }
+void Player::GodDetected() {
+	if (IsGod()) {
+		ChangeStance(STANCE_Stand);
+	}
+	else{
+		ChangeStance(STANCE_God);
+		MessageEvents::SendMessage(EVENT_BecameGod, EventMessageBase());
+	}
+}
 
 void Player::Update() {
 	float dt = (float)GhostTime::DeltaTime();
 
 	if (IsVR()) {
 		transform.SetMatrix(VRManager::GetInstance().GetPlayerPosition());
-
+		
 		if (KeyIsDown(Control::GodMode)) {
 			ResetKey(Control::GodMode);
-			if (IsGod())
-				ChangeStance(STANCE_Stand);
-			else 
-				ChangeStance(STANCE_God);
+			GodDetected();
 		}
 
 		if (KeyIsDown(Control::rightCyclePrefab) && IsGod()) {
@@ -71,8 +77,7 @@ void Player::Update() {
 		
 		if (KeyIsDown(Control::GodMode)) {
 			ResetKey(Control::GodMode);
-			if (IsGod()) ChangeStance(STANCE_Stand);
-			else ChangeStance(STANCE_God);
+			GodDetected();
 		}
 		if (KeyIsDown(Control::Crouch)) {
 			ResetKey(Control::Crouch);

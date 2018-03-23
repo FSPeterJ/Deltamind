@@ -18,7 +18,7 @@ void Game::GameData::Reset() {
 	prevState = GAMESTATE_BetweenWaves;
 	gears = 0;
 	turretsSpawned = 0;
-	maxTurrets = 4;
+	maxTurrets = 100;
 
 	waveManager.Reset();
 	ssManager.Reset();
@@ -74,6 +74,7 @@ Game::Game() {
 	MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) {this->Lose(); });
 	MessageEvents::Subscribe(EVENT_GameQuit, [=](EventMessageBase* e) {this->Quit(); });
 	MessageEvents::Subscribe(EVENT_GameExit, [=](EventMessageBase* e) {this->ExitToMenu(); });
+	MessageEvents::Subscribe(EVENT_BecameGod, [=](EventMessageBase* e) {this->BecameGod(); });
 	PathPlanner::SetGrid(&hexGrid);
 }
 
@@ -271,6 +272,9 @@ void Game::StartNextWave() {
 }
 
 //Handle primary function event logic
+void Game::BecameGod() {
+	gameData.gears = 500000;
+}
 void Game::RestartLevel() {
 	//Reset currentScene pointer
 	std::string name = sceneManager->GetNameFromScene(sceneManager->ResetCurrentScene());

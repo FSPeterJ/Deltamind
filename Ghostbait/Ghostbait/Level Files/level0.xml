@@ -1,4 +1,4 @@
-<Level startGears="50000">
+<Level startGears="0">
   <!-- Wave0 -->
   <Wave reward="100">
     <Spawner spawnerID="-1" enemyName="Assets/AStarEnemyEdit.ghost" spawnCount="3" initialDelay="0" runDelay="2"/>

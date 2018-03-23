@@ -110,7 +110,7 @@ class Game {
 	public:
 		unsigned gears = 0;
 		unsigned turretsSpawned = 0;
-		unsigned maxTurrets = 4;
+		unsigned maxTurrets = 100;
 		WaveManager waveManager;
 		SplashScreenManager ssManager;
 
@@ -149,6 +149,7 @@ class Game {
 	void StartNextWave();
 
 	//Handle primary function event logic
+	void BecameGod();
 	void RestartLevel();
 	void PauseGame();
 	void ResumeGame();

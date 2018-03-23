@@ -7,6 +7,9 @@
 #include "HexGrid.h"
 #include "Material.h"
 #include "Turret.h"
+#include "TextManager.h"
+#include "ObjectFactory.h"
+#include "DebugRenderer.h"
 
 BuildTool::BuildTool() { 
 	state = BUILD;
@@ -40,8 +43,58 @@ void BuildTool::Enable() {
 void BuildTool::Disable() {
 }
 
-void BuildTool::Update() {
-	Item::Update();
+void BuildTool::ActiveUpdate() {
+	if (!gearDisplay) {
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/CurrencyQuad.ghost")), { 0, 0, 0 }, &gearDisplay));
+		gearDisplay->SetComponent<Material>(TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "$0").mat);
+		gearDisplay->PersistOnReset();
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/CurrencyQuadSmall.ghost")), { 0, 0, 0 }, &gearAdjustmentDisplay));
+		gearAdjustmentDisplay->SetComponent<Material>(TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "-$0").mat);
+		gearAdjustmentDisplay->PersistOnReset();
+	}
+
+	if (gearDisplay) {
+		//Main
+		std::string text = "$";
+		text.append(std::to_string(*gears));
+		for (int i = (int)text.length(); i < 6; ++i)
+			text.insert(0, " ");
+		gearDisplay->SetComponent<Material>(TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", text).mat);
+		DirectX::XMFLOAT4X4 displayMat = transform.GetMatrix();
+		displayMat._41 -= (displayMat._11 * 0.15f);
+		displayMat._42 -= (displayMat._12 * 0.15f);
+		displayMat._43 -= (displayMat._13 * 0.15f);
+		gearDisplay->transform.SetMatrix(displayMat);
+		//Adjustment
+		text = "$";
+		if (currentMode == SPAWN) {
+			text.insert(0, "-");
+			text.append(std::to_string(((Turret*)prefabs[currentPrefabIndex].object)->GetBuildCost()));
+			for (int i = (int)text.length(); i < 14; ++i)
+				text.insert(0, " ");
+			text.append("\n");
+			gearAdjustmentDisplay->SetComponent<Material>(TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", text).mat);
+			DirectX::XMFLOAT4X4 adjustmentMat = displayMat;
+			adjustmentMat._41 -= (adjustmentMat._21 * 0.1f);
+			adjustmentMat._42 -= (adjustmentMat._22 * 0.1f);
+			adjustmentMat._43 -= (adjustmentMat._23 * 0.1f);
+			gearAdjustmentDisplay->transform.SetMatrix(adjustmentMat);
+		}
+		else if(currentlySelectedItem){
+				text.insert(0, "+");
+				text.append(std::to_string((int)(((Turret*)currentlySelectedItem)->GetBuildCost() * 0.5f)));
+				for (int i = (int)text.length(); i < 14; ++i)
+					text.insert(0, " ");
+				text.append("\n");
+				gearAdjustmentDisplay->SetComponent<Material>(TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", text).mat);
+				DirectX::XMFLOAT4X4 adjustmentMat = displayMat;
+				adjustmentMat._41 -= (adjustmentMat._21 * 0.1f);
+				adjustmentMat._42 -= (adjustmentMat._22 * 0.1f);
+				adjustmentMat._43 -= (adjustmentMat._23 * 0.1f);
+				gearAdjustmentDisplay->transform.SetMatrix(adjustmentMat);
+		}
+	}
+	Item::ActiveUpdate();
 }
 
 void BuildTool::Projection() {
@@ -56,6 +109,30 @@ void BuildTool::Activate() {
 		if (currentMode == SPAWN) Spawn();
 		else Remove();
 	}
+}
+
+bool BuildTool::CanBuildHere(DirectX::XMFLOAT2& spawnPos) {
+	Turret* turret = dynamic_cast<Turret*>(prefabs[currentPrefabIndex].object);
+	bool hasEnoughMoney = true;
+	if (turret) hasEnoughMoney = *gears >= turret->GetBuildCost();
+	bool maxTurretsSpawned = (*maxTurrets - *turretsSpawned) <= 0;
+	bool isBlocked = grid->IsBlocked(spawnPos);
+	bool isValidTile = grid->PointToTile(spawnPos) != nullptr;
+	if (isValidTile) {
+		isValidTile = !isBlocked;
+	}
+
+	if (isValidTile && hasEnoughMoney && !maxTurretsSpawned)
+		return true;
+	else
+		return false;
+}
+
+void BuildTool::RenderAdjustmentDisplay(bool render) {
+	if (!gearAdjustmentDisplay || adjustmentRender == render) return;
+	if(render) MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(gearAdjustmentDisplay));
+	else MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(gearAdjustmentDisplay));
+	adjustmentRender = render;
 }
 
 bool BuildTool::Snap(GameObject** obj) {
@@ -103,21 +180,21 @@ void BuildTool::SpawnProjection(){
 			newPos1._42 = spawnPos.y;
 			newPos1._43 = spawnPos.z;
 			prefabs[currentPrefabIndex].object->transform.SetMatrix(newPos1);
-
-			Turret* turret = dynamic_cast<Turret*>(prefabs[currentPrefabIndex].object);
-			bool hasEnoughMoney = true;
-			if (turret) hasEnoughMoney = *gears >= turret->GetBuildCost(); //Disable for testing
-			bool maxTurretsSpawned = (*maxTurrets - *turretsSpawned) <= 0;
-
-			if ((grid->IsBlocked(newPos.x, newPos.y) || !hasEnoughMoney || maxTurretsSpawned) && prevLocationValid) {
-				if (prefabs[currentPrefabIndex].object->SwapComponentVarient<Material>("invalid")) {
-					prevLocationValid = false;
-				}
-			}
-			else if(!grid->IsBlocked(newPos.x, newPos.y) && !prevLocationValid && hasEnoughMoney && !maxTurretsSpawned) {
-				if (prefabs[currentPrefabIndex].object->SwapComponentVarient<Material>("valid")) {
+			
+			//Asses if valid location
+			if (CanBuildHere(newPos)) {
+				if (!prevLocationValid) {
+					prefabs[currentPrefabIndex].object->SwapComponentVarient<Material>("valid");
 					prevLocationValid = true;
 				}
+				RenderAdjustmentDisplay(true);
+			}
+			else {
+				if (prevLocationValid) {
+					prefabs[currentPrefabIndex].object->SwapComponentVarient<Material>("invalid");
+					prevLocationValid = false;
+				}
+				RenderAdjustmentDisplay(false);
 			}
 		}
 		else {
@@ -152,23 +229,28 @@ void BuildTool::RemoveProjection() {
 	DirectX::XMFLOAT3 endPos;
 	GameObject* colObject = nullptr;
 	if(!Raycast(&transform, DirectX::XMFLOAT3(transform.GetMatrix()._31, transform.GetMatrix()._32, transform.GetMatrix()._33), &endPos, &colObject, &deleteRay, 4)) {
+		Console::WriteLine << "Nothing";
 		if (currentlySelectedItem) {
 			currentlySelectedItem->SwapComponentVarient<Material>("default");
 			currentlySelectedItemIndex = -1;
 			currentlySelectedItem = nullptr;
 		}
+		RenderAdjustmentDisplay(false);
 		return;
 	}
+
 	//check if I spawned it
-	if (colObject != currentlySelectedItem && currentlySelectedItem) {
-		currentlySelectedItem->SwapComponentVarient<Material>("default");
+	if (colObject != currentlySelectedItem) {
+		if(currentlySelectedItem) currentlySelectedItem->SwapComponentVarient<Material>("default");
+		RenderAdjustmentDisplay(false);
 	}
 	for (size_t i = 0; i < builtItems.size(); ++i) {
 		if (colObject == builtItems[i]) {
 			currentlySelectedItemIndex = (int)i;
 			currentlySelectedItem = colObject;
-			//TODO: Temp...Dont't call this every frame either.
+			//TODO: Temp...Dont't call this every frame.
 			currentlySelectedItem->SwapComponentVarient<Material>("invalid");
+			RenderAdjustmentDisplay(true);
 			break;
 		}
 	}
@@ -179,6 +261,11 @@ void BuildTool::Remove() {
 		if (SetObstacle(pos, false)) {
 			MessageEvents::SendQueueMessage(EVENT_Late, [=] { currentlySelectedItem->Destroy(); });
 			builtItems.erase(builtItems.begin() + currentlySelectedItemIndex);
+			Turret* tur = dynamic_cast<Turret*>(currentlySelectedItem);
+			if (tur) {
+				(*gears) = (*gears) + (int)(tur->GetBuildCost() * 0.5f);
+				RenderAdjustmentDisplay(false);
+			}
 			(*turretsSpawned) = (*turretsSpawned) - 1;
 		}
 	}
@@ -197,6 +284,7 @@ void BuildTool::CycleForward() {
 
 		if (prefabs[tempIndex].ID == 0) {
 			currentMode = Mode::REMOVE;
+			buildArc.Destroy();
 			deleteRay.Create();
 		}
 		else {
@@ -205,6 +293,7 @@ void BuildTool::CycleForward() {
 				currentlySelectedItem->SwapComponentVarient<Material>("default");
 				currentlySelectedItem = nullptr;
 			}
+			buildArc.Create();
 			deleteRay.Destroy();
 		}
 
@@ -228,6 +317,7 @@ void BuildTool::CycleBackward() {
 		//if index is removal tool...
 		if (prefabs[tempIndex].ID == 0) {
 			currentMode = Mode::REMOVE;
+			buildArc.Destroy();
 			deleteRay.Create();
 		}
 		else {
@@ -236,6 +326,7 @@ void BuildTool::CycleBackward() {
 				currentlySelectedItem->SwapComponentVarient<Material>("default");
 				currentlySelectedItem = nullptr;
 			}
+			buildArc.Create();
 			deleteRay.Destroy();
 		}
 
@@ -247,10 +338,11 @@ void BuildTool::CycleBackward() {
 
 void BuildTool::InactiveUpdate() {
 }
-void BuildTool::ActiveUpdate() {
-}
 
 void BuildTool::DeSelected() {
+	if (gearDisplay)
+		MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(gearDisplay));
+	RenderAdjustmentDisplay(false);
 	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
 		if (prefabs[currentPrefabIndex].object)
 			MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
@@ -267,17 +359,24 @@ void BuildTool::DeSelected() {
 void BuildTool::Selected() {
 	Item::Selected();
 	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
+		if (gearDisplay)
+			MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(gearDisplay));
+		RenderAdjustmentDisplay(true);
 		if (prefabs[currentPrefabIndex].object)
 			MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
-		if (prefabs[currentPrefabIndex].ID == 0) {
+		if (prefabs[currentPrefabIndex].ID == 0)
 			deleteRay.Create();
-		}
 	}
 }
 
 void BuildTool::Awake(Object* obj) {
 	buildArc.SetFile("Assets/Arc2.ghost");
 	deleteRay.SetFile("Assets/Ray.ghost");
+	//gearDisplay->transform.SetMatrix(DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1));
+	//gearDisplay->SetComponent<Material>(TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "$0").mat);
+	//Material* newMat = TextManager::CreateRenderableTexture(100, 100);
+	//TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", "This is a test!", newMat);
+	//TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", "This is a test!", GetComponent<Material>());
 	GameObject::Awake(obj);
 }
 

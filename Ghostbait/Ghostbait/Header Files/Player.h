@@ -48,7 +48,7 @@ class Player : public GameObject, public Controlable {
 #pragma endregion
 
 	void ChangeStance(Stance newStance);
-
+	void GodDetected();
 public:
 	CastObject teleportArc;
 	ControllerObject *leftController = 0, *rightController = 0;

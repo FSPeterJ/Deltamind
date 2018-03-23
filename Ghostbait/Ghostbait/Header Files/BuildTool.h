@@ -15,6 +15,10 @@ class BuildTool : public Item {
 		REMOVE,
 	};
 
+	GameObject* gearDisplay = nullptr;
+	GameObject* gearAdjustmentDisplay = nullptr;
+	bool adjustmentRender = true;
+
 	int currentPrefabIndex = 0;
 	std::vector<BuildItem> prefabs;
 	std::vector<GameObject*> builtItems;
@@ -30,6 +34,8 @@ class BuildTool : public Item {
 	unsigned* turretsSpawned = nullptr;
 	unsigned* maxTurrets = nullptr;
 
+	void RenderAdjustmentDisplay(bool render);
+
 	void SpawnProjection();
 	void Spawn();
 	void RemoveProjection();
@@ -38,6 +44,7 @@ class BuildTool : public Item {
 	bool Snap(GameObject** obj);
 	bool Snap(DirectX::XMFLOAT2* pos);
 	bool SetObstacle(DirectX::XMFLOAT2 pos, bool active);
+	bool CanBuildHere(DirectX::XMFLOAT2& spawnPos);
 public:
 	CastObject buildArc;
 	CastObject deleteRay;
@@ -50,7 +57,6 @@ public:
 	void SetPrefabs(std::vector<unsigned> prefabIDs);
 	void Enable();
 	void Disable();
-	void Update();
 
 	void Projection();
 	void Activate();

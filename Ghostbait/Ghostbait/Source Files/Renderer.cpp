@@ -641,6 +641,7 @@ void Renderer::moveToTransparent(EventMessageBase * e)
 	{
 		if (*iter == move->RetrieveObject())
 		{
+			transparentObjects.push_back(move->RetrieveObject());
 			renderedObjects.erase(iter);
 			return;
 		}

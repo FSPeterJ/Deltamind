@@ -51,5 +51,5 @@ public:
 	static void LoadFont(std::string _fileName, std::string _texturePath);
 	static Material* CreateRenderableTexture(float height, float width);
 	static textOutput DrawTextTo(std::string _fontTexturePath, std::string _sentence);
-	static void DrawTextExistingMat(std::string _fontTexturePath, std::string _sentence, Material* _mat);
+	static float DrawTextExistingMat(std::string _fontTexturePath, std::string _sentence, Material* _mat); //Returns a suggested aspect ratio for the quad as Y = (X * return)
 };

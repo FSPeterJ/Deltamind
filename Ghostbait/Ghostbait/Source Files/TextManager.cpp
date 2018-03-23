@@ -224,15 +224,15 @@ TextManager::textOutput TextManager::DrawTextTo(std::string _fontTexturePath, st
 	return ret;
 }
 
-void TextManager::DrawTextExistingMat(std::string _fontTexturePath, std::string _sentence, Material * _mat)
+float TextManager::DrawTextExistingMat(std::string _fontTexturePath, std::string _sentence, Material * _mat)
 {
+	Font* font = fonts[_fontTexturePath];
+	if (!font)
+		return -1.0f;
 	for (size_t i = 0; i < managedMaterials.size(); ++i)
 	{
 		if (_mat == managedMaterials[i].mat)
 		{
-			Font* font = fonts[_fontTexturePath];
-			if (!font)
-				return;
 			float width = 0.0f;
 			float height = 16.0f;
 			float tempWidth = 0.0f;
@@ -256,6 +256,9 @@ void TextManager::DrawTextExistingMat(std::string _fontTexturePath, std::string 
 			}
 			float widRatio = managedMaterials[i].width / width;
 			float heightRatio = managedMaterials[i].height / height;
+
+
+			float heightOverWidthRatio = height / width; //Used to properly scale quads
 
 			float drawX = 0.0f;
 			float drawY = 0.0f;
@@ -306,7 +309,8 @@ void TextManager::DrawTextExistingMat(std::string _fontTexturePath, std::string 
 			sizeBuffer.width = managedMaterials[i].width;
 			ID3D11ShaderResourceView * srv = font->GetShaderResourceView();
 			renderText(&managedMaterials[i], _sentence, vertices, srv);
-			break;
+			return heightOverWidthRatio;
 		}
 	}
+	return -1.0f;
 }

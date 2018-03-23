@@ -511,7 +511,6 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 
 	TextManager::Initialize(device, context, TextVertexShader, PositionTexturePixelShader, ILPositionTexture);
 	TextManager::LoadFont("Assets/Fonts/defaultFontIndex.txt", "Assets/Fonts/defaultFont.png");
-	TextManager::textOutput out = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "This is a test!");
 }
 
 void Renderer::Destroy() {
@@ -671,7 +670,6 @@ XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 }
 
 void Renderer::Render() {
-	//TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", "Did it work???????????????????????????", tempText);
 	loadPipelineState(&defaultPipeline);
 	XMMATRIX cameraObj = XMMatrixTranspose(XMLoadFloat4x4(&cameraPos->GetMatrix()));
 	XMStoreFloat4x4(&defaultCamera.view, XMMatrixInverse(&XMMatrixDeterminant(cameraObj), cameraObj));

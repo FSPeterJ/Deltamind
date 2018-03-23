@@ -8,7 +8,7 @@ HexTile* HexRegion::getData() { return &data[0]; }
 
 HexRegion::HexRegion(std::vector<HexTile>& that) { data.swap(that); }
 
-std::vector<HexTile>::iterator HexRegion::remove(const HexTile & v) { return data.erase(std::remove(data.begin(), data.end(), v), data.end()); }
+std::vector<HexTile>::iterator HexRegion::remove(const HexTile & v) { return data.erase(std::find(data.begin(), data.end(), v), data.end()); }
 
 void HexRegion::push_back(const HexTile & v) { data.emplace_back(v); }
 

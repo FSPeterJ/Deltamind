@@ -50,6 +50,7 @@ void MTDSLEnemy::SetGoal(HexTile* _goal) {
 void MTDSLEnemy::SetGoal(DirectX::XMFLOAT2 _goal) {
 	HexTile* goalTile = grid->PointToTile(_goal);
 	if (goalTile) { goal = goalTile; }
+	else Console::WriteLine << "Goal Tile does not exist!";
 }
 
 void MTDSLEnemy::SetGoalReference(DirectX::XMFLOAT4X4* _goal) {
@@ -67,19 +68,25 @@ void MTDSLEnemy::SetCore(Core* _core) {
 }
 
 void MTDSLEnemy::FindTempPath() {
-	rb->Stop();
+	//rb->Stop();
 	Console::WriteLine << "Finding temporary path!!";
 
 	float closest = grid->BlockWeight() + 1;
 	float temp = 0;
 	HexTile* nextClosest = nullptr;
 	HexRegion ring;
-	HexTile* currentlyOn = curTile ? curTile : goal;
-	if (currentlyOn) {
+	//HexTile* currentlyOn = curTile ? curTile : goal;
+	HexTile currentlyOn = grid->PointToTileOffGrid(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
+
+	//if (currentlyOn) {
+	Console::WriteLine << "Enemy #" << mtdstarId << " ";
 		for (int range = (int)3 * 2; range > 0; --range) { //Perception range
-			ring = grid->Ring(currentlyOn, range);
+			ring = grid->Ring(&currentlyOn, range);
+			Console::WarningLine << "RING SIZE BEFORE: " << ring.size();
 			ring.Filter(*grid);
+			Console::WarningLine << "RING SIZE AFTER: " << ring.size();
 			for (int region = 0; region < ring.size(); ++region) {
+				if (!grid->GetTileExact(ring[region])) { Console::ErrorLine << "SOMEBODY DONE FUCKED UP!!"; }
 				if (grid->IsBlocked(&ring[region])) continue;
 				temp = (float)ring[region].DistanceFrom(goal);
 				if (temp < closest) {
@@ -94,8 +101,13 @@ void MTDSLEnemy::FindTempPath() {
 			tempGoal._41 = holder.x;
 			tempGoal._43 = holder.y;
 			SetGoalReference(&tempGoal);
+		
 			Console::WriteLine << "Found temporary objective...";
 		}
+	//}
+
+		if (!goal) {
+			Console::ErrorLine << "WHERE THE FUCK IS THE GOAL!?!?!?!";
 	}
 }
 
@@ -141,6 +153,10 @@ void MTDSLEnemy::Update() {
 	//grid->Color(path, DirectX::XMFLOAT3(0.0f, 0.0f, 1.0f), 3);
 	if (goalReference) {
 		goal = grid->PointToTile(DirectX::XMFLOAT2(goalReference->_41, goalReference->_43));
+		if (!goal) {
+			if(goalReference == &tempGoal)
+				Console::WarningLine << "GOAL IS NULL";
+ 		}
 	}
 	lastTile = curTile;
 	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
@@ -176,6 +192,8 @@ void MTDSLEnemy::Update() {
 			else {
 				//if (KeyIsHit(Control::TestInputO)) {
 				//if (curTile == next) {
+
+				//do {
 					PathPlanner::UpdateMTDStar(mtdstarId);
 
 					next = PathPlanner::GetMTDStarNextTile(mtdstarId);
@@ -193,8 +211,10 @@ void MTDSLEnemy::Update() {
 						//Console::WriteLine << "Velocity: " << "(" << DirectX::XMVectorGetX(velocity) << ", " << DirectX::XMVectorGetY(velocity) << ", " << DirectX::XMVectorGetZ(velocity) << ")";
 					}
 					else {
+						rb->Stop();
 						FindTempPath();
 					}
+				//} while (!next);
 				//}
 			}
 			//}
@@ -202,7 +222,7 @@ void MTDSLEnemy::Update() {
 	}
 	else {
 		Console::WriteLine << "OUT OF BOUNDS!";
-		//rb->SetVelocity(DirectX::XMVectorScale(rb->GetVelocity(), -1.0f));
+		rb->SetVelocity(DirectX::XMVectorScale(rb->GetVelocity(), -1.0f));
 		FindTempPath();
 	}
 

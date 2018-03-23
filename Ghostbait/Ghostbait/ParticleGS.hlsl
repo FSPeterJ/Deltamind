@@ -10,7 +10,6 @@ struct GSOutput
     int textureIndex : TEXCOORD1;
 };
 
-
 struct GSInput
 {
     float4 pos : SV_POSITION;

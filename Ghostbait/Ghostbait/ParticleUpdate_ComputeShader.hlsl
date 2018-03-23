@@ -6,18 +6,19 @@
 RWStructuredBuffer<uint> ActiveBillboardParticleIndex : register(u1);
 AppendStructuredBuffer<uint> InactiveBillboardParticleIndex : register(u2);
 
-
+//groupshared uint ActiveBillboardParticleCount;
+//groupshared uint OriginalActiveBillboardParticleCount;
+//groupshared uint InactiveBillboardParticleCount;
+//groupshared uint OriginalInactiveBillboardParticleCount;
 
 [numthreads(256, 1, 1)]
-void CS_Simulate(uint3 DThreadID : SV_DispatchThreadID)
+void main(uint3 DThreadID : SV_DispatchThreadID)
 {
-    if (DThreadID.x == 0)
-    {
-        ////This is stupid.
-        //BillboardParticleCount = BillboardParticleBuffer.IncrementCounter();
-        //BillboardParticleBuffer.DecrementCounter();
-    }
-    GroupMemoryBarrierWithGroupSync();
+    //if (DThreadID.x == 0)
+    //{
+
+    //}
+    //GroupMemoryBarrierWithGroupSync();
 
     //The reason behind this system is to quit out of cycling particles early.  From what I understand that way that GPU thread groups work
     //is they are processed in batches.  This means if 64 threads are assigned a task and only 2 of them are active, the entire thread group must wait 
@@ -25,7 +26,7 @@ void CS_Simulate(uint3 DThreadID : SV_DispatchThreadID)
     //By having the active list->praticle setup we ensure each thread is doing work of some kind even if it does add a minor headache.
     //this is especially important that we are utilizing larger portions (256+)
 
-    if (DThreadID.x < ActiveBillboardParticleCount)
+    if (DThreadID.x < ActiveParticleCount)
     {
         uint particleIndex = ActiveBillboardParticleIndex[DThreadID.x];
         BillboardParticle Bparticle = BillboardParticleBuffer[particleIndex];
@@ -37,6 +38,7 @@ void CS_Simulate(uint3 DThreadID : SV_DispatchThreadID)
             Bparticle.age -= FrameTime;
 
             //I am also unsure if checking again before performing a swap and pop is the most efficent system
+            // In theory if the entire thread group has to wait anyways, the first check is irrelevant
             if (Bparticle.age > 0.0f)
             {
 
@@ -62,16 +64,18 @@ void CS_Simulate(uint3 DThreadID : SV_DispatchThreadID)
             else
             {
                 Bparticle.age -= -1;
-                BillboardParticleBuffer[particleIndex] = Bparticle;
                 //Swap
-                InterlockedExchange(ActiveBillboardParticleIndex[DThreadID.x], ActiveBillboardParticleIndex[ActiveBillboardParticleCount - 1], particleIndex);
+                //BillboardParticleBuffer[particleIndex] = Bparticle; // There is no need to spend time writing data of a dead particle
+                uint activeIndex = ActiveBillboardParticleIndex.DecrementCounter();
+                InterlockedExchange(ActiveBillboardParticleIndex[DThreadID.x], ActiveBillboardParticleIndex[activeIndex], particleIndex);
                 //Pop - we simply need to move the wall back one and forget about the value left behind
-                InterlockedAdd(ActiveBillboardParticleCount, -1);
-                uint trash; //Atomic operations are expensive
-                InterlockedExchange(InactiveBillboardParticleCount, InactiveBillboardParticleIndex.Append(particleIndex), trash);
-
+                //InterlockedAdd(ActiveBillboardParticleCount, 1); //This seems unnecessary but if there are problems look here
+                //Add particle to Inactive
+                InactiveBillboardParticleIndex.Append(particleIndex);
             }
 
         }
     }
+
+
 }

@@ -24,7 +24,7 @@ VSOutput main(uint VertexID : SV_VertexID)
 
     //This can be optimized by computing the view space data beforehand in a compute shader
     output.pos = mul(float4(BParticle.position, 1.0f), view);
-    output.size = input.size;
+    output.size = 2.0f;
     output.textureIndex = BParticle.compactedData & 0xFF;
     output.rotation = BParticle.rotation;
     return output;

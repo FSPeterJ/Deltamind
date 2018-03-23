@@ -30,30 +30,30 @@ cbuffer EmitterConstantBuffer : register(b1)
 };
 
 
+
+
 [numthreads(1024, 1, 1)]
 void main(uint3 DThreadID : SV_DispatchThreadID)
 {
     //Stop other threads from attempting to process particle emissions if there are none left to process
-
-    if (DThreadID.x < InactiveBillboardParticleCount && DThreadID.x < MaxParticlesThisFrame)
+    if (DThreadID.x < InactiveParticleCount && DThreadID.x < MaxParticlesThisFrame)
     {
         BillboardParticle particle = (BillboardParticle) 0;
         float3 randomPosition;
 
         float2 uv = float2(DThreadID.x / 1024.0, ElapsedTime);
-        float3 randomvelocity = RandomNumbers.SampleLevel(SamplerWrapLinear, uv, 0);
+        float3 randomvelocity = RandomNumbers.SampleLevel(SamplerWrapLinear, uv, 0).xyz;
 
         particle.age = ParticleLifeSpan;
         particle.compactedData = TextureIndex;
         particle.lifespan = ParticleLifeSpan;
         particle.velocity = Velocity + (randomvelocity * VelocityMagnatude * ParticleVelocityVariance);
 
-        uint index;
-        InterlockedExchange(InactiveBillboardParticleCount, InactiveBillboardParticleIndex.Consume(), index);
+        uint index = InactiveBillboardParticleIndex.Consume();
+        //uint inactiveIndex = InactiveBillboardParticleIndex.DecrementCounter();
+        //InterlockedExchange(InactiveBillboardParticleCount, , index);
+        //InactiveBillboardParticleIndex.
         BillboardParticleBuffer[index] = particle;
-        uint trash; //Atomic operations are expensive
-        InterlockedExchange(ActiveBillboardParticleCount, ActiveBillboardParticleIndex.Append(index), trash);
-
+        ActiveBillboardParticleIndex.Append(index);
     }
-
 }

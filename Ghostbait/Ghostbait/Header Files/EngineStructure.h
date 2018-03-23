@@ -26,6 +26,7 @@ class EngineStructure {
 	static Delegate<> OnCollisionExit;
 
 	static Delegate<> Update;
+	static Delegate<> AnimationUpdate;
 
 	static Delegate<> LateUpdate;
 
@@ -50,6 +51,15 @@ public:
 		Console::WriteLine << "Awake delegate contains " << Awake.subscriber_count() << " subscribers.";
 
 		Awake();
+	}
+
+
+	void ExecuteAnimationUpdate() {
+		//Write("Update delegate contains ");
+		//Write((int) Update.subscriber_count());
+		//WriteLine(" subscribers.");
+
+		AnimationUpdate();
 	}
 
 	void ExecuteUpdate() {

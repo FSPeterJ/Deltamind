@@ -3,8 +3,9 @@
 
 cbuffer PerFrameConstantBuffer : register(b0)
 {
+    float FrameTime;
     float ElapsedTime;
-    uint padding[3];
+    uint padding[2];
 };
 
 SamplerState SamplerWrapLinear : register(s0);

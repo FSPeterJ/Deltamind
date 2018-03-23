@@ -7,14 +7,16 @@ struct GSOutput
 {
     float4 pos : SV_POSITION;
     float2 uv : TEXCOORD0;
-    int tex : TEXCOORD1;
+    int textureIndex : TEXCOORD1;
 };
+
 
 struct GSInput
 {
     float4 pos : SV_POSITION;
     float size : PSIZE0;
-    int tex : TEXCOORD0;
+    uint textureIndex : TEXCOORD0;
+    float rotation : TEXCOORD1;
 };
 [maxvertexcount(4)]
 void main(
@@ -33,12 +35,17 @@ void main(
     uvs[2] = float2(0.0f, 1.0f);
     uvs[3] = float2(1.0f, 1.0f);
 
+    //This calculation should be edited to factor in view space center and rotate to face that position
     for (uint i = 0; i < 4; ++i)
     {
-        GSOutput element;
+        GSOutput element = (GSOutput)0;
         element.pos = mul(verts[i], projection);
         element.uv = uvs[i];
-        element.tex = input[0].tex;
+        element.textureIndex = input[0].textureIndex;
         output.Append(element);
     }
+    //Will need later
+    //output.RestartStrip(); //
+
 }
+

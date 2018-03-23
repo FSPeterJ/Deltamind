@@ -14,3 +14,8 @@ struct VertexPositionTextureNormalAnim {
 	int indices[4] = {0, 0, 0, 0};
 	float weights[4] = {0, 0, 0, 0};
 };
+
+struct VertexPositionTexture {
+	DirectX::XMFLOAT3 pos;
+	DirectX::XMFLOAT2 tex;
+};

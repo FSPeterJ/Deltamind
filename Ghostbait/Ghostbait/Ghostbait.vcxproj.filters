@@ -336,6 +336,12 @@
     <ClInclude Include="Header Files\SpatialPartition.h">
       <Filter>Header Files\Physics</Filter>
     </ClInclude>
+    <ClInclude Include="Header Files\Light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\CheatCode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source Files\Window.cpp">
@@ -563,6 +569,12 @@
     <ClCompile Include="Source Files\TextManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source Files\Light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\CheatCode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resource Files\Ghostbait.ico">
@@ -619,6 +631,12 @@
     </FxCompile>
     <FxCompile Include="ParticleEmit_ComputeShader.hlsl">
       <Filter>Shaders\Compute</Filter>
+    </FxCompile>
+    <FxCompile Include="TextVertexShader.hlsl">
+      <Filter>Shaders\Vertex Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="PositionTexturePixelShader.hlsl">
+      <Filter>Shaders\Pixel Shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

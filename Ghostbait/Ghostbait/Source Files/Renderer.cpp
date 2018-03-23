@@ -13,7 +13,7 @@
 #include "GameObject.h"
 #include "AnimatorStructs.h"
 #include "WICTextureLoader.h"
-
+#include "TextManager.h"
 
 //TODO: TEMP for testing a weird crash
 #include "Projectile.h"
@@ -493,10 +493,12 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 	createDeferredRTVs(&deferredTextures, backBuffer);
 	context->OMSetBlendState(defaultPipeline.blend_state, 0, 0xffffffff);
 
-	LightManager::addPointLight({ 5.0f, 0.0f, 0.0f }, { 0.0f, 3.0f, 0.0f }, 15.0f);
+	TextManager::Initialize(device, context, TextVertexShader, PositionTexturePixelShader, ILPositionTexture);
+	TextManager::LoadFont("Assets/Fonts/defaultFontIndex.txt", "Assets/Fonts/defaultFont.png");
 }
 
 void Renderer::Destroy() {
+	TextManager::Destroy();
 	emptyFloat3Buffer->Release();
 	OnlySamplerState->Release();
 	cameraBuffer->Release();
@@ -508,6 +510,7 @@ void Renderer::Destroy() {
 	ILStandard->Release();
 	ILParticle->Release();
 	ILPosition->Release();
+	ILPositionTexture->Release();
 	PassThroughPositionColorVS->Release();
 	PassThroughPositionVS->Release();
 	PassThroughPS->Release();
@@ -520,6 +523,8 @@ void Renderer::Destroy() {
 	SkyboxVS->Release();
 	SkyboxPS->Release();
 	DeferredTargetPS->Release();
+	TextVertexShader->Release();
+	PositionTexturePixelShader->Release();
 	backBuffer->Release();
 	swapchain->Release();
 	context->Release();
@@ -607,8 +612,11 @@ void Renderer::moveToTransparent(EventMessageBase * e) {
 	auto iter = renderedObjects.begin();
 	if(!move->RetrieveObject()->GetComponent<Mesh>())
 		return;
-	for(; iter != renderedObjects.end(); ++iter) {
-		if(*iter == move->RetrieveObject()) {
+	for (; iter != renderedObjects.end(); ++iter)
+	{
+		if (*iter == move->RetrieveObject())
+		{
+			transparentObjects.push_back(move->RetrieveObject());
 			renderedObjects.erase(iter);
 			return;
 		}
@@ -894,6 +902,22 @@ void Renderer::initShaders() {
 
 	LoadShaderFromCSO(&byteCode, byteCodeSize, "PointToNDCQuadGS.cso");
 	device->CreateGeometryShader(byteCode, byteCodeSize, NULL, &NDCQuadGS);
+	delete[] byteCode;
+
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "TextVertexShader.cso");
+	device->CreateVertexShader(byteCode, byteCodeSize, NULL, &TextVertexShader);
+
+	D3D11_INPUT_ELEMENT_DESC textVertexDesc[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+	};
+
+	device->CreateInputLayout(textVertexDesc, ARRAYSIZE(textVertexDesc), byteCode, byteCodeSize, &ILPositionTexture);
+	delete[] byteCode;
+
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "PositionTexturePixelShader.cso");
+	device->CreatePixelShader(byteCode, byteCodeSize, NULL, &PositionTexturePixelShader);
 	delete[] byteCode;
 
 	//LoadShaderFromCSO(&byteCode, byteCodeSize, "Particle_ComputeShader.cso");

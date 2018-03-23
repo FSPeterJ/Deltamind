@@ -5,8 +5,7 @@
 #include "MessageEvents.h"
 #include "Console.h"
 #include "Wwise_IDs.h"
-
-
+#include "TextManager.h"
 
 void Gun::Overheat::CreateBar(Gun* _parent) {
 	parent = _parent;
@@ -46,13 +45,14 @@ void Gun::Overheat::Update(bool active) {
 		//Update Bar itself
 		DirectX::XMFLOAT4X4 newPos;
 		newPos = parent->transform.GetMatrix();
+		bar->transform.NormalizeAllAxis();
 		newPos._41 -= bar->transform.GetMatrix()._11 * 0.04f;
 		newPos._42 -= bar->transform.GetMatrix()._12 * 0.04f;
 		newPos._43 -= bar->transform.GetMatrix()._13 * 0.04f;
 		
-		newPos._41 -= bar->transform.GetMatrix()._31 * 0.06f;
-		newPos._42 -= bar->transform.GetMatrix()._32 * 0.06f;
-		newPos._43 -= bar->transform.GetMatrix()._33 * 0.06f;
+		newPos._41 -= bar->transform.GetMatrix()._31 * 0.09f;
+		newPos._42 -= bar->transform.GetMatrix()._32 * 0.09f;
+		newPos._43 -= bar->transform.GetMatrix()._33 * 0.09f;
 
 		bar->transform.SetMatrix(newPos);
 
@@ -78,8 +78,12 @@ void Gun::Awake(Object* obj) {
 	damage = gun->damage;
 	type = gun->type;
 	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
+	//TextManager::textOutput out = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "This is a test!");
+	//Material* newMat = TextManager::CreateRenderableTexture(100, 100);
+	//TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", "This is a test!", newMat);
+	//TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", "This is a test!", GetComponent<Material>());
+	//SetComponent<Material>(out.mat);
 }
-
 
 void Gun::GivePID(unsigned pid, const char* tag) {
 	// Look into a better system
@@ -92,7 +96,6 @@ void Gun::GivePID(unsigned pid, const char* tag) {
 }
 
 bool Gun::Shoot() {
-
 	// What does this switch statement do???
 	switch(type) {
 		case AUTO:
@@ -147,8 +150,6 @@ void Gun::InactiveUpdate() {
 void Gun::ActiveUpdate() {
 	overheat.Update(true);
 }
-
-
 
 #ifdef _DEBUG
 void Gun::SmokeTest() {

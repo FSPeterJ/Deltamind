@@ -155,7 +155,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<SpawnerObject>("Spawner");
 	TypeMap::RegisterObjectAlias<EnemyBase>("EnemyBase");
 	TypeMap::RegisterObjectAlias<MenuCube>("MenuCube");
-	TypeMap::RegisterObjectAlias<Core>("CoreCube");
+	TypeMap::RegisterObjectAlias<Core>("Core");
 	TypeMap::RegisterObjectAlias<GameObject>("GameObject");
 	TypeMap::RegisterObjectAlias<GameObject>("ghost");
 	TypeMap::RegisterObjectAlias<PhysicsTestObj>("PhysicsTestObj");
@@ -182,7 +182,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost"), "Spawner");
 	ObjectFactory::CreatePrefab(&std::string("Assets/EnemyRobot.ghost"), "TestEnemy");
 	ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"), "startCube");
-	ObjectFactory::CreatePrefab(&std::string("Assets/CoreCube.ghost"), "CoreCube");
+	ObjectFactory::CreatePrefab(&std::string("Assets/Core.ghost"), "Core");
 	ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"), "WinCube");
 	ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"), "LoseCube");
 	ObjectFactory::CreatePrefab(&std::string("Assets/EarthMage.ghost"), "EarthMage");
@@ -195,7 +195,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest3.ghost"), "PhyTest3");
 	ObjectFactory::CreatePrefab(&std::string("Assets/MenuControllerItem.ghost"), "MenuController", true);
 	unsigned Gun1 = ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost"), "Pistol", true);
-	unsigned Gun2 = ObjectFactory::CreatePrefab(&std::string("Assets/Gun2.ghost"), "GunTest2");
+	unsigned Gun2 = ObjectFactory::CreatePrefab(&std::string("Assets/smg.ghost"), "smg");
 	//ObjectFactory::CreatePrefab(&std::string("Assets/Gun.ghost"), "GunTest", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/TestProjectile.ghost"), "TestProjectile");
 	ObjectFactory::CreatePrefab(&std::string("Assets/AStarEnemyEdit.ghost"), "AStarEnemy");

@@ -108,6 +108,9 @@
       <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;openvr_api.lib;CommunicationCentral.lib;AkFlangerFX.lib;AkTremoloFX.lib;AkMemoryMgr.lib;AkSineSource.lib;AkSynthOneSource.lib;AkStereoDelayFX.lib;AkGuitarDistortionFX.lib;AkMeterFX.lib;AkSoundEngine.lib;AkSilenceSource.lib;AkSoundSeedImpactFX.lib;AkRoomVerbFX.lib;AkSoundSeedWooshSource.lib;AkSpatialAudio.lib;AkSoundSeedWindSource.lib;AkDelayFX.lib;AkCompressorFX.lib;AkMotionGeneratorSource.lib;AkMusicEngine.lib;AkTimeStretchFX.lib;AkPitchShifterFX.lib;AkToneSource.lib;AkGainFX.lib;AkVorbisDecoder.lib;AkPeakLimiterFX.lib;AkParametricEQFX.lib;AkRecorderFX.lib;AkMatrixReverbFX.lib;AkMotionSink.lib;AkStreamMgr.lib;AkHarmonizerFX.lib;AkAudioInputSource.lib;AkExpanderFX.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\Ghostbait\Dependencies\Wwise\LibDebugx86\lib;..\Ghostbait\openvr\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -121,7 +124,7 @@
       <AdditionalUsingDirectories>d3dcompiler.h;directxmath.h;d3d11_1.h;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
       <EnablePREfast>false</EnablePREfast>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <BrowseInformation>true</BrowseInformation>
+      <BrowseInformation>false</BrowseInformation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -156,6 +159,9 @@
       <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;openvr_api.lib;AkFlangerFX.lib;AkTremoloFX.lib;AkMemoryMgr.lib;AkSineSource.lib;AkSynthOneSource.lib;AkStereoDelayFX.lib;AkGuitarDistortionFX.lib;AkMeterFX.lib;AkSoundEngine.lib;AkSilenceSource.lib;AkSoundSeedImpactFX.lib;AkRoomVerbFX.lib;AkSoundSeedWooshSource.lib;AkSpatialAudio.lib;AkSoundSeedWindSource.lib;AkDelayFX.lib;AkCompressorFX.lib;AkMotionGeneratorSource.lib;AkMusicEngine.lib;AkTimeStretchFX.lib;AkPitchShifterFX.lib;AkToneSource.lib;AkGainFX.lib;AkVorbisDecoder.lib;AkPeakLimiterFX.lib;AkParametricEQFX.lib;AkRecorderFX.lib;AkMatrixReverbFX.lib;AkMotionSink.lib;AkStreamMgr.lib;AkHarmonizerFX.lib;AkAudioInputSource.lib;AkExpanderFX.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\Ghostbait\Dependencies\Wwise\LibReleasex86\lib;..\Ghostbait\openvr\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -180,6 +186,9 @@
       <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;openvr_api.lib;AkFlangerFX.lib;AkTremoloFX.lib;AkMemoryMgr.lib;AkSineSource.lib;AkSynthOneSource.lib;AkStereoDelayFX.lib;AkGuitarDistortionFX.lib;AkMeterFX.lib;AkSoundEngine.lib;AkSilenceSource.lib;AkSoundSeedImpactFX.lib;AkRoomVerbFX.lib;AkSoundSeedWooshSource.lib;AkSpatialAudio.lib;AkSoundSeedWindSource.lib;AkDelayFX.lib;AkCompressorFX.lib;AkMotionGeneratorSource.lib;AkMusicEngine.lib;AkTimeStretchFX.lib;AkPitchShifterFX.lib;AkToneSource.lib;AkGainFX.lib;AkVorbisDecoder.lib;AkPeakLimiterFX.lib;AkParametricEQFX.lib;AkRecorderFX.lib;AkMatrixReverbFX.lib;AkMotionSink.lib;AkStreamMgr.lib;AkHarmonizerFX.lib;AkAudioInputSource.lib;AkExpanderFX.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\Ghostbait\Dependencies\Wwise\LibRelease\lib;..\Ghostbait\openvr\lib\win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Common\AkFileLocationBase.h" />
@@ -197,6 +206,7 @@
     <ClInclude Include="Header Files\BinaryFileIO.h" />
     <ClInclude Include="Header Files\BuildTool.h" />
     <ClInclude Include="Header Files\Camera.h" />
+    <ClInclude Include="Header Files\CheatCode.h" />
     <ClInclude Include="Header Files\ComponentBase.h" />
     <ClInclude Include="Header Files\Console.h" />
     <ClInclude Include="Header Files\Controlable.h" />
@@ -224,6 +234,7 @@
     <ClInclude Include="Header Files\InputManager.h" />
     <ClInclude Include="Header Files\IComponentManager.h" />
     <ClInclude Include="Header Files\Item.h" />
+    <ClInclude Include="Header Files\Light.h" />
     <ClInclude Include="Header Files\LightManager.h" />
     <ClInclude Include="Header Files\Logger.h" />
     <ClInclude Include="Header Files\Material.h" />
@@ -290,6 +301,7 @@
     <ClCompile Include="Source Files\AudioManager.cpp" />
     <ClCompile Include="Source Files\BuildTool.cpp" />
     <ClCompile Include="Source Files\Camera.cpp" />
+    <ClCompile Include="Source Files\CheatCode.cpp" />
     <ClCompile Include="Source Files\Console.cpp" />
     <ClCompile Include="Source Files\Controlable.cpp" />
     <ClCompile Include="Source Files\ControllerObject.cpp" />
@@ -312,6 +324,7 @@
     <ClCompile Include="Source Files\HexTileVector.cpp" />
     <ClCompile Include="Source Files\InputManager.cpp" />
     <ClCompile Include="Source Files\Item.cpp" />
+    <ClCompile Include="Source Files\Light.cpp" />
     <ClCompile Include="Source Files\LightManager.cpp" />
     <ClCompile Include="Source Files\Logger.cpp" />
     <ClCompile Include="Source Files\Main.cpp" />
@@ -504,6 +517,16 @@
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).cso</ObjectFileOutput>
     </FxCompile>
+    <FxCompile Include="PositionTexturePixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
     <FxCompile Include="SkyboxPixelShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
@@ -573,6 +596,16 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
       <FileType>Document</FileType>
     </ClInclude>
+    <FxCompile Include="TextVertexShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

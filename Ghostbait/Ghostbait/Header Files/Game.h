@@ -5,6 +5,7 @@
 #include <vector>
 #include "Menu.h"
 
+
 class SceneManager;
 class SpawnerObject;
 class EventMessageBase;
@@ -22,7 +23,7 @@ enum State {
 
 class Game {
 	HexGrid hexGrid = HexGrid("Assets/Level0.ghostGrid", 500, HexagonalGridLayout::FlatLayout);
-
+	
 	bool run = true;
 
 	struct WaveManager {
@@ -136,10 +137,8 @@ class Game {
 
 	//Event Catchers
 	void SpawnerCreatedEvent(EventMessageBase* e);
-	void EnemyDiedEvent();
-	void SnapRequestEvent(EventMessageBase* e);
-	void AddObstacleEvent(EventMessageBase* e);
 	void RemoveObstacleEvent(EventMessageBase* e);
+	void EnemyDiedEvent();
 	void PauseInputEvent();
 	void StartEvent();
 	void ExitToMenu();

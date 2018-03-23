@@ -208,8 +208,7 @@ void Turret::Shoot() {
 }
 
 void Turret::Destroy() {
-	bool success;
-	MessageEvents::SendMessage(EVENT_RemoveObstacle, SnapMessage(&DirectX::XMFLOAT2(transform.GetPosition().x, transform.GetPosition().z), &success));
+	MessageEvents::SendMessage(EVENT_RemoveObstacle, SnapMessage(&DirectX::XMFLOAT2(transform.GetPosition().x, transform.GetPosition().z)));
 	GameObject::Destroy();
 }
 

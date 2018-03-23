@@ -10,7 +10,7 @@
 
 void EnemyBase::Awake(Object* obj) {
 	currState = IDLE;
-	maxSpeed = 2.0f;
+	maxSpeed = (float)((rand() % 3) + 1);
 	target = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	hurt = false;
 	hurtTimer = 0;
@@ -92,6 +92,9 @@ void EnemyBase::OnCollision(GameObject* _other) {
 	}
 
 	GameObject::OnCollision(_other);
+}
+void EnemyBase::RandomizeStats() {
+
 }
 
 

@@ -60,19 +60,23 @@ void BuildTool::Activate() {
 
 bool BuildTool::Snap(GameObject** obj) {
 	DirectX::XMFLOAT2 pos = { (*obj)->transform.GetMatrix()._41, (*obj)->transform.GetMatrix()._43 };
-	if (Snap(&pos)) {
+	DirectX::XMFLOAT2 snappedPoint;
+	if (grid->Snap(pos, snappedPoint)) {
 		DirectX::XMFLOAT4X4 newPos = (*obj)->transform.GetMatrix();
-		newPos._41 = pos.x;
-		newPos._43 = pos.y;
+		newPos._41 = snappedPoint.x;
+		newPos._43 = snappedPoint.y;
 		(*obj)->transform.SetMatrix(newPos);
 		return true;
 	}
 	return false;
 }
 bool BuildTool::Snap(DirectX::XMFLOAT2* pos) {
-	bool occupied;
-	MessageEvents::SendMessage(EVENT_SnapRequest, SnapMessage(pos, &occupied));
-	return occupied;
+	DirectX::XMFLOAT2 snappedPoint;
+	if (grid->Snap(*pos, snappedPoint)) {
+		*pos = snappedPoint;
+		return true;
+	}
+	return false;
 }
 bool BuildTool::SetObstacle(DirectX::XMFLOAT2 pos, bool active) {
 	if (grid->IsBlocked(pos) == active) {
@@ -257,12 +261,17 @@ void BuildTool::DeSelected() {
 	}
 	buildArc.Destroy();
 	deleteRay.Destroy();
+	Item::DeSelected();
 }
 
 void BuildTool::Selected() {
+	Item::Selected();
 	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
 		if (prefabs[currentPrefabIndex].object)
 			MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
+		if (prefabs[currentPrefabIndex].ID == 0) {
+			deleteRay.Create();
+		}
 	}
 }
 

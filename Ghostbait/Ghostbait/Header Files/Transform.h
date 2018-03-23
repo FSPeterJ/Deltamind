@@ -24,6 +24,11 @@ public:
 	void MoveAlongForward(const float speed);
 	void MoveAlongUp(const float speed);
 	void MoveAlongSide(const float speed);
+	void NormalizeXAxis();
+	void NormalizeYAxis();
+	void NormalizeZAxis();
+	void NormalizeAllAxis();
+
 	//DirectX::XMFLOAT3 GetRotationValuesFromMatrix(DirectX::XMFLOAT4X4& _mat);
 	//void SetTransform(DirectX::XMFLOAT4X4& trans);
 	//const DirectX::XMFLOAT4X4& GetTransform() const;

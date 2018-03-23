@@ -257,7 +257,7 @@ void InputManager::VRInput::CheckForInput() {
 							amount = 1;
 						}
 
-						inputPoll.push(InputPackage(input, amount));
+						//inputPoll.push(InputPackage(input, amount));
 
 
 						break;
@@ -347,6 +347,7 @@ void InputManager::VRInput::CheckForInput() {
 
 		if(keyStates[input] != amount > 0.0f ? 1 : 0) {
 			keyStates[input] = amount > 0.0f ? 1 : 0;
+			if(keyStates[input] == 1) godMode.CheckNewInput(input);
 			inputPoll.push(InputPackage(input, amount));
 		}
 	}
@@ -380,10 +381,10 @@ InputManager::KeyboardInput::KeyboardInput() {
 	MapKey(TestInputO, 'O');
 	MapKey(TestInputJ, 'J');
 	MapKey(TestInputK, 'K');
-	MapKey(TestInputZ, 'Z');
-	MapKey(TestInputC, 'C');
+	MapKey(Crouch, 'C');
 	MapKey(TestInputL, 'L');
 	MapKey(releaseKey, VK_MENU); // Alt Key
+	MapKey(Sprint, VK_SHIFT); // Alt Key
 
 	GetWindowRect(GetActiveWindow(), &winRect);
 	cursorX = ((winRect.right - winRect.left) * 0.5f);
@@ -504,6 +505,7 @@ void InputManager::KeyboardInput::CheckForInput() {
 
 		if(keyStates[input] != (amount > 0.0f ? 1 : 0)) {
 			keyStates[input] = amount > 0.0f ? 1 : 0;
+			if (keyStates[input] == 1) godMode.CheckNewInput(input);
 			inputPoll.push(InputPackage(input, amount));
 		}
 		inputQueue.pop();
@@ -564,3 +566,7 @@ void InputManager::SetInputType(InputType type) {
 			Messagebox::ShowError("Input Type Error", "No InputType is defined!");
 	}
 }
+
+
+//Cheats
+CheatCode InputManager::godMode(CheatCode::CodePreset::Konami, [=]() {MessageEvents::SendMessage(EVENT_Input, InputMessage(Control::GodMode, 1)); });

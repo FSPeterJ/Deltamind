@@ -103,13 +103,13 @@ void SceneManager::Initialize() {
 			winCube.name = "WinCube";
 			level0Data.prefabs.push_back(winCube);
 		}
-		TestSceneData::Prefab coreCube;
+		TestSceneData::Prefab core;
 		{
-			coreCube.ghostFile = "Assets/CoreCube.ghost";
-			coreCube.name = "CoreCube";
-			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 5.25f, 1);
-			coreCube.positions.push_back(mat1);
-			level0Data.prefabs.push_back(coreCube);
+			core.ghostFile = "Assets/Core.ghost";
+			core.name = "Core";
+			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 5.25f, 1);
+			core.positions.push_back(mat1);
+			level0Data.prefabs.push_back(core);
 		}
 	}
 	CreateSceneFile(level0Data);
@@ -243,7 +243,6 @@ void SceneManager::LoadScene(const char* sceneName, Core** _core) {
 			{
 				int ghostLen = Reader::ReadInt();
 				std::string ghostName = Reader::ReadString(ghostLen);
-
 				unsigned int prefabID = ObjectFactory::CreatePrefab(&ghostName);
 
 				int ghostCount = Reader::ReadInt();

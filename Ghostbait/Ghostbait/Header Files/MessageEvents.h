@@ -34,7 +34,6 @@ enum EVENT_TYPES {
 	EVENT_DeleteAllGameObjects,
 	EVENT_GameQuit,
 	EVENT_GameExit,
-	EVENT_SnapRequest,
 	EVENT_AddObstacle,
 	EVENT_RemoveObstacle,
 	EVENT_PauseInputDetected,

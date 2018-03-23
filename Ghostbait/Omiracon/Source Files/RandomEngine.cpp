@@ -17,7 +17,7 @@ T const Omiracon::Random::RandomNumber(const T lb, const T ub) {
 	switch(Interval) {
 	case Type::Inclusive:
 		if(std::is_floating_point<T>()) {
-			return std::bind(uniform_distribution(lb, std::nextafter(ub, ub + 1.0)), GetRnd())();
+			return std::bind(uniform_distribution(lb, T(std::nextafter(ub, ub + 1.0))), GetRnd())();
 		}
 		return std::bind(uniform_distribution(lb, ub), GetRnd())();
 	default: case Type::Exclusive:

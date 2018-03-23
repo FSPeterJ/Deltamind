@@ -12,7 +12,6 @@ namespace Omiracon {
 		typedef DominantPool::value_type DominantGene;
 
 		using Policy = std::function<bool(DominantGene const&, DominantGene const&)>;
-
 		using Mutation = std::function<void(Traits& traits)>;
 
 		Policy AliveTime;
@@ -20,22 +19,22 @@ namespace Omiracon {
 		Policy DamageReceived;
 		Policy NodesTraversed;
 
-
 		inline size_t GetMemAddr(size_t index) { return index * sizeof(DominantGene); }
 
 		void Evolver::RunGeneration(void) {
 			CreateTestSamplePerformanceData();//this simulates what would have happened irl
-
 			FillDominantPools();
-
 			MutateDominantPools();
-
 			SelectGenesFromDominantPools();
-
 			ConstructPoolWithMutatedGenes();
 		}
 
-		Evolver::Evolver(std::size_t _wave_size) : traitPoolSize(surviveCount + randomCount), surviveCount(waveSize * 0.5f), randomCount(waveSize * 0.2f), traitPoolSampleSize(waveSize * 0.25f), waveSize(_wave_size) {
+		Evolver::Evolver(std::size_t _wave_size, float topPercentage, float randPercentage):
+			traitPoolSize(surviveCount + randomCount),
+			surviveCount(waveSize * topPercentage),
+			randomCount(waveSize * randPercentage),
+			traitPoolSampleSize(waveSize * (1.0f / DOMINANT_TRAITS)),
+			waveSize(_wave_size) {
 
 			AliveTime = [](DominantGene const& a, DominantGene const& b) { return a.measure.timeLasted > b.measure.timeLasted; };
 			DamageDelt = [](DominantGene const& a, DominantGene const& b) { return a.measure.damageDelt > b.measure.damageDelt; };
@@ -43,22 +42,15 @@ namespace Omiracon {
 			NodesTraversed = [](DominantGene const& a, DominantGene const& b) { return a.measure.nodesTraversed < b.measure.nodesTraversed; };
 
 			pool.resize(waveSize);
-			for(size_t i = 0; i < waveSize; ++i) {
+			for(size_t i = 0; i < waveSize; ++i) {//creates random pool of chromosomes
 				pool[i] = TraitedEnemy();
 				pool[i].traits.Randormalize();
 			}
-
-			//pool = new TraitedEnemy[waveSize]; //creates random pool of chromosomes
-			//for(TraitedEnemy *i = &(pool[0]), *end = &(pool[waveSize]); i < end; (*(i++)).traits.Randormalize());
 
 			CreateDominantPools();
 		}
 
 		void Evolver::CreateDominantPools(void) {
-			//aliveTimePool = new TraitedEnemy*[traitPoolSize];
-			//damageDeltPool = new TraitedEnemy*[traitPoolSize];
-			//damageReceivedPool = new TraitedEnemy*[traitPoolSize];
-			//nodesTraversedPool = new TraitedEnemy*[traitPoolSize];
 			aliveTimePool.resize(traitPoolSize);
 			damageDeltPool.resize(traitPoolSize);
 			damageReceivedPool.resize(traitPoolSize);
@@ -66,15 +58,15 @@ namespace Omiracon {
 		}
 
 		void Evolver::CreateTestSamplePerformanceData(void) {
+			//this simulates the result of our wave
 			for(auto&i : pool) i.measure.Reset(), i.CreateSimulatedResults();
-			//for(TraitedEnemy *i = &(pool[0]), *end = &(pool[waveSize]); i < end; (*(i++)).CreateSimulatedResults());
 		}
 
 		void Evolver::FillDominantPools(void) {
-			std::sort(pool.begin(), pool.end(), AliveTime);
-			memcpy(&aliveTimePool[0], &pool[0], GetMemAddr(surviveCount)); //copy best surviveCount over
-			std::random_shuffle(pool.begin(), pool.end());
-			memcpy(&aliveTimePool[0] + surviveCount, &pool[0], GetMemAddr(randomCount)); //copy best surviveCount over
+			std::sort(pool.begin(), pool.end(), AliveTime); //orders the main pool by best surviving times
+			memcpy(&aliveTimePool[0], &pool[0], GetMemAddr(surviveCount)); //copy best surviveCount over to specific pool
+			std::random_shuffle(pool.begin(), pool.end()); //shuffle the main pool again so I can get a random sample when I copy below
+			memcpy(&aliveTimePool[0] + surviveCount, &pool[0], GetMemAddr(randomCount)); //copy random randomCount over to specific pool
 
 			std::sort(pool.begin(), pool.end(), DamageDelt);
 			memcpy(&damageDeltPool[0], &pool[0], GetMemAddr(surviveCount));
@@ -107,6 +99,7 @@ namespace Omiracon {
 		}
 
 		void Evolver::SelectGenesFromDominantPools(void) {
+			//shuffles the pools so when I construct the main pool I get random samples
 			std::random_shuffle(&aliveTimePool[0], &aliveTimePool[0] + traitPoolSize);
 			std::random_shuffle(&damageDeltPool[0], &damageDeltPool[0] + traitPoolSize);
 			std::random_shuffle(&damageReceivedPool[0], &damageReceivedPool[0] + traitPoolSize);
@@ -114,19 +107,15 @@ namespace Omiracon {
 		}
 
 		void Evolver::ConstructPoolWithMutatedGenes(void) {
-			//delete[] pool;
-			//pool = new TraitedEnemy[waveSize];
-			//for(size_t i = 0; i < waveSize; ++i) {
-			//	delete pool[i];
-			//}
+			//I don't want anything from the old gene pool anymore because I'm about to repopulate it
 			pool.clear();
 			pool.resize(waveSize);
 
+			//repopulate
 			memcpy(&pool[0], &aliveTimePool[0], GetMemAddr(traitPoolSampleSize));
 			memcpy(&pool[0] + traitPoolSampleSize, &damageDeltPool[0], GetMemAddr(traitPoolSampleSize));
 			memcpy(&pool[0] + traitPoolSampleSize * 2, &damageReceivedPool[0], GetMemAddr(traitPoolSampleSize));
 			memcpy(&pool[0] + traitPoolSampleSize * 3, &nodesTraversedPool[0], GetMemAddr(traitPoolSampleSize));
-			//std::random_shuffle(&pool[0], &pool[0] + waveSize);
 		}
 
 		void Evolver::GetBestStats(void) {
@@ -154,26 +143,6 @@ namespace Omiracon {
 			std::cin.get();
 		}
 
-		Evolver::~Evolver(void) {
-			//for(TraitedEnemy **i = &(aliveTimePool[0]), **end = &(aliveTimePool[traitPoolSize]); i < end; delete(*(i++)));
-			//for(TraitedEnemy **i = &(damageDeltPool[0]), **end = &(damageDeltPool[traitPoolSize]); i < end; delete(*(i++)));
-			//for(TraitedEnemy **i = &(damageReceivedPool[0]), **end = &(damageReceivedPool[traitPoolSize]); i < end; delete(*(i++)));
-			//for(TraitedEnemy **i = &(nodesTraversedPool[0]), **end = &(nodesTraversedPool[traitPoolSize]); i < end; delete(*(i++)));
-
-
-			//for(size_t i = 0; i < traitPoolSize; ++i) {
-			//	delete aliveTimePool[i];
-			//	delete damageDeltPool[i];
-			//	delete damageReceivedPool[i];
-			//	delete nodesTraversedPool[i];
-			//}
-
-			//for(size_t i = 0; i < waveSize; ++i) {
-			//	delete pool[i];
-			//}
-
-			//delete[] aliveTimePool, delete[] damageDeltPool, delete[] damageReceivedPool, delete[] nodesTraversedPool;
-
-		}
+		Evolver::~Evolver(void) { }
 	}
 }

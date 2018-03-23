@@ -38,6 +38,7 @@ class TextManager {
 	static std::vector<renderableMat> managedMaterials;
 
 	static renderableMat createTextMaterial(float width, float height);
+	static renderableMat generateVertexBufferAndRender(Font* font, std::string _sentence, int index = -1);
 	static void renderText(renderableMat* mat, std::string& sentence, std::vector<VertexPositionTexture> & vertices, ID3D11ShaderResourceView * font);
 public:
 	struct textOutput
@@ -49,7 +50,7 @@ public:
 	static void Destroy();
 
 	static void LoadFont(std::string _fileName, std::string _texturePath);
-	static Material* CreateRenderableTexture(float height, float width);
+	static Material* CreateRenderableTexture(float width, float height);
 	static textOutput DrawTextTo(std::string _fontTexturePath, std::string _sentence);
 	static float DrawTextExistingMat(std::string _fontTexturePath, std::string _sentence, Material* _mat); //Returns a suggested aspect ratio for the quad as Y = (X * return)
 };

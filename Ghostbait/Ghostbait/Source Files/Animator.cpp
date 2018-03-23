@@ -205,12 +205,12 @@ void Animator::ManipulateChildrendJoints(animJoint* animationJoint, const Direct
 }
 
 void Animator::Destroy() {
-	EngineStructure::Update.Remove(updateID);
+	EngineStructure::AnimationUpdate.Remove(updateID);
 }
 
 void Animator::Initialize(AnimationManager* animManIn) {
 	animMan = animManIn;
-	updateID = EngineStructure::Update.Add([=]() {
+	updateID = EngineStructure::AnimationUpdate.Add([=]() {
 		this->Update();
 	});
 }

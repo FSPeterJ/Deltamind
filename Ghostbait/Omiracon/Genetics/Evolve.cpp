@@ -30,9 +30,9 @@ namespace Omiracon {
 
 		Evolver::Evolver(std::size_t _wave_size, float topPercentage, float randPercentage):
 			traitPoolSize(surviveCount + randomCount),
-			surviveCount(waveSize * topPercentage),
-			randomCount(waveSize * randPercentage),
-			traitPoolSampleSize(waveSize * (1.0f / DOMINANT_TRAITS)),
+			surviveCount(size_t(waveSize * topPercentage)),
+			randomCount(size_t(waveSize * randPercentage)),
+			traitPoolSampleSize(size_t(waveSize * (1.0f / DOMINANT_TRAITS))),
 			waveSize(_wave_size) {
 
 			AliveTime = [](DominantGene const& a, DominantGene const& b) { return a.measure.timeLasted > b.measure.timeLasted; };

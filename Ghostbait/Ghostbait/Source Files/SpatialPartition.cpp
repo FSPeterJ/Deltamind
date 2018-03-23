@@ -244,7 +244,7 @@ const std::vector<PhysicsComponent*> SpatialPartition::GetComponentsToTest() {
 
 	std::vector<PhysicsComponent*> testComps;
 
-	for each (auto bucket in table)
+	for each (const auto &bucket in table)
 	{
 		
 		if (bucket.second.components.size() > 1) {

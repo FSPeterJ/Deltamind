@@ -55,7 +55,8 @@ class HexGrid {
 	/// <param name="zmax">The zmax.</param>
 	/// <returns>HexRegion.</returns>
 	HexRegion GetRegion(int xmin, int xmax, int ymin, int ymax, int zmin, int zmax);
-	
+	HexRegion DoRing(bool spiral, HexTile *const center, std::size_t radius);
+
 	static const float Blocked;
 public:
 
@@ -110,7 +111,6 @@ public:
 	/// <returns>HexRegion.</returns>
 	HexRegion GetTilesNStepsAway(HexTile *const tile, int n);
 
-	[[deprecated]]
 	HexRegion Ring(HexTile *const center, std::size_t radius);
 
 	HexRegion Spiral(HexTile *const center, std::size_t radius);

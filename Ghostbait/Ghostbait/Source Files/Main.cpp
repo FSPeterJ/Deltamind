@@ -138,7 +138,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	ObjectFactory::RegisterPrefabBase<AStarEnemy>(300);
 	ObjectFactory::RegisterPrefabBase<DStarEnemy>(10);
-	ObjectFactory::RegisterPrefabBase<MTDSLEnemy>(10);
+	ObjectFactory::RegisterPrefabBase<MTDSLEnemy>(300);
 
 	Console::WriteLine << "Prefab base registered......";
 

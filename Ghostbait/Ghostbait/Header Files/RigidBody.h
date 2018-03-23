@@ -33,6 +33,7 @@ public:
 	void GravityOn(bool _hasGravity);
 	void AdjustGravityMagnitude(float magnitude);
 	float GetSpeedSq();
+	void Reset();
 	
 
 	//bool operator==(const RigidBody other) {

@@ -150,6 +150,7 @@ PhysicsComponent* PhysicsManager::GetReferenceComponent(const char * _FilePath, 
 }
 
 void PhysicsManager::ResetComponent(ComponentBase * reset) {
+	((PhysicsComponent*)reset)->rigidBody.Reset();
 	if (((PhysicsComponent*)reset)->isStatic) {
 		staticComponents.DeactivateMemory(reset);
 		return;

@@ -427,26 +427,27 @@ void HexGrid::Color(HexPath& p, DirectX::XMFLOAT3 color, int fill) {
 	p.Color(&layout, color, 0, (ColorType)fill);
 }
 
-HexRegion HexGrid::Spiral(HexTile *const center, std::size_t radius) {
+HexRegion HexGrid::DoRing(bool spiral, HexTile *const center, std::size_t radius) {
 	HexRegion ring;
-	if(radius == 0) { return ring; }
+	if (radius == 0) { return ring; }
 
-	ring.push_back(*center);
-	for(std::size_t k = 1; k <= radius; ++k) {
+	if (spiral) { ring.push_back(*center); }
+	for (std::size_t k = spiral ? 1 : radius; k <= radius; ++k) {
 		HexTile H = *center + (center->Direction(NEIGHBOR_DIRECTION::BottomLeft) * (int)k);
-		for(std::size_t i = 0; i < Hexagon::NUMBER_OF_SIDES; ++i) {
-			for(std::size_t j = 0; j < k; ++j) {
+		for (std::size_t i = 0; i < Hexagon::NUMBER_OF_SIDES; ++i) {
+			for (std::size_t j = 0; j < k; ++j) {
 				ring.push_back(H);
 				H = H.Neighbor((NEIGHBOR_DIRECTION)i);
 			}
 		}
-
 	}
-	
 	return ring;
 }
 
+HexRegion HexGrid::Spiral(HexTile *const center, std::size_t radius) {
+	return DoRing(true, center, radius);
+}
 
 HexRegion HexGrid::Ring(HexTile *const center, std::size_t radius) {
-	return HexRegion();
+	return DoRing(false, center, radius);
 }

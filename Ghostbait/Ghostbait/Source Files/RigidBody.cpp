@@ -116,3 +116,12 @@ void RigidBody::Stop() {
 void RigidBody::SetTerminalSpeed(float _speed) {
 	terminalSpeed = _speed;
 }
+
+void RigidBody::Reset() {
+	GravityOn(false);
+	SetMass(1.0f);
+	SetTerminalSpeed(100.0f);
+	SetVelocity(0.0f, 0.0f, 0.0f);
+	netAcceleration = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	ClearForces();
+}

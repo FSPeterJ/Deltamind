@@ -320,7 +320,7 @@ void MTDStarLite::BasicDeletion(HexTile*const oldStart) {
 }
 
 void MTDStarLite::ComputeCostMinimalPath() {
-	Console::WriteLine << "Computing Cost Minimal Path";
+	//Console::WriteLine << "Computing Cost Minimal Path";
 	int iterations = 0;
 	int maxIter = (int)PathPlanner::heuristicFunction(start, goal) * 10;
 	bool hasPath = true;
@@ -367,12 +367,12 @@ void MTDStarLite::ComputeCostMinimalPath() {
 
 					if (PathPlanner::EpsilonIsEqual(GetRHS(neighbor), grid->BlockWeight())) {
 						parent[neighbor] = nullptr;
-						Console::WriteLine << "Path through here is Blocked";
+						//Console::WriteLine << "Path through here is Blocked";
 						//Console::WriteLine << PrintParentConnnectionNull(neighbor);
 					}
 					else {
 						HexTile* minTile = GetMinimumTileFrom(PredessorsOf, neighbor, [=](HexTile*const prime) {return GetGVal(prime) + GetCost(neighbor); });
-						Console::WriteLine << "Finding new Path from here";
+						//Console::WriteLine << "Finding new Path from here";
 						parent[neighbor] = minTile; /*Console::WriteLine << PrintParentConnnection(neighbor, minTile);*/
 													//parent[neighbor] = minTile;
 					}
@@ -381,14 +381,14 @@ void MTDStarLite::ComputeCostMinimalPath() {
 			}, UnionSelf);
 		}
 	}
-	Console::WriteLine << "End Calculation";
+	//Console::WriteLine << "End Calculation";
 
 	if (hasPath) {
 		path.clear();
 		//Console::WriteLine << "Begin building path";
 		path.BuildPath(start, goal, parent); //might need to BuildPathReverse?
 		next = path.Next(start);
-		Console::WriteLine << "Path built";
+		//Console::WriteLine << "Path built";
 		//for (int i = 0; i < path.size(); ++i) {
 		//	HexTile* pathNode = path[i];
 		//	if (parent[pathNode]) Console::WriteLine << PrintTileInfo(pathNode, GetGVal(pathNode), GetRHS(pathNode), parent[pathNode]);
@@ -396,7 +396,24 @@ void MTDStarLite::ComputeCostMinimalPath() {
 		//}
 	}
 	else {
-		next = GetMinimumTileFrom(SuccessorsOf, start, [=](HexTile*const prime) {return GetGVal(prime) + GetCost(prime); });
+		/*float closest = grid->BlockWeight() + 1;
+		float temp = 0;
+		HexTile* nextClosest = nullptr;
+		HexRegion ring;
+		for (int range = (int)perceptionRange * 2; range > 0; --range) {
+			ring = grid->Ring(start, range);
+			for (int region = 0; region < ring.size(); ++region) {
+				if (grid->IsBlocked(&ring[region])) continue;
+				temp = PathPlanner::heuristicFunction(&ring[region], goal);
+				if (temp < closest) {
+					closest = temp;
+					nextClosest = &ring[region];
+				}
+			}
+			if (nextClosest) break;
+		}*/
+		
+		next = nullptr;
 	}
 
 	//Console::Write << "Next Tile: ";
@@ -405,7 +422,7 @@ void MTDStarLite::ComputeCostMinimalPath() {
 }
 
 void MTDStarLite::OptimizedDelete() {
-	Console::WriteLine << "Optimized Delete";
+	//Console::WriteLine << "Optimized Delete";
 	deleted.clear();
 
 	parent[start] = nullptr;
@@ -442,7 +459,7 @@ void MTDStarLite::OptimizedDelete() {
 			open.insert(del, CalculateKey(del));
 		}
 	}
-	Console::WriteLine << "End Optimized Delete";
+	//Console::WriteLine << "End Optimized Delete";
 }
 
 MTDStarLite::MTDStarLite(HexGrid *const _grid, DirectX::XMFLOAT4X4* _startRef, DirectX::XMFLOAT4X4* _goalRef) :
@@ -473,7 +490,7 @@ MTDStarLite& MTDStarLite::operator=(MTDStarLite& _other) {
 }
 
 void MTDStarLite::Update() {
-	Console::WriteLine << "Updating";
+	//Console::WriteLine << "Updating";
 	//while(start != goal)
 	HexTile* oldStart = start;
 	HexTile* oldGoal = goal;
@@ -489,7 +506,7 @@ void MTDStarLite::Update() {
 	goal = grid->PointToTile(DirectX::XMFLOAT2(goalReference->_41, goalReference->_43));
 	start = grid->PointToTile(DirectX::XMFLOAT2(startReference->_41, startReference->_43));
 	bool costChanged = false, goalOffPath = false;
-	Console::WriteLine << "StartTile (" << start->q << ", " << start->r << ")  GoalTile (" << goal->q << ", " << goal->r << ")";
+	//Console::WriteLine << "StartTile (" << start->q << ", " << start->r << ")  GoalTile (" << goal->q << ", " << goal->r << ")";
 	if (!path.find(goal)) {
 		km += PathPlanner::heuristicFunction(oldGoal, goal);
 		goalOffPath = true;
@@ -565,7 +582,7 @@ void MTDStarLite::Update() {
 	}
 	//}
 	//}
-	Console::WriteLine << "End Update";
+	//Console::WriteLine << "End Update";
 
 }
 

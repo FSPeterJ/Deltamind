@@ -1,17 +1,19 @@
 #include "Particle_Definitions.hlsl"
 
+//The draw call to this shader should have no input layout elements as the data is in GPU buffers
 
-cbuffer viewBuffer : register(b0)
+cbuffer ModelViewProjectionConstantBuffer : register(b0)
 {
-    float4x4 view;
-}
+    matrix view;
+    matrix projection;
+};
 
 
 struct VSOutput
 {
     float4 pos : SV_POSITION;
     float size : PSIZE0;
-    uint textureIndex : TEXCOORD0;
+    uint texturedata : TEXCOORD0;
     float rotation : TEXCOORD1;
 };
 
@@ -24,8 +26,8 @@ VSOutput main(uint VertexID : SV_VertexID)
 
     //This can be optimized by computing the view space data beforehand in a compute shader
     output.pos = mul(float4(BParticle.position, 1.0f), view);
-    output.size = 2.0f;
-    output.textureIndex = BParticle.compactedData & 0xFF;
+    output.size = BParticle.endSize; // Temporary, change later
+    output.texturedata = BParticle.texturedata & 0xFF;
     output.rotation = BParticle.rotation;
     return output;
 }

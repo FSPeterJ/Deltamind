@@ -28,9 +28,6 @@
     <Filter Include="Shaders\Geometry Shaders">
       <UniqueIdentifier>{452371f5-8428-4b41-8487-04901d448313}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shaders\Compute">
-      <UniqueIdentifier>{0ea0567e-9c08-4bfb-a215-96bfdcd1c2d5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Render">
       <UniqueIdentifier>{483d0b22-d6b7-49d3-8c79-fb9fca942065}</UniqueIdentifier>
     </Filter>
@@ -45,6 +42,15 @@
     </Filter>
     <Filter Include="Header Files\Objects\Items">
       <UniqueIdentifier>{6c807185-40a0-4104-ac7c-0b8ff728f2f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Compute Shaders">
+      <UniqueIdentifier>{0ea0567e-9c08-4bfb-a215-96bfdcd1c2d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer">
+      <UniqueIdentifier>{0c357ad5-8980-4be3-a64e-f0684d768bc6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Audio">
+      <UniqueIdentifier>{d9d7989a-553d-46fa-b12c-7bcc87f7a967}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -342,6 +348,9 @@
     <ClInclude Include="Header Files\CheatCode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PixelShaderUtilities.hlsl">
+      <Filter>Shaders\Pixel Shaders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source Files\Window.cpp">
@@ -380,13 +389,7 @@
     <ClCompile Include="Source Files\PhysicsManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\Renderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source Files\WICTextureLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source Files\AnimationManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\TypeMapping.cpp">
@@ -440,12 +443,6 @@
     <ClCompile Include="Source Files\SpatialPartition.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\Animator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source Files\AnimatorManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source Files\PhysicsComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -477,18 +474,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\AudioManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Common\AkFileLocationBase.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Common\AkFilePackage.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Common\AkFilePackageLUT.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Win32\AkDefaultIOHookBlocking.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\BuildTool.cpp">
@@ -560,9 +545,6 @@
     <ClCompile Include="Source Files\Logger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\Font.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source Files\Core.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -574,6 +556,33 @@
     </ClCompile>
     <ClCompile Include="Source Files\CheatCode.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\Renderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\Font.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Win32\AkDefaultIOHookBlocking.cpp">
+      <Filter>Source Files\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Common\AkFileLocationBase.cpp">
+      <Filter>Source Files\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Common\AkFilePackage.cpp">
+      <Filter>Source Files\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Common\AkFilePackageLUT.cpp">
+      <Filter>Source Files\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\AnimationManager.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\Animator.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\AnimatorManager.cpp">
+      <Filter>Source Files\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -602,15 +611,6 @@
     <FxCompile Include="StandardVertexShader.hlsl">
       <Filter>Shaders\Vertex Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="ParticlePS.hlsl">
-      <Filter>Shaders\Pixel Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="ParticleVS.hlsl">
-      <Filter>Shaders\Vertex Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="ParticleGS.hlsl">
-      <Filter>Shaders\Geometry Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="SkyboxVertexShader.hlsl">
       <Filter>Shaders\Vertex Shaders</Filter>
     </FxCompile>
@@ -627,15 +627,24 @@
       <Filter>Shaders\Vertex Shaders</Filter>
     </FxCompile>
     <FxCompile Include="ParticleUpdate_ComputeShader.hlsl">
-      <Filter>Shaders\Compute</Filter>
+      <Filter>Shaders\Compute Shaders</Filter>
     </FxCompile>
     <FxCompile Include="ParticleEmit_ComputeShader.hlsl">
-      <Filter>Shaders\Compute</Filter>
+      <Filter>Shaders\Compute Shaders</Filter>
     </FxCompile>
     <FxCompile Include="TextVertexShader.hlsl">
       <Filter>Shaders\Vertex Shaders</Filter>
     </FxCompile>
     <FxCompile Include="PositionTexturePixelShader.hlsl">
+      <Filter>Shaders\Pixel Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Particle_VertexShader.hlsl">
+      <Filter>Shaders\Vertex Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Particle_GeometryShader.hlsl">
+      <Filter>Shaders\Geometry Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Particle_PixelShader.hlsl">
       <Filter>Shaders\Pixel Shaders</Filter>
     </FxCompile>
   </ItemGroup>

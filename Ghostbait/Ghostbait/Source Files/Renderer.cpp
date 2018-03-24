@@ -15,8 +15,7 @@
 #include "WICTextureLoader.h"
 #include "TextManager.h"
 
-//TODO: TEMP for testing a weird crash
-#include "Projectile.h"
+
 #include "RenderUtil.h"
 
 using namespace DirectX;
@@ -41,8 +40,8 @@ void Renderer::createDeviceContextAndSwapchain(Window window) {
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 
-	D3D_FEATURE_LEVEL * feature = new D3D_FEATURE_LEVEL(D3D_FEATURE_LEVEL_11_1);
-	D3D_FEATURE_LEVEL * outputFeature = nullptr;
+	D3D_FEATURE_LEVEL* feature = new D3D_FEATURE_LEVEL(D3D_FEATURE_LEVEL_11_1);
+	D3D_FEATURE_LEVEL* outputFeature = nullptr;
 #if _DEBUG
 	D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, D3D11_CREATE_DEVICE_DEBUG, feature, 1, D3D11_SDK_VERSION, &desc, &swapchain, &device, outputFeature, &context);
 #else
@@ -457,6 +456,14 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 	context->VSSetConstantBuffers(2, 1, &animDataBuffer);
 	context->PSSetConstantBuffers(0, 1, &lightBuffer);
 	context->PSSetConstantBuffers(1, 1, &factorBuffer);
+
+	//Particles
+	//==========================
+	InitParticles();
+
+
+	//SamplerState
+	//===========================
 #pragma region SamplerState
 	D3D11_SAMPLER_DESC sampleDesc;
 	sampleDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -478,12 +485,6 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 	if(VRManager::GetInstance().IsEnabled())
 		setupVRTargets();
 
-	MessageEvents::Subscribe(EVENT_Instantiated, [this](EventMessageBase * _e) {this->registerObject(_e); });
-	MessageEvents::Subscribe(EVENT_Destroy, [this](EventMessageBase * _e) {this->unregisterObject(_e); });
-	MessageEvents::Subscribe(EVENT_Unrender, [this](EventMessageBase * _e) {this->unregisterObject(_e); });
-	MessageEvents::Subscribe(EVENT_Addrender, [this](EventMessageBase * _e) {this->registerObject(_e); });
-	MessageEvents::Subscribe(EVENT_Rendertofront, [this](EventMessageBase * _e) {this->moveToFront(_e); });
-	MessageEvents::Subscribe(EVENT_Rendertransparent, [this](EventMessageBase * _e) {this->moveToTransparent(_e); });
 #if _DEBUG
 	DebugRenderer::Initialize(device, context, modelBuffer, PassThroughPositionColorVS, PassThroughPS, ILPositionColor, defaultPipeline.rasterizer_state);
 #endif
@@ -495,6 +496,16 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 
 	TextManager::Initialize(device, context, TextVertexShader, PositionTexturePixelShader, ILPositionTexture);
 	TextManager::LoadFont("Assets/Fonts/defaultFontIndex.txt", "Assets/Fonts/defaultFont.png");
+
+
+	//Message Subscriptions
+	//===========================
+	MessageEvents::Subscribe(EVENT_Instantiated, [this](EventMessageBase * _e) {this->registerObject(_e); });
+	MessageEvents::Subscribe(EVENT_Destroy, [this](EventMessageBase * _e) {this->unregisterObject(_e); });
+	MessageEvents::Subscribe(EVENT_Unrender, [this](EventMessageBase * _e) {this->unregisterObject(_e); });
+	MessageEvents::Subscribe(EVENT_Addrender, [this](EventMessageBase * _e) {this->registerObject(_e); });
+	MessageEvents::Subscribe(EVENT_Rendertofront, [this](EventMessageBase * _e) {this->moveToFront(_e); });
+	MessageEvents::Subscribe(EVENT_Rendertransparent, [this](EventMessageBase * _e) {this->moveToTransparent(_e); });
 }
 
 void Renderer::Destroy() {
@@ -529,6 +540,28 @@ void Renderer::Destroy() {
 	swapchain->Release();
 	context->Release();
 	device->Release();
+
+	//Releasing Particle Resources
+	//==========================================
+	randomTexture->Release();
+	randomTextureSRV->Release();
+	ParticleBuffer->Release();
+	ParticleSRV->Release();
+	ParticleUAV->Release();
+	//Inactive
+	InactiveParticleConstantBuffer->Release();
+	InactiveParticleIndexBuffer->Release();
+	InactiveParticleIndexSRV->Release();
+	InactiveParticleIndexUAV->Release();
+	//Active
+	ActiveParticleConstantBuffer->Release();
+	ActiveParticleIndexBuffer->Release();
+	ActiveParticleIndexSRV->Release();
+	ActiveParticleIndexUAV->Release();
+	//Emitter
+	EmitterConstantBuffer->Release();
+	//==========================================
+
 	defaultPipeline.render_target_view->Release();
 	clearPipelineMemory(&defaultPipeline);
 	if(VRManager::GetInstance().IsEnabled()) {
@@ -612,10 +645,8 @@ void Renderer::moveToTransparent(EventMessageBase * e) {
 	auto iter = renderedObjects.begin();
 	if(!move->RetrieveObject()->GetComponent<Mesh>())
 		return;
-	for (; iter != renderedObjects.end(); ++iter)
-	{
-		if (*iter == move->RetrieveObject())
-		{
+	for(; iter != renderedObjects.end(); ++iter) {
+		if(*iter == move->RetrieveObject()) {
 			transparentObjects.push_back(move->RetrieveObject());
 			renderedObjects.erase(iter);
 			return;
@@ -959,6 +990,66 @@ void Renderer::initViewport(const RECT window, pipeline_state_t * pipelineTo) {
 	tempView.TopLeftY = 0.0f;
 
 	pipelineTo->viewport = tempView;
+}
+
+void Renderer::InitParticles() {
+
+	//Particle Buffer
+	D3D11_BUFFER_DESC bufferDesc;
+	ZeroMemory(&bufferDesc, sizeof(bufferDesc));
+
+	bufferDesc.ByteWidth = sizeof(GPUParticle) * MAX_PARTICLES;
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+	bufferDesc.CPUAccessFlags = 0;
+	bufferDesc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+	bufferDesc.StructureByteStride = sizeof(GPUParticle);
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	ZeroMemory(&srvDesc, sizeof(srvDesc));
+	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+	srvDesc.Buffer.ElementWidth = MAX_PARTICLES;
+
+	D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc;
+	ZeroMemory(&uavDesc, sizeof(uavDesc));
+
+	uavDesc.Format = DXGI_FORMAT_UNKNOWN;
+	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+	uavDesc.Buffer.FirstElement = 0;
+	uavDesc.Buffer.NumElements = MAX_PARTICLES;
+	uavDesc.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_COUNTER;
+
+	device->CreateBuffer(&bufferDesc, nullptr, &ParticleBuffer);
+	device->CreateShaderResourceView(ParticleBuffer, &srvDesc, &ParticleSRV);
+	device->CreateUnorderedAccessView(ParticleBuffer, &uavDesc, &ParticleUAV);
+
+	// Index Buffers
+	bufferDesc.ByteWidth = sizeof(UINT) * MAX_PARTICLES;
+	bufferDesc.StructureByteStride = sizeof(UINT);
+	//Active
+	device->CreateBuffer(&bufferDesc, nullptr, &ActiveParticleIndexBuffer);
+	device->CreateShaderResourceView(ActiveParticleIndexBuffer, &srvDesc, &ActiveParticleIndexSRV);
+	device->CreateUnorderedAccessView(ActiveParticleIndexBuffer, &uavDesc, &ActiveParticleIndexUAV);
+	//Inactive
+	device->CreateBuffer(&bufferDesc, nullptr, &InactiveParticleIndexBuffer);
+	device->CreateShaderResourceView(InactiveParticleIndexBuffer, &srvDesc, &InactiveParticleIndexSRV);
+	device->CreateUnorderedAccessView(InactiveParticleIndexBuffer, &uavDesc, &InactiveParticleIndexUAV);
+
+	//Active / Inactive count Constant buffer
+	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bufferDesc.ByteWidth = sizeof(UINT) * 4;
+	bufferDesc.MiscFlags = 0;
+	device->CreateBuffer(&bufferDesc, nullptr, &InactiveParticleConstantBuffer);
+	device->CreateBuffer(&bufferDesc, nullptr, &ActiveParticleConstantBuffer);
+
+	//Emitter constant buffer
+	bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	bufferDesc.ByteWidth = sizeof(EmitterConstant);
+	device->CreateBuffer(&bufferDesc, nullptr, &EmitterConstantBuffer);
+
+	FillRandomTexture();
 }
 
 void Renderer::setSkybox(const char* directoryName, const char* filePrefix) {

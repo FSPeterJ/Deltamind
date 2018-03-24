@@ -4,7 +4,7 @@
 
 
 RWStructuredBuffer<uint> ActiveBillboardParticleIndex : register(u1);
-AppendStructuredBuffer<uint> InactiveBillboardParticleIndex : register(u2);
+RWStructuredBuffer<uint> InactiveBillboardParticleIndex : register(u2);
 
 //groupshared uint ActiveBillboardParticleCount;
 //groupshared uint OriginalActiveBillboardParticleCount;
@@ -66,12 +66,13 @@ void main(uint3 DThreadID : SV_DispatchThreadID)
                 Bparticle.age -= -1;
                 //Swap
                 //BillboardParticleBuffer[particleIndex] = Bparticle; // There is no need to spend time writing data of a dead particle
-                uint activeIndex = ActiveBillboardParticleIndex.DecrementCounter();
-                InterlockedExchange(ActiveBillboardParticleIndex[DThreadID.x], ActiveBillboardParticleIndex[activeIndex], particleIndex);
+                uint Index = ActiveBillboardParticleIndex.DecrementCounter();
+                InterlockedExchange(ActiveBillboardParticleIndex[DThreadID.x], ActiveBillboardParticleIndex[Index], particleIndex);
                 //Pop - we simply need to move the wall back one and forget about the value left behind
                 //InterlockedAdd(ActiveBillboardParticleCount, 1); //This seems unnecessary but if there are problems look here
                 //Add particle to Inactive
-                InactiveBillboardParticleIndex.Append(particleIndex);
+                Index = InactiveBillboardParticleIndex.IncrementCounter();
+                InactiveBillboardParticleIndex[Index] = particleIndex;
             }
 
         }

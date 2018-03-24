@@ -1,9 +1,10 @@
 //Note: This file is configured to act as header file, but named as hlsl for extension support.
 
-#define ActiveBillboardParticleCounter 0
-#define InactiveBillboardParticleCounter 1
 
-struct BillboardParticle // (48 bytes) 500,000  = 25MB of VRAM for particle data (not including textures)
+//To optimize this further, split the calculation data from the render data into seperate buffers
+// It is important that 16 byte alignment is maintained.
+//https://developer.nvidia.com/content/understanding-structured-buffer-performance
+struct BillboardParticle // (48 bytes) 500,000  = 25MB of VRAM for all particle data (not including textures)
 {
      //Dynamic data  (16 bytes)
     float3 position;
@@ -17,13 +18,11 @@ struct BillboardParticle // (48 bytes) 500,000  = 25MB of VRAM for particle data
     float lifespan; // how long the particle will last
     float startSize; //particle scale over time data
     float endSize;
-    uint compactedData; // 16 bits - no data | 8 bits - emitter index (debug data) | 8 bits - texture index  - All subject to change in the future?
-};
+    uint texturedata; // 12 bits - U Axis UV end | 12 bits - V Axis UV end | 8 bits - texture W index
+    //This limits a particle texture max size to 4095x4095 (dx11 max size is 16384x16384) with max indexing of 256 different textures (one 4095 is 64MB of VRAM unless DXT1 compression is used)
+    //The data stored is the endpoint for the UV within the texturearray as the texture may be smaller than the actual sample array size
 
-// I do not know if this places the static variables in a seperate register per CSO
-//static uint ActiveBillboardParticleCount = 0;
-//static uint InactiveBillboardParticleCount = 0;
-//static uint InactiveBillboardParticleCount : register(u1);
+};
 
 RWStructuredBuffer<BillboardParticle> BillboardParticleBuffer : register(u0);
 

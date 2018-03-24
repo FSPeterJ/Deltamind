@@ -13,7 +13,7 @@ ParticleTextureManager* ParticleManager::texMan;
 
 ID3D11Buffer* ParticleManager::vertBuff;
 int ParticleManager::pCount;
-ParticleManager::ParticleShaderInfo ParticleManager::cpu_side_particles[MAX_PARTICLES];
+ParticleManager::ParticleShaderInfo ParticleManager::cpu_side_particles[MAX_PARTICLESS];
 
 void ParticleManager::Initialize(ID3D11Device * _device, ID3D11DeviceContext * _context, ID3D11VertexShader * _vs, ID3D11GeometryShader * _gs, ID3D11PixelShader * _ps, ID3D11InputLayout * _il)
 {//no mom I don't do member initializer lists on long function signatures
@@ -36,7 +36,7 @@ void ParticleManager::Initialize(ID3D11Device * _device, ID3D11DeviceContext * _
 	vertBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	vertBufferDesc.MiscFlags = 0;
 	vertBufferDesc.StructureByteStride = 0;
-	vertBufferDesc.ByteWidth = sizeof(ParticleShaderInfo) * MAX_PARTICLES;
+	vertBufferDesc.ByteWidth = sizeof(ParticleShaderInfo) * MAX_PARTICLESS;
 	HRESULT gotem = device->CreateBuffer(&vertBufferDesc, &vertexBufferData, &vertBuff);
 
 	CD3D11_BUFFER_DESC constantBufferDesc(sizeof(DirectX::XMFLOAT4X4), D3D11_BIND_CONSTANT_BUFFER);

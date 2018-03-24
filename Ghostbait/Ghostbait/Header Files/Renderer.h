@@ -4,6 +4,9 @@
 #include "Window.h"
 #include <vector>
 
+
+#define MAX_PARTICLES 500000
+
 class Transform;
 class GameObject;
 class Object;
@@ -36,6 +39,41 @@ private:
 		ID3D11BlendState* blend_state;
 		D3D11_VIEWPORT viewport;
 	};
+	
+	struct GPUParticle {
+		//Dynamic data  (16 bytes)
+		DirectX::XMFLOAT3 position;
+		float rotation;
+
+		//Dynamic data  (16 bytes)
+		DirectX::XMFLOAT3 velocity;
+		float age;
+
+		//Constant data (16 bytes)
+		float lifespan; // how long the particle will last
+		float startSize; //particle scale over time data
+		float endSize;
+		unsigned properties; // 16 bits - no data | 8 bits - emitter index (debug data) | 8 bits - texture index  - All subject to change in the future?
+	};
+
+	struct EmitterConstant {
+		//16
+		DirectX::XMFLOAT3 Position;
+		unsigned MaxParticlesThisFrame;
+
+		//16
+		DirectX::XMFLOAT3 Velocity;
+		float VelocityMagnatude;
+		//16
+		DirectX::XMFLOAT3 ParticlePositionVariance;
+		float ParticleVelocityVariance;
+
+		//16
+		float StartSize;
+		float ParticleLifeSpan;
+		float EndSize;
+		unsigned TextureIndex;
+	};
 
 	struct viewProjectionConstantBuffer {
 		DirectX::XMFLOAT4X4 view;
@@ -50,8 +88,7 @@ private:
 		D3D11_VIEWPORT viewport;
 	};
 
-	struct DeferredRTVs
-	{
+	struct DeferredRTVs {
 		ID3D11Texture2D* textures[6];
 		ID3D11Texture2D* depthBuffer;
 		ID3D11RenderTargetView* RTVs[6];
@@ -72,8 +109,7 @@ private:
 		DirectX::XMFLOAT3 filler;
 	};
 
-	struct Skybox
-	{
+	struct Skybox {
 		ID3D11Texture2D* faces[6];
 		ID3D11Texture2D* box;
 		ID3D11ShaderResourceView* srv;
@@ -102,7 +138,7 @@ private:
 	ID3D11GeometryShader* NDCQuadGS;
 	ID3D11VertexShader* TextVertexShader;
 	ID3D11PixelShader* PositionTexturePixelShader;
-	
+
 	ID3D11ComputeShader* ParticleComputeShader;
 
 	ID3D11InputLayout* ILPositionColor;
@@ -137,6 +173,19 @@ private:
 	ID3D11Texture2D* randomTexture;
 	ID3D11ShaderResourceView* randomTextureSRV;
 
+	ID3D11Buffer* ParticleBuffer;
+	ID3D11ShaderResourceView* ParticleSRV;
+	ID3D11UnorderedAccessView* ParticleUAV;
+	ID3D11Buffer* InactiveParticleIndexBuffer;
+	ID3D11UnorderedAccessView* InactiveParticleIndexUAV;
+	ID3D11Buffer* InactiveParticleConstantBuffer;
+	ID3D11Buffer* ActiveParticleConstantBuffer;
+	ID3D11Buffer* EmitterConstantBuffer;
+	ID3D11Buffer* ActiveParticleIndexBuffer;
+	ID3D11ShaderResourceView* ActiveParticleIndexSRV;
+	ID3D11UnorderedAccessView* ActiveParticleIndexUAV;
+	ID3D11ShaderResourceView* InactiveParticleIndexSRV;
+
 	void initDepthStencilBuffer(pipeline_state_t* pipelineTo);
 	void initDepthStencilState(pipeline_state_t* pipelineTo);
 	void initDepthStencilView(pipeline_state_t* pipelineTo);
@@ -144,6 +193,7 @@ private:
 	void initRasterState(pipeline_state_t* pipelineTo, bool wireFrame = false);
 	void initShaders();
 	void initViewport(RECT window, pipeline_state_t* pipelineTo);
+	void InitParticles();
 	void createDeviceContextAndSwapchain(Window window);
 	void clearPipelineMemory(pipeline_state_t* pipeline);
 	void clearTextureMemory(renderTargetInfo* info);

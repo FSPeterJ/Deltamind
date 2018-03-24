@@ -8,8 +8,8 @@ Texture2D RandomNumbers : register(t0);
 // There is a pool of particles and then an inactive / active list.  Instead of pointers we use indicies.  
 
 
-AppendStructuredBuffer<uint> ActiveBillboardParticleIndex : register(u1); //We are simply using the Append view;
-ConsumeStructuredBuffer<uint> InactiveBillboardParticleIndex : register(u2);
+RWStructuredBuffer<uint> ActiveBillboardParticleIndex : register(u1); //We are simply using the Append view;
+RWStructuredBuffer<uint> InactiveBillboardParticleIndex : register(u2);
 
 cbuffer EmitterConstantBuffer : register(b1)
 {
@@ -26,7 +26,6 @@ cbuffer EmitterConstantBuffer : register(b1)
     float ParticleLifeSpan;
     float EndSize;
     uint TextureIndex;
-    uint pads[1];
 };
 
 
@@ -45,15 +44,17 @@ void main(uint3 DThreadID : SV_DispatchThreadID)
         float3 randomvelocity = RandomNumbers.SampleLevel(SamplerWrapLinear, uv, 0).xyz;
 
         particle.age = ParticleLifeSpan;
-        particle.compactedData = TextureIndex;
+        particle.texturedata = TextureIndex;
         particle.lifespan = ParticleLifeSpan;
         particle.velocity = Velocity + (randomvelocity * VelocityMagnatude * ParticleVelocityVariance);
 
-        uint index = InactiveBillboardParticleIndex.Consume();
+        uint index = InactiveBillboardParticleIndex.DecrementCounter();
+        uint particleindex = InactiveBillboardParticleIndex[index];
         //uint inactiveIndex = InactiveBillboardParticleIndex.DecrementCounter();
         //InterlockedExchange(InactiveBillboardParticleCount, , index);
-        //InactiveBillboardParticleIndex.
-        BillboardParticleBuffer[index] = particle;
-        ActiveBillboardParticleIndex.Append(index);
+        BillboardParticleBuffer[particleindex] = particle;
+        index = ActiveBillboardParticleIndex.IncrementCounter();
+        ActiveBillboardParticleIndex[index] = particleindex;
+
     }
 }

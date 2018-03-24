@@ -14,7 +14,7 @@ void Gun::Overheat::CreateBar(Gun* _parent) {
 	bar->PersistOnReset();
 }
 bool Gun::Overheat::CanShoot(float fireRate) {
-	return timeSinceLastShot > (1 / fireRate) && !energyOverheatDelayTimeLeft;
+	return timeSinceLastShot > (1.0f / fireRate) && !energyOverheatDelayTimeLeft;
 }
 bool Gun::Overheat::AddEnergy(float energy) {
 	currentEnergy += energy;

@@ -90,7 +90,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>Genetics;Header Files;Source Files;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Header Files;Source Files;Genetics;Neural;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -131,7 +131,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -139,6 +139,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>Header Files;Source Files;Genetics;Neural;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -150,11 +151,13 @@
   <ItemGroup>
     <ClInclude Include="Genetics\Evolve.h" />
     <ClInclude Include="Genetics\TraitedEnemy.h" />
+    <ClInclude Include="Header Files\Bitmap.h" />
     <ClInclude Include="Header Files\RandomEngine.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Genetics\Evolve.cpp" />
     <ClCompile Include="Genetics\TraitedEnemy.cpp" />
+    <ClCompile Include="Source Files\Bitmap.cpp" />
     <ClCompile Include="Source Files\Omiracon.cpp" />
     <ClCompile Include="Source Files\RandomEngine.cpp" />
   </ItemGroup>

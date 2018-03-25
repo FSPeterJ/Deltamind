@@ -57,6 +57,7 @@ namespace Omiracon {
 		void Traits::Reset(void) {
 			memset(traitList, 0x0, Trait::COUNT * sizeof(float));
 		}
+
 		void Traits::Randomize(void) {
 			for(float *i = &(traitList[0]), *end = &(traitList[Trait::COUNT]); i < end; *(i++) = Random::RandomNumber<float, Random::Type::Inclusive>(0.0, 1.0));
 		}

@@ -107,6 +107,7 @@ namespace Omiracon {
 
 		void Evolver::ConstructPoolWithMutatedGenes(void) {
 			//I don't want anything from the old gene pool anymore because I'm about to repopulate it
+			//note I may not want to wipe the entire pool to allow a chance for good traits to stick around
 			pool.clear();
 			pool.resize(waveSize);
 

@@ -10,6 +10,7 @@
 #include <map>
 #include <iterator>
 #include "DStar.h"
+using namespace Common;
 
 HeuristicFunction PathPlanner::heuristicFunction = nullptr;
 HexGrid* PathPlanner::grid = nullptr;

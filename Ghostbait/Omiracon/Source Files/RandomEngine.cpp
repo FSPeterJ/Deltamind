@@ -16,6 +16,7 @@ T Omiracon::Random::RandomNumber(const T lb, const T ub) {
 
 	return (!closed && isFlt || closed && !isFlt) ? udist(lb, ub)(rnd) : closed ? udist(lb, T(std::nextafter(ub, ub + 1.0)))(rnd) : udist(lb, ub - 1)(rnd);
 
+	//readable version:
 	//switch(Interval) {
 	//case Type::Inclusive:
 	//	if(std::is_floating_point<T>()) {

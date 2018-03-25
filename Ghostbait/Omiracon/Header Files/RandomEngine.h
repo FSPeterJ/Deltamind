@@ -9,8 +9,5 @@ namespace Omiracon {
 
 		template<typename T = int, Type Interval = Type::Exclusive>
 		T RandomNumber(const T min, const T max);
-
-		template<typename T>
-		void ShuffleArray(T* arr, size_t size);
 	}
 }

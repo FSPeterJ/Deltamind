@@ -2,7 +2,7 @@
 #include "Object.h"
 #include "Controlable.h"
 #include "Console.h"
-
+using namespace Common;
 
 enum GAMEOBJECT_FLAGS {
 	NONE = 0,

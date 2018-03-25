@@ -120,7 +120,7 @@
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>openvr\headers;Shaders;Resource Files;Source Files;Header Files;E:\Program Files (x86)\Visual Leak Detector\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories>..\GhostMind;Dependencies\Wwise\Samples\SoundEngine\Win32;Dependencies\Wwise\Samples\SoundEngine\Common;C:\Program Files %28x86%29\Visual Leak Detector\include;openvr\headers;Shaders;Resource Files;Source Files;Header Files;E:\Program Files (x86)\Visual Leak Detector\include;E:\Program Files (x86)\Visual Leak Detector\bin\Win64;C:\Program Files %28x86%29\Visual Leak Detector\bin\Win64;Dependencies\Wwise\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\GhostbaitCommon;Dependencies\Wwise\Samples\SoundEngine\Win32;Dependencies\Wwise\Samples\SoundEngine\Common;C:\Program Files %28x86%29\Visual Leak Detector\include;openvr\headers;Shaders;Resource Files;Source Files;Header Files;E:\Program Files (x86)\Visual Leak Detector\include;E:\Program Files (x86)\Visual Leak Detector\bin\Win64;C:\Program Files %28x86%29\Visual Leak Detector\bin\Win64;Dependencies\Wwise\include;</AdditionalIncludeDirectories>
       <AdditionalUsingDirectories>d3dcompiler.h;directxmath.h;d3d11_1.h;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
       <EnablePREfast>false</EnablePREfast>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -173,7 +173,7 @@
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>openvr\headers;Shaders;Resource Files;Source Files;Header Files;;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories>..\GhostMind;Dependencies\Wwise\Samples\SoundEngine\Win32;Dependencies\Wwise\Samples\SoundEngine\Common;C:\Program Files %28x86%29\Visual Leak Detector\include;openvr\headers;Shaders;Resource Files;Source Files;Header Files;E:\Program Files (x86)\Visual Leak Detector\include;E:\Program Files (x86)\Visual Leak Detector\bin\Win64;C:\Program Files %28x86%29\Visual Leak Detector\bin\Win64;Dependencies\Wwise\include;..\Ghostbait\GhostMind;..\..\GhostMind</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\GhostbaitCommon;Dependencies\Wwise\Samples\SoundEngine\Win32;Dependencies\Wwise\Samples\SoundEngine\Common;C:\Program Files %28x86%29\Visual Leak Detector\include;openvr\headers;Shaders;Resource Files;Source Files;Header Files;E:\Program Files (x86)\Visual Leak Detector\include;E:\Program Files (x86)\Visual Leak Detector\bin\Win64;C:\Program Files %28x86%29\Visual Leak Detector\bin\Win64;Dependencies\Wwise\include;..\Ghostbait\GhostMind;..\..\GhostMind</AdditionalIncludeDirectories>
       <AdditionalUsingDirectories>d3dcompiler.h;directxmath.h;d3d11_1.h;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
       <EnablePREfast>false</EnablePREfast>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -203,11 +203,9 @@
     <ClInclude Include="Header Files\AnimatorStructs.h" />
     <ClInclude Include="Header Files\AStarEnemy.h" />
     <ClInclude Include="Header Files\AudioManager.h" />
-    <ClInclude Include="Header Files\BinaryFileIO.h" />
     <ClInclude Include="Header Files\BuildTool.h" />
     <ClInclude Include="Header Files\Camera.h" />
     <ClInclude Include="Header Files\ComponentBase.h" />
-    <ClInclude Include="Header Files\Console.h" />
     <ClInclude Include="Header Files\Controlable.h" />
     <ClInclude Include="Header Files\ControllerObject.h" />
     <ClInclude Include="Header Files\Core.h" />
@@ -302,10 +300,8 @@
     <ClCompile Include="Source Files\AnimatorManager.cpp" />
     <ClCompile Include="Source Files\AStarEnemy.cpp" />
     <ClCompile Include="Source Files\AudioManager.cpp" />
-    <ClCompile Include="Source Files\BinaryFileIO.cpp" />
     <ClCompile Include="Source Files\BuildTool.cpp" />
     <ClCompile Include="Source Files\Camera.cpp" />
-    <ClCompile Include="Source Files\Console.cpp" />
     <ClCompile Include="Source Files\Controlable.cpp" />
     <ClCompile Include="Source Files\ControllerObject.cpp" />
     <ClCompile Include="Source Files\Core.cpp" />
@@ -563,6 +559,11 @@
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).cso</ObjectFileOutput>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GhostbaitCommon\GhostbaitCommon.vcxproj">
+      <Project>{7dc2f324-6d8f-4b01-8687-80d74649226c}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

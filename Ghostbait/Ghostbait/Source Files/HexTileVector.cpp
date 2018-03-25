@@ -1,6 +1,7 @@
 #include "HexTileVector.h"
 #include "HexGrid.h"
 #include "Console.h"
+using namespace Common;
 
 bool operator<(const HexPath&p, const HexPath&p2) { return p.cost() <= p2.cost(); } //in case of a cost tie, std::pair will compare the second element so this is needed to satisfy it
 

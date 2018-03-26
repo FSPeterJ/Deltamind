@@ -24,16 +24,16 @@ namespace Omiracon {
 		};
 
 		class Traits {
-			friend class TraitedEnemy;
+			friend class Evolver;
 
 			float traitList[Trait::COUNT];
-
+		public:
 			Traits(void) {}
 			~Traits(void) {}
-		public:
+
 			void Randomize(void);
 			void Normalize(void);
-			float const Sum(void);
+			float Sum(void);
 
 			void Print(void) const;
 
@@ -51,25 +51,12 @@ namespace Omiracon {
 
 		class Performance {
 		public:
-			float timeLasted = 0;
-			float damageDelt = 0;
-			float damageReceived = 0;
-			float nodesTraversed = 0;
+			float timeLasted = 0.f,
+			damageDelt = 0.f,
+			damageReceived = 0.f,
+			nodesTraversed = 0.f;
 
-			void Reset(void) {
-				timeLasted = damageDelt = damageReceived = nodesTraversed = 0.0f;
-			}
-		};
-
-		class TraitedEnemy {
-		public:
-			Performance measure;
-			Traits traits;
-
-			void CreateSimulatedResults(void);
-
-			TraitedEnemy(void);
-			~TraitedEnemy(void);
+			void Reset(void) { timeLasted = damageDelt = damageReceived = nodesTraversed = 0.f; }
 		};
 	}
 }

@@ -1,14 +1,17 @@
 #include <algorithm>
 #include <functional>
 #include <iostream>
-#include <iterator>  
-#include <random>
 #include "Evolve.h"
+#include "Traits.h"
 
 namespace Omiracon {
 	namespace Genetics {
+		Evolver::Entity::Entity() : traits(Traits()), measure(Performance()) { }
+		Evolver::Entity::~Entity() {
+			//delete traits; delete measure; 
+		}
 
-		typedef DominantPool::value_type DominantGene;
+		typedef Evolver::DominantPool::value_type DominantGene;
 
 		using Policy = std::function<bool(DominantGene const&, DominantGene const&)>;
 		using Mutation = std::function<void(Traits& traits)>;
@@ -28,7 +31,7 @@ namespace Omiracon {
 			ConstructPoolWithMutatedGenes();
 		}
 
-		Evolver::Evolver(std::size_t _wave_size, float topPercentage, float randPercentage):
+		Evolver::Evolver(std::size_t _wave_size, float topPercentage, float randPercentage) :
 			traitPoolSize(surviveCount + randomCount),
 			surviveCount(size_t(waveSize * topPercentage)),
 			randomCount(size_t(waveSize * randPercentage)),
@@ -42,7 +45,7 @@ namespace Omiracon {
 
 			pool.resize(waveSize);
 			for(size_t i = 0; i < waveSize; ++i) {//creates random pool of chromosomes
-				pool[i] = TraitedEnemy();
+				pool[i] = Entity();
 				pool[i].traits.Randormalize();
 			}
 
@@ -58,7 +61,7 @@ namespace Omiracon {
 
 		void Evolver::CreateTestSamplePerformanceData(void) {
 			//this simulates the result of our wave
-			for(auto&i : pool) i.measure.Reset(), i.CreateSimulatedResults();
+			//for(auto&i : pool) i.measure.Reset(), i.CreateSimulatedResults();
 		}
 
 		void Evolver::FillDominantPools(void) {
@@ -141,6 +144,6 @@ namespace Omiracon {
 			std::cin.get();
 		}
 
-		Evolver::~Evolver(void) { }
+		Evolver::~Evolver(void) {}
 	}
 }

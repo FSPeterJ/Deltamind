@@ -1,9 +1,8 @@
+#include "Traits.h"
 #include <functional>
 #include <iomanip>
 #include <iostream>
 #include <vector>
-#include <memory>
-#include "TraitedEnemy.h"
 #include "RandomEngine.h"
 
 namespace Omiracon {
@@ -43,13 +42,13 @@ namespace Omiracon {
 			switch(mutation) {
 				//case INSERT: break;
 				//case INVERSION: break;
-				case SCRAMBLE: Scramble(*this); break;
+			case SCRAMBLE: Scramble(*this); break;
 				//case SWAP: break;
 				//case FLIP: break;
-				case INTERCHANGING: Interchanging(*this); break;
+			case INTERCHANGING: Interchanging(*this); break;
 				//case REVERSING: break;
-				case UNIFORM: Uniform(*this); break;
-				default:case CREEP: Creep(*this); break;
+			case UNIFORM: Uniform(*this); break;
+			default:case CREEP: Creep(*this); break;
 			}
 			Normalize();
 		}
@@ -62,7 +61,7 @@ namespace Omiracon {
 			for(float *i = &(traitList[0]), *end = &(traitList[Trait::COUNT]); i < end; *(i++) = Random::RandomNumber(0.0f, 1.0f));
 		}
 
-		inline float const Traits::Sum(void) { float sum = 0.0f; for(float* i = &(traitList[0]), *end = &(traitList[Trait::COUNT]); i < end; sum += *i++); return sum; }
+		inline float Traits::Sum(void) { float sum = 0.0f; for(float* i = &(traitList[0]), *end = &(traitList[Trait::COUNT]); i < end; sum += *i++); return sum; }
 
 		inline float& Traits::RandomTrait(void) { return traitList[Random::RandomNumber(0, static_cast<int>(Trait::COUNT))]; }
 
@@ -95,24 +94,5 @@ namespace Omiracon {
 			std::cout << "COORDINATION is now " << getPretty(operator[](COORDINATION)) << '\n';
 			std::cout << "BALANCE is now " << getPretty(operator[](BALANCE)) << NL;
 		}
-
-		void TraitedEnemy::CreateSimulatedResults(void) {
-			float timeLasted = Random::RandomNumber(1.0f, 60.0f)*traits[SPEED];
-			float damageDelt = Random::RandomNumber(0.0f, 100.0f)*traits[STRENGTH];
-			float damageRecv = Random::RandomNumber(0.0f, 100.0f)*(1.0f - traits[DEFENSE]);
-			float nodesTrav = Random::RandomNumber(0.0f, 500.0f)*(1.0f - traits[INTELLIGENCE]);
-
-			measure.timeLasted = timeLasted + timeLasted * (traits[SPEED] + traits[ENERGY] * 0.5f + traits[COORDINATION] * 0.25f + traits[BALANCE] * 0.125f);
-			measure.damageDelt = damageDelt + damageDelt * (traits[STRENGTH] + traits[POWER] * 0.5f + traits[ACCURACY] * 0.25f + traits[LUCK] * 0.125f);
-			measure.damageReceived = damageRecv - damageRecv * (traits[DEFENSE] + traits[ENDURANCE] * 0.5f + traits[STAMINA] * 0.25f + traits[RESISTANCE] * 0.125f);
-			measure.nodesTraversed = nodesTrav - nodesTrav * (traits[INTELLIGENCE] + traits[WISDOM] * 0.5f + traits[EVASION] * 0.25f + traits[DEXTERITY] * 0.125f);
-
-			measure.damageReceived = measure.damageReceived < 0 ? 0 : measure.damageReceived;
-			measure.nodesTraversed = measure.nodesTraversed < 0 ? 0 : measure.nodesTraversed;
-		}
-
-		TraitedEnemy::TraitedEnemy(void) {}
-
-		TraitedEnemy::~TraitedEnemy(void) {}
 	}
 }

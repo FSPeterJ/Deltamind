@@ -7,8 +7,8 @@ namespace Omiracon {
 	namespace Genetics {
 		typedef std::vector<TraitedEnemy> DominantPool;
 
-		//not sure if this should be static or instanced
 		class Evolver {
+			//not sure if this should be static or instanced
 			const size_t waveSize;
 			const size_t surviveCount; //topPercentage%
 			const size_t randomCount; //randPercentage%

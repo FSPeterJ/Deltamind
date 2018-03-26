@@ -7,10 +7,7 @@ namespace Omiracon {
 			Exclusive,
 		};
 
-		template<typename T = int, Type Interval = Type::Exclusive>
-		T const RandomNumber(const T min, const T max);
-
-		template<typename T>
-		void ShuffleArray(T* arr, size_t size);
+		template<typename T = int, Type Interval = (std::is_integral<T>::value ? Type::Exclusive : Type::Inclusive)>
+		T RandomNumber(const T min, const T max);
 	}
 }

@@ -13,6 +13,7 @@
 #include <random>
 #include "PathPlanner.h"
 #include <fstream>
+using namespace Common;
 
 const float HexGrid::Blocked = float(0xDEAD);
 

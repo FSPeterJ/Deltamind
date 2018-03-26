@@ -107,6 +107,7 @@ namespace Omiracon {
 
 		void Evolver::ConstructPoolWithMutatedGenes(void) {
 			//I don't want anything from the old gene pool anymore because I'm about to repopulate it
+			//note I may not want to wipe the entire pool to allow a chance for good traits to stick around
 			pool.clear();
 			pool.resize(waveSize);
 
@@ -123,7 +124,6 @@ namespace Omiracon {
 			std::sort(damageReceivedPool.begin(), damageReceivedPool.end(), DamageReceived);
 			std::sort(nodesTraversedPool.begin(), nodesTraversedPool.end(), NodesTraversed);
 
-
 			std::cout << "The best stats for surviving the longest are: " << aliveTimePool[0].measure.timeLasted << " vs " << aliveTimePool[traitPoolSize - 1].measure.timeLasted << "\n";
 			aliveTimePool[0].traits.Print();
 			std::cin.get();
@@ -135,7 +135,6 @@ namespace Omiracon {
 			std::cout << "The best stats for taking least damage are: " << damageReceivedPool[0].measure.damageReceived << " vs " << damageReceivedPool[traitPoolSize - 1].measure.damageReceived << "\n";
 			damageReceivedPool[0].traits.Print();
 			std::cin.get();
-
 
 			std::cout << "The best stats for traversing least nodes are: " << nodesTraversedPool[0].measure.nodesTraversed << " vs " << nodesTraversedPool[traitPoolSize - 1].measure.nodesTraversed << "\n";
 			nodesTraversedPool[0].traits.Print();

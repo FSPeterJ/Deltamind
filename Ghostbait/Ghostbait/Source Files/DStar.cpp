@@ -4,6 +4,7 @@
 #include "HexagonTile.h"
 #include "HexTileVector.h"
 #include "Console.h"
+using namespace Common;
 
 #include<algorithm>
 

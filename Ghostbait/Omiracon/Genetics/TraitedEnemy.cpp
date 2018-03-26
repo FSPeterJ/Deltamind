@@ -14,7 +14,7 @@ namespace Omiracon {
 		Mutation Creep = [&](Traits& traits) {
 			float mutationFactor = 0.1f;
 			float& chosenTrait = traits.RandomTrait();
-			chosenTrait += Random::RandomNumber<float, Random::Type::Inclusive>(-mutationFactor, mutationFactor);
+			chosenTrait += Random::RandomNumber(-mutationFactor, mutationFactor);
 			if(chosenTrait < 0.0f) chosenTrait = 0.0f;
 		};
 
@@ -22,7 +22,7 @@ namespace Omiracon {
 		Mutation Uniform = [&](Traits& traits) {
 			//right now this is the same as Creep
 			float mutationFactor = 0.1f;
-			traits.RandomTrait() += Random::RandomNumber<float, Random::Type::Inclusive>(-mutationFactor, mutationFactor);
+			traits.RandomTrait() += Random::RandomNumber(-mutationFactor, mutationFactor);
 		};
 
 		//Two random positions of the string are chosen and the bits corresponding to those positions are interchanged.
@@ -57,8 +57,9 @@ namespace Omiracon {
 		void Traits::Reset(void) {
 			memset(traitList, 0x0, Trait::COUNT * sizeof(float));
 		}
+
 		void Traits::Randomize(void) {
-			for(float *i = &(traitList[0]), *end = &(traitList[Trait::COUNT]); i < end; *(i++) = Random::RandomNumber<float, Random::Type::Inclusive>(0.0, 1.0));
+			for(float *i = &(traitList[0]), *end = &(traitList[Trait::COUNT]); i < end; *(i++) = Random::RandomNumber(0.0f, 1.0f));
 		}
 
 		inline float const Traits::Sum(void) { float sum = 0.0f; for(float* i = &(traitList[0]), *end = &(traitList[Trait::COUNT]); i < end; sum += *i++); return sum; }
@@ -96,10 +97,10 @@ namespace Omiracon {
 		}
 
 		void TraitedEnemy::CreateSimulatedResults(void) {
-			float timeLasted = Random::RandomNumber<float, Random::Type::Inclusive>(1.0f, 60.0f)*traits[SPEED];
-			float damageDelt = Random::RandomNumber<float, Random::Type::Inclusive>(0.0f, 100.0f)*traits[STRENGTH];
-			float damageRecv = Random::RandomNumber<float, Random::Type::Inclusive>(0.0f, 100.0f)*(1.0f - traits[DEFENSE]);
-			float nodesTrav = Random::RandomNumber<float, Random::Type::Inclusive>(0.0f, 500.0f)*(1.0f - traits[INTELLIGENCE]);
+			float timeLasted = Random::RandomNumber(1.0f, 60.0f)*traits[SPEED];
+			float damageDelt = Random::RandomNumber(0.0f, 100.0f)*traits[STRENGTH];
+			float damageRecv = Random::RandomNumber(0.0f, 100.0f)*(1.0f - traits[DEFENSE]);
+			float nodesTrav = Random::RandomNumber(0.0f, 500.0f)*(1.0f - traits[INTELLIGENCE]);
 
 			measure.timeLasted = timeLasted + timeLasted * (traits[SPEED] + traits[ENERGY] * 0.5f + traits[COORDINATION] * 0.25f + traits[BALANCE] * 0.125f);
 			measure.damageDelt = damageDelt + damageDelt * (traits[STRENGTH] + traits[POWER] * 0.5f + traits[ACCURACY] * 0.25f + traits[LUCK] * 0.125f);

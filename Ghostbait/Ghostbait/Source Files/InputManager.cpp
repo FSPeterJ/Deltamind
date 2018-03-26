@@ -4,6 +4,7 @@
 #include "MessageEvents.h"
 #include "Console.h"
 #include "WindowsX.h"
+using namespace Common;
 
 #define RAD_PI 3.14159265359
 

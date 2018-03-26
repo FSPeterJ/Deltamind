@@ -6,6 +6,7 @@
 #include "PhysicsExtension.h"
 #include "ObjectFactory.h"
 #include "Transform.h"
+using namespace Common;
 
 VRManager& VRManager::GetInstance() {
 	static VRManager instance;

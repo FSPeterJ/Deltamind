@@ -1,6 +1,7 @@
 #include "SpatialPartition.h"
 #include "PhysicsComponent.h"
 #include "Console.h"
+using namespace Common;
 
 SpatialPartition::Unit::Unit() {
 }

@@ -8,6 +8,7 @@
 #include "MessageStructs.h"
 #include "ObjectFactory.h"
 #include "BinaryFileIO.h"
+using namespace Common;
 
 std::wstring SceneManager::string2wstring(std::string str) {
 	int len;

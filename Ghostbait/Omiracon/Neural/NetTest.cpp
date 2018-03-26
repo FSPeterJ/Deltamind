@@ -1,5 +1,4 @@
 //
-#include "stdafx.h"
 //#include "NeuralNetwork.h"
 //#include "TrainingData.h"
 //#include <ctime>

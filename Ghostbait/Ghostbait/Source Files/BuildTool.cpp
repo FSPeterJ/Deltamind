@@ -225,20 +225,19 @@ void BuildTool::Spawn() {
 void BuildTool::RemoveProjection() {
 	DirectX::XMFLOAT3 endPos;
 	GameObject* colObject = nullptr;
-	if(!Raycast(&transform, DirectX::XMFLOAT3(transform.GetMatrix()._31, transform.GetMatrix()._32, transform.GetMatrix()._33), &endPos, &colObject, &deleteRay, 4)) {
+	if(!Raycast(&transform, DirectX::XMFLOAT3(transform.GetMatrix()._31, transform.GetMatrix()._32, transform.GetMatrix()._33), &endPos, &colObject, &deleteRay, 4, "Turret")) {
+		if (gearAdjustmentDisplay) gearAdjustmentDisplay->UnRender();
 		if (currentlySelectedItem) {
 			currentlySelectedItem->SwapComponentVarient<Material>("default");
 			currentlySelectedItemIndex = -1;
 			currentlySelectedItem = nullptr;
 		}
-		gearAdjustmentDisplay->UnRender();
 		return;
 	}
-
-	//check if I spawned it
+	if (gearAdjustmentDisplay) gearAdjustmentDisplay->RenderTransparent();
+	//Am I colliding with a different object than my currently selected object?
 	if (colObject != currentlySelectedItem) {
 		if(currentlySelectedItem) currentlySelectedItem->SwapComponentVarient<Material>("default");
-		gearAdjustmentDisplay->UnRender();
 	}
 	for (size_t i = 0; i < builtItems.size(); ++i) {
 		if (colObject == builtItems[i]) {
@@ -246,7 +245,6 @@ void BuildTool::RemoveProjection() {
 			currentlySelectedItem = colObject;
 			//TODO: Temp...Dont't call this every frame.
 			currentlySelectedItem->SwapComponentVarient<Material>("invalid");
-			gearAdjustmentDisplay->RenderTransparent();
 			break;
 		}
 	}
@@ -260,7 +258,6 @@ void BuildTool::Remove() {
 			Turret* tur = dynamic_cast<Turret*>(currentlySelectedItem);
 			if (tur) {
 				(*gears) = (*gears) + (int)(tur->GetBuildCost() * 0.5f);
-				gearAdjustmentDisplay->UnRender();
 			}
 			(*turretsSpawned) = (*turretsSpawned) - 1;
 		}
@@ -271,7 +268,7 @@ void BuildTool::CycleForward() {
 	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
 		if (prefabs[currentPrefabIndex].object) {
 			prefabs[currentPrefabIndex].object->UnRender();
-			if(gearDisplay) gearDisplay->UnRender();
+			//if(gearDisplay) gearDisplay->UnRender();
 		}
 
 		int tempIndex = ++currentPrefabIndex;
@@ -291,6 +288,7 @@ void BuildTool::CycleForward() {
 				currentlySelectedItem->SwapComponentVarient<Material>("default");
 				currentlySelectedItem = nullptr;
 			}
+			if (gearAdjustmentDisplay) gearAdjustmentDisplay->RenderTransparent();
 			buildRay.Create();
 			deleteRay.Destroy();
 		}
@@ -304,7 +302,7 @@ void BuildTool::CycleBackward() {
 	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
 		if (prefabs[currentPrefabIndex].object) {
 			prefabs[currentPrefabIndex].object->UnRender();
-			if (gearDisplay) gearDisplay->UnRender();
+			//if (gearDisplay) gearDisplay->UnRender();
 		}
 
 		int tempIndex = --currentPrefabIndex;
@@ -326,6 +324,7 @@ void BuildTool::CycleBackward() {
 				currentlySelectedItem->SwapComponentVarient<Material>("default");
 				currentlySelectedItem = nullptr;
 			}
+			if(gearAdjustmentDisplay) gearAdjustmentDisplay->Render();
 			buildRay.Create();
 			deleteRay.Destroy();
 		}

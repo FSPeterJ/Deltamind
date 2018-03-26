@@ -46,11 +46,13 @@ void BuildTool::Disable() {
 void BuildTool::ActiveUpdate() {
 	if (!gearDisplay) {
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/CurrencyQuad.ghost")), { 0, 0, 0 }, &gearDisplay));
-		gearDisplay->SetComponent<Material>(TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "$0").mat);
+		gearDisplay->SetComponent<Material>(TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "$5000000", DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 0.75f), DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 0.5f)).mat);
 		gearDisplay->PersistOnReset();
+		gearDisplay->ToggleFlag(GAMEOBJECT_PUBLIC_FLAGS::UNLIT);
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/CurrencyQuadSmall.ghost")), { 0, 0, 0 }, &gearAdjustmentDisplay));
-		gearAdjustmentDisplay->SetComponent<Material>(TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "-$0").mat);
+		gearAdjustmentDisplay->SetComponent<Material>(TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "-$5000000", DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 0.75f), DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f)).mat);
 		gearAdjustmentDisplay->PersistOnReset();
+		gearAdjustmentDisplay->ToggleFlag(GAMEOBJECT_PUBLIC_FLAGS::UNLIT);
 	}
 
 	if (gearDisplay) {
@@ -59,7 +61,7 @@ void BuildTool::ActiveUpdate() {
 		text.append(std::to_string(*gears));
 		for (int i = (int)text.length(); i < 6; ++i)
 			text.insert(0, " ");
-		gearDisplay->SetComponent<Material>(TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", text).mat);
+		TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", text, gearDisplay->GetComponent<Material>(), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 0.75f), DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 0.5f));
 		DirectX::XMFLOAT4X4 displayMat = transform.GetMatrix();
 		displayMat._41 -= (displayMat._11 * 0.15f);
 		displayMat._42 -= (displayMat._12 * 0.15f);
@@ -73,7 +75,7 @@ void BuildTool::ActiveUpdate() {
 			for (int i = (int)text.length(); i < 14; ++i)
 				text.insert(0, " ");
 			text.append("\n");
-			gearAdjustmentDisplay->SetComponent<Material>(TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", text).mat);
+			TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", text, gearAdjustmentDisplay->GetComponent<Material>(), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 0.75f), DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 0.5f));
 			DirectX::XMFLOAT4X4 adjustmentMat = displayMat;
 			adjustmentMat._41 -= (adjustmentMat._21 * 0.1f);
 			adjustmentMat._42 -= (adjustmentMat._22 * 0.1f);
@@ -86,7 +88,7 @@ void BuildTool::ActiveUpdate() {
 				for (int i = (int)text.length(); i < 14; ++i)
 					text.insert(0, " ");
 				text.append("\n");
-				gearAdjustmentDisplay->SetComponent<Material>(TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", text).mat);
+				TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", text, gearAdjustmentDisplay->GetComponent<Material>(), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 0.75f), DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 0.5f));
 				DirectX::XMFLOAT4X4 adjustmentMat = displayMat;
 				adjustmentMat._41 -= (adjustmentMat._21 * 0.1f);
 				adjustmentMat._42 -= (adjustmentMat._22 * 0.1f);

@@ -150,7 +150,7 @@ private:
 	float manhat(const DirectX::XMFLOAT3& center1, const DirectX::XMFLOAT3& center2);
 
 	void sortTransparentObjects(DirectX::XMFLOAT3 &camPos);
-	void renderObjectDefaultState(Object* obj);
+	void renderObjectDefaultState(const GameObject* obj);
 	void renderToEye(eye* eyeTo);
 	void drawSkyboxTo(ID3D11RenderTargetView** rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT& viewport, DirectX::XMFLOAT3& pos);
 	void loadPipelineState(pipeline_state_t* pipeline);

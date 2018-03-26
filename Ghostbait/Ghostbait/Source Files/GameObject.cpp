@@ -109,6 +109,7 @@ void GameObject::RenderTransparent() {
 void GameObject::Destroy() {
 	if(!(flags & DESTROYED)) {
 		flags |= DESTROYED;
+		publicFlags = 0;
 		//recycle memory, pool::deactivatememory
 		MessageEvents::SendMessage(EVENT_Destroy, StandardObjectMessage(this));
 		PersistentUnSubscribe();

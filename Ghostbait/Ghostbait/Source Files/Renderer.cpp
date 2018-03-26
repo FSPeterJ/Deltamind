@@ -227,7 +227,7 @@ void Renderer::sortTransparentObjects(DirectX::XMFLOAT3 &camPos)
 	}
 }
 
-void Renderer::renderObjectDefaultState(Object * obj) {
+void Renderer::renderObjectDefaultState(const GameObject * obj) {
 	UINT stride = sizeof(VertexPositionTextureNormalAnim);
 	UINT offset = 0;
 	Mesh* y= obj->GetComponent<Mesh>();
@@ -243,7 +243,7 @@ void Renderer::renderObjectDefaultState(Object * obj) {
 	Material* mat = obj->GetComponent<Material>();
 	if (mat)
 	{
-		obj->GetComponent<Material>()->bindToShader(context, factorBuffer);
+		obj->GetComponent<Material>()->bindToShader(context, factorBuffer, obj->GetFlags() & GAMEOBJECT_PUBLIC_FLAGS::UNLIT);
 		if (mat->flags & Material::MaterialFlags::POINT)
 			context->PSSetSamplers(0, 1, &PointSamplerState);
 		else
@@ -252,7 +252,7 @@ void Renderer::renderObjectDefaultState(Object * obj) {
 	else
 	{
 		context->PSSetSamplers(0, 1, &PointSamplerState);
-		materialManagement->GetNullMaterial()->bindToShader(context, factorBuffer);
+		materialManagement->GetNullMaterial()->bindToShader(context, factorBuffer, true);
 	}
 
 	Animator* anim = obj->GetComponent<Animator>();
@@ -288,7 +288,7 @@ void Renderer::renderToEye(eye * eyeTo) {
 	context->RSSetViewports(1, &eyeTo->renderInfo.viewport);
 
 	for(size_t i = 0; i < renderedObjects.size(); ++i) {
-		renderObjectDefaultState((Object*) renderedObjects[i]);
+		renderObjectDefaultState(renderedObjects[i]);
 	}
 #if _DEBUG
 	DebugRenderer::drawTo(eyeTo->targets.RTVs, eyeTo->targets.DSV, eyeTo->renderInfo.viewport);
@@ -299,12 +299,12 @@ void Renderer::renderToEye(eye * eyeTo) {
 #endif
 	for (size_t i = 0; i < transparentObjects.size(); ++i)
 	{
-		renderObjectDefaultState((Object*)transparentObjects[i]);
+		renderObjectDefaultState(transparentObjects[i]);
 	}
 	context->ClearDepthStencilView(eyeTo->targets.DSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	for (size_t i = 0; i < frontRenderedObjects.size(); ++i)
 	{
-		renderObjectDefaultState((Object*)frontRenderedObjects[i]);
+		renderObjectDefaultState(frontRenderedObjects[i]);
 	}
 
 
@@ -749,17 +749,17 @@ void Renderer::Render() {
 #endif
 
 	for(size_t i = 0; i < renderedObjects.size(); ++i) {
-		renderObjectDefaultState((Object*) renderedObjects[i]);
+		renderObjectDefaultState(renderedObjects[i]);
 	}
 
 	for (size_t i = 0; i < transparentObjects.size(); ++i)
 	{
-		renderObjectDefaultState((Object*)transparentObjects[i]);
+		renderObjectDefaultState(transparentObjects[i]);
 	}
 	context->ClearDepthStencilView(deferredTextures.DSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	for (size_t i = 0; i < frontRenderedObjects.size(); ++i)
 	{
-		renderObjectDefaultState((Object*)frontRenderedObjects[i]);
+		renderObjectDefaultState(frontRenderedObjects[i]);
 	}
 	//DirectX::XMFLOAT4X4 view, proj;
 	//if (VRManager::GetInstance().IsEnabled())

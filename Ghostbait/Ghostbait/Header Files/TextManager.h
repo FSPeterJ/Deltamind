@@ -1,4 +1,5 @@
 #include <d3d11.h>
+#include <DirectXMath.h>
 #include <unordered_map>
 #include "Font.h"
 #include <string>
@@ -27,19 +28,24 @@ class TextManager {
 		float fill2; //DirectX is a HOOT
 	};
 
+	DirectX::XMFLOAT4 textColor;
+		
+
 	static ID3D11Device* device;
 	static ID3D11DeviceContext* context;
 	static ID3D11VertexShader* vs;
 	static ID3D11PixelShader* ps;
 	static ID3D11InputLayout* il;
 	static windowSizeBuffer sizeBuffer;
+	static DirectX::XMFLOAT4 ColorBuffer;
 	static ID3D11Buffer* windowSizeToShader;
+	static ID3D11Buffer* colorToShader;
 	static std::unordered_map<std::string, Font*> fonts;
 	static std::vector<renderableMat> managedMaterials;
 
 	static renderableMat createTextMaterial(float width, float height);
-	static renderableMat generateVertexBufferAndRender(Font* font, std::string _sentence, int index = -1);
-	static void renderText(renderableMat* mat, std::string& sentence, std::vector<VertexPositionTexture> & vertices, ID3D11ShaderResourceView * font);
+	static renderableMat generateVertexBufferAndRender(Font* font, std::string _sentence, DirectX::XMFLOAT4 &bgColor, int index = -1);
+	static void renderText(renderableMat* mat, std::string& sentence, std::vector<VertexPositionTexture> & vertices, ID3D11ShaderResourceView * font, DirectX::XMFLOAT4 &bgColor);
 public:
 	struct textOutput
 	{
@@ -51,6 +57,6 @@ public:
 
 	static void LoadFont(std::string _fileName, std::string _texturePath);
 	static Material* CreateRenderableTexture(float width, float height);
-	static textOutput DrawTextTo(std::string _fontTexturePath, std::string _sentence);
-	static float DrawTextExistingMat(std::string _fontTexturePath, std::string _sentence, Material* _mat); //Returns a suggested aspect ratio for the quad as Y = (X * return)
+	static textOutput DrawTextTo(std::string _fontTexturePath, std::string _sentence, DirectX::XMFLOAT4 textColor, DirectX::XMFLOAT4 backgroundColor);
+	static float DrawTextExistingMat(std::string _fontTexturePath, std::string _sentence, Material* _mat, DirectX::XMFLOAT4 textColor, DirectX::XMFLOAT4 backgroundColor); //Returns a suggested aspect ratio for the quad as Y = (X * return)
 };

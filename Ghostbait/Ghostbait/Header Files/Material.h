@@ -21,7 +21,7 @@ struct Material: ComponentBase {
 		float diffuseFactor;
 		float specularFactor;
 		float emissiveFactor;
-		float padding;
+		float unlit;
 	};
 	unsigned int matID;
 	matComponent diffuse;
@@ -31,5 +31,5 @@ struct Material: ComponentBase {
 
 	void release();
 
-	void bindToShader(ID3D11DeviceContext* context, ID3D11Buffer* factorBuffer);
+	void bindToShader(ID3D11DeviceContext* context, ID3D11Buffer* factorBuffer, bool unlit = false);
 };

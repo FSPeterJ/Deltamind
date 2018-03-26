@@ -333,7 +333,6 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 	XMFLOAT3 line;
 	XMStoreFloat3(&line, closestCollision);
 	DebugRenderer::AddLine(origin, line, XMFLOAT3(0.0f, 1.0f, 1.0f));
-
 #endif
 	return collided;
 }

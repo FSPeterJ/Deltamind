@@ -1,6 +1,7 @@
 #include "Projectile.h"
 #include "GhostTime.h"
 #include "MessageEvents.h"
+#include "PhysicsComponent.h"
 
 Projectile::Projectile() {
 	SetTag("Bullet");
@@ -15,6 +16,10 @@ void Projectile::Awake(Object* obj) {
 
 void Projectile::Update() {
 	timeSinceShot += (float)GhostTime::DeltaTime();
+	
+	if (DirectX::XMVectorGetX(DirectX::XMVector3Length(GetComponent<PhysicsComponent>()->rigidBody.GetVelocity())) <= 5) {
+		int i = 0;
+	}
 
 	if (timeSinceShot > maxProjectileTime) {
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });

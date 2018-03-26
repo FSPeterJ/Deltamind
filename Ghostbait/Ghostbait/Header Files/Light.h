@@ -12,9 +12,8 @@ enum LightType {
 class Light : public GameObject {
 	int lightID = -1;
 	LightType type = LIGHT_None;
-
-	void RemoveLightFromManager();
 public:
+	void RemoveLightFromManager();
 	void SetAsDirectional(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 dir);
 	void SetAsPoint(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, float radius);
 	void SetAsSpot(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir, float radius, float outerRadius);

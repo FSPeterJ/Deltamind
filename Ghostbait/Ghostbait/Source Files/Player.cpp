@@ -7,16 +7,8 @@
 #include "ObjectFactory.h"
 #include "HexGrid.h"
 #include "BuildTool.h"
+#include "DebugRenderer.h"
 
-
-
-/*
-static int i = 0;
-if (i == 0) {
-MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<GameObject>(ObjectFactory::CreatePrefab(&std::string("Assets/Arc2.ghost")), { 0, 0, 0 }, &arc));
-i = 1;
-}
-*/
 
 Player::Player() {
 	Enable();
@@ -25,16 +17,150 @@ Player::Player() {
 	VRManager::GetInstance().Init(&transform);
 	transform.SetPosition(0, 1.7f, 0);
 	transform.LookAt({ 0, 1.7f, 1 });
+
+}
+
+void Player::ChangeStance(Stance newStance) {
+	if (stance == newStance) return;
+	stance = newStance;
+	switch (newStance) {
+		case STANCE_Stand:
+			stance = STANCE_Stand;
+			playerHeight = standHeight;
+			playerSpeed = walkSpeed;
+			transform.SetPosition(transform.GetPosition().x, playerHeight, transform.GetPosition().z);
+			break;
+		case STANCE_Crouch:
+			stance = STANCE_Crouch;
+			playerHeight = crouchHeight;
+			playerSpeed = crouchSpeed;
+			transform.SetPosition(transform.GetPosition().x, playerHeight, transform.GetPosition().z);
+			break;
+		case STANCE_God:
+			playerHeight = standHeight;
+			playerSpeed = runSpeed;
+			transform.SetPosition(transform.GetPosition().x, playerHeight, transform.GetPosition().z);
+			break;
+	}
+}
+void Player::GodDetected() {
+	if (IsGod()) {
+		ChangeStance(STANCE_Stand);
+		MessageEvents::SendQueueMessage(EVENT_Late, [=]() {if (this->editItem) editItem->Destroy(); });
+	}
+	else{
+		ChangeStance(STANCE_God);
+		MessageEvents::SendMessage(EVENT_BecameGod, EventMessageBase());
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/Monitor.ghost")), { 0, 0, 0 }, &editItem));
+	}
 }
 
 void Player::Update() {
 	float dt = (float)GhostTime::DeltaTime();
+	if (editItem) {
+		DebugRenderer::DrawAxes(editItem->transform.GetMatrix(), 1);
+	}
 
-	if (IsVR()) 
+	if (IsVR()) {
 		transform.SetMatrix(VRManager::GetInstance().GetPlayerPosition());
+		
+		if (KeyIsDown(Control::GodMode)) {
+			ResetKey(Control::GodMode);
+			GodDetected();
+		}
+		
+		if (IsGod()) {
+			//Fly
+			if (KeyIsDown(Control::teleportDown)) {
+				DirectX::XMFLOAT4X4 playerMat = VRManager::GetInstance().GetPlayerPosition();
+				DirectX::XMFLOAT4X4 controllerMat = rightController->transform.GetMatrix();
+				playerMat._41 += controllerMat._31;
+				playerMat._42 += controllerMat._32;
+				playerMat._43 += controllerMat._33;
+				VRManager::GetInstance().MovePlayer({ playerMat._41, playerMat._42, playerMat._43 }, false);
+			}
+			if (editItem) {
+				if (Amount(Control::rightItem1) == 1) {
+					editScale.x -= editScaleSpeed;
+					editScale.y -= editScaleSpeed;
+					editScale.z -= editScaleSpeed;
+				}
+				if (Amount(Control::rightItem2) == 1) {
+					editScale.x += editScaleSpeed;
+					editScale.y += editScaleSpeed;
+					editScale.z += editScaleSpeed;
+				}
+				DirectX::XMMATRIX scale = DirectX::XMMatrixScaling(editScale.x, editScale.y, editScale.z);
+
+				if (Amount(Control::rightCyclePrefab)) {
+					editRotation.y += DirectX::XMConvertToRadians(editRotationSpeed);
+				}
+				if (Amount(Control::leftCyclePrefab)) {
+					editRotation.y -= DirectX::XMConvertToRadians(editRotationSpeed);
+				}
+				DirectX::XMMATRIX rotation = DirectX::XMMatrixRotationRollPitchYaw(editRotation.x, editRotation.y, editRotation.z);
+
+				DirectX::XMFLOAT4X4 noTranslation;
+				DirectX::XMStoreFloat4x4(&noTranslation, scale * rotation);
+				editItem->transform.SetMatrix(noTranslation);
+				editItem->transform.SetPosition(editPos);
+
+				if (Amount(Control::leftItem0) == 1) {
+					editItem->transform.MoveAlongForward(-editMoveSpeed);
+				}
+				if (Amount(Control::leftItem3) == 1) {
+					editItem->transform.MoveAlongForward(editMoveSpeed);
+				}
+				if (Amount(Control::leftItem2) == 1) {
+					editItem->transform.MoveAlongSide(editMoveSpeed);
+				}
+				if (Amount(Control::leftItem1) == 1) {
+					editItem->transform.MoveAlongSide(-editMoveSpeed);
+				}
+				if (Amount(Control::rightItem0) == 1) {
+					editItem->transform.MoveAlongUp(editMoveSpeed);
+				}
+				if (Amount(Control::rightItem3) == 1) {
+					editItem->transform.MoveAlongUp(-editMoveSpeed);
+				}
+				editPos = editItem->transform.GetPosition();
+			}
+		}
+	}
 	else {
 		DirectX::XMFLOAT3 prevPos = transform.GetPosition();
-		float rotationLimit = DirectX::XMConvertToRadians(80);
+		
+		if (KeyIsDown(Control::GodMode)) {
+			ResetKey(Control::GodMode);
+			GodDetected();
+		}
+		if (KeyIsDown(Control::Crouch)) {
+			ResetKey(Control::Crouch);
+			if (stance == STANCE_Stand) ChangeStance(STANCE_Crouch);
+			else if (stance == STANCE_Crouch) ChangeStance(STANCE_Stand);
+		}
+		if (KeyIsDown(Control::Sprint)) {
+			switch (stance) {
+				case STANCE_God:
+					playerSpeed = godSpeed;
+					break;
+				case STANCE_Crouch:
+					ChangeStance(STANCE_Stand);
+				case STANCE_Stand:
+					playerSpeed = runSpeed;
+					break;
+			}
+		}
+		else {
+			switch (stance) {
+				case STANCE_God:
+					playerSpeed = runSpeed;
+					break;
+				case STANCE_Stand:
+					playerSpeed = walkSpeed;
+					break;
+			}
+		}
 
 		if (KeyIsDown(Control::CameraLeftRight)) {
 			//position._41 -= 50.0f * dt;
@@ -50,7 +176,7 @@ void Player::Update() {
 			//ResetKey(Control::right);
 		}
 		if (KeyIsDown(Control::forward)) {
-			if (!godMode) {
+			if (stance != STANCE_God) {
 				//Oriented Matrix
 				DirectX::XMMATRIX newMat_M = DirectX::XMLoadFloat4x4(&transform.GetMatrix());
 				newMat_M.r[1] = DirectX::XMVectorSet(0, 1, 0, 0);
@@ -61,10 +187,10 @@ void Player::Update() {
 				DirectX::XMStoreFloat4x4(&tempMat, newMat_M);
 				transform.SetMatrix(tempMat);
 			}
-			transform.MoveAlongForward(godMode ? 30 : 10.0f);
+			transform.MoveAlongForward(playerSpeed);
 		}
 		if (KeyIsDown(Control::backward)) {
-			if (!godMode) {
+			if (stance != STANCE_God) {
 				//Oriented Matrix
 				DirectX::XMMATRIX newMat_M = DirectX::XMLoadFloat4x4(&transform.GetMatrix());
 				newMat_M.r[1] = DirectX::XMVectorSet(0, 1, 0, 0);
@@ -75,47 +201,28 @@ void Player::Update() {
 				DirectX::XMStoreFloat4x4(&tempMat, newMat_M);
 				transform.SetMatrix(tempMat);
 			}
-			transform.MoveAlongForward(godMode ? -30 : -10.0f);
+			transform.MoveAlongForward(-playerSpeed);
 			//ResetKey(Control::backward);
 		}
 		if (KeyIsDown(Control::LeftAction)) {
-			transform.MoveAlongUp(godMode ? 30 : 10.0f);
+			transform.MoveAlongUp(playerSpeed);
 			//ResetKey(Control::leftAttack);
 		}
 		if (KeyIsDown(Control::RightAction)) {
-			transform.MoveAlongUp(godMode ? -30 : -10.0f);
+			transform.MoveAlongUp(-playerSpeed);
 			//ResetKey(Control::rightAttack);
 		}
 
 		if (KeyIsDown(Control::left)) {
-			transform.MoveAlongSide(-10.0f);
+			transform.MoveAlongSide(-(playerSpeed * 0.6f));
 			//ResetKey(Control::TestInputZ);
 		}
 		if (KeyIsDown(Control::right)) {
-			transform.MoveAlongSide(10.0f);
+			transform.MoveAlongSide(playerSpeed * 0.6f);
 			//ResetKey(Control::TestInputC);
 		}
 
-		if (KeyIsDown(Control::TestInputZ)) {
-			godMode = !godMode;
-			ResetKey(Control::TestInputZ);
-		}
-		if (KeyIsDown(Control::TestInputC)) {
-			switch (stance) {
-				case STANCE_Stand:
-					stance = STANCE_Crouch;
-					playerHeight = crouchHeight;
-					transform.SetPosition(transform.GetPosition().x, playerHeight, transform.GetPosition().z);
-					break;
-				case STANCE_Crouch:
-					stance = STANCE_Stand;
-					playerHeight = standHeight;
-					transform.SetPosition(transform.GetPosition().x, playerHeight, transform.GetPosition().z);
-					break;
-			}
-			ResetKey(Control::TestInputC);
-		}
-
+		//Rotate Camera
 		if (rotationX < -rotationLimit) {
 			rotationX = -rotationLimit;
 		}
@@ -127,14 +234,15 @@ void Player::Update() {
 		}
 		transform.SetRotationRadians(rotationX, rotationY, 0.0f);
 
-		if (!godMode) {
+		//Ground Clamp
+		if (!IsGod()) {
 			//Ground Clamp
 			Transform start;
 			start.SetPosition(transform.GetMatrix()._41, transform.GetMatrix()._42 - playerHeight + 0.1f, transform.GetMatrix()._43);
 			DirectX::XMFLOAT3 direction = { 0, -1, 0 };
 			DirectX::XMFLOAT3 end;
 			HexTile* tile = grid->PointToTile(DirectX::XMFLOAT2(transform.GetPosition().x, transform.GetPosition().z));
-			if (Raycast(&start, direction, &end, nullptr, nullptr, 100) && tile && !grid->IsBlocked(tile)) {
+			if (Raycast(&start, direction, &end, nullptr, nullptr, 100, "Ground") && tile && !grid->IsBlocked(tile)) {
 				DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
 				newPos._42 = end.y + playerHeight;
 				transform.SetMatrix(newPos);
@@ -143,16 +251,60 @@ void Player::Update() {
 				transform.SetPosition(prevPos);
 			}
 		}
+		else {
+			if (editItem) {
+				if (KeyIsDown(Control::rightItem1)) {
+					editScale.x -= editScaleSpeed;
+					editScale.y -= editScaleSpeed;
+					editScale.z -= editScaleSpeed;
+				}
+				if (KeyIsDown(Control::rightItem2)) {
+					editScale.x += editScaleSpeed;
+					editScale.y += editScaleSpeed;
+					editScale.z += editScaleSpeed;
+				}
+				DirectX::XMMATRIX scale = DirectX::XMMatrixScaling(editScale.x, editScale.y, editScale.z);
+
+				if (KeyIsDown(Control::rightCyclePrefab)) {
+					editRotation.y += editRotationSpeed;
+				}
+				if (KeyIsDown(Control::leftCyclePrefab)) {
+					editRotation.y -= editRotationSpeed;
+				}
+				DirectX::XMMATRIX rotation = DirectX::XMMatrixRotationRollPitchYaw(editRotation.x, editRotation.y, editRotation.z);
+
+				DirectX::XMFLOAT4X4 noTranslation;
+				DirectX::XMStoreFloat4x4(&noTranslation, scale * rotation);
+				editItem->transform.SetMatrix(noTranslation);
+				editItem->transform.SetPosition(editPos);
+
+				if (KeyIsDown(Control::leftItem0)) {
+					editItem->transform.MoveAlongForward(-editMoveSpeed);
+				}
+				if (KeyIsDown(Control::leftItem3)) {
+					editItem->transform.MoveAlongForward(editMoveSpeed);
+				}
+				if (KeyIsDown(Control::leftItem2)) {
+					editItem->transform.MoveAlongSide(editMoveSpeed);
+				}
+				if (KeyIsDown(Control::leftItem1)) {
+					editItem->transform.MoveAlongSide(-editMoveSpeed);
+				}
+				if (KeyIsDown(Control::rightItem0)) {
+					editItem->transform.MoveAlongUp(editMoveSpeed);
+				}
+				if (KeyIsDown(Control::rightItem3)) {
+					editItem->transform.MoveAlongUp(-editMoveSpeed);
+				}
+				editPos = editItem->transform.GetPosition();
+			}
+		}
 	}
 }
 void Player::PausedUpdate() {
 	float dt = (float)GhostTime::DeltaTime();
 
 	if (!IsVR()) {
-		if (rotationY < -DirectX::XM_2PI || rotationY > DirectX::XM_2PI)
-			rotationY = 0.0f;
-		if (rotationX < -DirectX::XM_2PI || rotationX > DirectX::XM_2PI)
-			rotationX = 0.0f;
 
 		if (KeyIsDown(Control::CameraLeftRight)) {
 			//position._41 -= 50.0f * dt;
@@ -167,6 +319,15 @@ void Player::PausedUpdate() {
 			//ResetKey(Control::right);
 		}
 
+		if (rotationX < -rotationLimit) {
+			rotationX = -rotationLimit;
+		}
+		if (rotationX > rotationLimit) {
+			rotationX = rotationLimit;
+		}
+		if (rotationY < -DirectX::XM_2PI || rotationY > DirectX::XM_2PI) {
+			rotationY = 0.0f;
+		}
 		transform.SetRotationRadians(rotationX, rotationY, 0.0f);
 	}
 }
@@ -186,13 +347,13 @@ void Player::LoadControllers(VRControllerTypes type) {
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 0,0,0 }, &leftController));
 	leftController->Init(this, ControllerHand::HAND_Left);
 	leftController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
-	leftController->SetGunData(2, Gun::FireType::AUTO, 8, 25);
+	leftController->SetGunData(2, Gun::FireType::AUTO, 8, 20);
 	leftController->SetBuildItems({ /*TODO: FIX THIS LATER*/ ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost"))});
 	//Right
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 1,0,1 }, &rightController));
 	rightController->Init(this, ControllerHand::HAND_Right);
 	rightController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
-	rightController->SetGunData(2, Gun::FireType::AUTO, 8, 25);
+	rightController->SetGunData(2, Gun::FireType::AUTO,  8, 20);
 	rightController->SetBuildItems({ /*TODO: FIX THIS LATER*/ ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost"))});
 
 

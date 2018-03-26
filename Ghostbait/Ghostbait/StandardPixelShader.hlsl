@@ -24,14 +24,6 @@ cbuffer lightBuffer : register(b0)
     float3 cameraPos;
 };
 
-cbuffer factorBuffer : register(b1)
-{
-    float diffuseFactor;
-    float specularFactor;
-    float emissiveFactor;
-    float morepadding;
-};
-
 cbuffer viewProjBuffer : register(b2)
 {
     matrix view;

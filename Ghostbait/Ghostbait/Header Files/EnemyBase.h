@@ -23,7 +23,7 @@ protected:
 
 	bool reachedCore = false;
 	float attackSpeed = 1;
-	float attackDamage = 10;
+	float attackDamage = 5;
 	float timeSinceLastAttack = -1;
 
 	unsigned eventLose = 0;

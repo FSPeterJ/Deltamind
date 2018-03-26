@@ -14,6 +14,8 @@ public:
 	PixelData(unsigned char r, unsigned char g, unsigned char b, size_t _x, size_t _y) : color{b,g,r}, x(_x), y(_y) {}
 };
 
+ImageData::~ImageData() { for(size_t i = 0; i < pixels.size(); ++i) { delete pixels[i]; } }
+
 void Bitmap::Load(const char* fileName, ImageData** image) {
 	std::ifstream read;
 	read.open(fileName, std::ios_base::binary);
@@ -72,9 +74,9 @@ void Bitmap::Write(ImageData* image, std::function<void(const size_t X, const si
 
 Bitmap::Bitmap(const char* fileName, IMAGE_TYPE t, const size_t _width, const size_t _height)
 	: sizeAll(sizeData + sizeof(file) + sizeof(info)),
-	sizeData(width * height * 3 + height * padSize),
+	sizeData(int(width * height * 3 + height * padSize)),
 	padSize((4 - (width * 3) % 4) % 4),
-	width(_width), height(_height) {
+	width(_width), height(_height){
 
 	std::string name(fileName);
 	trim_ext(name);
@@ -135,7 +137,7 @@ void Bitmap::Write(std::function<void(const size_t X, const size_t Y, int& r, in
 
 int Bitmap::RandomColorByte() {
 	//lround(255.0 *static_cast <float> (rand()) / static_cast <float> (RAND_MAX));
-	return lround(255.0 * Omiracon::Random::RandomNumber<float, Omiracon::Random::Type::Inclusive>(0.0, 1.0));
+	return lround(255.0 * Omiracon::Random::RandomNumber(0.0, 1.0));
 }
 
 Bitmap::~Bitmap() {

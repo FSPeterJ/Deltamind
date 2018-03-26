@@ -11,7 +11,7 @@ namespace Omiracon {
 		Neuron::Alpha Neuron::momentum = 0.5;
 
 		double Neuron::RandomWeight(void) {
-			return Random::RandomNumber<double, Random::Type::Inclusive>(0.0, 1.0);
+			return Random::RandomNumber(0.0, 1.0);
 			//return rand() / double(RAND_MAX); //[0..1]
 		}
 

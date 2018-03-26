@@ -23,7 +23,7 @@ struct ImageData {
 	std::vector<PixelData*> pixels;
 	size_t w, h;
 	ImageData(size_t _w, size_t _h) : w(_w), h(_h){}
-	~ImageData() { for(size_t i = 0; i < pixels.size(); ++i) { delete pixels[i]; } }
+	~ImageData();
 };
 
 /// <summary>

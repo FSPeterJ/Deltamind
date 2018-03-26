@@ -111,6 +111,22 @@ void SceneManager::Initialize() {
 			core.positions.push_back(mat1);
 			level0Data.prefabs.push_back(core);
 		}
+		TestSceneData::Prefab monitor;
+		{
+			monitor.ghostFile = "Assets/Monitor.ghost";
+			monitor.name = "Core";
+			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -0.216f, 12.735f, -86.283f, 1);
+			monitor.positions.push_back(mat1);
+			level0Data.prefabs.push_back(monitor);
+		}
+		TestSceneData::Prefab monitorScreen;
+		{
+			monitorScreen.ghostFile = "Assets/MonitorScreen.ghost";
+			monitorScreen.name = "Core";
+			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -0.216f, 12.735f, -86.283f, 1);
+			monitorScreen.positions.push_back(mat1);
+			level0Data.prefabs.push_back(monitorScreen);
+		}
 	}
 	CreateSceneFile(level0Data);
 	/*

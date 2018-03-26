@@ -24,6 +24,7 @@ const bool CheatCode::CheckNewInput(const Control input) {
 		position += 1;
 		if (position >= code.size() - 1) {
 			position = -1;
+			active = !active;
 			complete();
 		}
 		return true;

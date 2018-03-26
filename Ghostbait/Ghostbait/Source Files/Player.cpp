@@ -17,6 +17,7 @@ Player::Player() {
 	VRManager::GetInstance().Init(&transform);
 	transform.SetPosition(0, 1.7f, 0);
 	transform.LookAt({ 0, 1.7f, 1 });
+
 }
 
 void Player::ChangeStance(Stance newStance) {
@@ -45,15 +46,20 @@ void Player::ChangeStance(Stance newStance) {
 void Player::GodDetected() {
 	if (IsGod()) {
 		ChangeStance(STANCE_Stand);
+		MessageEvents::SendQueueMessage(EVENT_Late, [=]() {if (this->editItem) editItem->Destroy(); });
 	}
 	else{
 		ChangeStance(STANCE_God);
 		MessageEvents::SendMessage(EVENT_BecameGod, EventMessageBase());
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/Monitor.ghost")), { 0, 0, 0 }, &editItem));
 	}
 }
 
 void Player::Update() {
 	float dt = (float)GhostTime::DeltaTime();
+	if (editItem) {
+		DebugRenderer::DrawAxes(editItem->transform.GetMatrix(), 1);
+	}
 
 	if (IsVR()) {
 		transform.SetMatrix(VRManager::GetInstance().GetPlayerPosition());
@@ -62,14 +68,63 @@ void Player::Update() {
 			ResetKey(Control::GodMode);
 			GodDetected();
 		}
+		
+		if (IsGod()) {
+			//Fly
+			if (KeyIsDown(Control::teleportDown)) {
+				DirectX::XMFLOAT4X4 playerMat = VRManager::GetInstance().GetPlayerPosition();
+				DirectX::XMFLOAT4X4 controllerMat = rightController->transform.GetMatrix();
+				playerMat._41 += controllerMat._31;
+				playerMat._42 += controllerMat._32;
+				playerMat._43 += controllerMat._33;
+				VRManager::GetInstance().MovePlayer({ playerMat._41, playerMat._42, playerMat._43 }, false);
+			}
+			if (editItem) {
+				if (Amount(Control::rightItem1) == 1) {
+					editScale.x -= editScaleSpeed;
+					editScale.y -= editScaleSpeed;
+					editScale.z -= editScaleSpeed;
+				}
+				if (Amount(Control::rightItem2) == 1) {
+					editScale.x += editScaleSpeed;
+					editScale.y += editScaleSpeed;
+					editScale.z += editScaleSpeed;
+				}
+				DirectX::XMMATRIX scale = DirectX::XMMatrixScaling(editScale.x, editScale.y, editScale.z);
 
-		if (KeyIsDown(Control::rightCyclePrefab) && IsGod()) {
-			DirectX::XMFLOAT4X4 playerMat = VRManager::GetInstance().GetPlayerPosition();
-			DirectX::XMFLOAT4X4 controllerMat = rightController->transform.GetMatrix();
-			playerMat._41 += controllerMat._31;
-			playerMat._42 += controllerMat._32;
-			playerMat._43 += controllerMat._33;
-			VRManager::GetInstance().MovePlayer({ playerMat._41, playerMat._42, playerMat._43 }, false);
+				if (Amount(Control::rightCyclePrefab)) {
+					editRotation.y += DirectX::XMConvertToRadians(editRotationSpeed);
+				}
+				if (Amount(Control::leftCyclePrefab)) {
+					editRotation.y -= DirectX::XMConvertToRadians(editRotationSpeed);
+				}
+				DirectX::XMMATRIX rotation = DirectX::XMMatrixRotationRollPitchYaw(editRotation.x, editRotation.y, editRotation.z);
+
+				DirectX::XMFLOAT4X4 noTranslation;
+				DirectX::XMStoreFloat4x4(&noTranslation, scale * rotation);
+				editItem->transform.SetMatrix(noTranslation);
+				editItem->transform.SetPosition(editPos);
+
+				if (Amount(Control::leftItem0) == 1) {
+					editItem->transform.MoveAlongForward(-editMoveSpeed);
+				}
+				if (Amount(Control::leftItem3) == 1) {
+					editItem->transform.MoveAlongForward(editMoveSpeed);
+				}
+				if (Amount(Control::leftItem2) == 1) {
+					editItem->transform.MoveAlongSide(editMoveSpeed);
+				}
+				if (Amount(Control::leftItem1) == 1) {
+					editItem->transform.MoveAlongSide(-editMoveSpeed);
+				}
+				if (Amount(Control::rightItem0) == 1) {
+					editItem->transform.MoveAlongUp(editMoveSpeed);
+				}
+				if (Amount(Control::rightItem3) == 1) {
+					editItem->transform.MoveAlongUp(-editMoveSpeed);
+				}
+				editPos = editItem->transform.GetPosition();
+			}
 		}
 	}
 	else {
@@ -187,13 +242,61 @@ void Player::Update() {
 			DirectX::XMFLOAT3 direction = { 0, -1, 0 };
 			DirectX::XMFLOAT3 end;
 			HexTile* tile = grid->PointToTile(DirectX::XMFLOAT2(transform.GetPosition().x, transform.GetPosition().z));
-			if (Raycast(&start, direction, &end, nullptr, nullptr, 100) && tile && !grid->IsBlocked(tile)) {
+			if (Raycast(&start, direction, &end, nullptr, nullptr, 100, "Ground") && tile && !grid->IsBlocked(tile)) {
 				DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
 				newPos._42 = end.y + playerHeight;
 				transform.SetMatrix(newPos);
 			}
 			else {
 				transform.SetPosition(prevPos);
+			}
+		}
+		else {
+			if (editItem) {
+				if (KeyIsDown(Control::rightItem1)) {
+					editScale.x -= editScaleSpeed;
+					editScale.y -= editScaleSpeed;
+					editScale.z -= editScaleSpeed;
+				}
+				if (KeyIsDown(Control::rightItem2)) {
+					editScale.x += editScaleSpeed;
+					editScale.y += editScaleSpeed;
+					editScale.z += editScaleSpeed;
+				}
+				DirectX::XMMATRIX scale = DirectX::XMMatrixScaling(editScale.x, editScale.y, editScale.z);
+
+				if (KeyIsDown(Control::rightCyclePrefab)) {
+					editRotation.y += editRotationSpeed;
+				}
+				if (KeyIsDown(Control::leftCyclePrefab)) {
+					editRotation.y -= editRotationSpeed;
+				}
+				DirectX::XMMATRIX rotation = DirectX::XMMatrixRotationRollPitchYaw(editRotation.x, editRotation.y, editRotation.z);
+
+				DirectX::XMFLOAT4X4 noTranslation;
+				DirectX::XMStoreFloat4x4(&noTranslation, scale * rotation);
+				editItem->transform.SetMatrix(noTranslation);
+				editItem->transform.SetPosition(editPos);
+
+				if (KeyIsDown(Control::leftItem0)) {
+					editItem->transform.MoveAlongForward(-editMoveSpeed);
+				}
+				if (KeyIsDown(Control::leftItem3)) {
+					editItem->transform.MoveAlongForward(editMoveSpeed);
+				}
+				if (KeyIsDown(Control::leftItem2)) {
+					editItem->transform.MoveAlongSide(editMoveSpeed);
+				}
+				if (KeyIsDown(Control::leftItem1)) {
+					editItem->transform.MoveAlongSide(-editMoveSpeed);
+				}
+				if (KeyIsDown(Control::rightItem0)) {
+					editItem->transform.MoveAlongUp(editMoveSpeed);
+				}
+				if (KeyIsDown(Control::rightItem3)) {
+					editItem->transform.MoveAlongUp(-editMoveSpeed);
+				}
+				editPos = editItem->transform.GetPosition();
 			}
 		}
 	}

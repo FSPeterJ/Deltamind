@@ -222,6 +222,7 @@
     <ClInclude Include="Header Files\GameObject.h" />
     <ClInclude Include="Header Files\GameObjectComponent.h" />
     <ClInclude Include="Header Files\GhostTime.h" />
+    <ClInclude Include="Header Files\Ground.h" />
     <ClInclude Include="Header Files\Gun.h" />
     <ClInclude Include="Header Files\Health.h" />
     <ClInclude Include="Header Files\Heuristics.h" />

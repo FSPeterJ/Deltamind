@@ -181,7 +181,7 @@ void ControllerObject::DisplayInventory() {
 	else {
 		if(*justTouched) {
 			for(unsigned int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
-				if(inventory.displayItems[i]) inventory.displayItems[i]->Render();
+				if(inventory.displayItems[i]) inventory.displayItems[i]->UnRender();
 			}
 			*justTouched = false;
 		}
@@ -325,8 +325,8 @@ void ControllerObject::Update() {
 				Control attack = (hand == HAND_Left ? leftAttack : rightAttack);
 				Control cyclePrefab = (hand == HAND_Left ? leftCyclePrefab : rightCyclePrefab);
 
-
-				SwitchCurrentItem();
+				if(!player->IsGod())
+					SwitchCurrentItem();
 
 				//VR Inputs
 				if (player->IsVR()) {

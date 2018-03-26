@@ -14,6 +14,10 @@ enum GAMEOBJECT_FLAGS {
 	RENDERED = 32,
 };
 
+enum GAMEOBJECT_PUBLIC_FLAGS {
+	UNLIT = 1,
+};
+
 class GameObject: public Object {
 	friend class ObjectFactory;
 	virtual void GameObject::SetData(char* data) {};
@@ -23,6 +27,7 @@ protected:
 	unsigned updateID = 0;  //Update Delegate ID
 	unsigned eventDeleteAllGameObjects = 0;
 	unsigned flags = 0;
+	unsigned publicFlags = 0;
 	bool destroyOnReset = true;
 
 public:
@@ -53,6 +58,8 @@ public:
 
 	inline const std::string GetTag() const { return tag; };
 	inline void SetTag(std::string _tag) { tag = _tag; };
+	inline const unsigned GetFlags() const { return publicFlags; };
+	inline void ToggleFlag(GAMEOBJECT_PUBLIC_FLAGS flag) { publicFlags ^= flag; };
 };
 
 

@@ -29,7 +29,7 @@ cbuffer factorBuffer : register(b1)
     float diffuseFactor;
     float specularFactor;
     float emissiveFactor;
-    float morepadding;
+    float unlitFactor;
 };
 
 PixelShaderOutput main(PixelShaderInput input)
@@ -43,6 +43,6 @@ PixelShaderOutput main(PixelShaderInput input)
     output.normal = float4(((input.norm * 0.5f) + 0.5f), 1.0f);
     output.specular = float4((specular.Sample(sample, input.uv) * specularFactor).xyz, 1.0f);
     output.depth = float4(input.pos.z, input.pos.w, input.pos.z, 1.0f);
-    output.unlit = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    output.unlit = float4(unlitFactor, unlitFactor, unlitFactor, 1.0f);
     return output;
 }

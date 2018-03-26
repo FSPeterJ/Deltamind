@@ -17,7 +17,7 @@ void CastObject::Create(bool renderToFront) {
 		object->PersistOnReset();
 		backup = object;
 		if (renderToFront) {
-			MessageEvents::SendMessage(EVENT_Rendertofront, StandardObjectMessage(object)); 
+			object->RenderToFront();
 		}
 		if (object->GetComponent<Animator>()) {
 			for (int i = 0; i < ArcPoints; ++i) {

@@ -3,7 +3,6 @@
 
 class Item: public GameObject {
 protected:
-	bool isRendered = true;
 	bool physicsIsOn = true;
 public:
 	enum State {
@@ -16,7 +15,6 @@ public:
 	State state;
 	Item();
 
-	virtual void Render(bool render = true);
 	virtual void SetPhysicsComponent(bool active = true);
 	virtual void InactiveUpdate() {}
 	virtual void ActiveUpdate() {}

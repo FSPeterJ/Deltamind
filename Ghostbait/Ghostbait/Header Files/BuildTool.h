@@ -17,7 +17,6 @@ class BuildTool : public Item {
 
 	GameObject* gearDisplay = nullptr;
 	GameObject* gearAdjustmentDisplay = nullptr;
-	bool adjustmentRender = true;
 
 	int currentPrefabIndex = 0;
 	std::vector<BuildItem> prefabs;
@@ -33,8 +32,6 @@ class BuildTool : public Item {
 	unsigned* gears = nullptr; 
 	unsigned* turretsSpawned = nullptr;
 	unsigned* maxTurrets = nullptr;
-
-	void RenderAdjustmentDisplay(bool render);
 
 	void SpawnProjection();
 	void Spawn();

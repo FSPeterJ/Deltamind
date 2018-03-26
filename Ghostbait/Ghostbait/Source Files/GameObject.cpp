@@ -83,6 +83,26 @@ void GameObject::Disable() {
 void GameObject::Update() {
 
 }
+void GameObject::UnRender() {
+	if (!(flags & RENDERED)) return;
+	MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(this));
+	flags &= ~RENDERED;
+}
+void GameObject::Render() {
+	if (flags & RENDERED) return;
+	MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(this));
+	flags |= RENDERED;
+}
+void GameObject::RenderToFront() {
+	if (flags & RENDERED) return;
+	MessageEvents::SendMessage(EVENT_Rendertofront, StandardObjectMessage(this));
+	flags |= RENDERED;
+}
+void GameObject::RenderTransparent() {
+	if (flags & RENDERED) return;
+	MessageEvents::SendMessage(EVENT_Rendertransparent, StandardObjectMessage(this));
+	flags |= RENDERED;
+}
 
 
 
@@ -105,7 +125,7 @@ void GameObject::Awake(Object* obj) {
 	typeID = 0;
 	updateID = 0;
 	eventDeleteAllGameObjects = 0;
-	flags = 0;
+	flags = RENDERED;
 	PersistentSubscribe();
 	destroyOnReset = true;
 }

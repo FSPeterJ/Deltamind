@@ -6,18 +6,6 @@ Item::Item() {
 	SetTag("Item");
 };
 
-void Item::Render(bool render) {
-	if (render == isRendered) return;
-
-	if (render) {
-		MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(this));
-		isRendered = true;
-	}
-	else {
-		MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(this));
-		isRendered = false;
-	}
-}
 
 void Item::SetPhysicsComponent(bool active) {
 	if (active == physicsIsOn) return;
@@ -27,10 +15,10 @@ void Item::SetPhysicsComponent(bool active) {
 }
 
 void Item::Selected() {
-	Render(true);
+	Render();
 	SetPhysicsComponent(true);
 }
 void Item::DeSelected() {
-	Render(false);
+	UnRender();
 	SetPhysicsComponent(false);
 }

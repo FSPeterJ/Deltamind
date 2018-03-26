@@ -78,6 +78,7 @@ void Gun::Awake(Object* obj) {
 	damage = gun->damage;
 	type = gun->type;
 	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
+	GameObject::Awake(obj);
 	//TextManager::textOutput out = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "This is a test!");
 	//Material* newMat = TextManager::CreateRenderableTexture(100, 100);
 	//TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", "This is a test!", newMat);

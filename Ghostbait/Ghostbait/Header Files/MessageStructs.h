@@ -46,9 +46,12 @@ enum Control {
 	TestInputK,
 	TestInputL,
 	TestInputX,
-	TestInputZ,
-	TestInputC,
 	TestInputR,
+
+	
+	GodMode,
+	Sprint,
+	Crouch,
 
 	CameraLeftRight,
 	CameraUpDown,

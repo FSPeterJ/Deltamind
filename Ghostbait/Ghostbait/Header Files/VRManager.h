@@ -76,5 +76,5 @@ public:
 	DirectX::XMFLOAT4X4& GetPlayerPosition();
 	DirectX::XMFLOAT4X4 GetRoomPosition();
 
-	void MovePlayer(DirectX::XMFLOAT3 newPos);
+	void MovePlayer(DirectX::XMFLOAT3 newPos, bool floorClamp = true);
 };

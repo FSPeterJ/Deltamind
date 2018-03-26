@@ -30,6 +30,7 @@
 #include "Player.h"
 #include "Logger.h"
 #include "Core.h"
+#include "Ground.h"
 
 //#include "..\Omiracron\Omiracron\Omiracron.h"
 //using namespace Omiracron;
@@ -135,6 +136,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<OptionsButton>(1);
 	ObjectFactory::RegisterPrefabBase<ExitButton>(1);
 	ObjectFactory::RegisterPrefabBase<BackButton>(1);
+	ObjectFactory::RegisterPrefabBase<Ground>(1);
 
 	ObjectFactory::RegisterPrefabBase<AStarEnemy>(300);
 	ObjectFactory::RegisterPrefabBase<DStarEnemy>(10);
@@ -175,6 +177,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<OptionsButton>("OptionsButton");
 	TypeMap::RegisterObjectAlias<ExitButton>("ExitButton");
 	TypeMap::RegisterObjectAlias<BackButton>("BackButton");
+	TypeMap::RegisterObjectAlias<Ground>("Ground");
 
 	TypeMap::RegisterObjectAlias<AStarEnemy>("AStarEnemy");
 	TypeMap::RegisterObjectAlias<DStarEnemy>("DStarEnemy");

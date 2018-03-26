@@ -225,9 +225,9 @@ void VRManager::Teleport() {
 	}
 }
 
-void VRManager::MovePlayer(DirectX::XMFLOAT3 newPos) {
+void VRManager::MovePlayer(DirectX::XMFLOAT3 newPos, bool floorClamp) {
 	float deltaX = newPos.x - playerPos._41;
-	float deltaY = newPos.y - roomPos._42;
+	float deltaY = newPos.y - (floorClamp ? roomPos._42 : playerPos._42);
 	float deltaZ = newPos.z - playerPos._43;
 	DirectX::XMStoreFloat4x4(&roomPos, DirectX::XMLoadFloat4x4(&roomPos) * DirectX::XMMatrixTranslation(deltaX, deltaY, deltaZ));
 }

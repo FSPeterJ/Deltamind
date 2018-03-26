@@ -205,6 +205,7 @@
     <ClInclude Include="Header Files\AudioManager.h" />
     <ClInclude Include="Header Files\BuildTool.h" />
     <ClInclude Include="Header Files\Camera.h" />
+    <ClInclude Include="Header Files\CheatCode.h" />
     <ClInclude Include="Header Files\ComponentBase.h" />
     <ClInclude Include="Header Files\Controlable.h" />
     <ClInclude Include="Header Files\ControllerObject.h" />
@@ -221,6 +222,7 @@
     <ClInclude Include="Header Files\GameObject.h" />
     <ClInclude Include="Header Files\GameObjectComponent.h" />
     <ClInclude Include="Header Files\GhostTime.h" />
+    <ClInclude Include="Header Files\Ground.h" />
     <ClInclude Include="Header Files\Gun.h" />
     <ClInclude Include="Header Files\Health.h" />
     <ClInclude Include="Header Files\Heuristics.h" />
@@ -302,6 +304,8 @@
     <ClCompile Include="Source Files\AudioManager.cpp" />
     <ClCompile Include="Source Files\BuildTool.cpp" />
     <ClCompile Include="Source Files\Camera.cpp" />
+    <ClCompile Include="Source Files\CheatCode.cpp" />
+    <ClCompile Include="Source Files\Console.cpp" />
     <ClCompile Include="Source Files\Controlable.cpp" />
     <ClCompile Include="Source Files\ControllerObject.cpp" />
     <ClCompile Include="Source Files\Core.cpp" />

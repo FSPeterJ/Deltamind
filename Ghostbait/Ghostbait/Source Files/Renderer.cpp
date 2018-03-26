@@ -163,6 +163,7 @@ void Renderer::releaseDeferredTarget(DeferredRTVs * in)
 
 void Renderer::combineDeferredTargets(DeferredRTVs * in, ID3D11RenderTargetView * rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport)
 {
+	context->PSSetSamplers(0, 1, &PointSamplerState);
 	float color[] = { 0.5f, 0.5f, 1.0f, 1.0f };
 	UINT stride = sizeof(XMFLOAT4);
 	UINT offset = 0;
@@ -226,7 +227,7 @@ void Renderer::sortTransparentObjects(DirectX::XMFLOAT3 &camPos)
 	}
 }
 
-void Renderer::renderObjectDefaultState(Object * obj) {
+void Renderer::renderObjectDefaultState(const GameObject * obj) {
 	UINT stride = sizeof(VertexPositionTextureNormalAnim);
 	UINT offset = 0;
 	Mesh* y= obj->GetComponent<Mesh>();
@@ -241,9 +242,18 @@ void Renderer::renderObjectDefaultState(Object * obj) {
 	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(XMLoadFloat4x4(&obj->transform.GetMatrix())), 0, 0);
 	Material* mat = obj->GetComponent<Material>();
 	if (mat)
-		obj->GetComponent<Material>()->bindToShader(context, factorBuffer);
+	{
+		obj->GetComponent<Material>()->bindToShader(context, factorBuffer, obj->GetFlags() & GAMEOBJECT_PUBLIC_FLAGS::UNLIT);
+		if (mat->flags & Material::MaterialFlags::POINT)
+			context->PSSetSamplers(0, 1, &PointSamplerState);
+		else
+			context->PSSetSamplers(0, 1, &LinearSamplerState);
+	}
 	else
-		materialManagement->GetNullMaterial()->bindToShader(context, factorBuffer);
+	{
+		context->PSSetSamplers(0, 1, &PointSamplerState);
+		materialManagement->GetNullMaterial()->bindToShader(context, factorBuffer, true);
+	}
 
 	Animator* anim = obj->GetComponent<Animator>();
 	if(anim) {
@@ -263,6 +273,8 @@ void Renderer::renderObjectDefaultState(Object * obj) {
 }
 
 void Renderer::renderToEye(eye * eyeTo) {
+	context->PSSetSamplers(0, 1, &LinearSamplerState);
+
 	float color[] = {0.0f, 0.0f, 0.0f, 1.0f};
 	for (int i = 0; i < 6; ++i)
 	{
@@ -276,7 +288,7 @@ void Renderer::renderToEye(eye * eyeTo) {
 	context->RSSetViewports(1, &eyeTo->renderInfo.viewport);
 
 	for(size_t i = 0; i < renderedObjects.size(); ++i) {
-		renderObjectDefaultState((Object*) renderedObjects[i]);
+		renderObjectDefaultState(renderedObjects[i]);
 	}
 #if _DEBUG
 	DebugRenderer::drawTo(eyeTo->targets.RTVs, eyeTo->targets.DSV, eyeTo->renderInfo.viewport);
@@ -287,12 +299,12 @@ void Renderer::renderToEye(eye * eyeTo) {
 #endif
 	for (size_t i = 0; i < transparentObjects.size(); ++i)
 	{
-		renderObjectDefaultState((Object*)transparentObjects[i]);
+		renderObjectDefaultState(transparentObjects[i]);
 	}
 	context->ClearDepthStencilView(eyeTo->targets.DSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	for (size_t i = 0; i < frontRenderedObjects.size(); ++i)
 	{
-		renderObjectDefaultState((Object*)frontRenderedObjects[i]);
+		renderObjectDefaultState(frontRenderedObjects[i]);
 	}
 
 
@@ -484,8 +496,10 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 	sampleDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 	sampleDesc.MinLOD = -3.402823466e+38F;
 	sampleDesc.MaxLOD = 3.402823466e+38F;
-	device->CreateSamplerState(&sampleDesc, &OnlySamplerState);
-	context->PSSetSamplers(0, 1, &OnlySamplerState);
+	device->CreateSamplerState(&sampleDesc, &LinearSamplerState);
+	sampleDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	device->CreateSamplerState(&sampleDesc, &PointSamplerState);
+	context->PSSetSamplers(0, 1, &LinearSamplerState);
 #pragma endregion
 	
 	cameraPos->LookAt(DirectX::XMFLOAT3(0.0f, 0.0f, 5.0f));
@@ -511,13 +525,13 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 
 	TextManager::Initialize(device, context, TextVertexShader, PositionTexturePixelShader, ILPositionTexture);
 	TextManager::LoadFont("Assets/Fonts/defaultFontIndex.txt", "Assets/Fonts/defaultFont.png");
-	TextManager::textOutput out = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "This is a test!");
 }
 
 void Renderer::Destroy() {
 	TextManager::Destroy();
 	emptyFloat3Buffer->Release();
-	OnlySamplerState->Release();
+	LinearSamplerState->Release();
+	PointSamplerState->Release();
 	cameraBuffer->Release();
 	modelBuffer->Release();
 	factorBuffer->Release();
@@ -641,6 +655,7 @@ void Renderer::moveToTransparent(EventMessageBase * e)
 	{
 		if (*iter == move->RetrieveObject())
 		{
+			transparentObjects.push_back(move->RetrieveObject());
 			renderedObjects.erase(iter);
 			return;
 		}
@@ -670,7 +685,6 @@ XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 }
 
 void Renderer::Render() {
-	//TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", "Did it work???????????????????????????", tempText);
 	loadPipelineState(&defaultPipeline);
 	XMMATRIX cameraObj = XMMatrixTranspose(XMLoadFloat4x4(&cameraPos->GetMatrix()));
 	XMStoreFloat4x4(&defaultCamera.view, XMMatrixInverse(&XMMatrixDeterminant(cameraObj), cameraObj));
@@ -703,6 +717,8 @@ void Renderer::Render() {
 		DirectX::XMFLOAT3 tempPos = cameraPos->GetPosition();
 		sortTransparentObjects(tempPos);
 	}
+	context->PSSetSamplers(0, 1, &LinearSamplerState);
+
 	float color[] = {0.0f, 0.0f, 0.0f, 1.0f};
 	context->ClearRenderTargetView(defaultPipeline.render_target_view, color);
 	context->ClearDepthStencilView(defaultPipeline.depth_stencil_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -733,17 +749,17 @@ void Renderer::Render() {
 #endif
 
 	for(size_t i = 0; i < renderedObjects.size(); ++i) {
-		renderObjectDefaultState((Object*) renderedObjects[i]);
+		renderObjectDefaultState(renderedObjects[i]);
 	}
 
 	for (size_t i = 0; i < transparentObjects.size(); ++i)
 	{
-		renderObjectDefaultState((Object*)transparentObjects[i]);
+		renderObjectDefaultState(transparentObjects[i]);
 	}
 	context->ClearDepthStencilView(deferredTextures.DSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	for (size_t i = 0; i < frontRenderedObjects.size(); ++i)
 	{
-		renderObjectDefaultState((Object*)frontRenderedObjects[i]);
+		renderObjectDefaultState(frontRenderedObjects[i]);
 	}
 	//DirectX::XMFLOAT4X4 view, proj;
 	//if (VRManager::GetInstance().IsEnabled())

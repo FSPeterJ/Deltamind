@@ -4,7 +4,6 @@
 #include "HexGrid.h"
 #include <vector>
 #include "Menu.h"
-#include "Light.h"
 
 
 class SceneManager;
@@ -25,7 +24,6 @@ enum State {
 class Game {
 	HexGrid hexGrid = HexGrid("Assets/Level0.ghostGrid", 500, HexagonalGridLayout::FlatLayout);
 	
-	Light light;
 	bool run = true;
 
 	struct WaveManager {
@@ -112,9 +110,7 @@ class Game {
 	public:
 		unsigned gears = 0;
 		unsigned turretsSpawned = 0;
-		unsigned maxTurrets = 4;
-		float panicTimerDone = 5;
-		float panicTimer = 0;
+		unsigned maxTurrets = 100;
 		WaveManager waveManager;
 		SplashScreenManager ssManager;
 
@@ -142,7 +138,6 @@ class Game {
 	//Event Catchers
 	void SpawnerCreatedEvent(EventMessageBase* e);
 	void RemoveObstacleEvent(EventMessageBase* e);
-	void CoreDamaged();
 	void EnemyDiedEvent();
 	void PauseInputEvent();
 	void StartEvent();
@@ -154,6 +149,7 @@ class Game {
 	void StartNextWave();
 
 	//Handle primary function event logic
+	void BecameGod();
 	void RestartLevel();
 	void PauseGame();
 	void ResumeGame();

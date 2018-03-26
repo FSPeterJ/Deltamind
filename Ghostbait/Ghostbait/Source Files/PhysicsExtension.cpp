@@ -18,7 +18,7 @@ void CastObject::Create(bool renderToFront) {
 		object->PersistOnReset();
 		backup = object;
 		if (renderToFront) {
-			MessageEvents::SendMessage(EVENT_Rendertofront, StandardObjectMessage(object)); 
+			object->RenderToFront();
 		}
 		if (object->GetComponent<Animator>()) {
 			for (int i = 0; i < ArcPoints; ++i) {
@@ -97,7 +97,6 @@ namespace {
 				tran.LookAt(DirectX::XMFLOAT3(endMat.m[3]));
 			}
 			arc->Get()->GetComponent<Animator>()->SetJointMatrix(i, tran.GetMatrix());
-			DebugRenderer::DrawAxes(arc->Get()->GetComponent<Animator>()->GetJointMatrix(i), 0.25f);
 		}
 	}
 	void DrawRay(Transform* transform, const DirectX::XMFLOAT3& end, CastObject* ray) {

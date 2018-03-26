@@ -116,7 +116,7 @@ public:
 	template <class ComponentType>
 	unsigned AddComponent(ValueType value) {
 		//m_mapname[std::string(typeid(ComponentType).name())] = value;
-		typeMapID[GetTypeId<ComponentType>()] = value;
+		typeMapID[GetComponentTypeID<ComponentType>()] = value;
 		return typeMapID.find(GetComponentTypeID<ComponentType>())->first;
 	}
 

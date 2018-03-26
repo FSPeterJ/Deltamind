@@ -4,6 +4,7 @@
 void Light::RemoveLightFromManager() {
 	if (LightManager::getLight(lightID)) {
 		LightManager::removeLight(lightID);
+		lightID = -1;
 	}
 }
 
@@ -49,6 +50,8 @@ genericLight* Light::GetData() const {
 }
 
 void Light::Update() {
-	LightManager::getLight(lightID)->pos = transform.GetPosition();
+	if (LightManager::getLight(lightID)) {
+		LightManager::getLight(lightID)->pos = transform.GetPosition();
+	}
 	GameObject::Update();
 }

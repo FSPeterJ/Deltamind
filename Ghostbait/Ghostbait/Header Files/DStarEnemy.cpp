@@ -15,7 +15,7 @@ void DStarEnemy::Enable() {
 
 	next = curTile; //is this needed or can i pass a ref to a null var below
 	//grid->RemoveObstacle(curTile);//Remove on final build
-	dstarId = PathPlanner::DStarLiteSearch(curTile, goal, &next, Heuristics::OctileDistance);
+	dstarId = PathPlanner::DStarLiteSearch(&curTile, &goal, &next, 3, Heuristics::OctileDistance);
 
 	rb->SetTerminalSpeed(maxSpeed);
 	EnemyBase::Enable();
@@ -101,7 +101,7 @@ void DStarEnemy::Update() {
 			if (curTile == next) {
 				PathPlanner::UpdateDStar(dstarId);
 
-				next = PathPlanner::GetDStarNextTile(dstarId);
+				//next = PathPlanner::GetDStarNextTile(dstarId);
 				if (next) {
 					auto nextPathPoint = grid->TileToPoint(next);
 

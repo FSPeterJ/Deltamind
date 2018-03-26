@@ -102,7 +102,7 @@ struct DStarCommon {
 	friend class PathPlanner;
 
 	HexGrid *grid = nullptr;
-	HexTile *start = nullptr, *goal = nullptr, *next = nullptr;
+	HexTile **start = nullptr, **goal = nullptr, **next = nullptr;
 	PriorityQueueMap<HexTile*, FloatPair> open;
 
 	//CostMap cumulativeCost; //g-value
@@ -117,7 +117,7 @@ struct DStarCommon {
 
 	DStarCommon() {};
 
-	DStarCommon(HexTile*const _start, HexTile*const _goal, HexGrid*const _grid);
+	DStarCommon(HexTile**const _start, HexTile**const _goal, HexTile**const _next, HexGrid*const _grid, std::size_t _perception);
 
 	float GetMinimumFrom(const SearchType neighbors, HexTile*const tile, std::function<float(HexTile*const)>, UnionType includeSelf = None);
 
@@ -143,9 +143,9 @@ struct DStarCommon {
 
 	void UpdateOpenList(HexTile*const tile);
 
-	HexTile* GetNextTileInPath();
+	//HexTile* GetNextTileInPath();
 
-	virtual void Update() {};// = 0;
+	virtual void Update() = 0;
 	//Update
 	//Compute
 };
@@ -153,7 +153,7 @@ struct DStarCommon {
 class DStarLite : public DStarCommon {
 	friend class PathPlanner;
 
-	HexTile *last = nullptr, *curNode = nullptr, **nextTileInPath = nullptr;
+	HexTile *last = nullptr, *curNode = nullptr;
 
 	//void Replan() {
 	//	path->clear();
@@ -187,7 +187,7 @@ class DStarLite : public DStarCommon {
 
 public:
 	DStarLite() = default;
-	DStarLite(HexGrid *const _grid, HexTile *const _start, HexTile *const _goal, HexTile** _nextTileInPath);
+	DStarLite(HexGrid *const _grid, HexTile **const _start, HexTile **const _goal, HexTile **const _next, std::size_t _perception);
 	DStarLite & operator=(DStarLite& other);
 	void Update();
 };
@@ -198,7 +198,7 @@ class MTDStarLite : public DStarCommon {
 	HexPath path;
 	std::vector<HexTile*> deleted;
 	VisitedMap parent;
-	DirectX::XMFLOAT4X4* goalReference = nullptr, *startReference = nullptr;
+	HexTile *oldStart, *oldGoal;
 
 	void ForEachInSearchTreeButNotSubtreeRootedAt(HexTile*const tile, NeighborFunction exec);
 	void BasicDeletion(HexTile*const oldStart);
@@ -207,8 +207,8 @@ class MTDStarLite : public DStarCommon {
 
 public:
 	MTDStarLite() = default;
-	MTDStarLite(HexGrid *const _grid, DirectX::XMFLOAT4X4* _startRef, DirectX::XMFLOAT4X4* _goalRef);
+	MTDStarLite(HexGrid *const _grid, HexTile **const _start, HexTile **const _goal, HexTile **const _next, std::size_t _perception);
 	MTDStarLite & operator=(MTDStarLite& other);
 	void Update();
-	void UpdateGoalReference(DirectX::XMFLOAT4X4* _goalRef);
+	//void UpdateGoalReference(DirectX::XMFLOAT4X4* _goalRef);
 };

@@ -83,6 +83,13 @@ public:
 	HexTile* PointToTile(const DirectX::XMFLOAT2& p);
 
 	/// <summary>
+	/// Converts a world coordinate into a grid coordinate.
+	/// </summary>
+	/// <param name="p">The world point to convert.</param>
+	/// <returns>The hex tile where the world coordinate maps to.</returns>
+	HexTile PointToTileOffGrid(const DirectX::XMFLOAT2& p);
+
+	/// <summary>
 	/// Converts a HexTile into a world coordinate.
 	/// </summary>
 	/// <param name="tile">The tile.</param>
@@ -213,5 +220,4 @@ public:
 
 	void Color(HexRegion& r, DirectX::XMFLOAT3 color, int fill);
 	void Color(HexPath& p, DirectX::XMFLOAT3 color, int fill);
-
 };

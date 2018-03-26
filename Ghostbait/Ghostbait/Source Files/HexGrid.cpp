@@ -36,6 +36,10 @@ HexTile* HexGrid::PointToTile(const DirectX::XMFLOAT2& p) {
 	return GetTileExact(HexTile::Round(HexagonalGridLayout::PointToHexagonTile(p, layout)));
 }
 
+HexTile HexGrid::PointToTileOffGrid(const DirectX::XMFLOAT2& p) {
+	return HexTile::Round(HexagonalGridLayout::PointToHexagonTile(p, layout));
+}
+
 DirectX::XMFLOAT2 HexGrid::TileToPoint(HexTile * tile) {
 	return tile->Center(layout);
 }

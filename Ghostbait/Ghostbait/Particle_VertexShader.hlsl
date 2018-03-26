@@ -2,6 +2,9 @@
 
 //The draw call to this shader should have no input layout elements as the data is in GPU buffers
 
+RWStructuredBuffer<uint> ActiveBillboardParticleIndex : register(u1); 
+
+
 cbuffer ModelViewProjectionConstantBuffer : register(b0)
 {
     matrix view;

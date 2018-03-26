@@ -519,7 +519,7 @@ void Renderer::Destroy() {
 	animDataBuffer->Release();
 	ILPositionColor->Release();
 	ILStandard->Release();
-	ILParticle->Release();
+	//ILParticle->Release();
 	ILPosition->Release();
 	ILPositionTexture->Release();
 	PassThroughPositionColorVS->Release();
@@ -560,6 +560,13 @@ void Renderer::Destroy() {
 	ActiveParticleIndexUAV->Release();
 	//Emitter
 	EmitterConstantBuffer->Release();
+
+	//Drawing Arguments
+	IndirectDrawArgsUAV->Release();
+	IndirectDrawArgsBuffer->Release();
+	//Shaders
+	ParticleUpdateShader->Release();
+	ParticleEmitShader->Release();
 	//==========================================
 
 	defaultPipeline.render_target_view->Release();
@@ -747,6 +754,9 @@ void Renderer::Render() {
 	for(size_t i = 0; i < frontRenderedObjects.size(); ++i) {
 		renderObjectDefaultState((Object*)frontRenderedObjects[i]);
 	}
+
+	RenderParticles();
+
 	//DirectX::XMFLOAT4X4 view, proj;
 	//if (VRManager::GetInstance().IsEnabled())
 	//{
@@ -770,6 +780,7 @@ void Renderer::Render() {
 		XMStoreFloat4x4(&buff.view, XMMatrixInverse(nullptr, XMLoadFloat4x4(&defaultCamera.view)));
 		XMStoreFloat4x4(&buff.projection, XMMatrixInverse(nullptr, XMLoadFloat4x4(&defaultCamera.projection)));
 	}
+
 	context->UpdateSubresource(cameraBuffer, NULL, NULL, &buff, NULL, NULL);
 	combineDeferredTargets(&deferredTextures, defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport);
 	swapchain->Present(0, 0);
@@ -839,6 +850,34 @@ void Renderer::initRasterState(pipeline_state_t * pipelineTo, bool wireFrame) {
 	device->CreateRasterizerState(&rasterDesc, &pipelineTo->rasterizer_state);
 }
 
+void Renderer::InitParticleShaders() {
+	char* byteCode = nullptr;
+	size_t byteCodeSize;
+
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "Particle_GeometryShader.cso");
+	device->CreateGeometryShader(byteCode, byteCodeSize, NULL, &ParticleGS);
+	delete[] byteCode;
+	byteCode = nullptr;
+
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "Particle_PixelShader.cso");
+	device->CreatePixelShader(byteCode, byteCodeSize, NULL, &ParticlePS);
+	delete[] byteCode;
+	byteCode = nullptr;
+
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "Particle_VertexShader.cso");
+	device->CreateVertexShader(byteCode, byteCodeSize, NULL, &ParticleVS);
+	delete[] byteCode;
+	byteCode = nullptr;
+
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "ParticleEmit_ComputeShader.cso");
+	device->CreateComputeShader(byteCode, byteCodeSize, NULL, &ParticleEmitShader);
+	delete[] byteCode;
+
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "ParticleUpdate_ComputeShader.cso");
+	device->CreateComputeShader(byteCode, byteCodeSize, NULL, &ParticleUpdateShader);
+	delete[] byteCode;
+}
+
 void Renderer::initShaders() {
 	char* byteCode = nullptr;
 	size_t byteCodeSize;
@@ -881,29 +920,21 @@ void Renderer::initShaders() {
 	delete[] byteCode;
 	byteCode = nullptr;
 
-	LoadShaderFromCSO(&byteCode, byteCodeSize, "ParticleVS.cso");
-	device->CreateVertexShader(byteCode, byteCodeSize, NULL, &ParticleVS);
 
-	D3D11_INPUT_ELEMENT_DESC particleVSDesc[] =
-	{
-		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-	{"PSIZE", 0, DXGI_FORMAT_R32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-	{"TEXCOORD", 0, DXGI_FORMAT_R32_SINT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
-	};
 
-	device->CreateInputLayout(particleVSDesc, ARRAYSIZE(particleVSDesc), byteCode, byteCodeSize, &ILParticle);
-	delete[] byteCode;
-	byteCode = nullptr;
+	//D3D11_INPUT_ELEMENT_DESC particleVSDesc[] =
+	//{
+	//	{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	//{"PSIZE", 0, DXGI_FORMAT_R32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	//{"TEXCOORD", 0, DXGI_FORMAT_R32_SINT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+	//};
 
-	LoadShaderFromCSO(&byteCode, byteCodeSize, "ParticleGS.cso");
-	device->CreateGeometryShader(byteCode, byteCodeSize, NULL, &ParticleGS);
-	delete[] byteCode;
-	byteCode = nullptr;
+	//device->CreateInputLayout(particleVSDesc, ARRAYSIZE(particleVSDesc), byteCode, byteCodeSize, &ILParticle);
+	//delete[] byteCode;
+	//byteCode = nullptr;
 
-	LoadShaderFromCSO(&byteCode, byteCodeSize, "ParticlePS.cso");
-	device->CreatePixelShader(byteCode, byteCodeSize, NULL, &ParticlePS);
-	delete[] byteCode;
-	byteCode = nullptr;
+	InitParticleShaders();
+
 
 	LoadShaderFromCSO(&byteCode, byteCodeSize, "SkyboxVertexShader.cso");
 	device->CreateVertexShader(byteCode, byteCodeSize, NULL, &SkyboxVS);
@@ -951,9 +982,7 @@ void Renderer::initShaders() {
 	device->CreatePixelShader(byteCode, byteCodeSize, NULL, &PositionTexturePixelShader);
 	delete[] byteCode;
 
-	//LoadShaderFromCSO(&byteCode, byteCodeSize, "Particle_ComputeShader.cso");
-	//device->CreateComputeShader(byteCode, byteCodeSize, NULL, &ParticleComputeShader);
-	//delete[] byteCode;
+
 
 
 	CD3D11_BUFFER_DESC constantBufferDesc(sizeof(viewProjectionConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
@@ -1014,13 +1043,31 @@ void Renderer::InitParticles() {
 	D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc;
 	ZeroMemory(&uavDesc, sizeof(uavDesc));
 
+	D3D11_SUBRESOURCE_DATA resData = { 0 };
+
 	uavDesc.Format = DXGI_FORMAT_UNKNOWN;
 	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
 	uavDesc.Buffer.FirstElement = 0;
 	uavDesc.Buffer.NumElements = MAX_PARTICLES;
 	uavDesc.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_COUNTER;
 
-	device->CreateBuffer(&bufferDesc, nullptr, &ParticleBuffer);
+	//TESTING CODE
+	GPUParticle* testParticle = new GPUParticle[MAX_PARTICLES];
+	testParticle->position = XMFLOAT3(0, 2.0f, 1.5f);
+	testParticle->endSize = 3.0f;
+	testParticle->startSize = 1.5f;
+	testParticle->properties = 512u << 20| 512u << 8 | 0u;
+	resData.pSysMem = testParticle;
+	//END TEST
+
+	//device->CreateBuffer(&bufferDesc, nullptr, &ParticleBuffer);
+
+	assert(&bufferDesc != nullptr);
+	assert(&resData != nullptr);
+	auto temp = device->CreateBuffer(&bufferDesc, &resData, &ParticleBuffer);
+	assert(ParticleBuffer);
+
+	delete[] testParticle;
 	device->CreateShaderResourceView(ParticleBuffer, &srvDesc, &ParticleSRV);
 	device->CreateUnorderedAccessView(ParticleBuffer, &uavDesc, &ParticleUAV);
 
@@ -1028,26 +1075,67 @@ void Renderer::InitParticles() {
 	bufferDesc.ByteWidth = sizeof(UINT) * MAX_PARTICLES;
 	bufferDesc.StructureByteStride = sizeof(UINT);
 	//Active
-	device->CreateBuffer(&bufferDesc, nullptr, &ActiveParticleIndexBuffer);
+
+	//TESTING CODE
+	ZeroMemory(&resData, sizeof(resData));
+	UINT* indexData = new UINT[MAX_PARTICLES]();
+	resData.pSysMem = indexData;
+
+	//END TEST
+
+
+	//device->CreateBuffer(&bufferDesc, nullptr, &ActiveParticleIndexBuffer);
+	device->CreateBuffer(&bufferDesc, &resData, &ActiveParticleIndexBuffer);
 	device->CreateShaderResourceView(ActiveParticleIndexBuffer, &srvDesc, &ActiveParticleIndexSRV);
 	device->CreateUnorderedAccessView(ActiveParticleIndexBuffer, &uavDesc, &ActiveParticleIndexUAV);
+
+	for(unsigned i = 0; i < MAX_PARTICLES; ++i) {
+		indexData[i] = i;
+	}
+	resData.pSysMem = indexData;
+
 	//Inactive
-	device->CreateBuffer(&bufferDesc, nullptr, &InactiveParticleIndexBuffer);
+	device->CreateBuffer(&bufferDesc, &resData, &InactiveParticleIndexBuffer);
 	device->CreateShaderResourceView(InactiveParticleIndexBuffer, &srvDesc, &InactiveParticleIndexSRV);
 	device->CreateUnorderedAccessView(InactiveParticleIndexBuffer, &uavDesc, &InactiveParticleIndexUAV);
+	delete[] indexData;
 
 	//Active / Inactive count Constant buffer
 	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	bufferDesc.ByteWidth = sizeof(UINT) * 4;
 	bufferDesc.MiscFlags = 0;
-	device->CreateBuffer(&bufferDesc, nullptr, &InactiveParticleConstantBuffer);
-	device->CreateBuffer(&bufferDesc, nullptr, &ActiveParticleConstantBuffer);
+
+	ZeroMemory(&resData, sizeof(resData));
+	UINT* countData = new UINT[4];
+	countData[0] = 1u;
+	resData.pSysMem = countData;
+	device->CreateBuffer(&bufferDesc, &resData, &ActiveParticleConstantBuffer);
+	countData[0] = MAX_PARTICLES;
+	resData.pSysMem = countData;
+	device->CreateBuffer(&bufferDesc, &resData, &InactiveParticleConstantBuffer);
+	delete[] countData;
 
 	//Emitter constant buffer
 	bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	bufferDesc.ByteWidth = sizeof(EmitterConstant);
 	device->CreateBuffer(&bufferDesc, nullptr, &EmitterConstantBuffer);
+
+	ZeroMemory(&bufferDesc, sizeof(bufferDesc));
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.BindFlags = D3D11_BIND_UNORDERED_ACCESS;
+	bufferDesc.ByteWidth = sizeof(UINT) * 5;
+	bufferDesc.MiscFlags = D3D11_RESOURCE_MISC_DRAWINDIRECT_ARGS;
+	device->CreateBuffer(&bufferDesc, nullptr, &IndirectDrawArgsBuffer);
+
+	ZeroMemory(&uavDesc, sizeof(uavDesc));
+	uavDesc.Format = DXGI_FORMAT_R32_UINT;
+	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+	uavDesc.Buffer.FirstElement = 0;
+	uavDesc.Buffer.NumElements = 5;
+	uavDesc.Buffer.Flags = 0;
+	device->CreateUnorderedAccessView(IndirectDrawArgsBuffer, &uavDesc, &IndirectDrawArgsUAV);
+
 
 	FillRandomTexture();
 }
@@ -1147,5 +1235,21 @@ void Renderer::FillRandomTexture() {
 	srv.Texture2D.MostDetailedMip = 0;
 
 	device->CreateShaderResourceView(randomTexture, &srv, &randomTextureSRV);
+}
+
+void Renderer::RenderParticles() {
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+
+	context->VSSetShader(ParticleVS, NULL, NULL);
+	context->PSSetShader(ParticlePS, NULL, NULL);
+	context->GSSetShader(ParticleGS, NULL, NULL);
+	context->OMSetRenderTargets(6, deferredTextures.RTVs, deferredTextures.DSV);
+
+	ID3D11UnorderedAccessView* views[] = { ParticleUAV, ActiveParticleIndexUAV };
+	UINT counts[] = {0, 1};
+
+	context->OMSetRenderTargetsAndUnorderedAccessViews(6, deferredTextures.RTVs, deferredTextures.DSV, 6, 2, views, counts);
+	context->CopyStructureCount(IndirectDrawArgsBuffer, 0, ActiveParticleIndexUAV);
+	context->DrawIndexedInstancedIndirect(IndirectDrawArgsBuffer, 0);
 }
 

@@ -8,8 +8,10 @@ Texture2D RandomNumbers : register(t0);
 // There is a pool of particles and then an inactive / active list.  Instead of pointers we use indicies.  
 
 
-RWStructuredBuffer<uint> ActiveBillboardParticleIndex : register(u1); //We are simply using the Append view;
-RWStructuredBuffer<uint> InactiveBillboardParticleIndex : register(u2);
+RWStructuredBuffer<uint> ActiveBillboardParticleIndex : register(u11); 
+RWStructuredBuffer<uint> InactiveBillboardParticleIndex : register(u12);
+RWBuffer<uint> DrawArgs : register(u13);
+
 
 cbuffer EmitterConstantBuffer : register(b1)
 {

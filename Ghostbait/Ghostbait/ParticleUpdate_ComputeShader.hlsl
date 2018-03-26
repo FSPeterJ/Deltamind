@@ -3,8 +3,9 @@
 
 
 
-RWStructuredBuffer<uint> ActiveBillboardParticleIndex : register(u1);
-RWStructuredBuffer<uint> InactiveBillboardParticleIndex : register(u2);
+RWStructuredBuffer<uint> ActiveBillboardParticleIndex : register(u11);
+RWStructuredBuffer<uint> InactiveBillboardParticleIndex : register(u12);
+RWBuffer<uint> DrawArgs : register(u13);
 
 //groupshared uint ActiveBillboardParticleCount;
 //groupshared uint OriginalActiveBillboardParticleCount;
@@ -14,11 +15,12 @@ RWStructuredBuffer<uint> InactiveBillboardParticleIndex : register(u2);
 [numthreads(256, 1, 1)]
 void main(uint3 DThreadID : SV_DispatchThreadID)
 {
-    //if (DThreadID.x == 0)
-    //{
+    if (DThreadID.x == 0)
+    {
+        DrawArgs[0] = 0;
 
-    //}
-    //GroupMemoryBarrierWithGroupSync();
+    }
+    GroupMemoryBarrierWithGroupSync();
 
     //The reason behind this system is to quit out of cycling particles early.  From what I understand that way that GPU thread groups work
     //is they are processed in batches.  This means if 64 threads are assigned a task and only 2 of them are active, the entire thread group must wait 
@@ -46,13 +48,6 @@ void main(uint3 DThreadID : SV_DispatchThreadID)
                 //Possible Additions: variable rotation speed, acceleration
                 //Bparticle.m_Rotation += 0.24 * FrameTime;
                 float3 NewPosition = Bparticle.position;
-
-                //This can be made global
-                float3 windDir = float3(1, 1, 0);
-                float windStrength = 0.1;
-                //Acceleration from Wind
-                Bparticle.velocity += normalize(windDir) * windStrength * FrameTime;
-
 
                 NewPosition += Bparticle.velocity * FrameTime;
 

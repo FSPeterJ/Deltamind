@@ -24,17 +24,17 @@ struct BillboardParticle // (48 bytes) 500,000  = 25MB of VRAM for all particle 
 
 };
 
-RWStructuredBuffer<BillboardParticle> BillboardParticleBuffer : register(u0);
+RWStructuredBuffer<BillboardParticle> BillboardParticleBuffer : register(u10);
 
 
-cbuffer InactiveParticles : register(b2)
+cbuffer InactiveParticles : register(b10)
 {
     uint InactiveParticleCount;
     uint IPCpad[3];
 };
 
 // The number of alive particles this frame
-cbuffer ActiveParticles : register(b3)
+cbuffer ActiveParticles : register(b11)
 {
     uint ActiveParticleCount;
     uint APCpad[3];

@@ -5,7 +5,7 @@
 #include <vector>
 
 
-#define MAX_PARTICLES 500000
+#define MAX_PARTICLES 50
 
 class Transform;
 class GameObject;
@@ -53,7 +53,7 @@ private:
 		float lifespan; // how long the particle will last
 		float startSize; //particle scale over time data
 		float endSize;
-		unsigned properties; // 16 bits - no data | 8 bits - emitter index (debug data) | 8 bits - texture index  - All subject to change in the future?
+		unsigned properties; // 12 bits - U Axis UV end | 12 bits - V Axis UV end | 8 bits - texture W index
 	};
 
 	struct EmitterConstant {
@@ -139,7 +139,6 @@ private:
 	ID3D11VertexShader* TextVertexShader;
 	ID3D11PixelShader* PositionTexturePixelShader;
 
-	ID3D11ComputeShader* ParticleComputeShader;
 
 	ID3D11InputLayout* ILPositionColor;
 	ID3D11InputLayout* ILPositionTexture;
@@ -185,12 +184,18 @@ private:
 	ID3D11ShaderResourceView* ActiveParticleIndexSRV;
 	ID3D11UnorderedAccessView* ActiveParticleIndexUAV;
 	ID3D11ShaderResourceView* InactiveParticleIndexSRV;
+	ID3D11Buffer* IndirectDrawArgsBuffer;
+	ID3D11UnorderedAccessView* IndirectDrawArgsUAV;
+	ID3D11ComputeShader* ParticleUpdateShader;
+	ID3D11ComputeShader* ParticleEmitShader;
+
 
 	void initDepthStencilBuffer(pipeline_state_t* pipelineTo);
 	void initDepthStencilState(pipeline_state_t* pipelineTo);
 	void initDepthStencilView(pipeline_state_t* pipelineTo);
 	void initBlendState(pipeline_state_t* pipelineTo);
 	void initRasterState(pipeline_state_t* pipelineTo, bool wireFrame = false);
+	void InitParticleShaders();
 	void initShaders();
 	void initViewport(RECT window, pipeline_state_t* pipelineTo);
 	void InitParticles();
@@ -271,5 +276,6 @@ public:
 	AnimationManager* getAnimationManager();
 	Transform* getCamera();
 	void FillRandomTexture();
+	void RenderParticles();
 	void Render();
 };

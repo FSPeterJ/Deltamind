@@ -80,7 +80,8 @@ private:
 	};
 #pragma endregion
 
-	ID3D11SamplerState* OnlySamplerState; //DirectX is a hoot
+	ID3D11SamplerState* LinearSamplerState;
+	ID3D11SamplerState* PointSamplerState; //DirectX is not a hoot
 
 	ID3D11Device* device;
 	ID3D11DeviceContext* context;

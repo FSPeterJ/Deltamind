@@ -44,13 +44,14 @@ TextManager::renderableMat TextManager::createTextMaterial(float width, float he
 	viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	viewDesc.Texture2D.MipLevels = texDesc.MipLevels;
 	viewDesc.Texture2D.MostDetailedMip = 0;
+	
 
 	device->CreateTexture2D(&texDesc, nullptr, (ID3D11Texture2D**)&toPush.mat->diffuse.texture);
 	device->CreateShaderResourceView(toPush.mat->diffuse.texture, &viewDesc, &toPush.mat->diffuse.texView);
 	toPush.mat->diffuse.factor = 1.0f;
 	toPush.mat->emissive.factor = 0.0f;
 	toPush.mat->specular.factor = 0.0f;
-
+	toPush.mat->flags = Material::MaterialFlags::POINT;
 	device->CreateRenderTargetView(toPush.mat->diffuse.texture, nullptr, &toPush.rtv);
 
 	texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;

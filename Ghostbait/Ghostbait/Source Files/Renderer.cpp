@@ -163,6 +163,7 @@ void Renderer::releaseDeferredTarget(DeferredRTVs * in)
 
 void Renderer::combineDeferredTargets(DeferredRTVs * in, ID3D11RenderTargetView * rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport)
 {
+	context->PSSetSamplers(0, 1, &PointSamplerState);
 	float color[] = { 0.5f, 0.5f, 1.0f, 1.0f };
 	UINT stride = sizeof(XMFLOAT4);
 	UINT offset = 0;
@@ -241,9 +242,18 @@ void Renderer::renderObjectDefaultState(Object * obj) {
 	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(XMLoadFloat4x4(&obj->transform.GetMatrix())), 0, 0);
 	Material* mat = obj->GetComponent<Material>();
 	if (mat)
+	{
 		obj->GetComponent<Material>()->bindToShader(context, factorBuffer);
+		if (mat->flags & Material::MaterialFlags::POINT)
+			context->PSSetSamplers(0, 1, &PointSamplerState);
+		else
+			context->PSSetSamplers(0, 1, &LinearSamplerState);
+	}
 	else
+	{
+		context->PSSetSamplers(0, 1, &PointSamplerState);
 		materialManagement->GetNullMaterial()->bindToShader(context, factorBuffer);
+	}
 
 	Animator* anim = obj->GetComponent<Animator>();
 	if(anim) {
@@ -263,6 +273,8 @@ void Renderer::renderObjectDefaultState(Object * obj) {
 }
 
 void Renderer::renderToEye(eye * eyeTo) {
+	context->PSSetSamplers(0, 1, &LinearSamplerState);
+
 	float color[] = {0.0f, 0.0f, 0.0f, 1.0f};
 	for (int i = 0; i < 6; ++i)
 	{
@@ -484,8 +496,10 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 	sampleDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 	sampleDesc.MinLOD = -3.402823466e+38F;
 	sampleDesc.MaxLOD = 3.402823466e+38F;
-	device->CreateSamplerState(&sampleDesc, &OnlySamplerState);
-	context->PSSetSamplers(0, 1, &OnlySamplerState);
+	device->CreateSamplerState(&sampleDesc, &LinearSamplerState);
+	sampleDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	device->CreateSamplerState(&sampleDesc, &PointSamplerState);
+	context->PSSetSamplers(0, 1, &LinearSamplerState);
 #pragma endregion
 	
 	cameraPos->LookAt(DirectX::XMFLOAT3(0.0f, 0.0f, 5.0f));
@@ -516,7 +530,8 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 void Renderer::Destroy() {
 	TextManager::Destroy();
 	emptyFloat3Buffer->Release();
-	OnlySamplerState->Release();
+	LinearSamplerState->Release();
+	PointSamplerState->Release();
 	cameraBuffer->Release();
 	modelBuffer->Release();
 	factorBuffer->Release();
@@ -702,6 +717,8 @@ void Renderer::Render() {
 		DirectX::XMFLOAT3 tempPos = cameraPos->GetPosition();
 		sortTransparentObjects(tempPos);
 	}
+	context->PSSetSamplers(0, 1, &LinearSamplerState);
+
 	float color[] = {0.0f, 0.0f, 0.0f, 1.0f};
 	context->ClearRenderTargetView(defaultPipeline.render_target_view, color);
 	context->ClearDepthStencilView(defaultPipeline.depth_stencil_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);

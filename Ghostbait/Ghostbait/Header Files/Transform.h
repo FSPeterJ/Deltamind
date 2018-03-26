@@ -13,6 +13,9 @@ public:
 	//DirectX::XMFLOAT3 scale = DirectX::XMFLOAT3(0, 0, 0);
 	const DirectX::XMFLOAT4X4& GetMatrix() const;
 	const DirectX::XMFLOAT3 GetPosition() const;
+	inline DirectX::XMFLOAT3 GetXAxis() const { return DirectX::XMFLOAT3(matrix._11, matrix._12, matrix._13); }
+	inline DirectX::XMFLOAT3 GetYAxis() const { return DirectX::XMFLOAT3(matrix._21, matrix._22, matrix._23); }
+	inline DirectX::XMFLOAT3 GetZAxis() const { return DirectX::XMFLOAT3(matrix._31, matrix._32, matrix._33); }
 	void SetMatrix(const DirectX::XMFLOAT4X4& mat);
 	void MoveToOrigin(float height = 0);
 	void SetPosition(const float x, const float y, const float z);

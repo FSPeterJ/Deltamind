@@ -83,83 +83,83 @@ void InputManager::VRInput::CheckForInput() {
 	float amount = 0;
 	vr::VRControllerState_t state;
 	vr::VREvent_t event;
+	if (!godMode.IsActive()) {
+		if (leftTouchpadTouched) {
+			VRManager::GetInstance().pVRHMD->GetControllerState(VRManager::GetInstance().leftController.index, &state, sizeof(state));
+			leftTPX = state.rAxis[0].x;
+			leftTPY = state.rAxis[0].y;
 
+			float rads;
 
-	if(leftTouchpadTouched) {
-		VRManager::GetInstance().pVRHMD->GetControllerState(VRManager::GetInstance().leftController.index, &state, sizeof(state));
-		leftTPX = state.rAxis[0].x;
-		leftTPY = state.rAxis[0].y;
+			rads = atan2(leftTPX, leftTPY);
+			if (rads < 0) rads += (float)(2 * RAD_PI);
+			if (rads >= RAD_PI_4 && rads < RAD_3PI_4) {
+				inputPoll.push(InputPackage(leftItem0, 0));
+				inputPoll.push(InputPackage(leftItem1, 0));
+				inputPoll.push(InputPackage(leftItem3, 0));
 
-		float rads;
+				inputPoll.push(InputPackage(leftItem2, 0.5f));
+			}
+			else if (rads >= RAD_3PI_4 && rads < RAD_5PI_4) {
+				inputPoll.push(InputPackage(leftItem0, 0));
+				inputPoll.push(InputPackage(leftItem1, 0));
+				inputPoll.push(InputPackage(leftItem2, 0));
 
-		rads = atan2(leftTPX, leftTPY);
-		if (rads < 0) rads += (float)(2 * RAD_PI);
-		if (rads >= RAD_PI_4 && rads < RAD_3PI_4) {
-			inputPoll.push(InputPackage(leftItem0, 0));
-			inputPoll.push(InputPackage(leftItem1, 0));
-			inputPoll.push(InputPackage(leftItem3, 0));
+				inputPoll.push(InputPackage(leftItem3, 0.5f));
+			}
+			else if (rads >= RAD_5PI_4 && rads < RAD_7PI_4) {
+				inputPoll.push(InputPackage(leftItem0, 0));
+				inputPoll.push(InputPackage(leftItem2, 0));
+				inputPoll.push(InputPackage(leftItem3, 0));
 
-			inputPoll.push(InputPackage(leftItem2, 0.5f));
+				inputPoll.push(InputPackage(leftItem1, 0.5f));
+			}
+			else {
+				inputPoll.push(InputPackage(leftItem1, 0));
+				inputPoll.push(InputPackage(leftItem2, 0));
+				inputPoll.push(InputPackage(leftItem3, 0));
+
+				inputPoll.push(InputPackage(leftItem0, 0.5f));
+			}
+
 		}
-		else if (rads >= RAD_3PI_4 && rads < RAD_5PI_4) {
-			inputPoll.push(InputPackage(leftItem0, 0));
-			inputPoll.push(InputPackage(leftItem1, 0));
-			inputPoll.push(InputPackage(leftItem2, 0));
+		if (rightTouchpadTouched) {
+			VRManager::GetInstance().pVRHMD->GetControllerState(VRManager::GetInstance().rightController.index, &state, sizeof(state));
+			rightTPX = state.rAxis[0].x;
+			rightTPY = state.rAxis[0].y;
 
-			inputPoll.push(InputPackage(leftItem3, 0.5f));
-		}
-		else if (rads >= RAD_5PI_4 && rads < RAD_7PI_4) {
-			inputPoll.push(InputPackage(leftItem0, 0));
-			inputPoll.push(InputPackage(leftItem2, 0));
-			inputPoll.push(InputPackage(leftItem3, 0));
+			float rads;
 
-			inputPoll.push(InputPackage(leftItem1, 0.5f));
-		}
-		else {
-			inputPoll.push(InputPackage(leftItem1, 0));
-			inputPoll.push(InputPackage(leftItem2, 0));
-			inputPoll.push(InputPackage(leftItem3, 0));
+			rads = atan2(rightTPX, rightTPY);
+			if (rads < 0) rads += (float)(2 * RAD_PI);
+			if (rads >= RAD_PI_4 && rads < RAD_3PI_4) {
+				inputPoll.push(InputPackage(rightItem0, 0));
+				inputPoll.push(InputPackage(rightItem1, 0));
+				inputPoll.push(InputPackage(rightItem3, 0));
 
-			inputPoll.push(InputPackage(leftItem0, 0.5f));
-		}
+				inputPoll.push(InputPackage(rightItem2, 0.5f));
+			}
+			else if (rads >= RAD_3PI_4 && rads < RAD_5PI_4) {
+				inputPoll.push(InputPackage(rightItem0, 0));
+				inputPoll.push(InputPackage(rightItem1, 0));
+				inputPoll.push(InputPackage(rightItem2, 0));
 
-	}
-	if(rightTouchpadTouched) {
-		VRManager::GetInstance().pVRHMD->GetControllerState(VRManager::GetInstance().rightController.index, &state, sizeof(state));
-		rightTPX = state.rAxis[0].x;
-		rightTPY = state.rAxis[0].y;
+				inputPoll.push(InputPackage(rightItem3, 0.5f));
+			}
+			else if (rads >= RAD_5PI_4 && rads < RAD_7PI_4) {
+				inputPoll.push(InputPackage(rightItem0, 0));
+				inputPoll.push(InputPackage(rightItem2, 0));
+				inputPoll.push(InputPackage(rightItem3, 0));
 
-		float rads;
+				inputPoll.push(InputPackage(rightItem1, 0.5f));
+			}
+			else {
+				inputPoll.push(InputPackage(rightItem1, 0));
+				inputPoll.push(InputPackage(rightItem2, 0));
+				inputPoll.push(InputPackage(rightItem3, 0));
 
-		rads = atan2(rightTPX, rightTPY);
-		if (rads < 0) rads += (float)(2 * RAD_PI);
-		if (rads >= RAD_PI_4 && rads < RAD_3PI_4) {
-			inputPoll.push(InputPackage(rightItem0, 0));
-			inputPoll.push(InputPackage(rightItem1, 0));
-			inputPoll.push(InputPackage(rightItem3, 0));
-
-			inputPoll.push(InputPackage(rightItem2, 0.5f));
-		}
-		else if (rads >= RAD_3PI_4 && rads < RAD_5PI_4) {
-			inputPoll.push(InputPackage(rightItem0, 0));
-			inputPoll.push(InputPackage(rightItem1, 0));
-			inputPoll.push(InputPackage(rightItem2, 0));
-
-			inputPoll.push(InputPackage(rightItem3, 0.5f));
-		}
-		else if (rads >= RAD_5PI_4 && rads < RAD_7PI_4) {
-			inputPoll.push(InputPackage(rightItem0, 0));
-			inputPoll.push(InputPackage(rightItem2, 0));
-			inputPoll.push(InputPackage(rightItem3, 0));
-
-			inputPoll.push(InputPackage(rightItem1, 0.5f));
-		}
-		else {
-			inputPoll.push(InputPackage(rightItem1, 0));
-			inputPoll.push(InputPackage(rightItem2, 0));
-			inputPoll.push(InputPackage(rightItem3, 0));
-
-			inputPoll.push(InputPackage(rightItem0, 0.5f));
+				inputPoll.push(InputPackage(rightItem0, 0.5f));
+			}
 		}
 	}
 

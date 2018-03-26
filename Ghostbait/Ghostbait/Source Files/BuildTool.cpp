@@ -159,12 +159,14 @@ bool BuildTool::SetObstacle(DirectX::XMFLOAT2 pos, bool active) {
 
 void BuildTool::SpawnProjection(){
 	if (prefabs[currentPrefabIndex].object) {
-		if (ArcCast(&transform, &spawnPos, &buildArc)) {
+		if (Raycast(&transform, transform.GetZAxis(), &spawnPos, nullptr, &buildRay, 6, "Ground")) {
+			prefabs[currentPrefabIndex].object->Render();
 			//snap to center of grid
-			buildArc.Create();
+			buildRay.Create();
 			DirectX::XMFLOAT2 newPos = DirectX::XMFLOAT2(spawnPos.x, spawnPos.z);
 			Snap(&newPos);
 			spawnPos.x = newPos.x;
+			spawnPos.y = 0;
 			spawnPos.z = newPos.y;
 
 			//Move Object
@@ -187,11 +189,11 @@ void BuildTool::SpawnProjection(){
 					prefabs[currentPrefabIndex].object->SwapComponentVarient<Material>("invalid");
 					prevLocationValid = false;
 				}
-				gearAdjustmentDisplay->UnRender();
 			}
 		}
 		else {
-			buildArc.Destroy();
+			buildRay.Destroy();
+			prefabs[currentPrefabIndex].object->UnRender();
 		}
 	}
 
@@ -199,22 +201,24 @@ void BuildTool::SpawnProjection(){
 void BuildTool::Spawn() {
 	//Instantiate a stationary copy at this position to stay
 	//Only spawn if grid position is empty
-	Turret* turret = dynamic_cast<Turret*>(prefabs[currentPrefabIndex].object);
-	bool hasEnoughMoney = true;
-	if (turret) hasEnoughMoney = *gears >= turret->GetBuildCost();
-	bool maxTurretsSpawned = (*maxTurrets - *turretsSpawned) <= 0;
+	if(Raycast(&transform, transform.GetZAxis(), nullptr, nullptr, nullptr, 6, "Ground")) {
+		Turret* turret = dynamic_cast<Turret*>(prefabs[currentPrefabIndex].object);
+		bool hasEnoughMoney = true;
+		if (turret) hasEnoughMoney = *gears >= turret->GetBuildCost();
+		bool maxTurretsSpawned = (*maxTurrets - *turretsSpawned) <= 0;
 
-	DirectX::XMFLOAT2 pos = DirectX::XMFLOAT2(spawnPos.x, spawnPos.z);
-	if (Snap(&pos) && hasEnoughMoney && !maxTurretsSpawned) {
-		if (SetObstacle(pos, true)) {
-			*gears -= turret->GetBuildCost();
-			spawnPos.x = pos.x;
-			spawnPos.z = pos.y;
-			GameObject* newObj;
-			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabs[currentPrefabIndex].ID, spawnPos, &newObj));
-			builtItems.push_back(newObj);
-			newObj->Enable();
-			(*turretsSpawned) = (*turretsSpawned) + 1;
+		DirectX::XMFLOAT2 pos = DirectX::XMFLOAT2(spawnPos.x, spawnPos.z);
+		if (Snap(&pos) && hasEnoughMoney && !maxTurretsSpawned) {
+			if (SetObstacle(pos, true)) {
+				*gears -= turret->GetBuildCost();
+				spawnPos.x = pos.x;
+				spawnPos.z = pos.y;
+				GameObject* newObj;
+				MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabs[currentPrefabIndex].ID, spawnPos, &newObj));
+				builtItems.push_back(newObj);
+				newObj->Enable();
+				(*turretsSpawned) = (*turretsSpawned) + 1;
+			}
 		}
 	}
 }
@@ -278,7 +282,7 @@ void BuildTool::CycleForward() {
 
 		if (prefabs[tempIndex].ID == 0) {
 			currentMode = Mode::REMOVE;
-			buildArc.Destroy();
+			buildRay.Destroy();
 			deleteRay.Create();
 		}
 		else {
@@ -287,7 +291,7 @@ void BuildTool::CycleForward() {
 				currentlySelectedItem->SwapComponentVarient<Material>("default");
 				currentlySelectedItem = nullptr;
 			}
-			buildArc.Create();
+			buildRay.Create();
 			deleteRay.Destroy();
 		}
 
@@ -313,7 +317,7 @@ void BuildTool::CycleBackward() {
 		//if index is removal tool...
 		if (prefabs[tempIndex].ID == 0) {
 			currentMode = Mode::REMOVE;
-			buildArc.Destroy();
+			buildRay.Destroy();
 			deleteRay.Create();
 		}
 		else {
@@ -322,7 +326,7 @@ void BuildTool::CycleBackward() {
 				currentlySelectedItem->SwapComponentVarient<Material>("default");
 				currentlySelectedItem = nullptr;
 			}
-			buildArc.Create();
+			buildRay.Create();
 			deleteRay.Destroy();
 		}
 
@@ -346,7 +350,7 @@ void BuildTool::DeSelected() {
 		currentlySelectedItem->SwapComponentVarient<Material>("default");
 		currentlySelectedItem = nullptr;
 	}
-	buildArc.Destroy();
+	buildRay.Destroy();
 	deleteRay.Destroy();
 	Item::DeSelected();
 }
@@ -364,7 +368,7 @@ void BuildTool::Selected() {
 }
 
 void BuildTool::Awake(Object* obj) {
-	buildArc.SetFile("Assets/Arc2.ghost");
+	buildRay.SetFile("Assets/Ray.ghost");
 	deleteRay.SetFile("Assets/Ray.ghost");
 	//gearDisplay->transform.SetMatrix(DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1));
 	//gearDisplay->SetComponent<Material>(TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "$0").mat);

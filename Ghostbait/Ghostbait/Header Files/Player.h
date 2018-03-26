@@ -26,7 +26,6 @@ class Player : public GameObject, public Controlable {
 		STANCE_God,
 	};
 	std::vector<unsigned> ownedItems;
-
 	//void LoadInventory(const char* fileName = INVENTORY_FILE);
 
 	float rotationY = 0.0f;
@@ -38,10 +37,19 @@ class Player : public GameObject, public Controlable {
 	Stance stance = STANCE_Stand; 
 	float standHeight = 1.7f;
 	float crouchHeight = 1;
+	
 	float crouchSpeed = 4;
 	float walkSpeed = 10;
 	float runSpeed = 20;
 	float godSpeed = 40;
+	
+	GameObject* editItem = nullptr;
+	DirectX::XMFLOAT3 editScale;
+	DirectX::XMFLOAT3 editRotation;
+	DirectX::XMFLOAT3 editPos;
+	float editMoveSpeed = 1;
+	float editScaleSpeed = 1;
+	float editRotationSpeed = 1;
 
 	float playerHeight = standHeight;
 	float playerSpeed = walkSpeed;

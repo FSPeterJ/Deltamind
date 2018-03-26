@@ -268,21 +268,21 @@ std::size_t PathPlanner::mtdstarIndices = 0;
 
 //std::vector<DStarLite> PathPlanner::dstarList; //Will this work properly?
 //std::size_t PathPlanner::dstars = 0;
-std::size_t PathPlanner::DStarLiteSearch(HexTile *const start, HexTile *const goal, HexTile** nextTileInPath, HeuristicFunction Heuristic) {
+std::size_t PathPlanner::DStarLiteSearch(HexTile **const _start, HexTile **const _goal, HexTile **const _next, std::size_t _perception, HeuristicFunction Heuristic) {
 	PathPlanner::SetHeuristic(Heuristic);
 
-	dstarList[dstarIndices] = DStarLite(grid, start, goal, nextTileInPath);
+	dstarList[dstarIndices] = DStarLite(grid, _start, _goal, _next, _perception);
 
 	return dstarIndices++;
 }
 
 //std::vector<MTDStarLite> PathPlanner::mtdstarList; //Will this work properly?
 //std::size_t PathPlanner::mtdstars = 0;
-std::size_t PathPlanner::MTDStarLiteSearch(DirectX::XMFLOAT4X4* startRef, DirectX::XMFLOAT4X4* goalRef, HeuristicFunction Heuristic) {
+std::size_t PathPlanner::MTDStarLiteSearch(HexTile **const _start, HexTile **const _goal, HexTile **const _next, std::size_t _perception, HeuristicFunction Heuristic) {
 	PathPlanner::SetHeuristic(Heuristic);
 
 	//auto ds = MTDStarLite(grid, startRef, goalRef);
-	mtdstarList[mtdstarIndices] = MTDStarLite(grid, startRef, goalRef); 
+	mtdstarList[mtdstarIndices] = MTDStarLite(grid, _start, _goal, _next, _perception);
 
 	return mtdstarIndices++;
 }
@@ -295,18 +295,18 @@ void PathPlanner::UpdateMTDStar(std::size_t mtdstarId) {
 	mtdstarList[mtdstarId].Update();
 }
 
-HexTile* PathPlanner::GetDStarNextTile(std::size_t dstarId) {
-	return dstarList[dstarId].GetNextTileInPath();
-}
-
-HexTile* PathPlanner::GetMTDStarNextTile(std::size_t mtdstarId) {
-	return mtdstarList[mtdstarId].GetNextTileInPath();
-}
-
-void PathPlanner::UpdateMTDSLTargetReference(std::size_t mtdstarId, DirectX::XMFLOAT4X4* goalRef) {
-	//MTDStarLite* ds = dynamic_cast<MTDStarLite*>(&dstarList[mtdstarId]); //Don't like this!
-	mtdstarList[mtdstarId].UpdateGoalReference(goalRef);
-}
+//HexTile* PathPlanner::GetDStarNextTile(std::size_t dstarId) {
+//	return dstarList[dstarId].GetNextTileInPath();
+//}
+//
+//HexTile* PathPlanner::GetMTDStarNextTile(std::size_t mtdstarId) {
+//	return mtdstarList[mtdstarId].GetNextTileInPath();
+//}
+//
+//void PathPlanner::UpdateMTDSLTargetReference(std::size_t mtdstarId, DirectX::XMFLOAT4X4* goalRef) {
+//	//MTDStarLite* ds = dynamic_cast<MTDStarLite*>(&dstarList[mtdstarId]); //Don't like this!
+//	mtdstarList[mtdstarId].UpdateGoalReference(goalRef);
+//}
 
 bool PathPlanner::RemoveDStar(std::size_t dstarId) {
 	if (dstarList.count(dstarId)) {

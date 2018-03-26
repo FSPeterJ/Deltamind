@@ -13,17 +13,16 @@ void MTDSLEnemy::Enable() {
 		else { goalReference = &core->transform.matrix; }
 	}
 	ultimateTarget = goalReference;
+	SetGoalReference(ultimateTarget);
+	if (!goal) { Console::ErrorLine << "Goal Tile DOESN'T EXIST!!!"; }
 
 	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
 	if (!curTile) { Console::ErrorLine << "Ahhhh! Initalize me on the grid please!!"; }
 
 	next = curTile; //is this needed or can i pass a ref to a null var below
 					//grid->RemoveObstacle(curTile);//Remove on final build
-	mtdstarId = PathPlanner::MTDStarLiteSearch(&(transform.matrix), goalReference, Heuristics::OctileDistance);
 
-	SetGoalReference(ultimateTarget);
-
-	if (!goal) { Console::ErrorLine << "Goal Tile DOESN'T EXIST!!!"; }
+	mtdstarId = PathPlanner::MTDStarLiteSearch(&curTile, &goal, &next, 3, Heuristics::OctileDistance); //Change perception range to a variable
 
 	rb->SetTerminalSpeed(maxSpeed);
 	EnemyBase::Enable();
@@ -55,7 +54,7 @@ void MTDSLEnemy::SetGoal(DirectX::XMFLOAT2 _goal) {
 
 void MTDSLEnemy::SetGoalReference(DirectX::XMFLOAT4X4* _goal) {
 	goalReference = _goal;
-	PathPlanner::UpdateMTDSLTargetReference(mtdstarId, _goal);
+	//PathPlanner::UpdateMTDSLTargetReference(mtdstarId, _goal);
 	SetGoal(DirectX::XMFLOAT2(_goal->_41, _goal->_43));
 }
 
@@ -114,10 +113,11 @@ void MTDSLEnemy::FindTempPath() {
 void MTDSLEnemy::Awake(Object* obj) {
 	grid = 0;
 	rb = 0;
+	//start = 0;
 	goal = 0;
 	next = 0;
 	curTile = 0;
-	lastTile = 0;
+	//lastTile = 0;
 	mtdstarId = 0;
 	goalReference = 0;
 	ultimateTarget = 0;
@@ -158,9 +158,18 @@ void MTDSLEnemy::Update() {
 				Console::WarningLine << "GOAL IS NULL";
  		}
 	}
-	lastTile = curTile;
+	//lastTile = curTile;
 	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
-	if (curTile) {
+
+	if (!curTile) {
+		Console::WriteLine << "OUT OF BOUNDS!";
+		rb->Stop();
+		rb->SetVelocity(DirectX::XMVectorScale(rb->GetVelocity(), -1.0f));
+		FindTempPath();
+		curTile = lastTile;
+	}
+	//else {
+
 		//if (curTile == next) {
 		//	rb->Stop();
 		//	//HexRegion neigh = grid->Spiral(curTile, 3);
@@ -196,7 +205,7 @@ void MTDSLEnemy::Update() {
 				//do {
 					PathPlanner::UpdateMTDStar(mtdstarId);
 
-					next = PathPlanner::GetMTDStarNextTile(mtdstarId);
+					//next = PathPlanner::GetMTDStarNextTile(mtdstarId);
 					if (next) {
 						auto nextPathPoint = grid->TileToPoint(next);
 						//transform.SetPosition(nextPathPoint.x, 0.0f, nextPathPoint.y);
@@ -219,11 +228,14 @@ void MTDSLEnemy::Update() {
 			}
 			//}
 		//}
-	}
-	else {
-		Console::WriteLine << "OUT OF BOUNDS!";
-		rb->SetVelocity(DirectX::XMVectorScale(rb->GetVelocity(), -1.0f));
-		FindTempPath();
-	}
+	//}
+	//else {
+	//	Console::WriteLine << "OUT OF BOUNDS!";
+	//	rb->Stop();
+	//	//rb->SetVelocity(DirectX::XMVectorScale(rb->GetVelocity(), -1.0f));
+	//	FindTempPath();
+	//	curTile = lastTile;
+	//}
 
+	lastTile = curTile;
 }

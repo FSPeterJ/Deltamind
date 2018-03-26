@@ -16,10 +16,12 @@ class MTDSLEnemy : public EnemyBase, public Controlable {
 
 	DirectX::XMFLOAT4X4* goalReference = nullptr, *ultimateTarget = nullptr;
 	DirectX::XMFLOAT4X4 tempGoal = { 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f };
+	//HexTile* start = nullptr;
 	HexTile* goal = nullptr;
 	HexTile* next = nullptr;
 	HexTile* curTile = nullptr;
 	HexTile* lastTile = nullptr;
+	bool tempTarget = false;
 
 	unsigned eventAdd;
 	unsigned eventRemove;

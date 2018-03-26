@@ -130,7 +130,7 @@ bool BuildTool::CanBuildHere(DirectX::XMFLOAT2& spawnPos) {
 
 void BuildTool::RenderAdjustmentDisplay(bool render) {
 	if (!gearAdjustmentDisplay || adjustmentRender == render) return;
-	if(render) MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(gearAdjustmentDisplay));
+	if(render) MessageEvents::SendMessage(EVENT_Rendertransparent, StandardObjectMessage(gearAdjustmentDisplay));
 	else MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(gearAdjustmentDisplay));
 	adjustmentRender = render;
 }
@@ -229,7 +229,6 @@ void BuildTool::RemoveProjection() {
 	DirectX::XMFLOAT3 endPos;
 	GameObject* colObject = nullptr;
 	if(!Raycast(&transform, DirectX::XMFLOAT3(transform.GetMatrix()._31, transform.GetMatrix()._32, transform.GetMatrix()._33), &endPos, &colObject, &deleteRay, 4)) {
-		Console::WriteLine << "Nothing";
 		if (currentlySelectedItem) {
 			currentlySelectedItem->SwapComponentVarient<Material>("default");
 			currentlySelectedItemIndex = -1;
@@ -273,8 +272,10 @@ void BuildTool::Remove() {
 
 void BuildTool::CycleForward() {
 	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
-		if (prefabs[currentPrefabIndex].object)
+		if (prefabs[currentPrefabIndex].object) {
 			MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
+			RenderAdjustmentDisplay(false);
+		}
 
 		int tempIndex = ++currentPrefabIndex;
 

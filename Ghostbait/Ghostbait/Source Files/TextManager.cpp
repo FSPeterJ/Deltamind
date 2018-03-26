@@ -7,9 +7,11 @@ ID3D11VertexShader* TextManager::vs;
 ID3D11PixelShader* TextManager::ps;
 ID3D11InputLayout* TextManager::il;
 TextManager::windowSizeBuffer TextManager::sizeBuffer;
+DirectX::XMFLOAT4 TextManager::ColorBuffer;
 ID3D11Buffer* TextManager::windowSizeToShader;
 std::unordered_map<std::string, Font*> TextManager::fonts; 
 std::vector<TextManager::renderableMat> TextManager::managedMaterials;
+ID3D11Buffer* TextManager::colorToShader;
 
 TextManager::renderableMat TextManager::createTextMaterial(float width, float height)
 {
@@ -72,7 +74,7 @@ TextManager::renderableMat TextManager::createTextMaterial(float width, float he
 	return toPush;
 }
 
-TextManager::renderableMat TextManager::generateVertexBufferAndRender(Font * font, std::string _sentence, int index)
+TextManager::renderableMat TextManager::generateVertexBufferAndRender(Font * font, std::string _sentence, DirectX::XMFLOAT4 &bgColor, int index)
 {
 	bool preMade = index != -1;
 	float width = 0.0f;
@@ -130,7 +132,7 @@ TextManager::renderableMat TextManager::generateVertexBufferAndRender(Font * fon
 			toPush.tex = DirectX::XMFLOAT2(pos.startU, 0.0f);
 			vertices.push_back(toPush);
 
-			toPush.pos = DirectX::XMFLOAT3(drawX + pos.size, drawY, 0.0f);
+			toPush.pos = DirectX::XMFLOAT3(drawX + (pos.size * widRatio), drawY, 0.0f);
 			toPush.tex = DirectX::XMFLOAT2(pos.endU, 0.0f);
 			vertices.push_back(toPush);
 
@@ -138,11 +140,11 @@ TextManager::renderableMat TextManager::generateVertexBufferAndRender(Font * fon
 			toPush.tex = DirectX::XMFLOAT2(pos.startU, 1.0f);
 			vertices.push_back(toPush);
 
-			toPush.pos = DirectX::XMFLOAT3(drawX + pos.size, drawY, 0.0f);
+			toPush.pos = DirectX::XMFLOAT3(drawX + (pos.size * widRatio), drawY, 0.0f);
 			toPush.tex = DirectX::XMFLOAT2(pos.endU, 0.0f);
 			vertices.push_back(toPush);
 
-			toPush.pos = DirectX::XMFLOAT3(drawX + pos.size, drawY + (16.0f*heightRatio), 0.0f);
+			toPush.pos = DirectX::XMFLOAT3(drawX + (pos.size * widRatio), drawY + (16.0f*heightRatio), 0.0f);
 			toPush.tex = DirectX::XMFLOAT2(pos.endU, 1.0f);
 			vertices.push_back(toPush);
 
@@ -150,7 +152,7 @@ TextManager::renderableMat TextManager::generateVertexBufferAndRender(Font * fon
 			toPush.tex = DirectX::XMFLOAT2(pos.startU, 1.0f);
 			vertices.push_back(toPush);
 
-			drawX = drawX + ((pos.size + 1.0f) * widRatio);
+			drawX = drawX + ((pos.size * widRatio) + 1.0f);
 		}
 	}
 	renderableMat mat;
@@ -168,14 +170,14 @@ TextManager::renderableMat TextManager::generateVertexBufferAndRender(Font * fon
 		mat = createTextMaterial(width, height);
 	}
 	ID3D11ShaderResourceView * srv = font->GetShaderResourceView();
-	renderText(&mat, _sentence, vertices, srv);
+	renderText(&mat, _sentence, vertices, srv, bgColor);
 	
 	mat.height = height;
 	mat.width = width;
 	return mat;
 }
 
-void TextManager::renderText(renderableMat * mat, std::string & sentence, std::vector<VertexPositionTexture>& vertices, ID3D11ShaderResourceView * font)
+void TextManager::renderText(renderableMat * mat, std::string & sentence, std::vector<VertexPositionTexture>& vertices, ID3D11ShaderResourceView * font, DirectX::XMFLOAT4 & bgColor)
 {
 	ID3D11Buffer* vertexBuffer;
 	D3D11_SUBRESOURCE_DATA vertexBufferData = { 0 };
@@ -189,7 +191,8 @@ void TextManager::renderText(renderableMat * mat, std::string & sentence, std::v
 
 	device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, &vertexBuffer);
 	context->UpdateSubresource(windowSizeToShader, NULL, NULL, &sizeBuffer, NULL, NULL);
-	float color[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	context->UpdateSubresource(colorToShader, NULL, NULL, &ColorBuffer, NULL, NULL);
+	float color[] = { bgColor.x, bgColor.y, bgColor.z, bgColor.w };
 	context->ClearRenderTargetView(mat->rtv, color);
 	context->ClearDepthStencilView(mat->dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	context->OMSetRenderTargets(1, &mat->rtv, mat->dsv);
@@ -202,6 +205,7 @@ void TextManager::renderText(renderableMat * mat, std::string & sentence, std::v
 	context->VSSetConstantBuffers(3, 1, &windowSizeToShader);
 
 	context->PSSetShader(ps, NULL, NULL);
+	context->PSSetConstantBuffers(3, 1, &colorToShader);
 	context->PSSetShaderResources(0, 1, &font);
 
 	context->Draw((UINT)vertices.size(), 0);
@@ -217,6 +221,9 @@ void TextManager::Initialize(ID3D11Device * _device, ID3D11DeviceContext * _cont
 	il = _il;
 	CD3D11_BUFFER_DESC modelBufferDesc(sizeof(windowSizeBuffer), D3D11_BIND_CONSTANT_BUFFER);
 	device->CreateBuffer(&modelBufferDesc, nullptr, &windowSizeToShader);
+
+	CD3D11_BUFFER_DESC colorBufferDesc(sizeof(DirectX::XMFLOAT4), D3D11_BIND_CONSTANT_BUFFER);
+	device->CreateBuffer(&colorBufferDesc, nullptr, &colorToShader);
 }
 
 void TextManager::Destroy()
@@ -232,6 +239,7 @@ void TextManager::Destroy()
 		managedMaterials[i].depthTex->Release();
 	}
 	windowSizeToShader->Release();
+	colorToShader->Release();
 }
 
 void TextManager::LoadFont(std::string _fileName, std::string _texturePath)
@@ -245,21 +253,21 @@ Material * TextManager::CreateRenderableTexture(float width, float height)
 	return mat.mat;
 }
 
-TextManager::textOutput TextManager::DrawTextTo(std::string _fontTexturePath, std::string _sentence)
+TextManager::textOutput TextManager::DrawTextTo(std::string _fontTexturePath, std::string _sentence, DirectX::XMFLOAT4 textColor, DirectX::XMFLOAT4 backgroundColor)
 {
 	Font* font = fonts[_fontTexturePath];
 	if (!font)
 		return textOutput();
-	
+	ColorBuffer= textColor;
 	textOutput ret;
-	renderableMat mat = generateVertexBufferAndRender(font, _sentence);
+	renderableMat mat = generateVertexBufferAndRender(font, _sentence, backgroundColor);
 	
 	ret.mat = mat.mat;
 	ret.heightOverWidthRatio = mat.height / mat.width;
 	return ret;
 }
 
-float TextManager::DrawTextExistingMat(std::string _fontTexturePath, std::string _sentence, Material * _mat)
+float TextManager::DrawTextExistingMat(std::string _fontTexturePath, std::string _sentence, Material * _mat, DirectX::XMFLOAT4 textColor, DirectX::XMFLOAT4 backgroundColor)
 {
 	Font* font = fonts[_fontTexturePath];
 	if (!font)
@@ -268,7 +276,8 @@ float TextManager::DrawTextExistingMat(std::string _fontTexturePath, std::string
 	{
 		if (_mat == managedMaterials[i].mat)
 		{
-			renderableMat mat = generateVertexBufferAndRender(font, _sentence, (int)i);
+			ColorBuffer = textColor;
+			renderableMat mat = generateVertexBufferAndRender(font, _sentence, backgroundColor, (int)i);
 			return mat.height / mat.width;
 		}
 	}

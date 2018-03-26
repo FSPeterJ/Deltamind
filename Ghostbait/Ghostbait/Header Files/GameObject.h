@@ -11,6 +11,7 @@ enum GAMEOBJECT_FLAGS {
 	OTHER = 4,
 	OTHERI = 8,
 	OTHERII = 16,
+	RENDERED = 32,
 };
 
 class GameObject: public Object {
@@ -38,6 +39,10 @@ public:
 	virtual void Disable();
 	virtual void Update();
 	virtual void Destroy();
+	virtual void UnRender();
+	virtual void Render();
+	virtual void RenderToFront();
+	virtual void RenderTransparent();
 
 
 	virtual void OnCollision(GameObject* obj);

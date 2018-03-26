@@ -23,7 +23,7 @@ void BuildTool::SetPrefabs(std::vector<unsigned> prefabIDs) {
 		prefabs[i] = BuildItem();
 		prefabs[i].ID = prefabIDs[i];
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabIDs[i], { 0, 0, 0 }, &prefabs[i].object));
-		if(prefabs[i].ID) MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[i].object));
+		if (prefabs[i].ID) prefabs[i].object->UnRender();
 		PhysicsComponent* physComp = prefabs[i].object->GetComponent<PhysicsComponent>();
 		prefabs[i].object->PersistOnReset();
 		if(physComp) physComp->isActive = false;
@@ -128,13 +128,6 @@ bool BuildTool::CanBuildHere(DirectX::XMFLOAT2& spawnPos) {
 		return false;
 }
 
-void BuildTool::RenderAdjustmentDisplay(bool render) {
-	if (!gearAdjustmentDisplay || adjustmentRender == render) return;
-	if(render) MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(gearAdjustmentDisplay));
-	else MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(gearAdjustmentDisplay));
-	adjustmentRender = render;
-}
-
 bool BuildTool::Snap(GameObject** obj) {
 	DirectX::XMFLOAT2 pos = { (*obj)->transform.GetMatrix()._41, (*obj)->transform.GetMatrix()._43 };
 	DirectX::XMFLOAT2 snappedPoint;
@@ -187,14 +180,14 @@ void BuildTool::SpawnProjection(){
 					prefabs[currentPrefabIndex].object->SwapComponentVarient<Material>("valid");
 					prevLocationValid = true;
 				}
-				RenderAdjustmentDisplay(true);
+				gearAdjustmentDisplay->RenderTransparent();
 			}
 			else {
 				if (prevLocationValid) {
 					prefabs[currentPrefabIndex].object->SwapComponentVarient<Material>("invalid");
 					prevLocationValid = false;
 				}
-				RenderAdjustmentDisplay(false);
+				gearAdjustmentDisplay->UnRender();
 			}
 		}
 		else {
@@ -229,20 +222,19 @@ void BuildTool::RemoveProjection() {
 	DirectX::XMFLOAT3 endPos;
 	GameObject* colObject = nullptr;
 	if(!Raycast(&transform, DirectX::XMFLOAT3(transform.GetMatrix()._31, transform.GetMatrix()._32, transform.GetMatrix()._33), &endPos, &colObject, &deleteRay, 4)) {
-		Console::WriteLine << "Nothing";
 		if (currentlySelectedItem) {
 			currentlySelectedItem->SwapComponentVarient<Material>("default");
 			currentlySelectedItemIndex = -1;
 			currentlySelectedItem = nullptr;
 		}
-		RenderAdjustmentDisplay(false);
+		gearAdjustmentDisplay->UnRender();
 		return;
 	}
 
 	//check if I spawned it
 	if (colObject != currentlySelectedItem) {
 		if(currentlySelectedItem) currentlySelectedItem->SwapComponentVarient<Material>("default");
-		RenderAdjustmentDisplay(false);
+		gearAdjustmentDisplay->UnRender();
 	}
 	for (size_t i = 0; i < builtItems.size(); ++i) {
 		if (colObject == builtItems[i]) {
@@ -250,7 +242,7 @@ void BuildTool::RemoveProjection() {
 			currentlySelectedItem = colObject;
 			//TODO: Temp...Dont't call this every frame.
 			currentlySelectedItem->SwapComponentVarient<Material>("invalid");
-			RenderAdjustmentDisplay(true);
+			gearAdjustmentDisplay->RenderTransparent();
 			break;
 		}
 	}
@@ -264,7 +256,7 @@ void BuildTool::Remove() {
 			Turret* tur = dynamic_cast<Turret*>(currentlySelectedItem);
 			if (tur) {
 				(*gears) = (*gears) + (int)(tur->GetBuildCost() * 0.5f);
-				RenderAdjustmentDisplay(false);
+				gearAdjustmentDisplay->UnRender();
 			}
 			(*turretsSpawned) = (*turretsSpawned) - 1;
 		}
@@ -273,8 +265,10 @@ void BuildTool::Remove() {
 
 void BuildTool::CycleForward() {
 	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
-		if (prefabs[currentPrefabIndex].object)
-			MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
+		if (prefabs[currentPrefabIndex].object) {
+			prefabs[currentPrefabIndex].object->UnRender();
+			if(gearDisplay) gearDisplay->UnRender();
+		}
 
 		int tempIndex = ++currentPrefabIndex;
 
@@ -299,13 +293,15 @@ void BuildTool::CycleForward() {
 
 		currentPrefabIndex = tempIndex;
 		if (prefabs[currentPrefabIndex].object)
-			MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
+			prefabs[currentPrefabIndex].object->Render();
 	}
 }
 void BuildTool::CycleBackward() {
 	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
-		if (prefabs[currentPrefabIndex].object)
-			MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
+		if (prefabs[currentPrefabIndex].object) {
+			prefabs[currentPrefabIndex].object->UnRender();
+			if (gearDisplay) gearDisplay->UnRender();
+		}
 
 		int tempIndex = --currentPrefabIndex;
 
@@ -332,7 +328,7 @@ void BuildTool::CycleBackward() {
 
 		currentPrefabIndex = tempIndex;
 		if (prefabs[currentPrefabIndex].object)
-			MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
+			prefabs[currentPrefabIndex].object->Render();
 	}
 }
 
@@ -340,12 +336,11 @@ void BuildTool::InactiveUpdate() {
 }
 
 void BuildTool::DeSelected() {
-	if (gearDisplay)
-		MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(gearDisplay));
-	RenderAdjustmentDisplay(false);
+	if(gearDisplay) gearDisplay->UnRender();
+	if (gearAdjustmentDisplay) gearAdjustmentDisplay->UnRender();
 	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
 		if (prefabs[currentPrefabIndex].object)
-			MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
+			prefabs[currentPrefabIndex].object->UnRender();
 	}
 	if (currentlySelectedItem) {
 		currentlySelectedItem->SwapComponentVarient<Material>("default");
@@ -359,11 +354,10 @@ void BuildTool::DeSelected() {
 void BuildTool::Selected() {
 	Item::Selected();
 	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
-		if (gearDisplay)
-			MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(gearDisplay));
-		RenderAdjustmentDisplay(true);
+		if (gearDisplay) gearDisplay->RenderTransparent();
+		if (gearAdjustmentDisplay) gearAdjustmentDisplay->RenderTransparent();
 		if (prefabs[currentPrefabIndex].object)
-			MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(prefabs[currentPrefabIndex].object));
+			prefabs[currentPrefabIndex].object->Render();
 		if (prefabs[currentPrefabIndex].ID == 0)
 			deleteRay.Create();
 	}

@@ -22,13 +22,13 @@ void ControllerObject::Init(Player* _player, ControllerHand _hand) {
 
 	//Create MenuController
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuControllerItem>({ 0,0,0 }, &menuController));
-	menuController->Render(false);
+	menuController->UnRender();
 	//Create ModelOnly controller
 	unsigned modelOnlyID;
 	if(player->IsVR()) modelOnlyID = ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost"));
 	else modelOnlyID = ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost"));
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Item>(modelOnlyID, { 0,0,0 }, &modelOnly));
-	modelOnly->Render(false);
+	modelOnly->UnRender();
 
 	//Assign current item
 	for (int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
@@ -120,7 +120,7 @@ void ControllerObject::DisplayInventory() {
 	if(KeyIsDown(touch)) {
 		for(unsigned int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
 			if(inventory.displayItems[i]) {
-				if(!*justTouched) inventory.displayItems[i]->Render(true);
+				if(!*justTouched) inventory.displayItems[i]->Render();
 				DirectX::XMFLOAT4X4 newPos;
 				DirectX::XMMATRIX result, scale, rotation, translation, parentMatrix;
 				result = DirectX::XMMatrixIdentity();
@@ -181,7 +181,7 @@ void ControllerObject::DisplayInventory() {
 	else {
 		if(*justTouched) {
 			for(unsigned int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
-				if(inventory.displayItems[i]) inventory.displayItems[i]->Render(false);
+				if(inventory.displayItems[i]) inventory.displayItems[i]->Render();
 			}
 			*justTouched = false;
 		}
@@ -197,13 +197,13 @@ void ControllerObject::AddToInventory(int itemSlot, unsigned prefabID) {
 		inventory.currentItem = inventory.items[itemSlot];
 		inventory.currentItem->Selected();
 	}
-	inventory.items[itemSlot]->Render(false);
+	inventory.items[itemSlot]->UnRender();
 	inventory.items[itemSlot]->PersistOnReset();
 	inventory.items[itemSlot]->SetPhysicsComponent(false);
 
 	//Inventory Display
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Item>(prefabID, { 0,0,0 }, (Item**)&inventory.displayItems[itemSlot]));
-	inventory.displayItems[itemSlot]->Render(false);
+	inventory.displayItems[itemSlot]->UnRender();
 	inventory.displayItems[itemSlot]->PersistOnReset();
 	inventory.displayItems[itemSlot]->SetPhysicsComponent(false);
 
@@ -262,7 +262,7 @@ void ControllerObject::SetControllerState(ControllerState newState) {
 				for (int i = CONTROLLER_MAX_ITEMS - 1; i >= 0 ; --i) {
 					if (inventory.displayItems[i]) {
 						startItemIndex = i;
-						inventory.displayItems[i]->Render(false);
+						inventory.displayItems[i]->UnRender();
 					}
 				}
 				inventory.currentItem->DeSelected();

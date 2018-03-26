@@ -13,6 +13,8 @@ public:
 	void UpdateRay();
 	void Activate();
 
-	void Render(bool render = true) override;
+	void Render() override;
+	void UnRender() override;
+
 	void Awake(Object* obj) override;
 };

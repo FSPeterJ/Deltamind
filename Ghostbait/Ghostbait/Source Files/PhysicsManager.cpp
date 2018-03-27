@@ -313,11 +313,13 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 	}
 
 	if (collided) {
+		collided = false;
 		float lastClosestDist = XMVectorGetX(XMVector3LengthSq(closestCollision - vecOrigin));
 		float nextDist;
 		for (size_t j = 0; j < collisionPoints.size(); ++j) {
 			nextDist = XMVectorGetX(XMVector3LengthSq(collisionPoints[j] - vecOrigin));
-			if (lastClosestDist >= nextDist) {
+			if (lastClosestDist > nextDist) {
+				collided = true;
 				closestCollision = collisionPoints[j];
 				if (colObject)
 					*colObject = collidedObjects[j];
@@ -1083,16 +1085,17 @@ bool PhysicsManager::RaycastCollisionCheck(XMVECTOR& origin, XMVECTOR& direction
 			collisionPoints.push_back(tempColPoint);
 			if (colObject)
 				*colObject = dynamic_cast<GameObject*>(collidingComp->parentObject);
-			collided = true;
+			//collided = true;
 		}
 	}
 
-	if (collided) {
+	if (hasCollidingComp) {
 		float lastClosestDist = XMVectorGetX(XMVector3LengthSq(closestCollision - origin));
 		float nextDist;
 		for (int i = 0; i < (int)collisionPoints.size(); ++i) {
 			nextDist = XMVectorGetX(XMVector3LengthSq(collisionPoints[i] - origin));
 			if (lastClosestDist > nextDist) {
+				collided = true;
 				closestCollision = collisionPoints[i];
 				lastClosestDist = nextDist;
 			}

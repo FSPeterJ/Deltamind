@@ -46,12 +46,12 @@ void Player::ChangeStance(Stance newStance) {
 void Player::GodDetected() {
 	if (IsGod()) {
 		ChangeStance(STANCE_Stand);
-		MessageEvents::SendQueueMessage(EVENT_Late, [=]() {if (this->editItem) editItem->Destroy(); });
+		//MessageEvents::SendQueueMessage(EVENT_Late, [=]() {if (this->editItem) editItem->Destroy(); });
 	}
 	else{
 		ChangeStance(STANCE_God);
 		MessageEvents::SendMessage(EVENT_BecameGod, EventMessageBase());
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/Monitor.ghost")), { 0, 0, 0 }, &editItem));
+		//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/Monitor.ghost")), { 0, 0, 0 }, &editItem));
 	}
 }
 

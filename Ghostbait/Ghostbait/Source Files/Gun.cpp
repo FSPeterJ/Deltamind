@@ -96,11 +96,11 @@ void Gun::GivePID(unsigned pid, const char* tag) {
 	}
 }
 
-bool Gun::Shoot() {
+bool Gun::Shoot(bool addOverheat) {
 	// What does this switch statement do???
 	switch(type) {
 		case AUTO:
-			if(overheat.CanShoot(fireRate)) {
+			if(!addOverheat || overheat.CanShoot(fireRate)) {
 				//Fire
 				Projectile* obj;
 				MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Projectile>(projectiePID, { 0, 0, 0 }, &obj));
@@ -115,12 +115,14 @@ bool Gun::Shoot() {
 				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(transform.GetMatrix()._31 * 40.0f, transform.GetMatrix()._32 * 40.0f, transform.GetMatrix()._33 * 40.0f);
 				obj->SetDamage(damage);
 				obj->Enable();
-				overheat.AddEnergy(overheat.energyBulletCost);
-				overheat.ResetTimeSinceLastShot();
+				if (addOverheat) {
+					overheat.AddEnergy(overheat.energyBulletCost);
+					overheat.ResetTimeSinceLastShot();
+				}
 			}
 			break;
 		case SEMI:
-			if(overheat.CanShoot(fireRate)) {
+			if(!addOverheat || overheat.CanShoot(fireRate)) {
 				//Fire
 				Projectile* obj;
 				MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Projectile>(projectiePID, { 0, 0, 0 }, &obj));
@@ -137,8 +139,10 @@ bool Gun::Shoot() {
 				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(transform.GetMatrix()._31 * 40.0f, transform.GetMatrix()._32 * 40.0f, transform.GetMatrix()._33 * 40.0f);
 				obj->SetDamage(damage);
 				obj->Enable();
-				overheat.AddEnergy(overheat.energyBulletCost);
-				overheat.ResetTimeSinceLastShot();
+				if (addOverheat) {
+					overheat.AddEnergy(overheat.energyBulletCost);
+					overheat.ResetTimeSinceLastShot();
+				}
 				return false;
 			}
 			break;

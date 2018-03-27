@@ -305,7 +305,6 @@
     <ClCompile Include="Source Files\BuildTool.cpp" />
     <ClCompile Include="Source Files\Camera.cpp" />
     <ClCompile Include="Source Files\CheatCode.cpp" />
-    <ClCompile Include="Source Files\Console.cpp" />
     <ClCompile Include="Source Files\Controlable.cpp" />
     <ClCompile Include="Source Files\ControllerObject.cpp" />
     <ClCompile Include="Source Files\Core.cpp" />

@@ -280,6 +280,11 @@ void Renderer::renderToEye(eye * eyeTo) {
 	for(size_t i = 0; i < transparentObjects.size(); ++i) {
 		renderObjectDefaultState((Object*)transparentObjects[i]);
 	}
+	RenderParticles();
+	context->VSSetShader(StandardVertexShader, NULL, NULL);
+	context->PSSetShader(DeferredTargetPS, NULL, NULL);
+	context->GSSetShader(nullptr, NULL, NULL);
+
 	context->ClearDepthStencilView(eyeTo->targets.DSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	for(size_t i = 0; i < frontRenderedObjects.size(); ++i) {
 		renderObjectDefaultState((Object*)frontRenderedObjects[i]);
@@ -752,7 +757,11 @@ void Renderer::Render() {
 	for(size_t i = 0; i < transparentObjects.size(); ++i) {
 		renderObjectDefaultState((Object*)transparentObjects[i]);
 	}
+
 	RenderParticles();
+	context->VSSetShader(StandardVertexShader, NULL, NULL);
+	context->PSSetShader(DeferredTargetPS, NULL, NULL);
+	context->GSSetShader(nullptr, NULL, NULL);
 	context->ClearDepthStencilView(deferredTextures.DSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	for(size_t i = 0; i < frontRenderedObjects.size(); ++i) {
 		renderObjectDefaultState((Object*)frontRenderedObjects[i]);
@@ -1260,10 +1269,10 @@ void Renderer::RenderParticles() {
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 
 	context->VSSetShader(ParticleVS, NULL, NULL);
-	context->PSSetShader(ParticlePS, NULL, NULL);
 	context->GSSetShader(ParticleGS, NULL, NULL);
+	context->PSSetShader(ParticlePS, NULL, NULL);
 	//context->IASetInputLayout(NULL);
-	context->OMSetRenderTargets(6, deferredTextures.RTVs, deferredTextures.DSV);
+	//context->OMSetRenderTargets(6, deferredTextures.RTVs, deferredTextures.DSV);
 
 	ID3D11ShaderResourceView* SRV[] = { ParticleSRV, ActiveParticleIndexSRV };
 	context->VSSetShaderResources(10,2, SRV);

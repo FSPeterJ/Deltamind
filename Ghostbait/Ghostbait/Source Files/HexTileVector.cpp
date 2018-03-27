@@ -1,5 +1,7 @@
 #include "HexTileVector.h"
 #include "HexGrid.h"
+#include "Console.h"
+using namespace Common;
 
 bool operator<(const HexPath&p, const HexPath&p2) { return p.cost() <= p2.cost(); } //in case of a cost tie, std::pair will compare the second element so this is needed to satisfy it
 
@@ -7,7 +9,7 @@ HexTile* HexRegion::getData() { return &data[0]; }
 
 HexRegion::HexRegion(std::vector<HexTile>& that) { data.swap(that); }
 
-std::vector<HexTile>::iterator HexRegion::remove(const HexTile & v) { return data.erase(std::remove(data.begin(), data.end(), v), data.end()); }
+std::vector<HexTile>::iterator HexRegion::remove(const HexTile & v) { return data.erase(std::find(data.begin(), data.end(), v), data.end()); }
 
 void HexRegion::push_back(const HexTile & v) { data.emplace_back(v); }
 
@@ -115,13 +117,18 @@ void HexPath::Color(HexagonalGridLayout * const layout, DirectX::XMFLOAT3 color,
 	}
 }
 
-void HexPath::BuildPath(HexTilePtr const start, HexTilePtr const goal, VisitedMap& came_from) {
 
+void HexPath::BuildPath(HexTilePtr const start, HexTilePtr const goal, VisitedMap& came_from) {
 	HexTilePtr current = goal;
 
 	while(current != start && current) {
 		data.push_back(current);
 		current = came_from[current];
+		if (std::find(data.begin(), data.end(), current) != data.end()) { 
+			Console::WriteLine << "Circular parent dependency!!!";
+			data.clear();
+			break;
+		}
 	}
 
 	data.push_back(start);
@@ -138,4 +145,15 @@ void HexPath::BuildPathReverse(HexTilePtr const start, HexTilePtr const goal, Vi
 
 	data.push_back(goal);
 	//std::reverse(data.begin(), data.end());
+}
+
+HexPath::HexTilePtr HexPath::Next(HexTilePtr const current) const {
+	auto it = std::find(data.begin(), data.end(), current);
+	if (it != data.end())
+		return it == data.end() - 1 ? nullptr : *(it + 1);
+	return nullptr;
+}
+
+bool HexPath::find(HexTilePtr const v) const {
+	return std::find(data.begin(), data.end(), v) != data.end();
 }

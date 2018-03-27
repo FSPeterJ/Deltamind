@@ -128,8 +128,9 @@ void Player::Update() {
 		}
 	}
 	else {
-		DirectX::XMFLOAT3 prevPos = transform.GetPosition();
 		
+		DirectX::XMFLOAT3 prevPos = transform.GetPosition();
+
 		if (KeyIsDown(Control::GodMode)) {
 			ResetKey(Control::GodMode);
 			GodDetected();

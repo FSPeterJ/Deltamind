@@ -4,6 +4,7 @@
 #include "MessageEvents.h"
 #include "Console.h"
 #include "WindowsX.h"
+using namespace Common;
 
 #define RAD_PI 3.14159265359
 
@@ -379,6 +380,7 @@ InputManager::KeyboardInput::KeyboardInput() {
 	MapKey(TestInputX, 'X');
 	MapKey(TestInputU, 'U');
 	MapKey(TestInputI, 'I');
+	MapKey(TestInputR, 'R');
 	MapKey(TestInputO, 'O');
 	MapKey(TestInputJ, 'J');
 	MapKey(TestInputK, 'K');

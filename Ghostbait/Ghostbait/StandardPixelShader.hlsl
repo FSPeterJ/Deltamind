@@ -136,9 +136,9 @@ float4 main(PixelShaderInput input) : SV_TARGET
     {
         if (lights[i].color.w == 0.0f)
             break;
-        float2x4 result = calcLight(0, worldPos, norm);
+        float2x4 result = calcLight(i, worldPos, norm);
             finalLight += result._11_12_13_14;
-            finalSpec += calcSpec(0, result._21, worldPos, norm, specIntense);
+            finalSpec += calcSpec(i, result._21, worldPos, norm, specIntense);
     }
     float4 diffuseColor = diffuse.Sample(sample, input.uv);
     float4 emissiveColor = emissive.Sample(sample, input.uv);

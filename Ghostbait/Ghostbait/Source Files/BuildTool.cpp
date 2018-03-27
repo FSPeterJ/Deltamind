@@ -170,20 +170,21 @@ void BuildTool::SpawnProjection(){
 			spawnPos.x = newPos.x;
 			spawnPos.y = 0;
 			spawnPos.z = newPos.y;
-
 			//Move Object
 			DirectX::XMFLOAT4X4 newPos1 = prefabs[currentPrefabIndex].object->transform.GetMatrix();
 			newPos1._41 = spawnPos.x;
 			newPos1._42 = spawnPos.y;
 			newPos1._43 = spawnPos.z;
 			prefabs[currentPrefabIndex].object->transform.SetMatrix(newPos1);
-			
+			newPos1._42 += 0.2f;
+			light.transform.SetMatrix(newPos1);
 			//Asses if valid location
 			if (CanBuildHere(newPos)) {
 				if (!prevLocationValid) {
 					prefabs[currentPrefabIndex].object->SwapComponentVarient<Material>("valid");
 					prevLocationValid = true;
 				}
+				light.SetColor({ 0.0f, 5.0f, 0.0f, 1.0f });
 				gearAdjustmentDisplay->RenderTransparent();
 			}
 			else {
@@ -191,11 +192,13 @@ void BuildTool::SpawnProjection(){
 					prefabs[currentPrefabIndex].object->SwapComponentVarient<Material>("invalid");
 					prevLocationValid = false;
 				}
+				light.SetColor({ 5.0f, 0.0f, 0.0f, 1.0f });
 			}
 		}
 		else {
 			buildRay.Destroy();
 			prefabs[currentPrefabIndex].object->UnRender();
+			light.SetColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 		}
 	}
 
@@ -234,8 +237,13 @@ void BuildTool::RemoveProjection() {
 			currentlySelectedItemIndex = -1;
 			currentlySelectedItem = nullptr;
 		}
+		light.SetColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 		return;
 	}
+	DirectX::XMFLOAT4X4 temp = colObject->transform.GetMatrix();
+	temp._42 += 0.2f;
+	light.transform.SetMatrix(temp);
+
 	if (gearAdjustmentDisplay) gearAdjustmentDisplay->RenderTransparent();
 	//Am I colliding with a different object than my currently selected object?
 	if (colObject != currentlySelectedItem) {
@@ -247,6 +255,8 @@ void BuildTool::RemoveProjection() {
 			currentlySelectedItem = colObject;
 			//TODO: Temp...Dont't call this every frame.
 			currentlySelectedItem->SwapComponentVarient<Material>("invalid");
+			light.SetColor({ 5.0f, 0.0f, 0.0f, 1.0f });
+			
 			break;
 		}
 	}
@@ -351,6 +361,7 @@ void BuildTool::DeSelected() {
 		currentlySelectedItem->SwapComponentVarient<Material>("default");
 		currentlySelectedItem = nullptr;
 	}
+	light.SetColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 	buildRay.Destroy();
 	deleteRay.Destroy();
 	Item::DeSelected();
@@ -371,6 +382,8 @@ void BuildTool::Selected() {
 void BuildTool::Awake(Object* obj) {
 	buildRay.SetFile("Assets/Ray.ghost");
 	deleteRay.SetFile("Assets/Ray.ghost");
+	light.Enable();
+	light.SetAsPoint({ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 4.5f);
 	//gearDisplay->transform.SetMatrix(DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1));
 	//gearDisplay->SetComponent<Material>(TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "$0").mat);
 	//Material* newMat = TextManager::CreateRenderableTexture(100, 100);

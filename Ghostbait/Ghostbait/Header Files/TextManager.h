@@ -44,7 +44,9 @@ class TextManager {
 	static std::vector<renderableMat> managedMaterials;
 
 	static renderableMat createTextMaterial(float width, float height);
+	static void remakeMaterial(renderableMat* toMake, float width, float height);
 	static renderableMat generateVertexBufferAndRender(Font* font, std::string _sentence, DirectX::XMFLOAT4 &bgColor, int index = -1);
+	static void releaseRenderableMat(renderableMat* _mat);
 	static void renderText(renderableMat* mat, std::string& sentence, std::vector<VertexPositionTexture> & vertices, ID3D11ShaderResourceView * font, DirectX::XMFLOAT4 &bgColor);
 public:
 	struct textOutput

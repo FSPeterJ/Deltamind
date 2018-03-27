@@ -8,6 +8,7 @@
 #include "MessageStructs.h"
 #include "ObjectFactory.h"
 #include "Animator.h"
+using namespace Common;
 
 #define ArcPoints 20
 

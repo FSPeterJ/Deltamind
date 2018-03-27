@@ -187,11 +187,11 @@ void PhysicsManager::Update() {
 
 		//This seems absurd, are we sure we can't use XMVECTOR and XMMATRIX in a more manageable manner?
 		if (!dynamicComponents[i].isActive) continue;
-		XMFLOAT4* objectPosition = (XMFLOAT4*) &dynamicComponents[i].parentObject->transform.GetMatrix().m[3];
-		XMVECTOR newposition = XMLoadFloat4(objectPosition);
-		dynamicComponents[i].rigidBody.Update();
-		newposition += dynamicComponents[i].rigidBody.GetVelocity() * delta;
-		XMStoreFloat4(objectPosition, newposition);
+		XMFLOAT4X4* objectPosition = &(dynamicComponents[i].parentObject->transform.matrix);
+		XMMATRIX newposition = XMLoadFloat4x4(objectPosition);
+		dynamicComponents[i].rigidBody.Update(&newposition);
+		newposition.r[3] += dynamicComponents[i].rigidBody.GetVelocity() * delta;
+		XMStoreFloat4x4(objectPosition, newposition);
 		UpdateAABB(dynamicComponents[i]);
 		partitionSpace.UpdateComponent(&dynamicComponents[i]);
 		//components[i].parentObject->position.r[3] += components[i].rigidBody.GetVelocity() * dt;
@@ -200,7 +200,7 @@ void PhysicsManager::Update() {
 		for(unsigned int colInd = 0; colInd < dynamicComponents[i].colliders.size(); ++colInd) {
 			XMVECTOR offset = XMLoadFloat3(&(dynamicComponents[i].colliders[colInd].centerOffset));
 			XMFLOAT3 colPos;
-			XMStoreFloat3(&colPos, newposition + offset);
+			XMStoreFloat3(&colPos, newposition.r[3] + offset);
 
 			switch(dynamicComponents[i].colliders[colInd].colliderData->colliderType) {
 			case SPHERE:
@@ -271,7 +271,7 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 	XMVECTOR tempCollidePt;
 	GameObject* tempCollideObj = nullptr;
 	XMFLOAT3 nextSegment;
-	std::vector<PhysicsComponent*> compToTest;
+	const std::vector<PhysicsComponent*>* compToTest;
 	std::vector<XMVECTOR> collisionPoints;
 	std::vector<GameObject*> collidedObjects;
 	if(colObject)
@@ -285,11 +285,12 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 			continue;
 		currBucketIndex = nextIndex;
 		compToTest = partitionSpace.GetComponentsToTest(currBucketIndex);
-		
-		for (size_t compIndex = 0; compIndex < compToTest.size(); ++compIndex) {
-			if (!compToTest[compIndex]->isActive) continue;
-			if (tag && strcmp(dynamic_cast<GameObject*>(compToTest[compIndex]->parentObject)->GetTag().c_str(), tag)) continue;
-			if (RaycastCollisionCheck(vecOrigin, vecDirection, compToTest[compIndex], &tempCollidePt, &tempCollideObj, maxCastDistance)) {
+		if (!compToTest) continue;
+
+		for (size_t compIndex = 0; compIndex < compToTest->size(); ++compIndex) {
+			if (!(*compToTest)[compIndex]->isActive) continue;
+			if (tag && strcmp(dynamic_cast<GameObject*>((*compToTest)[compIndex]->parentObject)->GetTag().c_str(), tag)) continue;
+			if (RaycastCollisionCheck(vecOrigin, vecDirection, (*compToTest)[compIndex], &tempCollidePt, &tempCollideObj, maxCastDistance)) {
 				collisionPoints.push_back(tempCollidePt);
 				collidedObjects.push_back(tempCollideObj);
 				collided = true;
@@ -1032,15 +1033,15 @@ void PhysicsManager::TestAllComponentsCollision() {
 	}
 	Console::WriteLine << counter;*/
 
-	std::vector<PhysicsComponent*>* dynamicComp = dynamicComponents.GetActiveList();
-	std::vector<PhysicsComponent*>* staticComp = staticComponents.GetActiveList();
-	std::vector<PhysicsComponent*> collidingList = partitionSpace.GetComponentsToTest();
+	const std::vector<PhysicsComponent*>* dynamicComp = dynamicComponents.GetActiveList();
+	const std::vector<PhysicsComponent*>* staticComp = staticComponents.GetActiveList();
+	const std::vector<PhysicsComponent*>* collidingList = partitionSpace.GetComponentsToTest();
 
-	for (unsigned int comp1Index = 0; comp1Index < collidingList.size(); ++comp1Index) {
-		if (!collidingList[comp1Index])
+	for (unsigned int comp1Index = 0; comp1Index < collidingList->size(); ++comp1Index) {
+		if (!(*collidingList)[comp1Index])
 			continue;
-		for (unsigned int comp2Index = comp1Index + 1; collidingList[comp2Index]; ++comp2Index) {
-			CollisionCheck(*(collidingList[comp1Index]), *(collidingList[comp2Index]));
+		for (unsigned int comp2Index = comp1Index + 1; (*collidingList)[comp2Index]; ++comp2Index) {
+			CollisionCheck(*((*collidingList)[comp1Index]), *((*collidingList)[comp2Index]));
 		}
 	}
 

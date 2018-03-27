@@ -5,7 +5,7 @@ template <typename T>
 struct HexagonTile;
 typedef HexagonTile<int> HexTile;
 
-namespace DirectX { struct XMFLOAT2; }
+namespace DirectX { struct XMFLOAT2; struct XMFLOAT4X4; }
 
 class HexPath;
 class HexGrid;
@@ -31,6 +31,9 @@ enum class PathingAlgorithm {
 class PathPlanner {
 	static HeuristicFunction heuristicFunction;
 	static HexGrid* grid;
+	friend struct DStarCommon;
+	friend class DStarLite;
+	friend class MTDStarLite;
 
 	/// <summary>
 	/// Chooses the algorithm to run based on the states of the start and goal tiles.
@@ -83,7 +86,16 @@ class PathPlanner {
 	/// <returns>A path from the start to goal or an empty path if one is not found.</returns>
 	static HexPath AStarSearch(HexTile *const start, HexTile *const goal, HeuristicFunction Heuristic);
 
-	//HexPath DStarSearch(HexTile *const start, HexTile *const goal){}
+	static std::unordered_map<std::size_t, DStarLite> dstarList;
+	static std::size_t dstarIndices;
+	static std::unordered_map<std::size_t, MTDStarLite> mtdstarList;
+	static std::size_t mtdstarIndices;
+
+	//static std::vector<DStarLite> dstarList;
+	//static std::size_t dstars;
+	//static std::vector<MTDStarLite> mtdstarList;
+	//static std::size_t mtdstars;
+
 
 public:
 
@@ -91,13 +103,29 @@ public:
 	static void SetGrid(HexGrid* _grid);
 
 	static HexPath FindPath(HexTile*const start, HexTile*const goal, TileType startType, TileType goalType);
-
 	static HexPath FindPath(const DirectX::XMFLOAT2 start, const DirectX::XMFLOAT2 goal, TileType startType, TileType goalType);
+
+
+	static std::size_t DStarLiteSearch(HexTile **const _start, HexTile **const _goal, HexTile** _next, std::size_t _perception, HeuristicFunction Heuristic);
+	static std::size_t MTDStarLiteSearch(HexTile **const _start, HexTile **const _goal, HexTile** _next, std::size_t _perception, HeuristicFunction Heuristic);
+
+	static void UpdateDStar(std::size_t dstarId);
+	//static HexTile* GetDStarNextTile(std::size_t dstarId);
+	static bool RemoveDStar(std::size_t dstarId);
+
+	//static void UpdateMTDSLTargetReference(std::size_t mtdstarId, DirectX::XMFLOAT4X4* goalRef);
+	static void UpdateMTDStar(std::size_t mtdstarId);
+	//static HexTile* GetMTDStarNextTile(std::size_t mtdstarId);
+	static bool RemoveMTDStar(std::size_t mtdstarId);
+
+
+	static void CostChangeNotice(HexTile* const tile);
 
 	template <PathingAlgorithm a>
 	typename std::enable_if<a == PathingAlgorithm::BreadthFirst || a == PathingAlgorithm::Dijkstra, TraversalResult>::type
 	static Traverse(HexTile*const start, std::size_t constraint, std::size_t maxSteps = 0);
-
+	static float ClampInfinity(float num);
+	static bool EpsilonIsEqual(float num1, float num2);
 
 	/// <summary>
 	/// Calculates the path from start to goal within x steps. Returns empty path if path is invalid or too far.

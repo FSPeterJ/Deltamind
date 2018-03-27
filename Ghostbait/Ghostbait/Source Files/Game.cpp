@@ -10,8 +10,11 @@
 #include "PathPlanner.h"
 #include "ObjectFactory.h"
 #include "Player.h"
+#include "DStarEnemy.h"
+#include "MTDSLEnemy.h"
 
-
+#include "Evolve.h"
+using namespace Omiracon::Genetics;
 
 void Game::GameData::Reset() {
 	state = GAMESTATE_BetweenWaves;
@@ -342,13 +345,22 @@ void Game::Start(Player* _player, EngineStructure* _engine, char* startScene) {
 	ChangeScene(startScene);
 
 	//MessageEvents::SendMessage(EVENT_StartWave, EventMessageBase());
-
+	//DStarEnemy* newFred;
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<DStarEnemy>("DStarEnemy", {40,0,40}, &newFred));
+	//newFred->SetGrid(&hexGrid);
+	//newFred->SetGoal(DirectX::XMFLOAT2(corePos.x, corePos.z));
+	//newFred->Enable();
 	//AStarEnemy *enemy;
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<AStarEnemy>("AStarEnemy", { 2,2,2 }, &enemy));
 	//enemy->SetGrid(&hexGrid);
 	//enemy->SetGoal(DirectX::XMFLOAT2(corePos.x, corePos.z));
 	//enemy->Repath();
 	//enemy->Enable();
+	//MTDSLEnemy* ted;
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<MTDSLEnemy>("MTDSLEnemy", { 5,0,5 }, &ted));
+	//ted->SetGrid(&hexGrid);
+	//ted->SetGoalReference(&(player->transform.matrix));
+	//ted->Enable();
 }
 void Game::Update() {
 	auto playerPos = player->transform.GetMatrix();

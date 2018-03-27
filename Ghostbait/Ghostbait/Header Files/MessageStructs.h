@@ -46,6 +46,8 @@ enum Control {
 	TestInputK,
 	TestInputL,
 	TestInputX,
+	TestInputR,
+
 	
 	GodMode,
 	Sprint,

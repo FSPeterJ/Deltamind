@@ -1,28 +1,16 @@
 #include "PathPlanner.h"
-#include "HexTileVector.h"
-#include <queue>
 #include "Heuristics.h"
 #include "HexGrid.h"
-#include "TraversalResult.h"
+//#include "HexTileVector.h"
+//#include "TraversalResult.h"
+//#include <queue>
+//#include <functional>
+//#include <set>
 #include "Console.h"
-
-template<typename T, typename priority_t>
-struct PriorityQueue {
-	//we should profile and check if this is a bottle neck.
-	//it uses a binary heap behind the scenes but may be worth it to switch to a deque if it is slow with large/complex paths
-	typedef std::pair<priority_t, T> PQElement;
-	std::priority_queue<PQElement, std::vector<PQElement>, std::greater<PQElement>> elements;
-
-	inline bool empty() const { return elements.empty(); }
-
-	inline void push(T item, priority_t priority) { elements.emplace(priority, item); }
-
-	T pop_back() {
-		T pop = elements.top().second;
-		elements.pop();
-		return pop;
-	}
-};
+#include <map>
+#include <iterator>
+#include "DStar.h"
+using namespace Common;
 
 HeuristicFunction PathPlanner::heuristicFunction = nullptr;
 HexGrid* PathPlanner::grid = nullptr;
@@ -55,6 +43,7 @@ HexPath PathPlanner::FindPath(HexTile*const start, HexTile*const goal, TileType 
 	case PathingAlgorithm::BreadthFirst: return BreadthFirstSearch(start, goal);
 	case PathingAlgorithm::Dijkstra: return DijkstraSearch(start, goal);
 	case PathingAlgorithm::AStar: return AStarSearch(start, goal, heuristicFunction);
+		//case PathingAlgorithm::DStarLite: return DStarLiteSearch(start, goal, heuristicFunction);
 	default: return HexPath();
 	}
 }
@@ -273,6 +262,93 @@ HexPath PathPlanner::AStarSearch(HexTile *const start, HexTile *const goal, Heur
 	return path;
 }
 
+std::unordered_map<std::size_t, DStarLite> PathPlanner::dstarList;
+std::size_t PathPlanner::dstarIndices = 0;
+std::unordered_map<std::size_t, MTDStarLite> PathPlanner::mtdstarList;
+std::size_t PathPlanner::mtdstarIndices = 0;
+
+//std::vector<DStarLite> PathPlanner::dstarList; //Will this work properly?
+//std::size_t PathPlanner::dstars = 0;
+std::size_t PathPlanner::DStarLiteSearch(HexTile **const _start, HexTile **const _goal, HexTile **const _next, std::size_t _perception, HeuristicFunction Heuristic) {
+	PathPlanner::SetHeuristic(Heuristic);
+
+	dstarList[dstarIndices] = DStarLite(grid, _start, _goal, _next, _perception);
+
+	return dstarIndices++;
+}
+
+//std::vector<MTDStarLite> PathPlanner::mtdstarList; //Will this work properly?
+//std::size_t PathPlanner::mtdstars = 0;
+std::size_t PathPlanner::MTDStarLiteSearch(HexTile **const _start, HexTile **const _goal, HexTile **const _next, std::size_t _perception, HeuristicFunction Heuristic) {
+	PathPlanner::SetHeuristic(Heuristic);
+
+	//auto ds = MTDStarLite(grid, startRef, goalRef);
+	mtdstarList[mtdstarIndices] = MTDStarLite(grid, _start, _goal, _next, _perception);
+
+	return mtdstarIndices++;
+}
+
+void PathPlanner::UpdateDStar(std::size_t dstarId) {
+	dstarList[dstarId].Update();
+}
+
+void PathPlanner::UpdateMTDStar(std::size_t mtdstarId) {
+	mtdstarList[mtdstarId].Update();
+}
+
+//HexTile* PathPlanner::GetDStarNextTile(std::size_t dstarId) {
+//	return dstarList[dstarId].GetNextTileInPath();
+//}
+//
+//HexTile* PathPlanner::GetMTDStarNextTile(std::size_t mtdstarId) {
+//	return mtdstarList[mtdstarId].GetNextTileInPath();
+//}
+//
+//void PathPlanner::UpdateMTDSLTargetReference(std::size_t mtdstarId, DirectX::XMFLOAT4X4* goalRef) {
+//	//MTDStarLite* ds = dynamic_cast<MTDStarLite*>(&dstarList[mtdstarId]); //Don't like this!
+//	mtdstarList[mtdstarId].UpdateGoalReference(goalRef);
+//}
+
+bool PathPlanner::RemoveDStar(std::size_t dstarId) {
+	if (dstarList.count(dstarId)) {
+		dstarList.erase(dstarId);
+		return true;
+	}
+	return false;
+}
+
+bool PathPlanner::RemoveMTDStar(std::size_t mtdstarId) {
+	if (dstarList.count(mtdstarId)) {
+		dstarList.erase(mtdstarId);
+		return true;
+	}
+	return false;
+}
+
+//void PathPlanner::UpdateMTDStarLite(std::size_t mtdstarId) {
+//	dstarList[mtdstarId].Update();
+//}
+//
+//HexTile* PathPlanner::GetMTDStarNextTile(std::size_t mtdstarId) {
+//	return mtdstarList[mtdstarId].GetNextTileInPath();
+//}
+
+void PathPlanner::CostChangeNotice(HexTile* tile) {
+	for (auto &ds : dstarList) {
+		ds.second.changedTiles.insert(tile);
+	}
+	for (auto &mtds : mtdstarList) {
+		mtds.second.changedTiles.insert(tile);
+	}
+	//for (int i = 0; i < dstarList.size(); ++i) {
+	//	dstarList[i].changedTiles.insert(tile);
+	//}
+	//for (int i = 0; i < mtdstarList.size(); ++i) {
+	//	mtdstarList[i].changedTiles.insert(tile);
+	//}
+
+}
+
 HexPath PathPlanner::CalculatePathWithinXSteps(HexTile *const start, HexTile *const goal, size_t steps) {
 	if(grid->IsBlocked(goal)) {
 		//	Console::WriteLine << "Goal is blocked!";
@@ -334,4 +410,12 @@ HexPath PathPlanner::CalculatePathWithinXCost(HexTile *const start, HexTile *con
 	//path.Color(&layout, {0,1,0}, 0.0f, ColorType::__mX);
 
 	return path;
+}
+
+float PathPlanner::ClampInfinity(float num) {
+	return num > grid->BlockWeight() ? grid->BlockWeight() : num;
+}
+
+bool PathPlanner::EpsilonIsEqual(float num1, float num2) {
+	return fabsf(num1 - num2) < FLT_EPSILON;
 }

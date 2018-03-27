@@ -8,6 +8,7 @@
 #include "MessageStructs.h"
 #include "ObjectFactory.h"
 #include "BinaryFileIO.h"
+using namespace Common;
 
 std::wstring SceneManager::string2wstring(std::string str) {
 	int len;
@@ -34,21 +35,26 @@ void SceneManager::CreateSceneFile(SceneManager::TestSceneData& data) {
 	std::ofstream file(data.fileName, std::ios::binary);
 
 	if (file.is_open()) {
-		Writer::defaultStream = &file;
+		//Writer::defaultStream = &file;
+		Writer::OpenStream(file);
 
-		Writer::WriteIntString(data.sceneName);
+		//Writer::WriteIntString(data.sceneName);
+		//Writer::WriteInt((int)data.levelName.size());
+		Writer::WriteStringWithSize(data.sceneName);
 		Writer::WriteInt((int)data.levelName.size());
+
 		for (size_t i = 0; i < data.levelName.size(); ++i)
-			Writer::WriteIntString(data.levelName[i]);
+			Writer::WriteStringWithSize(data.levelName[i]);
 
 		Writer::WriteInt((int)data.prefabs.size());
 		for (size_t i = 0; i < data.prefabs.size(); ++i) {
-			Writer::WriteIntString(data.prefabs[i].ghostFile);
+			Writer::WriteStringWithSize(data.prefabs[i].ghostFile);
 			Writer::WriteInt(data.prefabs[i].positions.size());
 			for (size_t j = 0; j < data.prefabs[i].positions.size(); ++j) {
 				Writer::WriteMatrix(data.prefabs[i].positions[j]);
 			}
 		}
+		Writer::CloseStream();
 	}
 	file.close();
 }
@@ -204,21 +210,23 @@ void SceneManager::FetchAllSceneFiles(const char* folderPath) {
 		//2. Read first two values of each file
 		std::ifstream file(paths[i], std::ios::binary);
 		if (file.is_open()) {
-			Reader::defaultStream = &file;
-			int nameLength = Reader::ReadInt();
-			std::string name = Reader::ReadString(nameLength);
+			//Reader::defaultStream = &file;
+			Reader::OpenStream(file);
+			std::string name = Reader::ReadStringWithSize();
+			//int nameLength = Reader::ReadInt();
+			//std::string name = Reader::ReadString(nameLength);
 			lastName = name;
 			std::vector<std::string> levels;
 			int levelAmount = Reader::ReadInt();
 			for (int index = 0; index < levelAmount; ++index)
 			{
-				int levelLength = Reader::ReadInt();
-				std::string level = Reader::ReadString(levelLength);
+				std::string level = Reader::ReadStringWithSize();
 				levels.push_back(level);
 			}
 
 			Scene newScene = Scene(paths[i], levels);
 			scenes[name] = newScene;
+			Reader::CloseStream();
 		}
 		file.close();
 	}
@@ -243,7 +251,7 @@ void SceneManager::LoadScene(const char* sceneName, Core** _core) {
 
 		std::ifstream file(scene.sceneFile, std::ios::binary);
 		if (file.is_open()) {
-			Reader::defaultStream = &file;
+			Reader::OpenStream(file);
 			int nameLen = Reader::ReadInt();
 			std::string name = Reader::ReadString(nameLen);
 
@@ -276,13 +284,13 @@ void SceneManager::LoadScene(const char* sceneName, Core** _core) {
 				}
 				//Will be garbage if the file is empty. Should only be garbage on the last call
 			}
-
+			Reader::CloseStream();
+			file.close();
 		}
 		else {
 			Console::ErrorLine << "Failed to open the scene file " << scene.sceneFile << "!";
 			return;
 		}
-		file.close();
 	}
 	return;
 

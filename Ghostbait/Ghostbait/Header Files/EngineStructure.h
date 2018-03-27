@@ -1,6 +1,7 @@
 #pragma once
 #include "Delegate.h"
 #include "Console.h"
+using namespace Common;
 
 class EngineStructure {
 	friend class GameObjectComponent;

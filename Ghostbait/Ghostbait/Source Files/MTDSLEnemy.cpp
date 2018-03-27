@@ -106,7 +106,7 @@ void MTDSLEnemy::FindTempPath() {
 	//}
 
 		if (!goal) {
-			Console::ErrorLine << "WHERE THE FUCK IS THE GOAL!?!?!?!";
+			Console::ErrorLine << "WHERE THE F IS THE GOAL!?!?!?!";
 	}
 }
 
@@ -213,7 +213,7 @@ void MTDSLEnemy::Update() {
 						DirectX::XMStoreFloat3(&nextDirection, DirectX::XMVector3Normalize(DirectX::XMVectorSet(nextPathPoint.x - transform.matrix._41, 0.0f, nextPathPoint.y - transform.matrix._43, 1.0f)));
 						float dotProd = (nextDirection.x * transform.matrix._31 + nextDirection.y * transform.matrix._32 + nextDirection.z * transform.matrix._33);
 						//Console::WriteLine << "Dot Product:" << dotProd;
-						rb->AddForce(2.0f * (2.0f - dotProd), nextDirection.x, nextDirection.y, nextDirection.z, 0.03f);
+						rb->AddForce(2.0f * (2.0f - dotProd), nextDirection.x, nextDirection.y, nextDirection.z, 0.05f);
 						//Console::WriteLine << "Current Pos: " << "(" << transform.matrix._41 << ", " << transform.matrix._42 << ", " << transform.matrix._43 << ")";
 						//Console::WriteLine << "Next Point: " << "(" << nextPathPoint.x << ", " << 0.0f << ", " << nextPathPoint.y << ")";
 						//Console::WriteLine << "Next Direction: " << "(" << nextDirection.x << ", " << nextDirection.y << ", " << nextDirection.z << ")";

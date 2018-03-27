@@ -32,6 +32,8 @@
 #include "Core.h"
 #include "Ground.h"
 
+#define FULLSCREEN true
+
 //#include "..\Omiracron\Omiracron\Omiracron.h"
 //using namespace Omiracron;
 
@@ -58,8 +60,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ThreadPool::Start();
 	Console::Allocate();
 	Window wnd(1024, 900);
-
-	if(!wnd.Initialize(hInstance, nCmdShow)) { Messagebox::ShowError("Error!!", "Main window is not initialized!"); }
+	if(!wnd.Initialize(hInstance, FULLSCREEN ? SW_MAXIMIZE : nCmdShow)) { Messagebox::ShowError("Error!!", "Main window is not initialized!"); }
 	wnd.UpdateTitle(L"Ghostbait");
 
 	_Pool_Base::RegisterMemory(&MemMan);

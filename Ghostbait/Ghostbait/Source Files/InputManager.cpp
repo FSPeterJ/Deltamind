@@ -387,7 +387,7 @@ InputManager::KeyboardInput::KeyboardInput() {
 	MapKey(Crouch, 'C');
 	MapKey(TestInputL, 'L');
 	MapKey(releaseKey, VK_MENU); // Alt Key
-	MapKey(Sprint, VK_SHIFT); // Alt Key
+	MapKey(Sprint, VK_SHIFT);
 
 	GetWindowRect(GetActiveWindow(), &winRect);
 	cursorX = ((winRect.right - winRect.left) * 0.5f);

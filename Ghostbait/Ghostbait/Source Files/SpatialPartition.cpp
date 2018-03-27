@@ -50,8 +50,10 @@ bool SpatialPartition::Unit::RemoveComponent(PhysicsComponent* comp) {
 SpatialPartition::SpatialPartition() {
 	bucketCount = 1024;
 	unitSize = PARTITION_UNIT_SIZE;
+	toTest.reserve(1024);
 }
 SpatialPartition::SpatialPartition(uint32_t _bucketCount, float _unitSize) : bucketCount(_bucketCount), unitSize(_unitSize) {
+	toTest.reserve(1024);
 }
 
 uint32_t SpatialPartition::Hash(const float x, const float y, const float z) {
@@ -219,7 +221,7 @@ void SpatialPartition::UpdateComponent(PhysicsComponent* component) {
 	}
 }
 
-const std::vector<PhysicsComponent*> SpatialPartition::GetComponentsToTest() {
+const std::vector<PhysicsComponent*>* SpatialPartition::GetComponentsToTest() {
 	//std::vector<PhysicsComponent*> testComps;
 	//std::vector<uint32_t> indicies = Hash(component->currentAABB);
 	////Console::WriteLine << (int)indicies.size();
@@ -243,7 +245,7 @@ const std::vector<PhysicsComponent*> SpatialPartition::GetComponentsToTest() {
 	//}
 	//return testComps;
 
-	std::vector<PhysicsComponent*> testComps;
+	//std::vector<PhysicsComponent*> testComps;
 
 	for each (const auto &bucket in table)
 	{
@@ -251,20 +253,20 @@ const std::vector<PhysicsComponent*> SpatialPartition::GetComponentsToTest() {
 		if (bucket.second.components.size() > 1) {
 			for (unsigned int i = 0; i < bucket.second.components.size(); ++i) {
 				assert(bucket.second.components[i]  != nullptr);
-				testComps.push_back(bucket.second.components[i]);
+				toTest.push_back(bucket.second.components[i]);
 				//Console::WriteLine << "Bucket: " << bucket.first << "  Size: " << bucket.second.components.size();
 			}
-			testComps.push_back(nullptr);
+			toTest.push_back(nullptr);
 		}
 	}
-	return testComps;
+	return &toTest;
 }
 
-const std::vector<PhysicsComponent*> SpatialPartition::GetComponentsToTest(uint32_t hashIndex) {
-	std::vector<PhysicsComponent*> toReturn; 
+const std::vector<PhysicsComponent*>* SpatialPartition::GetComponentsToTest(uint32_t hashIndex) {
+	//std::vector<PhysicsComponent*> toReturn; 
 	if(table.find(hashIndex) != table.end())
-		return table[hashIndex].components;
-	return toReturn;
+		return &table[hashIndex].components;
+	return nullptr;
 }
 
 const uint32_t SpatialPartition::GetHashedIndex(DirectX::XMFLOAT3 position) {

@@ -2,6 +2,7 @@
 #include "Global.hlsl"
 
 
+RWStructuredBuffer<BillboardParticle> BillboardParticleBuffer : register(u10);
 
 RWStructuredBuffer<uint> ActiveBillboardParticleIndex : register(u11);
 RWStructuredBuffer<uint> InactiveBillboardParticleIndex : register(u12);

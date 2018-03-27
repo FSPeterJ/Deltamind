@@ -36,8 +36,7 @@ float2 calculateUVOffset(uint texturedata)
 [maxvertexcount(4)]
 void main(point GSInput input[1], inout TriangleStream<GSOutput> output)
 {
-    float4 wvp = mul(mul(input[0].pos, view), projection);
-
+    
     float4 verts[4] = { { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f } };
     float3 uvws[4];
     verts[0] = float4(input[0].pos.x - input[0].size, input[0].pos.y + input[0].size, input[0].pos.z, 1.0f);
@@ -55,7 +54,8 @@ void main(point GSInput input[1], inout TriangleStream<GSOutput> output)
     GSOutput element = (GSOutput) 0;
     for (uint i = 0; i < 4; ++i)
     {
-        element.pos = mul(verts[i], wvp);
+        element.pos = mul(verts[i], view);
+        element.pos = mul(element.pos, projection);
         element.uvw = uvws[i];
         output.Append(element);
     }

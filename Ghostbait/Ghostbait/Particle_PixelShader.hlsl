@@ -47,7 +47,8 @@ PixelShaderOutput main(PixelShaderInput input)
     if (diffuseFloat.w == 0.0f)
         discard;
     //output.diffuse = float4(diffuseFloat.xyz * diffuseFactor, diffuseFloat.w);    
-    output.diffuse = float4(diffuseFloat.xyz * 1.0f, diffuseFloat.w);
+    //output.diffuse = float4(diffuseFloat.xyz * 1.0f, diffuseFloat.w);
+    output.diffuse = float4(0.5f, 0.5f, 0.5f, 1.0f);
     output.emissive = float4(0.0f, 0.0f, 0.0f, 1.0f);
     output.normal = float4(0.5f, 0.5f, 0.5f, 1.0f);
     output.specular = float4(0.0f, 0.0f, 0.0f, 1.0f);

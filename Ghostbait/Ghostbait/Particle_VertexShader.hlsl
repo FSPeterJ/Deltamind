@@ -2,7 +2,8 @@
 
 //The draw call to this shader should have no input layout elements as the data is in GPU buffers
 
-RWStructuredBuffer<uint> ActiveBillboardParticleIndex : register(u1); 
+StructuredBuffer<BillboardParticle> BillboardParticleBuffer : register(t10);
+StructuredBuffer<uint> ActiveBillboardParticleIndex : register(t11); 
 
 
 cbuffer ModelViewProjectionConstantBuffer : register(b0)
@@ -30,7 +31,7 @@ VSOutput main(uint VertexID : SV_VertexID)
     //This can be optimized by computing the view space data beforehand in a compute shader
     output.pos = mul(float4(BParticle.position, 1.0f), view);
     output.size = BParticle.endSize; // Temporary, change later
-    output.texturedata = BParticle.texturedata & 0xFF;
+    output.texturedata = BParticle.texturedata;
     output.rotation = BParticle.rotation;
     return output;
 }

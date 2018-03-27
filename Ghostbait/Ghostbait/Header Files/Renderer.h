@@ -39,7 +39,7 @@ private:
 		ID3D11BlendState* blend_state;
 		D3D11_VIEWPORT viewport;
 	};
-	
+	//float3 float float3 float float float float uint
 	struct GPUParticle {
 		//Dynamic data  (16 bytes)
 		DirectX::XMFLOAT3 position;

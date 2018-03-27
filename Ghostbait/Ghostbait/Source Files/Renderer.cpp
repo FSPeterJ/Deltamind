@@ -40,7 +40,7 @@ void Renderer::createDeviceContextAndSwapchain(Window window) {
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 
-	D3D_FEATURE_LEVEL* feature = new D3D_FEATURE_LEVEL(D3D_FEATURE_LEVEL_11_1);
+	D3D_FEATURE_LEVEL* feature = new D3D_FEATURE_LEVEL(D3D_FEATURE_LEVEL_11_0);
 	D3D_FEATURE_LEVEL* outputFeature = nullptr;
 #if _DEBUG
 	D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, D3D11_CREATE_DEVICE_DEBUG, feature, 1, D3D11_SDK_VERSION, &desc, &swapchain, &device, outputFeature, &context);
@@ -172,6 +172,7 @@ void Renderer::combineDeferredTargets(DeferredRTVs * in, ID3D11RenderTargetView 
 	context->PSSetShader(StandardPixelShader, NULL, NULL);
 	context->PSSetShaderResources(0, 6, in->SRVs);
 	context->PSSetConstantBuffers(2, 1, &cameraBuffer);
+	context->GSSetConstantBuffers(0, 1, &cameraBuffer);
 	context->IASetVertexBuffers(0, 1, &emptyFloat3Buffer, &stride, &offset);
 	context->IASetInputLayout(ILPosition);
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
@@ -755,7 +756,6 @@ void Renderer::Render() {
 		renderObjectDefaultState((Object*)frontRenderedObjects[i]);
 	}
 
-	RenderParticles();
 
 	//DirectX::XMFLOAT4X4 view, proj;
 	//if (VRManager::GetInstance().IsEnabled())
@@ -770,6 +770,9 @@ void Renderer::Render() {
 	//}
 	//ParticleManager::RenderParticlesTo(defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport, view, proj);
 	//context->VSSetConstantBuffers(0, 1, &cameraBuffer);
+	RenderParticles();
+
+
 
 	viewProjectionConstantBuffer buff;
 	if(VRManager::GetInstance().IsEnabled()) {
@@ -1053,7 +1056,7 @@ void Renderer::InitParticles() {
 
 	//TESTING CODE
 	GPUParticle* testParticle = new GPUParticle[MAX_PARTICLES];
-	testParticle->position = XMFLOAT3(0, 2.0f, 1.5f);
+	testParticle->position = XMFLOAT3(1, 2.0f, 1.5f);
 	testParticle->endSize = 3.0f;
 	testParticle->startSize = 1.5f;
 	testParticle->properties = 512u << 20| 512u << 8 | 0u;
@@ -1108,6 +1111,7 @@ void Renderer::InitParticles() {
 	ZeroMemory(&resData, sizeof(resData));
 	UINT* countData = new UINT[4];
 	countData[0] = 1u;
+
 	resData.pSysMem = countData;
 	device->CreateBuffer(&bufferDesc, &resData, &ActiveParticleConstantBuffer);
 	countData[0] = MAX_PARTICLES;
@@ -1121,12 +1125,21 @@ void Renderer::InitParticles() {
 	bufferDesc.ByteWidth = sizeof(EmitterConstant);
 	device->CreateBuffer(&bufferDesc, nullptr, &EmitterConstantBuffer);
 
+	ZeroMemory(&resData, sizeof(resData));
+	UINT* argData = new UINT[5];
+	argData[0] = 1u;
+	argData[1] = 1u;
+	argData[2] = 0;
+	argData[3] = 0;
+	argData[4] = 0;
+	resData.pSysMem = argData;
+
 	ZeroMemory(&bufferDesc, sizeof(bufferDesc));
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	bufferDesc.BindFlags = D3D11_BIND_UNORDERED_ACCESS;
 	bufferDesc.ByteWidth = sizeof(UINT) * 5;
 	bufferDesc.MiscFlags = D3D11_RESOURCE_MISC_DRAWINDIRECT_ARGS;
-	device->CreateBuffer(&bufferDesc, nullptr, &IndirectDrawArgsBuffer);
+	device->CreateBuffer(&bufferDesc, &resData, &IndirectDrawArgsBuffer);
 
 	ZeroMemory(&uavDesc, sizeof(uavDesc));
 	uavDesc.Format = DXGI_FORMAT_R32_UINT;
@@ -1135,6 +1148,11 @@ void Renderer::InitParticles() {
 	uavDesc.Buffer.NumElements = 5;
 	uavDesc.Buffer.Flags = 0;
 	device->CreateUnorderedAccessView(IndirectDrawArgsBuffer, &uavDesc, &IndirectDrawArgsUAV);
+
+	ID3D11UnorderedAccessView* uavs[] = { ActiveParticleIndexUAV };
+	UINT counts[] = { 1 };
+	context->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavs), uavs, counts);
+	context->CSSetUnorderedAccessViews(0, 0, nullptr, nullptr);
 
 
 	FillRandomTexture();
@@ -1243,13 +1261,16 @@ void Renderer::RenderParticles() {
 	context->VSSetShader(ParticleVS, NULL, NULL);
 	context->PSSetShader(ParticlePS, NULL, NULL);
 	context->GSSetShader(ParticleGS, NULL, NULL);
+	//context->IASetInputLayout(NULL);
 	context->OMSetRenderTargets(6, deferredTextures.RTVs, deferredTextures.DSV);
 
-	ID3D11UnorderedAccessView* views[] = { ParticleUAV, ActiveParticleIndexUAV };
-	UINT counts[] = {0, 1};
+	ID3D11ShaderResourceView* SRV[] = { ParticleSRV, ActiveParticleIndexSRV };
+	context->VSSetShaderResources(10,2, SRV);
 
-	context->OMSetRenderTargetsAndUnorderedAccessViews(6, deferredTextures.RTVs, deferredTextures.DSV, 6, 2, views, counts);
+	
+	//context->OMSetRenderTargetsAndUnorderedAccessViews(6u, deferredTextures.RTVs, deferredTextures.DSV, 6, 1u, uavs, counts);
+
 	context->CopyStructureCount(IndirectDrawArgsBuffer, 0, ActiveParticleIndexUAV);
-	context->DrawIndexedInstancedIndirect(IndirectDrawArgsBuffer, 0);
+	context->DrawInstancedIndirect(IndirectDrawArgsBuffer, 0);
 }
 

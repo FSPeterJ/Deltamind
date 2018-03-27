@@ -327,6 +327,9 @@
     <ClInclude Include="Header Files\NeuralEnemy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Header Files\AntColony.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source Files\Window.cpp">

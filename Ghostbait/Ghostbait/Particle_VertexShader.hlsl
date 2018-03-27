@@ -29,8 +29,10 @@ VSOutput main(uint VertexID : SV_VertexID)
     BillboardParticle BParticle = BillboardParticleBuffer[sortedIndex];
 
     //This can be optimized by computing the view space data beforehand in a compute shader
-    output.pos = mul(float4(BParticle.position, 1.0f), view);
+    //output.pos = mul(float4(BParticle.position, 1.0f), view);
+    output.pos = float4(BParticle.position, 1.0f);
     output.size = BParticle.endSize; // Temporary, change later
+    output.size = 0.5f; // Temporary, change later
     output.texturedata = BParticle.texturedata;
     output.rotation = BParticle.rotation;
     return output;

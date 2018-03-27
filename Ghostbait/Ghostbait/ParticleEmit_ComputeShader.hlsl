@@ -7,11 +7,11 @@ Texture2D RandomNumbers : register(t0);
 //This setup works very similar to how our pool system works.
 // There is a pool of particles and then an inactive / active list.  Instead of pointers we use indicies.  
 
-RWStructuredBuffer<BillboardParticle> BillboardParticleBuffer : register(u10);
+RWStructuredBuffer<BillboardParticle> BillboardParticleBuffer : register(u0);
 
-RWStructuredBuffer<uint> ActiveBillboardParticleIndex : register(u11); 
-RWStructuredBuffer<uint> InactiveBillboardParticleIndex : register(u12);
-RWBuffer<uint> DrawArgs : register(u13);
+RWStructuredBuffer<uint> ActiveBillboardParticleIndex : register(u1); 
+RWStructuredBuffer<uint> InactiveBillboardParticleIndex : register(u2);
+RWBuffer<uint> DrawArgs : register(u3);
 
 
 cbuffer EmitterConstantBuffer : register(b1)

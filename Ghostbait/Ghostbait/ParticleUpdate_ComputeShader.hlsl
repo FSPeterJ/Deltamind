@@ -2,11 +2,11 @@
 #include "Global.hlsl"
 
 
-RWStructuredBuffer<BillboardParticle> BillboardParticleBuffer : register(u10);
+RWStructuredBuffer<BillboardParticle> BillboardParticleBuffer : register(u0);
 
-RWStructuredBuffer<uint> ActiveBillboardParticleIndex : register(u11);
-RWStructuredBuffer<uint> InactiveBillboardParticleIndex : register(u12);
-RWBuffer<uint> DrawArgs : register(u13);
+RWStructuredBuffer<uint> ActiveBillboardParticleIndex : register(u1);
+RWStructuredBuffer<uint> InactiveBillboardParticleIndex : register(u2);
+RWBuffer<uint> DrawArgs : register(u3);
 
 //groupshared uint ActiveBillboardParticleCount;
 //groupshared uint OriginalActiveBillboardParticleCount;

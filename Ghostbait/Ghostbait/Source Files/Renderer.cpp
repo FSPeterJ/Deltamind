@@ -456,6 +456,7 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 	context->VSSetConstantBuffers(1, 1, &modelBuffer);
 	context->VSSetConstantBuffers(2, 1, &animDataBuffer);
 	context->PSSetConstantBuffers(0, 1, &lightBuffer);
+	context->GSSetConstantBuffers(2, 2, &lightBuffer);
 	context->PSSetConstantBuffers(1, 1, &factorBuffer);
 
 	//Particles
@@ -751,6 +752,7 @@ void Renderer::Render() {
 	for(size_t i = 0; i < transparentObjects.size(); ++i) {
 		renderObjectDefaultState((Object*)transparentObjects[i]);
 	}
+	RenderParticles();
 	context->ClearDepthStencilView(deferredTextures.DSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	for(size_t i = 0; i < frontRenderedObjects.size(); ++i) {
 		renderObjectDefaultState((Object*)frontRenderedObjects[i]);
@@ -770,7 +772,6 @@ void Renderer::Render() {
 	//}
 	//ParticleManager::RenderParticlesTo(defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport, view, proj);
 	//context->VSSetConstantBuffers(0, 1, &cameraBuffer);
-	RenderParticles();
 
 
 
@@ -1152,8 +1153,8 @@ void Renderer::InitParticles() {
 	ID3D11UnorderedAccessView* uavs[] = { ActiveParticleIndexUAV };
 	UINT counts[] = { 1 };
 	context->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavs), uavs, counts);
-	context->CSSetUnorderedAccessViews(0, 0, nullptr, nullptr);
-
+	uavs[0] = nullptr;
+	context->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavs), uavs, counts);
 
 	FillRandomTexture();
 }
@@ -1272,5 +1273,7 @@ void Renderer::RenderParticles() {
 
 	context->CopyStructureCount(IndirectDrawArgsBuffer, 0, ActiveParticleIndexUAV);
 	context->DrawInstancedIndirect(IndirectDrawArgsBuffer, 0);
+	//context->VSSetShaderResources(10, 2, NULL);
+
 }
 

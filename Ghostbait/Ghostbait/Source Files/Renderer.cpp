@@ -40,7 +40,7 @@ void Renderer::createDeviceContextAndSwapchain(Window window) {
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 
-	D3D_FEATURE_LEVEL * feature = new D3D_FEATURE_LEVEL(D3D_FEATURE_LEVEL_11_1);
+	D3D_FEATURE_LEVEL * feature = new D3D_FEATURE_LEVEL(D3D_FEATURE_LEVEL_10_1);
 	D3D_FEATURE_LEVEL * outputFeature = nullptr;
 #if _DEBUG
 	D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, D3D11_CREATE_DEVICE_DEBUG, feature, 1, D3D11_SDK_VERSION, &desc, &swapchain, &device, outputFeature, &context);

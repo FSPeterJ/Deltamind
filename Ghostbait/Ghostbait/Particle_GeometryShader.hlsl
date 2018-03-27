@@ -54,14 +54,9 @@ float2 calculateUVOffset(uint texturedata)
 [maxvertexcount(4)]
 void main(point GSInput input[1], inout TriangleStream<GSOutput> output)
 {
-    
-
 
     float2 OffsetUV = calculateUVOffset(input[0].texturedata);
     float w = input[0].texturedata & 0xFF;
-
-
-
 
     float3 planeNormal = cameraPos - (float3)input[0].pos;
 
@@ -69,7 +64,7 @@ void main(point GSInput input[1], inout TriangleStream<GSOutput> output)
 
     float3 upVector = float3(0.0f, 1.0f, 0.0f);
     float4 rightVector = float4(normalize(cross(upVector, planeNormal)), 0.0f);
-    upVector = normalize(cross(planeNormal, rightVector));
+    upVector = normalize(cross(planeNormal, (float3) rightVector));
     rightVector *= input[0].size;
 
     upVector *= input[0].size;
@@ -100,14 +95,7 @@ void main(point GSInput input[1], inout TriangleStream<GSOutput> output)
     element.uvw = float3(OffsetUV.x, OffsetUV.y, w);
     output.Append(element);
 
-    //GSOutput element = (GSOutput) 0;
-    //for (uint i = 0; i < 4; ++i)
-    //{
-        
-    //    element.uvw = uvws[i];
-    //    output.Append(element);
-    //}
-    //Will probably need later for draw instanced indexed
+    //Will probably need later for draw instanced indexed?
     //output.RestartStrip(); //
 
 }

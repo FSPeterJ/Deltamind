@@ -315,12 +315,12 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 	if (collided) {
 		float lastClosestDist = XMVectorGetX(XMVector3LengthSq(closestCollision - vecOrigin));
 		float nextDist;
-		for (int i = 0; i < (int)collisionPoints.size(); ++i) {
-			nextDist = XMVectorGetX(XMVector3LengthSq(collisionPoints[i] - vecOrigin));
-			if (lastClosestDist > nextDist) {
-				closestCollision = collisionPoints[i];
+		for (size_t j = 0; j < collisionPoints.size(); ++j) {
+			nextDist = XMVectorGetX(XMVector3LengthSq(collisionPoints[j] - vecOrigin));
+			if (lastClosestDist >= nextDist) {
+				closestCollision = collisionPoints[j];
 				if (colObject)
-					*colObject = collidedObjects[i];
+					*colObject = collidedObjects[j];
 				lastClosestDist = nextDist;
 				//Console::WriteLine << "RAY HIT";
 			}

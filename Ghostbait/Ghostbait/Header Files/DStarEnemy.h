@@ -3,13 +3,13 @@
 #include "EnemyBase.h"
 #include "HexTileVector.h"
 #include "Controlable.h"
-class RigidBody;
+//class RigidBody;
 
 namespace DirectX { struct XMFLOAT2; }
 class HexGrid;
 class DStarEnemy: public EnemyBase, public Controlable  {
 	HexGrid* grid;
-	RigidBody* rb;
+	//RigidBody* rb;
 
 	std::size_t dstarId = 0;
 	HexTile* goal = nullptr;

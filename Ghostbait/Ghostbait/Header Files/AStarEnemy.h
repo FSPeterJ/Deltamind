@@ -3,7 +3,7 @@
 #include "EnemyBase.h"
 #include "HexTileVector.h"
 #include "Controlable.h"
-class RigidBody;
+//class RigidBody;
 
 namespace DirectX { struct XMFLOAT2; }
 class HexGrid;
@@ -11,7 +11,7 @@ class AStarEnemy: public EnemyBase, public Controlable {
 	HexPath path;
 	size_t howFarAlong = 0;
 	HexGrid* grid = 0;
-	RigidBody* rb = 0;
+	//RigidBody* rb = 0;
 	HexTile* goal = 0;
 	HexTile* next = 0;
 

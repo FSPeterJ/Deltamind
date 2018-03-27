@@ -3,14 +3,14 @@
 #include "EnemyBase.h"
 #include "HexTileVector.h"
 #include "Controlable.h"
-class RigidBody;
-class Transform;
+//class RigidBody;
+//class Transform;
 
 namespace DirectX { struct XMFLOAT2; struct XMFLOAT4X4; }
 class HexGrid;
 class MTDSLEnemy : public EnemyBase, public Controlable {
 	HexGrid* grid;
-	RigidBody* rb;
+	//RigidBody* rb;
 
 	std::size_t mtdstarId = 0;
 

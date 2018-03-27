@@ -15,7 +15,7 @@ AStarEnemy::AStarEnemy() {
 void AStarEnemy::Awake(Object* obj) {
 	howFarAlong = 0;
 	grid = 0;
-	rb = 0;
+	//rb = 0;
 	goal = 0;
 	next = 0;
 

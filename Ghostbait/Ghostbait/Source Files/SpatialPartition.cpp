@@ -246,6 +246,7 @@ const std::vector<PhysicsComponent*>* SpatialPartition::GetComponentsToTest() {
 	//return testComps;
 
 	//std::vector<PhysicsComponent*> testComps;
+	toTest.clear();
 
 	for each (const auto &bucket in table)
 	{

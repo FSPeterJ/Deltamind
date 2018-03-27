@@ -285,7 +285,8 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 			continue;
 		currBucketIndex = nextIndex;
 		compToTest = partitionSpace.GetComponentsToTest(currBucketIndex);
-		
+		if (!compToTest) continue;
+
 		for (size_t compIndex = 0; compIndex < compToTest->size(); ++compIndex) {
 			if (!(*compToTest)[compIndex]->isActive) continue;
 			if (tag && strcmp(dynamic_cast<GameObject*>((*compToTest)[compIndex]->parentObject)->GetTag().c_str(), tag)) continue;

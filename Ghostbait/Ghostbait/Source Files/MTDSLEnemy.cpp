@@ -112,7 +112,7 @@ void MTDSLEnemy::FindTempPath() {
 
 void MTDSLEnemy::Awake(Object* obj) {
 	grid = 0;
-	rb = 0;
+	//rb = 0;
 	//start = 0;
 	goal = 0;
 	next = 0;

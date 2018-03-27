@@ -240,6 +240,10 @@ void BuildTool::RemoveProjection() {
 		light.SetColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 		return;
 	}
+	DirectX::XMFLOAT4X4 temp = colObject->transform.GetMatrix();
+	temp._42 += 0.2f;
+	light.transform.SetMatrix(temp);
+
 	if (gearAdjustmentDisplay) gearAdjustmentDisplay->RenderTransparent();
 	//Am I colliding with a different object than my currently selected object?
 	if (colObject != currentlySelectedItem) {
@@ -252,6 +256,7 @@ void BuildTool::RemoveProjection() {
 			//TODO: Temp...Dont't call this every frame.
 			currentlySelectedItem->SwapComponentVarient<Material>("invalid");
 			light.SetColor({ 5.0f, 0.0f, 0.0f, 1.0f });
+			
 			break;
 		}
 	}

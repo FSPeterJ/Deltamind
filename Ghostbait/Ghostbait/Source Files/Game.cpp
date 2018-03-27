@@ -13,7 +13,8 @@
 #include "DStarEnemy.h"
 #include "MTDSLEnemy.h"
 
-
+#include "Evolve.h"
+using namespace Omiracon::Genetics;
 
 void Game::GameData::Reset() {
 	state = GAMESTATE_BetweenWaves;

@@ -1,5 +1,6 @@
 #pragma once
 #include "Item.h"
+#include "Light.h"
 
 #include "PhysicsExtension.h"
 
@@ -25,6 +26,7 @@ class BuildTool : public Item {
 	DirectX::XMFLOAT3 spawnPos;
 	int currentlySelectedItemIndex = -1;
 	GameObject* currentlySelectedItem = nullptr;
+	Light light;
 	bool prevLocationValid = true;
 
 	//Game values

@@ -211,9 +211,9 @@ void Renderer::sortTransparentObjects(DirectX::XMFLOAT3 &camPos)
 	if (transparentObjects.size() <= 1)
 		return;
 	//Insertion sort simply because I don't anticipate the size of this pool getting too large
-	for (int outer = 0; outer < transparentObjects.size() - 1; outer++)
+	for (size_t outer = 0; outer < transparentObjects.size() - 1; outer++)
 	{
-		int counter = outer + 1;
+		int counter = (int)outer + 1;
 		while (counter>0)
 		{
 			if (compareDistToCam(transparentObjects[counter]->transform.GetPosition(), transparentObjects[counter-1]->transform.GetPosition(), camPos))

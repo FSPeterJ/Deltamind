@@ -53,8 +53,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ThreadPool::Start();
 	Console::Allocate();
 	Window wnd(1024, 900);
-
-	if(!wnd.InitializeFullScreen(hInstance)) { Messagebox::ShowError("Error!!", "Main window is not initialized!"); }
+	if(!wnd.Initialize(hInstance, /*SW_MAXIMIZE = FullScreen | nCmdShow = normal*/SW_MAXIMIZE)) { Messagebox::ShowError("Error!!", "Main window is not initialized!"); }
 	wnd.UpdateTitle(L"Ghostbait");
 
 	_Pool_Base::RegisterMemory(&MemMan);

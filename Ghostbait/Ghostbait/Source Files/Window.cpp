@@ -1,5 +1,6 @@
 #include "Window.h"
 #include "InputManager.h"
+
 Window::Window(UINT _w, UINT _h) {
 	width = _w; height = _h;
 	LoadStringW(hInstance, IDS_APP_TITLE, GetTitle(), MAX_LOADSTRING);
@@ -38,6 +39,30 @@ BOOL Window::Initialize(HINSTANCE _hInstance, int nCmdShow) {
 
 	CenterWindow(mainWindow);
 	ShowWindow(mainWindow, nCmdShow);
+	UpdateWindow(mainWindow);
+
+	return TRUE;
+}
+
+BOOL Window::InitializeFullScreen(HINSTANCE _hInstance) {
+	hInstance = _hInstance;
+
+	RECT windowSize = { 0, 0, (LONG)width, (LONG)height };
+	AdjustWindowRect(&windowSize, WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME ^ WS_MAXIMIZEBOX, FALSE);
+
+	mainWindow = CreateWindowW(szWindowClass, szTitle,
+		WS_BORDER,
+		CW_USEDEFAULT,
+		CW_USEDEFAULT,
+		windowSize.right - windowSize.left,
+		windowSize.bottom - windowSize.top,
+		NULL, NULL, hInstance, nullptr);
+
+	if (!mainWindow) { return FALSE; }
+
+	CenterWindow(mainWindow);
+	SetWindowLong(mainWindow, GWL_STYLE, 0);
+	ShowWindow(mainWindow, SW_MAXIMIZE);
 	UpdateWindow(mainWindow);
 
 	return TRUE;

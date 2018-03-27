@@ -40,6 +40,12 @@ public:
 	/// </summary>
 	/// <returns>TRUE if initialization was successful, otherwise FALSE.</returns>
 	BOOL Initialize(HINSTANCE, int);
+	/// <summary>
+	/// Saves instance handle and creates main window in full screen mode.
+	/// In this function, we save the instance handle in a global variable and create and display the main program window.
+	/// </summary>
+	/// <returns>TRUE if initialization was successful, otherwise FALSE.</returns>
+	BOOL InitializeFullScreen(HINSTANCE);
 
 	/// <summary>
 	/// Processes messages for the main window.

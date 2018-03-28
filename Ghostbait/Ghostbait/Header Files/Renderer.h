@@ -149,13 +149,14 @@ private:
 	bool compareDistToCam(const DirectX::XMFLOAT3& t1, const DirectX::XMFLOAT3& t2, const DirectX::XMFLOAT3& camPos);
 	float manhat(const DirectX::XMFLOAT3& center1, const DirectX::XMFLOAT3& center2);
 
+	void blurTexture(D3D11_VIEWPORT& viewport, ID3D11Texture2D* tex, ID3D11ShaderResourceView* srv);
 	void sortTransparentObjects(DirectX::XMFLOAT3 &camPos);
 	void renderObjectDefaultState(const GameObject* obj);
 	void renderToEye(eye* eyeTo);
 	void drawSkyboxTo(ID3D11RenderTargetView** rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT& viewport, DirectX::XMFLOAT3& pos);
 	void loadPipelineState(pipeline_state_t* pipeline);
 	void createDeferredRTVs(DeferredRTVs* toWrite, ID3D11Texture2D* refTex);
-	void createRTVandSRV(ID3D11Texture2D** texture, ID3D11ShaderResourceView** srv, ID3D11RenderTargetView** rtv, ID3D11Texture2D* refTex);
+	void createRTVandSRV(ID3D11Texture2D** texture, ID3D11ShaderResourceView** srv, ID3D11RenderTargetView** rtv, ID3D11Texture2D* refTex, DXGI_FORMAT format);
 
 	DirectX::XMFLOAT4X4 lookAt(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 up);
 

@@ -44,6 +44,11 @@ void LightManager::removeLight(int ID)
 			break;
 		if (IDList[i] == ID)
 		{
+			if (i == numLights - 1)
+			{
+				cpu_light_info.cpu_side_lights[--numLights].color.w = 0.0f;
+				break;
+			}
 			genericLight temp = cpu_light_info.cpu_side_lights[numLights - 1];
 			cpu_light_info.cpu_side_lights[numLights - 1].color.w = 0.0f;
 			cpu_light_info.cpu_side_lights[i] = temp;

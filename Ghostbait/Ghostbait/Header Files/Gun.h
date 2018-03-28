@@ -1,6 +1,8 @@
 #pragma once
 #include "Item.h"
 #include "ProgressBar.h"
+#include "Light.h"
+
 
 class Gun: public Item {
 public:
@@ -29,6 +31,8 @@ public:
 		AUTO,
 		SEMI,
 	};
+	Light flash;
+
 protected:
 	unsigned projectiePID = 0;
 private:

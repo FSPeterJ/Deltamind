@@ -16,6 +16,7 @@ void CastObject::Create(bool renderToFront) {
 	if (!object) {
 		MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<GameObject>(ObjectFactory::CreatePrefab(&std::string(fileName)), { 0, 0, 0 }, &object));
 		object->PersistOnReset();
+		object->ToggleFlag(GAMEOBJECT_PUBLIC_FLAGS::UNLIT);
 		backup = object;
 		if (renderToFront) {
 			object->RenderToFront();

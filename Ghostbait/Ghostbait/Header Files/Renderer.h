@@ -149,7 +149,7 @@ private:
 	bool compareDistToCam(const DirectX::XMFLOAT3& t1, const DirectX::XMFLOAT3& t2, const DirectX::XMFLOAT3& camPos);
 	float manhat(const DirectX::XMFLOAT3& center1, const DirectX::XMFLOAT3& center2);
 
-	void blurTexture(ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT& viewport, ID3D11Texture2D* tex, ID3D11ShaderResourceView* srv);
+	void blurTexture(D3D11_VIEWPORT& viewport, ID3D11Texture2D* tex, ID3D11ShaderResourceView* srv);
 	void sortTransparentObjects(DirectX::XMFLOAT3 &camPos);
 	void renderObjectDefaultState(const GameObject* obj);
 	void renderToEye(eye* eyeTo);

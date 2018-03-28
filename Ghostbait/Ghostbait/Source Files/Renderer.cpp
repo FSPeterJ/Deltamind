@@ -206,8 +206,14 @@ float Renderer::manhat(const XMFLOAT3 & center1, const XMFLOAT3 &center2)
 	return distX + distY + distZ;
 }
 
-void Renderer::blurTexture(ID3D11RenderTargetView * rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport, ID3D11Texture2D * tex, ID3D11ShaderResourceView * srv)
+void Renderer::blurTexture(D3D11_VIEWPORT & viewport, ID3D11Texture2D * tex, ID3D11ShaderResourceView * srv)
 {
+	if (!tex || !srv)
+		return;
+	ID3D11Texture2D* tempTex;
+	D3D11_TEXTURE2D_DESC texDesc;
+	tex->GetDesc(&texDesc);
+	device->CreateTexture2D(&texDesc, nullptr, &tempTex);
 }
 
 void Renderer::sortTransparentObjects(DirectX::XMFLOAT3 &camPos)

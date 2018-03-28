@@ -31,13 +31,32 @@ namespace Omiracon {
 			Traits(void) {}
 			~Traits(void) {}
 
+			/// <summary>
+			/// Randomizes all traits.
+			/// </summary>
 			void Randomize(void);
+
+			/// <summary>
+			/// Normalizes traits.
+			/// </summary>
 			void Normalize(void);
+
+			/// <summary>
+			/// Calculates the sum of all the traits.
+			/// </summary>
+			/// <returns>float.</returns>
 			float Sum(void);
 
 			void Print(void) const;
 
+			/// <summary>
+			/// Randomizes all traits and then normalizes.
+			/// </summary>
 			void Randormalize(void) { Randomize(), Normalize(); }
+
+			/// <summary>
+			/// Resets all traits to 0.
+			/// </summary>
 			void Reset(void);
 
 			float const& operator[](const Trait trait) const { return traitList[static_cast<int>(trait)]; }
@@ -45,18 +64,32 @@ namespace Omiracon {
 
 			float const& operator[](const int n) const { return traitList[n]; }
 
+			/// <summary>
+			/// Gets a random trait of the enemy.
+			/// </summary>
+			/// <returns>float &.</returns>
 			inline float& RandomTrait(void);
+
+			/// <summary>
+			/// Mutates the traits via the specified mutation.
+			/// </summary>
+			/// <param name="mutation">The mutation.</param>
 			void Mutate(const MutationType mutation);
 		};
 
 		class Performance {
 		public:
-			float timeLasted = 0.f,
-			damageDelt = 0.f,
-			damageReceived = 0.f,
-			nodesTraversed = 0.f;
+			union Measure {
+				struct { float timeLasted, damageDelt, damageReceived, nodesTraversed; };
+				float measure[4];
+				void Reset(void);
+			} results;
+			bool died = false;
 
-			void Reset(void) { timeLasted = damageDelt = damageReceived = nodesTraversed = 0.f; }
+			void Reset(void) { results.Reset(),died = 0; }
+
+			Performance(void) { Reset(); }
+			~Performance(void) { }
 		};
 	}
 }

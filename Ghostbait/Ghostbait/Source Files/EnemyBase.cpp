@@ -6,7 +6,7 @@
 #include "Projectile.h"
 #include "Material.h"
 
-
+#include "Evolvable.h"
 
 void EnemyBase::Awake(Object* obj) {
 	currState = IDLE;
@@ -17,13 +17,17 @@ void EnemyBase::Awake(Object* obj) {
 	hurtDuration = 1;
 	sentDeathMessage = false;
 
+	genetics->performance.Reset();
+
 	eventLose = 0;
 	SetToFullHealth();
 	GameObject::Awake(obj);
 }
+
 void EnemyBase::Subscribe() {
 	if(!eventLose) eventLose = MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) { MessageEvents::SendQueueMessage(EVENT_Late, [=] {this->Destroy(); }); });
 }
+
 void EnemyBase::UnSubscribe() {
 	if (eventLose) {
 		MessageEvents::UnSubscribe(EVENT_GameLose, eventLose); 
@@ -65,11 +69,15 @@ void EnemyBase::Update() {
 
 //Other Overrides
 void EnemyBase::OnCollision(GameObject* _other) {
-	PhysicsComponent* myPhys = GetComponent<PhysicsComponent>();
+	PhysicsComponent* myPhys = GetComponent<PhysicsComponent>();//component doesn't change?? this needs cached. set on awake or start.
 	DirectX::XMVECTOR incomingDirection = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat4x4(&transform.GetMatrix()).r[3], DirectX::XMLoadFloat4x4(&(_other->transform.GetMatrix())).r[3]));
 	if(_other->GetTag() == "Bullet") {
 		myPhys->rigidBody.AddForce(0.2f, DirectX::XMVectorGetX(incomingDirection), 0.0f, DirectX::XMVectorGetZ(incomingDirection));
-		AdjustHealth(-(((Projectile*)_other)->damage));
+
+		auto& dam = (((Projectile*) _other)->damage);
+		AdjustHealth(-dam);
+		genetics->performance.results.damageReceived += dam;
+
 		if (componentVarients.find("Hurt") != componentVarients.end()) {
 			if (!hurt) {
 				int id = TypeMap::GetComponentTypeID<Material>();
@@ -86,8 +94,9 @@ void EnemyBase::OnCollision(GameObject* _other) {
 			//	Console::WriteLine << "GAME WAS WON";
 			//	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(9/*WinCube*/, {0, 0.75f, 0}));
 			//}
-			sentDeathMessage = true;
-			MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
+			genetics->performance.died = sentDeathMessage = true;
+
+			MessageEvents::SendQueueMessage(EVENT_Late, [=] { Destroy(); });
 		}
 	}
 

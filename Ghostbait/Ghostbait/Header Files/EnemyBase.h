@@ -3,6 +3,13 @@
 #include "Health.h"
 #include "Core.h"
 
+namespace Omiracon {
+	namespace Genetics {
+		class Evolvable;
+	}
+}
+using namespace Omiracon::Genetics;
+
 class HexGrid;
 
 class EnemyBase: public GameObject, public Health {
@@ -13,6 +20,8 @@ protected:
 		ATTACK,
 		DEATH,
 	};
+
+	Evolvable* genetics;
 	
 	State currState = IDLE;
 	float maxSpeed = 100.0f;
@@ -43,6 +52,7 @@ public:
 	void UnSubscribe() override;
 	void OnCollision(GameObject* _other) override;
 
+	Evolvable*& SetTraits() { return genetics; }
 
 	virtual void SetGrid(HexGrid* _grid) {};
 	virtual void SetCore(Core* _core) { core = _core; };

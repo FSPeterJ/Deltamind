@@ -271,7 +271,7 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 	XMVECTOR tempCollidePt;
 	GameObject* tempCollideObj = nullptr;
 	XMFLOAT3 nextSegment;
-	std::vector<PhysicsComponent*> compToTest;
+	const std::vector<PhysicsComponent*>* compToTest;
 	std::vector<XMVECTOR> collisionPoints;
 	std::vector<GameObject*> collidedObjects;
 	if(colObject)
@@ -285,11 +285,12 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 			continue;
 		currBucketIndex = nextIndex;
 		compToTest = partitionSpace.GetComponentsToTest(currBucketIndex);
-		
-		for (size_t compIndex = 0; compIndex < compToTest.size(); ++compIndex) {
-			if (!compToTest[compIndex]->isActive) continue;
-			if (tag && strcmp(dynamic_cast<GameObject*>(compToTest[compIndex]->parentObject)->GetTag().c_str(), tag)) continue;
-			if (RaycastCollisionCheck(vecOrigin, vecDirection, compToTest[compIndex], &tempCollidePt, &tempCollideObj, maxCastDistance)) {
+		if (!compToTest) continue;
+
+		for (size_t compIndex = 0; compIndex < compToTest->size(); ++compIndex) {
+			if (!(*compToTest)[compIndex]->isActive) continue;
+			if (tag && strcmp(dynamic_cast<GameObject*>((*compToTest)[compIndex]->parentObject)->GetTag().c_str(), tag)) continue;
+			if (RaycastCollisionCheck(vecOrigin, vecDirection, (*compToTest)[compIndex], &tempCollidePt, &tempCollideObj, maxCastDistance)) {
 				collisionPoints.push_back(tempCollidePt);
 				collidedObjects.push_back(tempCollideObj);
 				collided = true;
@@ -312,14 +313,16 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 	}
 
 	if (collided) {
+		collided = false;
 		float lastClosestDist = XMVectorGetX(XMVector3LengthSq(closestCollision - vecOrigin));
 		float nextDist;
-		for (int i = 0; i < (int)collisionPoints.size(); ++i) {
-			nextDist = XMVectorGetX(XMVector3LengthSq(collisionPoints[i] - vecOrigin));
+		for (size_t j = 0; j < collisionPoints.size(); ++j) {
+			nextDist = XMVectorGetX(XMVector3LengthSq(collisionPoints[j] - vecOrigin));
 			if (lastClosestDist > nextDist) {
-				closestCollision = collisionPoints[i];
+				collided = true;
+				closestCollision = collisionPoints[j];
 				if (colObject)
-					*colObject = collidedObjects[i];
+					*colObject = collidedObjects[j];
 				lastClosestDist = nextDist;
 				//Console::WriteLine << "RAY HIT";
 			}
@@ -1032,15 +1035,15 @@ void PhysicsManager::TestAllComponentsCollision() {
 	}
 	Console::WriteLine << counter;*/
 
-	std::vector<PhysicsComponent*>* dynamicComp = dynamicComponents.GetActiveList();
-	std::vector<PhysicsComponent*>* staticComp = staticComponents.GetActiveList();
-	std::vector<PhysicsComponent*> collidingList = partitionSpace.GetComponentsToTest();
+	const std::vector<PhysicsComponent*>* dynamicComp = dynamicComponents.GetActiveList();
+	const std::vector<PhysicsComponent*>* staticComp = staticComponents.GetActiveList();
+	const std::vector<PhysicsComponent*>* collidingList = partitionSpace.GetComponentsToTest();
 
-	for (unsigned int comp1Index = 0; comp1Index < collidingList.size(); ++comp1Index) {
-		if (!collidingList[comp1Index])
+	for (unsigned int comp1Index = 0; comp1Index < collidingList->size(); ++comp1Index) {
+		if (!(*collidingList)[comp1Index])
 			continue;
-		for (unsigned int comp2Index = comp1Index + 1; collidingList[comp2Index]; ++comp2Index) {
-			CollisionCheck(*(collidingList[comp1Index]), *(collidingList[comp2Index]));
+		for (unsigned int comp2Index = comp1Index + 1; (*collidingList)[comp2Index]; ++comp2Index) {
+			CollisionCheck(*((*collidingList)[comp1Index]), *((*collidingList)[comp2Index]));
 		}
 	}
 
@@ -1082,16 +1085,17 @@ bool PhysicsManager::RaycastCollisionCheck(XMVECTOR& origin, XMVECTOR& direction
 			collisionPoints.push_back(tempColPoint);
 			if (colObject)
 				*colObject = dynamic_cast<GameObject*>(collidingComp->parentObject);
-			collided = true;
+			//collided = true;
 		}
 	}
 
-	if (collided) {
+	if (hasCollidingComp) {
 		float lastClosestDist = XMVectorGetX(XMVector3LengthSq(closestCollision - origin));
 		float nextDist;
 		for (int i = 0; i < (int)collisionPoints.size(); ++i) {
 			nextDist = XMVectorGetX(XMVector3LengthSq(collisionPoints[i] - origin));
 			if (lastClosestDist > nextDist) {
+				collided = true;
 				closestCollision = collisionPoints[i];
 				lastClosestDist = nextDist;
 			}

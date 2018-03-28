@@ -205,6 +205,7 @@
     <ClInclude Include="Header Files\Animator.h" />
     <ClInclude Include="Header Files\AnimatorManager.h" />
     <ClInclude Include="Header Files\AnimatorStructs.h" />
+    <ClInclude Include="Header Files\AntColony.h" />
     <ClInclude Include="Header Files\AStarEnemy.h" />
     <ClInclude Include="Header Files\AudioManager.h" />
     <ClInclude Include="Header Files\BuildTool.h" />
@@ -223,6 +224,7 @@
     <ClInclude Include="Header Files\Examples.h" />
     <ClInclude Include="Header Files\Font.h" />
     <ClInclude Include="Header Files\Game.h" />
+    <ClInclude Include="Header Files\GameData.h" />
     <ClInclude Include="Header Files\GameObject.h" />
     <ClInclude Include="Header Files\GameObjectComponent.h" />
     <ClInclude Include="Header Files\GhostTime.h" />
@@ -252,6 +254,7 @@
     <ClInclude Include="Header Files\MessageStructs.h" />
     <ClInclude Include="Header Files\MTDSLEnemy.h" />
     <ClInclude Include="Header Files\NeuralEnemy.h" />
+    <ClInclude Include="Header Files\Monitor.h" />
     <ClInclude Include="Header Files\Object.h" />
     <ClInclude Include="Header Files\ObjectFactory.h" />
     <ClInclude Include="Header Files\ObjectManager.h" />
@@ -304,6 +307,7 @@
     <ClCompile Include="Source Files\AnimationManager.cpp" />
     <ClCompile Include="Source Files\Animator.cpp" />
     <ClCompile Include="Source Files\AnimatorManager.cpp" />
+    <ClCompile Include="Source Files\AntColony.cpp" />
     <ClCompile Include="Source Files\AStarEnemy.cpp" />
     <ClCompile Include="Source Files\AudioManager.cpp" />
     <ClCompile Include="Source Files\BuildTool.cpp" />
@@ -318,6 +322,7 @@
     <ClCompile Include="Source Files\EngineStructure.cpp" />
     <ClCompile Include="Source Files\Font.cpp" />
     <ClCompile Include="Source Files\Game.cpp" />
+    <ClCompile Include="Source Files\GameData.cpp" />
     <ClCompile Include="Source Files\GameObject.cpp" />
     <ClCompile Include="Source Files\GhostTime.cpp" />
     <ClCompile Include="Source Files\Gun.cpp">
@@ -345,6 +350,7 @@
     <ClCompile Include="Source Files\MeshManager.cpp" />
     <ClCompile Include="Source Files\MessageEvents.cpp" />
     <ClCompile Include="Source Files\MTDSLEnemy.cpp" />
+    <ClCompile Include="Source Files\Monitor.cpp" />
     <ClCompile Include="Source Files\Object.cpp" />
     <ClCompile Include="Source Files\ObjectFactory.cpp" />
     <ClCompile Include="Source Files\ObjectManager.cpp" />

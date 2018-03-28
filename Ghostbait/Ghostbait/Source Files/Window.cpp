@@ -1,5 +1,6 @@
 #include "Window.h"
 #include "InputManager.h"
+
 Window::Window(UINT _w, UINT _h) {
 	width = _w; height = _h;
 	LoadStringW(hInstance, IDS_APP_TITLE, GetTitle(), MAX_LOADSTRING);
@@ -37,6 +38,7 @@ BOOL Window::Initialize(HINSTANCE _hInstance, int nCmdShow) {
 	if(!mainWindow) { return FALSE; }
 
 	CenterWindow(mainWindow);
+	if(nCmdShow == SW_MAXIMIZE) SetWindowLong(mainWindow, GWL_STYLE, 0);
 	ShowWindow(mainWindow, nCmdShow);
 	UpdateWindow(mainWindow);
 

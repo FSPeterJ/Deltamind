@@ -13,6 +13,7 @@ class EngineStructure {
 	friend class Game;
 	friend class Animator;
 	friend class GhostTime;
+	friend class AntColony;
 
 	static Delegate<> Awake;
 	static Delegate<> OnEnable;

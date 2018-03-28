@@ -456,3 +456,13 @@ HexRegion HexGrid::Spiral(HexTile *const center, std::size_t radius) {
 HexRegion HexGrid::Ring(HexTile *const center, std::size_t radius) {
 	return DoRing(false, center, radius);
 }
+
+bool HexGrid::AddWeight(HexTile *const tile, float value) {
+	if (!tile)	return false;
+	if (IsBlocked(tile)) return false;
+
+	float result = tile->weight + value;
+	if (result >= Blocked) return false;
+	SetWeight(tile, result);
+	return true;
+}

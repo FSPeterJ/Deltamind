@@ -10,6 +10,7 @@
 #include "TextManager.h"
 #include "ObjectFactory.h"
 #include "DebugRenderer.h"
+#include "GameData.h"
 
 BuildTool::BuildTool() { 
 	state = BUILD;
@@ -58,7 +59,7 @@ void BuildTool::ActiveUpdate() {
 	if (gearDisplay) {
 		//Main
 		std::string text = "$";
-		text.append(std::to_string(*gears));
+		text.append(std::to_string(gameData->GetGears()));
 		for (int i = (int)text.length(); i < 6; ++i)
 			text.insert(0, " ");
 		TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", text, gearDisplay->GetComponent<Material>(), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 0.75f), DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 0.5f));
@@ -116,8 +117,8 @@ void BuildTool::Activate() {
 bool BuildTool::CanBuildHere(DirectX::XMFLOAT2& spawnPos) {
 	Turret* turret = dynamic_cast<Turret*>(prefabs[currentPrefabIndex].object);
 	bool hasEnoughMoney = true;
-	if (turret) hasEnoughMoney = *gears >= turret->GetBuildCost();
-	bool maxTurretsSpawned = (*maxTurrets - *turretsSpawned) <= 0;
+	if (turret) hasEnoughMoney = gameData->GetGears() >= turret->GetBuildCost();
+	bool maxTurretsSpawned = (gameData->GetMaxTurrets() - gameData->GetTurretsSpawned()) <= 0;
 	bool isBlocked = grid->IsBlocked(spawnPos);
 	bool isValidTile = grid->PointToTile(spawnPos) != nullptr;
 	if (isValidTile) {
@@ -170,20 +171,21 @@ void BuildTool::SpawnProjection(){
 			spawnPos.x = newPos.x;
 			spawnPos.y = 0;
 			spawnPos.z = newPos.y;
-
 			//Move Object
 			DirectX::XMFLOAT4X4 newPos1 = prefabs[currentPrefabIndex].object->transform.GetMatrix();
 			newPos1._41 = spawnPos.x;
 			newPos1._42 = spawnPos.y;
 			newPos1._43 = spawnPos.z;
 			prefabs[currentPrefabIndex].object->transform.SetMatrix(newPos1);
-			
+			newPos1._42 += 0.2f;
+			light.transform.SetMatrix(newPos1);
 			//Asses if valid location
 			if (CanBuildHere(newPos)) {
 				if (!prevLocationValid) {
 					prefabs[currentPrefabIndex].object->SwapComponentVarient<Material>("valid");
 					prevLocationValid = true;
 				}
+				light.SetColor({ 0.0f, 5.0f, 0.0f, 1.0f });
 				gearAdjustmentDisplay->RenderTransparent();
 			}
 			else {
@@ -191,14 +193,15 @@ void BuildTool::SpawnProjection(){
 					prefabs[currentPrefabIndex].object->SwapComponentVarient<Material>("invalid");
 					prevLocationValid = false;
 				}
+				light.SetColor({ 5.0f, 0.0f, 0.0f, 1.0f });
 			}
 		}
 		else {
 			buildRay.Destroy();
 			prefabs[currentPrefabIndex].object->UnRender();
+			light.SetColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 		}
 	}
-
 }
 void BuildTool::Spawn() {
 	//Instantiate a stationary copy at this position to stay
@@ -206,20 +209,20 @@ void BuildTool::Spawn() {
 	if(Raycast(&transform, transform.GetZAxis(), nullptr, nullptr, nullptr, 6, "Ground")) {
 		Turret* turret = dynamic_cast<Turret*>(prefabs[currentPrefabIndex].object);
 		bool hasEnoughMoney = true;
-		if (turret) hasEnoughMoney = *gears >= turret->GetBuildCost();
-		bool maxTurretsSpawned = (*maxTurrets - *turretsSpawned) <= 0;
+		if (turret) hasEnoughMoney = gameData->GetGears() >= turret->GetBuildCost();
+		bool maxTurretsSpawned = (gameData->GetMaxTurrets() - gameData->GetTurretsSpawned()) <= 0;
 
 		DirectX::XMFLOAT2 pos = DirectX::XMFLOAT2(spawnPos.x, spawnPos.z);
 		if (Snap(&pos) && hasEnoughMoney && !maxTurretsSpawned) {
 			if (SetObstacle(pos, true)) {
-				*gears -= turret->GetBuildCost();
+				gameData->AddGears((int)(-(int)turret->GetBuildCost()));
 				spawnPos.x = pos.x;
 				spawnPos.z = pos.y;
 				GameObject* newObj;
 				MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabs[currentPrefabIndex].ID, spawnPos, &newObj));
 				builtItems.push_back(newObj);
 				newObj->Enable();
-				(*turretsSpawned) = (*turretsSpawned) + 1;
+				gameData->AdjustTurretsSpawned(1);
 			}
 		}
 	}
@@ -234,8 +237,13 @@ void BuildTool::RemoveProjection() {
 			currentlySelectedItemIndex = -1;
 			currentlySelectedItem = nullptr;
 		}
+		light.SetColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 		return;
 	}
+	DirectX::XMFLOAT4X4 temp = colObject->transform.GetMatrix();
+	temp._42 += 0.2f;
+	light.transform.SetMatrix(temp);
+
 	if (gearAdjustmentDisplay) gearAdjustmentDisplay->RenderTransparent();
 	//Am I colliding with a different object than my currently selected object?
 	if (colObject != currentlySelectedItem) {
@@ -247,6 +255,8 @@ void BuildTool::RemoveProjection() {
 			currentlySelectedItem = colObject;
 			//TODO: Temp...Dont't call this every frame.
 			currentlySelectedItem->SwapComponentVarient<Material>("invalid");
+			light.SetColor({ 5.0f, 0.0f, 0.0f, 1.0f });
+			
 			break;
 		}
 	}
@@ -259,9 +269,9 @@ void BuildTool::Remove() {
 			builtItems.erase(builtItems.begin() + currentlySelectedItemIndex);
 			Turret* tur = dynamic_cast<Turret*>(currentlySelectedItem);
 			if (tur) {
-				(*gears) = (*gears) + (int)(tur->GetBuildCost() * 0.5f);
+				gameData->AddGears((int)(tur->GetBuildCost() * 0.5f));
 			}
-			(*turretsSpawned) = (*turretsSpawned) - 1;
+			gameData->AdjustTurretsSpawned(-1);
 		}
 	}
 }
@@ -351,6 +361,7 @@ void BuildTool::DeSelected() {
 		currentlySelectedItem->SwapComponentVarient<Material>("default");
 		currentlySelectedItem = nullptr;
 	}
+	light.SetColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 	buildRay.Destroy();
 	deleteRay.Destroy();
 	Item::DeSelected();
@@ -371,6 +382,8 @@ void BuildTool::Selected() {
 void BuildTool::Awake(Object* obj) {
 	buildRay.SetFile("Assets/Ray.ghost");
 	deleteRay.SetFile("Assets/Ray.ghost");
+	light.Enable();
+	light.SetAsPoint({ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 4.5f);
 	//gearDisplay->transform.SetMatrix(DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1));
 	//gearDisplay->SetComponent<Material>(TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "$0").mat);
 	//Material* newMat = TextManager::CreateRenderableTexture(100, 100);

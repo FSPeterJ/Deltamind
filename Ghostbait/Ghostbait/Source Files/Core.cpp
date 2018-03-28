@@ -3,12 +3,15 @@
 #include "ObjectFactory.h"
 #include "GhostTime.h"
 
+#define NORMALCOLOR {0.5f, 0.5f, 0.5f}
+#define PANICCOLOR {1.0f, 0.0f, 0.0f}
+
 void Core::Awake(Object* obj) {
 	GameObject::Awake(obj);
 	for (int i = 0; i < cubeCount; ++i) {
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/healthCube.ghost")), { 0, 0, 0 }, &healthCubes[i]));
 	}
-	light.SetAsPoint(normalColor, transform.GetPosition(), 1000);
+	light.SetAsPoint(NORMALCOLOR, transform.GetPosition(), 1000);
 	light.Enable();
 	SetToFullHealth();
 }
@@ -31,7 +34,7 @@ void Core::Update() {
 	if (panicTimer != -1) {
 		if (panicTimer >= panicDuration) {
 			panicTimer = -1;
-			light.SetColor(normalColor);
+			light.SetColor(NORMALCOLOR);
 		}
 		else {
 			panicTimer += dt;
@@ -42,7 +45,7 @@ void Core::HealedEvent() {
 }
 void Core::HurtEvent() {
 	panicTimer = 0;
-	light.SetColor(panicColor);
+	light.SetColor(PANICCOLOR);
 
 	for (int i = 0; i < cubeCount; ++i) {
 		if (PercentHealth() <= i * (1.0f/(float)cubeCount)) {

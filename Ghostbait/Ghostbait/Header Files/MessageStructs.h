@@ -5,6 +5,7 @@
 #undef GetObject
 
 class ObjectFactory;
+class GameData;
 //Please do this next time
 typedef unsigned long		AkUInt32;
 typedef AkUInt32			AkUniqueID;
@@ -192,6 +193,13 @@ class SnapMessage : public EventMessageBase {
 public:
 	DirectX::XMFLOAT2* position;
 	SnapMessage(DirectX::XMFLOAT2* _position) : position(_position){}
+};
+
+class GameDataMessage : public EventMessageBase {
+	GameData const** data = nullptr;
+public:
+	GameDataMessage(GameData const** _gameData) :data(_gameData) {}
+	GameData const** RetrieveData() const { return data; }
 };
 
 //Duplicate is unnessessary

@@ -16,6 +16,7 @@ void EnemyBase::Awake(Object* obj) {
 	hurtTimer = 0;
 	hurtDuration = 1;
 	sentDeathMessage = false;
+	rb = 0;
 
 	genetics->performance.Reset();
 
@@ -55,6 +56,12 @@ void EnemyBase::Update() {
 			SetComponent(defaultMat, id);
 		}
 	}
+
+	DirectX::XMFLOAT3 vel;
+	DirectX::XMStoreFloat3(&vel, rb->GetVelocity());
+	DirectX::XMFLOAT3 newPoint = { transform.GetPosition().x + vel.x, transform.GetPosition().y, transform.GetPosition().z + vel.z };
+	transform.TurnTowards(newPoint, 1);
+
 	GameObject::Update();
 	//DirectX::XMVECTOR directionToGoal = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&target), DirectX::XMLoadFloat4x4(&position).r[3]));
 	//PhysicsComponent* myPhys = GetComponent<PhysicsComponent>();
@@ -105,5 +112,3 @@ void EnemyBase::OnCollision(GameObject* _other) {
 void EnemyBase::RandomizeStats() {
 
 }
-
-

@@ -243,6 +243,16 @@ public:
 	/// <param name="player">The player.</param>
 	void Display(DirectX::XMFLOAT2& player);
 
+	/// <summary>
+	/// Adds given value to specified tile.
+	/// </summary>
+	/// <param name="tile">The tile.</param>
+	/// <param name="value">The value to add.</param>
+	/// <returns>False if tile is invalid, blocked or at max weight.</returns>
+	bool AddWeight(HexTile*const tile, float value);
+
+
+
 	HexGrid(const char* _filename, HexagonalGridLayout _layout = HexagonalGridLayout::FlatLayout);
 
 	void Color(HexRegion& r, DirectX::XMFLOAT3 color, int fill);

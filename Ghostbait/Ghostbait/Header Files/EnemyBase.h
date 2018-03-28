@@ -11,6 +11,7 @@ namespace Omiracon {
 using namespace Omiracon::Genetics;
 
 class HexGrid;
+class RigidBody;
 
 class EnemyBase: public GameObject, public Health {
 protected:
@@ -40,6 +41,8 @@ protected:
 	double hurtTimer = 0;
 	double hurtDuration = 1;
 	bool sentDeathMessage = false;
+
+	RigidBody* rb = 0;
 
 public:
 	EnemyBase() { tag = std::string("Enemy");  };

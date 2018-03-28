@@ -40,7 +40,7 @@ void Renderer::createDeviceContextAndSwapchain(Window window) {
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 
-	D3D_FEATURE_LEVEL * feature = new D3D_FEATURE_LEVEL(D3D_FEATURE_LEVEL_11_1);
+	D3D_FEATURE_LEVEL * feature = new D3D_FEATURE_LEVEL(D3D_FEATURE_LEVEL_11_0);
 	D3D_FEATURE_LEVEL * outputFeature = nullptr;
 #if _DEBUG
 	D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, D3D11_CREATE_DEVICE_DEBUG, feature, 1, D3D11_SDK_VERSION, &desc, &swapchain, &device, outputFeature, &context);
@@ -211,9 +211,9 @@ void Renderer::sortTransparentObjects(DirectX::XMFLOAT3 &camPos)
 	if (transparentObjects.size() <= 1)
 		return;
 	//Insertion sort simply because I don't anticipate the size of this pool getting too large
-	for (int outer = 0; outer < transparentObjects.size() - 1; outer++)
+	for (size_t outer = 0; outer < transparentObjects.size() - 1; outer++)
 	{
-		int counter = outer + 1;
+		int counter = (int)outer + 1;
 		while (counter>0)
 		{
 			if (compareDistToCam(transparentObjects[counter]->transform.GetPosition(), transparentObjects[counter-1]->transform.GetPosition(), camPos))

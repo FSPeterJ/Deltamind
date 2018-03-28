@@ -325,7 +325,7 @@ void ControllerObject::Update() {
 				Control attack = (hand == HAND_Left ? leftAttack : rightAttack);
 				Control cyclePrefab = (hand == HAND_Left ? leftCyclePrefab : rightCyclePrefab);
 
-				if(!player->IsGod())
+				//if(!player->IsGod())
 					SwitchCurrentItem();
 
 				//VR Inputs
@@ -425,7 +425,7 @@ void ControllerObject::Update() {
 						case Item::State::GUN:
 							{
 								if (KeyIsDown(attack)) {
-									if (!((Gun*)inventory.currentItem)->Shoot()) {
+									if (!((Gun*)inventory.currentItem)->Shoot(!player->IsGod())) {
 										ResetKey(attack);
 									}
 								}

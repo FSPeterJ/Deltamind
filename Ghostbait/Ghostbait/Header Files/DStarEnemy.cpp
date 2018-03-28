@@ -54,7 +54,7 @@ void DStarEnemy::SetCore(Core* _core) {
 
 void DStarEnemy::Awake(Object* obj) {
 	grid = 0;
-	rb = 0;
+	//rb = 0;
 	goal = 0;
 	next = 0;
 	curTile = 0;

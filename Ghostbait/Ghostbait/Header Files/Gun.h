@@ -1,6 +1,8 @@
 #pragma once
 #include "Item.h"
 #include "ProgressBar.h"
+#include "Light.h"
+
 
 class Gun: public Item {
 public:
@@ -29,6 +31,8 @@ public:
 		AUTO,
 		SEMI,
 	};
+	Light flash;
+
 protected:
 	unsigned projectiePID = 0;
 private:
@@ -42,9 +46,12 @@ public:
 	void Awake(Object * obj);
 	void GivePID(unsigned pid, const char* tag) override;
 	void SetStats(FireType _type, float _fireRate, float _damage) { type = _type; fireRate = _fireRate; damage = _damage; };
-	bool Shoot();
+	bool Shoot(bool addOverheat = true);
 	void InactiveUpdate() override;
 	void ActiveUpdate() override;
+
+	void Selected() override;
+	void DeSelected() override;
 	Overheat overheat;
 	// This is essentially a copy constructor, but since objects are never truely instantiated post-start...
 #ifdef _DEBUG
@@ -60,3 +67,4 @@ public:
 		}
 	}
 };
+

@@ -77,3 +77,13 @@ const CharPos Font::GetCharPos(char c) {
 	else
 		return InvalidCharPos();
 }
+
+float Font::GetTextureHeight()
+{
+	if (!tex)
+		return -1.0f;
+
+	D3D11_TEXTURE2D_DESC desc;
+	tex->GetDesc(&desc);
+	return (float)desc.Height;
+}

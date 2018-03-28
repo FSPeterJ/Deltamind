@@ -28,7 +28,8 @@ public:
 
 	inline void SetCharPos(char c, CharPos pos) { charMap[c] = pos; }
 	const CharPos GetCharPos(char c);
-
+	
+	float GetTextureHeight();
 	inline const CharPos InvalidCharPos() const { return CharPos(-1, -1, -1); }
 
 	inline ID3D11ShaderResourceView* GetShaderResourceView() { return srv; }

@@ -74,17 +74,74 @@ TextManager::renderableMat TextManager::createTextMaterial(float width, float he
 	return toPush;
 }
 
+void TextManager::remakeMaterial(renderableMat * toMake, float width, float height)
+{
+	toMake->viewport = D3D11_VIEWPORT();
+	toMake->viewport.Height = height;
+	toMake->viewport.Width = width;
+	toMake->viewport.MaxDepth = 1.0f;
+	toMake->viewport.MinDepth = 0.0f;
+	toMake->viewport.TopLeftX = 0.0f;
+	toMake->viewport.TopLeftY = 0.0f;
+
+	DXGI_SAMPLE_DESC sampleDesc;
+	sampleDesc.Count = 1;
+	sampleDesc.Quality = 0;
+
+	D3D11_TEXTURE2D_DESC texDesc;
+	texDesc.Height = (UINT)height;
+	texDesc.Width = (UINT)width;
+	texDesc.Usage = D3D11_USAGE_DEFAULT;
+	texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	texDesc.MipLevels = 1;
+	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	texDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+	texDesc.ArraySize = 1;
+	texDesc.CPUAccessFlags = 0;
+	texDesc.SampleDesc = sampleDesc;
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc;
+	viewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	viewDesc.Texture2D.MipLevels = texDesc.MipLevels;
+	viewDesc.Texture2D.MostDetailedMip = 0;
+
+
+	device->CreateTexture2D(&texDesc, nullptr, (ID3D11Texture2D**)&toMake->mat->diffuse.texture);
+	device->CreateShaderResourceView(toMake->mat->diffuse.texture, &viewDesc, &toMake->mat->diffuse.texView);
+	toMake->mat->flags = Material::MaterialFlags::POINT;
+	device->CreateRenderTargetView(toMake->mat->diffuse.texture, nullptr, &toMake->rtv);
+
+	texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	texDesc.MiscFlags = NULL;
+	texDesc.Format = DXGI_FORMAT_D32_FLOAT;
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilDesc;
+	depthStencilDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	depthStencilDesc.Texture2D.MipSlice = 0;
+	depthStencilDesc.Flags = 0;
+
+	device->CreateTexture2D(&texDesc, nullptr, &toMake->depthTex);
+	device->CreateDepthStencilView(toMake->depthTex, &depthStencilDesc, &toMake->dsv);
+	toMake->width = width;
+	toMake->height = height;
+}
+
 TextManager::renderableMat TextManager::generateVertexBufferAndRender(Font * font, std::string _sentence, DirectX::XMFLOAT4 &bgColor, int index)
 {
+	float texHeight = font->GetTextureHeight();
+	if (texHeight == -1.0f)
+		return renderableMat();
 	bool preMade = index != -1;
 	float width = 0.0f;
-	float height = 16.0f;
+	float height = texHeight;
 	float tempWidth = 0.0f;
 	for (size_t i = 0; i < _sentence.length(); ++i) //Getting the total width and height of the texture to create an aspect ratio
 	{
 		if (_sentence[i] == '\n')
 		{
-			height += 16.0f;
+			height += texHeight;
 			tempWidth = 0;
 			continue;
 		}
@@ -98,15 +155,6 @@ TextManager::renderableMat TextManager::generateVertexBufferAndRender(Font * fon
 		if (tempWidth > width)
 			width = tempWidth;
 	}
-	float widRatio = 1.0f;
-	float heightRatio = 1.0f;
-
-	if (preMade)
-	{
-		widRatio = managedMaterials[index].width / width;
-		heightRatio = managedMaterials[index].height / height;
-	}
-
 
 	float heightOverWidthRatio = height / width; //Used to properly scale quads
 
@@ -117,11 +165,11 @@ TextManager::renderableMat TextManager::generateVertexBufferAndRender(Font * fon
 	{
 		if (_sentence[i] == ' ')
 		{
-			drawX += 3.0f * widRatio;
+			drawX += 3.0f;
 		}
 		else if (_sentence[i] == '\n')
 		{
-			drawY += 16.0f * heightRatio;
+			drawY += texHeight;
 			drawX = 0.0f;
 		}
 		else
@@ -132,49 +180,60 @@ TextManager::renderableMat TextManager::generateVertexBufferAndRender(Font * fon
 			toPush.tex = DirectX::XMFLOAT2(pos.startU, 0.0f);
 			vertices.push_back(toPush);
 
-			toPush.pos = DirectX::XMFLOAT3(drawX + (pos.size * widRatio), drawY, 0.0f);
+			toPush.pos = DirectX::XMFLOAT3(drawX + pos.size, drawY, 0.0f);
 			toPush.tex = DirectX::XMFLOAT2(pos.endU, 0.0f);
 			vertices.push_back(toPush);
 
-			toPush.pos = DirectX::XMFLOAT3(drawX, drawY + (16.0f*heightRatio), 0.0f);
+			toPush.pos = DirectX::XMFLOAT3(drawX, drawY + texHeight, 0.0f);
 			toPush.tex = DirectX::XMFLOAT2(pos.startU, 1.0f);
 			vertices.push_back(toPush);
 
-			toPush.pos = DirectX::XMFLOAT3(drawX + (pos.size * widRatio), drawY, 0.0f);
+			toPush.pos = DirectX::XMFLOAT3(drawX + pos.size, drawY, 0.0f);
 			toPush.tex = DirectX::XMFLOAT2(pos.endU, 0.0f);
 			vertices.push_back(toPush);
 
-			toPush.pos = DirectX::XMFLOAT3(drawX + (pos.size * widRatio), drawY + (16.0f*heightRatio), 0.0f);
+			toPush.pos = DirectX::XMFLOAT3(drawX + pos.size, drawY + texHeight, 0.0f);
 			toPush.tex = DirectX::XMFLOAT2(pos.endU, 1.0f);
 			vertices.push_back(toPush);
 
-			toPush.pos = DirectX::XMFLOAT3(drawX, drawY + (16.0f * heightRatio), 0.0f);
+			toPush.pos = DirectX::XMFLOAT3(drawX, drawY + texHeight, 0.0f);
 			toPush.tex = DirectX::XMFLOAT2(pos.startU, 1.0f);
 			vertices.push_back(toPush);
 
-			drawX = drawX + ((pos.size * widRatio) + 1.0f);
+			drawX = drawX + pos.size + 1.0f;
 		}
 	}
 	renderableMat mat;
+	ID3D11ShaderResourceView * srv = font->GetShaderResourceView();
+	sizeBuffer.height = height;
+	sizeBuffer.width = width;
 
 	if (preMade)
 	{
-		sizeBuffer.height = managedMaterials[index].height;
-		sizeBuffer.width = managedMaterials[index].width;
-		mat = managedMaterials[index];
+		releaseRenderableMat(&managedMaterials[index]);
+		remakeMaterial(&managedMaterials[index], width, height);
+		renderText(&managedMaterials[index], _sentence, vertices, srv, bgColor);
 	}
 	else
 	{
-		sizeBuffer.height = height;
-		sizeBuffer.width = width;
 		mat = createTextMaterial(width, height);
+		renderText(&mat, _sentence, vertices, srv, bgColor);
 	}
-	ID3D11ShaderResourceView * srv = font->GetShaderResourceView();
-	renderText(&mat, _sentence, vertices, srv, bgColor);
 	
 	mat.height = height;
 	mat.width = width;
 	return mat;
+}
+
+void TextManager::releaseRenderableMat(renderableMat * _mat)
+{
+	_mat->mat->diffuse.texture->Release();
+	_mat->mat->diffuse.texView->Release();
+
+	_mat->depthTex->Release();
+	_mat->dsv->Release();
+
+	_mat->rtv->Release();
 }
 
 void TextManager::renderText(renderableMat * mat, std::string & sentence, std::vector<VertexPositionTexture>& vertices, ID3D11ShaderResourceView * font, DirectX::XMFLOAT4 & bgColor)

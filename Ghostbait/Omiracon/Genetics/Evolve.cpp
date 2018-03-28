@@ -29,13 +29,12 @@ namespace Omiracon {
 				PerformFirstSelection();
 				PerformFirstMutation();
 			}
-
 		
 			//SelectGenesFromDom();
 			Combination();
 		}
 
-		Evolver::Evolver(const size_t base_size, const float _topPercentage = 0.5f, const float _randPercentage = 0.2f) {
+		Evolver::Evolver(const size_t base_size, const float _topPercentage, const float _randPercentage) {
 			AliveTime = [](DominantGene const& a, DominantGene const& b) { return a.performance.results.timeLasted > b.performance.results.timeLasted; };
 			DamageDelt = [](DominantGene const& a, DominantGene const& b) { return a.performance.results.damageDelt > b.performance.results.damageDelt; };
 			DamageReceived = [](DominantGene const& a, DominantGene const& b) { return a.performance.results.damageReceived < b.performance.results.damageReceived; };
@@ -91,12 +90,9 @@ namespace Omiracon {
 			memcpy(&nodesTraversedPool[0] + surviveCount * 2 + randomCount, &pool[0], GetMemAddr(randomCount));
 		}
 
-		bool Evolver::PruneGenerations(const DominantGene & o) {
-			return o.generation == currentGeneration - generationsToKeep;
-		}
-
 		void Evolver::PerformSelection(void) {
-			pool.erase(std::remove_if(pool.begin(), pool.end(), PruneGenerations), pool.end());
+			//prune generations
+			pool.erase( std::remove_if(pool.begin(), pool.end(), [&](const DominantGene & o) { return o.generation == currentGeneration - generationsToKeep; }), pool.end());
 
 			std::sort(pool.begin(), pool.end(), AliveTime); //orders the main pool by best surviving times
 			memcpy(&aliveTimePool[0], &pool[0], GetMemAddr(surviveCount)); //copy best surviveCount over to specific pool
@@ -118,7 +114,6 @@ namespace Omiracon {
 			std::random_shuffle(pool.begin(), pool.end());
 			memcpy(&nodesTraversedPool[0] + surviveCount, &pool[0], GetMemAddr(randomCount));
 		}
-
 
 		void Evolver::PerformFirstMutation(void) {
 			//exectues traitPoolSize*0.5 times

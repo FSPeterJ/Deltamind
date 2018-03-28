@@ -10,7 +10,7 @@ namespace Omiracon {
 			typedef std::vector<Evolvable> DominantPool;
 			typedef DominantPool::value_type DominantGene;
 
-			DominantPool &const GenePool() { return pool; }
+			DominantPool const& GenePool() { return pool; }
 
 			void RunGeneration(void);
 			void GetBestStats(void);
@@ -76,8 +76,6 @@ namespace Omiracon {
 
 			const size_t DOMINANT_TRAITS = 4;
 			DominantPool aliveTimePool, damageDeltPool, damageReceivedPool, nodesTraversedPool;
-
-			bool PruneGenerations(const DominantGene & o);
 
 			void PerformFirstSelection(void);
 			void PerformFirstMutation(void);

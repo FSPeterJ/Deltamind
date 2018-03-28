@@ -13,8 +13,8 @@
 #include "DStarEnemy.h"
 #include "MTDSLEnemy.h"
 
-//#include "Evolve.h"
-//using namespace Omiracon::Genetics;
+#include "Evolvable.h"
+using namespace Omiracon::Genetics;
 
 Game::Game() {
 	MessageEvents::Subscribe(EVENT_SpawnerCreated, [=](EventMessageBase* e) {this->SpawnerCreatedEvent(e); });

@@ -5,7 +5,7 @@
 
 namespace Omiracon {
 	namespace Genetics {
-		class Evolvable;
+		struct Evolvable;
 	}
 }
 using namespace Omiracon::Genetics;

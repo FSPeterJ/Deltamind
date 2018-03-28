@@ -84,12 +84,14 @@ namespace Omiracon {
 				float measure[4];
 				void Reset(void);
 			} results;
+
 			bool died = false;
 
-			void Reset(void) { results.Reset(),died = 0; }
+			void Reset(void) { results.Reset(), died = 0; }
 
 			Performance(void) { Reset(); }
 			~Performance(void) { }
 		};
 	}
 }
+

@@ -98,5 +98,6 @@ namespace Omiracon {
 		void Performance::Measure::Reset(void) {
 			memset(this, 0x0, sizeof(this));
 		}
+
 	}
 }

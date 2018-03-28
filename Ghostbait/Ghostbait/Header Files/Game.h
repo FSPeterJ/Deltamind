@@ -18,7 +18,7 @@ using namespace Omiracon::Genetics;
 
 
 class Game {
-	HexGrid hexGrid = HexGrid("Assets/Level0.ghostGrid", 500, HexagonalGridLayout::FlatLayout);
+	HexGrid hexGrid = HexGrid("Assets/Level0.ghostGrid", HexagonalGridLayout::FlatLayout);
 	
 	bool run = true;
 	

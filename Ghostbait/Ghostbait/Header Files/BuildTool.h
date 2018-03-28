@@ -5,6 +5,7 @@
 #include "PhysicsExtension.h"
 
 class HexGrid;
+class GameData;
 
 class BuildTool : public Item {
 	struct BuildItem {
@@ -31,9 +32,7 @@ class BuildTool : public Item {
 
 	//Game values
 	HexGrid* grid = nullptr;
-	unsigned* gears = nullptr; 
-	unsigned* turretsSpawned = nullptr;
-	unsigned* maxTurrets = nullptr;
+	GameData* gameData = nullptr;
 
 	void SpawnProjection();
 	void Spawn();
@@ -51,8 +50,7 @@ public:
 	BuildTool();
 
 	inline void SetGrid(HexGrid* _grid) { grid = _grid; };
-	inline void SetGears(unsigned* _gears) { gears = _gears; };
-	inline void SetTurretCap(unsigned* _turretsSpawned, unsigned* _maxTurrets) { turretsSpawned = _turretsSpawned; maxTurrets = _maxTurrets; };
+	inline void SetGameData(GameData* _gameData) { gameData = _gameData; }
 	void SetPrefabs(std::vector<unsigned> prefabIDs);
 	void Enable();
 	void Disable();

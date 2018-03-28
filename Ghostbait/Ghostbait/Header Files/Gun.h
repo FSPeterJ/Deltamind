@@ -42,7 +42,7 @@ public:
 	void Awake(Object * obj);
 	void GivePID(unsigned pid, const char* tag) override;
 	void SetStats(FireType _type, float _fireRate, float _damage) { type = _type; fireRate = _fireRate; damage = _damage; };
-	bool Shoot();
+	bool Shoot(bool addOverheat = true);
 	void InactiveUpdate() override;
 	void ActiveUpdate() override;
 	Overheat overheat;

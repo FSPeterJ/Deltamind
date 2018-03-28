@@ -31,6 +31,7 @@
 #include "Logger.h"
 #include "Core.h"
 #include "Ground.h"
+#include "Monitor.h"
 
 #define FULLSCREEN true
 
@@ -114,8 +115,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	if(objMan) Console::WriteLine << "Object Manager initialized......";
 	objMan->Initialize(80);
 	ObjectFactory::Initialize(objMan, "NOT USED STRING");
-
 	Console::WriteLine << "Object Factory Initialized......";
+
 	ObjectFactory::RegisterPrefabBase<Turret>(100);
 	ObjectFactory::RegisterPrefabBase<Item>(16);
 	ObjectFactory::RegisterPrefabBase<ControllerObject>(2);
@@ -138,7 +139,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<ExitButton>(1);
 	ObjectFactory::RegisterPrefabBase<BackButton>(1);
 	ObjectFactory::RegisterPrefabBase<Ground>(1);
-
+	ObjectFactory::RegisterPrefabBase<Monitor>(1);
 	ObjectFactory::RegisterPrefabBase<AStarEnemy>(300);
 	ObjectFactory::RegisterPrefabBase<DStarEnemy>(10);
 	ObjectFactory::RegisterPrefabBase<MTDSLEnemy>(300);
@@ -179,7 +180,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<ExitButton>("ExitButton");
 	TypeMap::RegisterObjectAlias<BackButton>("BackButton");
 	TypeMap::RegisterObjectAlias<Ground>("Ground");
-
+	TypeMap::RegisterObjectAlias<Monitor>("Monitor");
 	TypeMap::RegisterObjectAlias<AStarEnemy>("AStarEnemy");
 	TypeMap::RegisterObjectAlias<DStarEnemy>("DStarEnemy");
 	TypeMap::RegisterObjectAlias<Turret>("Turret");

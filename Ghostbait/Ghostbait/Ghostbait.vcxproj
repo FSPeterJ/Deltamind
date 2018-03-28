@@ -252,6 +252,7 @@
     <ClInclude Include="Header Files\MessageStructs.h" />
     <ClInclude Include="Header Files\MTDSLEnemy.h" />
     <ClInclude Include="Header Files\NeuralEnemy.h" />
+    <ClInclude Include="Header Files\Monitor.h" />
     <ClInclude Include="Header Files\Object.h" />
     <ClInclude Include="Header Files\ObjectFactory.h" />
     <ClInclude Include="Header Files\ObjectManager.h" />
@@ -345,6 +346,7 @@
     <ClCompile Include="Source Files\MeshManager.cpp" />
     <ClCompile Include="Source Files\MessageEvents.cpp" />
     <ClCompile Include="Source Files\MTDSLEnemy.cpp" />
+    <ClCompile Include="Source Files\Monitor.cpp" />
     <ClCompile Include="Source Files\Object.cpp" />
     <ClCompile Include="Source Files\ObjectFactory.cpp" />
     <ClCompile Include="Source Files\ObjectManager.cpp" />

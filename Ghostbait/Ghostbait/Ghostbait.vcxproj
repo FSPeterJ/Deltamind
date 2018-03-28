@@ -305,6 +305,7 @@
     <ClCompile Include="Source Files\AnimationManager.cpp" />
     <ClCompile Include="Source Files\Animator.cpp" />
     <ClCompile Include="Source Files\AnimatorManager.cpp" />
+    <ClCompile Include="Source Files\AntColony.cpp" />
     <ClCompile Include="Source Files\AStarEnemy.cpp" />
     <ClCompile Include="Source Files\AudioManager.cpp" />
     <ClCompile Include="Source Files\BuildTool.cpp" />

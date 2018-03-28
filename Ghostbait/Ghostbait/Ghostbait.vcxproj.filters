@@ -569,6 +569,9 @@
     <ClCompile Include="Source Files\DStar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source Files\AntColony.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resource Files\Ghostbait.ico">

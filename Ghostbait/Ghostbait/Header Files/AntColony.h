@@ -2,7 +2,10 @@
 #include <vector>
 
 class HexGrid;
-class HexTile;
+
+template <typename T>
+struct HexagonTile;
+typedef HexagonTile<int> HexTile;
 
 struct Pheromone {
 	HexTile* tile;
@@ -11,5 +14,13 @@ struct Pheromone {
 };
 
 class AntColony {
-	std::vector<Pheromone>
+	HexGrid* activeGrid = nullptr;
+	std::vector<Pheromone> trails;
+	unsigned updateID;
+
+public:
+	AntColony(HexGrid* _grid);
+	void Update();
+	void LeavePheromone(Pheromone& _pheromone);
+	void ClearTrails();
 };

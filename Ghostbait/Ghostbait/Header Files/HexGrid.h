@@ -118,8 +118,20 @@ public:
 	/// <returns>HexRegion.</returns>
 	HexRegion GetTilesNStepsAway(HexTile *const tile, int n);
 
+	/// <summary>
+	/// Gets a region of all tiles in the outter most ring n steps away.
+	/// </summary>
+	/// <param name="tile">The tile.</param>
+	/// <param name="n">The radius of steps.</param>
+	/// <returns>HexRegion.</returns>
 	HexRegion Ring(HexTile *const center, std::size_t radius);
 
+	/// <summary>
+	/// Gets a region of all tiles reachable within n steps from the specified tile in spiraling order from center outwards.
+	/// </summary>
+	/// <param name="tile">The tile.</param>
+	/// <param name="n">The radius of steps.</param>
+	/// <returns>HexRegion.</returns>
 	HexRegion Spiral(HexTile *const center, std::size_t radius);
 
 	/// <summary>
@@ -215,6 +227,17 @@ public:
 	/// </summary>
 	/// <param name="player">The player.</param>
 	void Display(DirectX::XMFLOAT2& player);
+
+	/// <summary>
+	/// Adds given value to specified tile.
+	/// </summary>
+	/// <param name="tile">The tile.</param>
+	/// <param name="value">The value to add.</param>
+	/// <returns>False if tile is invalid, blocked or at max weight.</returns>
+	bool AddWeight(HexTile*const tile, float value);
+
+
+
 
 	HexGrid(const char* _filename, float _radius = 1.0f, HexagonalGridLayout _layout = HexagonalGridLayout::FlatLayout);
 

@@ -79,13 +79,13 @@ void MTDSLEnemy::FindTempPath() {
 
 	//if (currentlyOn) {
 	Console::WriteLine << "Enemy #" << mtdstarId << " ";
-		for (int range = (int)3 * 2; range > 0; --range) { //Perception range
+		for (int range = (int)5 * 2; range > 0; --range) { //Perception range
 			ring = grid->Ring(&currentlyOn, range);
-			Console::WarningLine << "RING SIZE BEFORE: " << ring.size();
+			//Console::WarningLine << "RING SIZE BEFORE: " << ring.size();
 			ring.Filter(*grid);
-			Console::WarningLine << "RING SIZE AFTER: " << ring.size();
+			//Console::WarningLine << "RING SIZE AFTER: " << ring.size();
 			for (int region = 0; region < ring.size(); ++region) {
-				if (!grid->GetTileExact(ring[region])) { Console::ErrorLine << "SOMEBODY DONE FUCKED UP!!"; }
+				if (!grid->GetTileExact(ring[region])) { Console::ErrorLine << "SOMEBODY DONE MESSED UP!!"; }
 				if (grid->IsBlocked(&ring[region])) continue;
 				temp = (float)ring[region].DistanceFrom(goal);
 				if (temp < closest) {

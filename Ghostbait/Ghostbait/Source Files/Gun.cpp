@@ -10,6 +10,7 @@
 void Gun::Overheat::CreateBar(Gun* _parent) {
 	parent = _parent;
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ProgressBar>(overheatBarPID, { 0.0f, 0.0f, 0.0f }, &bar)); // stop using magic number prefab ID
+	bar->ToggleFlag(GAMEOBJECT_PUBLIC_FLAGS::UNLIT);
 	bar->Enable();
 	bar->PersistOnReset();
 }
@@ -96,11 +97,11 @@ void Gun::GivePID(unsigned pid, const char* tag) {
 	}
 }
 
-bool Gun::Shoot() {
+bool Gun::Shoot(bool addOverheat) {
 	// What does this switch statement do???
 	switch(type) {
 		case AUTO:
-			if(overheat.CanShoot(fireRate)) {
+			if(!addOverheat || overheat.CanShoot(fireRate)) {
 				//Fire
 				Projectile* obj;
 				MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Projectile>(projectiePID, { 0, 0, 0 }, &obj));
@@ -111,16 +112,21 @@ bool Gun::Shoot() {
 				newPos._42 += newPos._32 * 0.2f;
 				newPos._43 += newPos._33 * 0.2f;
 				obj->transform.SetMatrix(newPos);
+				flash.SetAsPoint({ 0.0f, 0.0f, 11.0f }, { newPos._41, newPos._42, newPos._43 }, 1.2f);
+				flash.SetTimed(0.1);
+				flash.Enable();
 				obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
 				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(transform.GetMatrix()._31 * 40.0f, transform.GetMatrix()._32 * 40.0f, transform.GetMatrix()._33 * 40.0f);
 				obj->SetDamage(damage);
 				obj->Enable();
-				overheat.AddEnergy(overheat.energyBulletCost);
-				overheat.ResetTimeSinceLastShot();
+				if (addOverheat) {
+					overheat.AddEnergy(overheat.energyBulletCost);
+					overheat.ResetTimeSinceLastShot();
+				}
 			}
 			break;
 		case SEMI:
-			if(overheat.CanShoot(fireRate)) {
+			if(!addOverheat || overheat.CanShoot(fireRate)) {
 				//Fire
 				Projectile* obj;
 				MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Projectile>(projectiePID, { 0, 0, 0 }, &obj));
@@ -134,11 +140,16 @@ bool Gun::Shoot() {
 				PhysicsComponent* temp2 = obj->GetComponent<PhysicsComponent>();
 				RigidBody* temp = &temp2->rigidBody;
 				temp->AdjustGravityMagnitude(0);
+				flash.SetAsPoint({ 0.0f, 0.0f, 11.0f }, { newPos._41, newPos._42, newPos._43 }, 1.2f);
+				flash.SetTimed(0.1);
+				flash.Enable();
 				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(transform.GetMatrix()._31 * 40.0f, transform.GetMatrix()._32 * 40.0f, transform.GetMatrix()._33 * 40.0f);
 				obj->SetDamage(damage);
 				obj->Enable();
-				overheat.AddEnergy(overheat.energyBulletCost);
-				overheat.ResetTimeSinceLastShot();
+				if (addOverheat) {
+					overheat.AddEnergy(overheat.energyBulletCost);
+					overheat.ResetTimeSinceLastShot();
+				}
 				return false;
 			}
 			break;
@@ -150,6 +161,20 @@ void Gun::InactiveUpdate() {
 }
 void Gun::ActiveUpdate() {
 	overheat.Update(true);
+	DirectX::XMFLOAT4X4 pos = transform.GetMatrix();
+	pos._41 += pos._31 * 0.4f;
+	pos._42 += pos._32 * 0.4f;
+	pos._43 += pos._33 * 0.4f;
+	flash.transform.SetMatrix(pos);
+}
+
+void Gun::Selected() {
+	Item::Selected();
+	overheat.bar->Render();
+}
+void Gun::DeSelected() {
+	Item::DeSelected();
+	overheat.bar->UnRender();
 }
 
 #ifdef _DEBUG

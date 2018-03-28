@@ -130,15 +130,18 @@ void TextManager::remakeMaterial(renderableMat * toMake, float width, float heig
 
 TextManager::renderableMat TextManager::generateVertexBufferAndRender(Font * font, std::string _sentence, DirectX::XMFLOAT4 &bgColor, int index)
 {
+	float texHeight = font->GetTextureHeight();
+	if (texHeight == -1.0f)
+		return renderableMat();
 	bool preMade = index != -1;
 	float width = 0.0f;
-	float height = 16.0f;
+	float height = texHeight;
 	float tempWidth = 0.0f;
 	for (size_t i = 0; i < _sentence.length(); ++i) //Getting the total width and height of the texture to create an aspect ratio
 	{
 		if (_sentence[i] == '\n')
 		{
-			height += 16.0f;
+			height += texHeight;
 			tempWidth = 0;
 			continue;
 		}
@@ -166,7 +169,7 @@ TextManager::renderableMat TextManager::generateVertexBufferAndRender(Font * fon
 		}
 		else if (_sentence[i] == '\n')
 		{
-			drawY += 16.0f;
+			drawY += texHeight;
 			drawX = 0.0f;
 		}
 		else
@@ -181,7 +184,7 @@ TextManager::renderableMat TextManager::generateVertexBufferAndRender(Font * fon
 			toPush.tex = DirectX::XMFLOAT2(pos.endU, 0.0f);
 			vertices.push_back(toPush);
 
-			toPush.pos = DirectX::XMFLOAT3(drawX, drawY + 16.0f, 0.0f);
+			toPush.pos = DirectX::XMFLOAT3(drawX, drawY + texHeight, 0.0f);
 			toPush.tex = DirectX::XMFLOAT2(pos.startU, 1.0f);
 			vertices.push_back(toPush);
 
@@ -189,11 +192,11 @@ TextManager::renderableMat TextManager::generateVertexBufferAndRender(Font * fon
 			toPush.tex = DirectX::XMFLOAT2(pos.endU, 0.0f);
 			vertices.push_back(toPush);
 
-			toPush.pos = DirectX::XMFLOAT3(drawX + pos.size, drawY + 16.0f, 0.0f);
+			toPush.pos = DirectX::XMFLOAT3(drawX + pos.size, drawY + texHeight, 0.0f);
 			toPush.tex = DirectX::XMFLOAT2(pos.endU, 1.0f);
 			vertices.push_back(toPush);
 
-			toPush.pos = DirectX::XMFLOAT3(drawX, drawY + 16.0f, 0.0f);
+			toPush.pos = DirectX::XMFLOAT3(drawX, drawY + texHeight, 0.0f);
 			toPush.tex = DirectX::XMFLOAT2(pos.startU, 1.0f);
 			vertices.push_back(toPush);
 

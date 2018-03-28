@@ -46,12 +46,12 @@ void Player::ChangeStance(Stance newStance) {
 void Player::GodDetected() {
 	if (IsGod()) {
 		ChangeStance(STANCE_Stand);
-		MessageEvents::SendQueueMessage(EVENT_Late, [=]() {if (this->editItem) editItem->Destroy(); });
+		//MessageEvents::SendQueueMessage(EVENT_Late, [=]() {if (this->editItem) editItem->Destroy(); });
 	}
 	else{
 		ChangeStance(STANCE_God);
 		MessageEvents::SendMessage(EVENT_BecameGod, EventMessageBase());
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/Monitor.ghost")), { 0, 0, 0 }, &editItem));
+		//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/Monitor.ghost")), { 0, 0, 0 }, &editItem));
 	}
 }
 
@@ -128,8 +128,9 @@ void Player::Update() {
 		}
 	}
 	else {
-		DirectX::XMFLOAT3 prevPos = transform.GetPosition();
 		
+		DirectX::XMFLOAT3 prevPos = transform.GetPosition();
+
 		if (KeyIsDown(Control::GodMode)) {
 			ResetKey(Control::GodMode);
 			GodDetected();
@@ -362,19 +363,17 @@ void Player::LoadControllers(VRControllerTypes type) {
 	}
 }
 
-void Player::SetBuildToolData(HexGrid* _grid, unsigned* _gears, unsigned* _turretsSpawned, unsigned* _maxTurrets) {
+void Player::SetBuildToolData(HexGrid* _grid, GameData* _gameData) {
 	grid = _grid;
 	BuildTool* buildTool = leftController->GetBuildTool();
 	if (buildTool) {
 		buildTool->SetGrid(_grid);
-		buildTool->SetGears(_gears);
-		buildTool->SetTurretCap(_turretsSpawned, _maxTurrets);
+		buildTool->SetGameData(_gameData);
 	}
 	buildTool = rightController->GetBuildTool();
 	if (buildTool) {
 		buildTool->SetGrid(_grid);
-		buildTool->SetGears(_gears);
-		buildTool->SetTurretCap(_turretsSpawned, _maxTurrets);
+		buildTool->SetGameData(_gameData);
 	}
 }
 

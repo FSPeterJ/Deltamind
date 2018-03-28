@@ -70,7 +70,7 @@ public:
 	inline const float PlayerSpeed() const { return playerSpeed; }
 	inline void ResetStance() { stance = STANCE_Stand; }
 	void LoadControllers(VRControllerTypes type = CONTROLLER_Full);
-	void SetBuildToolData(HexGrid* _grid, unsigned* _gears, unsigned* _turretsSpawned, unsigned* _maxTurrets);
+	void SetBuildToolData(HexGrid* _grid, GameData* _gameData);
 	inline HexGrid* GetBuildGrid() { return grid; }
 	inline const bool IsGod() const { return stance == STANCE_God; }
 

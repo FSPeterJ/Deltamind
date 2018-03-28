@@ -38,6 +38,9 @@ enum EVENT_TYPES {
 	EVENT_AddObstacle,
 	EVENT_RemoveObstacle,
 	EVENT_PauseInputDetected,
+
+	EVENT_GameDataRequest,
+	EVENT_GearChange,
 };
 
 class EventMessageBase;

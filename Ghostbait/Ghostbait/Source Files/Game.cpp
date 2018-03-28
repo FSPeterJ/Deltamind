@@ -13,57 +13,8 @@
 #include "DStarEnemy.h"
 #include "MTDSLEnemy.h"
 
-#include "Evolve.h"
-using namespace Omiracon::Genetics;
-
-void Game::GameData::Reset() {
-	state = GAMESTATE_BetweenWaves;
-	prevState = GAMESTATE_BetweenWaves;
-	gears = 0;
-	turretsSpawned = 0;
-	maxTurrets = 100;
-
-	waveManager.Reset();
-	ssManager.Reset();
-}
-void Game::WaveManager::Reset() {
-	while(spawnerObjects.size() > 0) {
-		spawnerObjects.erase(spawnerObjects.begin()); //can we not use .clear?
-	}
-	enemiesLeftAlive = 10000;
-	while(waves.size() > 0) {
-		waves.erase(waves.begin()); //can we not use .clear?
-	}
-	currentWave = -1;
-}
-void Game::SplashScreenManager::Reset() {
-	nextScene = "";
-	timeInScene = 0;
-	sceneTimeLimit = -1;
-	currentLogoIndex = -1;
-	currentLogo = nullptr;
-	while(logos.size()) {
-		logos.erase(logos.begin()); //can we not use .clear?
-	}
-}
-void Game::GameData::UpdateState(const State& newState) {
-	if(state != newState) {
-		prevState = state;
-		state = newState;
-	}
-}
-void Game::WaveManager::SpawnEnemy(WaveManager::Wave::SpawnerData* spawnerData, const int& spawnerObjectIndex, HexGrid* grid, Core* _core) {
-	int index = 0;
-	if(spawnerObjectIndex < 0)
-		index = rand() % (int)spawnerObjects.size();
-	else
-		index = spawnerObjectIndex;
-	spawnerObjects[index]->SpawnObject(const_cast<char*>(spawnerData->enemyName.c_str()), grid, _core);
-	spawnerData->enemiesSpawned++;
-}
-void Game::WaveManager::MoveToNextWave() {
-	enemiesLeftAlive = waves[++currentWave].enemyCount;
-}
+//#include "Evolve.h"
+//using namespace Omiracon::Genetics;
 
 Game::Game() {
 	MessageEvents::Subscribe(EVENT_SpawnerCreated, [=](EventMessageBase* e) {this->SpawnerCreatedEvent(e); });
@@ -78,20 +29,17 @@ Game::Game() {
 	MessageEvents::Subscribe(EVENT_GameQuit, [=](EventMessageBase* e) {this->Quit(); });
 	MessageEvents::Subscribe(EVENT_GameExit, [=](EventMessageBase* e) {this->ExitToMenu(); });
 	MessageEvents::Subscribe(EVENT_BecameGod, [=](EventMessageBase* e) {this->BecameGod(); });
+	MessageEvents::Subscribe(EVENT_GameDataRequest, [=](EventMessageBase* e) { this->GameDataRequestEvent(e); });
 	PathPlanner::SetGrid(&hexGrid);
+
+	//gameData = GameData(&evolver);
 }
 
 //Catch Events
-void Game::PauseInputEvent() {
-	if(gameData.GetState() == GAMESTATE_SplashScreen || gameData.GetState() == GAMESTATE_MainMenu) return;
-	if(paused) {
-		ResumeGame();
-		MessageEvents::SendMessage(EVENT_GameUnPause, EventMessageBase());
-	}
-	else {
-		PauseGame();
-		MessageEvents::SendMessage(EVENT_GamePause, EventMessageBase());
-	}
+void Game::GameDataRequestEvent(EventMessageBase* e) {
+	GameDataMessage* message = (GameDataMessage*)e;
+	GameData const** data = message->RetrieveData();
+	(*data) = &gameData;
 }
 void Game::SpawnerCreatedEvent(EventMessageBase* e) {
 	SpawnerObject* spawner = dynamic_cast<SpawnerObject*>(((SpawnerCreatedMessage*)e)->RetrieveObject());
@@ -104,10 +52,21 @@ void Game::RemoveObstacleEvent(EventMessageBase* e) {
 	SnapMessage* message = (SnapMessage*)e;
 	hexGrid.RemoveObstacle(*message->position);
 }
+void Game::PauseInputEvent() {
+	if(gameData.GetState() == GAMESTATE_SplashScreen || gameData.GetState() == GAMESTATE_MainMenu) return;
+	if(paused) {
+		ResumeGame();
+		MessageEvents::SendMessage(EVENT_GameUnPause, EventMessageBase());
+	}
+	else {
+		PauseGame();
+		MessageEvents::SendMessage(EVENT_GamePause, EventMessageBase());
+	}
+}
 void Game::EnemyDiedEvent() {
 	if(gameData.GetState() == GAMESTATE_GameOver) return;
 	gameData.waveManager.EnemyKilled();
-	gameData.gears += 50;
+	gameData.AddGears(50);
 	if(gameData.waveManager.GetAliveEnemyCount() <= 0) {
 		ChangeState(GAMESTATE_BetweenWaves);
 	}
@@ -146,7 +105,7 @@ void Game::ChangeState(State newState) {
 				//if upcoming wave does exist
 				else if(gameData.GetPrevState() == GAMESTATE_InWave) {
 					//Add wave reward
-					gameData.gears += gameData.waveManager.GetCurrentWaveReward();
+					gameData.AddGears(gameData.waveManager.GetCurrentWaveReward());
 
 					//Spawn start cube
 					MenuCube* startCube;
@@ -161,7 +120,7 @@ void Game::ChangeState(State newState) {
 			break;
 			case GAMESTATE_InWave:
 			{
-
+				
 			}
 			break;
 			case GAMESTATE_GameOver:
@@ -217,7 +176,7 @@ void Game::ChangeScene(const char* sceneName) {
 		while(xmlReader->read()) {
 			if(xmlReader->getNodeType() == irr::io::EXN_ELEMENT) {
 				if(!strcmp("Level", xmlReader->getNodeName())) {
-					gameData.gears += xmlReader->getAttributeValueAsInt("startGears");
+					gameData.AddGears(xmlReader->getAttributeValueAsInt("startGears"));
 					gameData.SetStateHard(GAMESTATE_BetweenWaves);
 					gameData.SetPrevStateHard(GAMESTATE_BetweenWaves);
 					player->leftController->SetControllerState(CSTATE_Inventory);
@@ -276,7 +235,7 @@ void Game::StartNextWave() {
 
 //Handle primary function event logic
 void Game::BecameGod() {
-	gameData.gears = 500000;
+	gameData.SetGears(500000);
 }
 void Game::RestartLevel() {
 	//Reset currentScene pointer
@@ -340,7 +299,7 @@ void Game::Start(Player* _player, EngineStructure* _engine, char* startScene) {
 	sceneManager->Initialize();
 	gameData.Reset();
 	//hexGrid.Fill(false);
-	player->SetBuildToolData(&hexGrid, &gameData.gears, &gameData.turretsSpawned, &gameData.maxTurrets);
+	player->SetBuildToolData(&hexGrid, &gameData);
 
 	ChangeScene(startScene);
 
@@ -366,8 +325,6 @@ void Game::Update() {
 	auto playerPos = player->transform.GetMatrix();
 	//hexGrid.Display(DirectX::XMFLOAT2(playerPos._41, playerPos._43));
 	float dt = (float)GhostTime::DeltaTime();
-
-	//Console::WriteLine << "Gears: " << gameData.gears;
 
 	if(paused) return;
 

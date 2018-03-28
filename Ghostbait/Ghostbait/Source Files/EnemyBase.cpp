@@ -103,5 +103,3 @@ void EnemyBase::OnCollision(GameObject* _other) {
 void EnemyBase::RandomizeStats() {
 
 }
-
-

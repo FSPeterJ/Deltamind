@@ -211,9 +211,16 @@ void Renderer::blurTexture(D3D11_VIEWPORT & viewport, ID3D11Texture2D * tex, ID3
 	if (!tex || !srv)
 		return;
 	ID3D11Texture2D* tempTex;
+	ID3D11RenderTargetView* rtv;
+	ID3D11ShaderResourceView* tempSrv;
 	D3D11_TEXTURE2D_DESC texDesc;
 	tex->GetDesc(&texDesc);
 	device->CreateTexture2D(&texDesc, nullptr, &tempTex);
+	device->CreateRenderTargetView((ID3D11Resource*)tempTex, nullptr, &rtv);
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	srv->GetDesc(&srvDesc);
+	device->CreateShaderResourceView((ID3D11Resource*)tempTex, &srvDesc, &tempSrv);
+
 }
 
 void Renderer::sortTransparentObjects(DirectX::XMFLOAT3 &camPos)

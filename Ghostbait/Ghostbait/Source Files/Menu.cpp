@@ -129,6 +129,7 @@ void Menu::Show(bool useCamera) {
 		float distFromCenter = FindDistanceFromCenter((int)i, (int)options.size(), 0.25f, 0.05f);
 		DirectX::XMStoreFloat4x4(&newObjPos, center_M * DirectX::XMMatrixTranslation(0, distFromCenter, 0));
 		MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuOption>(buttonPrefabMap[buttons[i]], newObjPos, &newOption));
+		newOption->ToggleFlag(GAMEOBJECT_PUBLIC_FLAGS::UNLIT);
 		newOption->SetMenu(this);
 		newOption->Enable();
 		newOption->PersistOnReset();

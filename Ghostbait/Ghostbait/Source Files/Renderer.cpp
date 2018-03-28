@@ -1282,6 +1282,7 @@ void Renderer::RenderParticles() {
 	//SRV[0] = nullptr;
 	//SRV[1] = nullptr;
 	//context->VSSetShaderResources(10, 2, SRV);
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 }
 

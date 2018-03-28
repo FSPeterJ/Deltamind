@@ -1266,23 +1266,22 @@ void Renderer::FillRandomTexture() {
 }
 
 void Renderer::RenderParticles() {
-	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 	context->VSSetShader(ParticleVS, NULL, NULL);
 	context->GSSetShader(ParticleGS, NULL, NULL);
 	context->PSSetShader(ParticlePS, NULL, NULL);
-	//context->IASetInputLayout(NULL);
-	//context->OMSetRenderTargets(6, deferredTextures.RTVs, deferredTextures.DSV);
 
 	ID3D11ShaderResourceView* SRV[] = { ParticleSRV, ActiveParticleIndexSRV };
 	context->VSSetShaderResources(10,2, SRV);
 
 	
-	//context->OMSetRenderTargetsAndUnorderedAccessViews(6u, deferredTextures.RTVs, deferredTextures.DSV, 6, 1u, uavs, counts);
 
 	context->CopyStructureCount(IndirectDrawArgsBuffer, 0, ActiveParticleIndexUAV);
 	context->DrawInstancedIndirect(IndirectDrawArgsBuffer, 0);
-	//context->VSSetShaderResources(10, 2, NULL);
+	//SRV[0] = nullptr;
+	//SRV[1] = nullptr;
+	//context->VSSetShaderResources(10, 2, SRV);
 
 }
 

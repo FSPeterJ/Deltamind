@@ -12,6 +12,8 @@ enum LightType {
 class Light : public GameObject {
 	int lightID = -1;
 	LightType type = LIGHT_None;
+	bool timed = false;
+	double timeLeft;
 public:
 	void RemoveLightFromManager();
 	void SetAsDirectional(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 dir);
@@ -23,6 +25,8 @@ public:
 	void SetRadius(const float radius);
 	void SetDirection(const DirectX::XMFLOAT3 dir);
 	void SetOuterRadius(const float outerRadius);
+
+	void SetTimed(double duration);
 
 	genericLight* GetData() const;
 

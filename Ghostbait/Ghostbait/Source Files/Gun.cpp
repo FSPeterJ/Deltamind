@@ -10,6 +10,7 @@
 void Gun::Overheat::CreateBar(Gun* _parent) {
 	parent = _parent;
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ProgressBar>(overheatBarPID, { 0.0f, 0.0f, 0.0f }, &bar)); // stop using magic number prefab ID
+	bar->ToggleFlag(GAMEOBJECT_PUBLIC_FLAGS::UNLIT);
 	bar->Enable();
 	bar->PersistOnReset();
 }
@@ -111,6 +112,13 @@ bool Gun::Shoot(bool addOverheat) {
 				newPos._42 += newPos._32 * 0.2f;
 				newPos._43 += newPos._33 * 0.2f;
 				obj->transform.SetMatrix(newPos);
+				newPos._41 += newPos._31 * 0.2f;
+				newPos._42 += newPos._32 * 0.2f;
+				newPos._43 += newPos._33 * 0.2f;
+				flash.transform.SetMatrix(newPos);
+				flash.SetAsPoint({ 0.0f, 0.0f, 11.0f }, { newPos._41, newPos._42, newPos._43 }, 1.2f);
+				flash.SetTimed(0.1);
+				flash.Enable();
 				obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
 				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(transform.GetMatrix()._31 * 40.0f, transform.GetMatrix()._32 * 40.0f, transform.GetMatrix()._33 * 40.0f);
 				obj->SetDamage(damage);
@@ -136,6 +144,13 @@ bool Gun::Shoot(bool addOverheat) {
 				PhysicsComponent* temp2 = obj->GetComponent<PhysicsComponent>();
 				RigidBody* temp = &temp2->rigidBody;
 				temp->AdjustGravityMagnitude(0);
+				newPos._41 += newPos._31 * 0.2f;
+				newPos._42 += newPos._32 * 0.2f;
+				newPos._43 += newPos._33 * 0.2f;
+				flash.transform.SetMatrix(newPos);
+				flash.SetAsPoint({ 0.0f, 0.0f, 11.0f }, { newPos._41, newPos._42, newPos._43 }, 1.2f);
+				flash.SetTimed(0.1);
+				flash.Enable();
 				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(transform.GetMatrix()._31 * 40.0f, transform.GetMatrix()._32 * 40.0f, transform.GetMatrix()._33 * 40.0f);
 				obj->SetDamage(damage);
 				obj->Enable();

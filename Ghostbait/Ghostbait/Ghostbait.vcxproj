@@ -223,6 +223,7 @@
     <ClInclude Include="Header Files\Examples.h" />
     <ClInclude Include="Header Files\Font.h" />
     <ClInclude Include="Header Files\Game.h" />
+    <ClInclude Include="Header Files\GameData.h" />
     <ClInclude Include="Header Files\GameObject.h" />
     <ClInclude Include="Header Files\GameObjectComponent.h" />
     <ClInclude Include="Header Files\GhostTime.h" />
@@ -319,6 +320,7 @@
     <ClCompile Include="Source Files\EngineStructure.cpp" />
     <ClCompile Include="Source Files\Font.cpp" />
     <ClCompile Include="Source Files\Game.cpp" />
+    <ClCompile Include="Source Files\GameData.cpp" />
     <ClCompile Include="Source Files\GameObject.cpp" />
     <ClCompile Include="Source Files\GhostTime.cpp" />
     <ClCompile Include="Source Files\Gun.cpp">

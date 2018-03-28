@@ -49,6 +49,9 @@ public:
 	bool Shoot(bool addOverheat = true);
 	void InactiveUpdate() override;
 	void ActiveUpdate() override;
+
+	void Selected() override;
+	void DeSelected() override;
 	Overheat overheat;
 	// This is essentially a copy constructor, but since objects are never truely instantiated post-start...
 #ifdef _DEBUG
@@ -64,3 +67,4 @@ public:
 		}
 	}
 };
+

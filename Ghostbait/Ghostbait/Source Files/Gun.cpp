@@ -171,6 +171,15 @@ void Gun::ActiveUpdate() {
 	overheat.Update(true);
 }
 
+void Gun::Selected() {
+	Item::Selected();
+	overheat.bar->Render();
+}
+void Gun::DeSelected() {
+	Item::DeSelected();
+	overheat.bar->UnRender();
+}
+
 #ifdef _DEBUG
 void Gun::SmokeTest() {
 	assert(projectiePID != 0);

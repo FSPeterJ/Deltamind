@@ -363,19 +363,17 @@ void Player::LoadControllers(VRControllerTypes type) {
 	}
 }
 
-void Player::SetBuildToolData(HexGrid* _grid, unsigned* _gears, unsigned* _turretsSpawned, unsigned* _maxTurrets) {
+void Player::SetBuildToolData(HexGrid* _grid, GameData* _gameData) {
 	grid = _grid;
 	BuildTool* buildTool = leftController->GetBuildTool();
 	if (buildTool) {
 		buildTool->SetGrid(_grid);
-		buildTool->SetGears(_gears);
-		buildTool->SetTurretCap(_turretsSpawned, _maxTurrets);
+		buildTool->SetGameData(_gameData);
 	}
 	buildTool = rightController->GetBuildTool();
 	if (buildTool) {
 		buildTool->SetGrid(_grid);
-		buildTool->SetGears(_gears);
-		buildTool->SetTurretCap(_turretsSpawned, _maxTurrets);
+		buildTool->SetGameData(_gameData);
 	}
 }
 

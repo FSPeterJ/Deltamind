@@ -206,6 +206,10 @@ float Renderer::manhat(const XMFLOAT3 & center1, const XMFLOAT3 &center2)
 	return distX + distY + distZ;
 }
 
+void Renderer::blurTexture(ID3D11RenderTargetView * rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport, ID3D11Texture2D * tex, ID3D11ShaderResourceView * srv)
+{
+}
+
 void Renderer::sortTransparentObjects(DirectX::XMFLOAT3 &camPos)
 {
 	if (transparentObjects.size() <= 1)
@@ -358,10 +362,13 @@ void Renderer::loadPipelineState(pipeline_state_t * pipeline) {
 
 void Renderer::createDeferredRTVs(DeferredRTVs* toWrite, ID3D11Texture2D* refTex)
 {
-	for (int i = 0; i < 6; ++i)
-	{
-		createRTVandSRV(&toWrite->textures[i], &toWrite->SRVs[i], &toWrite->RTVs[i], refTex);
-	}
+	createRTVandSRV(&toWrite->textures[0], &toWrite->SRVs[0], &toWrite->RTVs[0], refTex, DXGI_FORMAT_R16G16B16A16_FLOAT);
+	createRTVandSRV(&toWrite->textures[1], &toWrite->SRVs[1], &toWrite->RTVs[1], refTex, DXGI_FORMAT_R16G16B16A16_FLOAT);
+	createRTVandSRV(&toWrite->textures[2], &toWrite->SRVs[2], &toWrite->RTVs[2], refTex, DXGI_FORMAT_R16G16B16A16_FLOAT);
+	createRTVandSRV(&toWrite->textures[3], &toWrite->SRVs[3], &toWrite->RTVs[3], refTex, DXGI_FORMAT_R16_FLOAT);
+	createRTVandSRV(&toWrite->textures[4], &toWrite->SRVs[4], &toWrite->RTVs[4], refTex, DXGI_FORMAT_R16G16_FLOAT);
+	createRTVandSRV(&toWrite->textures[5], &toWrite->SRVs[5], &toWrite->RTVs[5], refTex, DXGI_FORMAT_R16_FLOAT);
+									   
 	D3D11_TEXTURE2D_DESC texDesc;
 	toWrite->textures[0]->GetDesc(&texDesc);
 
@@ -379,7 +386,7 @@ void Renderer::createDeferredRTVs(DeferredRTVs* toWrite, ID3D11Texture2D* refTex
 	device->CreateDepthStencilView(toWrite->depthBuffer, &depthStencilDesc, &toWrite->DSV);
 }
 
-void Renderer::createRTVandSRV(ID3D11Texture2D ** texture, ID3D11ShaderResourceView ** srv, ID3D11RenderTargetView ** rtv, ID3D11Texture2D* refTex)
+void Renderer::createRTVandSRV(ID3D11Texture2D ** texture, ID3D11ShaderResourceView ** srv, ID3D11RenderTargetView ** rtv, ID3D11Texture2D* refTex, DXGI_FORMAT format)
 {
 	DXGI_SAMPLE_DESC sampleDesc;
 	sampleDesc.Count = 1;
@@ -394,7 +401,7 @@ void Renderer::createRTVandSRV(ID3D11Texture2D ** texture, ID3D11ShaderResourceV
 	texDesc.Usage = D3D11_USAGE_DEFAULT;
 	texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 	texDesc.MipLevels = 1;
-	texDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	texDesc.Format = format;
 	texDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
 	texDesc.ArraySize = 1;
 	texDesc.CPUAccessFlags = 0;
@@ -402,7 +409,7 @@ void Renderer::createRTVandSRV(ID3D11Texture2D ** texture, ID3D11ShaderResourceV
 	device->CreateTexture2D(&texDesc, nullptr, texture);
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	srvDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	srvDesc.Format = format;
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
 	srvDesc.Texture2D.MostDetailedMip = 0;

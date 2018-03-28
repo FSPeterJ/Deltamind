@@ -112,10 +112,6 @@ bool Gun::Shoot(bool addOverheat) {
 				newPos._42 += newPos._32 * 0.2f;
 				newPos._43 += newPos._33 * 0.2f;
 				obj->transform.SetMatrix(newPos);
-				newPos._41 += newPos._31 * 0.2f;
-				newPos._42 += newPos._32 * 0.2f;
-				newPos._43 += newPos._33 * 0.2f;
-				flash.transform.SetMatrix(newPos);
 				flash.SetAsPoint({ 0.0f, 0.0f, 11.0f }, { newPos._41, newPos._42, newPos._43 }, 1.2f);
 				flash.SetTimed(0.1);
 				flash.Enable();
@@ -144,10 +140,6 @@ bool Gun::Shoot(bool addOverheat) {
 				PhysicsComponent* temp2 = obj->GetComponent<PhysicsComponent>();
 				RigidBody* temp = &temp2->rigidBody;
 				temp->AdjustGravityMagnitude(0);
-				newPos._41 += newPos._31 * 0.2f;
-				newPos._42 += newPos._32 * 0.2f;
-				newPos._43 += newPos._33 * 0.2f;
-				flash.transform.SetMatrix(newPos);
 				flash.SetAsPoint({ 0.0f, 0.0f, 11.0f }, { newPos._41, newPos._42, newPos._43 }, 1.2f);
 				flash.SetTimed(0.1);
 				flash.Enable();
@@ -169,6 +161,11 @@ void Gun::InactiveUpdate() {
 }
 void Gun::ActiveUpdate() {
 	overheat.Update(true);
+	DirectX::XMFLOAT4X4 pos = transform.GetMatrix();
+	pos._41 += pos._31 * 0.4f;
+	pos._42 += pos._32 * 0.4f;
+	pos._43 += pos._33 * 0.4f;
+	flash.transform.SetMatrix(pos);
 }
 
 void Gun::Selected() {

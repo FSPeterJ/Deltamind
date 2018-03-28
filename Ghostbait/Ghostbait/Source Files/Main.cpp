@@ -328,7 +328,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	Setup(hInstance, nCmdShow);
 
 	MSG msg;
-	while(game->Run()) {
+	while(game->IsRunning()) {
 		if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 			if(msg.message == WM_QUIT) { break; }
 			TranslateMessage(&msg);

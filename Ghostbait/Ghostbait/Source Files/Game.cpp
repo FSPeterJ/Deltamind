@@ -13,8 +13,8 @@
 #include "DStarEnemy.h"
 #include "MTDSLEnemy.h"
 
-#include "Evolve.h"
-using namespace Omiracon::Genetics;
+//#include "Evolve.h"
+//using namespace Omiracon::Genetics;
 
 Game::Game() {
 	MessageEvents::Subscribe(EVENT_SpawnerCreated, [=](EventMessageBase* e) {this->SpawnerCreatedEvent(e); });
@@ -31,6 +31,8 @@ Game::Game() {
 	MessageEvents::Subscribe(EVENT_BecameGod, [=](EventMessageBase* e) {this->BecameGod(); });
 	MessageEvents::Subscribe(EVENT_GameDataRequest, [=](EventMessageBase* e) { this->GameDataRequestEvent(e); });
 	PathPlanner::SetGrid(&hexGrid);
+
+	//gameData = GameData(&evolver);
 }
 
 //Catch Events
@@ -118,7 +120,7 @@ void Game::ChangeState(State newState) {
 			break;
 			case GAMESTATE_InWave:
 			{
-
+				
 			}
 			break;
 			case GAMESTATE_GameOver:

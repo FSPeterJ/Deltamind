@@ -1,9 +1,19 @@
 #pragma once
 #include <vector>
 #include "Spawner.h"
+#include "Evolve.h"
+
+using namespace Omiracon::Genetics;
+
 class GameObject;
 class SpawnerObject;
 class Core;
+
+//namespace Omiracon {
+//	namespace Genetics {
+//		class Evolver;
+//	}
+//}
 
 enum State {
 	GAMESTATE_InWave,
@@ -37,7 +47,11 @@ private:
 	int currentWave = -1;
 	std::vector<SpawnerObject*> spawnerObjects;
 	int enemiesLeftAlive = 0;
+	Evolver* evolver = nullptr;
 public:
+	WaveManager() {}
+	WaveManager(Evolver* _evolver) : evolver(_evolver) {}
+	
 	void MoveToNextWave();
 	inline const int GetCurrentWaveNumber() const { return currentWave + 1; }
 	inline const bool NextWaveExists() const { return (currentWave + 1 < (int)waves.size()); }
@@ -100,6 +114,9 @@ class GameData {
 public:
 	WaveManager waveManager;
 	SplashScreenManager ssManager;
+	GameData() {}
+	GameData(Evolver* _evolver) : waveManager(WaveManager(_evolver)) {}
+
 	inline const unsigned GetGears() const { return gears; };
 	inline const unsigned GetMaxTurrets() const { return maxTurrets; }
 	inline const unsigned GetTurretsSpawned() const { return turretsSpawned; }

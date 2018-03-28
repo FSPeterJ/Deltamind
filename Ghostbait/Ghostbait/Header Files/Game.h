@@ -5,7 +5,7 @@
 #include <vector>
 #include "Menu.h"
 #include "GameData.h"
-
+#include "Evolve.h"
 
 class SceneManager;
 class SpawnerObject;
@@ -14,6 +14,7 @@ class EngineStructure;
 class Player;
 class Core;
 
+using namespace Omiracon::Genetics;
 
 
 class Game {
@@ -21,8 +22,9 @@ class Game {
 	
 	bool run = true;
 	
-	GameData gameData;
-	
+	Evolver evolver = Evolver(20);
+	GameData gameData = GameData(&evolver);
+
 	EngineStructure* engine;
 	SceneManager* sceneManager;
 	Player* player;
@@ -67,6 +69,6 @@ public:
 	void Update();
 	void Clean();
 
-	const inline bool Run() { return run; };
+	const inline bool IsRunning() { return run; };
 	const inline bool IsPaused() const { return paused; };
 };

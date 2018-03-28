@@ -53,9 +53,20 @@ void WaveManager::SpawnEnemy(WaveManager::Wave::SpawnerData* spawnerData, const 
 		index = rand() % (int)spawnerObjects.size();
 	else
 		index = spawnerObjectIndex;
+	
+	
 	spawnerObjects[index]->SpawnObject(const_cast<char*>(spawnerData->enemyName.c_str()), grid, _core);
 	spawnerData->enemiesSpawned++;
+	//Replace above 2 lines with this |V|
+	//spawnerObjects[index]->SpawnObject(spawnerData->enemyName.c_str(), grid, _core)->SetTraits() = &game.evolver.GenePool()[spawnerData->enemiesSpawned++];
+
 }
 void WaveManager::MoveToNextWave() {
 	enemiesLeftAlive = waves[++currentWave].enemyCount;
+	//if (currentWave) {
+	//	game.evolver.SetWaveSize(enemiesLeftAlive);
+	//}
+	//else {
+	//	game.evolver.SetFirstWave(enemiesLeftAlive);
+	//}
 }

@@ -163,8 +163,10 @@ void Renderer::releaseDeferredTarget(DeferredRTVs * in)
 
 void Renderer::combineDeferredTargets(DeferredRTVs * in, ID3D11RenderTargetView * rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport)
 {
+	context->PSSetSamplers(0, 1, &LinearSamplerState);
+	blurTexture(viewport, in->textures[1], in->SRVs[1], 9, in->RTVs[1], in->DSV);
 	context->PSSetSamplers(0, 1, &PointSamplerState);
-	blurTexture(viewport, in->textures[1], in->SRVs[1], 9, in->RTVs[1]);
+
 	float color[] = { 0.5f, 0.5f, 1.0f, 1.0f };
 	UINT stride = sizeof(XMFLOAT4);
 	UINT offset = 0;
@@ -207,17 +209,31 @@ float Renderer::manhat(const XMFLOAT3 & center1, const XMFLOAT3 &center2)
 	return distX + distY + distZ;
 }
 
-void Renderer::blurTexture(D3D11_VIEWPORT & viewport, ID3D11Texture2D * tex, ID3D11ShaderResourceView * srv, unsigned int passes, ID3D11RenderTargetView* rtv)
+void Renderer::blurTexture(D3D11_VIEWPORT & viewport, ID3D11Texture2D * tex, ID3D11ShaderResourceView * srv, unsigned int passes, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsvIn)
 {
-	if (!tex || !srv)
+	if (!tex || !srv || !passes)
 		return;
 	ID3D11Texture2D* tempTex;
+	ID3D11Texture2D* swapTex;
 	ID3D11RenderTargetView* tempRtv;
 	ID3D11ShaderResourceView* tempSrv;
+	ID3D11RenderTargetView* swapRtv;
+	ID3D11ShaderResourceView* swapSrv;
+	D3D11_VIEWPORT tempViewport;
 	D3D11_TEXTURE2D_DESC texDesc;
 	tex->GetDesc(&texDesc);
+	texDesc.Height = (UINT)((float)texDesc.Height * 0.35f);
+	texDesc.Width = (UINT)((float)texDesc.Width * 0.35f);
+	tempViewport.Height = (float)texDesc.Height;
+	tempViewport.Width = (float)texDesc.Width;
+	tempViewport.MaxDepth = viewport.MaxDepth;
+	tempViewport.MinDepth = viewport.MinDepth;
+	tempViewport.TopLeftX = viewport.TopLeftX;
+	tempViewport.TopLeftY = viewport.TopLeftY;
 	device->CreateTexture2D(&texDesc, nullptr, &tempTex);
+	device->CreateTexture2D(&texDesc, nullptr, &swapTex);
 	device->CreateRenderTargetView((ID3D11Resource*)tempTex, nullptr, &tempRtv);
+	device->CreateRenderTargetView((ID3D11Resource*)swapTex, nullptr, &swapRtv);
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 	srvDesc.Format = texDesc.Format;
@@ -225,7 +241,7 @@ void Renderer::blurTexture(D3D11_VIEWPORT & viewport, ID3D11Texture2D * tex, ID3
 	srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
 	srvDesc.Texture2D.MostDetailedMip = 0;
 	device->CreateShaderResourceView(tempTex, &srvDesc, &tempSrv);
-
+	device->CreateShaderResourceView(swapTex, &srvDesc, &swapSrv);
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilDesc;
 	depthStencilDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
@@ -248,30 +264,68 @@ void Renderer::blurTexture(D3D11_VIEWPORT & viewport, ID3D11Texture2D * tex, ID3
 	UINT stride = sizeof(XMFLOAT4);
 	UINT offset = 0;
 	context->IASetVertexBuffers(0, 1, &emptyFloat3Buffer, &stride, &offset);
-	context->RSSetViewports(1, &viewport);
+	context->RSSetViewports(1, &tempViewport);
 	context->GSSetShader(NDCQuadGS, NULL, NULL);
 	context->PSSetShader(BlurPixelShader, NULL, NULL);
 	context->PSSetConstantBuffers(3, 1, &blurDataBuffer);
 	context->IASetInputLayout(ILPosition);
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
-	for (unsigned int i = 0; i < passes; ++i)
+
+	ID3D11RenderTargetView* clearrtv = nullptr;
+	ID3D11ShaderResourceView* clearsrv = nullptr;
+
+	context->OMSetRenderTargets(1, &tempRtv, dsv);
+	toShader.dir = { 1.0f, 0.0f };
+	context->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	context->UpdateSubresource(blurDataBuffer, NULL, NULL, &toShader, NULL, NULL);
+	context->PSSetShaderResources(0, 1, &srv);
+	context->Draw(1, 0);
+	context->OMSetRenderTargets(1, &clearrtv, nullptr);
+	context->PSSetShaderResources(0, 1, &clearsrv);
+	toShader.dir = { 0.0f, 1.0f };
+	context->OMSetRenderTargets(1, &swapRtv, dsv);
+	context->UpdateSubresource(blurDataBuffer, NULL, NULL, &toShader, NULL, NULL);
+	context->PSSetShaderResources(0, 1, &tempSrv);
+	context->Draw(1, 0);
+	
+	for (unsigned int i = 0; i < passes - 1; ++i)
 	{
+		context->OMSetRenderTargets(1, &clearrtv, nullptr);
+		context->PSSetShaderResources(0, 1, &clearsrv);
 		context->OMSetRenderTargets(1, &tempRtv, dsv);
 		toShader.dir = { 1.0f, 0.0f };
-		context->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 		context->UpdateSubresource(blurDataBuffer, NULL, NULL, &toShader, NULL, NULL);
-		context->PSSetShaderResources(0, 1, &srv);
+		context->PSSetShaderResources(0, 1, &swapSrv);
 		context->Draw(1, 0);
-		toShader.dir = { 0.0f, 1.0f };
-		context->OMSetRenderTargets(1, &rtv, dsv);
-		context->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-		context->UpdateSubresource(blurDataBuffer, NULL, NULL, &toShader, NULL, NULL);
-		context->PSSetShaderResources(0, 1, &tempSrv);
-		context->Draw(1, 0);
+		if (i == passes - 2)
+		{
+			context->OMSetRenderTargets(1, &clearrtv, nullptr);
+			context->PSSetShaderResources(0, 1, &clearsrv);
+			toShader.dir = { 0.0f, 1.0f };
+			context->OMSetRenderTargets(1, &rtv, dsvIn);
+			context->RSSetViewports(1, &viewport);
+			context->UpdateSubresource(blurDataBuffer, NULL, NULL, &toShader, NULL, NULL);
+			context->PSSetShaderResources(0, 1, &tempSrv);
+			context->Draw(1, 0);
+		}
+		else
+		{
+			context->OMSetRenderTargets(1, &clearrtv, nullptr);
+			context->PSSetShaderResources(0, 1, &clearsrv);
+			toShader.dir = { 0.0f, 1.0f };
+			context->OMSetRenderTargets(1, &tempRtv, dsv);
+			context->UpdateSubresource(blurDataBuffer, NULL, NULL, &toShader, NULL, NULL);
+			context->PSSetShaderResources(0, 1, &tempSrv);
+			context->Draw(1, 0);
+		}
 	}
+	
 	tempSrv->Release();
+	swapSrv->Release();
 	tempTex->Release();
+	swapTex->Release();
 	tempRtv->Release();
+	swapRtv->Release();
 	dsv->Release();
 	depthBuffer->Release();
 }

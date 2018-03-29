@@ -17,8 +17,8 @@ cbuffer blurInfo : register(b3)
 
 float4 main(PixelShaderInput input) : SV_TARGET
 {
-    float offsets[] = { 0.0, 1.3846153846, 3.2307692308 };
-    float weights[] = { 0.2270270270, 0.3162162162, 0.0702702703 };
+    static float offsets[] = { 0.0, 1.3846153846, 3.2307692308 };
+    static float weights[] = { 0.2270270270, 0.3162162162, 0.0702702703 };
 
     float4 originalColor = tex.Sample(sample, input.uv) * weights[0];
     float3 color = float3(0.0f, 0.0f, 0.0f);

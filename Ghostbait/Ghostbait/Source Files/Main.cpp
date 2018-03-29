@@ -117,7 +117,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::Initialize(objMan, "NOT USED STRING");
 	Console::WriteLine << "Object Factory Initialized......";
 
-	ObjectFactory::RegisterPrefabBase<Turret>(100);
+	ObjectFactory::RegisterPrefabBase<Turret>(102);
 	ObjectFactory::RegisterPrefabBase<Item>(16);
 	ObjectFactory::RegisterPrefabBase<ControllerObject>(2);
 	ObjectFactory::RegisterPrefabBase<Gun>(8);

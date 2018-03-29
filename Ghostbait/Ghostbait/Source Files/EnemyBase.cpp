@@ -25,8 +25,7 @@ void EnemyBase::Awake(Object* obj) {
 }
 void EnemyBase::Subscribe() {
 	if(!eventLose) eventLose = MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) { MessageEvents::SendQueueMessage(EVENT_Late, [=] {this->Destroy(); }); });
-	if (!smite) smite = MessageEvents::Subscribe(EVENT_Smite, [=](EventMessageBase* e) { 
-		this->AdjustHealth(-1000); });
+	if (!smite) smite = MessageEvents::Subscribe(EVENT_Smite, [=](EventMessageBase* e) { this->AdjustHealth(-1000); });
 
 }
 void EnemyBase::UnSubscribe() {
@@ -79,7 +78,7 @@ void EnemyBase::Update() {
 }
 
 void EnemyBase::DeathEvent() {
-	MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
+	MessageEvents::SendQueueMessage(EVENT_Late, [=] { Destroy(); });
 }
 
 //Other Overrides
@@ -98,16 +97,16 @@ void EnemyBase::OnCollision(GameObject* _other) {
 			hurt = true;
 			hurtTimer = 0;
 		}
-		if(!IsAlive() && !sentDeathMessage) {
-			//Destroy itself
+		//if(!IsAlive() && !sentDeathMessage) {
+		//	//Destroy itself
 			//if(temp > 3) {
 			//	MessageEvents::SendMessage(EVENT_GameWin, EventMessageBase());
 			//	Console::WriteLine << "GAME WAS WON";
 			//	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(9/*WinCube*/, {0, 0.75f, 0}));
 			//}
-			sentDeathMessage = true;
-			MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
-		}
+		//	sentDeathMessage = true;
+		//	MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
+		//}
 	}
 
 	GameObject::OnCollision(_other);

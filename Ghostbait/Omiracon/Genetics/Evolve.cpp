@@ -16,8 +16,6 @@ namespace Omiracon {
 		Policy DamageReceived;
 		Policy NodesTraversed;
 
-		inline size_t GetMemAddr(size_t index) { return index * sizeof(DominantGene); }
-
 		void Evolver::RunGeneration(void) {
 			//CreateTestSamplePerformanceData();//this simulates what would have happened irl
 
@@ -41,7 +39,7 @@ namespace Omiracon {
 			DamageDelt = [](DominantGene const& a, DominantGene const& b) { return a.performance.results.damageDelt > b.performance.results.damageDelt; };
 			DamageReceived = [](DominantGene const& a, DominantGene const& b) { return a.performance.results.damageReceived < b.performance.results.damageReceived; };
 			NodesTraversed = [](DominantGene const& a, DominantGene const& b) { return a.performance.results.nodesTraversed < b.performance.results.nodesTraversed; };
-
+			genepool.reserve(1024);
 		}
 
 		void Evolver::CreateDominantPools(void) {
@@ -57,66 +55,72 @@ namespace Omiracon {
 		}
 
 		void Evolver::PerformFirstSelection(void) {
-			std::sort(pool.begin(), pool.end(), AliveTime); //orders the main pool by best surviving times
-			memcpy(&aliveTimePool[0], &pool[0], GetMemAddr(surviveCount)); //copy best surviveCount over to specific pool
-			memcpy(&aliveTimePool[0]+ surviveCount, &pool[0], GetMemAddr(surviveCount)); //these ones I will mutate
-			std::random_shuffle(pool.begin(), pool.end()); //shuffle the main pool again so I can get a random sample when I copy below
-			memcpy(&aliveTimePool[0] + surviveCount*2, &pool[0], GetMemAddr(randomCount)); //I will mutate these ones too
-			memcpy(&aliveTimePool[0] + surviveCount*2+ randomCount, &pool[0], GetMemAddr(randomCount)); //copy random randomCount over to specific pool
+			memcpy(&testpool[0], &genepool[0], GetMemAddr(waveSize));
 
-			std::sort(pool.begin(), pool.end(), DamageDelt);
-			memcpy(&damageDeltPool[0], &pool[0], GetMemAddr(surviveCount));
-			memcpy(&damageDeltPool[0] + surviveCount, &pool[0], GetMemAddr(surviveCount));
-			std::random_shuffle(pool.begin(), pool.end());
-			memcpy(&damageDeltPool[0] + surviveCount*2, &pool[0], GetMemAddr(randomCount));
-			memcpy(&damageDeltPool[0] + surviveCount * 2 + randomCount, &pool[0], GetMemAddr(randomCount));
+			for(size_t i = 0; i < testpool.size(); ++i) {
+				testpool[i].generation = currentGeneration;
+			}
 
-			std::sort(pool.begin(), pool.end(), DamageReceived);
-			memcpy(&damageReceivedPool[0], &pool[0], GetMemAddr(surviveCount));
-			memcpy(&damageReceivedPool[0] + surviveCount, &pool[0], GetMemAddr(surviveCount));
-			std::random_shuffle(pool.begin(), pool.end());
-			memcpy(&damageReceivedPool[0] + surviveCount*2, &pool[0], GetMemAddr(randomCount));
-			memcpy(&damageReceivedPool[0] + surviveCount * 2 + randomCount, &pool[0], GetMemAddr(randomCount));
+			std::sort(testpool.begin(), testpool.end(), AliveTime); //orders the main pool by best surviving times
+			memcpy(&aliveTimePool[0], &testpool[0], GetMemAddr(surviveCount)); //copy best surviveCount over to specific pool
+			memcpy(&aliveTimePool[0]+ surviveCount, &testpool[0], GetMemAddr(surviveCount)); //these ones I will mutate
+			std::random_shuffle(testpool.begin(), testpool.end()); //shuffle the main pool again so I can get a random sample when I copy below
+			memcpy(&aliveTimePool[0] + surviveCount*2, &testpool[0], GetMemAddr(randomCount)); //I will mutate these ones too
+			memcpy(&aliveTimePool[0] + surviveCount*2+ randomCount, &testpool[0], GetMemAddr(randomCount)); //copy random randomCount over to specific pool
 
-			std::sort(pool.begin(), pool.end(), NodesTraversed);
-			memcpy(&nodesTraversedPool[0], &pool[0], GetMemAddr(surviveCount));
-			memcpy(&nodesTraversedPool[0] + surviveCount, &pool[0], GetMemAddr(surviveCount));
-			std::random_shuffle(pool.begin(), pool.end());
-			memcpy(&nodesTraversedPool[0] + surviveCount*2, &pool[0], GetMemAddr(randomCount));
-			memcpy(&nodesTraversedPool[0] + surviveCount * 2 + randomCount, &pool[0], GetMemAddr(randomCount));
+			std::sort(testpool.begin(), testpool.end(), DamageDelt);
+			memcpy(&damageDeltPool[0], &testpool[0], GetMemAddr(surviveCount));
+			memcpy(&damageDeltPool[0] + surviveCount, &testpool[0], GetMemAddr(surviveCount));
+			std::random_shuffle(testpool.begin(), testpool.end());
+			memcpy(&damageDeltPool[0] + surviveCount*2, &testpool[0], GetMemAddr(randomCount));
+			memcpy(&damageDeltPool[0] + surviveCount * 2 + randomCount, &testpool[0], GetMemAddr(randomCount));
+
+			std::sort(testpool.begin(), testpool.end(), DamageReceived);
+			memcpy(&damageReceivedPool[0], &testpool[0], GetMemAddr(surviveCount));
+			memcpy(&damageReceivedPool[0] + surviveCount, &testpool[0], GetMemAddr(surviveCount));
+			std::random_shuffle(testpool.begin(), testpool.end());
+			memcpy(&damageReceivedPool[0] + surviveCount*2, &testpool[0], GetMemAddr(randomCount));
+			memcpy(&damageReceivedPool[0] + surviveCount * 2 + randomCount, &testpool[0], GetMemAddr(randomCount));
+
+			std::sort(testpool.begin(), testpool.end(), NodesTraversed);
+			memcpy(&nodesTraversedPool[0], &testpool[0], GetMemAddr(surviveCount));
+			memcpy(&nodesTraversedPool[0] + surviveCount, &testpool[0], GetMemAddr(surviveCount));
+			std::random_shuffle(testpool.begin(), testpool.end());
+			memcpy(&nodesTraversedPool[0] + surviveCount*2, &testpool[0], GetMemAddr(randomCount));
+			memcpy(&nodesTraversedPool[0] + surviveCount * 2 + randomCount, &testpool[0], GetMemAddr(randomCount));
 
 		}
 
 		void Evolver::PerformSelection(void) {
-			//! issue here because pool could contain some elements that do not have performance data
+			memcpy(&testpool[0], &genepool[0], GetMemAddr(waveSize));
 
 			//! can be optimized to only random_shuffle once
-			std::sort(pool.begin(), pool.end(), AliveTime); //orders the main pool by best surviving times
-			memcpy(&aliveTimePool[0], &pool[0], GetMemAddr(surviveCount)); //copy best surviveCount over to specific pool
-			std::random_shuffle(pool.begin(), pool.end()); //shuffle the main pool again so I can get a random sample when I copy below
-			memcpy(&aliveTimePool[0] + surviveCount, &pool[0], GetMemAddr(randomCount)); //copy random randomCount over to specific pool
+			std::sort(testpool.begin(), testpool.end(), AliveTime); //orders the main pool by best surviving times
+			memcpy(&aliveTimePool[0], &testpool[0], GetMemAddr(surviveCount)); //copy best surviveCount over to specific pool
+			std::random_shuffle(testpool.begin(), testpool.end()); //shuffle the main pool again so I can get a random sample when I copy below
+			memcpy(&aliveTimePool[0] + surviveCount, &testpool[0], GetMemAddr(randomCount)); //copy random randomCount over to specific pool
 
-			std::sort(pool.begin(), pool.end(), DamageDelt);
-			memcpy(&damageDeltPool[0], &pool[0], GetMemAddr(surviveCount));
-			std::random_shuffle(pool.begin(), pool.end());
-			memcpy(&damageDeltPool[0] + surviveCount, &pool[0], GetMemAddr(randomCount));
+			std::sort(testpool.begin(), testpool.end(), DamageDelt);
+			memcpy(&damageDeltPool[0], &testpool[0], GetMemAddr(surviveCount));
+			std::random_shuffle(testpool.begin(), testpool.end());
+			memcpy(&damageDeltPool[0] + surviveCount, &testpool[0], GetMemAddr(randomCount));
 
-			std::sort(pool.begin(), pool.end(), DamageReceived);
-			memcpy(&damageReceivedPool[0], &pool[0], GetMemAddr(surviveCount));
-			std::random_shuffle(pool.begin(), pool.end());
-			memcpy(&damageReceivedPool[0] + surviveCount, &pool[0], GetMemAddr(randomCount));
+			std::sort(testpool.begin(), testpool.end(), DamageReceived);
+			memcpy(&damageReceivedPool[0], &testpool[0], GetMemAddr(surviveCount));
+			std::random_shuffle(testpool.begin(), testpool.end());
+			memcpy(&damageReceivedPool[0] + surviveCount, &testpool[0], GetMemAddr(randomCount));
 
-			std::sort(pool.begin(), pool.end(), NodesTraversed);
-			memcpy(&nodesTraversedPool[0], &pool[0], GetMemAddr(surviveCount));
-			std::random_shuffle(pool.begin(), pool.end());
-			memcpy(&nodesTraversedPool[0] + surviveCount, &pool[0], GetMemAddr(randomCount));
+			std::sort(testpool.begin(), testpool.end(), NodesTraversed);
+			memcpy(&nodesTraversedPool[0], &testpool[0], GetMemAddr(surviveCount));
+			std::random_shuffle(testpool.begin(), testpool.end());
+			memcpy(&nodesTraversedPool[0] + surviveCount, &testpool[0], GetMemAddr(randomCount));
 		}
 
 		void Evolver::PerformFirstMutation(void) {
 			//exectues traitPoolSize*0.5 times
 			++currentGeneration;
 
-			pool.clear(); //clear because we copied both the parents and the to-be-mutated children into the dominant pools
+			testpool.clear(); //clear because we copied both the parents and the to-be-mutated children into the dominant pools
 			//not clearing will result in dupe parents for gen 0
 
 			for(size_t i = surviveCount; i < traitPoolSize-randomCount; ++i) {
@@ -139,11 +143,12 @@ namespace Omiracon {
 
 		void Evolver::PerformMutation(void) {
 			++currentGeneration;
-			
-			//! on gen 3, none were removed, pool was full of gen 2s
 
+			testpool.clear();
+			
 			//prune generations
-			pool.erase(std::remove_if(pool.begin(), pool.end(), [&](const DominantGene & o) { return o.generation == currentGeneration - generationsToKeep; }), pool.end());
+			genepool.erase(std::remove_if(genepool.begin(), genepool.end(), [&](const DominantGene & o) { return o.generation == currentGeneration - generationsToKeep; }), genepool.end());
+			previousSize = previousSize - genepool.size();
 
 			for(size_t i = 0; i < traitPoolSize; ++i) {
 				aliveTimePool[i].traits.Mutate(CREEP);
@@ -189,21 +194,17 @@ namespace Omiracon {
 			//memcpy(&pool[0] + traitPoolSampleSize * 3, &nodesTraversedPool[0], GetMemAddr(traitPoolSampleSize));
 
 
-			//! uh oh!! pool is not large enough to hold 4*traitPoolSize
-			if(pool.size() < traitPoolSize * 4) {
-				//resize might invalidate all the references we had... shouldnt matter since we are done with the enemies?
-				pool.resize(traitPoolSize * DOMINANT_TRAITS);
-			}
+
 
 			//! doing this completely destroys existing things inside the pool
 
 			//if you want to copy over the entire pool instead of a sample, use below
-			memcpy(&pool[0], &aliveTimePool[0], GetMemAddr(traitPoolSize));
-			memcpy(&pool[0] + traitPoolSize, &damageDeltPool[0], GetMemAddr(traitPoolSize));
-			memcpy(&pool[0] + traitPoolSize * 2, &damageReceivedPool[0], GetMemAddr(traitPoolSize));
-			memcpy(&pool[0] + traitPoolSize * 3, &nodesTraversedPool[0], GetMemAddr(traitPoolSize));
+			memcpy(&genepool[0] + previousSize, &aliveTimePool[0], GetMemAddr(traitPoolSize));
+			memcpy(&genepool[0] + previousSize + traitPoolSize, &damageDeltPool[0], GetMemAddr(traitPoolSize));
+			memcpy(&genepool[0] + previousSize + traitPoolSize * 2, &damageReceivedPool[0], GetMemAddr(traitPoolSize));
+			memcpy(&genepool[0] + previousSize + traitPoolSize * 3, &nodesTraversedPool[0], GetMemAddr(traitPoolSize));
 
-			std::random_shuffle(pool.begin(), pool.end());
+			std::random_shuffle(genepool.begin(), genepool.end());
 
 			//clear dominant pools
 			aliveTimePool.clear();
@@ -213,7 +214,7 @@ namespace Omiracon {
 		}
 
 		void Evolver::GetTraits() {
-
+			//return random 
 		}
 
 		void Evolver::GetBestStats(void) {

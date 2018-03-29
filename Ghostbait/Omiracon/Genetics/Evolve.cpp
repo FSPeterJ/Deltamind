@@ -92,7 +92,7 @@ namespace Omiracon {
 		}
 
 		void Evolver::PerformSelection(void) {
-			memcpy(&testpool[0], &genepool[0], GetMemAddr(waveSize));
+			memcpy(&testpool[0], &genepool[0], GetMemAddr(waveSize)); // the first waveSize of genepool were the ones tested
 
 			//! can be optimized to only random_shuffle once
 			std::sort(testpool.begin(), testpool.end(), AliveTime); //orders the main pool by best surviving times
@@ -149,9 +149,10 @@ namespace Omiracon {
 			
 			//prune generations
 			genepool.erase(std::remove_if(genepool.begin(), genepool.end(), [&](const DominantGene & o) { return o.generation == currentGeneration - generationsToKeep; }), genepool.end());
-			previousSize = previousSize - genepool.size();
+			//genepool.resize(genepool.size() + genDeathSize);//set bigger
+			previousSize = genDeathSize;
 
-			assert(genDeathSize == previousSize);
+
 
 			for(size_t i = 0; i < traitPoolSize; ++i) {
 				aliveTimePool[i].traits.Mutate(CREEP);
@@ -202,12 +203,15 @@ namespace Omiracon {
 			//! doing this completely destroys existing things inside the pool
 
 			//if you want to copy over the entire pool instead of a sample, use below
+
+			//it's fine this contains the first gen still because the trait pools have the first gen during the first iteration so they get overwritten
 			memcpy(&genepool[0] + previousSize, &aliveTimePool[0], GetMemAddr(traitPoolSize));
 			memcpy(&genepool[0] + previousSize + traitPoolSize, &damageDeltPool[0], GetMemAddr(traitPoolSize));
 			memcpy(&genepool[0] + previousSize + traitPoolSize * 2, &damageReceivedPool[0], GetMemAddr(traitPoolSize));
 			memcpy(&genepool[0] + previousSize + traitPoolSize * 3, &nodesTraversedPool[0], GetMemAddr(traitPoolSize));
 
 			std::random_shuffle(genepool.begin(), genepool.end());
+
 
 			//clear dominant pools
 			aliveTimePool.clear();

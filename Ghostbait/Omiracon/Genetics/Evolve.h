@@ -41,6 +41,9 @@ namespace Omiracon {
 					genepool[i].traits.Randormalize();
 				}
 
+				genDeathSize = (surviveCount + randomCount) * DOMINANT_TRAITS;
+				nextGenDeathSize = genDeathSize;
+
 				CreateDominantPools();
 			}
 
@@ -52,6 +55,7 @@ namespace Omiracon {
 
 			size_t previousSize = 0;
 			size_t genDeathSize = 0;
+			size_t nextGenDeathSize = 0;
 
 			void SetWaveSize(const size_t wave_size, const float _topPercentage = 0.5f, const float _randPercentage = 0.2f) {
 				topPercentage = _topPercentage;
@@ -65,13 +69,14 @@ namespace Omiracon {
 				testpool.resize(waveSize);
 
 
-				genepool.resize(genepool.size() - genDeathSize + traitPoolSize * DOMINANT_TRAITS);
-				previousSize = genepool.size();
+				genepool.resize((genepool.size() /*- genDeathSize*/) + (traitPoolSize * DOMINANT_TRAITS));
+				//previousSize = genepool.size();
 
 				CreateDominantPools();
 
+				genDeathSize = nextGenDeathSize;
 
-				genDeathSize = traitPoolSize * DOMINANT_TRAITS;
+				nextGenDeathSize = traitPoolSize * DOMINANT_TRAITS;
 			}
 
 		private:

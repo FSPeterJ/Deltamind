@@ -164,6 +164,7 @@ void Renderer::releaseDeferredTarget(DeferredRTVs * in)
 void Renderer::combineDeferredTargets(DeferredRTVs * in, ID3D11RenderTargetView * rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport)
 {
 	context->PSSetSamplers(0, 1, &PointSamplerState);
+	blurTexture(viewport, in->textures[1], in->SRVs[1], 3);
 	float color[] = { 0.5f, 0.5f, 1.0f, 1.0f };
 	UINT stride = sizeof(XMFLOAT4);
 	UINT offset = 0;
@@ -206,21 +207,64 @@ float Renderer::manhat(const XMFLOAT3 & center1, const XMFLOAT3 &center2)
 	return distX + distY + distZ;
 }
 
-void Renderer::blurTexture(D3D11_VIEWPORT & viewport, ID3D11Texture2D * tex, ID3D11ShaderResourceView * srv)
+void Renderer::blurTexture(D3D11_VIEWPORT & viewport, ID3D11Texture2D * tex, ID3D11ShaderResourceView * srv, unsigned int passes)
 {
 	if (!tex || !srv)
 		return;
 	ID3D11Texture2D* tempTex;
 	ID3D11RenderTargetView* rtv;
-	ID3D11ShaderResourceView* tempSrv;
 	D3D11_TEXTURE2D_DESC texDesc;
 	tex->GetDesc(&texDesc);
 	device->CreateTexture2D(&texDesc, nullptr, &tempTex);
 	device->CreateRenderTargetView((ID3D11Resource*)tempTex, nullptr, &rtv);
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	srv->GetDesc(&srvDesc);
-	device->CreateShaderResourceView((ID3D11Resource*)tempTex, &srvDesc, &tempSrv);
 
+	texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	texDesc.MiscFlags = NULL;
+	texDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilDesc;
+	depthStencilDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	depthStencilDesc.Texture2D.MipSlice = 0;
+	depthStencilDesc.Flags = 0;
+
+	ID3D11Texture2D* depthBuffer;
+	ID3D11DepthStencilView* dsv;
+	device->CreateTexture2D(&texDesc, nullptr, &depthBuffer);
+	device->CreateDepthStencilView(depthBuffer, &depthStencilDesc, &dsv);
+
+	blurData toShader;
+	toShader.width = 1.0f / (float)texDesc.Width;
+	toShader.height = 1.0f / (float)texDesc.Height;
+	context->VSSetShader(PassThroughPositionVS, NULL, NULL);
+	UINT stride = sizeof(XMFLOAT4);
+	UINT offset = 0;
+	context->OMSetRenderTargets(1, &rtv, dsv);
+	context->IASetVertexBuffers(0, 1, &emptyFloat3Buffer, &stride, &offset);
+	context->RSSetViewports(1, &viewport);
+	context->GSSetShader(NDCQuadGS, NULL, NULL);
+	context->PSSetShader(BlurPixelShader, NULL, NULL);
+	context->PSSetShaderResources(0, 1, &srv);
+	context->PSSetConstantBuffers(3, 1, &blurDataBuffer);
+	context->IASetInputLayout(ILPosition);
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+	for (unsigned int i = 0; i < passes; ++i)
+	{
+		toShader.dir = { 1.0f, 0.0f };
+		context->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		context->UpdateSubresource(blurDataBuffer, NULL, NULL, &toShader, NULL, NULL);
+		context->Draw(1, 0);
+		context->CopyResource(tex, tempTex);
+		toShader.dir = { 0.0f, 1.0f };
+		context->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		context->UpdateSubresource(blurDataBuffer, NULL, NULL, &toShader, NULL, NULL);
+		context->Draw(1, 0);
+		context->CopyResource(tex, tempTex);
+	}
+	tempTex->Release();
+	rtv->Release();
+	dsv->Release();
+	depthBuffer->Release();
 }
 
 void Renderer::sortTransparentObjects(DirectX::XMFLOAT3 &camPos)
@@ -556,6 +600,7 @@ void Renderer::Destroy() {
 	modelBuffer->Release();
 	factorBuffer->Release();
 	lightBuffer->Release();
+	blurDataBuffer->Release();
 	animDataBuffer->Release();
 	ILPositionColor->Release();
 	ILStandard->Release();
@@ -574,6 +619,7 @@ void Renderer::Destroy() {
 	SkyboxVS->Release();
 	SkyboxPS->Release();
 	DeferredTargetPS->Release();
+	BlurPixelShader->Release();
 	TextVertexShader->Release();
 	PositionTexturePixelShader->Release();
 	backBuffer->Release();
@@ -988,6 +1034,10 @@ void Renderer::initShaders() {
 	device->CreatePixelShader(byteCode, byteCodeSize, NULL, &PositionTexturePixelShader);
 	delete[] byteCode;
 
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "BlurPixelShader.cso");
+	device->CreatePixelShader(byteCode, byteCodeSize, NULL, &BlurPixelShader);
+	delete[] byteCode;
+
 	CD3D11_BUFFER_DESC constantBufferDesc(sizeof(viewProjectionConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
 	device->CreateBuffer(&constantBufferDesc, nullptr, &cameraBuffer);
 
@@ -1002,6 +1052,9 @@ void Renderer::initShaders() {
 
 	CD3D11_BUFFER_DESC animBufferDesc(sizeof(animDataBufferStruct), D3D11_BIND_CONSTANT_BUFFER);
 	device->CreateBuffer(&animBufferDesc, nullptr, &animDataBuffer);
+
+	CD3D11_BUFFER_DESC blurBufferDesc(sizeof(blurData), D3D11_BIND_CONSTANT_BUFFER);
+	device->CreateBuffer(&blurBufferDesc, nullptr, &blurDataBuffer);
 
 	DirectX::XMFLOAT4 IseriouslyNeedthis = { 0.0f, 0.0f, 0.0f, 1.0f };
 	CD3D11_BUFFER_DESC pointBufferDesc(sizeof(IseriouslyNeedthis), D3D11_BIND_VERTEX_BUFFER);

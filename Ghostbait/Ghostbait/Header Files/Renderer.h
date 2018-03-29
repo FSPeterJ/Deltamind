@@ -78,6 +78,13 @@ private:
 		ID3D11Texture2D* box;
 		ID3D11ShaderResourceView* srv;
 	};
+
+	struct blurData
+	{
+		DirectX::XMFLOAT2 dir;
+		float width;
+		float height;
+	};
 #pragma endregion
 
 	ID3D11SamplerState* LinearSamplerState;
@@ -103,7 +110,8 @@ private:
 	ID3D11GeometryShader* NDCQuadGS;
 	ID3D11VertexShader* TextVertexShader;
 	ID3D11PixelShader* PositionTexturePixelShader;
-	
+	ID3D11PixelShader* BlurPixelShader;
+
 	ID3D11InputLayout* ILPositionColor;
 	ID3D11InputLayout* ILPositionTexture;
 	ID3D11InputLayout* ILStandard;
@@ -115,6 +123,8 @@ private:
 	ID3D11Buffer* factorBuffer;
 	ID3D11Buffer* lightBuffer;
 	ID3D11Buffer* animDataBuffer;
+	ID3D11Buffer* blurDataBuffer;
+
 	pipeline_state_t defaultPipeline;
 	Transform* cameraPos;
 	viewProjectionConstantBuffer defaultCamera;
@@ -149,7 +159,7 @@ private:
 	bool compareDistToCam(const DirectX::XMFLOAT3& t1, const DirectX::XMFLOAT3& t2, const DirectX::XMFLOAT3& camPos);
 	float manhat(const DirectX::XMFLOAT3& center1, const DirectX::XMFLOAT3& center2);
 
-	void blurTexture(D3D11_VIEWPORT& viewport, ID3D11Texture2D* tex, ID3D11ShaderResourceView* srv);
+	void blurTexture(D3D11_VIEWPORT& viewport, ID3D11Texture2D* tex, ID3D11ShaderResourceView* srv, unsigned int passes);
 	void sortTransparentObjects(DirectX::XMFLOAT3 &camPos);
 	void renderObjectDefaultState(const GameObject* obj);
 	void renderToEye(eye* eyeTo);

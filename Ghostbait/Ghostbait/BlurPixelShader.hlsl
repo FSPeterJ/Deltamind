@@ -8,26 +8,30 @@ struct PixelShaderInput
     float2 uv : TEXCOORD0;
 };
 
+cbuffer blurInfo : register(b3)
+{
+    float2 dir;
+    float width;
+    float height;
+};
+
 float4 main(PixelShaderInput input) : SV_TARGET
 {
-    float offsets[] = {1.0f, 2.0f, 3.0f, 4.0f };
-    float weights[] = {4.0f, 3.0f, 2.0f, 1.0f };
+    float offsets[] = { 0.0, 1.3846153846, 3.2307692308 };
+    float weights[] = { 0.2270270270, 0.3162162162, 0.0702702703 };
 
-    float sum = 0.0f;
-    for (int i = 0; i < 4; ++i)
-    {
-        sum += weights[i] * 2.0f;
-    }
-    for (int j = 0; j < 4; ++j)
-    {
-        weights[j] /= sum;
-    }//Normalizing the weights
-
+    float4 originalColor = tex.Sample(sample, input.uv) * weights[0];
     float3 color = float3(0.0f, 0.0f, 0.0f);
-    for (int index = 0; index < 4; ++index)
+    float2 position;
+    for (int index = 1; index < 3; ++index)
     {
-        color += (tex.Sample(sample, saturate(input.uv + offsets[index])) * weights[index]).xyz + (tex.Sample(sample, saturate(input.uv - offsets[index])) * weights[index]).xyz;
+        position.x = input.uv.x + (offsets[index] * width * dir.x);
+        position.y = input.uv.y + (offsets[index] * height * dir.y);
+        color += (tex.Sample(sample, saturate(position)) * weights[index]).xyz;
+        position.x = input.uv.x - (offsets[index] * width * dir.x);
+        position.y = input.uv.y - (offsets[index] * height * dir.y);
+        color += (tex.Sample(sample, saturate(position)) * weights[index]).xyz;
     }
-
-    return float4(color, 1.0f);
+    originalColor.xyz += color;
+    return float4(originalColor.xyz, 1.0f);
 }

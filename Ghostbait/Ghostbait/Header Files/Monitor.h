@@ -5,6 +5,9 @@ class Monitor : public GameObject {
 	GameObject* screen = nullptr;
 	std::string font = "Assets/Fonts/defaultFont.png";
 	bool positioned = false; //TODO: Temprary until the object has its position on awake
+
+	std::string curWave;
+	std::string totalWaves;
 public:
 	void Awake(Object* obj) override;
 	void Update() override;

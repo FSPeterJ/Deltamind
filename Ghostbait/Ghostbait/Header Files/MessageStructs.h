@@ -6,6 +6,7 @@
 
 class ObjectFactory;
 class GameData;
+class Core;
 //Please do this next time
 typedef unsigned long		AkUInt32;
 typedef AkUInt32			AkUniqueID;
@@ -200,6 +201,12 @@ class GameDataMessage : public EventMessageBase {
 public:
 	GameDataMessage(GameData const** _gameData) :data(_gameData) {}
 	GameData const** RetrieveData() const { return data; }
+};
+class CoreMessage : public EventMessageBase {
+	Core const** data = nullptr;
+public:
+	CoreMessage(Core const** _data) : data(_data) {}
+	Core const** RetrieveData() const { return data; }
 };
 
 //Duplicate is unnessessary

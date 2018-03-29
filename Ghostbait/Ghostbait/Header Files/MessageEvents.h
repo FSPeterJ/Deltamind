@@ -41,6 +41,9 @@ enum EVENT_TYPES {
 
 	EVENT_GameDataRequest,
 	EVENT_GearChange,
+	EVENT_WaveChange,
+	EVENT_CoreDamaged,
+	EVENT_CoreStopDamaged,
 };
 
 class EventMessageBase;

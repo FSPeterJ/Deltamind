@@ -21,7 +21,7 @@ void Health::Clamp(float min, float max, float* val) {
 	else if (*val > max) *val = max;
 }
 
-float Health::PercentHealth() {
+float Health::PercentHealth() const {
 	return (health / maxHealth);
 }
 void Health::AdjustHealth(float amount) {
@@ -31,7 +31,7 @@ void Health::AdjustHealth(float amount) {
 	Clamp(0, maxHealth, &health);
 	if (health == 0) DeathEvent();
 }
-bool Health::IsAlive() {
+bool Health::IsAlive() const {
 	if (health <= 0) return false;
 	return true;
 }

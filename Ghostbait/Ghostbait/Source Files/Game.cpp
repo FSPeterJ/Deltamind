@@ -229,6 +229,8 @@ void Game::StartNextWave() {
 	}
 	else {
 		gameData.waveManager.MoveToNextWave();
+		GameData const* gd = &gameData;
+		MessageEvents::SendMessage(EVENT_WaveChange, GameDataMessage(&gd));
 		ChangeState(GAMESTATE_InWave);
 	}
 }

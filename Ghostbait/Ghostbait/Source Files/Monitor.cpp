@@ -3,6 +3,7 @@
 #include "ObjectFactory.h"
 #include "TextManager.h"
 #include "GameData.h"
+#include "Core.h"
 #undef SendMessage
 
 void Monitor::Awake(Object* obj) {
@@ -11,10 +12,25 @@ void Monitor::Awake(Object* obj) {
 	positioned = false;
 	GameObject::Awake(obj);
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/MonitorScreen.ghost")), { 0, 0, 0 }, &screen));
-	screen->SetComponent<Material>(TextManager::DrawTextTo(font, "test", { 1, 1, 1, 1 }, { 0, 0, 0, 1 }).mat);
-	MessageEvents::Subscribe(EVENT_GearChange, [=](EventMessageBase* e) {
-		std::string gears = std::to_string((*((GameDataMessage*)e)->RetrieveData())->GetGears());
-		WriteToScreen("\n Gears: " + gears + "\n");
+	screen->SetComponent<Material>(TextManager::DrawTextTo(font, "Shoot the white\ncube to begin", { 1, 1, 1, 1 }, { 0, 0, 0, 1 }).mat);
+
+	MessageEvents::Subscribe(EVENT_WaveChange, [=](EventMessageBase* e) {
+		curWave = std::to_string((*((GameDataMessage*)e)->RetrieveData())->waveManager.GetCurrentWaveNumber());
+		totalWaves = std::to_string((*((GameDataMessage*)e)->RetrieveData())->waveManager.GetWaveCount());
+		WriteToScreen("\n Wave: " + curWave + "/" + totalWaves + "\n");
+	});
+	MessageEvents::Subscribe(EVENT_CoreDamaged, [=](EventMessageBase* e) {
+		std::string health = std::to_string((int)((*((CoreMessage*)e)->RetrieveData())->PercentHealth() * 100));
+		WriteToScreen("\n Core Health: " + health + "%\n");
+	});
+	MessageEvents::Subscribe(EVENT_CoreStopDamaged, [=](EventMessageBase* e) {
+		WriteToScreen("\n Wave: " + curWave + "/" + totalWaves + "\n");
+	});
+	MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) {
+		WriteToScreen("\nYOU LOSE!\n");
+	});
+	MessageEvents::Subscribe(EVENT_GameWin, [=](EventMessageBase* e) {
+		WriteToScreen("\nYOU WIN!\n");
 	});
 }
 void Monitor::Update() {

@@ -23,7 +23,7 @@ class BuildTool : public Item {
 
 	int currentPrefabIndex = 0;
 	std::vector<BuildItem> prefabs;
-	std::vector<GameObject*> builtItems;
+	static std::vector<GameObject*> builtItems;
 	Mode currentMode = BUILD;
 	DirectX::XMFLOAT3 spawnPos;
 	int currentlySelectedItemIndex = -1;

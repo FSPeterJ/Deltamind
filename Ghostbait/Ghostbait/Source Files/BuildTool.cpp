@@ -12,6 +12,8 @@
 #include "DebugRenderer.h"
 #include "GameData.h"
 
+std::vector<GameObject*> BuildTool::builtItems = std::vector<GameObject*>();
+
 BuildTool::BuildTool() { 
 	state = State::BUILD;
 }
@@ -205,7 +207,6 @@ void BuildTool::Spawn() {
 		bool hasEnoughMoney = true;
 		if (turret) hasEnoughMoney = gameData->GetGears() >= turret->GetBuildCost();
 		bool maxTurretsSpawned = (gameData->GetMaxTurrets() - gameData->GetTurretsSpawned()) <= 0;
-
 		DirectX::XMFLOAT2 pos = DirectX::XMFLOAT2(spawnPos.x, spawnPos.z);
 		if (Snap(&pos) && hasEnoughMoney && !maxTurretsSpawned) {
 			if (SetObstacle(pos, true)) {
@@ -220,6 +221,7 @@ void BuildTool::Spawn() {
 			}
 		}
 	}
+	Console::WriteLine << gameData->GetTurretsSpawned();
 }
 void BuildTool::Remove() {
 	if (currentlySelectedItem) {

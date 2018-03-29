@@ -6,11 +6,13 @@
 namespace Omiracon {
 	namespace Genetics {
 		class Evolver {
+			inline size_t GetMemAddr(size_t index) { return index * sizeof(DominantGene); }
+
 		public:
 			typedef std::vector<Evolvable> DominantPool;
 			typedef DominantPool::value_type DominantGene;
 
-			Evolvable*const GenePool() { return &pool[0]; }
+			Evolvable*const GenePool() { return &genepool[0]; }
 
 			void RunGeneration(void);
 			void GetBestStats(void);
@@ -28,13 +30,20 @@ namespace Omiracon {
 				//traitPoolSampleSize = (size_t(wave_size * (1.0f / DOMINANT_TRAITS)));
 				surviveCount = (size_t(waveSize * topPercentage));
 				randomCount = (size_t(waveSize * randPercentage));
-				traitPoolSize = (2*surviveCount + 2*randomCount);
+				traitPoolSize = 2*(surviveCount + randomCount);
 
-				pool.resize(waveSize);
+				genepool.resize(traitPoolSize * DOMINANT_TRAITS);
+
+				testpool.resize(waveSize);
+
 				for(size_t i = 0; i < waveSize; ++i) {//creates random pool of chromosomes
-					pool[i] = Evolvable();
-					pool[i].traits.Randormalize();
+					genepool[i] = Evolvable();
+					genepool[i].traits.Randormalize();
 				}
+
+				genDeathSize = (surviveCount + randomCount) * DOMINANT_TRAITS;
+				nextGenDeathSize = genDeathSize;
+
 				CreateDominantPools();
 			}
 
@@ -43,7 +52,11 @@ namespace Omiracon {
 			void SetPerformanceData() {
 
 			}
-			//talk to ghost to see stuff
+
+			size_t previousSize = 0;
+			size_t genDeathSize = 0;
+			size_t nextGenDeathSize = 0;
+
 			void SetWaveSize(const size_t wave_size, const float _topPercentage = 0.5f, const float _randPercentage = 0.2f) {
 				topPercentage = _topPercentage;
 				randPercentage = _randPercentage;
@@ -53,7 +66,17 @@ namespace Omiracon {
 				randomCount = (size_t(waveSize * randPercentage));
 				traitPoolSize = (surviveCount + randomCount);
 
+				testpool.resize(waveSize);
+
+
+				genepool.resize((genepool.size() /*- genDeathSize*/) + (traitPoolSize * DOMINANT_TRAITS));
+				//previousSize = genepool.size();
+
 				CreateDominantPools();
+
+				genDeathSize = nextGenDeathSize;
+
+				nextGenDeathSize = traitPoolSize * DOMINANT_TRAITS;
 			}
 
 		private:
@@ -64,7 +87,7 @@ namespace Omiracon {
 
 			const size_t generationsToKeep = 2; 
 
-			size_t currentGeneration = 0;//this will need to be loaded from a file
+			int currentGeneration = 0;//this will need to be loaded from a file
 			//if restart happens, the pool is cleared and messes things up
 
 			//not sure if this should be static or instanced
@@ -74,7 +97,8 @@ namespace Omiracon {
 			//size_t traitPoolSampleSize; // 1/DOMINANT_TRAITS
 			size_t traitPoolSize;
 
-			DominantPool pool;
+			DominantPool genepool;
+			DominantPool testpool;
 
 			const size_t DOMINANT_TRAITS = 4;
 			DominantPool aliveTimePool, damageDeltPool, damageReceivedPool, nodesTraversedPool;

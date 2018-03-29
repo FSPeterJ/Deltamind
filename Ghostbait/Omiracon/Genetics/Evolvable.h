@@ -10,7 +10,7 @@ namespace Omiracon {
 			~Evolvable();
 		private:
 			friend class Evolver;
-			size_t generation = 0;
+			int generation = -1;
 			//void CreateSimulatedResults(void) {
 			//	float timeLasted = Random::RandomNumber(1.0f, 60.0f)*traits[SPEED];
 			//	float damageDelt = Random::RandomNumber(0.0f, 100.0f)*traits[STRENGTH];

@@ -8,15 +8,16 @@
 
 void MTDSLEnemy::Enable() {
 	tag = std::string("Enemy");
-	if(!goalReference) {
-		if(!core) { Console::ErrorLine << "No Goal! I'm gonna blowwwwww!!!!"; } else { goalReference = &core->transform.matrix; }
+	if (!goalReference) {
+		if (!core) { Console::ErrorLine << "No Goal! I'm gonna blowwwwww!!!!"; }
+		else { goalReference = &core->transform.matrix; }
 	}
 	ultimateTarget = goalReference;
 	SetGoalReference(ultimateTarget);
-	if(!goal) { Console::ErrorLine << "Goal Tile DOESN'T EXIST!!!"; }
+	if (!goal) { Console::ErrorLine << "Goal Tile DOESN'T EXIST!!!"; }
 
 	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
-	if(!curTile) { Console::ErrorLine << "Ahhhh! Initalize me on the grid please!!"; }
+	if (!curTile) { Console::ErrorLine << "Ahhhh! Initalize me on the grid please!!"; }
 
 	next = curTile; //is this needed or can i pass a ref to a null var below
 					//grid->RemoveObstacle(curTile);//Remove on final build
@@ -47,7 +48,8 @@ void MTDSLEnemy::SetGoal(HexTile* _goal) {
 
 void MTDSLEnemy::SetGoal(DirectX::XMFLOAT2 _goal) {
 	HexTile* goalTile = grid->PointToTile(_goal);
-	if(goalTile) { goal = goalTile; } else Console::WriteLine << "Goal Tile does not exist!";
+	if (goalTile) { goal = goalTile; }
+	else Console::WriteLine << "Goal Tile does not exist!";
 }
 
 void MTDSLEnemy::SetGoalReference(DirectX::XMFLOAT4X4* _goal) {
@@ -74,37 +76,42 @@ void MTDSLEnemy::FindTempPath() {
 	HexRegion ring;
 	//HexTile* currentlyOn = curTile ? curTile : goal;
 	HexTile currentlyOn = grid->PointToTileOffGrid(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
+	HexTile* ultiGoal = grid->PointToTile(DirectX::XMFLOAT2(ultimateTarget->_41, ultimateTarget->_43));
 
 	//if (currentlyOn) {
 	Console::WriteLine << "Enemy #" << mtdstarId << " ";
-	for(int range = (int) 5 * 2; range > 0; --range) { //Perception range
-		ring = grid->Ring(&currentlyOn, range);
-		//Console::WarningLine << "RING SIZE BEFORE: " << ring.size();
-		ring.Filter(*grid);
-		//Console::WarningLine << "RING SIZE AFTER: " << ring.size();
-		for(int region = 0; region < ring.size(); ++region) {
-			if(!grid->GetTileExact(ring[region])) { Console::ErrorLine << "SOMEBODY DONE MESSED UP!!"; }
-			if(grid->IsBlocked(&ring[region])) continue;
-			temp = (float) ring[region].DistanceFrom(goal);
-			if(temp < closest) {
-				closest = temp;
-				nextClosest = &ring[region];
+	//int range = 3 * 2; //Perception range
+	int currFromGoal = currentlyOn.DistanceFrom(ultiGoal);
+	//range = range > currFromGoal ? currFromGoal : range;
+	int range = (int)(currFromGoal * 0.5);
+		for (; range > 0; --range) { //Perception range
+			ring = grid->Ring(&currentlyOn, range);
+			//Console::WarningLine << "RING SIZE BEFORE: " << ring.size();
+			ring.Filter(*grid);
+			//Console::WarningLine << "RING SIZE AFTER: " << ring.size();
+			for (int region = 0; region < ring.size(); ++region) {
+				if (!grid->GetTileExact(ring[region])) { Console::ErrorLine << "SOMEBODY DONE MESSED UP!!"; }
+				if (grid->IsBlocked(&ring[region])) continue;
+				temp = (float)ring[region].DistanceFrom(ultiGoal);
+				if (temp < closest) {
+					closest = temp;
+					nextClosest = &ring[region];
+				}
 			}
+			if (nextClosest) break;
 		}
-		if(nextClosest) break;
-	}
-	if(nextClosest) {
-		DirectX::XMFLOAT2 holder = grid->TileToPoint(nextClosest);
-		tempGoal._41 = holder.x;
-		tempGoal._43 = holder.y;
-		SetGoalReference(&tempGoal);
-
-		Console::WriteLine << "Found temporary objective...";
-	}
+		if (nextClosest) {
+			DirectX::XMFLOAT2 holder = grid->TileToPoint(nextClosest);
+			tempGoal._41 = holder.x;
+			tempGoal._43 = holder.y;
+			SetGoalReference(&tempGoal);
+		
+			Console::WriteLine << "Found temporary objective...";
+		}
 	//}
 
-	if(!goal) {
-		Console::ErrorLine << "WHERE THE F IS THE GOAL!?!?!?!";
+		if (!goal) {
+			Console::ErrorLine << "WHERE THE F IS THE GOAL!?!?!?!";
 	}
 }
 
@@ -122,26 +129,29 @@ void MTDSLEnemy::Awake(Object* obj) {
 	eventAdd = 0;
 	eventRemove = 0;
 
+	lingerTime = 30.0f;
+	scentStrength = 15.0f;
+
 	EnemyBase::Awake(obj);
 	rb = &(GetComponent<PhysicsComponent>()->rigidBody);
 }
 
 void MTDSLEnemy::Attack() {
-	if(timeSinceLastAttack == -1) {
-		if(core) core->AdjustHealth(-attackDamage);
+	if (timeSinceLastAttack == -1) {
+		if (core) core->AdjustHealth(-attackDamage);
+		EnemyBase::Attack();
 		Console::WriteLine << "Core health: " << core->PercentHealth();
 		timeSinceLastAttack = 0;
 		return;
 	}
 
-	float dt = (float) GhostTime::DeltaTime();
+	float dt = (float)GhostTime::DeltaTime();
 	timeSinceLastAttack += dt;
 
 	float timeToAttack = 1 / attackSpeed;
-	if(timeSinceLastAttack >= timeToAttack) {
+	if (timeSinceLastAttack >= timeToAttack) {
 		core->AdjustHealth(-attackDamage);
 		EnemyBase::Attack();
-
 		Console::WriteLine << "Core health: " << core->PercentHealth();
 		timeSinceLastAttack = 0;
 	}
@@ -151,17 +161,17 @@ void MTDSLEnemy::Update() {
 	EnemyBase::Update();
 
 	//grid->Color(path, DirectX::XMFLOAT3(0.0f, 0.0f, 1.0f), 3);
-	if(goalReference) {
+	if (goalReference) {
 		goal = grid->PointToTile(DirectX::XMFLOAT2(goalReference->_41, goalReference->_43));
-		if(!goal) {
+		if (!goal) {
 			if(goalReference == &tempGoal)
 				Console::WarningLine << "GOAL IS NULL";
-		}
+ 		}
 	}
 	//lastTile = curTile;
 	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
 
-	if(!curTile) {
+	if (!curTile) {
 		Console::WriteLine << "OUT OF BOUNDS!";
 		rb->Stop();
 		rb->SetVelocity(DirectX::XMVectorScale(rb->GetVelocity(), -1.0f));
@@ -169,6 +179,7 @@ void MTDSLEnemy::Update() {
 		curTile = lastTile;
 	}
 	//else {
+
 		//if (curTile == next) {
 		//	rb->Stop();
 		//	//HexRegion neigh = grid->Spiral(curTile, 3);
@@ -188,51 +199,57 @@ void MTDSLEnemy::Update() {
 		//	grid->GetTileExact(3, 7)->DrawCheapFill(HexagonalGridLayout::FlatLayout, { 1.0f, 1.0f, 0.0f });
 		//	grid->GetTileExact(3, 5)->DrawCheapFill(HexagonalGridLayout::FlatLayout, { 1.0f, 1.0f, 0.0f });
 
-	if(goal == curTile) {
-		//Console::WriteLine << "We made it to our goal.";
-		rb->Stop();
-		if(goalReference == ultimateTarget) {
-			Attack();
-			return;
-		}
-		SetGoalReference(ultimateTarget);
-	} else {
-		//if (KeyIsHit(Control::TestInputO)) {
-		//if (curTile == next) {
-		//do {
-		PathPlanner::UpdateMTDStar(mtdstarId);
+	if(curTile != lastTile)
+		AntColony::LeavePheromone(curTile, lingerTime, scentStrength);
 
-		//next = PathPlanner::GetMTDStarNextTile(mtdstarId);
-		if(next) {
-			Step();
-			auto nextPathPoint = grid->TileToPoint(next);
-			//transform.SetPosition(nextPathPoint.x, 0.0f, nextPathPoint.y);
-			DirectX::XMFLOAT3 nextDirection;
-			DirectX::XMStoreFloat3(&nextDirection, DirectX::XMVector3Normalize(DirectX::XMVectorSet(nextPathPoint.x - transform.matrix._41, 0.0f, nextPathPoint.y - transform.matrix._43, 1.0f)));
-			float dotProd = (nextDirection.x * transform.matrix._31 + nextDirection.y * transform.matrix._32 + nextDirection.z * transform.matrix._33);
-			//Console::WriteLine << "Dot Product:" << dotProd;
-			rb->AddForce(2.0f * (2.0f - dotProd), nextDirection.x, nextDirection.y, nextDirection.z, 0.05f);
-			//Console::WriteLine << "Current Pos: " << "(" << transform.matrix._41 << ", " << transform.matrix._42 << ", " << transform.matrix._43 << ")";
-			//Console::WriteLine << "Next Point: " << "(" << nextPathPoint.x << ", " << 0.0f << ", " << nextPathPoint.y << ")";
-			//Console::WriteLine << "Next Direction: " << "(" << nextDirection.x << ", " << nextDirection.y << ", " << nextDirection.z << ")";
-			//Console::WriteLine << "Velocity: " << "(" << DirectX::XMVectorGetX(velocity) << ", " << DirectX::XMVectorGetY(velocity) << ", " << DirectX::XMVectorGetZ(velocity) << ")";
-		} else {
-			rb->Stop();
-			FindTempPath();
-		}
-		//} while (!next);
+			if (goal == curTile) {
+				//Console::WriteLine << "We made it to our goal.";
+				rb->Stop();
+				if (goalReference == ultimateTarget) {
+					Attack();
+					return;
+				}
+				SetGoalReference(ultimateTarget);
+			}
+			else {
+				//if (KeyIsHit(Control::TestInputO)) {
+				//if (curTile == next) {
+
+				//do {
+					PathPlanner::UpdateMTDStar(mtdstarId);
+
+					//next = PathPlanner::GetMTDStarNextTile(mtdstarId);
+					if (next) {
+						Step();
+						auto nextPathPoint = grid->TileToPoint(next);
+						//transform.SetPosition(nextPathPoint.x, 0.0f, nextPathPoint.y);
+						DirectX::XMFLOAT3 nextDirection;
+						DirectX::XMStoreFloat3(&nextDirection, DirectX::XMVector3Normalize(DirectX::XMVectorSet(nextPathPoint.x - transform.matrix._41, 0.0f, nextPathPoint.y - transform.matrix._43, 1.0f)));
+						float dotProd = (nextDirection.x * transform.matrix._31 + nextDirection.y * transform.matrix._32 + nextDirection.z * transform.matrix._33);
+						//Console::WriteLine << "Dot Product:" << dotProd;
+						rb->AddForce(2.0f * (2.0f - dotProd), nextDirection.x, nextDirection.y, nextDirection.z, 0.05f);
+						//Console::WriteLine << "Current Pos: " << "(" << transform.matrix._41 << ", " << transform.matrix._42 << ", " << transform.matrix._43 << ")";
+						//Console::WriteLine << "Next Point: " << "(" << nextPathPoint.x << ", " << 0.0f << ", " << nextPathPoint.y << ")";
+						//Console::WriteLine << "Next Direction: " << "(" << nextDirection.x << ", " << nextDirection.y << ", " << nextDirection.z << ")";
+						//Console::WriteLine << "Velocity: " << "(" << DirectX::XMVectorGetX(velocity) << ", " << DirectX::XMVectorGetY(velocity) << ", " << DirectX::XMVectorGetZ(velocity) << ")";
+					}
+					else {
+						rb->Stop();
+						FindTempPath();
+					}
+				//} while (!next);
+				//}
+			}
+			//}
 		//}
-	}
 	//}
-//}
-//}
-//else {
-//	Console::WriteLine << "OUT OF BOUNDS!";
-//	rb->Stop();
-//	//rb->SetVelocity(DirectX::XMVectorScale(rb->GetVelocity(), -1.0f));
-//	FindTempPath();
-//	curTile = lastTile;
-//}
+	//else {
+	//	Console::WriteLine << "OUT OF BOUNDS!";
+	//	rb->Stop();
+	//	//rb->SetVelocity(DirectX::XMVectorScale(rb->GetVelocity(), -1.0f));
+	//	FindTempPath();
+	//	curTile = lastTile;
+	//}
 
 	lastTile = curTile;
 }

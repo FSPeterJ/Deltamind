@@ -21,7 +21,9 @@ public:
 	//	Add or remove health from object
 	//Parameters:
 	//	float amount - the amount of health to add(positive) remove(negative)
-	void AdjustHealth(float amount);
+	//Returns:
+	//	actual amount of health adjusted
+	float AdjustHealth(float amount);
 	//Purpose: 
 	//	See if the object still has health
 	//Returns:

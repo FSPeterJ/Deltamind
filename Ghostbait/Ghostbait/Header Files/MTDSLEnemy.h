@@ -10,6 +10,8 @@
 namespace DirectX { struct XMFLOAT2; struct XMFLOAT4X4; }
 class HexGrid;
 class MTDSLEnemy : public EnemyBase, public Controlable, public AntProperties {
+
+protected:
 	HexGrid* grid;
 	//RigidBody* rb;
 
@@ -41,8 +43,7 @@ public:
 	void Subscribe() override;
 	void UnSubscribe() override;
 	void Destroy() override;
-	void Awake(Object* obj);
+	void Awake(Object* obj) override;
 	void Attack();
 	void Update();
 };
-#pragma once

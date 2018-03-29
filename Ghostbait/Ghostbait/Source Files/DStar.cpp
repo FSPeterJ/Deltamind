@@ -706,6 +706,7 @@ void MTDStarLite::Update() {
 	if (PathPlanner::EpsilonIsEqual(GetRHS(cachedGoal), grid->BlockWeight())) {
 		//no path exists
 		Console::WriteLine << "There's no PATH for MEE!!!!!";
+
 		return;
 	}
 	//}

@@ -46,18 +46,32 @@ void EnemyBase::Disable() {
 	GameObject::Disable();
 }
 void EnemyBase::Destroy() {
-	genetics->performance.results.timeLasted = (float) GhostTime::Duration(spawnTime, GhostTime::Now());
+	CalculateResult();
 	MessageEvents::SendMessage(EVENT_EnemyDied, EventMessageBase());
 	GameObject::Destroy();
 }
 
-void EnemyBase::Attack() {
-	genetics->performance.results.damageDelt += 15;
+void EnemyBase::RecordAttack() {
+	genetics->performance.results.damageDelt += attackDamage;
 }
 
 void EnemyBase::Step() {
 	genetics->performance.results.nodesTraversed++;
 }
+
+void EnemyBase::TakeDamage(float amount) {
+	AdjustHealth(amount);
+	genetics->performance.results.damageReceived += amount;
+}
+
+void EnemyBase::CalculateResult() {
+	genetics->performance.results.timeLasted = (float)GhostTime::Duration(spawnTime, GhostTime::Now());
+	float timeRatio = 1.0f / (genetics->performance.results.timeLasted * 0.001f);
+	genetics->performance.results.nodesTraversed *= timeRatio;
+	genetics->performance.results.damageDelt *= timeRatio;
+	genetics->performance.results.damageReceived *= timeRatio;
+}
+
 
 void EnemyBase::Update() {
 	if(hurt) {
@@ -93,9 +107,11 @@ void EnemyBase::OnCollision(GameObject* _other) {
 	if(_other->GetTag() == "Bullet") {
 		myPhys->rigidBody.AddForce(0.2f, DirectX::XMVectorGetX(incomingDirection), 0.0f, DirectX::XMVectorGetZ(incomingDirection));
 
-		auto& dam = (((Projectile*) _other)->damage);
-		AdjustHealth(-dam);
-		genetics->performance.results.damageReceived += dam;
+		//auto& dam = (((Projectile*) _other)->damage);
+		//AdjustHealth(-dam);
+		//genetics->performance.results.damageReceived += dam;
+
+		TakeDamage(-(((Projectile*) _other)->damage));
 
 		if(componentVarients.find("Hurt") != componentVarients.end()) {
 			if(!hurt) {
@@ -113,9 +129,11 @@ void EnemyBase::OnCollision(GameObject* _other) {
 			//	Console::WriteLine << "GAME WAS WON";
 			//	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(9/*WinCube*/, {0, 0.75f, 0}));
 			//}
+			//genetics->performance.died = sentDeathMessage = true;
+			//MessageEvents::SendQueueMessage(EVENT_Late, [=] { Destroy(); });
 			genetics->performance.died = sentDeathMessage = true;
-
 			MessageEvents::SendQueueMessage(EVENT_Late, [=] { Destroy(); });
+
 		}
 	}
 

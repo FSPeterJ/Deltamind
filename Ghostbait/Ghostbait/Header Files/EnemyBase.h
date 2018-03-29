@@ -58,8 +58,10 @@ public:
 	void Subscribe() override;
 	void UnSubscribe() override;
 	void OnCollision(GameObject* _other) override;
-	void Attack();
+	void RecordAttack();
+	void TakeDamage(float amount);
 	void Step();
+	void CalculateResult();
 
 	Evolvable*& SetTraits() { return genetics; }
 

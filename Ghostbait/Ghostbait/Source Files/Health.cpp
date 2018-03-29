@@ -24,12 +24,14 @@ void Health::Clamp(float min, float max, float* val) {
 float Health::PercentHealth() {
 	return (health / maxHealth);
 }
-void Health::AdjustHealth(float amount) {
+float Health::AdjustHealth(float amount) {
+	float prevHealth = health;
 	if (amount < 0) HurtEvent();
 	if (amount > 0) HealedEvent();
 	health += amount;
 	Clamp(0, maxHealth, &health);
 	if (health == 0) DeathEvent();
+	return health - prevHealth;
 }
 bool Health::IsAlive() {
 	if (health <= 0) return false;

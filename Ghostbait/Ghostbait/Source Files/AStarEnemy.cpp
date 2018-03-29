@@ -91,7 +91,7 @@ void AStarEnemy::Update() {
 void AStarEnemy::Attack() {
 	if (timeSinceLastAttack == -1) {
 		if (core) core->AdjustHealth(-attackDamage);
-		EnemyBase::Attack();
+		RecordAttack();
 		Console::WriteLine << "Core health: " << core->PercentHealth();
 		timeSinceLastAttack = 0;
 		return;
@@ -103,6 +103,7 @@ void AStarEnemy::Attack() {
 	float timeToAttack = 1 / attackSpeed;
 	if (timeSinceLastAttack >= timeToAttack) {
 		core->AdjustHealth(-attackDamage);
+		RecordAttack();
 		Console::WriteLine << "Core health: " << core->PercentHealth();
 		timeSinceLastAttack = 0;
 	}

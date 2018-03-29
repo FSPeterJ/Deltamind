@@ -141,6 +141,7 @@ namespace Omiracon {
 			}
 		}
 
+#include <cassert>
 		void Evolver::PerformMutation(void) {
 			++currentGeneration;
 
@@ -149,6 +150,8 @@ namespace Omiracon {
 			//prune generations
 			genepool.erase(std::remove_if(genepool.begin(), genepool.end(), [&](const DominantGene & o) { return o.generation == currentGeneration - generationsToKeep; }), genepool.end());
 			previousSize = previousSize - genepool.size();
+
+			assert(genDeathSize == previousSize);
 
 			for(size_t i = 0; i < traitPoolSize; ++i) {
 				aliveTimePool[i].traits.Mutate(CREEP);

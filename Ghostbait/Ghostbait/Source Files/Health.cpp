@@ -25,8 +25,10 @@ const float Health::PercentHealth() const {
 	return (health / maxHealth);
 }
 void Health::AdjustHealth(const float amount) {
-	if (amount < 0 && health == 0) return;
-	if (amount < 0) HurtEvent();
+	if (amount < 0) {
+		if (health == 0) return;
+		HurtEvent();
+	}
 	if (amount > 0) HealedEvent();
 	health += amount;
 	Clamp(0, maxHealth, &health);

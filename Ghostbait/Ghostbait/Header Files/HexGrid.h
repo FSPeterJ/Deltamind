@@ -55,15 +55,24 @@ class HexGrid {
 	/// <param name="zmax">The zmax.</param>
 	/// <returns>HexRegion.</returns>
 	HexRegion GetRegion(int xmin, int xmax, int ymin, int ymax, int zmin, int zmax);
+
 	HexRegion DoRing(bool spiral, HexTile *const center, std::size_t radius);
 
 	static const float Blocked;
 public:
 
+	/// <summary>
+	/// Iterates each tile in the grid and executes the passed function.
+	/// </summary>
+	/// <param name="f">The function to execute on each tile.</param>
 	void ForEach(std::function<void(HexTile*const)> f);
 
 	//CostDelta& GetCostDelta(void) { return cost_delta; }
 
+	/// <summary>
+	/// Gets the block weight of a blocked tile.
+	/// </summary>
+	/// <returns>float.</returns>
 	float BlockWeight() const { return Blocked; }
 
 	/// <summary>
@@ -119,18 +128,18 @@ public:
 	HexRegion GetTilesNStepsAway(HexTile *const tile, int n);
 
 	/// <summary>
-	/// Gets a region of all tiles in the outter most ring n steps away.
+	/// Returns the tiles at a certain radius from the center.
 	/// </summary>
-	/// <param name="tile">The tile.</param>
-	/// <param name="n">The radius of steps.</param>
+	/// <param name="center">The center.</param>
+	/// <param name="radius">The radius.</param>
 	/// <returns>HexRegion.</returns>
 	HexRegion Ring(HexTile *const center, std::size_t radius);
 
 	/// <summary>
-	/// Gets a region of all tiles reachable within n steps from the specified tile in spiraling order from center outwards.
+	/// Returns a counter clockwise spiral starting center going to the bottom left outward.
 	/// </summary>
-	/// <param name="tile">The tile.</param>
-	/// <param name="n">The radius of steps.</param>
+	/// <param name="center">The center.</param>
+	/// <param name="radius">The radius.</param>
 	/// <returns>HexRegion.</returns>
 	HexRegion Spiral(HexTile *const center, std::size_t radius);
 
@@ -157,18 +166,26 @@ public:
 	/// <returns>true if the weight of the tile was set, otherwise false.</returns>
 	bool AddObstacle(const DirectX::XMFLOAT2& obstaclePosition);
 
-
-	bool AddObstacle(HexTile*const obstaclePosition);
+	/// <summary>
+	/// Sets the obstacle tile as an obstacle. If the tile does not map to a tile on the grid, nothing happens.
+	/// </summary>
+	/// <param name="obstacle">The obstacle tile.</param>
+	/// <returns>true if the weight of the tile was set, otherwise false.</returns>
+	bool AddObstacle(HexTile*const obstacle);
 
 	/// <summary>
-	/// Removes the tile at tilePosition as an obstacle. If the tile does not map to a tile on the grid, nothing happens.
+	/// Removes the tile at obstaclePosition. If the tile does not map to a tile on the grid, nothing happens.
 	/// </summary>
 	/// <param name="obstaclePosition">The obstacle position.</param>
 	/// <returns>true if the weight of the tile was set, otherwise false.</returns>
 	bool RemoveObstacle(const DirectX::XMFLOAT2& obstaclePosition);
 
-	bool RemoveObstacle(HexTile*const obstaclePosition);
-
+	/// <summary>
+	/// Removes the obstacle tile at obstaclePosition. If the tile does not map to a tile on the grid, nothing happens.
+	/// </summary>
+	/// <param name="obstacle">The obstacle tile.</param>
+	/// <returns>bool.</returns>
+	bool RemoveObstacle(HexTile*const obstacle);
 
 	/// <summary>
 	/// Given two tiles and their radii, finds the tiles which intersect.
@@ -217,10 +234,8 @@ public:
 	/// <returns>HexTile * if valid, otherwise null.</returns>
 	HexTile* GetTileExact(HexTile& t) const;
 
-	/// <summary>
-	/// Populates this instance.
-	/// </summary>
-	void Fill(bool withRandomObstacles);
+
+	//void Fill(bool withRandomObstacles);
 
 	/// <summary>
 	/// Displays this instance in debug. It will only draw tiles within a radius of 3 from the specified position.
@@ -238,9 +253,9 @@ public:
 
 
 
-
-	HexGrid(const char* _filename, float _radius = 1.0f, HexagonalGridLayout _layout = HexagonalGridLayout::FlatLayout);
+	HexGrid(const char* _filename, HexagonalGridLayout _layout = HexagonalGridLayout::FlatLayout);
 
 	void Color(HexRegion& r, DirectX::XMFLOAT3 color, int fill);
+
 	void Color(HexPath& p, DirectX::XMFLOAT3 color, int fill);
 };

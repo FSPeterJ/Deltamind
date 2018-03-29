@@ -301,37 +301,37 @@ void HexGrid::SetUpDrawingPaths() {
 	};
 }
 
-void HexGrid::Fill(bool withRandomObstacles) {
-	srand((unsigned) time(0));
-	for(int q = (int) -map_radius; q <= map_radius; ++q) {
-		int r1 = (int) max(-map_radius, -q - map_radius);
-		int r2 = (int) min(map_radius, -q + map_radius);
-		for(int r = r1; r <= r2; ++r) {
-			HexTile* t = new HexTile(q, r);
-			if(withRandomObstacles) {
-				if(rand() % 100 < 25) {
-					t->weight = (float) Blocked;
-				} else {
-					t->weight = float(rand() % 4) + 1;
-				}
-			} else {
-				t->weight = 1;
-			}
-
-			map.insert(t);
-		}
-	}
-
-	//HexTile* start = GetTileExact(0, 0);
-	//start->weight = 1.0f;
-
-	for(auto& t : map) {
-		if(t->weight == Blocked)
-			blocked.push_back(*t);
-	}
-
-	//	SetUpDrawingPaths();
-}
+//void HexGrid::Fill(bool withRandomObstacles) {
+//	srand((unsigned) time(0));
+//	for(int q = (int) -map_radius; q <= map_radius; ++q) {
+//		int r1 = (int) max(-map_radius, -q - map_radius);
+//		int r2 = (int) min(map_radius, -q + map_radius);
+//		for(int r = r1; r <= r2; ++r) {
+//			HexTile* t = new HexTile(q, r);
+//			if(withRandomObstacles) {
+//				if(rand() % 100 < 25) {
+//					t->weight = (float) Blocked;
+//				} else {
+//					t->weight = float(rand() % 4) + 1;
+//				}
+//			} else {
+//				t->weight = 1;
+//			}
+//
+//			map.insert(t);
+//		}
+//	}
+//
+//	//HexTile* start = GetTileExact(0, 0);
+//	//start->weight = 1.0f;
+//
+//	for(auto& t : map) {
+//		if(t->weight == Blocked)
+//			blocked.push_back(*t);
+//	}
+//
+//	//	SetUpDrawingPaths();
+//}
 
 HexRegion HexGrid::blocked;
 
@@ -382,7 +382,7 @@ HexTile* HexGrid::GetRandomTile() {
 	return *begin;
 }
 
-HexGrid::HexGrid(const char* _filename, float _radius, HexagonalGridLayout _layout) : map_radius(_radius), layout(_layout) {
+HexGrid::HexGrid(const char* _filename, HexagonalGridLayout _layout) : layout(_layout) {
 	static int dupCount = 0;
 	std::fstream file;
 

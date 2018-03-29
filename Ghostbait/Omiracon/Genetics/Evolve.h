@@ -1,69 +1,93 @@
 #pragma once
 
 #include <vector>
-#include "Traits.h"
+#include "Evolvable.h"
 
 namespace Omiracon {
 	namespace Genetics {
-		//class Traits; class Performance;
-
 		class Evolver {
-			struct Entity {
-				Traits traits;
-				Performance measure;
-				Entity();
-				~Entity();
-
-				//void CreateSimulatedResults(void) {
-				//	float timeLasted = Random::RandomNumber(1.0f, 60.0f)*traits[SPEED];
-				//	float damageDelt = Random::RandomNumber(0.0f, 100.0f)*traits[STRENGTH];
-				//	float damageRecv = Random::RandomNumber(0.0f, 100.0f)*(1.0f - traits[DEFENSE]);
-				//	float nodesTrav = Random::RandomNumber(0.0f, 500.0f)*(1.0f - traits[INTELLIGENCE]);
-				//
-				//	measure.timeLasted = timeLasted + timeLasted * (traits[SPEED] + traits[ENERGY] * 0.5f + traits[COORDINATION] * 0.25f + traits[BALANCE] * 0.125f);
-				//	measure.damageDelt = damageDelt + damageDelt * (traits[STRENGTH] + traits[POWER] * 0.5f + traits[ACCURACY] * 0.25f + traits[LUCK] * 0.125f);
-				//	measure.damageReceived = damageRecv - damageRecv * (traits[DEFENSE] + traits[ENDURANCE] * 0.5f + traits[STAMINA] * 0.25f + traits[RESISTANCE] * 0.125f);
-				//	measure.nodesTraversed = nodesTrav - nodesTrav * (traits[INTELLIGENCE] + traits[WISDOM] * 0.5f + traits[EVASION] * 0.25f + traits[DEXTERITY] * 0.125f);
-				//
-				//	measure.damageReceived = measure.damageReceived < 0 ? 0 : measure.damageReceived;
-				//	measure.nodesTraversed = measure.nodesTraversed < 0 ? 0 : measure.nodesTraversed;
-				//}
-			};
 		public:
-		typedef std::vector<Entity> DominantPool;
+			typedef std::vector<Evolvable> DominantPool;
+			typedef DominantPool::value_type DominantGene;
+
+			DominantPool const& GenePool() { return pool; }
+
+			void RunGeneration(void);
+			void GetBestStats(void);
+			//void Evolve(size_t generations);
+			Evolver(const size_t base_size, const float _topPercentage = 0.5f, const float _randPercentage = 0.2f);
+			~Evolver(void);
+
+			//template <class T> void Evolve(void);
+
+			void SetFirstWave(const size_t wave_size, const float _topPercentage = 0.5f, const float _randPercentage = 0.2f) {
+				topPercentage = _topPercentage;
+				randPercentage = _randPercentage;
+				//traitPoolSampleSize = (size_t(wave_size * (1.0f / DOMINANT_TRAITS)));
+				surviveCount = (size_t(wave_size * topPercentage));
+				randomCount = (size_t(wave_size * randPercentage));
+				traitPoolSize = 2*(surviveCount + randomCount);
+				waveSize = (4* traitPoolSize);
+
+				pool.resize(waveSize);
+				for(size_t i = 0; i < waveSize; ++i) {//creates random pool of chromosomes
+					pool[i] = Evolvable();
+					pool[i].traits.Randormalize();
+				}
+				CreateDominantPools();
+			}
+
+			void GetTraits();
+
+			void SetPerformanceData() {
+
+			}
+			//talk to ghost to see stuff
+			void SetWaveSize(const size_t wave_size, const float _topPercentage = 0.5f, const float _randPercentage = 0.2f) {
+				topPercentage = _topPercentage;
+				randPercentage = _randPercentage;
+				waveSize = (wave_size);
+				//traitPoolSampleSize = (size_t(waveSize * (1.0f / DOMINANT_TRAITS)));
+				surviveCount = (size_t(waveSize * topPercentage));
+				randomCount = (size_t(waveSize * randPercentage));
+				traitPoolSize = (surviveCount + randomCount);
+
+				CreateDominantPools();
+			}
+
 		private:
 			//template<class Type>
 			//static std::unordered_map<Evolver*, Type> templates;
 
+			float topPercentage, randPercentage;
+
+			const size_t generationsToKeep = 2; 
+
+			size_t currentGeneration = 0;//this will need to be loaded from a file
+
 			//not sure if this should be static or instanced
-			const size_t waveSize;
-			const size_t surviveCount; //topPercentage%
-			const size_t randomCount; //randPercentage%
-			const size_t traitPoolSampleSize; // 1/DOMINANT_TRAITS
-			const size_t traitPoolSize;
+			size_t waveSize;
+			size_t surviveCount; //topPercentage%
+			size_t randomCount; //randPercentage%
+			//size_t traitPoolSampleSize; // 1/DOMINANT_TRAITS
+			size_t traitPoolSize;
 
 			DominantPool pool;
 
 			const size_t DOMINANT_TRAITS = 4;
 			DominantPool aliveTimePool, damageDeltPool, damageReceivedPool, nodesTraversedPool;
 
+			void PerformFirstSelection(void);
+			void PerformFirstMutation(void);
+
 			void CreateDominantPools(void);
-			void FillDominantPools(void);
-			void MutateDominantPools(void);
-			void SelectGenesFromDominantPools(void);
-			void ConstructPoolWithMutatedGenes(void);
+			void PerformSelection(void);
+			void PerformMutation(void);
+			void SelectGenesFromDom(void);
+			void Combination(void);
 
 			void CreateTestSamplePerformanceData(void);
-		public:
-			void RunGeneration(void);
-			void GetBestStats(void);
-			//void Evolve(size_t generations);
-			Evolver(size_t _wave_size, float topPercentage = 0.5f, float randPercentage = 0.2f);
-			~Evolver(void);
-
-			//template <class T> void Evolve(void);
 		};
-
 	}
 }
 

@@ -50,8 +50,6 @@ enum Control {
 	TestInputX,
 	TestInputR,
 
-	
-	GodMode,
 	Sprint,
 	Crouch,
 

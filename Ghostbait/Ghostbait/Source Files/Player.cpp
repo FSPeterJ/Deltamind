@@ -17,7 +17,7 @@ Player::Player() {
 	VRManager::GetInstance().Init(&transform);
 	transform.SetPosition(0, 1.7f, 0);
 	transform.LookAt({ 0, 1.7f, 1 });
-
+	MessageEvents::Subscribe(EVENT_God, [=](EventMessageBase* e) {this->GodDetected(); });
 }
 
 void Player::ChangeStance(Stance newStance) {
@@ -43,6 +43,7 @@ void Player::ChangeStance(Stance newStance) {
 			break;
 	}
 }
+
 void Player::GodDetected() {
 	if (IsGod()) {
 		ChangeStance(STANCE_Stand);
@@ -63,11 +64,6 @@ void Player::Update() {
 
 	if (IsVR()) {
 		transform.SetMatrix(VRManager::GetInstance().GetPlayerPosition());
-		
-		if (KeyIsDown(Control::GodMode)) {
-			ResetKey(Control::GodMode);
-			GodDetected();
-		}
 		
 		if (IsGod()) {
 			//Fly
@@ -131,10 +127,6 @@ void Player::Update() {
 		
 		DirectX::XMFLOAT3 prevPos = transform.GetPosition();
 
-		if (KeyIsDown(Control::GodMode)) {
-			ResetKey(Control::GodMode);
-			GodDetected();
-		}
 		if (KeyIsDown(Control::Crouch)) {
 			ResetKey(Control::Crouch);
 			if (stance == STANCE_Stand) ChangeStance(STANCE_Crouch);

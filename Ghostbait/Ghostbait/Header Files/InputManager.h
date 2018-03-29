@@ -51,6 +51,8 @@ private:
 	static bool mouseActivate;
 
 	static CheatCode godMode;
+	static CheatCode freeMoney;
+	static CheatCode smite;
 
 public:
 

@@ -28,6 +28,7 @@ protected:
 	float timeSinceLastAttack = -1;
 
 	unsigned eventLose = 0;
+	unsigned smite = 0;
 	bool hurt = false;
 	double hurtTimer = 0;
 	double hurtDuration = 1;
@@ -45,7 +46,7 @@ public:
 	void Subscribe() override;
 	void UnSubscribe() override;
 	void OnCollision(GameObject* _other) override;
-
+	void DeathEvent() override;
 
 	virtual void SetGrid(HexGrid* _grid) {};
 	virtual void SetCore(Core* _core) { core = _core; };

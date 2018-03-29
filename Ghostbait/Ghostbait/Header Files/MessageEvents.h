@@ -21,6 +21,11 @@ enum EVENT_TYPES {
 	EVENT_RegisterNoisemaker,
 	EVENT_RequestSound,
 	EVENT_UnregisterNoisemaker,
+
+	//Cheats
+	EVENT_God,
+	EVENT_FreeMoney,
+	EVENT_Smite,
 	
 	//Game Events
 	EVENT_SpawnerCreated,
@@ -39,9 +44,11 @@ enum EVENT_TYPES {
 	EVENT_RemoveObstacle,
 	EVENT_PauseInputDetected,
 
+	//Other Feedback
 	EVENT_GameDataRequest,
 	EVENT_GearChange,
 	EVENT_WaveChange,
+	EVENT_WaveComplete,
 	EVENT_CoreDamaged,
 	EVENT_CoreStopDamaged,
 };

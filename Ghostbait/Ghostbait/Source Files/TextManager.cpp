@@ -148,6 +148,8 @@ TextManager::renderableMat TextManager::generateVertexBufferAndRender(Font * fon
 		if (_sentence[i] == ' ')
 		{
 			tempWidth += 3.0f;
+			if (tempWidth > width)
+				width = tempWidth;
 			continue;
 		}
 		CharPos pos = font->GetCharPos(_sentence[i]);

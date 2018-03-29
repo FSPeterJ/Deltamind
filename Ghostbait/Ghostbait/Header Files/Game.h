@@ -51,7 +51,6 @@ class Game {
 	void StartNextWave();
 
 	//Handle primary function event logic
-	void BecameGod();
 	void RestartLevel();
 	void PauseGame();
 	void ResumeGame();

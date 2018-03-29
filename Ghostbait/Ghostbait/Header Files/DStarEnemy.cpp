@@ -69,6 +69,7 @@ void DStarEnemy::Awake(Object* obj) {
 void DStarEnemy::Attack() {
 	if (timeSinceLastAttack == -1) {
 		if (core) core->AdjustHealth(-attackDamage);
+		RecordAttack();
 		Console::WriteLine << "Core health: " << core->PercentHealth();
 		timeSinceLastAttack = 0;
 		return;
@@ -80,7 +81,7 @@ void DStarEnemy::Attack() {
 	float timeToAttack = 1 / attackSpeed;
 	if (timeSinceLastAttack >= timeToAttack) {
 		core->AdjustHealth(-attackDamage);
-		EnemyBase::Attack();
+		RecordAttack();
 		Console::WriteLine << "Core health: " << core->PercentHealth();
 		timeSinceLastAttack = 0;
 	}
@@ -100,6 +101,7 @@ void DStarEnemy::Update() {
 		else {
 			//if (KeyIsHit(Control::TestInputO)) {
 			if (curTile == next) {
+				Step();
 				PathPlanner::UpdateDStar(dstarId);
 
 				//next = PathPlanner::GetDStarNextTile(dstarId);

@@ -16,17 +16,19 @@ public:
 	//	Get the current health as a percentage
 	//Returns:
 	//	the currentHealth / the maxHealth
-	float PercentHealth();
+	const float PercentHealth() const;
 	//Purpose: 
 	//	Add or remove health from object
 	//Parameters:
 	//	float amount - the amount of health to add(positive) remove(negative)
-	void AdjustHealth(float amount);
+	//Returns:
+	//	actual amount of health adjusted
+	float AdjustHealth(float amount);
 	//Purpose: 
 	//	See if the object still has health
 	//Returns:
 	//	true if the object still has health, false if the object has <= 0 health
-	bool IsAlive();
+	const bool IsAlive() const;
 
 	//Purpose: 
 	//	Child classes should override this to react to taking damage

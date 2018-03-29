@@ -8,11 +8,13 @@
 namespace DirectX { struct XMFLOAT2; }
 class HexGrid;
 class DStarEnemy: public EnemyBase, public Controlable  {
+
+protected:
 	HexGrid* grid;
 	//RigidBody* rb;
 
 	std::size_t dstarId = 0;
-	HexTile* goal = nullptr;
+	HexTile* goal = nullptr;	
 	HexTile* next = nullptr;
 	HexTile* curTile = nullptr;
 
@@ -31,7 +33,7 @@ public:
 	void Subscribe() override;
 	void UnSubscribe() override;
 	void Destroy() override;
-	void Awake(Object* obj);
+	void Awake(Object* obj) override;
 	void Attack();
 	void Update();
 

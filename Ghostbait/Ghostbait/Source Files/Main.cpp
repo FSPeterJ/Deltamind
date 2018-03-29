@@ -194,7 +194,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/DevController.ghost"), "DevController", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/basicSphere.ghost"), "BasicSphere");
 	ObjectFactory::CreatePrefab(&std::string("Assets/ScifiRoom.ghost"), "MainRoom");
-	ObjectFactory::CreatePrefab(&std::string("Assets/ProjectileSphere.ghost"), "Projectile");
+	//ObjectFactory::CreatePrefab(&std::string("Assets/Laser.ghost"), "Projectile");
 	ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost"), "Spawner");
 	ObjectFactory::CreatePrefab(&std::string("Assets/EnemyRobot.ghost"), "TestEnemy");
 	ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"), "startCube");

@@ -139,7 +139,7 @@ void MTDSLEnemy::Awake(Object* obj) {
 void MTDSLEnemy::Attack() {
 	if (timeSinceLastAttack == -1) {
 		if (core) core->AdjustHealth(-attackDamage);
-		EnemyBase::Attack();
+		RecordAttack();
 		Console::WriteLine << "Core health: " << core->PercentHealth();
 		timeSinceLastAttack = 0;
 		return;
@@ -151,7 +151,7 @@ void MTDSLEnemy::Attack() {
 	float timeToAttack = 1 / attackSpeed;
 	if (timeSinceLastAttack >= timeToAttack) {
 		core->AdjustHealth(-attackDamage);
-		EnemyBase::Attack();
+		RecordAttack();
 		Console::WriteLine << "Core health: " << core->PercentHealth();
 		timeSinceLastAttack = 0;
 	}
@@ -174,7 +174,7 @@ void MTDSLEnemy::Update() {
 	if (!curTile) {
 		Console::WriteLine << "OUT OF BOUNDS!";
 		rb->Stop();
-		rb->SetVelocity(DirectX::XMVectorScale(rb->GetVelocity(), -1.0f));
+		//rb->SetVelocity(DirectX::XMVectorScale(rb->GetVelocity(), -1.0f));
 		FindTempPath();
 		curTile = lastTile;
 	}
@@ -199,8 +199,10 @@ void MTDSLEnemy::Update() {
 		//	grid->GetTileExact(3, 7)->DrawCheapFill(HexagonalGridLayout::FlatLayout, { 1.0f, 1.0f, 0.0f });
 		//	grid->GetTileExact(3, 5)->DrawCheapFill(HexagonalGridLayout::FlatLayout, { 1.0f, 1.0f, 0.0f });
 
-	if(curTile != lastTile)
+	if (curTile != lastTile) {
+		Step();
 		AntColony::LeavePheromone(curTile, lingerTime, scentStrength);
+	}
 
 			if (goal == curTile) {
 				//Console::WriteLine << "We made it to our goal.";
@@ -220,7 +222,6 @@ void MTDSLEnemy::Update() {
 
 					//next = PathPlanner::GetMTDStarNextTile(mtdstarId);
 					if (next) {
-						Step();
 						auto nextPathPoint = grid->TileToPoint(next);
 						//transform.SetPosition(nextPathPoint.x, 0.0f, nextPathPoint.y);
 						DirectX::XMFLOAT3 nextDirection;

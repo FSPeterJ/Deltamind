@@ -68,8 +68,7 @@ void EnemyBase::Step() {
 }
 
 void EnemyBase::TakeDamage(float amount) {
-	AdjustHealth(amount);
-	genetics->performance.results.damageReceived += amount;
+	genetics->performance.results.damageReceived += -AdjustHealth(amount);
 }
 
 void EnemyBase::CalculateResult() {
@@ -109,6 +108,7 @@ void EnemyBase::Update() {
 }
 
 void EnemyBase::DeathEvent() {
+	genetics->performance.died = sentDeathMessage = true;
 	MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 }
 
@@ -134,19 +134,19 @@ void EnemyBase::OnCollision(GameObject* _other) {
 			hurt = true;
 			hurtTimer = 0;
 		}
-		if(!IsAlive() && !sentDeathMessage) {
-			//Destroy itself
-			//if(temp > 3) {
-			//	MessageEvents::SendMessage(EVENT_GameWin, EventMessageBase());
-			//	Console::WriteLine << "GAME WAS WON";
-			//	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(9/*WinCube*/, {0, 0.75f, 0}));
-			//}
-			//genetics->performance.died = sentDeathMessage = true;
-			//MessageEvents::SendQueueMessage(EVENT_Late, [=] { Destroy(); });
-			genetics->performance.died = sentDeathMessage = true;
-			MessageEvents::SendQueueMessage(EVENT_Late, [=] { Destroy(); });
+		//if(!IsAlive() && !sentDeathMessage) {
+		//	//Destroy itself
+		//	//if(temp > 3) {
+		//	//	MessageEvents::SendMessage(EVENT_GameWin, EventMessageBase());
+		//	//	Console::WriteLine << "GAME WAS WON";
+		//	//	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(9/*WinCube*/, {0, 0.75f, 0}));
+		//	//}
+		//	//genetics->performance.died = sentDeathMessage = true;
+		//	//MessageEvents::SendQueueMessage(EVENT_Late, [=] { Destroy(); });
+		//	genetics->performance.died = sentDeathMessage = true;
+		//	MessageEvents::SendQueueMessage(EVENT_Late, [=] { Destroy(); });
 
-		}
+		//}
 	}
 
 	GameObject::OnCollision(_other);

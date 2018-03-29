@@ -135,6 +135,12 @@ struct DStarCommon {
 
 	float GetCost(HexTile* tile);
 
+	float GetGValInit(HexTile* tile);
+
+	float GetRHSInit(HexTile* tile);
+
+	float GetCostInit(HexTile* tile);
+
 	void SetGVal(HexTile* tile, float value);
 
 	void SetRHS(HexTile* tile, float value);
@@ -203,6 +209,7 @@ class MTDStarLite : public DStarCommon {
 	void ForEachInSearchTreeButNotSubtreeRootedAt(HexTile*const tile, NeighborFunction exec);
 	void BasicDeletion(HexTile*const oldStart);
 	void ComputeCostMinimalPath();
+	void ComputeInitialPath();
 	void OptimizedDelete();
 
 public:

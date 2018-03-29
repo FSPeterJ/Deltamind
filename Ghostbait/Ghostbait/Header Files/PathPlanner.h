@@ -134,7 +134,7 @@ public:
 	/// <param name="goal">The goal.</param>
 	/// <param name="steps">The steps.</param>
 	/// <returns>HexPath.</returns>
-	HexPath CalculatePathWithinXSteps(HexTile *const start, HexTile *const goal, size_t steps);
+	static HexPath CalculatePathWithinXSteps(HexTile *const start, HexTile *const goal, size_t steps);
 
 	/// <summary>
 	/// Calculates the path from start to goal within x cost. Returns empty path if path is invalid or too far.
@@ -143,6 +143,6 @@ public:
 	/// <param name="goal">The goal.</param>
 	/// <param name="cost">The cost.</param>
 	/// <returns>HexPath.</returns>
-	HexPath CalculatePathWithinXCost(HexTile *const start, HexTile *const goal, size_t cost);
+	static HexPath CalculatePathWithinXCost(HexTile *const start, HexTile *const goal, size_t cost);
 
 };

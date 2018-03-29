@@ -3,15 +3,16 @@
 #include "Spawner.h"
 #include "MessageEvents.h"
 #include "GhostTime.h"
-#include "EngineStructure.h"
+//#include "EngineStructure.h"
 #include "../Dependencies/XML_Library/irrXML.h"
 #include "AStarEnemy.h"
 #include "SceneManager.h"
 #include "PathPlanner.h"
+#include "AntColony.h"
 #include "ObjectFactory.h"
 #include "Player.h"
-#include "DStarEnemy.h"
-#include "MTDSLEnemy.h"
+//#include "DStarEnemy.h"
+//#include "MTDSLEnemy.h"
 
 //#include "Evolve.h"
 //using namespace Omiracon::Genetics;
@@ -31,7 +32,7 @@ Game::Game() {
 	MessageEvents::Subscribe(EVENT_BecameGod, [=](EventMessageBase* e) {this->BecameGod(); });
 	MessageEvents::Subscribe(EVENT_GameDataRequest, [=](EventMessageBase* e) { this->GameDataRequestEvent(e); });
 	PathPlanner::SetGrid(&hexGrid);
-
+	AntColony::SetGrid(&hexGrid);
 	//gameData = GameData(&evolver);
 }
 
@@ -292,6 +293,7 @@ void Game::Start(Player* _player, EngineStructure* _engine, char* startScene) {
 	srand((unsigned int)time(NULL));
 	engine = _engine;
 	player = _player;
+	AntColony::AddUpdateToEngineStruct();
 	mainMenu.Create(MENU_Main);
 	pauseMenu.Create(MENU_Pause);
 	pauseMenu.SetCamera(&player->transform);

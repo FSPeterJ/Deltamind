@@ -76,10 +76,15 @@ void MTDSLEnemy::FindTempPath() {
 	HexRegion ring;
 	//HexTile* currentlyOn = curTile ? curTile : goal;
 	HexTile currentlyOn = grid->PointToTileOffGrid(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
+	HexTile* ultiGoal = grid->PointToTile(DirectX::XMFLOAT2(ultimateTarget->_41, ultimateTarget->_43));
 
 	//if (currentlyOn) {
 	Console::WriteLine << "Enemy #" << mtdstarId << " ";
-		for (int range = (int)5 * 2; range > 0; --range) { //Perception range
+	//int range = 3 * 2; //Perception range
+	int currFromGoal = currentlyOn.DistanceFrom(ultiGoal);
+	//range = range > currFromGoal ? currFromGoal : range;
+	int range = (int)(currFromGoal * 0.5);
+		for (; range > 0; --range) { //Perception range
 			ring = grid->Ring(&currentlyOn, range);
 			//Console::WarningLine << "RING SIZE BEFORE: " << ring.size();
 			ring.Filter(*grid);
@@ -87,7 +92,7 @@ void MTDSLEnemy::FindTempPath() {
 			for (int region = 0; region < ring.size(); ++region) {
 				if (!grid->GetTileExact(ring[region])) { Console::ErrorLine << "SOMEBODY DONE MESSED UP!!"; }
 				if (grid->IsBlocked(&ring[region])) continue;
-				temp = (float)ring[region].DistanceFrom(goal);
+				temp = (float)ring[region].DistanceFrom(ultiGoal);
 				if (temp < closest) {
 					closest = temp;
 					nextClosest = &ring[region];
@@ -123,6 +128,9 @@ void MTDSLEnemy::Awake(Object* obj) {
 	ultimateTarget = 0;
 	eventAdd = 0;
 	eventRemove = 0;
+
+	lingerTime = 30.0f;
+	scentStrength = 15.0f;
 
 	EnemyBase::Awake(obj);
 	rb = &(GetComponent<PhysicsComponent>()->rigidBody);
@@ -188,6 +196,9 @@ void MTDSLEnemy::Update() {
 		//	grid->GetTileExact(3, 6)->DrawCheapFill(HexagonalGridLayout::FlatLayout, { 1.0f, 1.0f, 0.0f });
 		//	grid->GetTileExact(3, 7)->DrawCheapFill(HexagonalGridLayout::FlatLayout, { 1.0f, 1.0f, 0.0f });
 		//	grid->GetTileExact(3, 5)->DrawCheapFill(HexagonalGridLayout::FlatLayout, { 1.0f, 1.0f, 0.0f });
+
+	if(curTile != lastTile)
+		AntColony::LeavePheromone(curTile, lingerTime, scentStrength);
 
 			if (goal == curTile) {
 				//Console::WriteLine << "We made it to our goal.";

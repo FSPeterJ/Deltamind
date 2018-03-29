@@ -3,12 +3,13 @@
 #include "EnemyBase.h"
 #include "HexTileVector.h"
 #include "Controlable.h"
+#include "AntColony.h"
 //class RigidBody;
 //class Transform;
 
 namespace DirectX { struct XMFLOAT2; struct XMFLOAT4X4; }
 class HexGrid;
-class MTDSLEnemy : public EnemyBase, public Controlable {
+class MTDSLEnemy : public EnemyBase, public Controlable, public AntProperties {
 	HexGrid* grid;
 	//RigidBody* rb;
 

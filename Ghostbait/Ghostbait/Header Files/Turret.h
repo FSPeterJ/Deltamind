@@ -1,8 +1,9 @@
 #pragma once
 #include "GameObject.h"
 #include "Animator.h"
+#include "Health.h"
 
-class Turret: public GameObject {
+class Turret: public GameObject, public Health {
 	GameObject* target;
 	unsigned projectiePID =0;
 	unsigned eventDestroy;

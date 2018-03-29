@@ -18,6 +18,7 @@ void EnemyBase::Awake(Object* obj) {
 	rb = 0;
 
 	eventLose = 0;
+	smite = 0;
 	SetToFullHealth();
 	GameObject::Awake(obj);
 }
@@ -29,12 +30,19 @@ void EnemyBase::Start() {
 
 void EnemyBase::Subscribe() {
 	if(!eventLose) eventLose = MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) { MessageEvents::SendQueueMessage(EVENT_Late, [=] {this->Destroy(); }); });
+	if (!smite) smite = MessageEvents::Subscribe(EVENT_Smite, [=](EventMessageBase* e) { 
+		this->AdjustHealth(-1000); });
+
 }
 
 void EnemyBase::UnSubscribe() {
 	if(eventLose) {
 		MessageEvents::UnSubscribe(EVENT_GameLose, eventLose);
 		eventLose = 0;
+	}
+	if (smite) {
+		MessageEvents::UnSubscribe(EVENT_Smite, smite);
+		smite = 0;
 	}
 }
 void EnemyBase::Enable() {
@@ -98,6 +106,10 @@ void EnemyBase::Update() {
 	//	DirectX::XMVECTOR clampedVelocity = DirectX::XMVectorScale(DirectX::XMVector3Normalize(myPhys->rigidBody.GetVelocity()), maxSpeed);
 	//	myPhys->rigidBody.SetVelocity(clampedVelocity);
 	//}
+}
+
+void EnemyBase::DeathEvent() {
+	MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 }
 
 //Other Overrides

@@ -13,8 +13,9 @@ class BuildTool : public Item {
 		int ID;
 	};
 	enum Mode {
-		SPAWN,
+		BUILD,
 		REMOVE,
+		REPAIR,
 	};
 
 	GameObject* gearDisplay = nullptr;
@@ -23,7 +24,7 @@ class BuildTool : public Item {
 	int currentPrefabIndex = 0;
 	std::vector<BuildItem> prefabs;
 	std::vector<GameObject*> builtItems;
-	Mode currentMode = SPAWN;
+	Mode currentMode = BUILD;
 	DirectX::XMFLOAT3 spawnPos;
 	int currentlySelectedItemIndex = -1;
 	GameObject* currentlySelectedItem = nullptr;
@@ -34,10 +35,12 @@ class BuildTool : public Item {
 	HexGrid* grid = nullptr;
 	GameData* gameData = nullptr;
 
-	void SpawnProjection();
 	void Spawn();
-	void RemoveProjection();
 	void Remove();
+	void Repair();
+	void SpawnProjection();
+	void RemoveProjection();
+	void RepairProjection();
 
 	bool Snap(GameObject** obj);
 	bool Snap(DirectX::XMFLOAT2* pos);
@@ -46,6 +49,7 @@ class BuildTool : public Item {
 public:
 	CastObject buildRay;
 	CastObject deleteRay;
+	CastObject repairRay;
 
 	BuildTool();
 

@@ -108,15 +108,15 @@ bool Gun::Shoot(bool addOverheat) {
 				MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_WEN));
 				DirectX::XMFLOAT4X4 newPos;
 				newPos = transform.GetMatrix();
-				newPos._41 += newPos._31 * 0.2f;
-				newPos._42 += newPos._32 * 0.2f;
-				newPos._43 += newPos._33 * 0.2f;
+				newPos._41 += newPos._31 * 0.4f;
+				newPos._42 += newPos._32 * 0.4f;
+				newPos._43 += newPos._33 * 0.4f;
 				obj->transform.SetMatrix(newPos);
 				flash.SetAsPoint({ 0.0f, 0.0f, 11.0f }, { newPos._41, newPos._42, newPos._43 }, 1.2f);
 				flash.SetTimed(0.1);
 				flash.Enable();
 				obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
-				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(transform.GetMatrix()._31 * 40.0f, transform.GetMatrix()._32 * 40.0f, transform.GetMatrix()._33 * 40.0f);
+				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(transform.GetMatrix()._31 * 50.0f, transform.GetMatrix()._32 * 50.0f, transform.GetMatrix()._33 * 50.0f);
 				obj->SetDamage(damage);
 				obj->Enable();
 				if (addOverheat) {
@@ -133,9 +133,9 @@ bool Gun::Shoot(bool addOverheat) {
 				MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_WEN));
 				DirectX::XMFLOAT4X4 newPos;
 				newPos = transform.GetMatrix();
-				newPos._41 += newPos._31 * 0.2f;
-				newPos._42 += newPos._32 * 0.2f;
-				newPos._43 += newPos._33 * 0.2f;
+				newPos._41 += newPos._31 * 0.4f;
+				newPos._42 += newPos._32 * 0.4f;
+				newPos._43 += newPos._33 * 0.4f;
 				obj->transform.SetMatrix(newPos);
 				PhysicsComponent* temp2 = obj->GetComponent<PhysicsComponent>();
 				RigidBody* temp = &temp2->rigidBody;
@@ -143,7 +143,7 @@ bool Gun::Shoot(bool addOverheat) {
 				flash.SetAsPoint({ 0.0f, 0.0f, 11.0f }, { newPos._41, newPos._42, newPos._43 }, 1.2f);
 				flash.SetTimed(0.1);
 				flash.Enable();
-				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(transform.GetMatrix()._31 * 40.0f, transform.GetMatrix()._32 * 40.0f, transform.GetMatrix()._33 * 40.0f);
+				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(transform.GetMatrix()._31 * 50.0f, transform.GetMatrix()._32 * 50.0f, transform.GetMatrix()._33 * 50.0f);
 				obj->SetDamage(damage);
 				obj->Enable();
 				if (addOverheat) {

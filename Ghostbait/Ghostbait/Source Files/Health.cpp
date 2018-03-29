@@ -6,25 +6,25 @@ Health::Health() {
 	maxHealth = default_health;
 	health = default_health;
 }
-Health::Health(float _maxHealth) {
+Health::Health(const float _maxHealth) {
 	maxHealth = _maxHealth;
 	health = _maxHealth;
 }
-Health::Health(float _maxHealth, float _startingHealth) {
+Health::Health(const float _maxHealth, const float _startingHealth) {
 	maxHealth = _maxHealth;
 	health = _startingHealth;
 	Clamp(0, maxHealth, &health);
 }
 
-void Health::Clamp(float min, float max, float* val) {
+void Health::Clamp(const float min, const float max, float* val) {
 	if (*val < min) *val = min;
 	else if (*val > max) *val = max;
 }
 
-float Health::PercentHealth() {
+const float Health::PercentHealth() const {
 	return (health / maxHealth);
 }
-float Health::AdjustHealth(float amount) {
+float Health::AdjustHealth(const float amount) {
 	float prevHealth = health;
 	if (amount < 0) HurtEvent();
 	if (amount > 0) HealedEvent();
@@ -33,7 +33,6 @@ float Health::AdjustHealth(float amount) {
 	if (health == 0) DeathEvent();
 	return health - prevHealth;
 }
-bool Health::IsAlive() {
-	if (health <= 0) return false;
-	return true;
+const bool Health::IsAlive() const {
+	return health > 0;
 }

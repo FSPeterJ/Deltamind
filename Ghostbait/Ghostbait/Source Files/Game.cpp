@@ -29,7 +29,8 @@ Game::Game() {
 	MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) {this->Lose(); });
 	MessageEvents::Subscribe(EVENT_GameQuit, [=](EventMessageBase* e) {this->Quit(); });
 	MessageEvents::Subscribe(EVENT_GameExit, [=](EventMessageBase* e) {this->ExitToMenu(); });
-	MessageEvents::Subscribe(EVENT_BecameGod, [=](EventMessageBase* e) {this->BecameGod(); });
+	MessageEvents::Subscribe(EVENT_FreeMoney, [=](EventMessageBase* e) {this->gameData.SetGears(500000); });
+
 	MessageEvents::Subscribe(EVENT_GameDataRequest, [=](EventMessageBase* e) { this->GameDataRequestEvent(e); });
 	PathPlanner::SetGrid(&hexGrid);
 	AntColony::SetGrid(&hexGrid);
@@ -108,6 +109,8 @@ void Game::ChangeState(State newState) {
 				else if(gameData.GetPrevState() == GAMESTATE_InWave) {
 					//Add wave reward
 					gameData.AddGears(gameData.waveManager.GetCurrentWaveReward());
+					GameData const* gd = &gameData;
+					MessageEvents::SendMessage(EVENT_WaveComplete, GameDataMessage(&gd));
 
 					//Spawn start cube
 					MenuCube* startCube;
@@ -233,14 +236,13 @@ void Game::StartNextWave() {
 	}
 	else {
 		gameData.waveManager.MoveToNextWave();
+		GameData const* gd = &gameData;
+		MessageEvents::SendMessage(EVENT_WaveChange, GameDataMessage(&gd));
 		ChangeState(GAMESTATE_InWave);
 	}
 }
 
 //Handle primary function event logic
-void Game::BecameGod() {
-	gameData.SetGears(500000);
-}
 void Game::RestartLevel() {
 	//Reset currentScene pointer
 	std::string name = sceneManager->GetNameFromScene(sceneManager->ResetCurrentScene());

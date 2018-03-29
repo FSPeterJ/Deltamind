@@ -8,11 +8,12 @@
 #include "MessageStructs.h"
 #include "ObjectFactory.h"
 #include "Animator.h"
+#include "Material.h"
 using namespace Common;
 
 #define ArcPoints 20
 
-void CastObject::Create(bool renderToFront) {
+void CastObject::Create(bool renderToFront, Color color) {
 	if (!object) {
 		MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<GameObject>(ObjectFactory::CreatePrefab(&std::string(fileName)), { 0, 0, 0 }, &object));
 		object->PersistOnReset();
@@ -33,6 +34,21 @@ void CastObject::Create(bool renderToFront) {
 				temp._33 *= -1;
 				object->GetComponent<Animator>()->SetJointMatrix(i, temp);
 			}
+		}
+
+		switch (color) {
+			case COLOR_Red:
+				object->SwapComponentVarient<Material>("red");
+				break;
+			case COLOR_Green:
+				object->SwapComponentVarient<Material>("green");
+				break;
+			case COLOR_Yellow:
+				object->SwapComponentVarient<Material>("yellow");
+				break;
+			case COLOR_Cyan:
+				object->SwapComponentVarient<Material>("cyan");
+				break;
 		}
 	}
 }

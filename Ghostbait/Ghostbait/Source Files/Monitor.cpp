@@ -19,6 +19,10 @@ void Monitor::Awake(Object* obj) {
 		totalWaves = std::to_string((*((GameDataMessage*)e)->RetrieveData())->waveManager.GetWaveCount());
 		WriteToScreen("\n Wave: " + curWave + "/" + totalWaves + "\n");
 	});
+	MessageEvents::Subscribe(EVENT_WaveComplete, [=](EventMessageBase* e) {
+		curWave = std::to_string((*((GameDataMessage*)e)->RetrieveData())->waveManager.GetCurrentWaveNumber() + 1);
+		WriteToScreen("\n Shoot the white cube\nto begin wave " + curWave + "\n");
+	});
 	MessageEvents::Subscribe(EVENT_CoreDamaged, [=](EventMessageBase* e) {
 		std::string health = std::to_string((int)((*((CoreMessage*)e)->RetrieveData())->PercentHealth() * 100));
 		WriteToScreen("\n Core Health: " + health + "%\n");

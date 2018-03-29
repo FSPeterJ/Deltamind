@@ -348,11 +348,14 @@ void InputManager::VRInput::CheckForInput() {
 
 		if(keyStates[input] != amount > 0.0f ? 1 : 0) {
 			keyStates[input] = amount > 0.0f ? 1 : 0;
-			if(keyStates[input] == 1) godMode.CheckNewInput(input);
+			if (keyStates[input] == 1) {
+				godMode.CheckNewInput(input);
+				freeMoney.CheckNewInput(input);
+				smite.CheckNewInput(input);
+			}
 			inputPoll.push(InputPackage(input, amount));
 		}
 	}
-	Console::WriteLine << godMode.GetPosition();
 }
 
 //Keyboard
@@ -508,11 +511,16 @@ void InputManager::KeyboardInput::CheckForInput() {
 
 		if(keyStates[input] != (amount > 0.0f ? 1 : 0)) {
 			keyStates[input] = amount > 0.0f ? 1 : 0;
-			if (keyStates[input] == 1) godMode.CheckNewInput(input);
+			if (keyStates[input] == 1) {
+				godMode.CheckNewInput(input);
+				freeMoney.CheckNewInput(input);
+				smite.CheckNewInput(input);
+			}
 			inputPoll.push(InputPackage(input, amount));
 		}
 		inputQueue.pop();
 	}
+	Console::WriteLine << smite.GetPosition();
 }
 bool InputManager::KeyboardInput::MapKey(Control control, uint64_t key) {
 	if(keyBind.find(key) == keyBind.end()) {
@@ -572,4 +580,6 @@ void InputManager::SetInputType(InputType type) {
 
 
 //Cheats
-CheatCode InputManager::godMode(CheatCode::CodePreset::Konami, [=]() {MessageEvents::SendMessage(EVENT_Input, InputMessage(Control::GodMode, 1)); });
+CheatCode InputManager::godMode(CheatCode::CodePreset::Konami, [=]() {MessageEvents::SendMessage(EVENT_God, EventMessageBase()); });
+CheatCode InputManager::freeMoney(std::vector<Control>({ Control::rightItem1, Control::rightItem0, Control::rightItem2, Control::rightItem0, Control::rightItem1 }), [=]() {MessageEvents::SendMessage(EVENT_FreeMoney, EventMessageBase()); });
+CheatCode InputManager::smite(std::vector<Control>({ Control::rightItem0, Control::rightItem0, Control::rightItem0, Control::rightItem3, Control::rightItem3 }), [=]() {MessageEvents::SendMessage(EVENT_Smite, EventMessageBase()); });

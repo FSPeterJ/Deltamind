@@ -520,7 +520,7 @@ void InputManager::KeyboardInput::CheckForInput() {
 		}
 		inputQueue.pop();
 	}
-	Console::WriteLine << smite.GetPosition();
+	//Console::WriteLine << smite.GetPosition();
 }
 bool InputManager::KeyboardInput::MapKey(Control control, uint64_t key) {
 	if(keyBind.find(key) == keyBind.end()) {

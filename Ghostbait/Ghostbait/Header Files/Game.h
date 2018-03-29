@@ -22,7 +22,7 @@ class Game {
 	
 	bool run = true;
 	
-	Evolver evolver = Evolver(20);
+	Evolver evolver;
 	GameData gameData = GameData(&evolver);
 
 	EngineStructure* engine;

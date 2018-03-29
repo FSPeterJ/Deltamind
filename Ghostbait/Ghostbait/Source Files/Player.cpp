@@ -61,6 +61,7 @@ void Player::Update() {
 		DebugRenderer::DrawAxes(editItem->transform.GetMatrix(), 1);
 	}
 
+
 	if (IsVR()) {
 		transform.SetMatrix(VRManager::GetInstance().GetPlayerPosition());
 		

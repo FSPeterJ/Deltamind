@@ -32,20 +32,16 @@ namespace Omiracon {
 		
 			//SelectGenesFromDom();
 			Combination();
+
 		}
 
-		Evolver::Evolver(const size_t base_size, const float _topPercentage, const float _randPercentage) {
+		Evolver::Evolver( ) {
+			//SetPreliminaryData(base_size, _topPercentage, _randPercentage);
 			AliveTime = [](DominantGene const& a, DominantGene const& b) { return a.performance.results.timeLasted > b.performance.results.timeLasted; };
 			DamageDelt = [](DominantGene const& a, DominantGene const& b) { return a.performance.results.damageDelt > b.performance.results.damageDelt; };
 			DamageReceived = [](DominantGene const& a, DominantGene const& b) { return a.performance.results.damageReceived < b.performance.results.damageReceived; };
 			NodesTraversed = [](DominantGene const& a, DominantGene const& b) { return a.performance.results.nodesTraversed < b.performance.results.nodesTraversed; };
 
-			pool.reserve(base_size*4);
-
-			aliveTimePool.reserve(base_size);
-			damageDeltPool.reserve(base_size);
-			damageReceivedPool.reserve(base_size);
-			nodesTraversedPool.reserve(base_size);
 		}
 
 		void Evolver::CreateDominantPools(void) {
@@ -88,12 +84,13 @@ namespace Omiracon {
 			std::random_shuffle(pool.begin(), pool.end());
 			memcpy(&nodesTraversedPool[0] + surviveCount*2, &pool[0], GetMemAddr(randomCount));
 			memcpy(&nodesTraversedPool[0] + surviveCount * 2 + randomCount, &pool[0], GetMemAddr(randomCount));
+
 		}
 
 		void Evolver::PerformSelection(void) {
-			//prune generations
-			pool.erase( std::remove_if(pool.begin(), pool.end(), [&](const DominantGene & o) { return o.generation == currentGeneration - generationsToKeep; }), pool.end());
+			//! issue here because pool could contain some elements that do not have performance data
 
+			//! can be optimized to only random_shuffle once
 			std::sort(pool.begin(), pool.end(), AliveTime); //orders the main pool by best surviving times
 			memcpy(&aliveTimePool[0], &pool[0], GetMemAddr(surviveCount)); //copy best surviveCount over to specific pool
 			std::random_shuffle(pool.begin(), pool.end()); //shuffle the main pool again so I can get a random sample when I copy below
@@ -118,6 +115,10 @@ namespace Omiracon {
 		void Evolver::PerformFirstMutation(void) {
 			//exectues traitPoolSize*0.5 times
 			++currentGeneration;
+
+			pool.clear(); //clear because we copied both the parents and the to-be-mutated children into the dominant pools
+			//not clearing will result in dupe parents for gen 0
+
 			for(size_t i = surviveCount; i < traitPoolSize-randomCount; ++i) {
 				aliveTimePool[i].traits.Mutate(CREEP);
 				damageDeltPool[i].traits.Mutate(CREEP);
@@ -128,11 +129,22 @@ namespace Omiracon {
 				damageDeltPool[i].generation = currentGeneration;
 				damageReceivedPool[i].generation = currentGeneration;
 				nodesTraversedPool[i].generation = currentGeneration;
+
+				aliveTimePool[i].performance.Reset();
+				damageDeltPool[i].performance.Reset();
+				damageReceivedPool[i].performance.Reset();
+				nodesTraversedPool[i].performance.Reset();
 			}
 		}
 
 		void Evolver::PerformMutation(void) {
 			++currentGeneration;
+			
+			//! on gen 3, none were removed, pool was full of gen 2s
+
+			//prune generations
+			pool.erase(std::remove_if(pool.begin(), pool.end(), [&](const DominantGene & o) { return o.generation == currentGeneration - generationsToKeep; }), pool.end());
+
 			for(size_t i = 0; i < traitPoolSize; ++i) {
 				aliveTimePool[i].traits.Mutate(CREEP);
 				damageDeltPool[i].traits.Mutate(CREEP);
@@ -143,7 +155,16 @@ namespace Omiracon {
 				damageDeltPool[i].generation = currentGeneration;
 				damageReceivedPool[i].generation = currentGeneration;
 				nodesTraversedPool[i].generation = currentGeneration;
+
+				aliveTimePool[i].performance.Reset();
+				damageDeltPool[i].performance.Reset();
+				damageReceivedPool[i].performance.Reset();
+				nodesTraversedPool[i].performance.Reset();
 			}
+
+
+			
+
 
 			//for(TraitedEnemy **i = &(aliveTimePool[0]), **end = &(aliveTimePool[traitPoolSize]); i < end; (**(i++)).traits.Mutate(CREEP));
 			//for(TraitedEnemy **i = &(damageDeltPool[0]), **end = &(damageDeltPool[traitPoolSize]); i < end; (**(i++)).traits.Mutate(CREEP));
@@ -167,11 +188,22 @@ namespace Omiracon {
 			//memcpy(&pool[0] + traitPoolSampleSize * 2, &damageReceivedPool[0], GetMemAddr(traitPoolSampleSize));
 			//memcpy(&pool[0] + traitPoolSampleSize * 3, &nodesTraversedPool[0], GetMemAddr(traitPoolSampleSize));
 
+
+			//! uh oh!! pool is not large enough to hold 4*traitPoolSize
+			if(pool.size() < traitPoolSize * 4) {
+				//resize might invalidate all the references we had... shouldnt matter since we are done with the enemies?
+				pool.resize(traitPoolSize * DOMINANT_TRAITS);
+			}
+
+			//! doing this completely destroys existing things inside the pool
+
 			//if you want to copy over the entire pool instead of a sample, use below
 			memcpy(&pool[0], &aliveTimePool[0], GetMemAddr(traitPoolSize));
 			memcpy(&pool[0] + traitPoolSize, &damageDeltPool[0], GetMemAddr(traitPoolSize));
 			memcpy(&pool[0] + traitPoolSize * 2, &damageReceivedPool[0], GetMemAddr(traitPoolSize));
 			memcpy(&pool[0] + traitPoolSize * 3, &nodesTraversedPool[0], GetMemAddr(traitPoolSize));
+
+			std::random_shuffle(pool.begin(), pool.end());
 
 			//clear dominant pools
 			aliveTimePool.clear();

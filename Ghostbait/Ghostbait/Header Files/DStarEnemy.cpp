@@ -80,6 +80,7 @@ void DStarEnemy::Attack() {
 	float timeToAttack = 1 / attackSpeed;
 	if (timeSinceLastAttack >= timeToAttack) {
 		core->AdjustHealth(-attackDamage);
+		EnemyBase::Attack();
 		Console::WriteLine << "Core health: " << core->PercentHealth();
 		timeSinceLastAttack = 0;
 	}
@@ -104,7 +105,7 @@ void DStarEnemy::Update() {
 				//next = PathPlanner::GetDStarNextTile(dstarId);
 				if (next) {
 					auto nextPathPoint = grid->TileToPoint(next);
-
+					Step();
 					DirectX::XMVECTOR nextDirection = DirectX::XMVectorSet(nextPathPoint.x - transform.matrix._41, 0.0f, nextPathPoint.y - transform.matrix._43, 1.0f);
 					DirectX::XMVECTOR velocity = rb->GetVelocity();
 					rb->AddForce(3.0f * (DirectX::XMVectorGetX(DirectX::XMVector3Dot(nextDirection, velocity)) + 1.0f), nextPathPoint.x - transform.matrix._41, 0.0f, nextPathPoint.y - transform.matrix._43, 0.5f);

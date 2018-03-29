@@ -68,6 +68,7 @@ void Game::EnemyDiedEvent() {
 	gameData.waveManager.EnemyKilled();
 	gameData.AddGears(50);
 	if(gameData.waveManager.GetAliveEnemyCount() <= 0) {
+		evolver.RunGeneration();
 		ChangeState(GAMESTATE_BetweenWaves);
 	}
 }
@@ -222,6 +223,8 @@ void Game::ChangeScene(const char* sceneName) {
 		}
 		delete xmlReader;
 	}
+
+
 }
 void Game::StartNextWave() {
 	if(!gameData.waveManager.NextWaveExists()) {
@@ -349,6 +352,7 @@ void Game::Update() {
 						spawner->RestartTimer();
 					}
 				}
+
 			}
 			//--------Update Engine Structure
 			{

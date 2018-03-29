@@ -10,12 +10,13 @@ namespace Omiracon {
 			typedef std::vector<Evolvable> DominantPool;
 			typedef DominantPool::value_type DominantGene;
 
-			DominantPool const& GenePool() { return pool; }
+			Evolvable*const GenePool() { return &pool[0]; }
 
 			void RunGeneration(void);
 			void GetBestStats(void);
 			//void Evolve(size_t generations);
-			Evolver(const size_t base_size, const float _topPercentage = 0.5f, const float _randPercentage = 0.2f);
+			Evolver( );
+
 			~Evolver(void);
 
 			//template <class T> void Evolve(void);
@@ -23,11 +24,11 @@ namespace Omiracon {
 			void SetFirstWave(const size_t wave_size, const float _topPercentage = 0.5f, const float _randPercentage = 0.2f) {
 				topPercentage = _topPercentage;
 				randPercentage = _randPercentage;
+				waveSize = (wave_size);
 				//traitPoolSampleSize = (size_t(wave_size * (1.0f / DOMINANT_TRAITS)));
-				surviveCount = (size_t(wave_size * topPercentage));
-				randomCount = (size_t(wave_size * randPercentage));
-				traitPoolSize = 2*(surviveCount + randomCount);
-				waveSize = (4* traitPoolSize);
+				surviveCount = (size_t(waveSize * topPercentage));
+				randomCount = (size_t(waveSize * randPercentage));
+				traitPoolSize = (2*surviveCount + 2*randomCount);
 
 				pool.resize(waveSize);
 				for(size_t i = 0; i < waveSize; ++i) {//creates random pool of chromosomes
@@ -64,6 +65,7 @@ namespace Omiracon {
 			const size_t generationsToKeep = 2; 
 
 			size_t currentGeneration = 0;//this will need to be loaded from a file
+			//if restart happens, the pool is cleared and messes things up
 
 			//not sure if this should be static or instanced
 			size_t waveSize;

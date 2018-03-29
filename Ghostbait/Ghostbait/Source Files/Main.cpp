@@ -33,7 +33,7 @@
 #include "Ground.h"
 #include "Monitor.h"
 
-#define FULLSCREEN true
+const bool FULLSCREEN = false;
 
 //#include "..\Omiracron\Omiracron\Omiracron.h"
 //using namespace Omiracron;

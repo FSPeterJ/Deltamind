@@ -1,5 +1,4 @@
 #include "EnemyBase.h"
-#include "GhostTime.h"
 #include "PhysicsComponent.h"
 #include "MessageEvents.h"
 #include "Console.h"
@@ -10,7 +9,7 @@
 
 void EnemyBase::Awake(Object* obj) {
 	currState = IDLE;
-	maxSpeed = (float)((rand() % 3) + 1);
+	maxSpeed = (float) ((rand() % 3) + 1);
 	target = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	hurt = false;
 	hurtTimer = 0;
@@ -18,11 +17,14 @@ void EnemyBase::Awake(Object* obj) {
 	sentDeathMessage = false;
 	rb = 0;
 
-	genetics->performance.Reset();
-
 	eventLose = 0;
 	SetToFullHealth();
 	GameObject::Awake(obj);
+}
+
+void EnemyBase::Start() {
+	genetics->performance.Reset();
+	spawnTime = GhostTime::Now();
 }
 
 void EnemyBase::Subscribe() {
@@ -30,8 +32,8 @@ void EnemyBase::Subscribe() {
 }
 
 void EnemyBase::UnSubscribe() {
-	if (eventLose) {
-		MessageEvents::UnSubscribe(EVENT_GameLose, eventLose); 
+	if(eventLose) {
+		MessageEvents::UnSubscribe(EVENT_GameLose, eventLose);
 		eventLose = 0;
 	}
 }
@@ -44,13 +46,23 @@ void EnemyBase::Disable() {
 	GameObject::Disable();
 }
 void EnemyBase::Destroy() {
+	genetics->performance.results.timeLasted = (float) GhostTime::Duration(spawnTime, GhostTime::Now());
 	MessageEvents::SendMessage(EVENT_EnemyDied, EventMessageBase());
 	GameObject::Destroy();
 }
+
+void EnemyBase::Attack() {
+	genetics->performance.results.damageDelt += 15;
+}
+
+void EnemyBase::Step() {
+	genetics->performance.results.nodesTraversed++;
+}
+
 void EnemyBase::Update() {
-	if (hurt) {
+	if(hurt) {
 		hurtTimer += GhostTime::DeltaTime();
-		if (hurtTimer >= 0.25f) {
+		if(hurtTimer >= 0.25f) {
 			hurt = false;
 			int id = TypeMap::GetComponentTypeID<Material>();
 			SetComponent(defaultMat, id);
@@ -59,7 +71,7 @@ void EnemyBase::Update() {
 
 	DirectX::XMFLOAT3 vel;
 	DirectX::XMStoreFloat3(&vel, rb->GetVelocity());
-	DirectX::XMFLOAT3 newPoint = { transform.GetPosition().x + vel.x, transform.GetPosition().y, transform.GetPosition().z + vel.z };
+	DirectX::XMFLOAT3 newPoint = {transform.GetPosition().x + vel.x, transform.GetPosition().y, transform.GetPosition().z + vel.z};
 	transform.TurnTowards(newPoint, 1);
 
 	GameObject::Update();
@@ -85,8 +97,8 @@ void EnemyBase::OnCollision(GameObject* _other) {
 		AdjustHealth(-dam);
 		genetics->performance.results.damageReceived += dam;
 
-		if (componentVarients.find("Hurt") != componentVarients.end()) {
-			if (!hurt) {
+		if(componentVarients.find("Hurt") != componentVarients.end()) {
+			if(!hurt) {
 				int id = TypeMap::GetComponentTypeID<Material>();
 				defaultMat = GetComponent<Material>();
 				SetComponent(componentVarients["Hurt"], id);
@@ -110,5 +122,4 @@ void EnemyBase::OnCollision(GameObject* _other) {
 	GameObject::OnCollision(_other);
 }
 void EnemyBase::RandomizeStats() {
-
 }

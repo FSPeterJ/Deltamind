@@ -69,9 +69,11 @@ void AStarEnemy::Update() {
 			if(path.goal() == curTile) {
 				//Console::WriteLine << "We made it to our goal.";
 				Attack();
+
 				rb->Stop();
 			}
 			else {
+				Step();
 				howFarAlong++;
 				if(howFarAlong > path.size() - 1) { return; }
 				next = path[howFarAlong];
@@ -89,6 +91,7 @@ void AStarEnemy::Update() {
 void AStarEnemy::Attack() {
 	if (timeSinceLastAttack == -1) {
 		if (core) core->AdjustHealth(-attackDamage);
+		EnemyBase::Attack();
 		Console::WriteLine << "Core health: " << core->PercentHealth();
 		timeSinceLastAttack = 0;
 		return;

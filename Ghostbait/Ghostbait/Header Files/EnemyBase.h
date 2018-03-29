@@ -2,12 +2,14 @@
 #include "GameObject.h"
 #include "Health.h"
 #include "Core.h"
+#include "GhostTime.h"
 
 namespace Omiracon {
 	namespace Genetics {
 		struct Evolvable;
 	}
 }
+
 using namespace Omiracon::Genetics;
 
 class HexGrid;
@@ -22,7 +24,8 @@ protected:
 		DEATH,
 	};
 
-	Evolvable* genetics;
+	Evolvable* genetics = nullptr;
+	GhostTime::Moment spawnTime;
 	
 	State currState = IDLE;
 	float maxSpeed = 100.0f;
@@ -46,6 +49,7 @@ protected:
 
 public:
 	EnemyBase() { tag = std::string("Enemy");  };
+	void Start();
 	void Enable() override;
 	void Disable() override;
 	void Destroy() override;
@@ -54,6 +58,8 @@ public:
 	void Subscribe() override;
 	void UnSubscribe() override;
 	void OnCollision(GameObject* _other) override;
+	void Attack();
+	void Step();
 
 	Evolvable*& SetTraits() { return genetics; }
 

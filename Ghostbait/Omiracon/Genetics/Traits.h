@@ -87,7 +87,7 @@ namespace Omiracon {
 				void Reset(void);
 			} results;
 
-			bool died = false;
+			bool died;
 
 			void Reset(void) { results.Reset(), died = 0; }
 

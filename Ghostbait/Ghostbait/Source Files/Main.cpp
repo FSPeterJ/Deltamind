@@ -33,6 +33,8 @@
 #include "Ground.h"
 #include "Monitor.h"
 
+using namespace Threadding;
+
 const bool FULLSCREEN = false;
 
 //#include "..\Omiracron\Omiracron\Omiracron.h"

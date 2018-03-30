@@ -299,8 +299,12 @@ void PathPlanner::UpdateDStar(std::size_t dstarId) {
 void PathPlanner::UpdateMTDStar(std::size_t mtdstarId) {
 	//mtdstarList[mtdstarId].Update();
 	//void(MTDStarLite::*updateFunc)() = &std::bind([&]() {})();
-	auto t = std::thread(&MTDStarLite::Update, &mtdstarList[mtdstarId]);
-	t.detach();
+	
+	
+	//auto t = std::thread(&MTDStarLite::Update, &mtdstarList[mtdstarId]);
+	//t.detach();
+
+	Threadding::ThreadPool::CreateMemberJob<void>(&mtdstarList[mtdstarId], &MTDStarLite::Update);
 	//&MTDStarLite::Update, &mtdstarList[mtdstarId]);
 	
 	//ThreadPool::MakeJob(RunMTMTDSL, std::move(mtdstarId));

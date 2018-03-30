@@ -6,23 +6,35 @@
 namespace Omiracon {
 	namespace Genetics {
 		class Evolver {
-			inline size_t GetMemAddr(size_t index) { return index * sizeof(DominantGene); }
-
 		public:
 			typedef std::vector<Evolvable> DominantPool;
 			typedef DominantPool::value_type DominantGene;
 
-			Evolvable*const GenePool() { return &genepool[0]; }
+			/// <summary>
+			/// Gets the gene pool to sample from.
+			/// </summary>
+			/// <returns>Omiracon.Genetics.Evolvable * const.</returns>
+			Evolvable *const GenePool(void) { return &genepool[0]; }
 
-			void RunGeneration(void);
-			void GetBestStats(void);
-			//void Evolve(size_t generations);
-			Evolver( );
-
+			Evolver(void);
 			~Evolver(void);
 
-			//template <class T> void Evolve(void);
+			/// <summary>
+			/// After a wave is completed, this processes the generation's data and prepares the next genes.
+			/// </summary>
+			void RunGeneration(void);
 
+			/// <summary>
+			/// Prints the best stats for each dominant trait.
+			/// </summary>
+			void PrintBestStats(void);
+
+			/// <summary>
+			/// Used to initalize the information pertaining to the first wave.
+			/// </summary>
+			/// <param name="wave_size">Size of the wave.</param>
+			/// <param name="_topPercentage">The percentage of entities to keep as the best.</param>
+			/// <param name="_randPercentage">The percentage of random entities to choose.</param>
 			void SetFirstWave(const size_t wave_size, const float _topPercentage = 0.5f, const float _randPercentage = 0.2f) {
 				topPercentage = _topPercentage;
 				randPercentage = _randPercentage;
@@ -30,7 +42,7 @@ namespace Omiracon {
 				//traitPoolSampleSize = (size_t(wave_size * (1.0f / DOMINANT_TRAITS)));
 				surviveCount = (size_t(waveSize * topPercentage));
 				randomCount = (size_t(waveSize * randPercentage));
-				traitPoolSize = 2*(surviveCount + randomCount);
+				traitPoolSize = 2 * (surviveCount + randomCount);
 
 				genepool.resize(traitPoolSize * DOMINANT_TRAITS);
 
@@ -47,16 +59,12 @@ namespace Omiracon {
 				CreateDominantPools();
 			}
 
-			void GetTraits();
-
-			void SetPerformanceData() {
-
-			}
-
-			size_t previousSize = 0;
-			size_t genDeathSize = 0;
-			size_t nextGenDeathSize = 0;
-
+			/// <summary>
+			/// Used to initalize the information pertaining to the next wave.
+			/// </summary>
+			/// <param name="wave_size">Size of the wave.</param>
+			/// <param name="_topPercentage">The top percentage.</param>
+			/// <param name="_randPercentage">The rand percentage.</param>
 			void SetWaveSize(const size_t wave_size, const float _topPercentage = 0.5f, const float _randPercentage = 0.2f) {
 				topPercentage = _topPercentage;
 				randPercentage = _randPercentage;
@@ -68,7 +76,6 @@ namespace Omiracon {
 
 				testpool.resize(waveSize);
 
-
 				genepool.resize((genepool.size() /*- genDeathSize*/) + (traitPoolSize * DOMINANT_TRAITS));
 				//previousSize = genepool.size();
 
@@ -78,41 +85,42 @@ namespace Omiracon {
 
 				nextGenDeathSize = traitPoolSize * DOMINANT_TRAITS;
 			}
-
 		private:
-			//template<class Type>
-			//static std::unordered_map<Evolver*, Type> templates;
+			typedef bool(*GenPruner)(const DominantGene & o);
+			static inline bool Pruner(const DominantGene&);
+
+			static size_t genToPrune;
+			const GenPruner PruneGeneration;
+
+			const size_t DOMINANT_TRAITS = 4;
+			const size_t generationsToKeep = 2;
 
 			float topPercentage, randPercentage;
 
-			const size_t generationsToKeep = 2; 
+			int currentGeneration = 0;//this will need to be loaded from a file. if restart happens, the pool is cleared and messes things up
 
-			int currentGeneration = 0;//this will need to be loaded from a file
-			//if restart happens, the pool is cleared and messes things up
+			size_t
+				waveSize, //size of current wave
+				surviveCount, //number of entities that survived via best genes
+				randomCount, //number of entities that survived via random chance
+				traitPoolSize, //size of current trait pool
+				combineOffset = 0, //offset of combine. after first wave this is just genDeathSize
+				genDeathSize = 0, //number of entities that died off due to old age
+				nextGenDeathSize = 0; //number of entities that will die off next generation
 
-			//not sure if this should be static or instanced
-			size_t waveSize;
-			size_t surviveCount; //topPercentage%
-			size_t randomCount; //randPercentage%
-			//size_t traitPoolSampleSize; // 1/DOMINANT_TRAITS
-			size_t traitPoolSize;
+			DominantPool genepool, testpool, aliveTimePool, damageDeltPool, damageReceivedPool, nodesTraversedPool;
 
-			DominantPool genepool;
-			DominantPool testpool;
-
-			const size_t DOMINANT_TRAITS = 4;
-			DominantPool aliveTimePool, damageDeltPool, damageReceivedPool, nodesTraversedPool;
-
-			void PerformFirstSelection(void);
-			void PerformFirstMutation(void);
+			inline size_t GetMemAddr(const size_t index) const { return index * sizeof(DominantGene); }
 
 			void CreateDominantPools(void);
-			void PerformSelection(void);
-			void PerformMutation(void);
-			void SelectGenesFromDom(void);
-			void Combination(void);
 
-			void CreateTestSamplePerformanceData(void);
+			void PerformFirstSelection(void);
+			void PerformSelection(void);
+
+			void PerformFirstMutation(void);
+			void PerformMutation(void);
+
+			void Combination(void);
 		};
 	}
 }

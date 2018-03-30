@@ -86,6 +86,12 @@ namespace Omiracon {
 				nextGenDeathSize = traitPoolSize * DOMINANT_TRAITS;
 			}
 		private:
+			typedef bool(*GenPruner)(const DominantGene & o);
+			static inline bool Pruner(const DominantGene&);
+
+			static size_t genToPrune;
+			const GenPruner PruneGeneration;
+
 			const size_t DOMINANT_TRAITS = 4;
 			const size_t generationsToKeep = 2;
 
@@ -98,7 +104,7 @@ namespace Omiracon {
 				surviveCount, //number of entities that survived via best genes
 				randomCount, //number of entities that survived via random chance
 				traitPoolSize, //size of current trait pool
-				previousSize = 0, //!size of previous wave
+				combineOffset = 0, //offset of combine. after first wave this is just genDeathSize
 				genDeathSize = 0, //number of entities that died off due to old age
 				nextGenDeathSize = 0; //number of entities that will die off next generation
 

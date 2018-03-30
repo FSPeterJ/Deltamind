@@ -27,7 +27,14 @@ namespace Omiracon {
 			Combination();
 		}
 
-		Evolver::Evolver() {
+		size_t Evolver::genToPrune;
+		inline bool Evolver::Pruner(const DominantGene& o) {
+			return o.generation == genToPrune;
+		}
+
+
+		Evolver::Evolver() : PruneGeneration(&Evolver::Pruner) {
+			//I'd like to make this general by passing in policies as varidic...getting domtraits from args...templating this to take more than evolvable... but that's for another time
 			AliveTime = [](DominantGene const& a, DominantGene const& b) { return a.performance.results.timeLasted > b.performance.results.timeLasted; };
 			DamageDelt = [](DominantGene const& a, DominantGene const& b) { return a.performance.results.damageDelt > b.performance.results.damageDelt; };
 			DamageReceived = [](DominantGene const& a, DominantGene const& b) { return a.performance.results.damageReceived < b.performance.results.damageReceived; };
@@ -48,10 +55,11 @@ namespace Omiracon {
 			nodesTraversedPool.resize(traitPoolSize);
 		}
 
+		//Since this is the first selection, it keeps the parents as generation 0, mutates them as generation 1. This has two gens in one.
 		void Evolver::PerformFirstSelection(void) {
 			memcpy(&testpool[0], &genepool[0], GetMemAddr(waveSize));
 
-			for(size_t i = 0; i < testpool.size(); ++i) { testpool[i].generation = currentGeneration; }
+			for(auto it = testpool.begin(), end = testpool.end(); it != end; ++it) { it->generation = currentGeneration; }
 
 			std::random_shuffle(testpool.begin(), testpool.end()); //shuffle the main pool again so I can get a random sample when I copy below
 
@@ -107,27 +115,18 @@ namespace Omiracon {
 			memcpy(&nodesTraversedPool[0], &testpool[0], GetMemAddr(surviveCount));
 		}
 
+		//Since this has two gens, I only want to mutate certain ones (gen 1)
 		void Evolver::PerformFirstMutation(void) {
 			++currentGeneration;
 
 			testpool.clear(); //clear because we copied both the parents and the to-be-mutated children into the dominant pools
 			//not clearing will result in dupe parents for gen 0
 
-			for(size_t i = surviveCount; i < traitPoolSize - randomCount; ++i) {
-				aliveTimePool[i].traits.Mutate(CREEP);
-				damageDeltPool[i].traits.Mutate(CREEP);
-				damageReceivedPool[i].traits.Mutate(CREEP);
-				nodesTraversedPool[i].traits.Mutate(CREEP);
-
-				aliveTimePool[i].generation = currentGeneration;
-				damageDeltPool[i].generation = currentGeneration;
-				damageReceivedPool[i].generation = currentGeneration;
-				nodesTraversedPool[i].generation = currentGeneration;
-
-				aliveTimePool[i].performance.Reset();
-				damageDeltPool[i].performance.Reset();
-				damageReceivedPool[i].performance.Reset();
-				nodesTraversedPool[i].performance.Reset();
+			for(size_t i = surviveCount, end = traitPoolSize - randomCount; i < end; ++i) {
+				aliveTimePool[i].HandleMutationIteration(CREEP, currentGeneration);
+				damageDeltPool[i].HandleMutationIteration(CREEP, currentGeneration);
+				damageReceivedPool[i].HandleMutationIteration(CREEP, currentGeneration);
+				nodesTraversedPool[i].HandleMutationIteration(CREEP, currentGeneration);
 			}
 		}
 
@@ -137,25 +136,16 @@ namespace Omiracon {
 			testpool.clear();
 
 			//prune generations
-			genepool.erase(std::remove_if(genepool.begin(), genepool.end(), [&](const DominantGene & o) { return o.generation == currentGeneration - generationsToKeep; }), genepool.end());
+			genToPrune = currentGeneration - generationsToKeep;
+			genepool.erase(std::remove_if(genepool.begin(), genepool.end(), PruneGeneration), genepool.end());
 
-			previousSize = genDeathSize;
+			combineOffset = genDeathSize; //can probably set combineOffset to the &genDeathSize somewhere to prevent the assignment of this each mutation
 
 			for(size_t i = 0; i < traitPoolSize; ++i) {
-				aliveTimePool[i].traits.Mutate(CREEP);
-				damageDeltPool[i].traits.Mutate(CREEP);
-				damageReceivedPool[i].traits.Mutate(CREEP);
-				nodesTraversedPool[i].traits.Mutate(CREEP);
-
-				aliveTimePool[i].generation = currentGeneration;
-				damageDeltPool[i].generation = currentGeneration;
-				damageReceivedPool[i].generation = currentGeneration;
-				nodesTraversedPool[i].generation = currentGeneration;
-
-				aliveTimePool[i].performance.Reset();
-				damageDeltPool[i].performance.Reset();
-				damageReceivedPool[i].performance.Reset();
-				nodesTraversedPool[i].performance.Reset();
+				aliveTimePool[i].HandleMutationIteration(CREEP, currentGeneration);
+				damageDeltPool[i].HandleMutationIteration(CREEP, currentGeneration);
+				damageReceivedPool[i].HandleMutationIteration(CREEP, currentGeneration);
+				nodesTraversedPool[i].HandleMutationIteration(CREEP, currentGeneration);
 			}
 
 			//for(TraitedEnemy **i = &(aliveTimePool[0]), **end = &(aliveTimePool[traitPoolSize]); i < end; (**(i++)).traits.Mutate(CREEP));
@@ -166,10 +156,10 @@ namespace Omiracon {
 
 		void Evolver::Combination(void) {
 			//it's fine this contains the first gen still because the trait pools have the first gen during the first iteration so they get overwritten
-			memcpy(&genepool[0] + previousSize, &aliveTimePool[0], GetMemAddr(traitPoolSize));
-			memcpy(&genepool[0] + previousSize + traitPoolSize, &damageDeltPool[0], GetMemAddr(traitPoolSize));
-			memcpy(&genepool[0] + previousSize + traitPoolSize * 2, &damageReceivedPool[0], GetMemAddr(traitPoolSize));
-			memcpy(&genepool[0] + previousSize + traitPoolSize * 3, &nodesTraversedPool[0], GetMemAddr(traitPoolSize));
+			memcpy(&genepool[0] + combineOffset, &aliveTimePool[0], GetMemAddr(traitPoolSize));
+			memcpy(&genepool[0] + combineOffset + traitPoolSize, &damageDeltPool[0], GetMemAddr(traitPoolSize));
+			memcpy(&genepool[0] + combineOffset + traitPoolSize * 2, &damageReceivedPool[0], GetMemAddr(traitPoolSize));
+			memcpy(&genepool[0] + combineOffset + traitPoolSize * 3, &nodesTraversedPool[0], GetMemAddr(traitPoolSize));
 
 			std::random_shuffle(genepool.begin(), genepool.end());
 

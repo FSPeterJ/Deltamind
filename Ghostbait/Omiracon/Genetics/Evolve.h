@@ -27,7 +27,7 @@ namespace Omiracon {
 			/// <summary>
 			/// Prints the best stats for each dominant trait.
 			/// </summary>
-			void PrintBestStats(void) const;
+			void PrintBestStats(void);
 
 			/// <summary>
 			/// Used to initalize the information pertaining to the first wave.
@@ -91,21 +91,21 @@ namespace Omiracon {
 
 			float topPercentage, randPercentage;
 
-			int currentGeneration = 0;//this will need to be loaded from a file
-									  //if restart happens, the pool is cleared and messes things up
+			int currentGeneration = 0;//this will need to be loaded from a file. if restart happens, the pool is cleared and messes things up
+
 			size_t
-			waveSize, //size of current wave
-			surviveCount, //number of entities that survived via best genes
-			randomCount, //number of entities that survived via random chance
-			traitPoolSize, //size of current trait pool
-			previousSize = 0, //!size of previous wave
-			genDeathSize = 0, //number of entities that died off due to old age 
-			nextGenDeathSize = 0; //number of entities that will die off next generation
+				waveSize, //size of current wave
+				surviveCount, //number of entities that survived via best genes
+				randomCount, //number of entities that survived via random chance
+				traitPoolSize, //size of current trait pool
+				previousSize = 0, //!size of previous wave
+				genDeathSize = 0, //number of entities that died off due to old age
+				nextGenDeathSize = 0; //number of entities that will die off next generation
 
 			DominantPool genepool, testpool, aliveTimePool, damageDeltPool, damageReceivedPool, nodesTraversedPool;
 
 			inline size_t GetMemAddr(const size_t index) const { return index * sizeof(DominantGene); }
-			
+
 			void CreateDominantPools(void);
 
 			void PerformFirstSelection(void);

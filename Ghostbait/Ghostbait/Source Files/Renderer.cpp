@@ -379,7 +379,7 @@ void Renderer::renderObjectDefaultState(const GameObject * obj) {
 		context->PSSetSamplers(0, 1, &PointSamplerState);
 		materialManagement->GetNullMaterial()->bindToShader(context, factorBuffer, true);
 	}
-
+	
 	Animator* anim = obj->GetComponent<Animator>();
 	if(anim) {
 		const std::vector<animJoint>* joints = anim->getTweens();

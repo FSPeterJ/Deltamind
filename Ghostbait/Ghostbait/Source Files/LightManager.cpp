@@ -4,6 +4,9 @@ int LightManager::numLights = 0;
 int LightManager::nextID = 0;
 lightBufferStruct LightManager::cpu_light_info;
 int LightManager::IDList[MAX_LIGHTS];
+ID3D11Buffer* LightManager::lightBuffer;
+ID3D11ShaderResourceView* LightManager::srv;
+genericLight LightManager::cpu_side_lights[MAX_LIGHTS];
 
 int LightManager::addLight(genericLight toAdd)
 {
@@ -57,6 +60,10 @@ void LightManager::removeLight(int ID)
 			break;
 		}
 	}
+}
+
+void LightManager::Initialize(ID3D11Device * device, ID3D11DeviceContext * context)
+{
 }
 
 int LightManager::addDirectionalLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 dir)

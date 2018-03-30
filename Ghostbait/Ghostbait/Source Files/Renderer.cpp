@@ -14,10 +14,10 @@
 #include "AnimatorStructs.h"
 #include "WICTextureLoader.h"
 #include "TextManager.h"
+#include "ScrollingUVManager.h"
 
 //TODO: TEMP for testing a weird crash
 #include "Projectile.h"
-#include "GhostTime.h"
 
 using namespace DirectX;
 
@@ -392,7 +392,11 @@ void Renderer::renderObjectDefaultState(const GameObject * obj) {
 	} else
 		cpuAnimationData.willAnimate = false;
 	context->UpdateSubresource(animDataBuffer, 0, NULL, &cpuAnimationData, 0, 0);
-	//uvData.offsets.y += (float)GhostTime::DeltaTime() * 0.01f;
+	ScrollingUV* scroll = obj->GetComponent<ScrollingUV>();
+	if (scroll)
+		uvData.offsets = scroll->offset;
+	else
+		uvData.offsets = { 0.0f, 0.0f };
 	context->UpdateSubresource(uvDataBuffer, NULL, NULL, &uvData, NULL, NULL);
 	context->PSSetShader(DeferredTargetPS, NULL, NULL);
 	//materialManagement->GetElement(UINT_MAX)->bindToShader(context, factorBuffer);

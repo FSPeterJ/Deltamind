@@ -41,7 +41,7 @@ cbuffer scrollBuffer : register(b2)
 PixelShaderOutput main(PixelShaderInput input)
 {
     PixelShaderOutput output;
-    float2 uv = input.uv + offsets;
+    float2 uv = input.uv + float2(offsets.x * -1.0f, offsets.y);
     float4 diffuseFloat = diffuse.Sample(sample, uv);
     if(diffuseFloat.w == 0.0f)
         discard;

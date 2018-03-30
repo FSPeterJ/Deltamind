@@ -12,6 +12,8 @@
 #include "DebugRenderer.h"
 #include "GameData.h"
 
+std::vector<GameObject*> BuildTool::builtItems = std::vector<GameObject*>();
+
 BuildTool::BuildTool() { 
 	state = State::BUILD;
 }
@@ -29,9 +31,7 @@ void BuildTool::SetPrefabs(std::vector<unsigned> prefabIDs) {
 		prefabs[i].object->PersistOnReset();
 		if(physComp) physComp->isActive = false;
 		//Set objects shader to be semi-transparent solid color
-		if (prefabs[currentPrefabIndex].object->SwapComponentVarient<Material>("invalid")) {
-			prevLocationValid = false;
-		}
+		//prefabs[currentPrefabIndex].object->SwapComponentVarient<Material>("invalid");
 	}
 	//Add removal tool
 	prefabs[prefabs.size() - 1] = BuildItem();
@@ -52,10 +52,14 @@ void BuildTool::Disable() {
 void BuildTool::ActiveUpdate() {
 	if (!gearDisplay) {
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/CurrencyQuad.ghost")), { 0, 0, 0 }, &gearDisplay));
+		gearDisplay->UnRender();
+		gearDisplay->RenderTransparent();
 		gearDisplay->SetComponent<Material>(TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "$5000000", DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 0.75f), DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 0.5f)).mat);
 		gearDisplay->PersistOnReset();
 		gearDisplay->ToggleFlag(GAMEOBJECT_PUBLIC_FLAGS::UNLIT);
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/CurrencyQuadSmall.ghost")), { 0, 0, 0 }, &gearAdjustmentDisplay));
+		gearAdjustmentDisplay->UnRender();
+		gearAdjustmentDisplay->RenderTransparent();
 		gearAdjustmentDisplay->SetComponent<Material>(TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "-$5000000", DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 0.75f), DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f)).mat);
 		gearAdjustmentDisplay->PersistOnReset();
 		gearAdjustmentDisplay->ToggleFlag(GAMEOBJECT_PUBLIC_FLAGS::UNLIT);
@@ -205,7 +209,6 @@ void BuildTool::Spawn() {
 		bool hasEnoughMoney = true;
 		if (turret) hasEnoughMoney = gameData->GetGears() >= turret->GetBuildCost();
 		bool maxTurretsSpawned = (gameData->GetMaxTurrets() - gameData->GetTurretsSpawned()) <= 0;
-
 		DirectX::XMFLOAT2 pos = DirectX::XMFLOAT2(spawnPos.x, spawnPos.z);
 		if (Snap(&pos) && hasEnoughMoney && !maxTurretsSpawned) {
 			if (SetObstacle(pos, true)) {
@@ -220,13 +223,24 @@ void BuildTool::Spawn() {
 			}
 		}
 	}
+	Console::WriteLine << gameData->GetTurretsSpawned();
 }
 void BuildTool::Remove() {
 	if (currentlySelectedItem) {
 		DirectX::XMFLOAT2 pos = DirectX::XMFLOAT2(currentlySelectedItem->transform.GetMatrix()._41, currentlySelectedItem->transform.GetMatrix()._43);
 		if (SetObstacle(pos, false)) {
-			MessageEvents::SendQueueMessage(EVENT_Late, [=] { currentlySelectedItem->Destroy(); });
-			builtItems.erase(builtItems.begin() + currentlySelectedItemIndex);
+			toDestroy = currentlySelectedItem;
+			currentlySelectedItem = nullptr;
+			MessageEvents::SendQueueMessage(EVENT_Late, [=] { 
+				for (int i = 0; i < builtItems.size(); ++i) {
+					if (toDestroy == builtItems[i]) {
+						builtItems.erase(builtItems.begin() + i);
+						break;
+					}
+				}
+				toDestroy->Destroy();
+				toDestroy = nullptr;
+			});
 			Turret* tur = dynamic_cast<Turret*>(currentlySelectedItem);
 			if (tur) {
 				gameData->AddGears((int)(tur->GetBuildCost() * 0.5f));
@@ -250,10 +264,10 @@ void BuildTool::Repair() {
 }
 void BuildTool::SpawnProjection(){
 	if (prefabs[currentPrefabIndex].object) {
-		if (Raycast(&transform, transform.GetZAxis(), &spawnPos, nullptr, &buildRay, 6, "Ground")) {
+		if (Raycast(&transform, transform.GetZAxis(), &spawnPos, nullptr, &ray, 6, "Ground")) {
 			prefabs[currentPrefabIndex].object->Render();
 			//snap to center of grid
-			buildRay.Create(false, CastObject::Color::COLOR_Green);
+			ray.Create("green");
 			DirectX::XMFLOAT2 newPos = DirectX::XMFLOAT2(spawnPos.x, spawnPos.z);
 			Snap(&newPos);
 			spawnPos.x = newPos.x;
@@ -269,23 +283,17 @@ void BuildTool::SpawnProjection(){
 			light.transform.SetMatrix(newPos1);
 			//Asses if valid location
 			if (CanBuildHere(newPos)) {
-				if (!prevLocationValid) {
-					prefabs[currentPrefabIndex].object->SwapComponentVarient<Material>("green");
-					prevLocationValid = true;
-				}
+				prefabs[currentPrefabIndex].object->SwapComponentVarient<Material>("green");
 				light.SetColor({ 0.0f, 5.0f, 0.0f, 1.0f });
-				gearAdjustmentDisplay->RenderTransparent();
+				//gearAdjustmentDisplay->RenderTransparent();
 			}
 			else {
-				if (prevLocationValid) {
-					prefabs[currentPrefabIndex].object->SwapComponentVarient<Material>("red");
-					prevLocationValid = false;
-				}
+				prefabs[currentPrefabIndex].object->SwapComponentVarient<Material>("red");
 				light.SetColor({ 5.0f, 0.0f, 0.0f, 1.0f });
 			}
 		}
 		else {
-			buildRay.Destroy();
+			ray.Destroy();
 			prefabs[currentPrefabIndex].object->UnRender();
 			light.SetColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 		}
@@ -294,7 +302,7 @@ void BuildTool::SpawnProjection(){
 void BuildTool::RemoveProjection() {
 	DirectX::XMFLOAT3 endPos;
 	GameObject* colObject = nullptr;
-	if(!Raycast(&transform, DirectX::XMFLOAT3(transform.GetMatrix()._31, transform.GetMatrix()._32, transform.GetMatrix()._33), &endPos, &colObject, &deleteRay, 4, "Turret")) {
+	if(!Raycast(&transform, DirectX::XMFLOAT3(transform.GetMatrix()._31, transform.GetMatrix()._32, transform.GetMatrix()._33), &endPos, &colObject, &ray, 4, "Turret")) {
 		if (gearAdjustmentDisplay) gearAdjustmentDisplay->UnRender();
 		if (currentlySelectedItem) {
 			currentlySelectedItem->SwapComponentVarient<Material>("default");
@@ -328,7 +336,7 @@ void BuildTool::RemoveProjection() {
 void BuildTool::RepairProjection() {
 	DirectX::XMFLOAT3 endPos;
 	GameObject* colObject = nullptr;
-	if (!Raycast(&transform, DirectX::XMFLOAT3(transform.GetMatrix()._31, transform.GetMatrix()._32, transform.GetMatrix()._33), &endPos, &colObject, &repairRay, 4, "Turret")) {
+	if (!Raycast(&transform, DirectX::XMFLOAT3(transform.GetMatrix()._31, transform.GetMatrix()._32, transform.GetMatrix()._33), &endPos, &colObject, &ray, 4, "Turret")) {
 		if (gearAdjustmentDisplay) gearAdjustmentDisplay->UnRender();
 		if (currentlySelectedItem) {
 			currentlySelectedItem->SwapComponentVarient<Material>("default");
@@ -375,15 +383,11 @@ void BuildTool::CycleForward() {
 
 		if (prefabs[tempIndex].ID == 0) {
 			currentMode = Mode::REMOVE;
-			buildRay.Destroy();
-			repairRay.Destroy();
-			deleteRay.Create(false, CastObject::Color::COLOR_Red);
+			SetColor("red");
 		}
 		else if (prefabs[tempIndex].ID == -1) {
 			currentMode = Mode::REPAIR;
-			buildRay.Destroy();
-			repairRay.Create(false, CastObject::Color::COLOR_Yellow);
-			deleteRay.Destroy();
+			SetColor("yellow");
 		}
 		else {
 			currentMode = Mode::BUILD;
@@ -392,9 +396,7 @@ void BuildTool::CycleForward() {
 				currentlySelectedItem = nullptr;
 			}
 			if (gearAdjustmentDisplay) gearAdjustmentDisplay->RenderTransparent();
-			buildRay.Create(false, CastObject::Color::COLOR_Green);
-			repairRay.Destroy();
-			deleteRay.Destroy();
+			SetColor("green");
 		}
 
 		currentPrefabIndex = tempIndex;
@@ -418,15 +420,11 @@ void BuildTool::CycleBackward() {
 
 		if (prefabs[tempIndex].ID == 0) {
 			currentMode = Mode::REMOVE;
-			buildRay.Destroy();
-			repairRay.Destroy();
-			deleteRay.Create(false, CastObject::Color::COLOR_Red);
+			SetColor("red");
 		}
 		else if (prefabs[tempIndex].ID == -1) {
 			currentMode = Mode::REPAIR;
-			buildRay.Destroy();
-			repairRay.Create(false, CastObject::Color::COLOR_Yellow);
-			deleteRay.Destroy();
+			SetColor("yellow");
 		}
 		else {
 			currentMode = Mode::BUILD;
@@ -435,9 +433,7 @@ void BuildTool::CycleBackward() {
 				currentlySelectedItem = nullptr;
 			}
 			if (gearAdjustmentDisplay) gearAdjustmentDisplay->RenderTransparent();
-			buildRay.Create(false, CastObject::Color::COLOR_Green);
-			repairRay.Destroy();
-			deleteRay.Destroy();
+			SetColor("green");
 		}
 
 		currentPrefabIndex = tempIndex;
@@ -450,6 +446,27 @@ void BuildTool::InactiveUpdate() {
 	Item::InactiveUpdate();
 }
 
+void BuildTool::Selected() {
+	Item::Selected();
+	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
+		if (gearDisplay) gearDisplay->RenderTransparent();
+		if (gearAdjustmentDisplay) gearAdjustmentDisplay->RenderTransparent();
+		if (prefabs[currentPrefabIndex].object) {
+			prefabs[currentPrefabIndex].object->Render();
+		}
+	}
+	switch (currentMode) {
+	case BUILD:
+		ray.Create(false, "green");
+		break;
+	case REPAIR:
+		ray.Create(false, "yellow");
+		break;
+	case REMOVE:
+		ray.Create(false, "red");
+		break;
+	}
+}
 void BuildTool::DeSelected() {
 	if(gearDisplay) gearDisplay->UnRender();
 	if (gearAdjustmentDisplay) gearAdjustmentDisplay->UnRender();
@@ -462,28 +479,18 @@ void BuildTool::DeSelected() {
 		currentlySelectedItem = nullptr;
 	}
 	light.SetColor({ 0.0f, 0.0f, 0.0f, 1.0f });
-	buildRay.Destroy();
-	repairRay.Destroy();
-	deleteRay.Destroy();
+	ray.Destroy();
 	Item::DeSelected();
 }
 
-void BuildTool::Selected() {
-	Item::Selected();
-	if (currentPrefabIndex >= 0 && currentPrefabIndex < (int)prefabs.size()) {
-		if (gearDisplay) gearDisplay->RenderTransparent();
-		if (gearAdjustmentDisplay) gearAdjustmentDisplay->RenderTransparent();
-		if (prefabs[currentPrefabIndex].object)
-			prefabs[currentPrefabIndex].object->Render();
-		//if (prefabs[currentPrefabIndex].ID == 0)
-		//	deleteRay.Create(false, CastObject::Color::COLOR_Red);
-	}
+void BuildTool::SetColor(const char* colorVarient) {
+	ray.Create(false, colorVarient);
+	SwapComponentVarient<Material>(colorVarient);
 }
 
+
 void BuildTool::Awake(Object* obj) {
-	buildRay.SetFile("Assets/Ray.ghost");
-	repairRay.SetFile("Assets/Ray.ghost");
-	deleteRay.SetFile("Assets/Ray.ghost");
+	ray.SetFile("Assets/Ray.ghost");
 	light.Enable();
 	light.SetAsPoint({ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 4.5f);
 	//gearDisplay->transform.SetMatrix(DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1));

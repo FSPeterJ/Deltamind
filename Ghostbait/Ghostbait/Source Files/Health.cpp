@@ -27,7 +27,7 @@ const float Health::PercentHealth() const {
 float Health::AdjustHealth(const float amount) {
 	if (amount < 0) {
 		if (health == 0) return 0;
-		else HurtEvent();
+		HurtEvent();
 	}
 	if (amount > 0) HealedEvent();
 	float prevHealth = health;

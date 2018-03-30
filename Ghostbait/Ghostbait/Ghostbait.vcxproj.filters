@@ -330,6 +330,9 @@
     <ClInclude Include="Header Files\GameData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Header Files\ScrollingUVManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Header Files\AntColony.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -575,6 +578,9 @@
     <ClCompile Include="Source Files\GameData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source Files\ScrollingUVManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Source Files\AntColony.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -633,6 +639,9 @@
       <Filter>Shaders\Vertex Shaders</Filter>
     </FxCompile>
     <FxCompile Include="PositionTexturePixelShader.hlsl">
+      <Filter>Shaders\Pixel Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="BlurPixelShader.hlsl">
       <Filter>Shaders\Pixel Shaders</Filter>
     </FxCompile>
   </ItemGroup>

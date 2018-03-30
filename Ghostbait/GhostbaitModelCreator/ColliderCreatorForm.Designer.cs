@@ -260,9 +260,9 @@ namespace GhostbaitModelCreator
             this.label13.AutoSize = true;
             this.label13.Location = new System.Drawing.Point(13, 33);
             this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(37, 13);
+            this.label13.Size = new System.Drawing.Size(24, 13);
             this.label13.TabIndex = 23;
-            this.label13.Text = "Point2";
+            this.label13.Text = "Min";
             // 
             // boxPoint2Y
             // 
@@ -348,9 +348,9 @@ namespace GhostbaitModelCreator
             this.label8.AutoSize = true;
             this.label8.Location = new System.Drawing.Point(13, 7);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(37, 13);
+            this.label8.Size = new System.Drawing.Size(27, 13);
             this.label8.TabIndex = 16;
-            this.label8.Text = "Point1";
+            this.label8.Text = "Max";
             // 
             // label10
             // 

@@ -32,6 +32,7 @@
 #include "Core.h"
 #include "Ground.h"
 #include "Monitor.h"
+#include "ScrollingUVManager.h"
 
 using namespace Threadding;
 
@@ -49,6 +50,7 @@ ObjectManager* objMan;
 EngineStructure engine;
 AnimatorManager* animMan;
 AudioManager* audioMan;
+ScrollingUVManager* scrollMan;
 Player* player;
 
 GameObject* animationTest;
@@ -109,6 +111,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	audioMan->setCamera(&player->transform.GetMatrix());
 	Console::WriteLine << "Nothing's wrong here......";
 
+	scrollMan = new ScrollingUVManager();
+	if (scrollMan) Console::WriteLine << "Scrolling UV Manager initialized......";
 	animMan = new AnimatorManager(rendInter->getAnimationManager());
 	if(animMan) Console::WriteLine << "Animation Manager initialized......";
 	phyMan = new PhysicsManager();
@@ -119,7 +123,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::Initialize(objMan, "NOT USED STRING");
 	Console::WriteLine << "Object Factory Initialized......";
 
-	ObjectFactory::RegisterPrefabBase<Turret>(100);
+	ObjectFactory::RegisterPrefabBase<Turret>(102);
 	ObjectFactory::RegisterPrefabBase<Item>(16);
 	ObjectFactory::RegisterPrefabBase<ControllerObject>(2);
 	ObjectFactory::RegisterPrefabBase<Gun>(8);
@@ -145,13 +149,13 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<AStarEnemy>(300);
 	ObjectFactory::RegisterPrefabBase<DStarEnemy>(10);
 	ObjectFactory::RegisterPrefabBase<MTDSLEnemy>(300);
-
 	Console::WriteLine << "Prefab base registered......";
 
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
 	ObjectFactory::RegisterManager<PhysicsComponent, PhysicsManager>(phyMan);
 	ObjectFactory::RegisterManager<Material, MaterialManager>(rendInter->getMaterialManager());
 	ObjectFactory::RegisterManager<Animator, AnimatorManager>(animMan);
+	ObjectFactory::RegisterManager<ScrollingUV, ScrollingUVManager>(scrollMan);
 	Console::WriteLine << "Managers registered......";
 
 
@@ -298,7 +302,7 @@ void Loop() {
 	player->leftController->Update();
 	player->rightController->Update();
 
-	
+	scrollMan->Update();
 	rendInter->Render();
 }
 
@@ -315,6 +319,7 @@ void CleanUp() {
 	delete inputMan;
 	delete animMan;
 	delete audioMan;
+	delete scrollMan;
 	if(game) {
 		game->Clean();
 		delete game;

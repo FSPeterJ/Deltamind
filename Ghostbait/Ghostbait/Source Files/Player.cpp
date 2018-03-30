@@ -13,7 +13,7 @@
 Player::Player() {
 	Enable();
 	PersistOnReset();
-	teleportArc.SetFile("Assets/Arc2.ghost");
+	teleportArc.SetFile("Assets/Arc3.ghost");
 	VRManager::GetInstance().Init(&transform);
 	transform.SetPosition(0, 1.7f, 0);
 	transform.LookAt({ 0, 1.7f, 1 });

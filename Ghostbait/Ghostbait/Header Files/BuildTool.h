@@ -23,13 +23,14 @@ class BuildTool : public Item {
 
 	int currentPrefabIndex = 0;
 	std::vector<BuildItem> prefabs;
-	std::vector<GameObject*> builtItems;
+	static std::vector<GameObject*> builtItems;
 	Mode currentMode = BUILD;
 	DirectX::XMFLOAT3 spawnPos;
 	int currentlySelectedItemIndex = -1;
 	GameObject* currentlySelectedItem = nullptr;
+	GameObject* toDestroy = nullptr;
+	int toDestroyIndex = -1;
 	Light light;
-	bool prevLocationValid = true;
 
 	//Game values
 	HexGrid* grid = nullptr;
@@ -46,10 +47,13 @@ class BuildTool : public Item {
 	bool Snap(DirectX::XMFLOAT2* pos);
 	bool SetObstacle(DirectX::XMFLOAT2 pos, bool active);
 	bool CanBuildHere(DirectX::XMFLOAT2& spawnPos);
+
+	void SetColor(const char* colorVarient);
 public:
-	CastObject buildRay;
-	CastObject deleteRay;
-	CastObject repairRay;
+	CastObject ray;
+	//CastObject buildRay;
+	//CastObject deleteRay;
+	//CastObject repairRay;
 
 	BuildTool();
 

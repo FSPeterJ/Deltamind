@@ -641,5 +641,8 @@
     <FxCompile Include="PositionTexturePixelShader.hlsl">
       <Filter>Shaders\Pixel Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="BlurPixelShader.hlsl">
+      <Filter>Shaders\Pixel Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

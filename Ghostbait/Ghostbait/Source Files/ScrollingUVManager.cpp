@@ -1,5 +1,6 @@
 #include "ScrollingUVManager.h"
 #include "TypeMapping.h"
+#include "GhostTime.h"
 
 ScrollingUVManager::ScrollingUVManager() {
 	TypeMap::RegisterComponentAlias<ScrollingUV>("Scroll");
@@ -12,8 +13,8 @@ void ScrollingUVManager::Update() {
 	std::vector<ScrollingUV*>* activeList = pooledUVs.GetActiveList();
 	for (int i = 0; i < (int)activeList->size(); ++i) {
 		ScrollingUV* element = (*activeList)[i];
-		element->offset.x += element->velocity.x;
-		element->offset.y += element->velocity.y;
+		element->offset.x += (element->velocity.x * (float)GhostTime::DeltaTime());
+		element->offset.y += (element->velocity.y * (float)GhostTime::DeltaTime());
 	}
 }
 

@@ -33,10 +33,21 @@ namespace Threadding {
 			//std::future<ReturnType> f = prom.get_future();
 			//std::thread(mf, p, args...).detach();
 
-			return std::async(std::launch::deferred, mf, p, args...).get();
+			return std::async(std::launch::async, mf, p, args...).get();
 
 			//std::thread([&] { std::thread(mf, p, args...).detach(); prom.set_value_at_thread_exit(9); }).detach();
 			//return f.get();
+		}
+
+		template<typename F, typename... Args>
+		static void CreateAsyncJob(std::function<void(Args...) >f) {
+			Job task(f);
+
+			std::lock_guard<std::mutex> lock(queueMutex);
+			queue.push(std::move(task));
+			queueMutex.unlock();
+
+			condition.notify_one();
 		}
 
 		template<typename F, typename... Args>
@@ -49,6 +60,7 @@ namespace Threadding {
 				// Research futher, but this is probably irrelevant levels of performance
 				std::lock_guard<std::mutex> lock(queueMutex);
 				queue.push(std::move(task));
+				
 			}
 			condition.notify_one();
 			return fut;

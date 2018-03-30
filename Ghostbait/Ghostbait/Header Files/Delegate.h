@@ -3,6 +3,8 @@
 #include <functional>
 #include <algorithm>
 #include <cassert>
+#include "ThreadPool.h"
+using namespace Threadding;
 
 template <typename ...T>
 class Delegate: std::function<void(T...)> {
@@ -29,7 +31,7 @@ public:
 	void operator()(const T&... e) {
 		size_t delsize = delegates.size();
 		//Iterators were not cutting the cake for us.  Accessing by index is ok, and we prevet iterator invalidation by pushback mid iteration
-		for(delegate_iteration = 0; delegate_iteration < delsize; delegate_iteration++) {
+		for(delegate_iteration = 0; delegate_iteration < delsize; ++delegate_iteration) {
 			delegates[delegate_iteration].function(e...);
 		}
 		//Process the delegate further if more things were added to the current delegate by previous delegate calls in this update
@@ -40,6 +42,26 @@ public:
 		}
 		delegate_iteration = 0;
 	}
+
+	void RunAsync(const T&... e) {
+		size_t delsize = delegates.size();
+		//Iterators were not cutting the cake for us.  Accessing by index is ok, and we prevet iterator invalidation by pushback mid iteration
+		//ThreadPool::MakeJob([&] {
+			for(delegate_iteration = 0; delegate_iteration < delegates.size(); ++delegate_iteration) {
+				auto fuc = std::bind(delegates[delegate_iteration].function, e...);
+				std::async(std::launch::async, fuc);
+			}
+	//	});
+		//Process the delegate further if more things were added to the current delegate by previous delegate calls in this update
+		if(delsize < delegates.size()) {
+			for(delegate_iteration = delsize; delegate_iteration < delegates.size(); ++delegate_iteration) {
+				auto fuc = std::bind(delegates[delegate_iteration].function, e...);
+				std::async(std::launch::async, fuc);
+			}
+		}
+		delegate_iteration = 0;
+	}
+
 	//Possibly want to phase this out.  Unsure what problems we will run into with legacy support and 0 being an ID for permament registration
 	//ONLY use this if you NEVER want to remove your delegated function post-registration
 	void operator+=(const std::function<void(T...)> execute) {

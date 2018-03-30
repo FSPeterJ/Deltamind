@@ -28,15 +28,17 @@ protected:
 	GhostTime::Moment spawnTime;
 	
 	State currState = IDLE;
-	float maxSpeed = 100.0f;
-	float speed = 100.0f;
 	DirectX::XMFLOAT3 target = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 
 	Core* core = nullptr;
 
+	//float speed = 100.0f;
+	//float denfense = 5;
 	bool reachedCore = false;
+	float maxSpeed = 100.0f;
 	float attackSpeed = 1;
 	float attackDamage = 5;
+	float perceptionRange = 3;
 	float timeSinceLastAttack = -1;
 
 	unsigned eventLose = 0;
@@ -66,9 +68,15 @@ public:
 	void CalculateResult();
 
 	Evolvable*& SetTraits() { return genetics; }
+	void SetStats();
 
 	virtual void SetGrid(HexGrid* _grid) {};
 	virtual void SetCore(Core* _core) { core = _core; };
 	virtual void Repath() {};
 	virtual void RandomizeStats();
+
+	//virtual void Attack() = 0;
+	//virtual void Move() = 0;
+	//virtual void TakeDamage(float) = 0;
+	//virtual void Death() = 0;
 };

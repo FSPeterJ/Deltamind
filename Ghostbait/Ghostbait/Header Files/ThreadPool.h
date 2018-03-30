@@ -10,7 +10,7 @@ class ThreadPool {
 
 	static bool quit;
 
-	static std::vector<std::thread> pool;
+	static std::vector<std::thread*> pool;
 
 	using Job = std::packaged_task<void()>;
 

@@ -60,6 +60,8 @@ namespace GhostbaitModelCreator
             this.dataGridViewMesh = new System.Windows.Forms.DataGridView();
             this.panel3 = new System.Windows.Forms.Panel();
             this.groupBoxClass = new System.Windows.Forms.GroupBox();
+            this.radioButtonStatic = new System.Windows.Forms.RadioButton();
+            this.radioButtonDynamic = new System.Windows.Forms.RadioButton();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -68,10 +70,14 @@ namespace GhostbaitModelCreator
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.colliderBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.ScrollingUVs = new System.Windows.Forms.CheckBox();
+            this.VelocityV = new System.Windows.Forms.NumericUpDown();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.VelocityU = new System.Windows.Forms.NumericUpDown();
+            this.UVPanel = new System.Windows.Forms.Panel();
             this.colliderCreatorFormBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.programBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.radioButtonDynamic = new System.Windows.Forms.RadioButton();
-            this.radioButtonStatic = new System.Windows.Forms.RadioButton();
             this.groupBoxAnimation.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewAnimation)).BeginInit();
             this.panel4.SuspendLayout();
@@ -95,6 +101,9 @@ namespace GhostbaitModelCreator
             this.groupBoxClass.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.colliderBindingSource)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.VelocityV)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.VelocityU)).BeginInit();
+            this.UVPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.colliderCreatorFormBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.programBindingSource)).BeginInit();
             this.SuspendLayout();
@@ -106,7 +115,7 @@ namespace GhostbaitModelCreator
             this.groupBoxAnimation.Controls.Add(this.dataGridViewAnimation);
             this.groupBoxAnimation.Controls.Add(this.panel4);
             this.groupBoxAnimation.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBoxAnimation.Location = new System.Drawing.Point(0, 844);
+            this.groupBoxAnimation.Location = new System.Drawing.Point(0, 906);
             this.groupBoxAnimation.Name = "groupBoxAnimation";
             this.groupBoxAnimation.Size = new System.Drawing.Size(305, 168);
             this.groupBoxAnimation.TabIndex = 9;
@@ -182,7 +191,7 @@ namespace GhostbaitModelCreator
             this.groupBox1.Controls.Add(this.dataGridViewChildObjects);
             this.groupBox1.Controls.Add(this.panel5);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox1.Location = new System.Drawing.Point(0, 1012);
+            this.groupBox1.Location = new System.Drawing.Point(0, 1074);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(305, 183);
             this.groupBox1.TabIndex = 10;
@@ -224,7 +233,7 @@ namespace GhostbaitModelCreator
             this.groupBoxBindPose.Controls.Add(this.bindPoseFileName);
             this.groupBoxBindPose.Controls.Add(this.bindPoseFileGrab);
             this.groupBoxBindPose.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBoxBindPose.Location = new System.Drawing.Point(0, 788);
+            this.groupBoxBindPose.Location = new System.Drawing.Point(0, 850);
             this.groupBoxBindPose.Name = "groupBoxBindPose";
             this.groupBoxBindPose.Size = new System.Drawing.Size(305, 56);
             this.groupBoxBindPose.TabIndex = 6;
@@ -266,7 +275,7 @@ namespace GhostbaitModelCreator
             this.groupBoxAudio.Controls.Add(this.dataGridViewAudio);
             this.groupBoxAudio.Controls.Add(this.panel6);
             this.groupBoxAudio.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBoxAudio.Location = new System.Drawing.Point(0, 615);
+            this.groupBoxAudio.Location = new System.Drawing.Point(0, 677);
             this.groupBoxAudio.Name = "groupBoxAudio";
             this.groupBoxAudio.Size = new System.Drawing.Size(305, 173);
             this.groupBoxAudio.TabIndex = 7;
@@ -309,7 +318,7 @@ namespace GhostbaitModelCreator
             this.groupBoxColliders.Controls.Add(this.dataGridViewColliders);
             this.groupBoxColliders.Controls.Add(this.panel1);
             this.groupBoxColliders.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBoxColliders.Location = new System.Drawing.Point(0, 439);
+            this.groupBoxColliders.Location = new System.Drawing.Point(0, 501);
             this.groupBoxColliders.Name = "groupBoxColliders";
             this.groupBoxColliders.Size = new System.Drawing.Size(305, 176);
             this.groupBoxColliders.TabIndex = 8;
@@ -352,7 +361,7 @@ namespace GhostbaitModelCreator
             this.groupBoxMaterial.Controls.Add(this.dataGridViewMaterial);
             this.groupBoxMaterial.Controls.Add(this.panel2);
             this.groupBoxMaterial.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBoxMaterial.Location = new System.Drawing.Point(0, 262);
+            this.groupBoxMaterial.Location = new System.Drawing.Point(0, 324);
             this.groupBoxMaterial.Name = "groupBoxMaterial";
             this.groupBoxMaterial.Size = new System.Drawing.Size(305, 177);
             this.groupBoxMaterial.TabIndex = 5;
@@ -395,7 +404,7 @@ namespace GhostbaitModelCreator
             this.groupBoxMesh.Controls.Add(this.dataGridViewMesh);
             this.groupBoxMesh.Controls.Add(this.panel3);
             this.groupBoxMesh.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBoxMesh.Location = new System.Drawing.Point(0, 73);
+            this.groupBoxMesh.Location = new System.Drawing.Point(0, 135);
             this.groupBoxMesh.Name = "groupBoxMesh";
             this.groupBoxMesh.Size = new System.Drawing.Size(305, 189);
             this.groupBoxMesh.TabIndex = 4;
@@ -423,16 +432,40 @@ namespace GhostbaitModelCreator
             // 
             // groupBoxClass
             // 
+            this.groupBoxClass.Controls.Add(this.UVPanel);
+            this.groupBoxClass.Controls.Add(this.ScrollingUVs);
             this.groupBoxClass.Controls.Add(this.radioButtonStatic);
             this.groupBoxClass.Controls.Add(this.radioButtonDynamic);
             this.groupBoxClass.Controls.Add(this.className);
             this.groupBoxClass.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBoxClass.Location = new System.Drawing.Point(0, 0);
             this.groupBoxClass.Name = "groupBoxClass";
-            this.groupBoxClass.Size = new System.Drawing.Size(305, 73);
+            this.groupBoxClass.Size = new System.Drawing.Size(305, 135);
             this.groupBoxClass.TabIndex = 0;
             this.groupBoxClass.TabStop = false;
             this.groupBoxClass.Text = "Class";
+            // 
+            // radioButtonStatic
+            // 
+            this.radioButtonStatic.AutoSize = true;
+            this.radioButtonStatic.Location = new System.Drawing.Point(90, 46);
+            this.radioButtonStatic.Name = "radioButtonStatic";
+            this.radioButtonStatic.Size = new System.Drawing.Size(63, 17);
+            this.radioButtonStatic.TabIndex = 3;
+            this.radioButtonStatic.Text = "Is Static";
+            this.radioButtonStatic.UseVisualStyleBackColor = true;
+            // 
+            // radioButtonDynamic
+            // 
+            this.radioButtonDynamic.AutoSize = true;
+            this.radioButtonDynamic.Checked = true;
+            this.radioButtonDynamic.Location = new System.Drawing.Point(7, 46);
+            this.radioButtonDynamic.Name = "radioButtonDynamic";
+            this.radioButtonDynamic.Size = new System.Drawing.Size(77, 17);
+            this.radioButtonDynamic.TabIndex = 2;
+            this.radioButtonDynamic.TabStop = true;
+            this.radioButtonDynamic.Text = "Is Dynamic";
+            this.radioButtonDynamic.UseVisualStyleBackColor = true;
             // 
             // menuStrip1
             // 
@@ -492,6 +525,78 @@ namespace GhostbaitModelCreator
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
+            // ScrollingUVs
+            // 
+            this.ScrollingUVs.AutoSize = true;
+            this.ScrollingUVs.Location = new System.Drawing.Point(6, 69);
+            this.ScrollingUVs.Name = "ScrollingUVs";
+            this.ScrollingUVs.Size = new System.Drawing.Size(86, 17);
+            this.ScrollingUVs.TabIndex = 4;
+            this.ScrollingUVs.Text = "ScrollingUVs";
+            this.ScrollingUVs.UseVisualStyleBackColor = true;
+            this.ScrollingUVs.CheckedChanged += new System.EventHandler(this.ScrollingUVs_CheckedChanged);
+            // 
+            // VelocityV
+            // 
+            this.VelocityV.DecimalPlaces = 3;
+            this.VelocityV.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            65536});
+            this.VelocityV.Location = new System.Drawing.Point(221, 9);
+            this.VelocityV.Name = "VelocityV";
+            this.VelocityV.Size = new System.Drawing.Size(49, 20);
+            this.VelocityV.TabIndex = 5;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(161, 11);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(54, 13);
+            this.label1.TabIndex = 6;
+            this.label1.Text = "Velocity V";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(3, 11);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(55, 13);
+            this.label2.TabIndex = 8;
+            this.label2.Text = "Velocity U";
+            // 
+            // VelocityU
+            // 
+            this.VelocityU.DecimalPlaces = 3;
+            this.VelocityU.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            65536});
+            this.VelocityU.Location = new System.Drawing.Point(63, 9);
+            this.VelocityU.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
+            this.VelocityU.Name = "VelocityU";
+            this.VelocityU.Size = new System.Drawing.Size(49, 20);
+            this.VelocityU.TabIndex = 7;
+            // 
+            // UVPanel
+            // 
+            this.UVPanel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.UVPanel.Controls.Add(this.label2);
+            this.UVPanel.Controls.Add(this.label1);
+            this.UVPanel.Controls.Add(this.VelocityV);
+            this.UVPanel.Controls.Add(this.VelocityU);
+            this.UVPanel.Location = new System.Drawing.Point(6, 92);
+            this.UVPanel.Name = "UVPanel";
+            this.UVPanel.Size = new System.Drawing.Size(293, 37);
+            this.UVPanel.TabIndex = 9;
+            // 
             // colliderCreatorFormBindingSource
             // 
             this.colliderCreatorFormBindingSource.DataSource = typeof(GhostbaitModelCreator.ColliderCreatorForm);
@@ -499,28 +604,6 @@ namespace GhostbaitModelCreator
             // programBindingSource
             // 
             this.programBindingSource.DataSource = typeof(GhostbaitModelCreator.Program);
-            // 
-            // radioButtonDynamic
-            // 
-            this.radioButtonDynamic.AutoSize = true;
-            this.radioButtonDynamic.Checked = true;
-            this.radioButtonDynamic.Location = new System.Drawing.Point(7, 46);
-            this.radioButtonDynamic.Name = "radioButtonDynamic";
-            this.radioButtonDynamic.Size = new System.Drawing.Size(77, 17);
-            this.radioButtonDynamic.TabIndex = 2;
-            this.radioButtonDynamic.TabStop = true;
-            this.radioButtonDynamic.Text = "Is Dynamic";
-            this.radioButtonDynamic.UseVisualStyleBackColor = true;
-            // 
-            // radioButtonStatic
-            // 
-            this.radioButtonStatic.AutoSize = true;
-            this.radioButtonStatic.Location = new System.Drawing.Point(90, 46);
-            this.radioButtonStatic.Name = "radioButtonStatic";
-            this.radioButtonStatic.Size = new System.Drawing.Size(63, 17);
-            this.radioButtonStatic.TabIndex = 3;
-            this.radioButtonStatic.Text = "Is Static";
-            this.radioButtonStatic.UseVisualStyleBackColor = true;
             // 
             // ModelCreatorForm
             // 
@@ -559,6 +642,10 @@ namespace GhostbaitModelCreator
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.colliderBindingSource)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.VelocityV)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.VelocityU)).EndInit();
+            this.UVPanel.ResumeLayout(false);
+            this.UVPanel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.colliderCreatorFormBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.programBindingSource)).EndInit();
             this.ResumeLayout(false);
@@ -611,6 +698,12 @@ namespace GhostbaitModelCreator
         private System.Windows.Forms.DataGridView dataGridViewAudio;
         private System.Windows.Forms.RadioButton radioButtonStatic;
         private System.Windows.Forms.RadioButton radioButtonDynamic;
+        private System.Windows.Forms.Panel UVPanel;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.NumericUpDown VelocityV;
+        private System.Windows.Forms.NumericUpDown VelocityU;
+        private System.Windows.Forms.CheckBox ScrollingUVs;
     }
 }
 

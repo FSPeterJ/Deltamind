@@ -114,6 +114,7 @@ namespace {
 				tran.LookAt(DirectX::XMFLOAT3(endMat.m[3]));
 			}
 			arc->Get()->GetComponent<Animator>()->SetJointMatrix(i, tran.GetMatrix());
+			DebugRenderer::DrawAxes(arc->Get()->GetComponent<Animator>()->GetJointMatrix(i), 0.5f);
 		}
 	}
 	void DrawRay(Transform* transform, const DirectX::XMFLOAT3& end, CastObject* ray) {

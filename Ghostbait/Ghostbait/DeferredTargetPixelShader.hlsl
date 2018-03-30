@@ -32,16 +32,24 @@ cbuffer factorBuffer : register(b1)
     float unlitFactor;
 };
 
+cbuffer scrollBuffer : register(b2)
+{
+    float2 offsets;
+    float2 padding;
+};
+
 PixelShaderOutput main(PixelShaderInput input)
 {
     PixelShaderOutput output;
-    float4 diffuseFloat = diffuse.Sample(sample, input.uv);
+    float2 uv = input.uv + float2(offsets.x * -1.0f, offsets.y);
+    float4 diffuseFloat = diffuse.Sample(sample, uv);
     if(diffuseFloat.w == 0.0f)
         discard;
     output.diffuse = float4(diffuseFloat.xyz * diffuseFactor, diffuseFloat.w);
-    output.emissive = float4((emissive.Sample(sample, input.uv) * emissiveFactor).xyz, 1.0f);
+    float4 emissiveFloat = emissive.Sample(sample, uv);
+    output.emissive = float4((emissive.Sample(sample, uv) * emissiveFactor).xyz, 1.0f);
     output.normal = float4(((input.norm * 0.5f) + 0.5f), 1.0f);
-    output.specular = float4((specular.Sample(sample, input.uv) * specularFactor).xyz, 1.0f);
+    output.specular = float4((specular.Sample(sample, uv) * specularFactor).xyz, 1.0f);
     output.depth = float4(input.pos.z, input.pos.w, input.pos.z, 1.0f);
     output.unlit = float4(unlitFactor, unlitFactor, unlitFactor, 1.0f);
     return output;

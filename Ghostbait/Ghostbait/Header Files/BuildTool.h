@@ -31,7 +31,6 @@ class BuildTool : public Item {
 	GameObject* toDestroy = nullptr;
 	int toDestroyIndex = -1;
 	Light light;
-	bool prevLocationValid = true;
 
 	//Game values
 	HexGrid* grid = nullptr;
@@ -48,6 +47,8 @@ class BuildTool : public Item {
 	bool Snap(DirectX::XMFLOAT2* pos);
 	bool SetObstacle(DirectX::XMFLOAT2 pos, bool active);
 	bool CanBuildHere(DirectX::XMFLOAT2& spawnPos);
+
+	void SetColor(const char* colorVarient);
 public:
 	CastObject ray;
 	//CastObject buildRay;

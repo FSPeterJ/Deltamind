@@ -330,6 +330,7 @@ void ControllerObject::Update() {
 
 				//VR Inputs
 				if (player->IsVR()) {
+
 					DisplayInventory();
 
 					if (!player->IsGod()) {

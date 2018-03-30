@@ -17,6 +17,7 @@
 
 //TODO: TEMP for testing a weird crash
 #include "Projectile.h"
+#include "GhostTime.h"
 
 using namespace DirectX;
 
@@ -391,6 +392,8 @@ void Renderer::renderObjectDefaultState(const GameObject * obj) {
 	} else
 		cpuAnimationData.willAnimate = false;
 	context->UpdateSubresource(animDataBuffer, 0, NULL, &cpuAnimationData, 0, 0);
+	uvData.offsets = DirectX::XMFLOAT2(0.0f, 0.0f);
+	context->UpdateSubresource(uvDataBuffer, NULL, NULL, &uvData, NULL, NULL);
 	context->PSSetShader(DeferredTargetPS, NULL, NULL);
 	//materialManagement->GetElement(UINT_MAX)->bindToShader(context, factorBuffer);
 	context->DrawIndexed(obj->GetComponent<Mesh>()->indexCount, 0, 0);
@@ -411,6 +414,7 @@ void Renderer::renderToEye(eye * eyeTo) {
 	context->OMSetRenderTargets(6, eyeTo->targets.RTVs, eyeTo->targets.DSV);
 	context->RSSetViewports(1, &eyeTo->renderInfo.viewport);
 
+	context->PSSetConstantBuffers(2, 1, &uvDataBuffer);
 	for(size_t i = 0; i < renderedObjects.size(); ++i) {
 		renderObjectDefaultState(renderedObjects[i]);
 	}
@@ -664,6 +668,7 @@ void Renderer::Destroy() {
 	factorBuffer->Release();
 	lightBuffer->Release();
 	blurDataBuffer->Release();
+	uvDataBuffer->Release();
 	animDataBuffer->Release();
 	ILPositionColor->Release();
 	ILStandard->Release();
@@ -876,6 +881,7 @@ void Renderer::Render() {
 	context->OMSetRenderTargets(6, deferredTextures.RTVs, deferredTextures.DSV);
 	context->IASetInputLayout(ILStandard);
 #endif
+	context->PSSetConstantBuffers(2, 1, &uvDataBuffer);
 
 	for(size_t i = 0; i < renderedObjects.size(); ++i) {
 		renderObjectDefaultState(renderedObjects[i]);
@@ -1118,6 +1124,9 @@ void Renderer::initShaders() {
 
 	CD3D11_BUFFER_DESC blurBufferDesc(sizeof(blurData), D3D11_BIND_CONSTANT_BUFFER);
 	device->CreateBuffer(&blurBufferDesc, nullptr, &blurDataBuffer);
+
+	CD3D11_BUFFER_DESC uvOffsetBufferDesc(sizeof(uvOffsetData), D3D11_BIND_CONSTANT_BUFFER);
+	device->CreateBuffer(&uvOffsetBufferDesc, nullptr, &uvDataBuffer);
 
 	DirectX::XMFLOAT4 IseriouslyNeedthis = { 0.0f, 0.0f, 0.0f, 1.0f };
 	CD3D11_BUFFER_DESC pointBufferDesc(sizeof(IseriouslyNeedthis), D3D11_BIND_VERTEX_BUFFER);

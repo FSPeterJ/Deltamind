@@ -85,6 +85,12 @@ private:
 		float width;
 		float height;
 	};
+
+	struct uvOffsetData
+	{
+		DirectX::XMFLOAT2 offsets = DirectX::XMFLOAT2(0.0f, 0.0f);
+		DirectX::XMFLOAT2 padding;
+	};
 #pragma endregion
 
 	ID3D11SamplerState* LinearSamplerState;
@@ -124,11 +130,13 @@ private:
 	ID3D11Buffer* lightBuffer;
 	ID3D11Buffer* animDataBuffer;
 	ID3D11Buffer* blurDataBuffer;
+	ID3D11Buffer* uvDataBuffer;
 
 	pipeline_state_t defaultPipeline;
 	Transform* cameraPos;
 	viewProjectionConstantBuffer defaultCamera;
 	animDataBufferStruct cpuAnimationData;
+	uvOffsetData uvData;
 	Mesh* skyball;
 
 	ID3D11Buffer* emptyFloat3Buffer; //Needed to upload to the shaders that don't need specific vertex values (may replace with techniques later)

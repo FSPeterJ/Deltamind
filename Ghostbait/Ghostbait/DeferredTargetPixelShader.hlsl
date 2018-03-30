@@ -47,7 +47,7 @@ PixelShaderOutput main(PixelShaderInput input)
         discard;
     output.diffuse = float4(diffuseFloat.xyz * diffuseFactor, diffuseFloat.w);
     float4 emissiveFloat = emissive.Sample(sample, uv);
-    output.emissive = float4(emissiveFloat.xyz * emissiveFactor, emissiveFloat.w);
+    output.emissive = float4((emissive.Sample(sample, uv) * emissiveFactor).xyz, 1.0f);
     output.normal = float4(((input.norm * 0.5f) + 0.5f), 1.0f);
     output.specular = float4((specular.Sample(sample, uv) * specularFactor).xyz, 1.0f);
     output.depth = float4(input.pos.z, input.pos.w, input.pos.z, 1.0f);

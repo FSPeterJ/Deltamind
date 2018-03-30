@@ -392,7 +392,7 @@ void Renderer::renderObjectDefaultState(const GameObject * obj) {
 	} else
 		cpuAnimationData.willAnimate = false;
 	context->UpdateSubresource(animDataBuffer, 0, NULL, &cpuAnimationData, 0, 0);
-	uvData.offsets = DirectX::XMFLOAT2(0.0f, 0.0f);
+	//uvData.offsets.y += (float)GhostTime::DeltaTime() * 0.01f;
 	context->UpdateSubresource(uvDataBuffer, NULL, NULL, &uvData, NULL, NULL);
 	context->PSSetShader(DeferredTargetPS, NULL, NULL);
 	//materialManagement->GetElement(UINT_MAX)->bindToShader(context, factorBuffer);

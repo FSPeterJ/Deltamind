@@ -2,6 +2,7 @@
 //#include "TraversalResult.h" //hate
 #include <functional>
 #include <queue>
+#include <mutex>
 #include <unordered_set>
 #include "HexTileVector.h"
 
@@ -101,6 +102,7 @@ struct TileInfo {
 struct DStarCommon {
 	friend class PathPlanner;
 
+	std::mutex dstarMutex;
 	HexGrid *grid = nullptr;
 	HexTile **start = nullptr, **goal = nullptr, **next = nullptr;
 	PriorityQueueMap<HexTile*, FloatPair> open;
@@ -148,6 +150,8 @@ struct DStarCommon {
 	void SetCost(HexTile* tile, float value);
 
 	void UpdateOpenList(HexTile*const tile);
+
+	void ChangeCostIncoming(HexTile* tile);
 
 	//HexTile* GetNextTileInPath();
 

@@ -64,6 +64,8 @@ namespace Omiracon {
 
 			float const& operator[](const int n) const { return traitList[n]; }
 
+			const float* const GetTraitArray() const { return traitList; }
+
 			/// <summary>
 			/// Gets a random trait of the enemy.
 			/// </summary>

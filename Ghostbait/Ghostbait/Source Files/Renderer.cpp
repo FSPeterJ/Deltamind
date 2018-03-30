@@ -14,6 +14,7 @@
 #include "AnimatorStructs.h"
 #include "WICTextureLoader.h"
 #include "TextManager.h"
+#include "ScrollingUVManager.h"
 
 //TODO: TEMP for testing a weird crash
 #include "Projectile.h"
@@ -163,7 +164,10 @@ void Renderer::releaseDeferredTarget(DeferredRTVs * in)
 
 void Renderer::combineDeferredTargets(DeferredRTVs * in, ID3D11RenderTargetView * rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport)
 {
+	context->PSSetSamplers(0, 1, &LinearSamplerState);
+	blurTexture(viewport, in->textures[1], in->SRVs[1], 9, in->RTVs[1], in->DSV);
 	context->PSSetSamplers(0, 1, &PointSamplerState);
+
 	float color[] = { 0.5f, 0.5f, 1.0f, 1.0f };
 	UINT stride = sizeof(XMFLOAT4);
 	UINT offset = 0;
@@ -206,14 +210,125 @@ float Renderer::manhat(const XMFLOAT3 & center1, const XMFLOAT3 &center2)
 	return distX + distY + distZ;
 }
 
-void Renderer::blurTexture(D3D11_VIEWPORT & viewport, ID3D11Texture2D * tex, ID3D11ShaderResourceView * srv)
+void Renderer::blurTexture(D3D11_VIEWPORT & viewport, ID3D11Texture2D * tex, ID3D11ShaderResourceView * srv, unsigned int passes, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsvIn)
 {
-	if (!tex || !srv)
+	if (!tex || !srv || !passes)
 		return;
 	ID3D11Texture2D* tempTex;
+	ID3D11Texture2D* swapTex;
+	ID3D11RenderTargetView* tempRtv;
+	ID3D11ShaderResourceView* tempSrv;
+	ID3D11RenderTargetView* swapRtv;
+	ID3D11ShaderResourceView* swapSrv;
+	D3D11_VIEWPORT tempViewport;
 	D3D11_TEXTURE2D_DESC texDesc;
 	tex->GetDesc(&texDesc);
+	texDesc.Height = (UINT)((float)texDesc.Height * 0.35f);
+	texDesc.Width = (UINT)((float)texDesc.Width * 0.35f);
+	tempViewport.Height = (float)texDesc.Height;
+	tempViewport.Width = (float)texDesc.Width;
+	tempViewport.MaxDepth = viewport.MaxDepth;
+	tempViewport.MinDepth = viewport.MinDepth;
+	tempViewport.TopLeftX = viewport.TopLeftX;
+	tempViewport.TopLeftY = viewport.TopLeftY;
 	device->CreateTexture2D(&texDesc, nullptr, &tempTex);
+	device->CreateTexture2D(&texDesc, nullptr, &swapTex);
+	device->CreateRenderTargetView((ID3D11Resource*)tempTex, nullptr, &tempRtv);
+	device->CreateRenderTargetView((ID3D11Resource*)swapTex, nullptr, &swapRtv);
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	srvDesc.Format = texDesc.Format;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	device->CreateShaderResourceView(tempTex, &srvDesc, &tempSrv);
+	device->CreateShaderResourceView(swapTex, &srvDesc, &swapSrv);
+	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilDesc;
+	depthStencilDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	depthStencilDesc.Texture2D.MipSlice = 0;
+	depthStencilDesc.Flags = 0;
+
+	texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	texDesc.MiscFlags = NULL;
+	texDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+
+	ID3D11Texture2D* depthBuffer;
+	ID3D11DepthStencilView* dsv;
+	device->CreateTexture2D(&texDesc, nullptr, &depthBuffer);
+	device->CreateDepthStencilView(depthBuffer, &depthStencilDesc, &dsv);
+
+	blurData toShader;
+	toShader.width = 1.0f / (float)texDesc.Width;
+	toShader.height = 1.0f / (float)texDesc.Height;
+	context->VSSetShader(PassThroughPositionVS, NULL, NULL);
+	UINT stride = sizeof(XMFLOAT4);
+	UINT offset = 0;
+	context->IASetVertexBuffers(0, 1, &emptyFloat3Buffer, &stride, &offset);
+	context->RSSetViewports(1, &tempViewport);
+	context->GSSetShader(NDCQuadGS, NULL, NULL);
+	context->PSSetShader(BlurPixelShader, NULL, NULL);
+	context->PSSetConstantBuffers(3, 1, &blurDataBuffer);
+	context->IASetInputLayout(ILPosition);
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+
+	ID3D11RenderTargetView* clearrtv = nullptr;
+	ID3D11ShaderResourceView* clearsrv = nullptr;
+
+	context->OMSetRenderTargets(1, &tempRtv, dsv);
+	toShader.dir = { 1.0f, 0.0f };
+	context->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	context->UpdateSubresource(blurDataBuffer, NULL, NULL, &toShader, NULL, NULL);
+	context->PSSetShaderResources(0, 1, &srv);
+	context->Draw(1, 0);
+	context->OMSetRenderTargets(1, &clearrtv, nullptr);
+	context->PSSetShaderResources(0, 1, &clearsrv);
+	toShader.dir = { 0.0f, 1.0f };
+	context->OMSetRenderTargets(1, &swapRtv, dsv);
+	context->UpdateSubresource(blurDataBuffer, NULL, NULL, &toShader, NULL, NULL);
+	context->PSSetShaderResources(0, 1, &tempSrv);
+	context->Draw(1, 0);
+	
+	for (unsigned int i = 0; i < passes - 1; ++i)
+	{
+		context->OMSetRenderTargets(1, &clearrtv, nullptr);
+		context->PSSetShaderResources(0, 1, &clearsrv);
+		context->OMSetRenderTargets(1, &tempRtv, dsv);
+		toShader.dir = { 1.0f, 0.0f };
+		context->UpdateSubresource(blurDataBuffer, NULL, NULL, &toShader, NULL, NULL);
+		context->PSSetShaderResources(0, 1, &swapSrv);
+		context->Draw(1, 0);
+		if (i == passes - 2)
+		{
+			context->OMSetRenderTargets(1, &clearrtv, nullptr);
+			context->PSSetShaderResources(0, 1, &clearsrv);
+			toShader.dir = { 0.0f, 1.0f };
+			context->OMSetRenderTargets(1, &rtv, dsvIn);
+			context->RSSetViewports(1, &viewport);
+			context->UpdateSubresource(blurDataBuffer, NULL, NULL, &toShader, NULL, NULL);
+			context->PSSetShaderResources(0, 1, &tempSrv);
+			context->Draw(1, 0);
+		}
+		else
+		{
+			context->OMSetRenderTargets(1, &clearrtv, nullptr);
+			context->PSSetShaderResources(0, 1, &clearsrv);
+			toShader.dir = { 0.0f, 1.0f };
+			context->OMSetRenderTargets(1, &tempRtv, dsv);
+			context->UpdateSubresource(blurDataBuffer, NULL, NULL, &toShader, NULL, NULL);
+			context->PSSetShaderResources(0, 1, &tempSrv);
+			context->Draw(1, 0);
+		}
+	}
+	
+	tempSrv->Release();
+	swapSrv->Release();
+	tempTex->Release();
+	swapTex->Release();
+	tempRtv->Release();
+	swapRtv->Release();
+	dsv->Release();
+	depthBuffer->Release();
 }
 
 void Renderer::sortTransparentObjects(DirectX::XMFLOAT3 &camPos)
@@ -277,6 +392,12 @@ void Renderer::renderObjectDefaultState(const GameObject * obj) {
 	} else
 		cpuAnimationData.willAnimate = false;
 	context->UpdateSubresource(animDataBuffer, 0, NULL, &cpuAnimationData, 0, 0);
+	ScrollingUV* scroll = obj->GetComponent<ScrollingUV>();
+	if (scroll)
+		uvData.offsets = scroll->offset;
+	else
+		uvData.offsets = { 0.0f, 0.0f };
+	context->UpdateSubresource(uvDataBuffer, NULL, NULL, &uvData, NULL, NULL);
 	context->PSSetShader(DeferredTargetPS, NULL, NULL);
 	//materialManagement->GetElement(UINT_MAX)->bindToShader(context, factorBuffer);
 	context->DrawIndexed(obj->GetComponent<Mesh>()->indexCount, 0, 0);
@@ -297,6 +418,7 @@ void Renderer::renderToEye(eye * eyeTo) {
 	context->OMSetRenderTargets(6, eyeTo->targets.RTVs, eyeTo->targets.DSV);
 	context->RSSetViewports(1, &eyeTo->renderInfo.viewport);
 
+	context->PSSetConstantBuffers(2, 1, &uvDataBuffer);
 	for(size_t i = 0; i < renderedObjects.size(); ++i) {
 		renderObjectDefaultState(renderedObjects[i]);
 	}
@@ -549,6 +671,8 @@ void Renderer::Destroy() {
 	modelBuffer->Release();
 	factorBuffer->Release();
 	lightBuffer->Release();
+	blurDataBuffer->Release();
+	uvDataBuffer->Release();
 	animDataBuffer->Release();
 	ILPositionColor->Release();
 	ILStandard->Release();
@@ -567,6 +691,7 @@ void Renderer::Destroy() {
 	SkyboxVS->Release();
 	SkyboxPS->Release();
 	DeferredTargetPS->Release();
+	BlurPixelShader->Release();
 	TextVertexShader->Release();
 	PositionTexturePixelShader->Release();
 	backBuffer->Release();
@@ -760,6 +885,7 @@ void Renderer::Render() {
 	context->OMSetRenderTargets(6, deferredTextures.RTVs, deferredTextures.DSV);
 	context->IASetInputLayout(ILStandard);
 #endif
+	context->PSSetConstantBuffers(2, 1, &uvDataBuffer);
 
 	for(size_t i = 0; i < renderedObjects.size(); ++i) {
 		renderObjectDefaultState(renderedObjects[i]);
@@ -981,6 +1107,10 @@ void Renderer::initShaders() {
 	device->CreatePixelShader(byteCode, byteCodeSize, NULL, &PositionTexturePixelShader);
 	delete[] byteCode;
 
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "BlurPixelShader.cso");
+	device->CreatePixelShader(byteCode, byteCodeSize, NULL, &BlurPixelShader);
+	delete[] byteCode;
+
 	CD3D11_BUFFER_DESC constantBufferDesc(sizeof(viewProjectionConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
 	device->CreateBuffer(&constantBufferDesc, nullptr, &cameraBuffer);
 
@@ -995,6 +1125,12 @@ void Renderer::initShaders() {
 
 	CD3D11_BUFFER_DESC animBufferDesc(sizeof(animDataBufferStruct), D3D11_BIND_CONSTANT_BUFFER);
 	device->CreateBuffer(&animBufferDesc, nullptr, &animDataBuffer);
+
+	CD3D11_BUFFER_DESC blurBufferDesc(sizeof(blurData), D3D11_BIND_CONSTANT_BUFFER);
+	device->CreateBuffer(&blurBufferDesc, nullptr, &blurDataBuffer);
+
+	CD3D11_BUFFER_DESC uvOffsetBufferDesc(sizeof(uvOffsetData), D3D11_BIND_CONSTANT_BUFFER);
+	device->CreateBuffer(&uvOffsetBufferDesc, nullptr, &uvDataBuffer);
 
 	DirectX::XMFLOAT4 IseriouslyNeedthis = { 0.0f, 0.0f, 0.0f, 1.0f };
 	CD3D11_BUFFER_DESC pointBufferDesc(sizeof(IseriouslyNeedthis), D3D11_BIND_VERTEX_BUFFER);

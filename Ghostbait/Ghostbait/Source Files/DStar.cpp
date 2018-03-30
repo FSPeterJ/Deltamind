@@ -170,6 +170,11 @@ void DStarCommon::UpdateOpenList(HexTile *const tile) {
 	}
 }
 
+void DStarCommon::ChangeCostIncoming(HexTile* tile) {
+	std::lock_guard<std::mutex> lock(dstarMutex);
+	changedTiles.insert(tile);
+}
+
 //HexTile* DStarCommon::GetNextTileInPath() {
 //	return next;
 //}
@@ -617,6 +622,10 @@ MTDStarLite& MTDStarLite::operator=(MTDStarLite& _other) {
 }
 
 void MTDStarLite::Update() {
+
+	if (!dstarMutex.try_lock()) return;
+	//dstarLock.lock(); //lock the mutex
+
 	//Console::WriteLine << "Updating";
 	//while(start != goal)
 	
@@ -706,7 +715,7 @@ void MTDStarLite::Update() {
 	if (PathPlanner::EpsilonIsEqual(GetRHS(cachedGoal), grid->BlockWeight())) {
 		//no path exists
 		Console::WriteLine << "There's no PATH for MEE!!!!!";
-
+		dstarMutex.unlock(); // unlock mutex
 		return;
 	}
 	//}
@@ -714,6 +723,8 @@ void MTDStarLite::Update() {
 	//Console::WriteLine << "End Update";
 
 	oldGoal = cachedGoal;
+
+	dstarMutex.unlock(); // unlock mutex
 }
 
 //void MTDStarLite::UpdateGoalReference(DirectX::XMFLOAT4X4* newgoal) {

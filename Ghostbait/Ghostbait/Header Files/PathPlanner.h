@@ -1,5 +1,6 @@
 #pragma once
 #include "TraversalResult.h" //hate
+#include <mutex>
 
 template <typename T>
 struct HexagonTile;
@@ -31,6 +32,7 @@ enum class PathingAlgorithm {
 class PathPlanner {
 	static HeuristicFunction heuristicFunction;
 	static HexGrid* grid;
+	static std::mutex plannerMutex;
 	friend struct DStarCommon;
 	friend class DStarLite;
 	friend class MTDStarLite;
@@ -96,6 +98,10 @@ class PathPlanner {
 	//static std::vector<MTDStarLite> mtdstarList;
 	//static std::size_t mtdstars;
 
+	static void dstarUpdateThreadEntry(DStarLite* ds);
+	static void mtdstarUpdateThreadEntry(MTDStarLite* mtds);
+	static void dstarCostChangeThreadEntry(DStarLite* ds, HexTile* tile);
+	static void mtdstarCostChangeThreadEntry(MTDStarLite* mtds, HexTile* tile);
 
 public:
 

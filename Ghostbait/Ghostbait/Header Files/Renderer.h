@@ -78,6 +78,19 @@ private:
 		ID3D11Texture2D* box;
 		ID3D11ShaderResourceView* srv;
 	};
+
+	struct blurData
+	{
+		DirectX::XMFLOAT2 dir;
+		float width;
+		float height;
+	};
+
+	struct uvOffsetData
+	{
+		DirectX::XMFLOAT2 offsets = DirectX::XMFLOAT2(0.0f, 0.0f);
+		DirectX::XMFLOAT2 padding;
+	};
 #pragma endregion
 
 	ID3D11SamplerState* LinearSamplerState;
@@ -103,7 +116,8 @@ private:
 	ID3D11GeometryShader* NDCQuadGS;
 	ID3D11VertexShader* TextVertexShader;
 	ID3D11PixelShader* PositionTexturePixelShader;
-	
+	ID3D11PixelShader* BlurPixelShader;
+
 	ID3D11InputLayout* ILPositionColor;
 	ID3D11InputLayout* ILPositionTexture;
 	ID3D11InputLayout* ILStandard;
@@ -115,10 +129,14 @@ private:
 	ID3D11Buffer* factorBuffer;
 	ID3D11Buffer* lightBuffer;
 	ID3D11Buffer* animDataBuffer;
+	ID3D11Buffer* blurDataBuffer;
+	ID3D11Buffer* uvDataBuffer;
+
 	pipeline_state_t defaultPipeline;
 	Transform* cameraPos;
 	viewProjectionConstantBuffer defaultCamera;
 	animDataBufferStruct cpuAnimationData;
+	uvOffsetData uvData;
 	Mesh* skyball;
 
 	ID3D11Buffer* emptyFloat3Buffer; //Needed to upload to the shaders that don't need specific vertex values (may replace with techniques later)
@@ -149,7 +167,7 @@ private:
 	bool compareDistToCam(const DirectX::XMFLOAT3& t1, const DirectX::XMFLOAT3& t2, const DirectX::XMFLOAT3& camPos);
 	float manhat(const DirectX::XMFLOAT3& center1, const DirectX::XMFLOAT3& center2);
 
-	void blurTexture(D3D11_VIEWPORT& viewport, ID3D11Texture2D* tex, ID3D11ShaderResourceView* srv);
+	void blurTexture(D3D11_VIEWPORT& viewport, ID3D11Texture2D* tex, ID3D11ShaderResourceView* srv, unsigned int passes, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsvIn);
 	void sortTransparentObjects(DirectX::XMFLOAT3 &camPos);
 	void renderObjectDefaultState(const GameObject* obj);
 	void renderToEye(eye* eyeTo);

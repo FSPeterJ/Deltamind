@@ -31,7 +31,7 @@ class BuildTool : public Item {
 	GameObject* toDestroy = nullptr;
 	int toDestroyIndex = -1;
 	Light light;
-	bool prevLocationValid = false;
+	bool prevLocationValid = true;
 
 	//Game values
 	HexGrid* grid = nullptr;

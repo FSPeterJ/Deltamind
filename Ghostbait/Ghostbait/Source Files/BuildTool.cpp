@@ -232,9 +232,15 @@ void BuildTool::Remove() {
 		DirectX::XMFLOAT2 pos = DirectX::XMFLOAT2(currentlySelectedItem->transform.GetMatrix()._41, currentlySelectedItem->transform.GetMatrix()._43);
 		if (SetObstacle(pos, false)) {
 			toDestroy = currentlySelectedItem;
+			toDestroyIndex = currentlySelectedItemIndex;
 			currentlySelectedItem = nullptr;
-			MessageEvents::SendQueueMessage(EVENT_Late, [=] { toDestroy->Destroy(); toDestroy = nullptr; });
-			builtItems.erase(builtItems.begin() + currentlySelectedItemIndex);
+			currentlySelectedItemIndex = -1;
+			MessageEvents::SendQueueMessage(EVENT_Late, [=] { 
+				builtItems.erase(builtItems.begin() + toDestroyIndex);
+				toDestroy->Destroy();
+				toDestroy = nullptr;
+				toDestroyIndex = -1;
+			});
 			Turret* tur = dynamic_cast<Turret*>(currentlySelectedItem);
 			if (tur) {
 				gameData->AddGears((int)(tur->GetBuildCost() * 0.5f));

@@ -29,8 +29,9 @@ class BuildTool : public Item {
 	int currentlySelectedItemIndex = -1;
 	GameObject* currentlySelectedItem = nullptr;
 	GameObject* toDestroy = nullptr;
+	int toDestroyIndex = -1;
 	Light light;
-	bool prevLocationValid = true;
+	bool prevLocationValid = false;
 
 	//Game values
 	HexGrid* grid = nullptr;

@@ -384,11 +384,13 @@ void BuildTool::CycleForward() {
 			buildRay.Destroy();
 			repairRay.Destroy();
 			deleteRay.Create(false, CastObject::Color::COLOR_Red);
+			SwapComponentVarient<Material>("red");
 		}
 		else if (prefabs[tempIndex].ID == -1) {
 			currentMode = Mode::REPAIR;
 			buildRay.Destroy();
 			repairRay.Create(false, CastObject::Color::COLOR_Yellow);
+			SwapComponentVarient<Material>("yellow");
 			deleteRay.Destroy();
 		}
 		else {
@@ -399,6 +401,7 @@ void BuildTool::CycleForward() {
 			}
 			if (gearAdjustmentDisplay) gearAdjustmentDisplay->RenderTransparent();
 			buildRay.Create(false, CastObject::Color::COLOR_Green);
+			SwapComponentVarient<Material>("green");
 			repairRay.Destroy();
 			deleteRay.Destroy();
 		}

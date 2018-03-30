@@ -12,15 +12,8 @@ class CastObject {
 	GameObject* backup = nullptr;
 	char* fileName;
 public:
-	enum Color {
-		COLOR_Red,
-		COLOR_Green,
-		COLOR_Yellow,
-		COLOR_Cyan,
-		COLOR_Default,
-	};
 	inline void SetFile(char* _fileName) {fileName = _fileName;}
-	void Create(bool renderToFront = false, Color color = COLOR_Default);
+	void Create(bool renderToFront = false, const char* varientColor = "?");
 	inline GameObject* Get() const { return object; };
 	void Destroy();
 };

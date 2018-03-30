@@ -28,6 +28,7 @@ class BuildTool : public Item {
 	DirectX::XMFLOAT3 spawnPos;
 	int currentlySelectedItemIndex = -1;
 	GameObject* currentlySelectedItem = nullptr;
+	GameObject* toDestroy = nullptr;
 	Light light;
 	bool prevLocationValid = true;
 
@@ -47,9 +48,10 @@ class BuildTool : public Item {
 	bool SetObstacle(DirectX::XMFLOAT2 pos, bool active);
 	bool CanBuildHere(DirectX::XMFLOAT2& spawnPos);
 public:
-	CastObject buildRay;
-	CastObject deleteRay;
-	CastObject repairRay;
+	CastObject ray;
+	//CastObject buildRay;
+	//CastObject deleteRay;
+	//CastObject repairRay;
 
 	BuildTool();
 

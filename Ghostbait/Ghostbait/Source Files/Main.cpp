@@ -287,21 +287,39 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 void Loop() {
 	GhostTime::Tick();
-	if(!game->IsPaused()) {
-		ThreadPool::CreateMemberJob<void>(phyMan, &PhysicsManager::Update);
-		ThreadPool::CreateMemberJob<void>(audioMan, &AudioManager::Update);
-	} else {
+	//if(!game->IsPaused()) {
+	//	ThreadPool::CreateMemberJob<void>(phyMan, &PhysicsManager::Update);
+	//	ThreadPool::CreateMemberJob<void>(audioMan, &AudioManager::Update);
+	//} else {
+	//	player->PausedUpdate();
+	//	phyMan->PausedUpdate();
+	//}
+	//ThreadPool::CreateMemberJob<void>(inputMan, &InputManager::HandleInput);
+
+	//ThreadPool::CreateMemberJob<void>(game, &Game::Update);
+	//ThreadPool::CreateMemberJob<void>(player->leftController, &ControllerObject::Update);
+	//ThreadPool::CreateMemberJob<void>(player->rightController, &ControllerObject::Update);
+
+	//ThreadPool::CreateMemberJob<void>(scrollMan, &ScrollingUVManager::Update);
+	//ThreadPool::CreateMemberJob<void>(rendInter, &Renderer::Render);
+
+	if (!game->IsPaused()) {
+		phyMan->Update();
+		audioMan->Update();
+
+	}
+	else {
 		player->PausedUpdate();
 		phyMan->PausedUpdate();
 	}
-	ThreadPool::CreateMemberJob<void>(inputMan, &InputManager::HandleInput);
 
-	ThreadPool::CreateMemberJob<void>(game, &Game::Update);
-	ThreadPool::CreateMemberJob<void>(player->leftController, &ControllerObject::Update);
-	ThreadPool::CreateMemberJob<void>(player->rightController, &ControllerObject::Update);
+	inputMan->HandleInput();
+	game->Update();
+	player->leftController->Update();
+	player->rightController->Update();
 
-	ThreadPool::CreateMemberJob<void>(scrollMan, &ScrollingUVManager::Update);
-	ThreadPool::CreateMemberJob<void>(rendInter, &Renderer::Render);
+	scrollMan->Update();
+	rendInter->Render();
 
 }
 

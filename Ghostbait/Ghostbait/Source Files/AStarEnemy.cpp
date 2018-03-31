@@ -23,6 +23,9 @@ void AStarEnemy::Awake(Object* obj) {
 	start = false;
 	eventAdd = 0;
 	eventRemove = 0;
+
+	lingerTime = 120.0f;
+	scentStrength = 30.0f;
 	
 	EnemyBase::Awake(obj);
 	rb = &(GetComponent<PhysicsComponent>()->rigidBody);
@@ -42,6 +45,7 @@ void AStarEnemy::Enable() {
 		NewRandPath();
 	}
 	rb->SetTerminalSpeed(maxSpeed);
+	AntColony::LeavePheromone(&path, lingerTime, scentStrength);
 	next = path.start();
 	AStarEnemy::Subscribe();
 	EnemyBase::Enable();
@@ -86,6 +90,9 @@ void AStarEnemy::Update() {
 				rb->AddForce(3.0f * (DirectX::XMVectorGetX(DirectX::XMVector3Dot(nextDirection, velocity)) + 1.0f), nextPathPoint.x - transform.GetMatrix()._41, 0.0f, nextPathPoint.y - transform.GetMatrix()._43, 0.5f);
 			}
 		}
+	}
+	else {
+		NewRandPath();
 	}
 }
 void AStarEnemy::Attack() {

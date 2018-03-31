@@ -60,7 +60,7 @@ void AntColony::LeavePheromone(HexPath* const _path, float _lingerTime, float _s
 
 void AntColony::LeavePheromone(HexTile* const _tile, float _lingerTime, float _scentStrength) {
 	activeGrid->AddWeight(_tile, _lingerTime * _scentStrength);
-	trails.push_back(Pheromone(_tile, _lingerTime, _scentStrength));
+	//trails.push_back(Pheromone(_tile, _lingerTime, _scentStrength));
 }
 
 void AntColony::ClearTrails() {
@@ -72,21 +72,21 @@ void AntColony::ClearTrails() {
 void AntColony::Update() {
 	timeElapsed += (float)GhostTime::DeltaTime();
 	
-	//size_t index = 0;
-	//Pheromone* currPtr;
-	//while (index < trails.size()) {
-	//	currPtr = &trails[index];
-	//	if (timeElapsed >= currPtr->prop.lingerTime) {
-	//		activeGrid->AddWeight(currPtr->tile, -(currPtr->prop.lingerTime * currPtr->prop.scentStrength));
-	//		
-	//		*currPtr = trails.back();
-	//		trails.pop_back();
-	//	}
-	//	else {
-	//		activeGrid->AddWeight(currPtr->tile, -(timeElapsed * currPtr->prop.scentStrength));
-	//		currPtr->prop.lingerTime -= timeElapsed;
-	//		++index;
-	//	}
-	//}
+	size_t index = 0;
+	Pheromone* currPtr;
+	while (index < trails.size()) {
+		currPtr = &trails[index];
+		if (timeElapsed >= currPtr->prop.lingerTime) {
+			activeGrid->AddWeight(currPtr->tile, -(currPtr->prop.lingerTime * currPtr->prop.scentStrength));
+			
+			*currPtr = trails.back();
+			trails.pop_back();
+		}
+		else {
+			activeGrid->AddWeight(currPtr->tile, -(timeElapsed * currPtr->prop.scentStrength));
+			currPtr->prop.lingerTime -= timeElapsed;
+			++index;
+		}
+	}
 	if (timeElapsed >= UPDATE_INTERVAL) { timeElapsed = 0.0f; }
 }

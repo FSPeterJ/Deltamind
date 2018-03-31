@@ -69,7 +69,7 @@ public:
 		//Write((int) Update.subscriber_count());
 		//WriteLine(" subscribers.");
 
-		Update.RunAsync();
+		Update();// .RunAsync();
 	}
 
 	void ExecuteLateUpdate() {

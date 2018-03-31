@@ -288,22 +288,21 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 void Loop() {
 	GhostTime::Tick();
 	if(!game->IsPaused()) {
-		phyMan->Update();
-		audioMan->Update();
-
-	}
-	else {
+		ThreadPool::CreateMemberJob<void>(phyMan, &PhysicsManager::Update);
+		ThreadPool::CreateMemberJob<void>(audioMan, &AudioManager::Update);
+	} else {
 		player->PausedUpdate();
 		phyMan->PausedUpdate();
 	}
+	ThreadPool::CreateMemberJob<void>(inputMan, &InputManager::HandleInput);
 
-	inputMan->HandleInput();
-	game->Update();
-	player->leftController->Update();
-	player->rightController->Update();
+	ThreadPool::CreateMemberJob<void>(game, &Game::Update);
+	ThreadPool::CreateMemberJob<void>(player->leftController, &ControllerObject::Update);
+	ThreadPool::CreateMemberJob<void>(player->rightController, &ControllerObject::Update);
 
-	scrollMan->Update();
-	rendInter->Render();
+	ThreadPool::CreateMemberJob<void>(scrollMan, &ScrollingUVManager::Update);
+	ThreadPool::CreateMemberJob<void>(rendInter, &Renderer::Render);
+
 }
 
 void CleanUp() {

@@ -26,6 +26,21 @@ void EnemyBase::Awake(Object* obj) {
 
 void EnemyBase::Start() {
 	genetics->performance.Reset();
+
+#undef max
+	auto mx = std::max({genetics->traits[STRENGTH],genetics->traits[INTELLIGENCE],genetics->traits[DEFENSE],genetics->traits[SPEED]});
+
+	if(mx == genetics->traits[STRENGTH]) {
+		SwapComponentVarient<Material>("default");
+	} else if(mx == genetics->traits[INTELLIGENCE]) {
+			SwapComponentVarient<Material>("red");
+	} else if(mx == genetics->traits[DEFENSE]) {
+		SwapComponentVarient<Material>("green");
+	} else if(mx == genetics->traits[SPEED]) {
+		SwapComponentVarient<Material>("yellow");
+	}
+
+
 	SetStats();
 	spawnTime = GhostTime::Now();
 }

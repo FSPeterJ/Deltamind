@@ -6,7 +6,7 @@
 #include <string>
 #include <corecrt_wtime.h>
 namespace Common {
-
+#if _DEBUG
 	std::string Console::file_formatter(char* source) {
 
 		//const char* Console::file_formatter(char* source) {
@@ -139,4 +139,21 @@ namespace Common {
 	inline void Console::SetColor(ConsoleColor color) {
 		SetConsoleTextAttribute(hConsole, (WORD) color);
 	}
+#else 
+
+std::ostream Console::oo(std::cout.rdbuf());
+
+Console::Writer Console::Write;
+Console::Writer Console::Error;
+Console::Writer Console::Warning;
+Console::Writer Console::Out;
+Console::Writer Console::ErrorOut;
+
+Console::WriteLiner	Console::WriteLine;
+Console::WriteLiner	Console::ErrorLine;
+Console::WriteLiner	Console::WarningLine;
+Console::WriteLiner	Console::OutLine;
+Console::WriteLiner Console::ErrorOutLine;
+Console::WriteLiner Console::Log;
+#endif
 }

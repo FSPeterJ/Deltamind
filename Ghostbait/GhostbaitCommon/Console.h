@@ -2,6 +2,8 @@
 
 #include <ostream> //required for koenig lookups
 #include <time.h>
+
+
 namespace Common {
 
 	enum class ConsoleColor {
@@ -28,6 +30,7 @@ namespace Common {
 
 #define VERBOSE FILE__GHOST << " at " << FUNC__GHOST << "(" << LINE__GHOST << ") "
 
+#if _DEBUG 
 	class Console {
 		using Writer = std::ostream;
 		static void* hConsole;
@@ -115,4 +118,47 @@ namespace Common {
 		///<param name="color">The color.<param>
 		static void SetColor(ConsoleColor color);
 	};
+#else
+	class Console {
+		static std::ostream oo;
+		Console(){}
+	public:
+		struct Writer {
+			template <typename T>
+			std::ostream& operator<< (T&& value) { return oo; }
+			std::ostream& operator<< (std::ostream& o) { return o; }
+		};
+		struct WriteLiner {
+			template <typename T>
+			std::ostream& operator<< (T&& value) { return oo; }
+			std::ostream& operator<< (std::ostream& o) { return o; }
+		};
+
+		static Writer		Write;
+		static WriteLiner   WriteLine;
+		static Writer		Error;
+		static WriteLiner   ErrorLine;
+		static Writer		Warning;
+		static WriteLiner   WarningLine;
+		static Writer		Out;
+		static WriteLiner   OutLine;
+		static Writer		ErrorOut;
+		static WriteLiner   ErrorOutLine;
+		static WriteLiner	Log;
+
+		static std::string file_formatter(char* source);
+		static std::string time_formatter(const time_t time);
+
+		static void Allocate() {}
+
+		static inline void Minimize() {}
+
+		static inline void Maximize() {}
+
+		static void Free() {}
+
+		static void SetColor(ConsoleColor color) {}
+	};
+#endif
+
 }

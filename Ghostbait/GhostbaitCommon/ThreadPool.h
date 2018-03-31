@@ -40,6 +40,17 @@ namespace Threadding {
 		}
 
 		template<typename F, typename... Args>
+		static void CreateAsyncJob(std::function<void(Args...) >f) {
+			Job task(f);
+
+			std::lock_guard<std::mutex> lock(queueMutex);
+			queue.push(std::move(task));
+			queueMutex.unlock();
+
+			condition.notify_one();
+		}
+
+		template<typename F, typename... Args>
 		static std::future<void> MakeJob(F f, Args&&... args) {
 			Job task(std::bind(f, std::forward<Args>(args)...));
 			auto fut = task.get_future();
@@ -49,6 +60,7 @@ namespace Threadding {
 				// Research futher, but this is probably irrelevant levels of performance
 				std::lock_guard<std::mutex> lock(queueMutex);
 				queue.push(std::move(task));
+				
 			}
 			condition.notify_one();
 			return fut;

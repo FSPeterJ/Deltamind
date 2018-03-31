@@ -3,7 +3,6 @@
 namespace Threadding {
 
 	int ThreadPool::maxThreads = std::thread::hardware_concurrency();
-	//int ThreadPool::maxThreads = 1;
 
 	bool ThreadPool::quit = false;
 

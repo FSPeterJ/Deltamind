@@ -31,6 +31,7 @@ float AntColony::timeElapsed = 0.0f;
 
 void AntColony::SetGrid(HexGrid* _grid) {
 	activeGrid = _grid;
+	trails.reserve(8192);
 }
 
 void AntColony::AddUpdateToEngineStruct() {
@@ -60,7 +61,7 @@ void AntColony::LeavePheromone(HexPath* const _path, float _lingerTime, float _s
 
 void AntColony::LeavePheromone(HexTile* const _tile, float _lingerTime, float _scentStrength) {
 	activeGrid->AddWeight(_tile, _lingerTime * _scentStrength);
-	//trails.push_back(Pheromone(_tile, _lingerTime, _scentStrength));
+	trails.push_back(Pheromone(_tile, _lingerTime, _scentStrength));
 }
 
 void AntColony::ClearTrails() {

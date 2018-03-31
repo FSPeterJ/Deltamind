@@ -231,11 +231,14 @@ HexPath PathPlanner::AStarSearch(HexTile *const start, HexTile *const goal, Heur
 	VisitedMap visited;
 	CostMap cumulativeCost;
 
+	//size_t limit = 0;
+
 	Q.push(start, 0);
 	visited[start] = start;
 	cumulativeCost[start] = 0;
 
-	while(!Q.empty()) {
+	while(!Q.empty()){// && limit < 10000) {
+		//++limit;
 		HexTile* current = Q.pop_back();
 
 		if(current == goal) { break; }
@@ -260,8 +263,10 @@ HexPath PathPlanner::AStarSearch(HexTile *const start, HexTile *const goal, Heur
 	}
 
 	HexPath path;
-	path.BuildPath(start, goal, visited);
+	//if (limit >= 10000) 
+	//	return path;
 
+	path.BuildPath(start, goal, visited);
 	return path;
 }
 

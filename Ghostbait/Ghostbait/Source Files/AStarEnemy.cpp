@@ -24,8 +24,8 @@ void AStarEnemy::Awake(Object* obj) {
 	eventAdd = 0;
 	eventRemove = 0;
 
-	lingerTime = 120.0f;
-	scentStrength = 30.0f;
+	lingerTime = 100.0f;
+	scentStrength = 10.0f;
 	
 	EnemyBase::Awake(obj);
 	rb = &(GetComponent<PhysicsComponent>()->rigidBody);
@@ -46,6 +46,8 @@ void AStarEnemy::Enable() {
 	}
 	rb->SetTerminalSpeed(maxSpeed);
 	AntColony::LeavePheromone(&path, lingerTime, scentStrength);
+	if (!(path.size() > 0)) 
+		NewRandPath();
 	next = path.start();
 	AStarEnemy::Subscribe();
 	EnemyBase::Enable();
@@ -70,29 +72,36 @@ void AStarEnemy::Update() {
 	HexTile* curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.GetMatrix()._41, transform.GetMatrix()._43));
 	if(curTile) {
 		if(curTile == next) {
-			if(path.goal() == curTile) {
-				//Console::WriteLine << "We made it to our goal.";
-				Attack();
+			if (path.size() > 0) {
+				if (path.goal() == curTile) {
+					//Console::WriteLine << "We made it to our goal.";
+					Attack();
 
-				rb->Stop();
+					rb->Stop();
+				}
+				else {
+					Step();
+					howFarAlong++;
+					if (howFarAlong > path.size() - 1) { return; }
+					next = path[howFarAlong];
+					auto nextPathPoint = grid->TileToPoint(next);
+
+					//position._41 = nextPathPoint.x;
+					//position._43 = nextPathPoint.y;
+					DirectX::XMVECTOR nextDirection = DirectX::XMVectorSet(nextPathPoint.x - transform.GetMatrix()._41, 0.0f, nextPathPoint.y - transform.GetMatrix()._43, 1.0f);
+					DirectX::XMVECTOR velocity = rb->GetVelocity();
+					rb->AddForce(3.0f * (DirectX::XMVectorGetX(DirectX::XMVector3Dot(nextDirection, velocity)) + 1.0f), nextPathPoint.x - transform.GetMatrix()._41, 0.0f, nextPathPoint.y - transform.GetMatrix()._43, 0.5f);
+				}
 			}
-			else {
-				Step();
-				howFarAlong++;
-				if(howFarAlong > path.size() - 1) { return; }
-				next = path[howFarAlong];
-				auto nextPathPoint = grid->TileToPoint(next);
-
-				//position._41 = nextPathPoint.x;
-				//position._43 = nextPathPoint.y;
-				DirectX::XMVECTOR nextDirection = DirectX::XMVectorSet(nextPathPoint.x - transform.GetMatrix()._41, 0.0f, nextPathPoint.y - transform.GetMatrix()._43, 1.0f);
-				DirectX::XMVECTOR velocity = rb->GetVelocity();
-				rb->AddForce(3.0f * (DirectX::XMVectorGetX(DirectX::XMVector3Dot(nextDirection, velocity)) + 1.0f), nextPathPoint.x - transform.GetMatrix()._41, 0.0f, nextPathPoint.y - transform.GetMatrix()._43, 0.5f);
+			else { 
+				NewRandPath(); 
+				return;
 			}
 		}
 	}
 	else {
-		NewRandPath();
+		//rb->SetVelocity(DirectX::XMVectorScale(rb->GetVelocity(), -1.0f));
+		//NewRandPath();
 	}
 }
 void AStarEnemy::Attack() {
@@ -146,8 +155,17 @@ void AStarEnemy::NewRandPath() {
 	path.clear();
 	howFarAlong = 0;
 
-	goal = grid->GetRandomTile();
-	CalcPath(goal);
+	HexRegion spire = grid->Spiral(goal, 10);
+	spire.remove(*goal);
+
+	for (auto& tile : spire) {
+		if (!grid->IsBlocked(&tile)) {
+			CalcPath(&tile);
+			break;
+		}
+	}
+	//goal = grid->GetRandomTile();
+	//CalcPath(goal);
 
 	if(!path.size()) {
 		NewRandPath();

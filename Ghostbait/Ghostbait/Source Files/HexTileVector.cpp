@@ -131,6 +131,8 @@ void HexPath::BuildPath(HexTilePtr const start, HexTilePtr const goal, VisitedMa
 		}
 	}
 
+	if (!current) { data.clear(); return; }
+	
 	data.push_back(start);
 	std::reverse(data.begin(), data.end());
 }

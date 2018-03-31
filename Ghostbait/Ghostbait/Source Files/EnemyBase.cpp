@@ -31,9 +31,9 @@ void EnemyBase::Start() {
 	auto mx = std::max({genetics->traits[STRENGTH],genetics->traits[INTELLIGENCE],genetics->traits[DEFENSE],genetics->traits[SPEED]});
 
 	if(mx == genetics->traits[STRENGTH]) {
-		SwapComponentVarient<Material>("default");
+		SwapComponentVarient<Material>("pink");
 	} else if(mx == genetics->traits[INTELLIGENCE]) {
-			SwapComponentVarient<Material>("red");
+			SwapComponentVarient<Material>("blue");
 	} else if(mx == genetics->traits[DEFENSE]) {
 		SwapComponentVarient<Material>("green");
 	} else if(mx == genetics->traits[SPEED]) {

@@ -1,5 +1,5 @@
 <Level startGears="0">
-  <!-- Wave0    Assets/MTDSLEnemy.ghost -->
+  <!-- Wave0    Assets/AStarEnemyEdit.ghost -->
   <Wave reward="100">
     <Spawner spawnerID="-1" enemyName="Assets/AStarEnemyEdit.ghost" spawnCount="2" initialDelay="4" runDelay="2"/>
     <Spawner spawnerID="-1" enemyName="Assets/AStarEnemyEdit.ghost" spawnCount="2" initialDelay="0" runDelay="2"/>

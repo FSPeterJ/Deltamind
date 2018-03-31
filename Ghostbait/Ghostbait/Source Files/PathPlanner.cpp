@@ -275,18 +275,18 @@ std::size_t PathPlanner::mtdstarIndices = 0;
 std::size_t PathPlanner::DStarLiteSearch(HexTile **const _start, HexTile **const _goal, HexTile **const _next, std::size_t _perception, HeuristicFunction Heuristic) {
 	PathPlanner::SetHeuristic(Heuristic);
 
-	dstarList[dstarIndices] = DStarLite(grid, _start, _goal, _next, _perception);
+	dstarList[dstarIndices] = DStarLite(grid, _start, _goal, _next, nullptr, _perception);
 
 	return dstarIndices++;
 }
 
 //std::vector<MTDStarLite> PathPlanner::mtdstarList; //Will this work properly?
 //std::size_t PathPlanner::mtdstars = 0;
-std::size_t PathPlanner::MTDStarLiteSearch(HexTile **const _start, HexTile **const _goal, HexTile **const _next, std::size_t _perception, HeuristicFunction Heuristic) {
+std::size_t PathPlanner::MTDStarLiteSearch(HexTile **const _start, HexTile **const _goal, HexTile **const _next, HexPath*const _path, std::size_t _perception, HeuristicFunction Heuristic) {
 	PathPlanner::SetHeuristic(Heuristic);
 
 	//auto ds = MTDStarLite(grid, startRef, goalRef);
-	mtdstarList[mtdstarIndices] = MTDStarLite(grid, _start, _goal, _next, _perception);
+	mtdstarList[mtdstarIndices] = MTDStarLite(grid, _start, _goal, _next, _path, _perception);
 
 	return mtdstarIndices++;
 }
@@ -362,11 +362,11 @@ void PathPlanner::CostChangeNotice(HexTile* tile) {
 	//}
 
 	for (auto &ds : dstarList) {
-		std::lock_guard<std::mutex> lock(ds.second.dstarMutex);
+		//std::lock_guard<std::mutex> lock(ds.second.dstarMutex);
 		ds.second.changedTiles.insert(tile);
 	}
 	for (auto &mtds : mtdstarList) {
-		std::lock_guard<std::mutex> lock(mtds.second.dstarMutex);
+		//std::lock_guard<std::mutex> lock(mtds.second.dstarMutex);
 		mtds.second.changedTiles.insert(tile);
 	}
 

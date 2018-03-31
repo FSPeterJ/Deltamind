@@ -3,6 +3,7 @@
 #include "Health.h"
 #include "Core.h"
 #include "GhostTime.h"
+#include <mutex>
 
 namespace Omiracon {
 	namespace Genetics {
@@ -24,6 +25,7 @@ protected:
 		DEATH,
 	};
 
+	std::mutex enemyMutex;
 	Evolvable* genetics = nullptr;
 	GhostTime::Moment spawnTime;
 	

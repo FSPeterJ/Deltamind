@@ -17,6 +17,7 @@ void EnemyBase::Awake(Object* obj) {
 	sentDeathMessage = false;
 	rb = 0;
 
+	
 	eventLose = 0;
 	smite = 0;
 	SetToFullHealth();
@@ -88,7 +89,7 @@ void EnemyBase::SetStats() {
 	attackDamage = 2.0f + 10.0f * traitFactors[STRENGTH] + 7.0f * traitFactors[POWER] + 4.0f * traitFactors[ACCURACY] + 1.0f * traitFactors[LUCK];
 	attackSpeed = 2.0f * traitFactors[SPEED] + 1.5f * traitFactors[ENERGY] + 1.0f * traitFactors[COORDINATION] + 0.5f * traitFactors[BALANCE];
 	SetMaxHealth(50.0f + 200.0f * traitFactors[DEFENSE] + 150.0f * traitFactors[ENDURANCE] + 100.0f * traitFactors[STAMINA] + 50.0f * traitFactors[RESISTANCE]);
-
+	SetToFullHealth();
 }
 
 void EnemyBase::Update() {

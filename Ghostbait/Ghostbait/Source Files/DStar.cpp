@@ -16,7 +16,7 @@ using namespace Common;
 
 #pragma region DStarCommon
 
-DStarCommon::DStarCommon(HexTile **const _start, HexTile **const _goal, HexTile **const _next, HexGrid *const _grid, std::size_t _perception) : start(_start), goal(_goal), next(_next), grid(_grid), perceptionRange(_perception), km(0.0f) {}
+DStarCommon::DStarCommon(HexTile **const _start, HexTile **const _goal, HexTile **const _next, HexGrid *const _grid, HexPath*const _path, std::size_t _perception) : start(_start), goal(_goal), next(_next), grid(_grid), path(_path), perceptionRange(_perception), km(0.0f) {}
 
 DStarCommon& DStarCommon::operator=(DStarCommon& _other) {
 	grid = _other.grid;
@@ -221,9 +221,21 @@ void DStarLite::ComputeShortestPath() {
 	//Replan();
 }
 
-DStarLite::DStarLite(HexGrid *const _grid, HexTile **const _start, HexTile **const _goal, HexTile **const _next, std::size_t _perception) :
-	last(*_start), DStarCommon(_start, _goal, _next, _grid, _perception) {
+//DStarLite::DStarLite(HexGrid *const _grid, HexTile **const _start, HexTile **const _goal, HexTile **const _next, std::size_t _perception) :
+//	last(*_start), DStarCommon(_start, _goal, _next, _grid, nullptr, _perception) {
+//
+//	//this may not be neccessary
+//	//grid->ForEach([=](HexTile*const tile) {GetRHS(tile] = GetGVal(tile] = grid->BlockWeight(); });
+//
+//	SetRHS(*goal, 0.0f);
+//
+//	open.insert(*goal, std::make_pair(PathPlanner::heuristicFunction(*start, *goal), 0.0f));
+//
+//	ComputeShortestPath();
+//}
 
+DStarLite::DStarLite(HexGrid * const _grid, HexTile ** const _start, HexTile ** const _goal, HexTile ** const _next, HexPath* const _path, std::size_t _perception) : last(*_start), DStarCommon(_start, _goal, _next, _grid, _path, _perception)
+{
 	//this may not be neccessary
 	//grid->ForEach([=](HexTile*const tile) {GetRHS(tile] = GetGVal(tile] = grid->BlockWeight(); });
 
@@ -348,15 +360,15 @@ void MTDStarLite::ComputeCostMinimalPath() {
 	HexTile* cachedStart = *start;
 	HexTile* cachedGoal = *goal;
 
-	int iterations = 0;
-	int maxIter = (int)PathPlanner::heuristicFunction(cachedStart, cachedGoal) * 15 + 30;
-	bool hasPath = true;
+	//int iterations = 0;
+	//int maxIter = (int)PathPlanner::heuristicFunction(cachedStart, cachedGoal) * 15 + 30;
+	//bool hasPath = true;
 	while (!open.empty() && (open.front().second < CalculateKey(cachedGoal) || GetRHS(cachedGoal) > GetGVal(cachedGoal))) {
-		if (iterations++ > maxIter) {
-			Console::WriteLine << "Max iterations reached, NOT SEARCHING ANY FURTHER";
-			hasPath = false;
-			break;
-		}
+		//if (iterations++ > maxIter) {
+		//	Console::WriteLine << "Max iterations reached, NOT SEARCHING ANY FURTHER";
+		//	hasPath = false;
+		//	break;
+		//}
 
 		HexTile* u = open.front().first;
 		FloatPair kold = open.front().second;
@@ -410,38 +422,38 @@ void MTDStarLite::ComputeCostMinimalPath() {
 	}
 	//Console::WriteLine << "End Calculation";
 
-	if (hasPath) {
-		path.clear();
+	//if (hasPath) {
+		path->clear();
 		//Console::WriteLine << "Begin building path";
-		path.BuildPath(cachedStart, cachedGoal, parent); //might need to BuildPathReverse?
-		*next = path.Next(cachedStart);
+		path->BuildPath(cachedStart, cachedGoal, parent); //might need to BuildPathReverse?
+		*next = path->Next(cachedStart);
 		//Console::WriteLine << "Path built";
 		//for (int i = 0; i < path.size(); ++i) {
 		//	HexTile* pathNode = path[i];
 		//	if (parent[pathNode]) Console::WriteLine << PrintTileInfo(pathNode, GetGVal(pathNode), GetRHS(pathNode), parent[pathNode]);
 		//	else Console::WriteLine << PrintTileInfoNull(pathNode, GetGVal(pathNode), GetRHS(pathNode));
 		//}
-	}
-	else {
-		/*float closest = grid->BlockWeight() + 1;
-		float temp = 0;
-		HexTile* nextClosest = nullptr;
-		HexRegion ring;
-		for (int range = (int)perceptionRange * 2; range > 0; --range) {
-			ring = grid->Ring(start, range);
-			for (int region = 0; region < ring.size(); ++region) {
-				if (grid->IsBlocked(&ring[region])) continue;
-				temp = PathPlanner::heuristicFunction(&ring[region], goal);
-				if (temp < closest) {
-					closest = temp;
-					nextClosest = &ring[region];
-				}
-			}
-			if (nextClosest) break;
-		}*/
-		
-		*next = nullptr;
-	}
+	//}
+	//else {
+	//	/*float closest = grid->BlockWeight() + 1;
+	//	float temp = 0;
+	//	HexTile* nextClosest = nullptr;
+	//	HexRegion ring;
+	//	for (int range = (int)perceptionRange * 2; range > 0; --range) {
+	//		ring = grid->Ring(start, range);
+	//		for (int region = 0; region < ring.size(); ++region) {
+	//			if (grid->IsBlocked(&ring[region])) continue;
+	//			temp = PathPlanner::heuristicFunction(&ring[region], goal);
+	//			if (temp < closest) {
+	//				closest = temp;
+	//				nextClosest = &ring[region];
+	//			}
+	//		}
+	//		if (nextClosest) break;
+	//	}*/
+	//	
+	//	*next = nullptr;
+	//}
 
 	//Console::Write << "Next Tile: ";
 	//if (parent[next]) Console::WriteLine << PrintTileInfo(next, GetGVal(next), GetRHS(next), parent[next]);
@@ -453,15 +465,15 @@ void MTDStarLite::ComputeInitialPath() {
 	HexTile* cachedStart = *start;
 	HexTile* cachedGoal = *goal;
 
-	int iterations = 0;
-	int maxIter = (int)PathPlanner::heuristicFunction(cachedStart, cachedGoal) * 15 + 30;
-	bool hasPath = true;
+	//int iterations = 0;
+	//int maxIter = (int)PathPlanner::heuristicFunction(cachedStart, cachedGoal) * 15 + 30;
+	//bool hasPath = true;
 	while (!open.empty() && (open.front().second < CalculateKey(cachedGoal) || GetRHSInit(cachedGoal) > GetGValInit(cachedGoal))) {
-		if (iterations++ > maxIter) {
-			Console::WriteLine << "Max iterations reached, NOT SEARCHING ANY FURTHER";
-			hasPath = false;
-			break;
-		}
+		//if (iterations++ > maxIter) {
+		//	Console::WriteLine << "Max iterations reached, NOT SEARCHING ANY FURTHER";
+		//	hasPath = false;
+		//	break;
+		//}
 
 		HexTile* u = open.front().first;
 		FloatPair kold = open.front().second;
@@ -515,38 +527,38 @@ void MTDStarLite::ComputeInitialPath() {
 	}
 	//Console::WriteLine << "End Calculation";
 
-	if (hasPath) {
-		path.clear();
+	//if (hasPath) {
+		path->clear();
 		//Console::WriteLine << "Begin building path";
-		path.BuildPath(cachedStart, cachedGoal, parent); //might need to BuildPathReverse?
-		*next = path.Next(cachedStart);
+		path->BuildPath(cachedStart, cachedGoal, parent); //might need to BuildPathReverse?
+		*next = path->Next(cachedStart);
 		//Console::WriteLine << "Path built";
 		//for (int i = 0; i < path.size(); ++i) {
 		//	HexTile* pathNode = path[i];
 		//	if (parent[pathNode]) Console::WriteLine << PrintTileInfo(pathNode, GetGVal(pathNode), GetRHS(pathNode), parent[pathNode]);
 		//	else Console::WriteLine << PrintTileInfoNull(pathNode, GetGVal(pathNode), GetRHS(pathNode));
 		//}
-	}
-	else {
-		/*float closest = grid->BlockWeight() + 1;
-		float temp = 0;
-		HexTile* nextClosest = nullptr;
-		HexRegion ring;
-		for (int range = (int)perceptionRange * 2; range > 0; --range) {
-		ring = grid->Ring(start, range);
-		for (int region = 0; region < ring.size(); ++region) {
-		if (grid->IsBlocked(&ring[region])) continue;
-		temp = PathPlanner::heuristicFunction(&ring[region], goal);
-		if (temp < closest) {
-		closest = temp;
-		nextClosest = &ring[region];
-		}
-		}
-		if (nextClosest) break;
-		}*/
+	//}
+	//else {
+	//	/*float closest = grid->BlockWeight() + 1;
+	//	float temp = 0;
+	//	HexTile* nextClosest = nullptr;
+	//	HexRegion ring;
+	//	for (int range = (int)perceptionRange * 2; range > 0; --range) {
+	//	ring = grid->Ring(start, range);
+	//	for (int region = 0; region < ring.size(); ++region) {
+	//	if (grid->IsBlocked(&ring[region])) continue;
+	//	temp = PathPlanner::heuristicFunction(&ring[region], goal);
+	//	if (temp < closest) {
+	//	closest = temp;
+	//	nextClosest = &ring[region];
+	//	}
+	//	}
+	//	if (nextClosest) break;
+	//	}*/
 
-		*next = nullptr;
-	}
+	//	*next = nullptr;
+	//}
 
 	//Console::Write << "Next Tile: ";
 	//if (parent[next]) Console::WriteLine << PrintTileInfo(next, GetGVal(next), GetRHS(next), parent[next]);
@@ -594,8 +606,8 @@ void MTDStarLite::OptimizedDelete() {
 	//Console::WriteLine << "End Optimized Delete";
 }
 
-MTDStarLite::MTDStarLite(HexGrid *const _grid, HexTile **const _start, HexTile **const _goal, HexTile **const _next, std::size_t _perception) :
-	DStarCommon(_start, _goal, _next, _grid, _perception) {
+MTDStarLite::MTDStarLite(HexGrid *const _grid, HexTile **const _start, HexTile **const _goal, HexTile **const _next, HexPath *const _path, std::size_t _perception) :
+	DStarCommon(_start, _goal, _next, _grid, _path, _perception) {
 
 	//this may not be neccessary
 	//grid->ForEach([=](HexTile*const tile) {GetRHS(tile] = GetGVal(tile] = grid->BlockWeight(); /*parent[tile] = nullptr; */});
@@ -622,9 +634,12 @@ MTDStarLite& MTDStarLite::operator=(MTDStarLite& _other) {
 }
 
 void MTDStarLite::Update() {
-
-	if (!dstarMutex.try_lock()) return;
+	//std::unique_lock<std::mutex> updateLock(dstarMutex, std::defer_lock);
+	//if (!updateLock.try_lock()) return;
 	//dstarLock.lock(); //lock the mutex
+	//std::lock_guard<std::mutex> lock(dstarMutex);
+	
+	if (!dstarMutex.try_lock()) return;
 
 	//Console::WriteLine << "Updating";
 	//while(start != goal)
@@ -643,7 +658,7 @@ void MTDStarLite::Update() {
 	//for all directed edges with cost change
 	bool costChanged = false, goalOffPath = false;
 	//Console::WriteLine << "StartTile (" << start->q << ", " << start->r << ")  GoalTile (" << goal->q << ", " << goal->r << ")";
-	if (!path.find(cachedGoal)) {
+	if (!path->find(cachedGoal)) {
 		km += PathPlanner::heuristicFunction(oldGoal, cachedGoal);
 		goalOffPath = true;
 	}

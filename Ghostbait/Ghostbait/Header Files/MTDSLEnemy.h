@@ -12,6 +12,7 @@ class HexGrid;
 class MTDSLEnemy : public EnemyBase, public Controlable, public AntProperties {
 
 protected:
+
 	HexGrid* grid;
 	//RigidBody* rb;
 
@@ -24,6 +25,7 @@ protected:
 	HexTile* next = nullptr;
 	HexTile* curTile = nullptr;
 	HexTile* lastTile = nullptr;
+	HexPath path;
 	bool tempTarget = false;
 
 	unsigned eventAdd;

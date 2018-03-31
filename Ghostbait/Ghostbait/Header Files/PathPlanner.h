@@ -113,7 +113,7 @@ public:
 
 
 	static std::size_t DStarLiteSearch(HexTile **const _start, HexTile **const _goal, HexTile** _next, std::size_t _perception, HeuristicFunction Heuristic);
-	static std::size_t MTDStarLiteSearch(HexTile **const _start, HexTile **const _goal, HexTile** _next, std::size_t _perception, HeuristicFunction Heuristic);
+	static std::size_t MTDStarLiteSearch(HexTile **const _start, HexTile **const _goal, HexTile**const _next, HexPath*const _path, std::size_t _perception, HeuristicFunction Heuristic);
 
 	static void UpdateDStar(std::size_t dstarId);
 	//static HexTile* GetDStarNextTile(std::size_t dstarId);

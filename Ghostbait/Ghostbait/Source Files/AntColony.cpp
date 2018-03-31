@@ -1,6 +1,7 @@
 #include "AntColony.h"
 //#include "PathPlanner.h"
 #include "HexGrid.h"
+#include "HexTileVector.h"
 #include "GhostTime.h"
 #include "EngineStructure.h"
 
@@ -26,6 +27,7 @@ Pheromone& Pheromone::operator=(const Pheromone& _other) {
 HexGrid* AntColony::activeGrid = nullptr;
 std::vector<Pheromone> AntColony::trails;
 unsigned AntColony::updateID = 0;
+float AntColony::timeElapsed = 0.0f;
 
 void AntColony::SetGrid(HexGrid* _grid) {
 	activeGrid = _grid;
@@ -50,6 +52,12 @@ void AntColony::LeavePheromone(HexTile* const _tile, const AntProperties& _prop)
 	trails.push_back(Pheromone(_tile, _prop));
 }
 
+void AntColony::LeavePheromone(HexPath* const _path, float _lingerTime, float _scentStrength) {
+	for (size_t i = 0; i < _path->size(); ++i) {
+		LeavePheromone((*_path)[i], _lingerTime, _scentStrength);
+	}
+}
+
 void AntColony::LeavePheromone(HexTile* const _tile, float _lingerTime, float _scentStrength) {
 	activeGrid->AddWeight(_tile, _lingerTime * _scentStrength);
 	trails.push_back(Pheromone(_tile, _lingerTime, _scentStrength));
@@ -62,22 +70,23 @@ void AntColony::ClearTrails() {
 }
 
 void AntColony::Update() {
-	float delta = (float)GhostTime::DeltaTime();
+	timeElapsed += (float)GhostTime::DeltaTime();
 	
-	size_t index = 0;
-	Pheromone* currPtr;
-	while (index < trails.size()) {
-		currPtr = &trails[index];
-		if (delta >= currPtr->prop.lingerTime) {
-			activeGrid->AddWeight(currPtr->tile, -(currPtr->prop.lingerTime * currPtr->prop.scentStrength));
-			
-			*currPtr = trails.back();
-			trails.pop_back();
-		}
-		else {
-			activeGrid->AddWeight(currPtr->tile, -(delta * currPtr->prop.scentStrength));
-			currPtr->prop.lingerTime -= delta;
-			++index;
-		}
-	}
+	//size_t index = 0;
+	//Pheromone* currPtr;
+	//while (index < trails.size()) {
+	//	currPtr = &trails[index];
+	//	if (timeElapsed >= currPtr->prop.lingerTime) {
+	//		activeGrid->AddWeight(currPtr->tile, -(currPtr->prop.lingerTime * currPtr->prop.scentStrength));
+	//		
+	//		*currPtr = trails.back();
+	//		trails.pop_back();
+	//	}
+	//	else {
+	//		activeGrid->AddWeight(currPtr->tile, -(timeElapsed * currPtr->prop.scentStrength));
+	//		currPtr->prop.lingerTime -= timeElapsed;
+	//		++index;
+	//	}
+	//}
+	if (timeElapsed >= UPDATE_INTERVAL) { timeElapsed = 0.0f; }
 }

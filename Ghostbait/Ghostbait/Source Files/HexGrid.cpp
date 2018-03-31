@@ -13,6 +13,7 @@
 #include <random>
 #include "PathPlanner.h"
 #include <fstream>
+#include "ThreadPool.h"
 using namespace Common;
 
 const float HexGrid::Blocked = float(0xDEAD);
@@ -72,6 +73,7 @@ bool HexGrid::SetWeight(const DirectX::XMFLOAT2& tilePosition, float weight) {
 bool HexGrid::SetWeight(HexTile *const tile, float weight) {
 	if(tile) {
 		//cost_delta[tile] = tile->weight;
+		//Threadding::ThreadPool::MakeJob(PathPlanner::CostChangeNotice, tile);
 		PathPlanner::CostChangeNotice(tile);
 		tile->weight = weight;
 		return true;
@@ -86,9 +88,9 @@ bool HexGrid::AddObstacle(const DirectX::XMFLOAT2& obstaclePosition) {
 bool HexGrid::AddObstacle(HexTile*const obstaclePosition) {
 	if (obstaclePosition) {
 		Console::WriteLine << "Obstacle added: Tile (" << obstaclePosition->q << ", " << obstaclePosition->r << ")";
-		PathPlanner::CostChangeNotice(obstaclePosition);
+		//PathPlanner::CostChangeNotice(obstaclePosition);
 		//cost_delta[obstaclePosition] = obstaclePosition->weight;
-		obstaclePosition->weight = Blocked;
+		SetWeight(obstaclePosition, Blocked);
 		blocked.push_back(*obstaclePosition);
 		return true;
 	}
@@ -102,9 +104,9 @@ bool HexGrid::RemoveObstacle(const DirectX::XMFLOAT2& obstaclePosition) {
 }
 bool HexGrid::RemoveObstacle(HexTile*const obstaclePosition) {
 	if (obstaclePosition) {
-		PathPlanner::CostChangeNotice(obstaclePosition);
+		//PathPlanner::CostChangeNotice(obstaclePosition);
 		//cost_delta[obstaclePosition] = obstaclePosition->weight;
-		obstaclePosition->weight = 1;
+		SetWeight(obstaclePosition, 1.0f);
 		blocked.remove(*obstaclePosition);
 		return true;
 	}

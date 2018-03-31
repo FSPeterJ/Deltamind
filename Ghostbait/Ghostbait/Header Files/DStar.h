@@ -105,6 +105,7 @@ struct DStarCommon {
 	std::mutex dstarMutex;
 	HexGrid *grid = nullptr;
 	HexTile **start = nullptr, **goal = nullptr, **next = nullptr;
+	HexPath *path = nullptr;
 	PriorityQueueMap<HexTile*, FloatPair> open;
 
 	//CostMap cumulativeCost; //g-value
@@ -119,7 +120,7 @@ struct DStarCommon {
 
 	DStarCommon() {};
 
-	DStarCommon(HexTile**const _start, HexTile**const _goal, HexTile**const _next, HexGrid*const _grid, std::size_t _perception);
+	DStarCommon(HexTile**const _start, HexTile**const _goal, HexTile**const _next, HexGrid*const _grid, HexPath*const _path, std::size_t _perception);
 
 	float GetMinimumFrom(const SearchType neighbors, HexTile*const tile, std::function<float(HexTile*const)>, UnionType includeSelf = None);
 
@@ -197,7 +198,7 @@ class DStarLite : public DStarCommon {
 
 public:
 	DStarLite() = default;
-	DStarLite(HexGrid *const _grid, HexTile **const _start, HexTile **const _goal, HexTile **const _next, std::size_t _perception);
+	DStarLite(HexGrid *const _grid, HexTile **const _start, HexTile **const _goal, HexTile **const _next, HexPath*const _path, std::size_t _perception);
 	DStarLite & operator=(DStarLite& other);
 	void Update();
 };
@@ -205,7 +206,7 @@ public:
 class MTDStarLite : public DStarCommon {
 	friend class PathPlanner;
 
-	HexPath path;
+	//HexPath* path;
 	std::vector<HexTile*> deleted;
 	VisitedMap parent;
 	HexTile *oldStart, *oldGoal;
@@ -218,7 +219,7 @@ class MTDStarLite : public DStarCommon {
 
 public:
 	MTDStarLite() = default;
-	MTDStarLite(HexGrid *const _grid, HexTile **const _start, HexTile **const _goal, HexTile **const _next, std::size_t _perception);
+	MTDStarLite(HexGrid *const _grid, HexTile **const _start, HexTile **const _goal, HexTile **const _next, HexPath *const _path, std::size_t _perception);
 	MTDStarLite & operator=(MTDStarLite& other);
 	void Update();
 	//void UpdateGoalReference(DirectX::XMFLOAT4X4* _goalRef);

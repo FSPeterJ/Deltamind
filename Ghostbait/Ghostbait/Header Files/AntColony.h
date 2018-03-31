@@ -2,7 +2,7 @@
 #include <vector>
 
 class HexGrid;
-
+class HexPath;
 template <typename T>
 struct HexagonTile;
 typedef HexagonTile<int> HexTile;
@@ -27,11 +27,12 @@ struct Pheromone {
 	Pheromone& operator=(const Pheromone& _other);
 };
 
+#define UPDATE_INTERVAL 5.0f
 class AntColony {
 	static HexGrid* activeGrid;
 	static std::vector<Pheromone> trails;
 	static unsigned updateID;
-
+	static float timeElapsed;
 public:
 	static void SetGrid(HexGrid* _grid);
 	static void AddUpdateToEngineStruct();
@@ -39,6 +40,7 @@ public:
 	static void Update();
 	static void LeavePheromone(const Pheromone& _pheromone);
 	static void LeavePheromone(HexTile* const _tile, const AntProperties& _prop);
+	static void LeavePheromone(HexPath* const _path, float _lingerTime, float _scentStrength);
 	static void LeavePheromone(HexTile* const _tile, float _lingerTime, float _scentStrength);
 	static void ClearTrails();
 };

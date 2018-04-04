@@ -1,11 +1,14 @@
 #include "XTime.h"
+#include <minwinbase.h>
+#include <winnt.h>
+#include <minwindef.h>
 
 XTime::XTime(unsigned char samples, double smoothFactor) {
 	// clear the structure and init basic values
 	ZeroMemory(&localStack, sizeof(THREAD_DATA));
 	localStack.numSamples = max(1, samples);// one sample is minimum
 	localStack.blendWeight = smoothFactor;
-	localStack.threadID = GetCurrentThreadId();
+	//localStack.threadID = GetCurrentThreadId();
 	// Thread & frame rate measurements (used for throttling)
 	localStack.samplesPerSecond = localStack.lastSecond = 0;
 	localStack.actualHz = 0;

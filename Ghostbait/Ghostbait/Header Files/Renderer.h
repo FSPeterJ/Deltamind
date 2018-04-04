@@ -3,7 +3,7 @@
 #include <d3d11.h>
 #include "Window.h"
 #include <vector>
-
+#include "ParticleManager.h"
 
 #define MAX_PARTICLES 50
 
@@ -39,41 +39,9 @@ private:
 		ID3D11BlendState* blend_state;
 		D3D11_VIEWPORT viewport;
 	};
-	//float3 float float3 float float float float uint
-	struct GPUParticle {
-		//Dynamic data  (16 bytes)
-		DirectX::XMFLOAT3 position;
-		float rotation;
 
-		//Dynamic data  (16 bytes)
-		DirectX::XMFLOAT3 velocity;
-		float age;
 
-		//Constant data (16 bytes)
-		float lifespan; // how long the particle will last
-		float startSize; //particle scale over time data
-		float endSize;
-		unsigned properties; // 12 bits - U Axis UV end | 12 bits - V Axis UV end | 8 bits - texture W index
-	};
-
-	struct EmitterConstant {
-		//16
-		DirectX::XMFLOAT3 Position;
-		unsigned MaxParticlesThisFrame;
-
-		//16
-		DirectX::XMFLOAT3 Velocity;
-		float VelocityMagnatude;
-		//16
-		DirectX::XMFLOAT3 ParticlePositionVariance;
-		float ParticleVelocityVariance;
-
-		//16
-		float StartSize;
-		float ParticleLifeSpan;
-		float EndSize;
-		unsigned TextureIndex;
-	};
+	
 
 	struct viewProjectionConstantBuffer {
 		DirectX::XMFLOAT4X4 view;
@@ -128,9 +96,7 @@ private:
 	ID3D11PixelShader* PassThroughPS;
 	ID3D11VertexShader* StandardVertexShader;
 	ID3D11PixelShader* StandardPixelShader;
-	ID3D11VertexShader* ParticleVS;
-	ID3D11GeometryShader* ParticleGS;
-	ID3D11PixelShader* ParticlePS;
+
 	ID3D11VertexShader* SkyboxVS;
 	ID3D11PixelShader* SkyboxPS;
 	ID3D11PixelShader* DeferredTargetPS;
@@ -167,27 +133,12 @@ private:
 	MeshManager* meshManagement = nullptr;
 	MaterialManager* materialManagement = nullptr;
 	AnimationManager* animationManagement = nullptr;
+	ParticleManager* particleManager = nullptr;
 
 	//Contains randomized numbers since GPU's don't have a RdRand instruction
 	ID3D11Texture2D* randomTexture;
 	ID3D11ShaderResourceView* randomTextureSRV;
 
-	ID3D11Buffer* ParticleBuffer;
-	ID3D11ShaderResourceView* ParticleSRV;
-	ID3D11UnorderedAccessView* ParticleUAV;
-	ID3D11Buffer* InactiveParticleIndexBuffer;
-	ID3D11UnorderedAccessView* InactiveParticleIndexUAV;
-	ID3D11Buffer* InactiveParticleConstantBuffer;
-	ID3D11Buffer* ActiveParticleConstantBuffer;
-	ID3D11Buffer* EmitterConstantBuffer;
-	ID3D11Buffer* ActiveParticleIndexBuffer;
-	ID3D11ShaderResourceView* ActiveParticleIndexSRV;
-	ID3D11UnorderedAccessView* ActiveParticleIndexUAV;
-	ID3D11ShaderResourceView* InactiveParticleIndexSRV;
-	ID3D11Buffer* IndirectDrawArgsBuffer;
-	ID3D11UnorderedAccessView* IndirectDrawArgsUAV;
-	ID3D11ComputeShader* ParticleUpdateShader;
-	ID3D11ComputeShader* ParticleEmitShader;
 
 
 	void initDepthStencilBuffer(pipeline_state_t* pipelineTo);
@@ -195,14 +146,11 @@ private:
 	void initDepthStencilView(pipeline_state_t* pipelineTo);
 	void initBlendState(pipeline_state_t* pipelineTo);
 	void initRasterState(pipeline_state_t* pipelineTo, bool wireFrame = false);
-	void InitParticleShaders();
 	void initShaders();
 	void initViewport(RECT window, pipeline_state_t* pipelineTo);
-	void InitParticles();
 	void createDeviceContextAndSwapchain(Window window);
 	void clearPipelineMemory(pipeline_state_t* pipeline);
 	void clearTextureMemory(renderTargetInfo* info);
-	bool LoadShaderFromCSO(char ** szByteCode, size_t& szByteCodeSize, const char* szFileName);
 	void setupVRTargets();
 	void releaseDeferredTarget(DeferredRTVs* in);
 	void combineDeferredTargets(DeferredRTVs* in, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT& viewport);
@@ -271,11 +219,25 @@ public:
 
 	void setSkybox(const char* directoryName, const char* filePrefix);
 
-	MeshManager* getMeshManager();
-	MaterialManager* getMaterialManager();
-	AnimationManager* getAnimationManager();
-	Transform* getCamera();
+	MeshManager* GetMeshManager();
+	MaterialManager* GetMaterialManager();
+	AnimationManager* GetAnimationManager();
+	ParticleManager* GetParticleManager();
+	Transform* GetCamera();
 	void FillRandomTexture();
-	void RenderParticles();
 	void Render();
 };
+//D3D11 ERROR : ID3D11Device::CreateShaderResourceView : 
+//
+//The Dimensions of the View are invalid due to at least one of the following conditions.
+//MostDetailedMip(value = 0) must be between 0 and MipLevels-1 of the Texture Resource, 9, inclusively.
+//With 
+//the current MostDetailedMip, MipLevels(value = 0) must be between 1 and 10, inclusively, 
+//or 
+//-1 to default to all mips from MostDetailedMip, in order that the View fit on the Texture.
+//FirstArraySlice(value = 0) must be between 0 and ArraySize-1 of the Texture Resource, 31, inclusively.
+//With 
+//the current FirstArraySlice, ArraySize(value = 32) must be between 1 and 32, inclusively, 
+//or 
+//-1 to default to all slices from FirstArraySlice, in order that the View fit on the Texture.
+//[STATE_CREATION ERROR #128: CREATESHADERRESOURCEVIEW_INVALIDDIMENSIONS]

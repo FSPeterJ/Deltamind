@@ -2,6 +2,10 @@
 #include "GhostTime.h"
 #include "Console.h"
 #include "PhysicsExtension.h"
+#include "Emitter.h"
+
+#include "ParticleManager.h"
+#include "MaterialManager.h"
 
 PhysicsTestObj::PhysicsTestObj() {
 	SetTag("PhysicsTestObj");
@@ -14,56 +18,81 @@ PhysicsTestObj::~PhysicsTestObj() {
 
 void PhysicsTestObj::Update() {
 	float dt = (float)GhostTime::DeltaTime();
-	if (!isControllable) return;
-	if (isRayCasting)
+	if(!isControllable) return;
+	if(isRayCasting)
 		Raycast(&transform, DirectX::XMFLOAT3(transform.GetMatrix()._31, transform.GetMatrix()._32, transform.GetMatrix()._33));
 
-	if (KeyIsDown(Control::TestInputU))
-	{
+	if(KeyIsDown(Control::TestInputU)) {
 		DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
 		newPos._42 += dt;
 		transform.SetMatrix(newPos);
 		//ResetKey(Control::TestInputU);
 	}
-	if (KeyIsDown(Control::TestInputO))
-	{
+	if(KeyIsDown(Control::TestInputO)) {
 		DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
 		newPos._42 -= dt;
 		transform.SetMatrix(newPos);
 		//ResetKey(Control::TestInputO);
 	}
-	if (KeyIsDown(Control::TestInputI))
-	{
+	if(KeyIsDown(Control::TestInputI)) {
 		DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
 		newPos._43 += dt;
 		transform.SetMatrix(newPos);
 		//ResetKey(Control::TestInputI);
 	}
-	if (KeyIsDown(Control::TestInputK))
-	{
+	if(KeyIsDown(Control::TestInputK)) {
 		DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
 		newPos._43 -= dt;
 		transform.SetMatrix(newPos);
 		//ResetKey(Control::TestInputK);
 	}
-	if (KeyIsDown(Control::TestInputJ))
-	{
+	if(KeyIsDown(Control::TestInputJ)) {
 		DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
 		newPos._41 -= dt;
 		transform.SetMatrix(newPos);
 		//ResetKey(Control::TestInputJ);
 	}
-	if (KeyIsDown(Control::TestInputL))
-	{
+	if(KeyIsDown(Control::TestInputL)) {
 		DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
 		newPos._41 += dt;
 		transform.SetMatrix(newPos);
 		//ResetKey(Control::TestInputL);
 	}
-	
+
 }
 
-void PhysicsTestObj::OnCollision(GameObject* _other)
-{
+void PhysicsTestObj::OnCollision(GameObject* _other) {
 	//Console::WriteLine << "Colliding";
+}
+
+void PhysicsTestObj::Awake(GameObject* _other) {
+
+	GameObject::Awake(_other);
+
+}
+
+
+void PhysicsTestObj::AnExtremelyBadTemporaryFunction(ParticleManager* partman, MaterialManager* matman) {
+	Emitter* emitter = new Emitter();
+	emitter->transform = transform;
+	emitter->EndSize = 4.0f;
+	emitter->Materials[0] = matman->GetReferenceComponent("Assets/exitOption.mat", nullptr);
+	emitter->ParticleLifeSpan = 5.0f;
+	emitter->Velocity = DirectX::XMFLOAT3(0, 0, 1.0f);
+	emitter->Position = emitter->transform.GetPosition();
+	emitter->TextureIndex = partman->AddMaterial(emitter->Materials[0]);
+
+	D3D11_TEXTURE2D_DESC desc;
+	((ID3D11Texture2D*)emitter->Materials[0]->diffuse.texture)->GetDesc(&desc);
+
+
+
+	//ID3D11Texture2D *pTextureInterface = nullptr;
+	//((Material*)&emitter->Materials[0])->diffuse.texture->QueryInterface<ID3D11Texture2D>(&pTextureInterface);
+	//ID3D11Resource* dec;
+	//((Material*)&emitter->Materials[0])->diffuse.texView->GetResource(&dec);
+	////((ID3D11Resource*)dec)
+
+	emitter->TextureIndex = ((desc.Width & 0xFFF) << 20) | ((desc.Height & 0xFFF) << 8) |emitter->TextureIndex;
+	SetComponent(partman->CloneComponent(emitter), TypeMap::GetComponentTypeID<Emitter>());
 }

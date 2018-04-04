@@ -28,6 +28,7 @@
 #include "Player.h"
 #include "Logger.h"
 #include "Core.h"
+#include "Emitter.h"
 
 Renderer* rendInter;
 Game* game;
@@ -94,12 +95,12 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 		Console::WriteLine << "Renderer initialized......";
 		inputMan = new InputManager(KEYBOARD);
 		if(inputMan) Console::WriteLine << "Input Manager initialized......";
-		//audioMan->setCamera(&(rendInter->getCamera())->GetPosition());
+		//audioMan->setCamera(&(rendInter->GetCamera())->GetPosition());
 	}
 	audioMan->setCamera(&player->transform.GetMatrix());
 	Console::WriteLine << "Nothing's wrong here......";
 
-	animMan = new AnimatorManager(rendInter->getAnimationManager());
+	animMan = new AnimatorManager(rendInter->GetAnimationManager());
 	if(animMan) Console::WriteLine << "Animation Manager initialized......";
 	phyMan = new PhysicsManager();
 	if(phyMan) Console::WriteLine << "Physics Manager initialized......";
@@ -134,12 +135,12 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<AStarEnemy>(300);
 	Console::WriteLine << "Prefab base registered......";
 
-	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
+	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->GetMeshManager());
 	ObjectFactory::RegisterManager<PhysicsComponent, PhysicsManager>(phyMan);
-	ObjectFactory::RegisterManager<Material, MaterialManager>(rendInter->getMaterialManager());
+	ObjectFactory::RegisterManager<Material, MaterialManager>(rendInter->GetMaterialManager());
+	ObjectFactory::RegisterManager<Emitter, ParticleManager>(rendInter->GetParticleManager());
 	ObjectFactory::RegisterManager<Animator, AnimatorManager>(animMan);
 	Console::WriteLine << "Managers registered......";
-
 
 	//------
 	// ToDo: Find an appropriate place for these?
@@ -215,19 +216,23 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//teddy->GetComponent<Animator>()->setState("Walk");
 
 	//********************* PHYSICS TEST CODE **********************************
-	//PhysicsTestObj *test1; //, *test2;
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { 0.0f, 2.0f, 1.0f }, &test1));
-	////DirectX::XMStoreFloat4x4(&test1->position, DirectX::XMLoadFloat4x4(&test1->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
-	////MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest3", { 0.0f, 1.0f, 0.0f }, &test2));
-	////DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
-	////MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest2", { 2.0f, 2.0f, 0.0f }, &test2));
-	////DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
-	////MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { -2.0f, 2.0f, 0.0f }, nullptr));
+	PhysicsTestObj *test1; //, *test2;
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { 0.0f, 2.0f, 1.0f }, &test1));
+	//DirectX::XMStoreFloat4x4(&test1->position, DirectX::XMLoadFloat4x4(&test1->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest3", { 0.0f, 1.0f, 0.0f }, &test2));
+	//DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest2", { 2.0f, 2.0f, 0.0f }, &test2));
+	//DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { -2.0f, 2.0f, 0.0f }, nullptr));
 
-	//((PhysicsTestObj*)test1)->isControllable = true;
-	//((PhysicsTestObj*)test1)->isRayCasting = true;
-	//test1->PersistOnReset();
-	//test1->Enable();
+	((PhysicsTestObj*)test1)->isControllable = true;
+	((PhysicsTestObj*)test1)->isRayCasting = true;
+	test1->PersistOnReset();
+	test1->AnExtremelyBadTemporaryFunction(rendInter->GetParticleManager(), rendInter->GetMaterialManager());
+	test1->Enable();
+
+
+
 
 	GhostTime::Initalize();
 	MessageEvents::Initilize();

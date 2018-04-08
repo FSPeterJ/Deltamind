@@ -33,6 +33,8 @@
 #include "Ground.h"
 #include "Monitor.h"
 #include "ScrollingUVManager.h"
+#include "DisplayBoard.h"
+#include "ControllerPillar.h"
 
 #define FULLSCREEN true
 
@@ -124,6 +126,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<Turret>(102);
 	ObjectFactory::RegisterPrefabBase<Item>(16);
 	ObjectFactory::RegisterPrefabBase<ControllerObject>(2);
+	ObjectFactory::RegisterPrefabBase<ViveController>(8);
 	ObjectFactory::RegisterPrefabBase<Gun>(8);
 	ObjectFactory::RegisterPrefabBase<ProgressBar>(8);
 	ObjectFactory::RegisterPrefabBase<MenuControllerItem>(2);
@@ -144,6 +147,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<BackButton>(1);
 	ObjectFactory::RegisterPrefabBase<Ground>(1);
 	ObjectFactory::RegisterPrefabBase<Monitor>(1);
+	ObjectFactory::RegisterPrefabBase<DisplayBoard>(1);
+	ObjectFactory::RegisterPrefabBase<ControllerPillar>(1);
 	ObjectFactory::RegisterPrefabBase<AStarEnemy>(300);
 	ObjectFactory::RegisterPrefabBase<DStarEnemy>(10);
 	ObjectFactory::RegisterPrefabBase<MTDSLEnemy>(300);
@@ -185,6 +190,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<BackButton>("BackButton");
 	TypeMap::RegisterObjectAlias<Ground>("Ground");
 	TypeMap::RegisterObjectAlias<Monitor>("Monitor");
+	TypeMap::RegisterObjectAlias<DisplayBoard>("DisplayBoard");
+	TypeMap::RegisterObjectAlias<ControllerPillar>("ControllerPillar");
 	TypeMap::RegisterObjectAlias<AStarEnemy>("AStarEnemy");
 	TypeMap::RegisterObjectAlias<DStarEnemy>("DStarEnemy");
 	TypeMap::RegisterObjectAlias<Turret>("Turret");

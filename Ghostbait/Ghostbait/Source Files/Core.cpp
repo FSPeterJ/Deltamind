@@ -13,6 +13,8 @@ void Core::Awake(Object* obj) {
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/healthCube.ghost")), { 0, 0, 0 }, &healthCubes[i]));
 	}
 	*/
+	panicTimer = -1;
+	panicDuration = 4;
 	light.SetAsPoint(NORMALCOLOR, transform.GetPosition(), 1000);
 	light.Enable();
 	SetToFullHealth();
@@ -73,6 +75,8 @@ void Core::DeathEvent() {
 			healthCubes[0]->Destroy();
 	});
 	*/
+	panicTimer = -1;
+	light.SetColor(NORMALCOLOR);
 	MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 	MessageEvents::SendMessage(EVENT_GameLose, EventMessageBase());
 }

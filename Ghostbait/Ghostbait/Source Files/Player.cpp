@@ -18,8 +18,14 @@ Player::Player() {
 	transform.SetPosition(0, 1.7f, 0);
 	transform.LookAt({ 0, 1.7f, 1 });
 	MessageEvents::Subscribe(EVENT_God, [=](EventMessageBase* e) {this->GodDetected(); });
+	MessageEvents::Subscribe(EVENT_GetPlayerPos, [=](EventMessageBase* e) {this->GiveTransform(e); });
 }
 
+void Player::GiveTransform(EventMessageBase* e) {
+	GetPlayerPosMessage* message = (GetPlayerPosMessage*)e;
+	Transform const** data = message->RetrieveData();
+	(*data) = &transform;
+}
 void Player::ChangeStance(Stance newStance) {
 	if (stance == newStance) return;
 	stance = newStance;

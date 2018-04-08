@@ -42,7 +42,10 @@ void AStarEnemy::Enable() {
 		NewRandPath();
 	}
 	rb->SetTerminalSpeed(maxSpeed);
-	next = path.start();
+	if (path.size())
+		next = path.start();
+	else
+		Console::ErrorLine << "Enemy has no path! (Enemy& : " << this << ")";
 	AStarEnemy::Subscribe();
 	EnemyBase::Enable();
 }
@@ -63,25 +66,27 @@ void AStarEnemy::Update() {
 
 
 	//Update Path
-	HexTile* curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.GetMatrix()._41, transform.GetMatrix()._43));
-	if(curTile) {
-		if(curTile == next) {
-			if(path.goal() == curTile) {
-				//Console::WriteLine << "We made it to our goal.";
-				Attack();
-				rb->Stop();
-			}
-			else {
-				howFarAlong++;
-				if(howFarAlong > path.size() - 1) { return; }
-				next = path[howFarAlong];
-				auto nextPathPoint = grid->TileToPoint(next);
+	if (path.size()) {
+		HexTile* curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.GetMatrix()._41, transform.GetMatrix()._43));
+		if (curTile) {
+			if (curTile == next) {
+				if (path.goal() == curTile) {
+					//Console::WriteLine << "We made it to our goal.";
+					Attack();
+					rb->Stop();
+				}
+				else {
+					howFarAlong++;
+					if (howFarAlong > path.size() - 1) { return; }
+					next = path[howFarAlong];
+					auto nextPathPoint = grid->TileToPoint(next);
 
-				//position._41 = nextPathPoint.x;
-				//position._43 = nextPathPoint.y;
-				DirectX::XMVECTOR nextDirection = DirectX::XMVectorSet(nextPathPoint.x - transform.GetMatrix()._41, 0.0f, nextPathPoint.y - transform.GetMatrix()._43, 1.0f);
-				DirectX::XMVECTOR velocity = rb->GetVelocity();
-				rb->AddForce(3.0f * (DirectX::XMVectorGetX(DirectX::XMVector3Dot(nextDirection, velocity)) + 1.0f), nextPathPoint.x - transform.GetMatrix()._41, 0.0f, nextPathPoint.y - transform.GetMatrix()._43, 0.5f);
+					//position._41 = nextPathPoint.x;
+					//position._43 = nextPathPoint.y;
+					DirectX::XMVECTOR nextDirection = DirectX::XMVectorSet(nextPathPoint.x - transform.GetMatrix()._41, 0.0f, nextPathPoint.y - transform.GetMatrix()._43, 1.0f);
+					DirectX::XMVECTOR velocity = rb->GetVelocity();
+					rb->AddForce(3.0f * (DirectX::XMVectorGetX(DirectX::XMVector3Dot(nextDirection, velocity)) + 1.0f), nextPathPoint.x - transform.GetMatrix()._41, 0.0f, nextPathPoint.y - transform.GetMatrix()._43, 0.5f);
+				}
 			}
 		}
 	}

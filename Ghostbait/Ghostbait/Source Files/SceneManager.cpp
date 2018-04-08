@@ -8,6 +8,7 @@
 #include "MessageStructs.h"
 #include "ObjectFactory.h"
 #include "BinaryFileIO.h"
+#include "ControllerPillar.h"
 using namespace Common;
 
 std::wstring SceneManager::string2wstring(std::string str) {
@@ -123,6 +124,22 @@ void SceneManager::Initialize() {
 			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -0.216f, 12.735f, -86.283f, 1);
 			monitor.positions.push_back(mat1);
 			level0Data.prefabs.push_back(monitor);
+		}
+		TestSceneData::Prefab controllerPillar;
+		{
+			controllerPillar.ghostFile = "Assets/ControllerPillar.ghost";
+			controllerPillar.name = "build";
+			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 4, 0, 4, 1);
+			controllerPillar.positions.push_back(mat1);
+			level0Data.prefabs.push_back(controllerPillar);
+		}
+		TestSceneData::Prefab displayBoard;
+		{
+			displayBoard.ghostFile = "Assets/DisplayBoard.ghost";
+			displayBoard.name = "build";
+			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 8, 0, 4, 1);
+			displayBoard.positions.push_back(mat1);
+			level0Data.prefabs.push_back(displayBoard);
 		}
 	}
 	CreateSceneFile(level0Data);
@@ -268,6 +285,10 @@ void SceneManager::LoadScene(const char* sceneName, Core** _core) {
 						MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0, 0, 0 }, &newObj));
 						if (_core && !strcmp(newObj->GetTag().c_str(), "Core")) {
 							*_core = (Core*)newObj;
+						}
+						if (newObj->GetTag() == "ControllerPillar" && ghostLen) {
+							((ControllerPillar*)newObj)->SetType(ghostName.c_str());
+							//hmmmmm
 						}
 						newObj->transform.SetMatrix(mat);
 						newObj->Enable();

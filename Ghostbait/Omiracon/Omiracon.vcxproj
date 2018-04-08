@@ -151,6 +151,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Genetics\Evolve.h" />
+    <ClInclude Include="Genetics\Evolvable.h" />
     <ClInclude Include="Genetics\Traits.h" />
     <ClInclude Include="Header Files\Bitmap.h" />
     <ClInclude Include="Header Files\RandomEngine.h" />
@@ -161,6 +162,7 @@
     <ClInclude Include="Neural\TrainingData.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Genetics\Evolvable.cpp" />
     <ClCompile Include="Genetics\Evolve.cpp" />
     <ClCompile Include="Genetics\Traits.cpp" />
     <ClCompile Include="Neural\ActivationFunctions.cpp" />

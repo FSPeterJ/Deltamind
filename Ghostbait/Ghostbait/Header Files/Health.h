@@ -10,6 +10,11 @@ public:
 	Health(float _maxHealth, float _startingHealth);
 
 	//Purpose: 
+	//	Set Max Health to value
+	//Parameters:
+	//	float amount - the amount to set maxHealth to
+	inline void SetMaxHealth(float value) { maxHealth = value; }
+	//Purpose: 
 	//	Reset Health to maximum
 	inline void SetToFullHealth() { health = maxHealth; }
 	//Purpose: 
@@ -21,7 +26,9 @@ public:
 	//	Add or remove health from object
 	//Parameters:
 	//	float amount - the amount of health to add(positive) remove(negative)
-	void AdjustHealth(float amount);
+	//Returns:
+	//	actual amount of health adjusted
+	float AdjustHealth(float amount);
 	//Purpose: 
 	//	See if the object still has health
 	//Returns:

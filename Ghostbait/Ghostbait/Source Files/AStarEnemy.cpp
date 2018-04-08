@@ -23,6 +23,9 @@ void AStarEnemy::Awake(Object* obj) {
 	start = false;
 	eventAdd = 0;
 	eventRemove = 0;
+
+	lingerTime = 100.0f;
+	scentStrength = 10.0f;
 	
 	EnemyBase::Awake(obj);
 	rb = &(GetComponent<PhysicsComponent>()->rigidBody);
@@ -42,10 +45,10 @@ void AStarEnemy::Enable() {
 		NewRandPath();
 	}
 	rb->SetTerminalSpeed(maxSpeed);
-	if (path.size())
-		next = path.start();
-	else
-		Console::ErrorLine << "Enemy has no path! (Enemy& : " << this << ")";
+	//AntColony::LeavePheromone(&path, lingerTime, scentStrength);
+	if (!(path.size() > 0)) 
+		NewRandPath();
+	next = path.start();
 	AStarEnemy::Subscribe();
 	EnemyBase::Enable();
 }
@@ -66,16 +69,18 @@ void AStarEnemy::Update() {
 
 
 	//Update Path
-	if (path.size()) {
-		HexTile* curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.GetMatrix()._41, transform.GetMatrix()._43));
-		if (curTile) {
-			if (curTile == next) {
+	HexTile* curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.GetMatrix()._41, transform.GetMatrix()._43));
+	if(curTile) {
+		if(curTile == next) {
+			if (path.size() > 0) {
 				if (path.goal() == curTile) {
 					//Console::WriteLine << "We made it to our goal.";
 					Attack();
+
 					rb->Stop();
 				}
 				else {
+					Step();
 					howFarAlong++;
 					if (howFarAlong > path.size() - 1) { return; }
 					next = path[howFarAlong];
@@ -88,12 +93,21 @@ void AStarEnemy::Update() {
 					rb->AddForce(3.0f * (DirectX::XMVectorGetX(DirectX::XMVector3Dot(nextDirection, velocity)) + 1.0f), nextPathPoint.x - transform.GetMatrix()._41, 0.0f, nextPathPoint.y - transform.GetMatrix()._43, 0.5f);
 				}
 			}
+			else { 
+				NewRandPath(); 
+				return;
+			}
 		}
+	}
+	else {
+		//rb->SetVelocity(DirectX::XMVectorScale(rb->GetVelocity(), -1.0f));
+		//NewRandPath();
 	}
 }
 void AStarEnemy::Attack() {
 	if (timeSinceLastAttack == -1) {
 		if (core) core->AdjustHealth(-attackDamage);
+		RecordAttack();
 		Console::WriteLine << "Core health: " << core->PercentHealth();
 		timeSinceLastAttack = 0;
 		return;
@@ -105,6 +119,7 @@ void AStarEnemy::Attack() {
 	float timeToAttack = 1 / attackSpeed;
 	if (timeSinceLastAttack >= timeToAttack) {
 		core->AdjustHealth(-attackDamage);
+		RecordAttack();
 		Console::WriteLine << "Core health: " << core->PercentHealth();
 		timeSinceLastAttack = 0;
 	}
@@ -140,8 +155,17 @@ void AStarEnemy::NewRandPath() {
 	path.clear();
 	howFarAlong = 0;
 
-	goal = grid->GetRandomTile();
-	CalcPath(goal);
+	HexRegion spire = grid->Spiral(goal, 10);
+	spire.remove(*goal);
+
+	for (auto& tile : spire) {
+		if (!grid->IsBlocked(&tile)) {
+			CalcPath(&tile);
+			break;
+		}
+	}
+	//goal = grid->GetRandomTile();
+	//CalcPath(goal);
 
 	if(!path.size()) {
 		NewRandPath();

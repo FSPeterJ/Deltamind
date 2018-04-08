@@ -4,6 +4,7 @@
 #include <queue>
 
 #undef SendMessage
+#undef SendMessageW
 
 enum EVENT_TYPES {
 	EVENT_Input,
@@ -87,6 +88,8 @@ public:
 	/// </summary>
 	/// <param name="eventtype">The eventtype.</param>
 	/// <param name="message">The message.</param>
+#undef SendMessage
+#undef SendMessageW
 	static void SendMessage(const EVENT_TYPES eventtype, EventMessageBase& message);
 
 	static void ProcessEvents();

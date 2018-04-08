@@ -36,7 +36,9 @@
 #include "DisplayBoard.h"
 #include "ControllerPillar.h"
 
-#define FULLSCREEN true
+using namespace Threadding;
+
+const bool FULLSCREEN = true;
 
 //#include "..\Omiracron\Omiracron\Omiracron.h"
 //using namespace Omiracron;
@@ -75,19 +77,19 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//Multithreading Test
 	//=============================
 
-	auto temp = ThreadPool::MakeJob(ExecuteAsync);
+	//auto temp = ThreadPool::MakeJob(ExecuteAsync);
 
-	// check future for errors and / or completion
-	// This is a proof of concept, thread decoupling with .get is still uncertain.
-	try {
-		temp.get();
-	}
-	catch(const std::exception& e) {
-		//std::rethrow_exception(e);
-		// handle it
+	//// check future for errors and / or completion
+	//// This is a proof of concept, thread decoupling with .get is still uncertain.
+	//try {
+	//	temp.get();
+	//}
+	//catch(const std::exception& e) {
+	//	//std::rethrow_exception(e);
+	//	// handle it
 
-		Console::Write << e.what();
-	}
+	//	Console::Write << e.what();
+	//}
 	//=============================
 
 	rendInter = new Renderer();
@@ -292,7 +294,23 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 void Loop() {
 	GhostTime::Tick();
-	if(!game->IsPaused()) {
+	//if(!game->IsPaused()) {
+	//	ThreadPool::CreateMemberJob<void>(phyMan, &PhysicsManager::Update);
+	//	ThreadPool::CreateMemberJob<void>(audioMan, &AudioManager::Update);
+	//} else {
+	//	player->PausedUpdate();
+	//	phyMan->PausedUpdate();
+	//}
+	//ThreadPool::CreateMemberJob<void>(inputMan, &InputManager::HandleInput);
+
+	//ThreadPool::CreateMemberJob<void>(game, &Game::Update);
+	//ThreadPool::CreateMemberJob<void>(player->leftController, &ControllerObject::Update);
+	//ThreadPool::CreateMemberJob<void>(player->rightController, &ControllerObject::Update);
+
+	//ThreadPool::CreateMemberJob<void>(scrollMan, &ScrollingUVManager::Update);
+	//ThreadPool::CreateMemberJob<void>(rendInter, &Renderer::Render);
+
+	if (!game->IsPaused()) {
 		phyMan->Update();
 		audioMan->Update();
 
@@ -309,6 +327,7 @@ void Loop() {
 
 	scrollMan->Update();
 	rendInter->Render();
+
 }
 
 void CleanUp() {

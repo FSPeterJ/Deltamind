@@ -126,6 +126,8 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <BrowseInformation>false</BrowseInformation>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <UndefinePreprocessorDefinitions>SendMessage</UndefinePreprocessorDefinitions>
+      <UndefineAllPreprocessorDefinitions>false</UndefineAllPreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -181,6 +183,8 @@
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <MinimalRebuild>true</MinimalRebuild>
+      <UndefinePreprocessorDefinitions>SendMessage</UndefinePreprocessorDefinitions>
+      <UndefineAllPreprocessorDefinitions>false</UndefineAllPreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -205,6 +209,7 @@
     <ClInclude Include="Header Files\Animator.h" />
     <ClInclude Include="Header Files\AnimatorManager.h" />
     <ClInclude Include="Header Files\AnimatorStructs.h" />
+    <ClInclude Include="Header Files\AntColony.h" />
     <ClInclude Include="Header Files\AStarEnemy.h" />
     <ClInclude Include="Header Files\AudioManager.h" />
     <ClInclude Include="Header Files\BuildTool.h" />
@@ -281,7 +286,6 @@
     <ClInclude Include="Header Files\targetver.h" />
     <ClInclude Include="Header Files\TestObject.h" />
     <ClInclude Include="Header Files\TextManager.h" />
-    <ClInclude Include="Header Files\ThreadPool.h" />
     <ClInclude Include="Header Files\Transform.h" />
     <ClInclude Include="Header Files\TraversalResult.h" />
     <ClInclude Include="Header Files\Turret.h" />
@@ -309,6 +313,7 @@
     <ClCompile Include="Source Files\AnimationManager.cpp" />
     <ClCompile Include="Source Files\Animator.cpp" />
     <ClCompile Include="Source Files\AnimatorManager.cpp" />
+    <ClCompile Include="Source Files\AntColony.cpp" />
     <ClCompile Include="Source Files\AStarEnemy.cpp" />
     <ClCompile Include="Source Files\AudioManager.cpp" />
     <ClCompile Include="Source Files\BuildTool.cpp" />
@@ -376,7 +381,6 @@
     <ClCompile Include="Source Files\SpatialPartition.cpp" />
     <ClCompile Include="Source Files\Spawner.cpp" />
     <ClCompile Include="Source Files\TextManager.cpp" />
-    <ClCompile Include="Source Files\ThreadPool.cpp" />
     <ClCompile Include="Source Files\Transform.cpp" />
     <ClCompile Include="Source Files\Turret.cpp" />
     <ClCompile Include="Source Files\TypeMapping.cpp" />

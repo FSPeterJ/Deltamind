@@ -117,7 +117,7 @@ bool Gun::Shoot(bool addOverheat) {
 				flash.Enable();
 				obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
 				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(transform.GetMatrix()._31 * 50.0f, transform.GetMatrix()._32 * 50.0f, transform.GetMatrix()._33 * 50.0f);
-				obj->SetDamage(damage);
+				if(addOverheat) { obj->SetDamage(damage); } else { obj->SetDamage(9999999); }
 				obj->Enable();
 				if (addOverheat) {
 					overheat.AddEnergy(overheat.energyBulletCost);
@@ -144,7 +144,7 @@ bool Gun::Shoot(bool addOverheat) {
 				flash.SetTimed(0.1);
 				flash.Enable();
 				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(transform.GetMatrix()._31 * 50.0f, transform.GetMatrix()._32 * 50.0f, transform.GetMatrix()._33 * 50.0f);
-				obj->SetDamage(damage);
+				if(addOverheat) { obj->SetDamage(damage); } else { obj->SetDamage(9999999); }
 				obj->Enable();
 				if (addOverheat) {
 					overheat.AddEnergy(overheat.energyBulletCost);

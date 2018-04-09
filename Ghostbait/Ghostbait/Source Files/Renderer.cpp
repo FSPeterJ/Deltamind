@@ -15,6 +15,7 @@
 #include "WICTextureLoader.h"
 #include "TextManager.h"
 #include "ScrollingUVManager.h"
+#include "HUD.h"
 
 //TODO: TEMP for testing a weird crash
 #include "Projectile.h"
@@ -660,6 +661,7 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 	TextManager::LoadFont("Assets/Fonts/defaultFontIndex.txt", "Assets/Fonts/defaultFont.png");
 
 	LightManager::Initialize(device, context);
+	defaultHUD = new HUD(device, context, defaultPipeline.viewport.Width, defaultPipeline.viewport.Height);
 }
 
 void Renderer::Destroy() {
@@ -714,6 +716,7 @@ void Renderer::Destroy() {
 	animationManagement->Destroy();
 	//ParticleManager::Destroy();
 	delete animationManagement;
+	delete defaultHUD;
 #if _DEBUG
 	DebugRenderer::Destroy();
 #endif

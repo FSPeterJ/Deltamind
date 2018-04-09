@@ -94,5 +94,10 @@ namespace Omiracon {
 			std::cout << "COORDINATION is now " << getPretty(operator[](COORDINATION)) << '\n';
 			std::cout << "BALANCE is now " << getPretty(operator[](BALANCE)) << NL;
 		}
+
+		void Performance::Measure::Reset(void) {
+			timeLasted = damageDelt = damageReceived = nodesTraversed = 0;
+		}
+
 	}
 }

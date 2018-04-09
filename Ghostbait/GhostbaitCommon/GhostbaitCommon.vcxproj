@@ -149,10 +149,12 @@
   <ItemGroup>
     <ClInclude Include="BinaryFileIO.h" />
     <ClInclude Include="Console.h" />
+    <ClInclude Include="ThreadPool.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BinaryFileIO.cpp" />
     <ClCompile Include="Console.cpp" />
+    <ClCompile Include="ThreadPool.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

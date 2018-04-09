@@ -3,12 +3,16 @@
 #include "EnemyBase.h"
 #include "HexTileVector.h"
 #include "Controlable.h"
+#include "AntColony.h"
 //class RigidBody;
 //class Transform;
 
 namespace DirectX { struct XMFLOAT2; struct XMFLOAT4X4; }
 class HexGrid;
-class MTDSLEnemy : public EnemyBase, public Controlable {
+class MTDSLEnemy : public EnemyBase, public Controlable, public AntProperties {
+
+protected:
+
 	HexGrid* grid;
 	//RigidBody* rb;
 
@@ -21,6 +25,7 @@ class MTDSLEnemy : public EnemyBase, public Controlable {
 	HexTile* next = nullptr;
 	HexTile* curTile = nullptr;
 	HexTile* lastTile = nullptr;
+	HexPath path;
 	bool tempTarget = false;
 
 	unsigned eventAdd;
@@ -40,8 +45,7 @@ public:
 	void Subscribe() override;
 	void UnSubscribe() override;
 	void Destroy() override;
-	void Awake(Object* obj);
+	void Awake(Object* obj) override;
 	void Attack();
 	void Update();
 };
-#pragma once

@@ -4,6 +4,8 @@
 #include "MessageEvents.h"
 #include "PathPlanner.h"
 #include "GhostTime.h"
+#include "ThreadPool.h"
+
 //#include "Console.h"
 
 void MTDSLEnemy::Enable() {
@@ -22,8 +24,12 @@ void MTDSLEnemy::Enable() {
 	next = curTile; //is this needed or can i pass a ref to a null var below
 					//grid->RemoveObstacle(curTile);//Remove on final build
 
-	mtdstarId = PathPlanner::MTDStarLiteSearch(&curTile, &goal, &next, 3, Heuristics::OctileDistance); //Change perception range to a variable
+	mtdstarId = PathPlanner::MTDStarLiteSearch(&curTile, &goal, &next, &path, 3, Heuristics::OctileDistance); //Change perception range to a variable
 
+	//Threadding::ThreadPool::MakeJob([&] {  
+		//std::lock_guard<std::mutex> lock(enemyMutex);
+		//AntColony::LeavePheromone(&path, lingerTime, scentStrength); });
+	AntColony::LeavePheromone(&path, lingerTime, scentStrength);
 	rb->SetTerminalSpeed(maxSpeed);
 	EnemyBase::Enable();
 }
@@ -76,18 +82,23 @@ void MTDSLEnemy::FindTempPath() {
 	HexRegion ring;
 	//HexTile* currentlyOn = curTile ? curTile : goal;
 	HexTile currentlyOn = grid->PointToTileOffGrid(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
+	HexTile* ultiGoal = grid->PointToTile(DirectX::XMFLOAT2(ultimateTarget->_41, ultimateTarget->_43));
 
 	//if (currentlyOn) {
 	Console::WriteLine << "Enemy #" << mtdstarId << " ";
-		for (int range = (int)3 * 2; range > 0; --range) { //Perception range
+	//int range = 3 * 2; //Perception range
+	int currFromGoal = currentlyOn.DistanceFrom(ultiGoal);
+	//range = range > currFromGoal ? currFromGoal : range;
+	int range = (int)(currFromGoal * 0.5);
+		for (; range > 0; --range) { //Perception range
 			ring = grid->Ring(&currentlyOn, range);
-			Console::WarningLine << "RING SIZE BEFORE: " << ring.size();
+			//Console::WarningLine << "RING SIZE BEFORE: " << ring.size();
 			ring.Filter(*grid);
-			Console::WarningLine << "RING SIZE AFTER: " << ring.size();
+			//Console::WarningLine << "RING SIZE AFTER: " << ring.size();
 			for (int region = 0; region < ring.size(); ++region) {
-				if (!grid->GetTileExact(ring[region])) { Console::ErrorLine << "SOMEBODY DONE FUCKED UP!!"; }
+				if (!grid->GetTileExact(ring[region])) { Console::ErrorLine << "SOMEBODY DONE MESSED UP!!"; }
 				if (grid->IsBlocked(&ring[region])) continue;
-				temp = (float)ring[region].DistanceFrom(goal);
+				temp = (float)ring[region].DistanceFrom(ultiGoal);
 				if (temp < closest) {
 					closest = temp;
 					nextClosest = &ring[region];
@@ -124,6 +135,9 @@ void MTDSLEnemy::Awake(Object* obj) {
 	eventAdd = 0;
 	eventRemove = 0;
 
+	lingerTime = 30.0f;
+	scentStrength = 15.0f;
+
 	EnemyBase::Awake(obj);
 	rb = &(GetComponent<PhysicsComponent>()->rigidBody);
 }
@@ -131,6 +145,7 @@ void MTDSLEnemy::Awake(Object* obj) {
 void MTDSLEnemy::Attack() {
 	if (timeSinceLastAttack == -1) {
 		if (core) core->AdjustHealth(-attackDamage);
+		RecordAttack();
 		Console::WriteLine << "Core health: " << core->PercentHealth();
 		timeSinceLastAttack = 0;
 		return;
@@ -142,6 +157,7 @@ void MTDSLEnemy::Attack() {
 	float timeToAttack = 1 / attackSpeed;
 	if (timeSinceLastAttack >= timeToAttack) {
 		core->AdjustHealth(-attackDamage);
+		RecordAttack();
 		Console::WriteLine << "Core health: " << core->PercentHealth();
 		timeSinceLastAttack = 0;
 	}
@@ -164,7 +180,7 @@ void MTDSLEnemy::Update() {
 	if (!curTile) {
 		Console::WriteLine << "OUT OF BOUNDS!";
 		rb->Stop();
-		rb->SetVelocity(DirectX::XMVectorScale(rb->GetVelocity(), -1.0f));
+		//rb->SetVelocity(DirectX::XMVectorScale(rb->GetVelocity(), -1.0f));
 		FindTempPath();
 		curTile = lastTile;
 	}
@@ -188,6 +204,11 @@ void MTDSLEnemy::Update() {
 		//	grid->GetTileExact(3, 6)->DrawCheapFill(HexagonalGridLayout::FlatLayout, { 1.0f, 1.0f, 0.0f });
 		//	grid->GetTileExact(3, 7)->DrawCheapFill(HexagonalGridLayout::FlatLayout, { 1.0f, 1.0f, 0.0f });
 		//	grid->GetTileExact(3, 5)->DrawCheapFill(HexagonalGridLayout::FlatLayout, { 1.0f, 1.0f, 0.0f });
+
+	if (curTile != lastTile) {
+		Step();
+		//AntColony::LeavePheromone(curTile, lingerTime, scentStrength);
+	}
 
 			if (goal == curTile) {
 				//Console::WriteLine << "We made it to our goal.";

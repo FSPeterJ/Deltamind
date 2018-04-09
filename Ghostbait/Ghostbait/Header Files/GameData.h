@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
 #include "Spawner.h"
-#include "Evolve.h"
 
+#include "Evolve.h"
 using namespace Omiracon::Genetics;
 
 class GameObject;
@@ -40,6 +40,7 @@ struct WaveManager {
 		};
 		int reward = 0;
 		int enemyCount = 0;
+		int numberOfEnemiesSpawned = 0;
 		std::vector<SpawnerData> spawns;
 	};
 private:
@@ -48,15 +49,26 @@ private:
 	std::vector<SpawnerObject*> spawnerObjects;
 	int enemiesLeftAlive = 0;
 	Evolver* evolver = nullptr;
+	static bool firstWave;
 public:
 	WaveManager() {}
-	WaveManager(Evolver* _evolver) : evolver(_evolver) {}
+	WaveManager(Evolver* _evolver) : evolver(_evolver) { }
 	
 	void MoveToNextWave();
 	inline const int GetCurrentWaveNumber() const { return currentWave + 1; }
 	inline const bool NextWaveExists() const { return (currentWave + 1 < (int)waves.size()); }
 	inline const int GetCurrentWaveReward() const { return waves[currentWave].reward; }
-	inline void AddWave(const WaveManager::Wave& newWave) { waves.push_back(newWave); }
+
+	inline void AddWave(const WaveManager::Wave& newWave) {
+		//if(firstWave) {
+		//	firstWave = false;
+		//	evolver->SetPreliminaryData(newWave.enemyCount);
+		//}
+			
+		waves.push_back(newWave);
+	}
+
+
 	inline const int GetWaveCount() const { return (int)waves.size(); }
 	inline const int GetAliveEnemyCount() const { return enemiesLeftAlive; }
 	inline void EnemyKilled(const int& enemyCount = 1) { enemiesLeftAlive -= enemyCount; }

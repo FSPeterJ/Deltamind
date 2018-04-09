@@ -4,6 +4,7 @@
 #include <queue>
 
 #undef SendMessage
+#undef SendMessageW
 
 enum EVENT_TYPES {
 	EVENT_Input,
@@ -21,6 +22,8 @@ enum EVENT_TYPES {
 	EVENT_RegisterNoisemaker,
 	EVENT_RequestSound,
 	EVENT_UnregisterNoisemaker,
+	EVENT_GetPlayerPos,
+
 
 	//Cheats
 	EVENT_God,
@@ -85,6 +88,8 @@ public:
 	/// </summary>
 	/// <param name="eventtype">The eventtype.</param>
 	/// <param name="message">The message.</param>
+#undef SendMessage
+#undef SendMessageW
 	static void SendMessage(const EVENT_TYPES eventtype, EventMessageBase& message);
 
 	static void ProcessEvents();

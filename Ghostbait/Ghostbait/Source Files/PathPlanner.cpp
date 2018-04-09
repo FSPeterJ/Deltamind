@@ -10,8 +10,11 @@
 #include <map>
 #include <iterator>
 #include "DStar.h"
+#include "ThreadPool.h"
+
 using namespace Common;
 
+std::mutex PathPlanner::plannerMutex;
 HeuristicFunction PathPlanner::heuristicFunction = nullptr;
 HexGrid* PathPlanner::grid = nullptr;
 
@@ -228,11 +231,14 @@ HexPath PathPlanner::AStarSearch(HexTile *const start, HexTile *const goal, Heur
 	VisitedMap visited;
 	CostMap cumulativeCost;
 
+	//size_t limit = 0;
+
 	Q.push(start, 0);
 	visited[start] = start;
 	cumulativeCost[start] = 0;
 
-	while(!Q.empty()) {
+	while(!Q.empty()){// && limit < 10000) {
+		//++limit;
 		HexTile* current = Q.pop_back();
 
 		if(current == goal) { break; }
@@ -257,8 +263,10 @@ HexPath PathPlanner::AStarSearch(HexTile *const start, HexTile *const goal, Heur
 	}
 
 	HexPath path;
-	path.BuildPath(start, goal, visited);
+	//if (limit >= 10000) 
+	//	return path;
 
+	path.BuildPath(start, goal, visited);
 	return path;
 }
 
@@ -272,18 +280,18 @@ std::size_t PathPlanner::mtdstarIndices = 0;
 std::size_t PathPlanner::DStarLiteSearch(HexTile **const _start, HexTile **const _goal, HexTile **const _next, std::size_t _perception, HeuristicFunction Heuristic) {
 	PathPlanner::SetHeuristic(Heuristic);
 
-	dstarList[dstarIndices] = DStarLite(grid, _start, _goal, _next, _perception);
+	dstarList[dstarIndices] = DStarLite(grid, _start, _goal, _next, nullptr, _perception);
 
 	return dstarIndices++;
 }
 
 //std::vector<MTDStarLite> PathPlanner::mtdstarList; //Will this work properly?
 //std::size_t PathPlanner::mtdstars = 0;
-std::size_t PathPlanner::MTDStarLiteSearch(HexTile **const _start, HexTile **const _goal, HexTile **const _next, std::size_t _perception, HeuristicFunction Heuristic) {
+std::size_t PathPlanner::MTDStarLiteSearch(HexTile **const _start, HexTile **const _goal, HexTile **const _next, HexPath*const _path, std::size_t _perception, HeuristicFunction Heuristic) {
 	PathPlanner::SetHeuristic(Heuristic);
 
 	//auto ds = MTDStarLite(grid, startRef, goalRef);
-	mtdstarList[mtdstarIndices] = MTDStarLite(grid, _start, _goal, _next, _perception);
+	mtdstarList[mtdstarIndices] = MTDStarLite(grid, _start, _goal, _next, _path, _perception);
 
 	return mtdstarIndices++;
 }
@@ -292,8 +300,21 @@ void PathPlanner::UpdateDStar(std::size_t dstarId) {
 	dstarList[dstarId].Update();
 }
 
+
 void PathPlanner::UpdateMTDStar(std::size_t mtdstarId) {
-	mtdstarList[mtdstarId].Update();
+	//mtdstarList[mtdstarId].Update();
+	//void(MTDStarLite::*updateFunc)() = &std::bind([&]() {})();
+	
+	
+	//auto t = std::thread(&MTDStarLite::Update, &mtdstarList[mtdstarId]);
+	//t.detach();
+
+	Threadding::ThreadPool::CreateMemberJob<void>(&mtdstarList[mtdstarId], &MTDStarLite::Update);
+	//&MTDStarLite::Update, &mtdstarList[mtdstarId]);
+	
+	//ThreadPool::MakeJob(RunMTMTDSL, std::move(mtdstarId));
+
+	//ThreadPool::MakeJob(updateFunc);
 }
 
 //HexTile* PathPlanner::GetDStarNextTile(std::size_t dstarId) {
@@ -334,12 +355,26 @@ bool PathPlanner::RemoveMTDStar(std::size_t mtdstarId) {
 //}
 
 void PathPlanner::CostChangeNotice(HexTile* tile) {
+	//for (auto &ds : dstarList) {
+	//	//ThreadPool::MakeJob(&dstarCostChangeThreadEntry, &(ds.second), tile);
+	//	auto t = std::thread(&DStarCommon::ChangeCostIncoming, &(ds.second), tile);
+	//	t.detach();
+	//}
+	//for (auto &mtds : mtdstarList) {
+	//	auto t = std::thread(&DStarCommon::ChangeCostIncoming, &(mtds.second), tile);
+	//	t.detach();
+	//	//ThreadPool::MakeJob(&mtdstarCostChangeThreadEntry, &(mtds.second), tile);
+	//}
+
 	for (auto &ds : dstarList) {
+		//std::lock_guard<std::mutex> lock(ds.second.dstarMutex);
 		ds.second.changedTiles.insert(tile);
 	}
 	for (auto &mtds : mtdstarList) {
+		//std::lock_guard<std::mutex> lock(mtds.second.dstarMutex);
 		mtds.second.changedTiles.insert(tile);
 	}
+
 	//for (int i = 0; i < dstarList.size(); ++i) {
 	//	dstarList[i].changedTiles.insert(tile);
 	//}
@@ -418,4 +453,23 @@ float PathPlanner::ClampInfinity(float num) {
 
 bool PathPlanner::EpsilonIsEqual(float num1, float num2) {
 	return fabsf(num1 - num2) < FLT_EPSILON;
+}
+
+
+void PathPlanner::dstarUpdateThreadEntry(DStarLite* ds) {
+	//std::lock_guard<std::mutex> lock(plannerMutex);
+	ds->Update();
+}
+void PathPlanner::mtdstarUpdateThreadEntry(MTDStarLite* mtds) {
+	//std::lock_guard<std::mutex> lock(plannerMutex);
+	Console::WriteLine << "Trying to update MTDS";
+	mtds->Update();
+}
+void PathPlanner::dstarCostChangeThreadEntry(DStarLite* ds, HexTile* tile) {
+	//std::lock_guard<std::mutex> lock(plannerMutex);
+	ds->ChangeCostIncoming(tile);
+}
+void PathPlanner::mtdstarCostChangeThreadEntry(MTDStarLite* mtds, HexTile* tile) {
+	//std::lock_guard<std::mutex> lock(plannerMutex);
+	mtds->ChangeCostIncoming(tile);
 }

@@ -3,18 +3,19 @@
 #include "Spawner.h"
 #include "MessageEvents.h"
 #include "GhostTime.h"
-#include "EngineStructure.h"
+//#include "EngineStructure.h"
 #include "../Dependencies/XML_Library/irrXML.h"
 #include "AStarEnemy.h"
 #include "SceneManager.h"
 #include "PathPlanner.h"
+#include "AntColony.h"
 #include "ObjectFactory.h"
 #include "Player.h"
-#include "DStarEnemy.h"
-#include "MTDSLEnemy.h"
+//#include "DStarEnemy.h"
+//#include "MTDSLEnemy.h"
 
-//#include "Evolve.h"
-//using namespace Omiracon::Genetics;
+#include "Evolvable.h"
+using namespace Omiracon::Genetics;
 
 Game::Game() {
 	MessageEvents::Subscribe(EVENT_SpawnerCreated, [=](EventMessageBase* e) {this->SpawnerCreatedEvent(e); });
@@ -32,7 +33,7 @@ Game::Game() {
 
 	MessageEvents::Subscribe(EVENT_GameDataRequest, [=](EventMessageBase* e) { this->GameDataRequestEvent(e); });
 	PathPlanner::SetGrid(&hexGrid);
-
+	AntColony::SetGrid(&hexGrid);
 	//gameData = GameData(&evolver);
 }
 
@@ -69,6 +70,7 @@ void Game::EnemyDiedEvent() {
 	gameData.waveManager.EnemyKilled();
 	gameData.AddGears(50);
 	if(gameData.waveManager.GetAliveEnemyCount() <= 0) {
+		evolver.RunGeneration();
 		ChangeState(GAMESTATE_BetweenWaves);
 	}
 }
@@ -225,6 +227,8 @@ void Game::ChangeScene(const char* sceneName) {
 		}
 		delete xmlReader;
 	}
+
+
 }
 void Game::StartNextWave() {
 	if(!gameData.waveManager.NextWaveExists()) {
@@ -294,6 +298,7 @@ void Game::Start(Player* _player, EngineStructure* _engine, char* startScene) {
 	srand((unsigned int)time(NULL));
 	engine = _engine;
 	player = _player;
+	AntColony::AddUpdateToEngineStruct();
 	mainMenu.Create(MENU_Main);
 	pauseMenu.Create(MENU_Pause);
 	pauseMenu.SetCamera(&player->transform);
@@ -351,6 +356,7 @@ void Game::Update() {
 						spawner->RestartTimer();
 					}
 				}
+
 			}
 			//--------Update Engine Structure
 			{

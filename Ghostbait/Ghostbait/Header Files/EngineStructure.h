@@ -13,6 +13,7 @@ class EngineStructure {
 	friend class Game;
 	friend class Animator;
 	friend class GhostTime;
+	friend class AntColony;
 
 	static Delegate<> Awake;
 	static Delegate<> OnEnable;
@@ -68,7 +69,7 @@ public:
 		//Write((int) Update.subscriber_count());
 		//WriteLine(" subscribers.");
 
-		Update();
+		Update();// .RunAsync();
 	}
 
 	void ExecuteLateUpdate() {

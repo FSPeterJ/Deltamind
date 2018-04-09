@@ -33,8 +33,12 @@
 #include "Ground.h"
 #include "Monitor.h"
 #include "ScrollingUVManager.h"
+#include "DisplayBoard.h"
+#include "ControllerPillar.h"
 
-#define FULLSCREEN true
+using namespace Threadding;
+
+const bool FULLSCREEN = true;
 
 //#include "..\Omiracron\Omiracron\Omiracron.h"
 //using namespace Omiracron;
@@ -73,19 +77,19 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//Multithreading Test
 	//=============================
 
-	auto temp = ThreadPool::MakeJob(ExecuteAsync);
+	//auto temp = ThreadPool::MakeJob(ExecuteAsync);
 
-	// check future for errors and / or completion
-	// This is a proof of concept, thread decoupling with .get is still uncertain.
-	try {
-		temp.get();
-	}
-	catch(const std::exception& e) {
-		//std::rethrow_exception(e);
-		// handle it
+	//// check future for errors and / or completion
+	//// This is a proof of concept, thread decoupling with .get is still uncertain.
+	//try {
+	//	temp.get();
+	//}
+	//catch(const std::exception& e) {
+	//	//std::rethrow_exception(e);
+	//	// handle it
 
-		Console::Write << e.what();
-	}
+	//	Console::Write << e.what();
+	//}
 	//=============================
 
 	rendInter = new Renderer();
@@ -124,6 +128,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<Turret>(102);
 	ObjectFactory::RegisterPrefabBase<Item>(16);
 	ObjectFactory::RegisterPrefabBase<ControllerObject>(2);
+	ObjectFactory::RegisterPrefabBase<ViveController>(8);
 	ObjectFactory::RegisterPrefabBase<Gun>(8);
 	ObjectFactory::RegisterPrefabBase<ProgressBar>(8);
 	ObjectFactory::RegisterPrefabBase<MenuControllerItem>(2);
@@ -144,6 +149,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<BackButton>(1);
 	ObjectFactory::RegisterPrefabBase<Ground>(1);
 	ObjectFactory::RegisterPrefabBase<Monitor>(1);
+	ObjectFactory::RegisterPrefabBase<DisplayBoard>(1);
+	ObjectFactory::RegisterPrefabBase<ControllerPillar>(1);
 	ObjectFactory::RegisterPrefabBase<AStarEnemy>(300);
 	ObjectFactory::RegisterPrefabBase<DStarEnemy>(10);
 	ObjectFactory::RegisterPrefabBase<MTDSLEnemy>(300);
@@ -185,6 +192,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<BackButton>("BackButton");
 	TypeMap::RegisterObjectAlias<Ground>("Ground");
 	TypeMap::RegisterObjectAlias<Monitor>("Monitor");
+	TypeMap::RegisterObjectAlias<DisplayBoard>("DisplayBoard");
+	TypeMap::RegisterObjectAlias<ControllerPillar>("ControllerPillar");
 	TypeMap::RegisterObjectAlias<AStarEnemy>("AStarEnemy");
 	TypeMap::RegisterObjectAlias<DStarEnemy>("DStarEnemy");
 	TypeMap::RegisterObjectAlias<Turret>("Turret");
@@ -285,7 +294,23 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 void Loop() {
 	GhostTime::Tick();
-	if(!game->IsPaused()) {
+	//if(!game->IsPaused()) {
+	//	ThreadPool::CreateMemberJob<void>(phyMan, &PhysicsManager::Update);
+	//	ThreadPool::CreateMemberJob<void>(audioMan, &AudioManager::Update);
+	//} else {
+	//	player->PausedUpdate();
+	//	phyMan->PausedUpdate();
+	//}
+	//ThreadPool::CreateMemberJob<void>(inputMan, &InputManager::HandleInput);
+
+	//ThreadPool::CreateMemberJob<void>(game, &Game::Update);
+	//ThreadPool::CreateMemberJob<void>(player->leftController, &ControllerObject::Update);
+	//ThreadPool::CreateMemberJob<void>(player->rightController, &ControllerObject::Update);
+
+	//ThreadPool::CreateMemberJob<void>(scrollMan, &ScrollingUVManager::Update);
+	//ThreadPool::CreateMemberJob<void>(rendInter, &Renderer::Render);
+
+	if (!game->IsPaused()) {
 		phyMan->Update();
 		audioMan->Update();
 
@@ -302,6 +327,7 @@ void Loop() {
 
 	scrollMan->Update();
 	rendInter->Render();
+
 }
 
 void CleanUp() {

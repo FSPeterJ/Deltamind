@@ -3,11 +3,12 @@
 #include "EnemyBase.h"
 #include "HexTileVector.h"
 #include "Controlable.h"
+#include "AntColony.h"
 //class RigidBody;
 
 namespace DirectX { struct XMFLOAT2; }
 class HexGrid;
-class AStarEnemy: public EnemyBase, public Controlable {
+class AStarEnemy: public EnemyBase, public AntProperties {
 	HexPath path;
 	size_t howFarAlong = 0;
 	HexGrid* grid = 0;

@@ -134,7 +134,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
     posAlmost.w = 1.0f;
     posAlmost = mul(posAlmost, view);
     float3 worldPos = posAlmost.xyz;
-    [unroll(83)] for (int i = 0; i < 83; ++i)
+    for (int i = 0; i < 83; ++i)
     {
         if (theLights[i].color.w == 0.0f)
             break;

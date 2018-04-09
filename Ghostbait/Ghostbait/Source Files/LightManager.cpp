@@ -82,9 +82,13 @@ void LightManager::Initialize(ID3D11Device * device, ID3D11DeviceContext * conte
 	device->CreateShaderResourceView(lightBuffer, &srvDesc, &srv);
 }
 
-void LightManager::BindLightArray(ID3D11DeviceContext * context)
+void LightManager::UploadLights(ID3D11DeviceContext * context)
 {
 	context->UpdateSubresource(lightBuffer, NULL, NULL, &cpu_side_lights, NULL, NULL);
+}
+
+void LightManager::BindLightArray(ID3D11DeviceContext * context)
+{
 	context->PSSetShaderResources(6, 1, &srv);
 }
 

@@ -35,6 +35,7 @@ public:
 	static genericLight* getLight(int ID);
 	static void removeLight(int ID);
 	static void Initialize(ID3D11Device* device, ID3D11DeviceContext* context);
+	static void UploadLights(ID3D11DeviceContext* context);
 	static void BindLightArray(ID3D11DeviceContext* context);
 	static void Destroy();
 	

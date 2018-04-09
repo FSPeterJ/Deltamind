@@ -824,6 +824,7 @@ XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 }
 
 void Renderer::Render() {
+	LightManager::UploadLights(context);
 	loadPipelineState(&defaultPipeline);
 	XMMATRIX cameraObj = XMMatrixTranspose(XMLoadFloat4x4(&cameraPos->GetMatrix()));
 	XMStoreFloat4x4(&defaultCamera.view, XMMatrixInverse(&XMMatrixDeterminant(cameraObj), cameraObj));

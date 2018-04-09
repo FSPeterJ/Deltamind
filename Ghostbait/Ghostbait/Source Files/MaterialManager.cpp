@@ -43,7 +43,7 @@ Material* MaterialManager::ConstructMaterial(const char * _materialFilePath) {
 			std::string thePath(buffer);
 			thePath = "Assets\\" + thePath;
 			std::wstring path(thePath.begin(), thePath.end());
-			HRESULT didItBlend = DirectX::CreateWICTextureFromFile(device, context, path.c_str(), (ID3D11Resource**) &ret->diffuse.texture, &ret->diffuse.texView);
+			HRESULT didItBlend = DirectX::CreateWICTextureFromFileEx(device, context, path.c_str(), 0, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, D3D11_CPU_ACCESS_READ, 0, 0, (ID3D11Resource**)&ret->diffuse.texture, &ret->diffuse.texView);
 		} else {
 			ret->diffuse.texture = nullptr;
 			ret->diffuse.texView = nullptr;

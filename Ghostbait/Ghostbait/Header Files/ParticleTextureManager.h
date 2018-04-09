@@ -5,6 +5,7 @@
 
 
 #define MAX_TEXTURES 32
+#define MIP_LEVELS 1
 
 class ParticleTextureManager
 {

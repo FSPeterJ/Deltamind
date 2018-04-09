@@ -652,6 +652,7 @@ XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 }
 
 void Renderer::Render() {
+
 	loadPipelineState(&defaultPipeline);
 	XMMATRIX cameraObj = XMMatrixTranspose(XMLoadFloat4x4(&cameraPos->GetMatrix()));
 	XMStoreFloat4x4(&defaultCamera.view, XMMatrixInverse(&XMMatrixDeterminant(cameraObj), cameraObj));
@@ -720,6 +721,7 @@ void Renderer::Render() {
 	}
 
 	particleManager->RenderParticles();
+
 	context->VSSetShader(StandardVertexShader, NULL, NULL);
 	context->PSSetShader(DeferredTargetPS, NULL, NULL);
 	context->GSSetShader(nullptr, NULL, NULL);

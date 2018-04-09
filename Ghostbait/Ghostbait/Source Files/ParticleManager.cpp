@@ -79,6 +79,7 @@ ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _
 	GPUParticle* testParticle = new GPUParticle[MAX_PARTICLES];
 	testParticle->position = DirectX::XMFLOAT3(1, 2.0f, 1.5f);
 	testParticle->endSize = 3.0f;
+	testParticle->velocity = DirectX::XMFLOAT3(0, 0.1f, 0);
 	testParticle->startSize = 1.5f;
 	testParticle->properties = 512u << 20| 512u << 8 | 0u;
 	resData.pSysMem = testParticle;
@@ -169,16 +170,25 @@ ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _
 	uavDesc.Buffer.Flags = 0;
 	device->CreateUnorderedAccessView(IndirectDrawArgsBuffer, &uavDesc, &IndirectDrawArgsUAV);
 
-	ID3D11UnorderedAccessView* uavs[] = { ActiveParticleIndexUAV };
-	UINT counts[] = { 1 };
+	ID3D11UnorderedAccessView* uavs[] = { ParticleUAV, ActiveParticleIndexUAV, InactiveParticleIndexUAV };
+
+	UINT counts[] = { (UINT)1, (UINT)1, (UINT)(MAX_PARTICLES) };
 	//This fakes setting one particle as active
 	context->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavs), uavs, counts);
 	uavs[0] = nullptr;
+	uavs[1] = nullptr;
+	uavs[2] = nullptr;
 	context->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavs), uavs, counts);
+
+
+	//ID3D11Buffer* buffers[] = { ActiveParticleConstantBuffer, InactiveParticleConstantBuffer  };
+	//context->CSSetConstantBuffers(1, ARRAYSIZE(buffers), buffers);
+	
 }
 
 
 void ParticleManager::RenderParticles() {
+
 	texMan->BindToShader();
 
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
@@ -196,6 +206,11 @@ void ParticleManager::RenderParticles() {
 	//SRV[1] = nullptr;
 	//context->VSSetShaderResources(10, 2, SRV);
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	SRV[0] = nullptr;
+	SRV[1] = nullptr;
+	context->VSSetShaderResources(10, 2, SRV);
+
+	//Update();
 }
 
 ComponentBase* ParticleManager::GetReferenceComponent(const char* _FilePath, const char* _data) {
@@ -265,7 +280,7 @@ ParticleManager::~ParticleManager() {
 }
 
 void ParticleManager::Update() {
-	
+
 	//Map emitters and fire off Emit shader
 
 
@@ -273,17 +288,39 @@ void ParticleManager::Update() {
 	// It should give access to the vector array and you should then ask for the active count.
 	// A discussion with Kody on an unrelated system has made this apparent to me.
 	Emitter* activeEmitters = (*emitterPool.GetActiveList())[0];
-	unsigned activeCount =  (unsigned)emitterPool.GetActiveCount();
-	for (unsigned i = 0; i < activeCount; ++i) {
+	unsigned activeCount = (unsigned)emitterPool.GetActiveCount();
+	for(unsigned i = 0; i < activeCount; ++i) {
 		Emitter* activeEmit = &activeEmitters[activeCount];
 		emitterConstant.EndColor = activeEmit->EndColor;
 		emitterConstant.Position = activeEmit->Position;
 		emitterConstant.Velocity = activeEmit->Velocity;
 		emitterConstant.TextureIndex = activeEmit->TextureIndex;
-		context->UpdateSubresource(EmitterConstantBuffer, NULL, NULL, &emitterConstant, NULL, NULL);
+		//context->UpdateSubresource(EmitterConstantBuffer, NULL, NULL, &emitterConstant, NULL, NULL);
 	}
-	
+
 
 	//Process Update of shaders
 
+	context->CSSetShader(ParticleUpdateShader, nullptr, 0);
+
+	ID3D11UnorderedAccessView* uavs[] = { ParticleUAV, ActiveParticleIndexUAV, InactiveParticleIndexUAV };
+	context->CopyStructureCount(ActiveParticleConstantBuffer, 0, ActiveParticleIndexUAV);
+	context->CopyStructureCount(InactiveParticleConstantBuffer, 0, InactiveParticleIndexUAV);
+
+	//This fakes setting one particle as active
+	context->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavs), uavs, nullptr);
+
+	//ID3D11ShaderResourceView* srvs[] = { ParticleSRV };
+	//context->CSSetShaderResources(0, ARRAYSIZE(srvs), srvs);
+
+	//int numThreadGroups = MAX_PARTICLES / 1024;
+	int numThreadGroups = 1;
+	context->Dispatch(numThreadGroups, 1, 1);
+
+	uavs[0] = nullptr;
+	uavs[1] = nullptr;
+	uavs[2] = nullptr;
+	context->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavs), uavs, nullptr);
+	//srvs[0] = nullptr;
+	//context->CSSetShaderResources(0, ARRAYSIZE(srvs), srvs);
 }

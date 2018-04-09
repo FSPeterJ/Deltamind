@@ -2,8 +2,10 @@
 struct genericLight
 {
     float4 color;
+
     float3 dir;
     float radius;
+
     float3 pos;
     float outerRadius;
 };

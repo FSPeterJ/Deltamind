@@ -274,7 +274,7 @@ void Renderer::blurTexture(D3D11_VIEWPORT & viewport, ID3D11Texture2D * tex, ID3
 
 	ID3D11RenderTargetView* clearrtv = nullptr;
 	ID3D11ShaderResourceView* clearsrv = nullptr;
-
+	context->OMSetRenderTargets(1, &clearrtv, nullptr);
 	context->OMSetRenderTargets(1, &tempRtv, dsv);
 	toShader.dir = { 1.0f, 0.0f };
 	context->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -282,7 +282,6 @@ void Renderer::blurTexture(D3D11_VIEWPORT & viewport, ID3D11Texture2D * tex, ID3
 	context->PSSetShaderResources(0, 1, &srv);
 	context->Draw(1, 0);
 	context->OMSetRenderTargets(1, &clearrtv, nullptr);
-	context->PSSetShaderResources(0, 1, &clearsrv);
 	toShader.dir = { 0.0f, 1.0f };
 	context->OMSetRenderTargets(1, &swapRtv, dsv);
 	context->UpdateSubresource(blurDataBuffer, NULL, NULL, &toShader, NULL, NULL);
@@ -291,7 +290,6 @@ void Renderer::blurTexture(D3D11_VIEWPORT & viewport, ID3D11Texture2D * tex, ID3
 	
 	for (unsigned int i = 0; i < passes - 1; ++i)
 	{
-		context->OMSetRenderTargets(1, &clearrtv, nullptr);
 		context->PSSetShaderResources(0, 1, &clearsrv);
 		context->OMSetRenderTargets(1, &tempRtv, dsv);
 		toShader.dir = { 1.0f, 0.0f };
@@ -311,16 +309,16 @@ void Renderer::blurTexture(D3D11_VIEWPORT & viewport, ID3D11Texture2D * tex, ID3
 		}
 		else
 		{
-			context->OMSetRenderTargets(1, &clearrtv, nullptr);
 			context->PSSetShaderResources(0, 1, &clearsrv);
 			toShader.dir = { 0.0f, 1.0f };
-			context->OMSetRenderTargets(1, &tempRtv, dsv);
+			context->OMSetRenderTargets(1, &swapRtv, dsv);
 			context->UpdateSubresource(blurDataBuffer, NULL, NULL, &toShader, NULL, NULL);
 			context->PSSetShaderResources(0, 1, &tempSrv);
 			context->Draw(1, 0);
 		}
 	}
-	
+	context->OMSetRenderTargets(1, &clearrtv, nullptr);
+	context->PSSetShaderResources(0, 1, &clearsrv);
 	tempSrv->Release();
 	swapSrv->Release();
 	tempTex->Release();

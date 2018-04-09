@@ -660,10 +660,13 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 
 	TextManager::Initialize(device, context, TextVertexShader, PositionTexturePixelShader, ILPositionTexture);
 	TextManager::LoadFont("Assets/Fonts/defaultFontIndex.txt", "Assets/Fonts/defaultFont.png");
+
+	LightManager::Initialize(device, context);
 }
 
 void Renderer::Destroy() {
 	TextManager::Destroy();
+	LightManager::Destroy();
 	emptyFloat3Buffer->Release();
 	LinearSamplerState->Release();
 	PointSamplerState->Release();
@@ -842,9 +845,11 @@ void Renderer::Render() {
 
 		LightManager::getLightBuffer()->cameraPos = leftEye.camPos;
 		context->UpdateSubresource(lightBuffer, NULL, NULL, LightManager::getLightBuffer(), 0, 0);
+		LightManager::BindLightArray(context);
 		renderToEye(&leftEye);
 		LightManager::getLightBuffer()->cameraPos = rightEye.camPos;
 		context->UpdateSubresource(lightBuffer, NULL, NULL, LightManager::getLightBuffer(), 0, 0);
+		LightManager::BindLightArray(context);
 		renderToEye(&rightEye);
 		VRManager::GetInstance().SendToHMD((void*) leftEye.renderInfo.texture, (void*) rightEye.renderInfo.texture);
 		context->UpdateSubresource(cameraBuffer, 0, NULL, &(leftEye.camera), 0, 0);
@@ -874,6 +879,7 @@ void Renderer::Render() {
 		camPos = DirectX::XMFLOAT3(cameraPos->GetMatrix()._41, cameraPos->GetMatrix()._42, cameraPos->GetMatrix()._43);
 	LightManager::getLightBuffer()->cameraPos = camPos;
 	context->UpdateSubresource(lightBuffer, NULL, NULL, LightManager::getLightBuffer(), 0, 0);
+	LightManager::BindLightArray(context);
 	drawSkyboxTo(deferredTextures.RTVs, deferredTextures.DSV, defaultPipeline.viewport, camPos);
 
 	context->RSSetViewports(1, &defaultPipeline.viewport);

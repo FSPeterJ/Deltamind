@@ -19,7 +19,6 @@ struct genericLight
 StructuredBuffer<genericLight> theLights : register(t6);
 cbuffer lightBuffer : register(b0)
 {
-    genericLight lights[83];
     float3 ambientColor;
     float ambientIntensity;
     float3 cameraPos;
@@ -39,7 +38,7 @@ struct PixelShaderInput
 
 float2x4 calcLight(int i, float3 worldPos, float3 norm)
 {
-    genericLight theLight = lights[i];
+    genericLight theLight = theLights[i];
     float2x4 ret = float2x4(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
     if (theLight.radius > 0.0f)
     {
@@ -83,34 +82,35 @@ float4 calcSpec(int i, float atten, float3 worldPos, float3 norm, float specInte
 {
     float4 ret = float4(0.0f, 0.0f, 0.0f, 0.0f);
     //I would prefer to not have to do a lot of these calculations but hlsl doesn't do pointers or globals
+    genericLight theLight = theLights[i];
     
-    if (lights[i].radius > 0.0f && specIntense != 0.0f)
+    if (theLight.radius > 0.0f && specIntense != 0.0f)
     {
-        if (lights[i].outerRadius > 0.0f)
+        if (theLight.outerRadius > 0.0f)
         {
-            float3 dir = normalize(lights[i].pos - worldPos);
+            float3 dir = normalize(theLight.pos - worldPos);
 
             float3 reflectionDir = reflect(-dir, norm);
             float3 dirToCam = normalize(cameraPos - worldPos);
             float specScale = 1.0f * pow(saturate(dot(reflectionDir, dirToCam)), 25.0f);
-            ret = specIntense * specScale * lights[i].color * atten;
+            ret = specIntense * specScale * theLight.color * atten;
         }
         else
         {
-            float3 dir = normalize(lights[i].pos - worldPos);
+            float3 dir = normalize(theLight.pos - worldPos);
             float3 reflectionDir = reflect(-dir, norm);
             float3 dirToCam = normalize(cameraPos - worldPos);
             float specScale = 1.0f * pow(saturate(dot(reflectionDir, dirToCam)), 25.0f);
-            ret = specIntense * specScale * lights[i].color * atten;
+            ret = specIntense * specScale * theLight.color * atten;
         }
     }
     else if(specIntense != 0.0f)
     {
-        float3 dir = normalize(lights[i].dir);
+        float3 dir = normalize(theLight.dir);
         float3 reflectionDir = reflect(dir, norm);
         float3 dirToCam = normalize(cameraPos - worldPos);
         float specScale = 1.0f * pow(saturate(dot(reflectionDir, dirToCam)), 25.0f);
-        ret = specIntense * specScale * lights[i].color;
+        ret = specIntense * specScale * theLight.color;
     }
     return ret;
 }
@@ -136,7 +136,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
     float3 worldPos = posAlmost.xyz;
     [unroll(83)] for (int i = 0; i < 83; ++i)
     {
-        if (lights[i].color.w == 0.0f)
+        if (theLights[i].color.w == 0.0f)
             break;
         float2x4 result = calcLight(i, worldPos, norm);
             finalLight += result._11_12_13_14;

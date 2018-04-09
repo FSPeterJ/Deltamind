@@ -13,7 +13,6 @@ struct genericLight {
 };
 
 struct lightBufferStruct {
-	genericLight cpu_side_lights[MAX_LIGHTS];
 	DirectX::XMFLOAT3 ambientColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	float ambientIntensity = 0.3f;
 	DirectX::XMFLOAT3 cameraPos;
@@ -36,7 +35,8 @@ public:
 	static genericLight* getLight(int ID);
 	static void removeLight(int ID);
 	static void Initialize(ID3D11Device* device, ID3D11DeviceContext* context);
-
+	static void BindLightArray(ID3D11DeviceContext* context);
+	static void Destroy();
 	
 	static int addDirectionalLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 dir);
 	static int addPointLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, float radius);

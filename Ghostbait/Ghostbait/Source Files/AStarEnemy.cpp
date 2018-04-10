@@ -45,7 +45,7 @@ void AStarEnemy::Enable() {
 		NewRandPath();
 	}
 	rb->SetTerminalSpeed(maxSpeed);
-	//AntColony::LeavePheromone(&path, lingerTime, scentStrength);
+	AntColony::LeavePheromone(&path, lingerTime, scentStrength);
 	if (!(path.size() > 0)) 
 		NewRandPath();
 	next = path.start();

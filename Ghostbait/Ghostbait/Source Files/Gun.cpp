@@ -74,6 +74,7 @@ void Gun::Awake(Object* obj) {
 	state = GUN;
 	Gun* gun = ((Gun*)obj);
 	overheat.overheatBarPID = gun->overheat.overheatBarPID;
+	overheat.bar = nullptr;
 	projectiePID = gun->projectiePID;
 	fireRate = gun->fireRate;
 	damage = gun->damage;
@@ -175,6 +176,14 @@ void Gun::Selected() {
 void Gun::DeSelected() {
 	Item::DeSelected();
 	overheat.bar->UnRender();
+}
+
+void Gun::Destroy() {
+	if (overheat.bar) {
+		overheat.bar->Destroy();
+		overheat.bar = nullptr;
+	}
+	Item::Destroy();
 }
 
 #ifdef _DEBUG

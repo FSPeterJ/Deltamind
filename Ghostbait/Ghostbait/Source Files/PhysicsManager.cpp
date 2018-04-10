@@ -376,6 +376,9 @@ ColliderData* PhysicsManager::AddColliderData(float trfX, float trfY, float trfZ
 		colliderDataList.push_back(temp);
 		return &colliderDataList.back();
 	}
+	else {
+		Console::ErrorLine << "Maximum colliders already exist! Another collider won't be created. THIS IS A SERIOUS ISSUE!";
+	}
 	return nullptr;
 }
 void PhysicsManager::UpdateAABB(PhysicsComponent& component) {

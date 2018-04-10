@@ -2,11 +2,28 @@
 #include "GameObject.h"
 
 class ControllerPillar : public GameObject {
-	GameObject* lifter = nullptr;
-	GameObject* leftController = nullptr;
-	GameObject* rightController = nullptr;
+protected:
+	enum Type {
+		Default,
+		Move,
+		Pause,
+		Shoot,
+		SwitchItem,
+		CycleBuild,
+	};
 
-	Transform controllerCenter;
+	Type type;
+
+	GameObject* lifter = nullptr;
+	GameObject* leftDisplay = nullptr;
+	GameObject* rightDisplay = nullptr;
+	GameObject* centerDisplay = nullptr;
+	GameObject* topDisplay = nullptr;
+	GameObject* bottomDisplay = nullptr;
+
+	bool isVR = true;
+
+	Transform displayCenter;
 	float rot = 0;
 	Transform const* playerPos = nullptr;
 public:
@@ -14,9 +31,27 @@ public:
 	~ControllerPillar() {}
 
 	void Awake(Object* obj) override;
-	//inputToDisplay - string name of the input
-	//	ex. "move", "pause", "shoot", "switch", "build"
-	void SetType(const char* inputToDisplay);
 	void Update() override;
 	void Destroy() override;
+};
+
+class ControllerPillar_Move : public ControllerPillar {
+	void Awake(Object* obj) override;
+};
+
+class ControllerPillar_Build : public ControllerPillar {
+	void Awake(Object* obj) override {
+		ControllerPillar::Awake(obj);
+	}
+};
+class ControllerPillar_Pause : public ControllerPillar {
+	void Awake(Object* obj) override;
+};
+class ControllerPillar_Shoot : public ControllerPillar {
+	void Awake(Object* obj) override {
+		ControllerPillar::Awake(obj);
+	}
+};
+class ControllerPillar_Switch : public ControllerPillar {
+	void Awake(Object* obj) override;
 };

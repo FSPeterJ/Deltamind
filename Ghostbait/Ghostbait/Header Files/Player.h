@@ -75,7 +75,9 @@ public:
 	inline HexGrid* GetBuildGrid() { return grid; }
 	inline const bool IsGod() const { return stance == STANCE_God; }
 
-	void Teleport(DirectX::XMFLOAT3* pos = nullptr);
+	void Teleport();
+	void Teleport(DirectX::XMFLOAT3 pos);
+
 
 	bool IsVR() const;
 };

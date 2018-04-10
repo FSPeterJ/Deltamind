@@ -14,7 +14,7 @@ namespace DirectX {
 class GameObject;
 
 #define MAX_PHYSICALS 1024
-#define MAX_COLLIDER_DATA 24
+#define MAX_COLLIDER_DATA 128
 #define MAX_PREFABS 50
 
 class PhysicsRegistry:

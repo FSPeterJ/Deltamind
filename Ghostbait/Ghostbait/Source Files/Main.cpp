@@ -128,7 +128,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<Turret>(102);
 	ObjectFactory::RegisterPrefabBase<Item>(16);
 	ObjectFactory::RegisterPrefabBase<ControllerObject>(2);
-	ObjectFactory::RegisterPrefabBase<ViveController>(8);
+	ObjectFactory::RegisterPrefabBase<ViveController>(20);
 	ObjectFactory::RegisterPrefabBase<Gun>(8);
 	ObjectFactory::RegisterPrefabBase<ProgressBar>(8);
 	ObjectFactory::RegisterPrefabBase<MenuControllerItem>(2);
@@ -150,7 +150,16 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<Ground>(1);
 	ObjectFactory::RegisterPrefabBase<Monitor>(1);
 	ObjectFactory::RegisterPrefabBase<DisplayBoard>(1);
+	ObjectFactory::RegisterPrefabBase<DisplayBoard_Move>(1);
+	ObjectFactory::RegisterPrefabBase<DisplayBoard_Pause>(1);
+	ObjectFactory::RegisterPrefabBase<DisplayBoard_Inventory>(1);
+	ObjectFactory::RegisterPrefabBase<DisplayBoard_Items>(1);
 	ObjectFactory::RegisterPrefabBase<ControllerPillar>(1);
+	ObjectFactory::RegisterPrefabBase<ControllerPillar_Move>(1);
+	ObjectFactory::RegisterPrefabBase<ControllerPillar_Shoot>(1);
+	ObjectFactory::RegisterPrefabBase<ControllerPillar_Pause>(1);
+	ObjectFactory::RegisterPrefabBase<ControllerPillar_Switch>(1);
+	ObjectFactory::RegisterPrefabBase<ControllerPillar_Build>(1);
 	ObjectFactory::RegisterPrefabBase<AStarEnemy>(300);
 	ObjectFactory::RegisterPrefabBase<DStarEnemy>(10);
 	ObjectFactory::RegisterPrefabBase<MTDSLEnemy>(300);
@@ -192,8 +201,20 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<BackButton>("BackButton");
 	TypeMap::RegisterObjectAlias<Ground>("Ground");
 	TypeMap::RegisterObjectAlias<Monitor>("Monitor");
+
 	TypeMap::RegisterObjectAlias<DisplayBoard>("DisplayBoard");
+	TypeMap::RegisterObjectAlias<DisplayBoard_Move>("DisplayBoard_Move");
+	TypeMap::RegisterObjectAlias<DisplayBoard_Pause>("DisplayBoard_Pause");
+	TypeMap::RegisterObjectAlias<DisplayBoard_Inventory>("DisplayBoard_Inventory");
+	TypeMap::RegisterObjectAlias<DisplayBoard_Items>("DisplayBoard_Items");
+
 	TypeMap::RegisterObjectAlias<ControllerPillar>("ControllerPillar");
+	TypeMap::RegisterObjectAlias<ControllerPillar_Move>("ControllerPillar_Move");
+	TypeMap::RegisterObjectAlias<ControllerPillar_Shoot>("ControllerPillar_Shoot");
+	TypeMap::RegisterObjectAlias<ControllerPillar_Pause>("ControllerPillar_Pause");
+	TypeMap::RegisterObjectAlias<ControllerPillar_Switch>("ControllerPillar_Switch");
+	TypeMap::RegisterObjectAlias<ControllerPillar_Build>("ControllerPillar_Build");
+
 	TypeMap::RegisterObjectAlias<AStarEnemy>("AStarEnemy");
 	TypeMap::RegisterObjectAlias<DStarEnemy>("DStarEnemy");
 	TypeMap::RegisterObjectAlias<Turret>("Turret");
@@ -289,7 +310,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	Console::WriteLine << "Starting Game Loop......";
 	game = new Game();
-	game->Start(player, &engine);
+	game->Start(player, &engine, "Tutorial");
 }
 
 void Loop() {

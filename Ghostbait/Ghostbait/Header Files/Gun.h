@@ -52,6 +52,9 @@ public:
 
 	void Selected() override;
 	void DeSelected() override;
+
+	void Destroy() override;
+
 	Overheat overheat;
 	// This is essentially a copy constructor, but since objects are never truely instantiated post-start...
 #ifdef _DEBUG

@@ -3,87 +3,119 @@
 #include "ObjectFactory.h"
 #include "GhostTime.h"
 #include "Material.h"
+#include "VRManager.h"
 
 void ControllerPillar::Awake(Object* obj) {
 	GameObject::Awake(obj);
 	MessageEvents::SendMessage(EVENT_GetPlayerPos, GetPlayerPosMessage(&playerPos));
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/Display_Lifter.ghost")), { 0, 0, 0 }, &lifter));
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")), { 0, 0, 0 }, &rightController));
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")), { 0, 0, 0 }, &leftController));
-	leftController->ToggleFlag(UNLIT);
-	rightController->ToggleFlag(UNLIT);
-	SetType("build");
+	isVR = VRManager::GetInstance().IsEnabled();
 }
-
-//inputToDisplay - string name of the input
-//	ex. "move", "pause", "shoot", "switch", "build"
-void ControllerPillar::SetType(const char* inputToDisplay) {
-	if (inputToDisplay == "move") {
-		leftController->SwapComponentVarient<Material>("default");
-		rightController->SwapComponentVarient<Material>("menu");
-	}
-	if (inputToDisplay == "pause") {
-		leftController->SwapComponentVarient<Material>("menu");
-		rightController->SwapComponentVarient<Material>("default");
-	}
-	if (inputToDisplay == "switch") {
-		leftController->SwapComponentVarient<Material>("touchpad");
-		rightController->SwapComponentVarient<Material>("touchpad");
-	}
-	if (inputToDisplay == "shoot") {
-		leftController->SwapComponentVarient<Material>("trigger");
-		rightController->SwapComponentVarient<Material>("trigger");
-	}
-	if (inputToDisplay == "build") {
-		leftController->SwapComponentVarient<Material>("grip");
-		rightController->SwapComponentVarient<Material>("grip");
-	}
-}
-
 void ControllerPillar::Update() {
 	GameObject::Update();
 	if (lifter) lifter->transform.SetMatrix(transform.GetMatrix());
 	
-	//--Base controller matrix
+	//--Base display matrix
 	{
 		DirectX::XMFLOAT4X4 newMat;
 		DirectX::XMStoreFloat4x4(&newMat, DirectX::XMLoadFloat4x4(&transform.GetMatrix()));
 		newMat._42 += 1.695f;
-		controllerCenter.SetMatrix(newMat);
-		controllerCenter.LookAt(playerPos->GetPosition());
+		displayCenter.SetMatrix(newMat);
+		displayCenter.LookAt(playerPos->GetPosition());
 	}
 	//--Scale and Rotation matrices
-	DirectX::XMMATRIX scale = DirectX::XMMatrixScaling(3, 3, 3);
-	DirectX::XMMATRIX rotation = DirectX::XMMatrixRotationRollPitchYaw(0, rot, 0);
+	float scaleFactor = isVR ? 3.0f : 1.0f;
+	DirectX::XMMATRIX scale = DirectX::XMMatrixScaling(scaleFactor, scaleFactor, scaleFactor);
+	DirectX::XMMATRIX rotation = DirectX::XMMatrixRotationRollPitchYaw(0, isVR ? rot : 0, 0);
 	rot += (float)GhostTime::DeltaTime();
-
+	DirectX::XMMATRIX center = scale * rotation * DirectX::XMMatrixTranslation(displayCenter.GetPosition().x, displayCenter.GetPosition().y, displayCenter.GetPosition().z);
+	DirectX::XMFLOAT4X4 adjustmentMat;
+	DirectX::XMStoreFloat4x4(&adjustmentMat, center);
 	float deltaX = 0.221f;
-	if (leftController) {
-		DirectX::XMFLOAT4X4 newMat;
-		DirectX::XMMATRIX result = scale * rotation * DirectX::XMMatrixTranslation(controllerCenter.GetPosition().x, controllerCenter.GetPosition().y, controllerCenter.GetPosition().z);
-		DirectX::XMStoreFloat4x4(&newMat, result);
-		newMat._41 += controllerCenter.GetMatrix()._11 * deltaX;
-		newMat._42 += controllerCenter.GetMatrix()._12 * deltaX;
-		newMat._43 += controllerCenter.GetMatrix()._13 * deltaX;
-		leftController->transform.SetMatrix(newMat);
-
+	float deltaY = 0.221f;
+	if (leftDisplay) {
+		DirectX::XMFLOAT4X4 newMat = adjustmentMat;
+		newMat._41 += displayCenter.GetMatrix()._11 * deltaX;
+		newMat._42 += displayCenter.GetMatrix()._12 * deltaX;
+		newMat._43 += displayCenter.GetMatrix()._13 * deltaX;
+		leftDisplay->transform.SetMatrix(newMat);
 	}
-	if (rightController) {
-		DirectX::XMFLOAT4X4 newMat;
-		DirectX::XMMATRIX result = scale * rotation * DirectX::XMMatrixTranslation(controllerCenter.GetPosition().x, controllerCenter.GetPosition().y, controllerCenter.GetPosition().z);
-		DirectX::XMStoreFloat4x4(&newMat, result);
-		newMat._41 += controllerCenter.GetMatrix()._11 * -deltaX;
-		newMat._42 += controllerCenter.GetMatrix()._12 * -deltaX;
-		newMat._43 += controllerCenter.GetMatrix()._13 * -deltaX;
-		rightController->transform.SetMatrix(newMat);
+	if (rightDisplay) {
+		DirectX::XMFLOAT4X4 newMat = adjustmentMat;
+		newMat._41 += displayCenter.GetMatrix()._11 * -deltaX;
+		newMat._42 += displayCenter.GetMatrix()._12 * -deltaX;
+		newMat._43 += displayCenter.GetMatrix()._13 * -deltaX;
+		rightDisplay->transform.SetMatrix(newMat);
+	}
+	if (topDisplay){
+		DirectX::XMFLOAT4X4 newMat = displayCenter.GetMatrix();
+		newMat._41 += displayCenter.GetMatrix()._21 * deltaY;
+		newMat._42 += displayCenter.GetMatrix()._22 * deltaY;
+		newMat._43 += displayCenter.GetMatrix()._23 * deltaY;
+		topDisplay->transform.SetMatrix(newMat);
+	}
+	if (bottomDisplay) {
+		DirectX::XMFLOAT4X4 newMat = displayCenter.GetMatrix();
+		newMat._41 += displayCenter.GetMatrix()._21 * -deltaY;
+		newMat._42 += displayCenter.GetMatrix()._22 * -deltaY;
+		newMat._43 += displayCenter.GetMatrix()._23 * -deltaY;
+		bottomDisplay->transform.SetMatrix(newMat);
+	}
+	if (centerDisplay) {
+		centerDisplay->transform.SetMatrix(displayCenter.GetMatrix());
 	}
 }
-
-
-
 void ControllerPillar::Destroy() {
 	if (lifter) lifter->Destroy();
-	if (leftController) leftController->Destroy();
-	if (rightController) rightController->Destroy();
+	if (leftDisplay) leftDisplay->Destroy();
+	if (rightDisplay) rightDisplay->Destroy();
+	if (centerDisplay) centerDisplay->Destroy();
+	if (topDisplay) topDisplay->Destroy();
+	if (bottomDisplay) bottomDisplay->Destroy();
+
 	GameObject::Destroy();
+}
+
+void ControllerPillar_Move::Awake(Object* obj) {
+	ControllerPillar::Awake(obj);
+	if (isVR) {
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")), { 0, 0, 0 }, &leftDisplay));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")), { 0, 0, 0 }, &rightDisplay));
+		leftDisplay->SwapComponentVarient<Material>("default");
+		rightDisplay->SwapComponentVarient<Material>("menu");
+		leftDisplay->ToggleFlag(UNLIT);
+		rightDisplay->ToggleFlag(UNLIT);
+	}
+	else {
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/WASD.ghost")), { 0, 0, 0 }, &centerDisplay));
+	}
+}
+void ControllerPillar_Pause::Awake(Object* obj) {
+	ControllerPillar::Awake(obj);
+	if (isVR) {
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")), { 0, 0, 0 }, &leftDisplay));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")), { 0, 0, 0 }, &rightDisplay));
+		leftDisplay->SwapComponentVarient<Material>("menu");
+		rightDisplay->SwapComponentVarient<Material>("default");
+		leftDisplay->ToggleFlag(UNLIT);
+		rightDisplay->ToggleFlag(UNLIT);
+	}
+	else {
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/ESC.ghost")), { 0, 0, 0 }, &centerDisplay));
+	}
+}
+void ControllerPillar_Switch::Awake(Object* obj) {
+	ControllerPillar::Awake(obj);
+	if (isVR) {
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")), { 0, 0, 0 }, &leftDisplay));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")), { 0, 0, 0 }, &rightDisplay));
+		leftDisplay->SwapComponentVarient<Material>("touchpad");
+		rightDisplay->SwapComponentVarient<Material>("touchpad");
+		leftDisplay->ToggleFlag(UNLIT);
+		rightDisplay->ToggleFlag(UNLIT);
+	}
+	else {
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/1234.ghost")), { 0, 0, 0 }, &topDisplay));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/5678.ghost")), { 0, 0, 0 }, &bottomDisplay));
+	}
 }

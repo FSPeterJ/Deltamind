@@ -52,10 +52,15 @@ public:
 	ControllerObject();
 
 	void Init(Player* _player, ControllerHand _hand);
+
 	void AddItem(int itemSlot, unsigned prefabID);
 	void AddItem(int itemSlot, unsigned prefabID, std::vector<unsigned> prefabIDs);
 	void AddItem(int itemSlot, unsigned prefabID, Gun::FireType _fireType, float _fireRate, float _damage);
 	void RemoveItem(int itemSlot);
+	void ClearInventory();
+	Item* GetItem(int itemSlot) const { return inventory.items[itemSlot]; };
+
+
 	void Update();
 	void GivePID(unsigned pid, const char* tag) override;
 	void Awake(Object* obj);

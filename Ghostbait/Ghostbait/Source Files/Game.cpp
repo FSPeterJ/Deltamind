@@ -11,6 +11,7 @@
 #include "AntColony.h"
 #include "ObjectFactory.h"
 #include "Player.h"
+#include "Material.h"
 //#include "DStarEnemy.h"
 //#include "MTDSLEnemy.h"
 
@@ -28,7 +29,7 @@ Game::Game() {
 	MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {this->RemoveObstacleEvent(e); });
 	MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) {this->Lose(); });
 	MessageEvents::Subscribe(EVENT_GameQuit, [=](EventMessageBase* e) {this->Quit(); });
-	MessageEvents::Subscribe(EVENT_GameExit, [=](EventMessageBase* e) {this->ExitToMenu(); });
+	MessageEvents::Subscribe(EVENT_GameExit, [=](EventMessageBase* e) {this->ExitToMainMenu(); });
 	MessageEvents::Subscribe(EVENT_FreeMoney, [=](EventMessageBase* e) {this->gameData.SetGears(500000); });
 
 	MessageEvents::Subscribe(EVENT_GameDataRequest, [=](EventMessageBase* e) { this->GameDataRequestEvent(e); });
@@ -154,22 +155,12 @@ void Game::ChangeScene(const char* sceneName) {
 	sceneManager->LoadScene(sceneName, &core);
 
 	//TODO: TEMPORARY main menu code--------
-	if(!strcmp(sceneName, "mainMenu")) {
-		DirectX::XMFLOAT4X4 menuPos = DirectX::XMFLOAT4X4(1, 0, 0, 0,
-			0, 1, 0, 0,
-			0, 0, 1, 0,
-			0, 1.7f, 2, 1);
-		gameData.SetStateHard(GAMESTATE_MainMenu);
-		mainMenu.SetSpawnPos(menuPos);
-		mainMenu.Show(false);
-		player->leftController->SetControllerState(CSTATE_MenuController);
-		player->rightController->SetControllerState(player->IsVR() ? CSTATE_MenuController : CSTATE_ModelOnly);
-		player->transform.MoveToOrigin(player->PlayerHeight());
-		player->ResetStance();
-		DirectX::XMFLOAT3 temp = DirectX::XMFLOAT3(0, 0, 0);
-		player->Teleport(&temp);
-		player->transform.LookAt({ menuPos._41, menuPos._42, menuPos._43 });
-	}
+	if(!strcmp(sceneName, "mainMenu"))
+		MainMenuLoaded();
+	if (!strcmp(sceneName, "Tutorial"))
+		TutorialLoaded();
+	if (!strcmp(sceneName, "level0"))
+		Level0Loaded();
 
 	//--------------------------------------
 
@@ -288,9 +279,60 @@ void Game::Win() {
 void Game::Quit() {
 	run = false;
 }
-void Game::ExitToMenu() {
+void Game::ExitToMainMenu() {
 	ChangeState(GAMESTATE_MainMenu);
 	ChangeScene("mainMenu");
+}
+
+//Main Scene Functions
+void Game::MainMenuLoaded() {
+	//Create Menu
+	DirectX::XMFLOAT4X4 menuPos = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1.7f, 2, 1);
+	mainMenu.SetSpawnPos(menuPos);
+	gameData.SetStateHard(GAMESTATE_MainMenu);
+	mainMenu.Show(false);
+	//Set Controllers
+	player->leftController->SetControllerState(CSTATE_MenuController);
+	player->rightController->SetControllerState(player->IsVR() ? CSTATE_MenuController : CSTATE_ModelOnly);
+
+	//Update Player
+	player->transform.MoveToOrigin(player->PlayerHeight());
+	player->ResetStance();
+	player->Teleport(DirectX::XMFLOAT3(0, 0, 0));
+	player->transform.LookAt({ menuPos._41, menuPos._42, menuPos._43 });
+}
+void Game::TutorialLoaded() {
+	//player->rightController->ClearInventory();
+	//player->leftController->ClearInventory();
+	if (player->IsVR()) {
+		player->rightController->AddItem(0, ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")));
+		player->leftController->AddItem(0, ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")));
+		player->rightController->GetItem(0)->SwapComponentVarient<Material>("menu");
+	}
+	player->rightController->SetControllerState(CSTATE_Inventory);
+	player->leftController->SetControllerState(CSTATE_Inventory);
+}
+void Game::Level0Loaded() {
+	player->leftController->AddItem(0, ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")));
+	player->leftController->AddItem(1, ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost")));
+	player->leftController->AddItem(2, ObjectFactory::CreatePrefab(&std::string("Assets/smg.ghost")));
+	player->leftController->AddItem(3, ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost")));
+
+	player->leftController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
+	player->leftController->SetGunData(2, Gun::FireType::AUTO, 8, 20);
+	player->leftController->SetBuildItems({ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost")) });
+
+	player->rightController->AddItem(0, ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")));
+	player->rightController->AddItem(1, ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost")));
+	player->rightController->AddItem(2, ObjectFactory::CreatePrefab(&std::string("Assets/smg.ghost")));
+	player->rightController->AddItem(3, ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost")));
+
+	player->rightController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
+	player->rightController->SetGunData(2, Gun::FireType::AUTO, 8, 20);
+	player->rightController->SetBuildItems({ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost")) });
+
+
+	player->SetBuildToolData(&hexGrid, &gameData);
 }
 
 //Main loop elements

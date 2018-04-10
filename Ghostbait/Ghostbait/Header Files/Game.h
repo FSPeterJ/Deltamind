@@ -43,7 +43,12 @@ class Game {
 	void EnemyDiedEvent();
 	void PauseInputEvent();
 	void StartEvent();
-	void ExitToMenu();
+	void ExitToMainMenu();
+
+	//Major Scenes Loaded
+	void MainMenuLoaded();
+	void TutorialLoaded();
+	void Level0Loaded();
 
 	//Personal
 	void ChangeState(State newState);

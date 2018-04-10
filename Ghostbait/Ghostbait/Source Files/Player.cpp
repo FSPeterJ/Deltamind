@@ -332,14 +332,16 @@ void Player::PausedUpdate() {
 	}
 }
 
-void Player::Teleport(DirectX::XMFLOAT3* pos) {
+void Player::Teleport(DirectX::XMFLOAT3 pos) {
 	if (IsVR()) {
-		if(pos)
-			VRManager::GetInstance().MovePlayer(*pos);
-		else
-			VRManager::GetInstance().Teleport();
+		VRManager::GetInstance().MovePlayer(pos);
 	}
 }
+void Player::Teleport() {
+	if (IsVR())
+		VRManager::GetInstance().Teleport();
+}
+
 void Player::LoadControllers(VRControllerTypes type) {
 	//Read in from save file and assign the correct items
 

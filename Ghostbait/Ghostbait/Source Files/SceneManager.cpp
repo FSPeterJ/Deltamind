@@ -125,6 +125,14 @@ void SceneManager::Initialize() {
 			monitor.positions.push_back(mat1);
 			level0Data.prefabs.push_back(monitor);
 		}
+		TestSceneData::Prefab displayBoard;
+		{
+			displayBoard.ghostFile = "Assets/DisplayBoard.ghost";
+			displayBoard.name = "build";
+			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 8, 0, 4, 1);
+			displayBoard.positions.push_back(mat1);
+			level0Data.prefabs.push_back(displayBoard);
+		}
 		TestSceneData::Prefab controllerPillar;
 		{
 			controllerPillar.ghostFile = "Assets/ControllerPillar.ghost";
@@ -133,13 +141,40 @@ void SceneManager::Initialize() {
 			controllerPillar.positions.push_back(mat1);
 			level0Data.prefabs.push_back(controllerPillar);
 		}
-		TestSceneData::Prefab displayBoard;
+		TestSceneData::Prefab controllerPillar_Move;
 		{
-			displayBoard.ghostFile = "Assets/DisplayBoard.ghost";
-			displayBoard.name = "build";
-			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 8, 0, 4, 1);
-			displayBoard.positions.push_back(mat1);
-			level0Data.prefabs.push_back(displayBoard);
+			controllerPillar_Move.ghostFile = "Assets/ControllerPillar_Move.ghost";
+			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 4, 0, 5, 1);
+			controllerPillar_Move.positions.push_back(mat1);
+			level0Data.prefabs.push_back(controllerPillar_Move);
+		}
+		TestSceneData::Prefab controllerPillar_Pause;
+		{
+			controllerPillar_Pause.ghostFile = "Assets/ControllerPillar_Pause.ghost";
+			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 4, 0, 6, 1);
+			controllerPillar_Pause.positions.push_back(mat1);
+			level0Data.prefabs.push_back(controllerPillar_Pause);
+		}
+		TestSceneData::Prefab controllerPillar_Build;
+		{
+			controllerPillar_Build.ghostFile = "Assets/ControllerPillar_Build.ghost";
+			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 4, 0, 7, 1);
+			controllerPillar_Build.positions.push_back(mat1);
+			level0Data.prefabs.push_back(controllerPillar_Build);
+		}
+		TestSceneData::Prefab controllerPillar_Shoot;
+		{
+			controllerPillar_Shoot.ghostFile = "Assets/ControllerPillar_Shoot.ghost";
+			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 4, 0, 8, 1);
+			controllerPillar_Shoot.positions.push_back(mat1);
+			level0Data.prefabs.push_back(controllerPillar_Shoot);
+		}
+		TestSceneData::Prefab controllerPillar_Switch;
+		{
+			controllerPillar_Switch.ghostFile = "Assets/ControllerPillar_Switch.ghost";
+			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 4, 0, 9, 1);
+			controllerPillar_Switch.positions.push_back(mat1);
+			level0Data.prefabs.push_back(controllerPillar_Switch);
 		}
 	}
 	CreateSceneFile(level0Data);
@@ -285,10 +320,6 @@ void SceneManager::LoadScene(const char* sceneName, Core** _core) {
 						MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0, 0, 0 }, &newObj));
 						if (_core && !strcmp(newObj->GetTag().c_str(), "Core")) {
 							*_core = (Core*)newObj;
-						}
-						if (newObj->GetTag() == "ControllerPillar" && ghostLen) {
-							((ControllerPillar*)newObj)->SetType(ghostName.c_str());
-							//hmmmmm
 						}
 						newObj->transform.SetMatrix(mat);
 						newObj->Enable();

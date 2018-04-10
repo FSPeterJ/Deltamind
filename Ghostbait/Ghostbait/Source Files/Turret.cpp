@@ -20,22 +20,27 @@ Turret::Turret() {
 }
 
 void Turret::Enable() {
-	eventDestroy = MessageEvents::Subscribe(EVENT_Destroy, [=](EventMessageBase* e) {
-		if(target == ((StandardObjectMessage*)e)->RetrieveObject()) {
-			this->target = nullptr;
-			targetDistance = 99999;
-		}
-	});
+	if (!eventDestroy) {
+		eventDestroy = MessageEvents::Subscribe(EVENT_Destroy, [=](EventMessageBase* e) {
+			if (target == ((StandardObjectMessage*)e)->RetrieveObject()) {
+				this->target = nullptr;
+				targetDistance = 99999;
+			}
+		});
+	}
 	GameObject::Enable();
 }
 
 void Turret::Disable() {
-	MessageEvents::UnSubscribe(EVENT_Destroy, eventDestroy);
+	if (eventDestroy) {
+		MessageEvents::UnSubscribe(EVENT_Destroy, eventDestroy);
+	}
 	GameObject::Disable();
 }
 
 void Turret::Awake(Object* obj) {
 	Turret* turret = ((Turret*)obj);
+	eventDestroy = 0;
 	projectiePID = turret->projectiePID;
 	targetDistance = 9999999;
 	target = nullptr;

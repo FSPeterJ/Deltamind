@@ -190,7 +190,8 @@ void ControllerObject::DisplayInventory() {
 
 
 void ControllerObject::AddToInventory(int itemSlot, unsigned prefabID) {
-	if (!inventory.items[itemSlot]) ++inventory.itemCount;
+	if (inventory.items[itemSlot])
+		RemoveItem(itemSlot);
 	//Actual Inventory
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Item>(prefabID, { 0,0,0 }, (Item**)&inventory.items[itemSlot]));
 	if(!inventory.currentItem) {
@@ -206,15 +207,35 @@ void ControllerObject::AddToInventory(int itemSlot, unsigned prefabID) {
 	inventory.displayItems[itemSlot]->UnRender();
 	inventory.displayItems[itemSlot]->PersistOnReset();
 	inventory.displayItems[itemSlot]->SetPhysicsComponent(false);
-
-
+	++inventory.itemCount;
 }
 
 void ControllerObject::RemoveItem(int itemSlot) {
 	if (inventory.items[itemSlot]) {
+		if (inventory.currentItem == inventory.items[itemSlot]) {
+			for (int i = itemSlot + 1; i != itemSlot; ++i) {
+				if (i >= CONTROLLER_MAX_ITEMS) {
+					i = 0;
+				}
+				if (inventory.items[i]) {
+					inventory.currentItem->DeSelected();
+					inventory.currentItem = inventory.items[i];
+					inventory.currentItem->Selected();
+					break;
+				}
+			}
+		}
+		inventory.items[itemSlot]->Destroy();
+		inventory.displayItems[itemSlot]->Destroy();
 		inventory.items[itemSlot] = nullptr;
 		inventory.displayItems[itemSlot] = nullptr;
 		--inventory.itemCount;
+		if (inventory.itemCount == 0) inventory.currentItem = nullptr;
+	}
+}
+void ControllerObject::ClearInventory() {
+	for (int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
+		RemoveItem(i);
 	}
 }
 void ControllerObject::AddItem(int itemSlot, unsigned prefabID) {
@@ -265,8 +286,7 @@ void ControllerObject::SetControllerState(ControllerState newState) {
 						inventory.displayItems[i]->UnRender();
 					}
 				}
-				inventory.currentItem->DeSelected();
-				//inventory.currentItem = inventory.items[startItemIndex];
+				if(inventory.currentItem) inventory.currentItem->DeSelected();
 			}
 			break;
 		case ControllerState::CSTATE_MenuController:
@@ -289,7 +309,8 @@ void ControllerObject::SetControllerState(ControllerState newState) {
 	switch (newState) {
 		case ControllerState::CSTATE_Inventory:
 			{
-				inventory.currentItem->Selected();
+				if(inventory.currentItem)
+					inventory.currentItem->Selected();
 			}
 			break;
 		case ControllerState::CSTATE_MenuController:
@@ -548,7 +569,11 @@ void ControllerObject::PositionNonVRController() {
 	float maxDist = 100;
 	DirectX::XMFLOAT3 direction = { player->transform.GetMatrix()._31, player->transform.GetMatrix()._32, player->transform.GetMatrix()._33 };
 	DirectX::XMFLOAT3 colPoint;
-	if (!Raycast(&player->transform, direction, &colPoint, nullptr, nullptr, maxDist)) {
+	GameObject* colObject = nullptr;
+	if (!Raycast(&player->transform, direction, &colPoint, &colObject, nullptr, maxDist)) {
+		colPoint = { player->transform.GetPosition().x + (direction.x * maxDist), player->transform.GetPosition().y + (direction.y * maxDist), player->transform.GetPosition().z + (direction.z * maxDist) };
+	}
+	else if (colObject && colObject->GetTag() == "Bullet") {
 		colPoint = { player->transform.GetPosition().x + (direction.x * maxDist), player->transform.GetPosition().y + (direction.y * maxDist), player->transform.GetPosition().z + (direction.z * maxDist) };
 	}
 

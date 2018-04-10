@@ -3,6 +3,7 @@
 #include "Spawner.h"
 #include "MessageEvents.h"
 #include "GhostTime.h"
+#include "PDA.h"
 //#include "EngineStructure.h"
 #include "../Dependencies/XML_Library/irrXML.h"
 #include "AStarEnemy.h"
@@ -302,8 +303,8 @@ void Game::MainMenuLoaded() {
 	player->transform.LookAt({ menuPos._41, menuPos._42, menuPos._43 });
 }
 void Game::TutorialLoaded() {
-	//player->rightController->ClearInventory();
-	//player->leftController->ClearInventory();
+	player->rightController->ClearInventory();
+	player->leftController->ClearInventory();
 	if (player->IsVR()) {
 		player->rightController->AddItem(0, ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")));
 		player->leftController->AddItem(0, ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")));
@@ -313,25 +314,34 @@ void Game::TutorialLoaded() {
 	player->leftController->SetControllerState(CSTATE_Inventory);
 }
 void Game::Level0Loaded() {
-	player->leftController->AddItem(0, ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")));
-	player->leftController->AddItem(1, ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost")));
-	player->leftController->AddItem(2, ObjectFactory::CreatePrefab(&std::string("Assets/smg.ghost")));
-	player->leftController->AddItem(3, ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost")));
+	int index = 0;
 
-	player->leftController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
-	player->leftController->SetGunData(2, Gun::FireType::AUTO, 8, 20);
+	//PDA
+	if (player->IsVR()) {
+		player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/PDA.ghost")));
+		player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/PDA.ghost")));
+		((PDA*)player->leftController->GetItem(index))->SetHand(HAND_Left);
+		((PDA*)player->rightController->GetItem(index))->SetHand(HAND_Right);
+		++index;
+	}
+	//Pistol
+	player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost")));
+	player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost")));
+	player->leftController->SetGunData(index, Gun::FireType::SEMI, 60, 50);
+	player->rightController->SetGunData(index, Gun::FireType::SEMI, 60, 50);
+	++index;
+	//SMG
+	player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/smgNoStock.ghost")));
+	player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/smgNoStock.ghost")));
+	player->leftController->SetGunData(index, Gun::FireType::AUTO, 8, 20);
+	player->rightController->SetGunData(index, Gun::FireType::AUTO, 8, 20);
+	++index;
+	//BuildTool
+	player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost")));
+	player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost")));
 	player->leftController->SetBuildItems({ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost")) });
-
-	player->rightController->AddItem(0, ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")));
-	player->rightController->AddItem(1, ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost")));
-	player->rightController->AddItem(2, ObjectFactory::CreatePrefab(&std::string("Assets/smg.ghost")));
-	player->rightController->AddItem(3, ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost")));
-
-	player->rightController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
-	player->rightController->SetGunData(2, Gun::FireType::AUTO, 8, 20);
 	player->rightController->SetBuildItems({ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost")) });
-
-
+	
 	player->SetBuildToolData(&hexGrid, &gameData);
 }
 

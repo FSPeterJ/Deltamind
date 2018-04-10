@@ -171,11 +171,11 @@ void Gun::ActiveUpdate() {
 
 void Gun::Selected() {
 	Item::Selected();
-	overheat.bar->Render();
+	if (overheat.bar) overheat.bar->Render();
 }
 void Gun::DeSelected() {
 	Item::DeSelected();
-	overheat.bar->UnRender();
+	if (overheat.bar) overheat.bar->UnRender();
 }
 
 void Gun::Destroy() {

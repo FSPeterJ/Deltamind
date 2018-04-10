@@ -268,6 +268,7 @@
     <ClInclude Include="Header Files\ParticleManager.h" />
     <ClInclude Include="Header Files\ParticleTextureManager.h" />
     <ClInclude Include="Header Files\PathPlanner.h" />
+    <ClInclude Include="Header Files\PDA.h" />
     <ClInclude Include="Header Files\PhysicsComponent.h" />
     <ClInclude Include="Header Files\PhysicsExtension.h" />
     <ClInclude Include="Header Files\PhysicsManager.h" />
@@ -367,6 +368,7 @@
     <ClCompile Include="Source Files\ParticleManager.cpp" />
     <ClCompile Include="Source Files\ParticleTextureManager.cpp" />
     <ClCompile Include="Source Files\PathPlanner.cpp" />
+    <ClCompile Include="Source Files\PDA.cpp" />
     <ClCompile Include="Source Files\PhysicsComponent.cpp" />
     <ClCompile Include="Source Files\PhysicsExtension.cpp" />
     <ClCompile Include="Source Files\PhysicsManager.cpp" />

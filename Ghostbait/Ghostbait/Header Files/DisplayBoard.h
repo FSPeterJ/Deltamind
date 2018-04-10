@@ -13,6 +13,8 @@ protected:
 	
 	Type type;
 
+	bool isVR;
+
 	GameObject* lifter = nullptr;
 	GameObject* screen = nullptr;
 

@@ -115,7 +115,7 @@ void ControllerPillar_Switch::Awake(Object* obj) {
 		rightDisplay->ToggleFlag(UNLIT);
 	}
 	else {
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/1234.ghost")), { 0, 0, 0 }, &topDisplay));
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/5678.ghost")), { 0, 0, 0 }, &bottomDisplay));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/123.ghost")), { 0, 0, 0 }, &topDisplay));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/456.ghost")), { 0, 0, 0 }, &bottomDisplay));
 	}
 }

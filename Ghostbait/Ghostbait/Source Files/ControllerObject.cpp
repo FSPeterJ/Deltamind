@@ -526,8 +526,15 @@ void ControllerObject::Update() {
 
 // TEMPORARY - CHANGE OR REMOVE LATER
 void ControllerObject::SetBuildItems(std::vector<unsigned> prefabIDs) {
-	BuildTool* buildTool = (BuildTool*)inventory.items[3];
-	assert(buildTool);
+	BuildTool* buildTool;
+	for (int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
+		buildTool = dynamic_cast<BuildTool*>(inventory.items[i]);
+		if (buildTool) break;
+	}
+	if (!buildTool) {
+		Console::ErrorLine << "Tried to set build items but no build tool was found!";
+		return;
+	}
 	buildTool->SetPrefabs(prefabIDs);
 }
 

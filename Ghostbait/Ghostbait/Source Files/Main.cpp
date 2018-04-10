@@ -35,6 +35,7 @@
 #include "ScrollingUVManager.h"
 #include "DisplayBoard.h"
 #include "ControllerPillar.h"
+#include "PDA.h"
 
 using namespace Threadding;
 
@@ -130,6 +131,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<ControllerObject>(2);
 	ObjectFactory::RegisterPrefabBase<ViveController>(20);
 	ObjectFactory::RegisterPrefabBase<Gun>(8);
+	ObjectFactory::RegisterPrefabBase<PDA>(4);
 	ObjectFactory::RegisterPrefabBase<ProgressBar>(8);
 	ObjectFactory::RegisterPrefabBase<MenuControllerItem>(2);
 	ObjectFactory::RegisterPrefabBase<GameObject>(512);
@@ -200,6 +202,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<ExitButton>("ExitButton");
 	TypeMap::RegisterObjectAlias<BackButton>("BackButton");
 	TypeMap::RegisterObjectAlias<Ground>("Ground");
+	TypeMap::RegisterObjectAlias<PDA>("PDA");
 	TypeMap::RegisterObjectAlias<Monitor>("Monitor");
 
 	TypeMap::RegisterObjectAlias<DisplayBoard>("DisplayBoard");

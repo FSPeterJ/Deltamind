@@ -13,6 +13,7 @@ class MaterialManager;
 class AnimationManager;
 class EventMessageBase;
 class LightManager;
+class HUD;
 struct Mesh;
 
 enum renderState {
@@ -117,6 +118,7 @@ private:
 	ID3D11VertexShader* TextVertexShader;
 	ID3D11PixelShader* PositionTexturePixelShader;
 	ID3D11PixelShader* BlurPixelShader;
+	ID3D11PixelShader* TexToQuadPS;
 
 	ID3D11InputLayout* ILPositionColor;
 	ID3D11InputLayout* ILPositionTexture;
@@ -138,6 +140,7 @@ private:
 	animDataBufferStruct cpuAnimationData;
 	uvOffsetData uvData;
 	Mesh* skyball;
+	HUD* defaultHUD;
 
 	ID3D11Buffer* emptyFloat3Buffer; //Needed to upload to the shaders that don't need specific vertex values (may replace with techniques later)
 	Skybox* currSkybox = nullptr;

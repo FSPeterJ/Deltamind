@@ -16,9 +16,9 @@ struct genericLight
     float outerRadius;
 };
 
+StructuredBuffer<genericLight> theLights : register(t6);
 cbuffer lightBuffer : register(b0)
 {
-    genericLight lights[83];
     float3 ambientColor;
     float ambientIntensity;
     float3 cameraPos;
@@ -38,41 +38,42 @@ struct PixelShaderInput
 
 float2x4 calcLight(int i, float3 worldPos, float3 norm)
 {
+    genericLight theLight = theLights[i];
     float2x4 ret = float2x4(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-    if (lights[i].radius > 0.0f)
+    if (theLight.radius > 0.0f)
     {
-        if (lights[i].outerRadius > 0.0f)
+        if (theLight.outerRadius > 0.0f)
         {
-            float3 dir = normalize(lights[i].pos - worldPos);
-            float3 coneDir = normalize(lights[i].dir);
+            float3 dir = normalize(theLight.pos - worldPos);
+            float3 coneDir = normalize(theLight.dir);
             float surfaceRatio = saturate(dot(-dir, coneDir));
-            float spotFactor = (surfaceRatio > lights[i].outerRadius) ? 1.0f : 0.0f;
+            float spotFactor = (surfaceRatio > theLight.outerRadius) ? 1.0f : 0.0f;
             float lightRatio = saturate(dot(dir, norm) * spotFactor);
-            float atten = 1.0f - saturate((lights[i].radius - surfaceRatio) / (lights[i].radius - lights[i].outerRadius));
+            float atten = 1.0f - saturate((theLight.radius - surfaceRatio) / (theLight.radius - theLight.outerRadius));
             atten *= atten;
-            ret._11_12_13_14 = (lights[i].color * lightRatio) * atten;
+            ret._11_12_13_14 = (theLight.color * lightRatio) * atten;
             ret._21 = atten;
         }
         else
         {
-            float3 dir = lights[i].pos - worldPos;
-            if (length(dir) < lights[i].radius)
+            float3 dir = theLight.pos - worldPos;
+            if (length(dir) < theLight.radius)
             {
                 dir = normalize(dir);
                 float lightRatio = saturate(dot(dir, norm));
-                float atten = 1.0f - saturate(length(lights[i].pos - worldPos) / lights[i].radius);
+                float atten = 1.0f - saturate(length(theLight.pos - worldPos) / theLight.radius);
                 atten *= atten;
-                ret._11_12_13_14 = (lights[i].color * lightRatio) * atten;
+                ret._11_12_13_14 = (theLight.color * lightRatio) * atten;
                 ret._21 = atten;
             }
         }
     }
     else
     {
-        float3 dir = normalize(lights[i].dir);
+        float3 dir = normalize(theLight.dir);
         dir = -dir;
         float lightRatio = saturate(dot(dir, norm));
-        ret._11_12_13_14 = lights[i].color * lightRatio;
+        ret._11_12_13_14 = theLight.color * lightRatio;
     }
     return ret;
 }
@@ -81,34 +82,35 @@ float4 calcSpec(int i, float atten, float3 worldPos, float3 norm, float specInte
 {
     float4 ret = float4(0.0f, 0.0f, 0.0f, 0.0f);
     //I would prefer to not have to do a lot of these calculations but hlsl doesn't do pointers or globals
+    genericLight theLight = theLights[i];
     
-    if (lights[i].radius > 0.0f && specIntense != 0.0f)
+    if (theLight.radius > 0.0f && specIntense != 0.0f)
     {
-        if (lights[i].outerRadius > 0.0f)
+        if (theLight.outerRadius > 0.0f)
         {
-            float3 dir = normalize(lights[i].pos - worldPos);
+            float3 dir = normalize(theLight.pos - worldPos);
 
             float3 reflectionDir = reflect(-dir, norm);
             float3 dirToCam = normalize(cameraPos - worldPos);
             float specScale = 1.0f * pow(saturate(dot(reflectionDir, dirToCam)), 25.0f);
-            ret = specIntense * specScale * lights[i].color * atten;
+            ret = specIntense * specScale * theLight.color * atten;
         }
         else
         {
-            float3 dir = normalize(lights[i].pos - worldPos);
+            float3 dir = normalize(theLight.pos - worldPos);
             float3 reflectionDir = reflect(-dir, norm);
             float3 dirToCam = normalize(cameraPos - worldPos);
             float specScale = 1.0f * pow(saturate(dot(reflectionDir, dirToCam)), 25.0f);
-            ret = specIntense * specScale * lights[i].color * atten;
+            ret = specIntense * specScale * theLight.color * atten;
         }
     }
     else if(specIntense != 0.0f)
     {
-        float3 dir = normalize(lights[i].dir);
+        float3 dir = normalize(theLight.dir);
         float3 reflectionDir = reflect(dir, norm);
         float3 dirToCam = normalize(cameraPos - worldPos);
         float specScale = 1.0f * pow(saturate(dot(reflectionDir, dirToCam)), 25.0f);
-        ret = specIntense * specScale * lights[i].color;
+        ret = specIntense * specScale * theLight.color;
     }
     return ret;
 }
@@ -132,9 +134,9 @@ float4 main(PixelShaderInput input) : SV_TARGET
     posAlmost.w = 1.0f;
     posAlmost = mul(posAlmost, view);
     float3 worldPos = posAlmost.xyz;
-    [unroll(83)] for (int i = 0; i < 83; ++i)
+    for (int i = 0; i < 83; ++i)
     {
-        if (lights[i].color.w == 0.0f)
+        if (theLights[i].color.w == 0.0f)
             break;
         float2x4 result = calcLight(i, worldPos, norm);
             finalLight += result._11_12_13_14;

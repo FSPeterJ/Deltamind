@@ -661,7 +661,7 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 	TextManager::LoadFont("Assets/Fonts/defaultFontIndex.txt", "Assets/Fonts/defaultFont.png");
 
 	LightManager::Initialize(device, context);
-	defaultHUD = new HUD(device, context, defaultPipeline.viewport.Width, defaultPipeline.viewport.Height);
+	defaultHUD = new HUD(device, context, defaultPipeline.viewport.Width, defaultPipeline.viewport.Height, PassThroughPositionVS, NDCQuadGS, TexToQuadPS, ILPosition);
 }
 
 void Renderer::Destroy() {
@@ -691,6 +691,7 @@ void Renderer::Destroy() {
 	ParticleGS->Release();
 	NDCQuadGS->Release();
 	ParticlePS->Release();
+	TexToQuadPS->Release();
 	SkyboxVS->Release();
 	SkyboxPS->Release();
 	DeferredTargetPS->Release();
@@ -935,6 +936,10 @@ void Renderer::Render() {
 	}
 	context->UpdateSubresource(cameraBuffer, NULL, NULL, &buff, NULL, NULL);
 	combineDeferredTargets(&deferredTextures, defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport);
+	if (!VRManager::GetInstance().IsEnabled())
+	{
+		defaultHUD->Draw(context, defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view);
+	}
 	swapchain->Present(0, 0);
 }
 
@@ -1117,6 +1122,10 @@ void Renderer::initShaders() {
 
 	LoadShaderFromCSO(&byteCode, byteCodeSize, "BlurPixelShader.cso");
 	device->CreatePixelShader(byteCode, byteCodeSize, NULL, &BlurPixelShader);
+	delete[] byteCode;
+
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "TexToQuadPS.cso");
+	device->CreatePixelShader(byteCode, byteCodeSize, NULL, &TexToQuadPS);
 	delete[] byteCode;
 
 	CD3D11_BUFFER_DESC constantBufferDesc(sizeof(viewProjectionConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);

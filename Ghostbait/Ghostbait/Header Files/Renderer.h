@@ -118,6 +118,7 @@ private:
 	ID3D11VertexShader* TextVertexShader;
 	ID3D11PixelShader* PositionTexturePixelShader;
 	ID3D11PixelShader* BlurPixelShader;
+	ID3D11PixelShader* TexToQuadPS;
 
 	ID3D11InputLayout* ILPositionColor;
 	ID3D11InputLayout* ILPositionTexture;

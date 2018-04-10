@@ -28,9 +28,9 @@ HUD::HUD(ID3D11Device* device, ID3D11DeviceContext* context, float windowWidth, 
 	Crosshair* temp = new Crosshair();
 	temp->Initialize(device, context, windowWidth, windowHeight);
 	HUDElements.push_back(temp);
-	temp = new Crosshair();
-	temp->Initialize(device, context, windowWidth, windowHeight);
-	HUDElements.push_back(temp);
+	Inventory* inv = new Inventory();
+	inv->Initialize(device, context, windowWidth, windowHeight);
+	HUDElements.push_back(inv);
 }
 
 HUD::~HUD()
@@ -84,4 +84,79 @@ void HUD::Crosshair::Draw(ID3D11DeviceContext* context)
 	context->RSSetViewports(1, &viewport);
 	context->PSSetShaderResources(0, 1, &srv);
 	context->Draw(1, 0);
+}
+
+void HUD::Inventory::loadTexture(const wchar_t * name, ID3D11Device* device, ID3D11DeviceContext* context)
+{
+	std::wstring path(name);
+	ID3D11Texture2D* tex;
+	ID3D11ShaderResourceView* srv;
+	HRESULT didItBlend = DirectX::CreateWICTextureFromFile(device, context, path.c_str(), (ID3D11Resource**)&tex, &srv);
+	textures.push_back(tex);
+	srvs.push_back(srv);
+}
+
+HUD::Inventory::~Inventory()
+{
+	for (size_t i = 0; i < viewports.size(); ++i)
+	{
+		textures[i]->Release();
+		srvs[i]->Release();
+	}
+}
+
+void HUD::Inventory::Initialize(ID3D11Device * device, ID3D11DeviceContext * context, float windowWidth, float windowHeight)
+{
+	float normalRangeWidth = 1.0f / 1200.0f;
+	float normalRangeHeight = 1.0f / 600.0f;
+
+#pragma region Entering the Hardcode Zone
+	D3D11_VIEWPORT viewport;
+	viewport.Width = 92.0f;
+	viewport.Height = 92.0f;
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
+	loadTexture(L"Assets/InventoryPictures/baseInventoryFrame.png", device, context);
+	viewport.TopLeftX = (32.0f * normalRangeWidth) * windowWidth;
+	viewport.TopLeftY = (356.0f * normalRangeHeight) * windowHeight;
+	viewports.push_back(viewport);
+	loadTexture(L"Assets/InventoryPictures/baseInventoryFrame.png", device, context);
+	viewport.TopLeftX = (32.0f * normalRangeWidth) * windowWidth;
+	viewport.TopLeftY = (414.0f * normalRangeHeight) * windowHeight;
+	viewports.push_back(viewport);
+	loadTexture(L"Assets/InventoryPictures/leftSMGInv.png", device, context);
+	viewport.TopLeftX = (32.0f * normalRangeWidth) * windowWidth;
+	viewport.TopLeftY = (472.0f * normalRangeHeight) * windowHeight;
+	viewports.push_back(viewport);
+	loadTexture(L"Assets/InventoryPictures/leftBuildToolInv.png", device, context);
+	viewport.TopLeftX = (32.0f * normalRangeWidth) * windowWidth;
+	viewport.TopLeftY = (530.0f * normalRangeHeight) * windowHeight;
+	viewports.push_back(viewport);
+	loadTexture(L"Assets/InventoryPictures/baseInventoryFrame.png", device, context);
+	viewport.TopLeftX = (1104.0f * normalRangeWidth) * windowWidth;
+	viewport.TopLeftY = (356.0f * normalRangeHeight) * windowHeight;
+	viewports.push_back(viewport);
+	loadTexture(L"Assets/InventoryPictures/baseInventoryFrame.png", device, context);
+	viewport.TopLeftX = (1104.0f * normalRangeWidth) * windowWidth;
+	viewport.TopLeftY = (414.0f * normalRangeHeight) * windowHeight;
+	viewports.push_back(viewport);
+	loadTexture(L"Assets/InventoryPictures/rightSMGInv.png", device, context);
+	viewport.TopLeftX = (1104.0f * normalRangeWidth) * windowWidth;
+	viewport.TopLeftY = (472.0f * normalRangeHeight) * windowHeight;
+	viewports.push_back(viewport);
+	loadTexture(L"Assets/InventoryPictures/rightBuildToolInv.png", device, context);
+	viewport.TopLeftX = (1104.0f * normalRangeWidth) * windowWidth;
+	viewport.TopLeftY = (530.0f * normalRangeHeight) * windowHeight;
+	viewports.push_back(viewport);
+#pragma endregion
+}
+
+void HUD::Inventory::Draw(ID3D11DeviceContext * context)
+{
+	for (size_t i = 0; i < viewports.size(); ++i)
+	{
+		context->RSSetViewports(1, &viewports[i]);
+		context->PSSetShaderResources(0, 1, &srvs[i]);
+		context->Draw(1, 0);
+	}
 }

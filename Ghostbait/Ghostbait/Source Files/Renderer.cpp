@@ -405,7 +405,7 @@ void Renderer::renderObjectDefaultState(const GameObject * obj) {
 void Renderer::renderToEye(eye * eyeTo) {
 	context->PSSetSamplers(0, 1, &LinearSamplerState);
 
-	float color[] = {0.0f, 0.0f, 0.0f, 1.0f};
+	float color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	for (int i = 0; i < 6; ++i)
 	{
 		context->ClearRenderTargetView(eyeTo->targets.RTVs[i], color);

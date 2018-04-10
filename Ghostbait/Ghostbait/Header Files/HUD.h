@@ -24,6 +24,19 @@ class HUD
 		void Draw(ID3D11DeviceContext* context) override;
 	};
 
+	class Inventory : public BaseHUDElement
+	{
+		std::vector<D3D11_VIEWPORT> viewports;
+		std::vector<ID3D11Texture2D*> textures;
+		std::vector < ID3D11ShaderResourceView*> srvs;
+		
+		void loadTexture(const wchar_t* name, ID3D11Device* device, ID3D11DeviceContext* context);
+	public:
+		~Inventory();
+		void Initialize(ID3D11Device* device, ID3D11DeviceContext* context, float windowWidth, float windowHeight) override;
+		void Draw(ID3D11DeviceContext* context) override;
+	};
+
 	std::vector<BaseHUDElement*> HUDElements;
 	ID3D11PixelShader* TexToQuadPS;
 	ID3D11GeometryShader* PointToNDCQuadGS;

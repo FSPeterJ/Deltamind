@@ -97,6 +97,26 @@ void HUD::Inventory::loadTexture(const wchar_t * name, ID3D11Device* device, ID3
 	srvs.push_back(srv);
 }
 
+void HUD::Inventory::initBlendStates(ID3D11Device* device)
+{
+	D3D11_BLEND_DESC blendDesc;
+	blendDesc.AlphaToCoverageEnable = false;
+	blendDesc.IndependentBlendEnable = false;
+	blendDesc.RenderTarget[0].BlendEnable = true;
+	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	device->CreateBlendState(&blendDesc, &blend);
+	blendDesc.RenderTarget[0].BlendEnable = true;
+	blendDesc.AlphaToCoverageEnable = true;
+	device->CreateBlendState(&blendDesc, &noBlend);
+}
+
 bool HUD::Inventory::determineSelected(const int index)
 {
 	if (index < 3)
@@ -132,12 +152,14 @@ HUD::Inventory::~Inventory()
 	inactiveTex->Release();
 	activeSRV->Release();
 	activeTex->Release();
+	noBlend->Release();
+	blend->Release();
 }
 
 void HUD::Inventory::Initialize(ID3D11Device * device, ID3D11DeviceContext * context, float windowWidth, float windowHeight)
 {
 	MessageEvents::SendMessage(EVENT_GetPlayer, GetPlayerMessage(&player));
-
+	initBlendStates(device);
 	float normalRangeWidth = 1.0f / 1200.0f;
 	float normalRangeHeight = 1.0f / 600.0f;
 
@@ -191,6 +213,8 @@ void HUD::Inventory::Draw(ID3D11DeviceContext * context, ID3D11DepthStencilView*
 		context->Draw(1, 0);
 		context->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 		context->PSSetShaderResources(0, 1, &srvs[i]);
+		context->OMSetBlendState(noBlend, 0, 0xffffffff);
 		context->Draw(1, 0);
+		context->OMSetBlendState(blend, 0, 0xffffffff);
 	}
 }

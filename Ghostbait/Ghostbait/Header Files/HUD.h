@@ -36,8 +36,11 @@ class HUD
 		ID3D11ShaderResourceView* inactiveSRV;
 		ID3D11ShaderResourceView* activeSRV;
 		ID3D11DepthStencilView* dsv;
+		ID3D11BlendState* noBlend;
+		ID3D11BlendState* blend;
 
 		void loadTexture(const wchar_t* name, ID3D11Device* device, ID3D11DeviceContext* context);
+		void initBlendStates(ID3D11Device* device);
 		bool determineSelected(const int index);
 	public:
 		~Inventory();

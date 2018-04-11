@@ -156,6 +156,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<DisplayBoard_Pause>(1);
 	ObjectFactory::RegisterPrefabBase<DisplayBoard_Inventory>(1);
 	ObjectFactory::RegisterPrefabBase<DisplayBoard_Items>(1);
+	ObjectFactory::RegisterPrefabBase<DisplayBoard_Build>(1);
+	ObjectFactory::RegisterPrefabBase<DisplayBoard_Shoot>(1);
 	ObjectFactory::RegisterPrefabBase<ControllerPillar>(1);
 	ObjectFactory::RegisterPrefabBase<ControllerPillar_Move>(1);
 	ObjectFactory::RegisterPrefabBase<ControllerPillar_Shoot>(1);
@@ -210,6 +212,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<DisplayBoard_Pause>("DisplayBoard_Pause");
 	TypeMap::RegisterObjectAlias<DisplayBoard_Inventory>("DisplayBoard_Inventory");
 	TypeMap::RegisterObjectAlias<DisplayBoard_Items>("DisplayBoard_Items");
+	TypeMap::RegisterObjectAlias<DisplayBoard_Build>("DisplayBoard_Build");
+	TypeMap::RegisterObjectAlias<DisplayBoard_Shoot>("DisplayBoard_Shoot");
 
 	TypeMap::RegisterObjectAlias<ControllerPillar>("ControllerPillar");
 	TypeMap::RegisterObjectAlias<ControllerPillar_Move>("ControllerPillar_Move");

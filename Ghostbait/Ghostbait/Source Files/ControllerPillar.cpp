@@ -26,7 +26,7 @@ void ControllerPillar::Update() {
 	//--Scale and Rotation matrices
 	float scaleFactor = isVR ? 3.0f : 1.0f;
 	DirectX::XMMATRIX scale = DirectX::XMMatrixScaling(scaleFactor, scaleFactor, scaleFactor);
-	DirectX::XMMATRIX rotation = DirectX::XMMatrixRotationRollPitchYaw(0, isVR ? rot : 0, 0);
+	DirectX::XMMATRIX rotation = DirectX::XMMatrixRotationRollPitchYaw(0, rot, 0);
 	rot += (float)GhostTime::DeltaTime();
 	DirectX::XMMATRIX center = scale * rotation * DirectX::XMMatrixTranslation(displayCenter.GetPosition().x, displayCenter.GetPosition().y, displayCenter.GetPosition().z);
 	DirectX::XMFLOAT4X4 adjustmentMat;
@@ -34,14 +34,14 @@ void ControllerPillar::Update() {
 	float deltaX = 0.221f;
 	float deltaY = 0.221f;
 	if (leftDisplay) {
-		DirectX::XMFLOAT4X4 newMat = adjustmentMat;
+		DirectX::XMFLOAT4X4 newMat = isVR ? adjustmentMat : displayCenter.GetMatrix();
 		newMat._41 += displayCenter.GetMatrix()._11 * deltaX;
 		newMat._42 += displayCenter.GetMatrix()._12 * deltaX;
 		newMat._43 += displayCenter.GetMatrix()._13 * deltaX;
 		leftDisplay->transform.SetMatrix(newMat);
 	}
 	if (rightDisplay) {
-		DirectX::XMFLOAT4X4 newMat = adjustmentMat;
+		DirectX::XMFLOAT4X4 newMat = isVR ? adjustmentMat : displayCenter.GetMatrix();
 		newMat._41 += displayCenter.GetMatrix()._11 * -deltaX;
 		newMat._42 += displayCenter.GetMatrix()._12 * -deltaX;
 		newMat._43 += displayCenter.GetMatrix()._13 * -deltaX;
@@ -117,5 +117,35 @@ void ControllerPillar_Switch::Awake(Object* obj) {
 	else {
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/123.ghost")), { 0, 0, 0 }, &topDisplay));
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/456.ghost")), { 0, 0, 0 }, &bottomDisplay));
+	}
+}
+void ControllerPillar_Build::Awake(Object* obj) {
+	ControllerPillar::Awake(obj);
+	if (isVR) {
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")), { 0, 0, 0 }, &leftDisplay));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")), { 0, 0, 0 }, &rightDisplay));
+		leftDisplay->SwapComponentVarient<Material>("grip");
+		rightDisplay->SwapComponentVarient<Material>("grip");
+		leftDisplay->ToggleFlag(UNLIT);
+		rightDisplay->ToggleFlag(UNLIT);
+	}
+	else {
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/Q.ghost")), { 0, 0, 0 }, &leftDisplay));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/E.ghost")), { 0, 0, 0 }, &rightDisplay));
+	}
+}
+void ControllerPillar_Shoot::Awake(Object* obj) {
+	ControllerPillar::Awake(obj);
+	if (isVR) {
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")), { 0, 0, 0 }, &leftDisplay));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")), { 0, 0, 0 }, &rightDisplay));
+		leftDisplay->SwapComponentVarient<Material>("trigger");
+		rightDisplay->SwapComponentVarient<Material>("trigger");
+		leftDisplay->ToggleFlag(UNLIT);
+		rightDisplay->ToggleFlag(UNLIT);
+	}
+	else {
+		//Get mouse model
+		//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/WASD.ghost")), { 0, 0, 0 }, &centerDisplay));
 	}
 }

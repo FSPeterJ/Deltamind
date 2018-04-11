@@ -221,7 +221,14 @@ DirectX::XMFLOAT4X4 VRManager::GetRoomPosition() {
 void VRManager::Teleport() {
 	DirectX::XMFLOAT3 endPos;
 	GameObject* colObject = nullptr;
-	if(ArcCast(&rightController.obj->transform, &endPos, nullptr, 5)) {
+	if(ArcCast(&rightController.obj->transform, &endPos)) {
+		MovePlayer(endPos);
+	}
+}
+void VRManager::Teleport(float maxDist, float minAngle, float maxAngle) {
+	DirectX::XMFLOAT3 endPos;
+	GameObject* colObject = nullptr;
+	if (ArcCast(&rightController.obj->transform, &endPos, nullptr, maxDist, minAngle, maxAngle)) {
 		MovePlayer(endPos);
 	}
 }

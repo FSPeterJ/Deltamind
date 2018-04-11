@@ -9,6 +9,8 @@ protected:
 		Pause,
 		Inventory,
 		Items,
+		Build,
+		Shoot,
 	};
 	
 	Type type;
@@ -51,5 +53,17 @@ class DisplayBoard_Items : public DisplayBoard {
 	void Awake(Object* obj) override {
 		DisplayBoard::Awake(obj);
 		SetType(Type::Items);
+	}
+};
+class DisplayBoard_Build : public DisplayBoard {
+	void Awake(Object* obj) override {
+		DisplayBoard::Awake(obj);
+		SetType(Type::Build);
+	}
+};
+class DisplayBoard_Shoot : public DisplayBoard {
+	void Awake(Object* obj) override {
+		DisplayBoard::Awake(obj);
+		SetType(Type::Shoot);
 	}
 };

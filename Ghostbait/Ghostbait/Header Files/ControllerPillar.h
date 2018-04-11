@@ -38,20 +38,15 @@ public:
 class ControllerPillar_Move : public ControllerPillar {
 	void Awake(Object* obj) override;
 };
-
-class ControllerPillar_Build : public ControllerPillar {
-	void Awake(Object* obj) override {
-		ControllerPillar::Awake(obj);
-	}
-};
 class ControllerPillar_Pause : public ControllerPillar {
 	void Awake(Object* obj) override;
 };
-class ControllerPillar_Shoot : public ControllerPillar {
-	void Awake(Object* obj) override {
-		ControllerPillar::Awake(obj);
-	}
-};
 class ControllerPillar_Switch : public ControllerPillar {
+	void Awake(Object* obj) override;
+};
+class ControllerPillar_Build : public ControllerPillar {
+	void Awake(Object* obj) override;
+};
+class ControllerPillar_Shoot : public ControllerPillar {
 	void Awake(Object* obj) override;
 };

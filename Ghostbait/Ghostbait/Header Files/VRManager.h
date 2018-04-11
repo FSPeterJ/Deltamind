@@ -70,6 +70,7 @@ public:
 	void SetBuildItems(std::vector<unsigned> prefabIDs);
 
 	void Teleport();
+	void Teleport(float maxDist, float minAngle, float maxAngle);
 	
 	void GetVRMatrices(DirectX::XMFLOAT4X4* leftProj, DirectX::XMFLOAT4X4* rightProj, DirectX::XMFLOAT4X4* leftView, DirectX::XMFLOAT4X4* rightView);
 	void SendToHMD(void* leftTexture, void* rightTexture);

@@ -32,6 +32,7 @@ Game::Game() {
 	MessageEvents::Subscribe(EVENT_GameQuit, [=](EventMessageBase* e) {this->Quit(); });
 	MessageEvents::Subscribe(EVENT_GameExit, [=](EventMessageBase* e) {this->ExitToMainMenu(); });
 	MessageEvents::Subscribe(EVENT_FreeMoney, [=](EventMessageBase* e) {this->gameData.SetGears(500000); });
+	MessageEvents::Subscribe(EVENT_TutorialHit, [=](EventMessageBase* e) {this->ChangeScene("Tutorial"); });
 
 	MessageEvents::Subscribe(EVENT_GameDataRequest, [=](EventMessageBase* e) { this->GameDataRequestEvent(e); });
 	PathPlanner::SetGrid(&hexGrid);

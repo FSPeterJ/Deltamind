@@ -37,9 +37,8 @@ enum Button {
 	BUTTON_Back,
 	BUTTON_Exit,
 	BUTTON_Quit,
-
 	BUTTON_Play,
-	BUTTON_ChangeLevel,
+	BUTTON_Tutorial,
 };
 
 class Menu {
@@ -76,19 +75,15 @@ public:
 class ResumeButton : public MenuOption {
 	void Select() override;
 };
-
 class RestartButton : public MenuOption {
 	void Select() override;
 };
-
 class OptionsButton : public MenuOption {
 	void Select() override;
 };
-
 class QuitButton : public MenuOption {
 	void Select() override;
 };
-
 class ExitButton : public MenuOption {
 	void Select() override;
 };
@@ -98,7 +93,7 @@ class BackButton : public MenuOption {
 class PlayButton : public MenuOption {
 	void Select() override;
 };
-class ChangeLevelButton : public MenuOption {
+class TutorialButton : public MenuOption {
 	void Select() override;
 };
 

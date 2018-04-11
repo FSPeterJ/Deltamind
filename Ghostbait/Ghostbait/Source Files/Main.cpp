@@ -149,6 +149,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<OptionsButton>(1);
 	ObjectFactory::RegisterPrefabBase<ExitButton>(1);
 	ObjectFactory::RegisterPrefabBase<BackButton>(1);
+	ObjectFactory::RegisterPrefabBase<TutorialButton>(1);
 	ObjectFactory::RegisterPrefabBase<Ground>(1);
 	ObjectFactory::RegisterPrefabBase<Monitor>(1);
 	ObjectFactory::RegisterPrefabBase<DisplayBoard>(1);
@@ -203,6 +204,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<OptionsButton>("OptionsButton");
 	TypeMap::RegisterObjectAlias<ExitButton>("ExitButton");
 	TypeMap::RegisterObjectAlias<BackButton>("BackButton");
+	TypeMap::RegisterObjectAlias<TutorialButton>("TutorialButton");
 	TypeMap::RegisterObjectAlias<Ground>("Ground");
 	TypeMap::RegisterObjectAlias<PDA>("PDA");
 	TypeMap::RegisterObjectAlias<Monitor>("Monitor");
@@ -317,7 +319,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	Console::WriteLine << "Starting Game Loop......";
 	game = new Game();
-	game->Start(player, &engine, "Tutorial");
+	game->Start(player, &engine, "splashScreen");
 }
 
 void Loop() {

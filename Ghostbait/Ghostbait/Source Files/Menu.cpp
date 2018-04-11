@@ -47,7 +47,7 @@ void Menu::AssignPrefabIDs() {
 	buttonPrefabMap[BUTTON_Exit] = ObjectFactory::CreatePrefab(&std::string("Assets/ExitButton.ghost"));
 	buttonPrefabMap[BUTTON_Options] = ObjectFactory::CreatePrefab(&std::string("Assets/OptionsButton.ghost"));
 	buttonPrefabMap[BUTTON_Back] = ObjectFactory::CreatePrefab(&std::string("Assets/BackButton.ghost"));
-	buttonPrefabMap[BUTTON_ChangeLevel] = buttonPrefabMap[BUTTON_Resume];
+	buttonPrefabMap[BUTTON_Tutorial] = ObjectFactory::CreatePrefab(&std::string("Assets/TutorialButton.ghost"));
 }
 
 DirectX::XMFLOAT4X4 Menu::FindCenter(float distFromPlayer) {
@@ -87,10 +87,11 @@ void Menu::Create(Template t, std::vector<Button> _buttons) {
 	switch (t) {
 		case MENU_Main:
 			buttons.empty();
-			buttons.resize(3);
+			buttons.resize(4);
 			buttons[0] = BUTTON_Play;
-			buttons[1] = BUTTON_Options;
-			buttons[2] = BUTTON_Quit;
+			buttons[1] = BUTTON_Tutorial;
+			buttons[2] = BUTTON_Options;
+			buttons[3] = BUTTON_Quit;
 			break;
 		case MENU_Pause:
 			buttons.empty();
@@ -198,8 +199,10 @@ void PlayButton::Select() {
 	MenuOption::Select();
 	MessageEvents::SendMessage(EVENT_Start, EventMessageBase());
 }
-void ChangeLevelButton::Select() {
+void TutorialButton::Select() {
+	menu->Hide();
 	MenuOption::Select();
+	MessageEvents::SendMessage(EVENT_TutorialHit, EventMessageBase());
 }
 
 

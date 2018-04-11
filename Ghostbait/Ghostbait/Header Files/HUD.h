@@ -1,6 +1,7 @@
 #pragma once
 #include <d3d11.h>
 #include <vector>
+#include "Player.h"
 
 class HUD
 {
@@ -10,7 +11,7 @@ class HUD
 		virtual ~BaseHUDElement() {};
 
 		virtual void Initialize(ID3D11Device* device, ID3D11DeviceContext* context, float windowWidth, float windowHeight) {};
-		virtual void Draw(ID3D11DeviceContext* context) {};
+		virtual void Draw(ID3D11DeviceContext* context, ID3D11DepthStencilView* dsv) {};
 	};
 
 	class Crosshair : public BaseHUDElement
@@ -21,7 +22,7 @@ class HUD
 	public:
 		~Crosshair();
 		void Initialize(ID3D11Device* device, ID3D11DeviceContext* context, float windowWidth, float windowHeight) override;
-		void Draw(ID3D11DeviceContext* context) override;
+		void Draw(ID3D11DeviceContext* context, ID3D11DepthStencilView* dsv) override;
 	};
 
 	class Inventory : public BaseHUDElement
@@ -29,12 +30,22 @@ class HUD
 		std::vector<D3D11_VIEWPORT> viewports;
 		std::vector<ID3D11Texture2D*> textures;
 		std::vector < ID3D11ShaderResourceView*> srvs;
-		
+		const Player* player;
+		ID3D11Texture2D* inactiveTex;
+		ID3D11Texture2D* activeTex;
+		ID3D11ShaderResourceView* inactiveSRV;
+		ID3D11ShaderResourceView* activeSRV;
+		ID3D11DepthStencilView* dsv;
+		ID3D11BlendState* noBlend;
+		ID3D11BlendState* blend;
+
 		void loadTexture(const wchar_t* name, ID3D11Device* device, ID3D11DeviceContext* context);
+		void initBlendStates(ID3D11Device* device);
+		bool determineSelected(const int index);
 	public:
 		~Inventory();
 		void Initialize(ID3D11Device* device, ID3D11DeviceContext* context, float windowWidth, float windowHeight) override;
-		void Draw(ID3D11DeviceContext* context) override;
+		void Draw(ID3D11DeviceContext* context, ID3D11DepthStencilView* dsv) override;
 	};
 
 	std::vector<BaseHUDElement*> HUDElements;

@@ -1,6 +1,8 @@
 #pragma once
 #include "GameObject.h"
 
+class Player;
+
 class ControllerPillar : public GameObject {
 protected:
 	enum Type {
@@ -25,7 +27,7 @@ protected:
 
 	Transform displayCenter;
 	float rot = 0;
-	Transform const* playerPos = nullptr;
+	Player const* player = nullptr;
 public:
 	ControllerPillar() { SetTag("ControllerPillar"); }
 	~ControllerPillar() {}

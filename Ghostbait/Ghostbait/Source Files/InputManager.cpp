@@ -374,11 +374,9 @@ InputManager::KeyboardInput::KeyboardInput() {
 	MapKey(leftItem0, '1');
 	MapKey(leftItem1, '2');
 	MapKey(leftItem2, '3');
-	MapKey(leftItem3, '4');
-	MapKey(rightItem0, '5');
-	MapKey(rightItem1, '6');
-	MapKey(rightItem2, '7');
-	MapKey(rightItem3, '8');
+	MapKey(rightItem0, '4');
+	MapKey(rightItem1, '5');
+	MapKey(rightItem2, '6');
 
 	MapKey(TestInputX, 'X');
 	MapKey(TestInputU, 'U');

@@ -7,7 +7,7 @@
 class ObjectFactory;
 class GameData;
 class Core;
-class Transform;
+class Player;
 //Please do this next time
 typedef unsigned long		AkUInt32;
 typedef AkUInt32			AkUniqueID;
@@ -202,11 +202,11 @@ public:
 	GameData const** RetrieveData() const { return data; }
 };
 
-class GetPlayerPosMessage : public EventMessageBase {
-	Transform const** data = nullptr;
+class GetPlayerMessage : public EventMessageBase {
+	Player const** data = nullptr;
 public:
-	GetPlayerPosMessage(Transform const** _playerPos) :data(_playerPos) {}
-	Transform const** RetrieveData() const { return data; }
+	GetPlayerMessage(Player const** _playerPos) :data(_playerPos) {}
+	Player const** RetrieveData() const { return data; }
 };
 
 class CoreMessage : public EventMessageBase {

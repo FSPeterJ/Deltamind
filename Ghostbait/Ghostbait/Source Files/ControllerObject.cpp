@@ -238,6 +238,21 @@ void ControllerObject::ClearInventory() {
 		RemoveItem(i);
 	}
 }
+const int ControllerObject::GetSelectedItemIndex()
+{
+	int ret = -1;
+	if (inventory.currentItem == nullptr)
+		return ret;
+	for (int i = 0; i < CONTROLLER_MAX_ITEMS; ++i)
+	{
+		if (inventory.items[i] == inventory.currentItem)
+		{
+			ret = i;
+			break;
+		}
+	}
+	return ret;
+}
 void ControllerObject::AddItem(int itemSlot, unsigned prefabID) {
 	AddToInventory(itemSlot, prefabID);
 

@@ -4,10 +4,11 @@
 #include "GhostTime.h"
 #include "Material.h"
 #include "VRManager.h"
+#include "Player.h"
 
 void ControllerPillar::Awake(Object* obj) {
 	GameObject::Awake(obj);
-	MessageEvents::SendMessage(EVENT_GetPlayerPos, GetPlayerPosMessage(&playerPos));
+	MessageEvents::SendMessage(EVENT_GetPlayer, GetPlayerMessage(&player));
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/Display_Lifter.ghost")), { 0, 0, 0 }, &lifter));
 	isVR = VRManager::GetInstance().IsEnabled();
 }
@@ -21,7 +22,7 @@ void ControllerPillar::Update() {
 		DirectX::XMStoreFloat4x4(&newMat, DirectX::XMLoadFloat4x4(&transform.GetMatrix()));
 		newMat._42 += 1.695f;
 		displayCenter.SetMatrix(newMat);
-		displayCenter.LookAt(playerPos->GetPosition());
+		displayCenter.LookAt(player->transform.GetPosition());
 	}
 	//--Scale and Rotation matrices
 	float scaleFactor = isVR ? 3.0f : 1.0f;

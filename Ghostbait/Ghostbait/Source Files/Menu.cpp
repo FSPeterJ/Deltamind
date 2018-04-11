@@ -137,6 +137,7 @@ void Menu::Show(bool useCamera) {
 		options[i]->SetOldPos(options[i]->transform.GetMatrix());
 		options[i]->SetOldColliderPoint(options[i]->GetComponent<PhysicsComponent>()->colliders[0].colliderData->colliderInfo.boxCollider.topRightFrontCorner);
 		options[i]->UnHighlight();
+		newOption->UnRender();
 		newOption->RenderToFront();
 	}
 }

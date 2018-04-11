@@ -47,6 +47,7 @@ ParticleTextureManager::~ParticleTextureManager()
 	}
 	stagingTex->Release();
 	texArray->Release();
+	srv->Release();
 }
 
 int ParticleTextureManager::AddTexture(const char * filePath) {

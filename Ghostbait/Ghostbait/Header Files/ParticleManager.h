@@ -8,38 +8,38 @@
 #include "IComponentManager.h"
 #include "Emitter.h"
 
-#define MAX_PARTICLES 50
-#define MAX_REFERENCE_PARTICLES 50
+#define MAX_PARTICLES 100
+#define MAX_REFERENCE_PARTICLES 10
 class ParticleManager: public IComponentManager {
 
 
 
 	struct EmitterConstant {
 		//16
-		DirectX::XMFLOAT3 Position;
-		unsigned MaxParticlesThisFrame;
+		DirectX::XMFLOAT3 Position = DirectX::XMFLOAT3(0,1,0);
+		unsigned MaxParticlesThisFrame = 1;
 
 		//16
-		DirectX::XMFLOAT3 Velocity;
+		DirectX::XMFLOAT3 Velocity = DirectX::XMFLOAT3(0,0,1);
 		float ParticleVelocityVariance;
 		//16
 		DirectX::XMFLOAT3 ParticlePositionVariance;
 		float VelocityMagnatude;  // This might be removed soon
 
 		//16
-		float StartSize;
-		float EndSize;
-		float ParticleLifeSpan;
+		float StartSize = 0.5f;
+		float EndSize = 1.5f;
+		float ParticleLifeSpan = 10;
 		unsigned TextureIndex;
 		//16
-		DirectX::XMFLOAT4 StartColor;
+		DirectX::XMFLOAT4 StartColor = DirectX::XMFLOAT4(0, 0, 1, 0.8f);
 		//16
-		DirectX::XMFLOAT4 EndColor;
+		DirectX::XMFLOAT4 EndColor = DirectX::XMFLOAT4(1, 0, 0, 1);
 		//16
 		float rotationVarience;
 		unsigned properties;
-		unsigned padding[2];
-
+		float xAngleVariance;
+		float yAngleVariance;
 		//16
 	} emitterConstant;
 
@@ -59,6 +59,14 @@ class ParticleManager: public IComponentManager {
 		float endSize;
 		unsigned properties; // 12 bits - U Axis UV end | 12 bits - V Axis UV end | 8 bits - texture W index
 
+		float size;
+		float size1;
+		float size2;
+		float size3;
+
+		//Constant data (16 bytes)
+		DirectX::XMFLOAT4 Color;
+
 		//Constant data (16 bytes)
 		DirectX::XMFLOAT4 StartColor;
 
@@ -75,6 +83,7 @@ class ParticleManager: public IComponentManager {
 	ID3D11GeometryShader * GeometryShader = nullptr;
 	ID3D11PixelShader* PixelShader = nullptr;
 
+	ID3D11Buffer* perFrame = nullptr;;
 
 	ID3D11Texture2D* randomTexture = nullptr;
 	ID3D11ShaderResourceView* randomTextureSRV = nullptr;
@@ -101,10 +110,10 @@ class ParticleManager: public IComponentManager {
 
 	ParticleTextureManager* texMan;
 public:
-	ParticleManager(ID3D11Device* _device, ID3D11DeviceContext* _context);
 	~ParticleManager();
 	void Update();
 	void InitShaders();
+	ParticleManager(ID3D11Device* _device, ID3D11DeviceContext* _context, ID3D11Buffer* _perFrame);
 	void RenderParticles();
 	ComponentBase* GetReferenceComponent(const char * _FilePath, const char * _data) override;
 	ComponentBase* CloneComponent(ComponentBase* reference) override;

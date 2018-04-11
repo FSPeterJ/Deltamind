@@ -28,6 +28,7 @@ struct PixelShaderInput
 {
     float4 pos : SV_POSITION;
     float3 uvw : TEXCOORD0;
+    float4 color : COLOR0;
 };
 
 struct PixelShaderOutput
@@ -48,7 +49,8 @@ PixelShaderOutput main(PixelShaderInput input)
         discard;
     //output.diffuse = float4(diffuseFloat.xyz * diffuseFactor, diffuseFloat.w);    
     //output.diffuse = float4(diffuseFloat.xyz * 1.0f, diffuseFloat.w);
-    output.diffuse = float4(0.5f, 0.5f, 0.5f, 1.0f);
+    //output.diffuse = float4(0.5f, 0.5f, 0.5f, 1.0f);
+    output.diffuse = input.color;
     output.emissive = float4(0.0f, 0.0f, 0.0f, 1.0f);
     output.normal = float4(0.5f, 0.5f, 0.5f, 1.0f);
     output.specular = float4(0.0f, 0.0f, 0.0f, 1.0f);

@@ -16,6 +16,7 @@
 #include "TextManager.h"
 
 #include "RenderUtil.h"
+#include "GhostTime.h"
 
 using namespace DirectX;
 
@@ -47,6 +48,9 @@ void Renderer::createDeviceContextAndSwapchain(Window window) {
 	D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, feature, 1, D3D11_SDK_VERSION, &desc, &swapchain, &device, outputFeature, &context);
 #endif
 	swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
+
+	HRESULT Result = device->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&DebugDevice));
+
 
 	delete feature;
 }
@@ -450,10 +454,11 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 	context->PSSetConstantBuffers(0, 1, &lightBuffer);
 	context->GSSetConstantBuffers(2, 2, &lightBuffer);
 	context->PSSetConstantBuffers(1, 1, &factorBuffer);
+	context->CSSetConstantBuffers(0, 1, &perFrameConstantBuffer);
 
 	//Particles
 	//==========================
-	particleManager = new ParticleManager(device,context);
+	particleManager = new ParticleManager(device, context, perFrameConstantBuffer);
 
 	//SamplerState
 	//===========================
@@ -502,6 +507,7 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 }
 
 void Renderer::Destroy() {
+	delete particleManager;
 	TextManager::Destroy();
 	emptyFloat3Buffer->Release();
 	OnlySamplerState->Release();
@@ -512,6 +518,7 @@ void Renderer::Destroy() {
 	animDataBuffer->Release();
 	ILPositionColor->Release();
 	ILStandard->Release();
+	perFrameConstantBuffer->Release();
 	//ILParticle->Release();
 	ILPosition->Release();
 	ILPositionTexture->Release();
@@ -531,11 +538,12 @@ void Renderer::Destroy() {
 	context->Release();
 	device->Release();
 
+
 	if(randomTexture)
-	randomTexture->Release();
+		randomTexture->Release();
 	if(randomTextureSRV)
-	randomTextureSRV->Release();
-	
+		randomTextureSRV->Release();
+
 
 	defaultPipeline.render_target_view->Release();
 	clearPipelineMemory(&defaultPipeline);
@@ -566,6 +574,10 @@ void Renderer::Destroy() {
 	}
 
 	releaseDeferredTarget(&deferredTextures);
+#if _DEBUG
+	//DebugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+	DebugDevice->Release();
+#endif
 }
 
 void Renderer::registerObject(EventMessageBase* e) {
@@ -652,7 +664,8 @@ XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 }
 
 void Renderer::Render() {
-
+	perFrameDataConstantBuffer.FrameTime = (float)GhostTime::DeltaTime();
+	context->UpdateSubresource(perFrameConstantBuffer, NULL, NULL, &perFrameDataConstantBuffer, 0, 0);
 	loadPipelineState(&defaultPipeline);
 	XMMATRIX cameraObj = XMMatrixTranspose(XMLoadFloat4x4(&cameraPos->GetMatrix()));
 	XMStoreFloat4x4(&defaultCamera.view, XMMatrixInverse(&XMMatrixDeterminant(cameraObj), cameraObj));
@@ -926,6 +939,9 @@ void Renderer::initShaders() {
 
 	CD3D11_BUFFER_DESC dirBufferDesc(sizeof(lightBufferStruct), D3D11_BIND_CONSTANT_BUFFER);
 	device->CreateBuffer(&dirBufferDesc, nullptr, &lightBuffer);
+
+	CD3D11_BUFFER_DESC perFrameBufferDesc(sizeof(PerFrameConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
+	device->CreateBuffer(&dirBufferDesc, nullptr, &perFrameConstantBuffer);
 
 	CD3D11_BUFFER_DESC animBufferDesc(sizeof(animDataBufferStruct), D3D11_BIND_CONSTANT_BUFFER);
 	device->CreateBuffer(&animBufferDesc, nullptr, &animDataBuffer);

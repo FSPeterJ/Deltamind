@@ -14,21 +14,30 @@ RWStructuredBuffer<uint> InactiveBillboardParticleIndex : register(u2);
 RWBuffer<uint> DrawArgs : register(u3);
 
 
-cbuffer EmitterConstantBuffer : register(b1)
+cbuffer EmitterConstantBuffer : register(b3)
 {
     float3 Position;
     uint MaxParticlesThisFrame;
 
     float3 Velocity;
-    float VelocityMagnatude;
+    float ParticleVelocityVariance;
 
     float3 ParticlePositionVariance;
-    float ParticleVelocityVariance;
+    float VelocityMagnatude;
 	
+
     float StartSize;
-    float ParticleLifeSpan;
     float EndSize;
+    float ParticleLifeSpan;
     uint TextureIndex;
+
+    float4 startColor;
+    float4 endColor;
+
+    float rotationVarience;
+    uint properties;
+    float xAngleVariance;
+    float yAngleVariance;
 };
 
 
@@ -43,14 +52,27 @@ void main(uint3 DThreadID : SV_DispatchThreadID)
         BillboardParticle particle = (BillboardParticle) 0;
         float3 randomPosition;
 
-        float2 uv = float2(DThreadID.x / 1024.0, ElapsedTime);
-        float3 randomvelocity = RandomNumbers.SampleLevel(SamplerWrapLinear, uv, 0).xyz;
+        //float2 uv = float2(DThreadID.x / 1024.0, ElapsedTime);
+       // float3 randomvelocity = RandomNumbers.SampleLevel(SamplerWrapLinear, uv, 0).xyz;
 
+        particle.position = float3(0, 1, 1);
+
+        particle.velocity = float3(0, 0, 1); //+ //(randomvelocity * VelocityMagnatude * ParticleVelocityVariance);
         particle.age = ParticleLifeSpan;
-        particle.texturedata = TextureIndex;
-        particle.lifespan = ParticleLifeSpan;
-        particle.velocity = Velocity + (randomvelocity * VelocityMagnatude * ParticleVelocityVariance);
 
+
+        particle.lifespan = ParticleLifeSpan;
+        particle.startSize = StartSize;
+        particle.endSize = EndSize;
+        particle.texturedata = TextureIndex;
+
+        particle.startColor = startColor;
+        particle.endColor = endColor;
+
+        uint particleMax;
+        uint particleNotUsed;
+        InactiveBillboardParticleIndex.GetDimensions(particleMax, particleNotUsed);
+        
         uint index = InactiveBillboardParticleIndex.DecrementCounter();
         uint particleindex = InactiveBillboardParticleIndex[index];
         //uint inactiveIndex = InactiveBillboardParticleIndex.DecrementCounter();

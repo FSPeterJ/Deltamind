@@ -34,11 +34,13 @@ struct GSOutput
 {
     float4 pos : SV_POSITION;
     float3 uvw : TEXCOORD0;
+    float4 color : COLOR0;
 };
 
 struct GSInput
 {
     float4 pos : SV_POSITION;
+    float4 color : COLOR0;
     float size : PSIZE0;
     uint texturedata : TEXCOORD0;
     float rotation : TEXCOORD1;
@@ -75,24 +77,28 @@ void main(point GSInput input[1], inout TriangleStream<GSOutput> output)
     element.pos = mul(element.pos, view);
     element.pos = mul(element.pos, projection);
     element.uvw = float3(0.0f, 0.0f, w);
+    element.color = input[0].color;
     output.Append(element);
     
     element.pos = input[0].pos + rightVector - float4(upVector, 0);
     element.pos = mul(element.pos, view);
     element.pos = mul(element.pos, projection);
     element.uvw = float3(OffsetUV.x, 0.0f, w);
+    element.color = input[0].color;
     output.Append(element);
     
     element.pos = input[0].pos - rightVector + float4(upVector, 0);
     element.pos = mul(element.pos, view);
     element.pos = mul(element.pos, projection);
     element.uvw = float3(0.0f, OffsetUV.y, w);
+    element.color = input[0].color;
     output.Append(element);
     
     element.pos = input[0].pos + rightVector + float4(upVector, 0);
     element.pos = mul(element.pos, view);
     element.pos = mul(element.pos, projection);
     element.uvw = float3(OffsetUV.x, OffsetUV.y, w);
+    element.color = input[0].color;
     output.Append(element);
 
     //Will probably need later for draw instanced indexed?

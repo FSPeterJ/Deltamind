@@ -5,7 +5,6 @@
 #include <vector>
 #include "ParticleManager.h"
 
-#define MAX_PARTICLES 50
 
 class Transform;
 class GameObject;
@@ -41,7 +40,11 @@ private:
 	};
 
 
-	
+	struct PerFrameConstantBuffer {
+		float FrameTime;
+		float ElapsedTime;
+		UINT padding[2];
+	} perFrameDataConstantBuffer;
 
 	struct viewProjectionConstantBuffer {
 		DirectX::XMFLOAT4X4 view;
@@ -116,6 +119,7 @@ private:
 	ID3D11Buffer* modelBuffer;
 	ID3D11Buffer* factorBuffer;
 	ID3D11Buffer* lightBuffer;
+	ID3D11Buffer* perFrameConstantBuffer;
 	ID3D11Buffer* animDataBuffer;
 	pipeline_state_t defaultPipeline;
 	Transform* cameraPos;
@@ -138,6 +142,8 @@ private:
 	//Contains randomized numbers since GPU's don't have a RdRand instruction
 	ID3D11Texture2D* randomTexture;
 	ID3D11ShaderResourceView* randomTextureSRV;
+
+	ID3D11Debug* DebugDevice = nullptr;
 
 
 

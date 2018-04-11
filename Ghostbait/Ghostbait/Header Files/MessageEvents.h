@@ -22,7 +22,7 @@ enum EVENT_TYPES {
 	EVENT_RegisterNoisemaker,
 	EVENT_RequestSound,
 	EVENT_UnregisterNoisemaker,
-	EVENT_GetPlayerPos,
+	EVENT_GetPlayer,
 
 
 	//Cheats

@@ -2,6 +2,7 @@
 #include "WICTextureLoader.h"
 #include <string>
 #include <DirectXMath.h>
+#include "MessageEvents.h"
 
 void HUD::ClearHUDElements()
 {
@@ -107,6 +108,8 @@ HUD::Inventory::~Inventory()
 
 void HUD::Inventory::Initialize(ID3D11Device * device, ID3D11DeviceContext * context, float windowWidth, float windowHeight)
 {
+	MessageEvents::SendMessage(EVENT_GetPlayer, GetPlayerMessage(&player));
+
 	float normalRangeWidth = 1.0f / 1200.0f;
 	float normalRangeHeight = 1.0f / 600.0f;
 

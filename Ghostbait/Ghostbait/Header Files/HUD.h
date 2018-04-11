@@ -1,6 +1,7 @@
 #pragma once
 #include <d3d11.h>
 #include <vector>
+#include "Player.h"
 
 class HUD
 {
@@ -29,7 +30,8 @@ class HUD
 		std::vector<D3D11_VIEWPORT> viewports;
 		std::vector<ID3D11Texture2D*> textures;
 		std::vector < ID3D11ShaderResourceView*> srvs;
-		
+		const Player* player;
+
 		void loadTexture(const wchar_t* name, ID3D11Device* device, ID3D11DeviceContext* context);
 	public:
 		~Inventory();

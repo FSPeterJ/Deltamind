@@ -6,7 +6,15 @@ struct PixelShaderInput
     float2 uv : TEXCOORD;
 };
 
-SamplerState sample : register(s0);
+SamplerState sample
+{
+    Filter = MIN_MAG_MIP_POINT;
+    AddressU = Wrap;
+    AddressV = Wrap;
+    AddressW = Wrap;
+    MinLOD = 0;
+    MaxLOD = 0;
+};
 float4 main(PixelShaderInput input) : SV_TARGET
 {
     return tex.Sample(sample, input.uv);

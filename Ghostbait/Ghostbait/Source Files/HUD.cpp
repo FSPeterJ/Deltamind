@@ -54,7 +54,7 @@ void HUD::Draw(ID3D11DeviceContext * context, ID3D11RenderTargetView* rtv, ID3D1
 	for (size_t i = 0; i < HUDElements.size(); ++i)
 	{
 		context->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-		HUDElements[i]->Draw(context);
+		HUDElements[i]->Draw(context, dsv);
 	}
 	context->GSSetShader(clearGS, NULL, NULL);
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -80,7 +80,7 @@ void HUD::Crosshair::Initialize(ID3D11Device * device, ID3D11DeviceContext * con
 	viewport.MaxDepth = 1.0f;
 }
 
-void HUD::Crosshair::Draw(ID3D11DeviceContext* context)
+void HUD::Crosshair::Draw(ID3D11DeviceContext* context, ID3D11DepthStencilView* dsv)
 {
 	context->RSSetViewports(1, &viewport);
 	context->PSSetShaderResources(0, 1, &srv);
@@ -97,6 +97,30 @@ void HUD::Inventory::loadTexture(const wchar_t * name, ID3D11Device* device, ID3
 	srvs.push_back(srv);
 }
 
+bool HUD::Inventory::determineSelected(const int index)
+{
+	if (index < 3)
+	{
+		int selectedItem = player->leftController->GetSelectedItemIndex();
+
+		if (selectedItem == -1)
+			return false;
+		else if (selectedItem == index)
+			return true;
+	}
+	else
+	{
+		int invItem = index - 3;
+		int selectedItem = player->rightController->GetSelectedItemIndex();
+		
+		if (selectedItem == -1)
+			return false;
+		else if (selectedItem == invItem)
+			return true;
+	}
+	return false;
+}
+
 HUD::Inventory::~Inventory()
 {
 	for (size_t i = 0; i < viewports.size(); ++i)
@@ -104,6 +128,10 @@ HUD::Inventory::~Inventory()
 		textures[i]->Release();
 		srvs[i]->Release();
 	}
+	inactiveSRV->Release();
+	inactiveTex->Release();
+	activeSRV->Release();
+	activeTex->Release();
 }
 
 void HUD::Inventory::Initialize(ID3D11Device * device, ID3D11DeviceContext * context, float windowWidth, float windowHeight)
@@ -113,17 +141,17 @@ void HUD::Inventory::Initialize(ID3D11Device * device, ID3D11DeviceContext * con
 	float normalRangeWidth = 1.0f / 1200.0f;
 	float normalRangeHeight = 1.0f / 600.0f;
 
+	std::wstring path(L"Assets/InventoryPictures/baseInventoryFrame.png");
+	HRESULT didItBlend = DirectX::CreateWICTextureFromFile(device, context, path.c_str(), (ID3D11Resource**)&inactiveTex, &inactiveSRV);
+	path = std::wstring(L"Assets/InventoryPictures/SelectedInventoryFrame.png");
+	didItBlend = DirectX::CreateWICTextureFromFile(device, context, path.c_str(), (ID3D11Resource**)&activeTex, &activeSRV);
 #pragma region Entering the Hardcode Zone
 	D3D11_VIEWPORT viewport;
 	viewport.Width = 92.0f;
 	viewport.Height = 92.0f;
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
-	loadTexture(L"Assets/InventoryPictures/baseInventoryFrame.png", device, context);
-	viewport.TopLeftX = (32.0f * normalRangeWidth) * windowWidth;
-	viewport.TopLeftY = (356.0f * normalRangeHeight) * windowHeight;
-	viewports.push_back(viewport);
-	loadTexture(L"Assets/InventoryPictures/baseInventoryFrame.png", device, context);
+	loadTexture(L"Assets/InventoryPictures/leftSMGInv.png", device, context); //Replace with pistol picture when we get it
 	viewport.TopLeftX = (32.0f * normalRangeWidth) * windowWidth;
 	viewport.TopLeftY = (414.0f * normalRangeHeight) * windowHeight;
 	viewports.push_back(viewport);
@@ -135,11 +163,7 @@ void HUD::Inventory::Initialize(ID3D11Device * device, ID3D11DeviceContext * con
 	viewport.TopLeftX = (32.0f * normalRangeWidth) * windowWidth;
 	viewport.TopLeftY = (530.0f * normalRangeHeight) * windowHeight;
 	viewports.push_back(viewport);
-	loadTexture(L"Assets/InventoryPictures/baseInventoryFrame.png", device, context);
-	viewport.TopLeftX = (1104.0f * normalRangeWidth) * windowWidth;
-	viewport.TopLeftY = (356.0f * normalRangeHeight) * windowHeight;
-	viewports.push_back(viewport);
-	loadTexture(L"Assets/InventoryPictures/baseInventoryFrame.png", device, context);
+	loadTexture(L"Assets/InventoryPictures/rightSMGInv.png", device, context); //Same as before
 	viewport.TopLeftX = (1104.0f * normalRangeWidth) * windowWidth;
 	viewport.TopLeftY = (414.0f * normalRangeHeight) * windowHeight;
 	viewports.push_back(viewport);
@@ -154,11 +178,18 @@ void HUD::Inventory::Initialize(ID3D11Device * device, ID3D11DeviceContext * con
 #pragma endregion
 }
 
-void HUD::Inventory::Draw(ID3D11DeviceContext * context)
+void HUD::Inventory::Draw(ID3D11DeviceContext * context, ID3D11DepthStencilView* dsv)
 {
 	for (size_t i = 0; i < viewports.size(); ++i)
 	{
 		context->RSSetViewports(1, &viewports[i]);
+		if (determineSelected((int)i))
+			context->PSSetShaderResources(0, 1, &activeSRV);
+		else
+			context->PSSetShaderResources(0, 1, &inactiveSRV);
+
+		context->Draw(1, 0);
+		context->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 		context->PSSetShaderResources(0, 1, &srvs[i]);
 		context->Draw(1, 0);
 	}

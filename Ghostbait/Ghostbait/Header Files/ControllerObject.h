@@ -59,7 +59,7 @@ public:
 	void RemoveItem(int itemSlot);
 	void ClearInventory();
 	Item* GetItem(int itemSlot) const { return inventory.items[itemSlot]; };
-
+	const int GetSelectedItemIndex();
 
 	void Update();
 	void GivePID(unsigned pid, const char* tag) override;

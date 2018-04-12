@@ -242,7 +242,7 @@ void BuildTool::Remove() {
 				toDestroy->Destroy();
 				toDestroy = nullptr;
 			});
-			Turret* tur = dynamic_cast<Turret*>(currentlySelectedItem);
+			Turret* tur = dynamic_cast<Turret*>(toDestroy);
 			if (tur) {
 				gameData->AddGears((int)(tur->GetBuildCost() * 0.5f));
 			}

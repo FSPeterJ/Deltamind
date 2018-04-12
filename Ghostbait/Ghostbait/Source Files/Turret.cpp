@@ -193,7 +193,7 @@ void Turret::Shoot() {
 
 	Projectile* obj;
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Projectile>(projectiePID, { 0, 0, 0 }, &obj));
-	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_WEN));
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_GUNSHOT));
 	DirectX::XMFLOAT4X4 newPos = *launcherorigin;
 
 	newPos._41 += transform.matrix._41;

@@ -318,7 +318,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	GhostTime::Initalize();
 	MessageEvents::Initilize();
-
+	audioMan->LoadBanks();
 	Console::WriteLine << "Starting Game Loop......";
 	game = new Game();
 	game->Start(player, &engine, "splashScreen");

@@ -123,6 +123,8 @@ void Turret::Update() {
 		GetComponent<Animator>()->ManipulateJointByName("Pitch", lookatPitch);
 		GetComponent<Animator>()->ManipulateJointByName("Yaw", lookatYaw);
 
+		
+
 		//lookat =  lookat * DirectX::XMMatrixTranslationFromVector(bulletpos);
 		//DirectX::XMStoreFloat4x4(turretPitch, lookat);
 

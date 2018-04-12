@@ -43,13 +43,12 @@ void Menu::AssignPrefabIDs() {
 	buttonPrefabMap[BUTTON_Play] = ObjectFactory::CreatePrefab(&std::string("Assets/PlayButton.ghost"));
 	buttonPrefabMap[BUTTON_Tutorial] = ObjectFactory::CreatePrefab(&std::string("Assets/TutorialButton.ghost"));
 	buttonPrefabMap[BUTTON_Options] = ObjectFactory::CreatePrefab(&std::string("Assets/OptionsButton.ghost"));
-	//buttonPrefabMap[BUTTON_Credits] = ObjectFactory::CreatePrefab(&std::string("Assets/CreditsButton.ghost"));
+	buttonPrefabMap[BUTTON_Credits] = ObjectFactory::CreatePrefab(&std::string("Assets/CreditsButton.ghost"));
 	buttonPrefabMap[BUTTON_Quit] = ObjectFactory::CreatePrefab(&std::string("Assets/QuitButton.ghost"));
 	
 	buttonPrefabMap[BUTTON_Resume] = ObjectFactory::CreatePrefab(&std::string("Assets/ResumeButton.ghost"));
 	buttonPrefabMap[BUTTON_Restart] = ObjectFactory::CreatePrefab(&std::string("Assets/RestartButton.ghost"));
 	buttonPrefabMap[BUTTON_Exit] = ObjectFactory::CreatePrefab(&std::string("Assets/ExitButton.ghost"));
-	buttonPrefabMap[BUTTON_Credits] = buttonPrefabMap[BUTTON_Exit];
 
 
 	buttonPrefabMap[BUTTON_Easy] = ObjectFactory::CreatePrefab(&std::string("Assets/EasyButton.ghost"));
@@ -185,9 +184,9 @@ Menu::~Menu() {
 
 void PlayButton::Select() {
 	menu->Hide();
-	menu->CreateAndLoadChild(MENU_Difficulty);
+	MessageEvents::SendMessage(EVENT_Start, EventMessageBase());
+	//menu->CreateAndLoadChild(MENU_Difficulty);
 	MenuOption::Select();
-	//MessageEvents::SendMessage(EVENT_Start, EventMessageBase());
 }
 void TutorialButton::Select() {
 	menu->Hide();

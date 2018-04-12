@@ -154,6 +154,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<MediumButton>(1);
 	ObjectFactory::RegisterPrefabBase<HardButton>(1);
 	ObjectFactory::RegisterPrefabBase<TutorialButton>(1);
+	ObjectFactory::RegisterPrefabBase<CreditsButton>(1);
 	ObjectFactory::RegisterPrefabBase<Ground>(1);
 	ObjectFactory::RegisterPrefabBase<Monitor>(1);
 	ObjectFactory::RegisterPrefabBase<DisplayBoard>(1);
@@ -212,6 +213,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<EasyButton>("EasyButton");
 	TypeMap::RegisterObjectAlias<MediumButton>("MediumButton");
 	TypeMap::RegisterObjectAlias<HardButton>("HardButton");
+	TypeMap::RegisterObjectAlias<CreditsButton>("CreditsButton");
 	TypeMap::RegisterObjectAlias<TutorialButton>("TutorialButton");
 	TypeMap::RegisterObjectAlias<Ground>("Ground");
 	TypeMap::RegisterObjectAlias<PDA>("PDA");

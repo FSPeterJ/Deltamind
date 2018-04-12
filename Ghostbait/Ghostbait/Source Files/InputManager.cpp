@@ -377,6 +377,7 @@ InputManager::KeyboardInput::KeyboardInput() {
 	MapKey(rightItem0, '4');
 	MapKey(rightItem1, '5');
 	MapKey(rightItem2, '6');
+	MapKey(rightItem3, '7');
 
 	MapKey(TestInputX, 'X');
 	MapKey(TestInputU, 'U');

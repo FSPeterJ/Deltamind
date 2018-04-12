@@ -21,6 +21,7 @@ enum State {
 	GAMESTATE_GameOver,
 	GAMESTATE_SplashScreen,
 	GAMESTATE_MainMenu,
+	GAMESTATE_Credits,
 };
 
 struct WaveManager {
@@ -68,7 +69,7 @@ public:
 		waves.push_back(newWave);
 	}
 
-
+	inline const Wave* GetCurrentWave() const { return (currentWave != -1) ? &waves[currentWave] : nullptr;  }
 	inline const int GetWaveCount() const { return (int)waves.size(); }
 	inline const int GetAliveEnemyCount() const { return enemiesLeftAlive; }
 	inline void EnemyKilled(const int& enemyCount = 1) { enemiesLeftAlive -= enemyCount; }

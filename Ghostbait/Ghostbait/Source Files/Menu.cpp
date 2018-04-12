@@ -40,14 +40,23 @@ void Menu::SetCamera(Transform* _camera) {
 	camera = _camera;
 }
 void Menu::AssignPrefabIDs() {
+	buttonPrefabMap[BUTTON_Play] = ObjectFactory::CreatePrefab(&std::string("Assets/PlayButton.ghost"));
+	buttonPrefabMap[BUTTON_Tutorial] = ObjectFactory::CreatePrefab(&std::string("Assets/TutorialButton.ghost"));
+	buttonPrefabMap[BUTTON_Options] = ObjectFactory::CreatePrefab(&std::string("Assets/OptionsButton.ghost"));
+	//buttonPrefabMap[BUTTON_Credits] = ObjectFactory::CreatePrefab(&std::string("Assets/CreditsButton.ghost"));
+	buttonPrefabMap[BUTTON_Quit] = ObjectFactory::CreatePrefab(&std::string("Assets/QuitButton.ghost"));
+	
 	buttonPrefabMap[BUTTON_Resume] = ObjectFactory::CreatePrefab(&std::string("Assets/ResumeButton.ghost"));
 	buttonPrefabMap[BUTTON_Restart] = ObjectFactory::CreatePrefab(&std::string("Assets/RestartButton.ghost"));
-	buttonPrefabMap[BUTTON_Quit] = ObjectFactory::CreatePrefab(&std::string("Assets/QuitButton.ghost"));
-	buttonPrefabMap[BUTTON_Play] = ObjectFactory::CreatePrefab(&std::string("Assets/PlayButton.ghost"));
 	buttonPrefabMap[BUTTON_Exit] = ObjectFactory::CreatePrefab(&std::string("Assets/ExitButton.ghost"));
-	buttonPrefabMap[BUTTON_Options] = ObjectFactory::CreatePrefab(&std::string("Assets/OptionsButton.ghost"));
+	buttonPrefabMap[BUTTON_Credits] = buttonPrefabMap[BUTTON_Exit];
+
+
+	buttonPrefabMap[BUTTON_Easy] = ObjectFactory::CreatePrefab(&std::string("Assets/EasyButton.ghost"));
+	buttonPrefabMap[BUTTON_Medium] = ObjectFactory::CreatePrefab(&std::string("Assets/MediumButton.ghost"));
+	buttonPrefabMap[BUTTON_Hard] = ObjectFactory::CreatePrefab(&std::string("Assets/HardButton.ghost"));
+	
 	buttonPrefabMap[BUTTON_Back] = ObjectFactory::CreatePrefab(&std::string("Assets/BackButton.ghost"));
-	buttonPrefabMap[BUTTON_Tutorial] = ObjectFactory::CreatePrefab(&std::string("Assets/TutorialButton.ghost"));
 }
 
 DirectX::XMFLOAT4X4 Menu::FindCenter(float distFromPlayer) {
@@ -87,11 +96,12 @@ void Menu::Create(Template t, std::vector<Button> _buttons) {
 	switch (t) {
 		case MENU_Main:
 			buttons.empty();
-			buttons.resize(4);
+			buttons.resize(5);
 			buttons[0] = BUTTON_Play;
 			buttons[1] = BUTTON_Tutorial;
 			buttons[2] = BUTTON_Options;
-			buttons[3] = BUTTON_Quit;
+			buttons[3] = BUTTON_Credits;
+			buttons[4] = BUTTON_Quit;
 			break;
 		case MENU_Pause:
 			buttons.empty();
@@ -106,6 +116,14 @@ void Menu::Create(Template t, std::vector<Button> _buttons) {
 			buttons.empty();
 			buttons.resize(1);
 			buttons[0] = BUTTON_Back;
+			break;
+		case MENU_Difficulty:
+			buttons.empty();
+			buttons.resize(4);
+			buttons[0] = BUTTON_Back;
+			buttons[1] = BUTTON_Easy;
+			buttons[2] = BUTTON_Medium;
+			buttons[3] = BUTTON_Hard;
 			break;
 		case MENU_Custom:
 			buttons.empty();
@@ -165,6 +183,30 @@ Menu::~Menu() {
 	if (child) delete child;
 }
 
+void PlayButton::Select() {
+	menu->Hide();
+	menu->CreateAndLoadChild(MENU_Difficulty);
+	MenuOption::Select();
+	//MessageEvents::SendMessage(EVENT_Start, EventMessageBase());
+}
+void TutorialButton::Select() {
+	menu->Hide();
+	MenuOption::Select();
+	MessageEvents::SendMessage(EVENT_TutorialHit, EventMessageBase());
+}
+void OptionsButton::Select() {
+	menu->Hide();
+	menu->CreateAndLoadChild(MENU_Options);
+	MenuOption::Select();
+}
+void CreditsButton::Select() {
+	MenuOption::Select();
+}
+void QuitButton::Select() {
+	MenuOption::Select();
+	MessageEvents::SendMessage(EVENT_GameUnPause, EventMessageBase());
+	MessageEvents::SendQueueMessage(EVENT_Late, []() { MessageEvents::SendMessage(EVENT_GameQuit, EventMessageBase()); });
+}
 void ResumeButton::Select() {
 	MenuOption::Select();
 	MessageEvents::SendMessage(EVENT_GameUnPause, EventMessageBase());
@@ -174,35 +216,27 @@ void RestartButton::Select() {
 	MessageEvents::SendMessage(EVENT_GameUnPause, EventMessageBase());
 	MessageEvents::SendMessage(EVENT_GameRestart, EventMessageBase());
 }
-void QuitButton::Select() {
-	MenuOption::Select();
-	MessageEvents::SendMessage(EVENT_GameUnPause, EventMessageBase());
-	MessageEvents::SendQueueMessage(EVENT_Late, []() { MessageEvents::SendMessage(EVENT_GameQuit, EventMessageBase()); });
-}
 void ExitButton::Select() {
 	MenuOption::Select();
 	MessageEvents::SendMessage(EVENT_GameUnPause, EventMessageBase());
 	MessageEvents::SendQueueMessage(EVENT_Late, []() { MessageEvents::SendMessage(EVENT_GameExit, EventMessageBase()); });
-}
-void OptionsButton::Select() {
-	menu->Hide();
-	menu->CreateAndLoadChild(MENU_Options);
-	MenuOption::Select();
 }
 void BackButton::Select() {
 	menu->Hide();
 	menu->LoadParent();
 	MenuOption::Select();
 }
-void PlayButton::Select() {
-	menu->Hide();
+void EasyButton::Select() {
+	//menu->Hide();
 	MenuOption::Select();
-	MessageEvents::SendMessage(EVENT_Start, EventMessageBase());
 }
-void TutorialButton::Select() {
-	menu->Hide();
+void MediumButton::Select() {
+	//menu->Hide();
 	MenuOption::Select();
-	MessageEvents::SendMessage(EVENT_TutorialHit, EventMessageBase());
+}
+void HardButton::Select() {
+	//menu->Hide();
+	MenuOption::Select();
 }
 
 

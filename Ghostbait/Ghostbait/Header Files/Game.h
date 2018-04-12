@@ -49,6 +49,7 @@ class Game {
 	void MainMenuLoaded();
 	void TutorialLoaded();
 	void Level0Loaded();
+	void CreditsLoaded();
 
 	//Personal
 	void ChangeState(State newState);

@@ -179,5 +179,5 @@ void Pistol::Awake(Object* obj) {
 	overheat.energyBulletCost = 1;
 	overheat.energyWaitCooldown = 3;
 	overheat.energyOverheatDelay = 5;
-	overheat.energyLimit = 5;
+	overheat.energyLimit = 20;
 }

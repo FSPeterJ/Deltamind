@@ -7,6 +7,7 @@
 class ObjectFactory;
 class GameData;
 class Core;
+class Player;
 //Please do this next time
 typedef unsigned long		AkUInt32;
 typedef AkUInt32			AkUniqueID;
@@ -200,6 +201,14 @@ public:
 	GameDataMessage(GameData const** _gameData) :data(_gameData) {}
 	GameData const** RetrieveData() const { return data; }
 };
+
+class GetPlayerMessage : public EventMessageBase {
+	Player const** data = nullptr;
+public:
+	GetPlayerMessage(Player const** _playerPos) :data(_playerPos) {}
+	Player const** RetrieveData() const { return data; }
+};
+
 class CoreMessage : public EventMessageBase {
 	Core const** data = nullptr;
 public:
@@ -228,4 +237,11 @@ public:
 	SoundRequestMessage(GameObject* _obj, AkUniqueID _sound): obj(_obj), sound(_sound) {}
 	GameObject* RetrieveObject() const { return obj; }
 	AkUniqueID RetrieveSound() const { return sound; }
+};
+
+class StartEventMessage : public EventMessageBase {
+	std::string levelName = "";
+public:
+	StartEventMessage(std::string _levelName) : levelName(_levelName) {}
+	std::string RetrieveLevelName() const { return levelName; }
 };

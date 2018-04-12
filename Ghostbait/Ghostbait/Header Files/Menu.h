@@ -28,7 +28,8 @@ enum Template {
 	MENU_Main,
 	MENU_Pause,
 	MENU_Options,
-	MENU_Custom
+	MENU_Custom,
+	MENU_Difficulty
 };
 enum Button {
 	BUTTON_Resume,
@@ -37,9 +38,12 @@ enum Button {
 	BUTTON_Back,
 	BUTTON_Exit,
 	BUTTON_Quit,
-
 	BUTTON_Play,
-	BUTTON_ChangeLevel,
+	BUTTON_Tutorial,
+	BUTTON_Credits,
+	BUTTON_Easy,
+	BUTTON_Medium,
+	BUTTON_Hard,
 };
 
 class Menu {
@@ -73,34 +77,43 @@ public:
 };
 
 
-class ResumeButton : public MenuOption {
+class PlayButton : public MenuOption {
 	void Select() override;
 };
-
-class RestartButton : public MenuOption {
+class TutorialButton : public MenuOption {
 	void Select() override;
 };
-
 class OptionsButton : public MenuOption {
 	void Select() override;
 };
-
+class CreditsButton : public MenuOption {
+	void Select() override;
+};
 class QuitButton : public MenuOption {
 	void Select() override;
 };
-
+class ResumeButton : public MenuOption {
+	void Select() override;
+};
+class RestartButton : public MenuOption {
+	void Select() override;
+};
 class ExitButton : public MenuOption {
 	void Select() override;
 };
 class BackButton : public MenuOption {
 	void Select() override;
 };
-class PlayButton : public MenuOption {
+class EasyButton : public MenuOption {
 	void Select() override;
 };
-class ChangeLevelButton : public MenuOption {
+class MediumButton : public MenuOption {
 	void Select() override;
 };
+class HardButton : public MenuOption {
+	void Select() override;
+};
+
 
 
 

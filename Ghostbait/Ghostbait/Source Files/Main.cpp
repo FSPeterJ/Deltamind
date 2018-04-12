@@ -33,10 +33,13 @@
 #include "Ground.h"
 #include "Monitor.h"
 #include "ScrollingUVManager.h"
+#include "DisplayBoard.h"
+#include "ControllerPillar.h"
+#include "PDA.h"
 
 using namespace Threadding;
 
-const bool FULLSCREEN = false;
+const bool FULLSCREEN = true;
 
 //#include "..\Omiracron\Omiracron\Omiracron.h"
 //using namespace Omiracron;
@@ -126,7 +129,10 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<Turret>(102);
 	ObjectFactory::RegisterPrefabBase<Item>(16);
 	ObjectFactory::RegisterPrefabBase<ControllerObject>(2);
-	ObjectFactory::RegisterPrefabBase<Gun>(8);
+	ObjectFactory::RegisterPrefabBase<ViveController>(20);
+	ObjectFactory::RegisterPrefabBase<SMG>(4);
+	ObjectFactory::RegisterPrefabBase<Pistol>(4);
+	ObjectFactory::RegisterPrefabBase<PDA>(4);
 	ObjectFactory::RegisterPrefabBase<ProgressBar>(8);
 	ObjectFactory::RegisterPrefabBase<MenuControllerItem>(2);
 	ObjectFactory::RegisterPrefabBase<GameObject>(512);
@@ -144,8 +150,25 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<OptionsButton>(1);
 	ObjectFactory::RegisterPrefabBase<ExitButton>(1);
 	ObjectFactory::RegisterPrefabBase<BackButton>(1);
+	ObjectFactory::RegisterPrefabBase<EasyButton>(1);
+	ObjectFactory::RegisterPrefabBase<MediumButton>(1);
+	ObjectFactory::RegisterPrefabBase<HardButton>(1);
+	ObjectFactory::RegisterPrefabBase<TutorialButton>(1);
 	ObjectFactory::RegisterPrefabBase<Ground>(1);
 	ObjectFactory::RegisterPrefabBase<Monitor>(1);
+	ObjectFactory::RegisterPrefabBase<DisplayBoard>(1);
+	ObjectFactory::RegisterPrefabBase<DisplayBoard_Move>(1);
+	ObjectFactory::RegisterPrefabBase<DisplayBoard_Pause>(1);
+	ObjectFactory::RegisterPrefabBase<DisplayBoard_Inventory>(1);
+	ObjectFactory::RegisterPrefabBase<DisplayBoard_Items>(1);
+	ObjectFactory::RegisterPrefabBase<DisplayBoard_Build>(1);
+	ObjectFactory::RegisterPrefabBase<DisplayBoard_Shoot>(1);
+	ObjectFactory::RegisterPrefabBase<ControllerPillar>(1);
+	ObjectFactory::RegisterPrefabBase<ControllerPillar_Move>(1);
+	ObjectFactory::RegisterPrefabBase<ControllerPillar_Shoot>(1);
+	ObjectFactory::RegisterPrefabBase<ControllerPillar_Pause>(1);
+	ObjectFactory::RegisterPrefabBase<ControllerPillar_Switch>(1);
+	ObjectFactory::RegisterPrefabBase<ControllerPillar_Build>(1);
 	ObjectFactory::RegisterPrefabBase<AStarEnemy>(300);
 	ObjectFactory::RegisterPrefabBase<DStarEnemy>(10);
 	ObjectFactory::RegisterPrefabBase<MTDSLEnemy>(300);
@@ -166,7 +189,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<ControllerObject>("ControllerObject");
 	TypeMap::RegisterObjectAlias<ViveController>("ViveController");
 	TypeMap::RegisterObjectAlias<MenuControllerItem>("MenuControllerItem");
-	TypeMap::RegisterObjectAlias<Gun>("Gun");
+	TypeMap::RegisterObjectAlias<SMG>("SMG");
+	TypeMap::RegisterObjectAlias<Pistol>("Pistol");
 	TypeMap::RegisterObjectAlias<Item>("Item");
 	TypeMap::RegisterObjectAlias<ProgressBar>("ProgressBar");
 	TypeMap::RegisterObjectAlias<Projectile>("Projectile");
@@ -185,8 +209,29 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<OptionsButton>("OptionsButton");
 	TypeMap::RegisterObjectAlias<ExitButton>("ExitButton");
 	TypeMap::RegisterObjectAlias<BackButton>("BackButton");
+	TypeMap::RegisterObjectAlias<EasyButton>("EasyButton");
+	TypeMap::RegisterObjectAlias<MediumButton>("MediumButton");
+	TypeMap::RegisterObjectAlias<HardButton>("HardButton");
+	TypeMap::RegisterObjectAlias<TutorialButton>("TutorialButton");
 	TypeMap::RegisterObjectAlias<Ground>("Ground");
+	TypeMap::RegisterObjectAlias<PDA>("PDA");
 	TypeMap::RegisterObjectAlias<Monitor>("Monitor");
+
+	TypeMap::RegisterObjectAlias<DisplayBoard>("DisplayBoard");
+	TypeMap::RegisterObjectAlias<DisplayBoard_Move>("DisplayBoard_Move");
+	TypeMap::RegisterObjectAlias<DisplayBoard_Pause>("DisplayBoard_Pause");
+	TypeMap::RegisterObjectAlias<DisplayBoard_Inventory>("DisplayBoard_Inventory");
+	TypeMap::RegisterObjectAlias<DisplayBoard_Items>("DisplayBoard_Items");
+	TypeMap::RegisterObjectAlias<DisplayBoard_Build>("DisplayBoard_Build");
+	TypeMap::RegisterObjectAlias<DisplayBoard_Shoot>("DisplayBoard_Shoot");
+
+	TypeMap::RegisterObjectAlias<ControllerPillar>("ControllerPillar");
+	TypeMap::RegisterObjectAlias<ControllerPillar_Move>("ControllerPillar_Move");
+	TypeMap::RegisterObjectAlias<ControllerPillar_Shoot>("ControllerPillar_Shoot");
+	TypeMap::RegisterObjectAlias<ControllerPillar_Pause>("ControllerPillar_Pause");
+	TypeMap::RegisterObjectAlias<ControllerPillar_Switch>("ControllerPillar_Switch");
+	TypeMap::RegisterObjectAlias<ControllerPillar_Build>("ControllerPillar_Build");
+
 	TypeMap::RegisterObjectAlias<AStarEnemy>("AStarEnemy");
 	TypeMap::RegisterObjectAlias<DStarEnemy>("DStarEnemy");
 	TypeMap::RegisterObjectAlias<Turret>("Turret");
@@ -242,7 +287,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	Console::WriteLine << "Prefabs created......";
 	//=============================
 
-	player->LoadControllers();
+	player->InitControllers();
 
 
 	//GameObject* teddy;
@@ -279,10 +324,10 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	GhostTime::Initalize();
 	MessageEvents::Initilize();
-
+	audioMan->LoadBanks();
 	Console::WriteLine << "Starting Game Loop......";
 	game = new Game();
-	game->Start(player, &engine);
+	game->Start(player, &engine, "splashScreen");
 }
 
 void Loop() {

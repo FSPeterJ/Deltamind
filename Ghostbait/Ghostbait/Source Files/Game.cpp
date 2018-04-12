@@ -3,6 +3,7 @@
 #include "Spawner.h"
 #include "MessageEvents.h"
 #include "GhostTime.h"
+#include "PDA.h"
 //#include "EngineStructure.h"
 #include "../Dependencies/XML_Library/irrXML.h"
 #include "AStarEnemy.h"
@@ -11,6 +12,7 @@
 #include "AntColony.h"
 #include "ObjectFactory.h"
 #include "Player.h"
+#include "Material.h"
 //#include "DStarEnemy.h"
 //#include "MTDSLEnemy.h"
 #include <future>
@@ -21,7 +23,7 @@ using namespace Omiracon::Genetics;
 Game::Game() {
 	MessageEvents::Subscribe(EVENT_SpawnerCreated, [=](EventMessageBase* e) {this->SpawnerCreatedEvent(e); });
 	MessageEvents::Subscribe(EVENT_EnemyDied, [=](EventMessageBase* e) {this->EnemyDiedEvent(); });
-	MessageEvents::Subscribe(EVENT_Start, [=](EventMessageBase* e) {this->StartEvent(); });
+	MessageEvents::Subscribe(EVENT_Start, [=](EventMessageBase* e) {this->StartEvent(e); });
 	MessageEvents::Subscribe(EVENT_PauseInputDetected, [=](EventMessageBase* e) {this->PauseInputEvent(); });
 	MessageEvents::Subscribe(EVENT_GamePause, [=](EventMessageBase* e) {this->PauseGame(); });
 	MessageEvents::Subscribe(EVENT_GameUnPause, [=](EventMessageBase* e) {this->ResumeGame(); });
@@ -29,8 +31,9 @@ Game::Game() {
 	MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {this->RemoveObstacleEvent(e); });
 	MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) {this->Lose(); });
 	MessageEvents::Subscribe(EVENT_GameQuit, [=](EventMessageBase* e) {this->Quit(); });
-	MessageEvents::Subscribe(EVENT_GameExit, [=](EventMessageBase* e) {this->ExitToMenu(); });
+	MessageEvents::Subscribe(EVENT_GameExit, [=](EventMessageBase* e) {this->ExitToMainMenu(); });
 	MessageEvents::Subscribe(EVENT_FreeMoney, [=](EventMessageBase* e) {this->gameData.SetGears(500000); });
+	MessageEvents::Subscribe(EVENT_TutorialHit, [=](EventMessageBase* e) {this->ChangeScene("Tutorial"); });
 
 	MessageEvents::Subscribe(EVENT_GameDataRequest, [=](EventMessageBase* e) { this->GameDataRequestEvent(e); });
 	PathPlanner::SetGrid(&hexGrid);
@@ -75,13 +78,19 @@ void Game::EnemyDiedEvent() {
 		ChangeState(GAMESTATE_BetweenWaves);
 	}
 }
-void Game::StartEvent() {
+void Game::StartEvent(EventMessageBase* e) {
+	StartEventMessage* starter = nullptr;
+	if(e)
+		starter = (StartEventMessage*)e;
 	switch(gameData.GetState()) {
 		case GAMESTATE_SplashScreen:
 		{
+			std::string levelName = "";
+			if (starter)
+				levelName = starter->RetrieveLevelName();
 			char* sceneName = new char[gameData.ssManager.GetNextScene().length() + 1];
 			memcpy(sceneName, gameData.ssManager.GetNextScene().c_str(), gameData.ssManager.GetNextScene().length() + 1);
-			ChangeScene(sceneName);
+			ChangeScene(sceneName, levelName);
 			delete sceneName;
 		}
 		break;
@@ -89,8 +98,13 @@ void Game::StartEvent() {
 			StartNextWave();
 			break;
 		case GAMESTATE_MainMenu:
-			ChangeScene("level0");
+		{
+			std::string levelName = "";
+			if (starter)
+				levelName = starter->RetrieveLevelName();
+			ChangeScene("level0", levelName);
 			break;
+		}
 	}
 }
 
@@ -144,7 +158,7 @@ void Game::ChangeState(State newState) {
 		}
 	}
 }
-void Game::ChangeScene(const char* sceneName) {
+void Game::ChangeScene(const char* sceneName, std::string levelName) {
 	//Delete all current scene Items
 	MessageEvents::SendMessage(EVENT_DeleteAllGameObjects, EventMessageBase());
 
@@ -155,28 +169,31 @@ void Game::ChangeScene(const char* sceneName) {
 	sceneManager->LoadScene(sceneName, &core);
 
 	//TODO: TEMPORARY main menu code--------
-	if(!strcmp(sceneName, "mainMenu")) {
-		DirectX::XMFLOAT4X4 menuPos = DirectX::XMFLOAT4X4(1, 0, 0, 0,
-			0, 1, 0, 0,
-			0, 0, 1, 0,
-			0, 1.7f, 2, 1);
-		gameData.SetStateHard(GAMESTATE_MainMenu);
-		mainMenu.SetSpawnPos(menuPos);
-		mainMenu.Show(false);
-		player->leftController->SetControllerState(CSTATE_MenuController);
-		player->rightController->SetControllerState(player->IsVR() ? CSTATE_MenuController : CSTATE_ModelOnly);
-		player->transform.MoveToOrigin(player->PlayerHeight());
-		player->ResetStance();
-		DirectX::XMFLOAT3 temp = DirectX::XMFLOAT3(0, 0, 0);
-		player->Teleport(&temp);
-		player->transform.LookAt({ menuPos._41, menuPos._42, menuPos._43 });
-	}
+	if(!strcmp(sceneName, "mainMenu"))
+		MainMenuLoaded();
+	if (!strcmp(sceneName, "Tutorial"))
+		TutorialLoaded();
+	if (!strcmp(sceneName, "level0"))
+		Level0Loaded();
 
 	//--------------------------------------
 
 	//If it has level/wave data, load it
 	if(sceneManager->GetCurrentScene().levelFiles.size() > 0) {
-		irr::io::IrrXMLReader *xmlReader = irr::io::createIrrXMLReader(sceneManager->GetCurrentScene().levelFiles[0].c_str());
+		std::string levelFile = std::string("");
+		if (levelName == levelFile)
+			levelFile = sceneManager->GetCurrentScene().levelFiles[0];
+		else
+		{
+			for (size_t i = 0; i < sceneManager->GetCurrentScene().levelFiles.size(); ++i)
+			{
+				if (levelName == sceneManager->GetCurrentScene().levelFiles[i])
+					levelFile = sceneManager->GetCurrentScene().levelFiles[i];
+			}
+			if(levelFile.c_str() == "")
+				levelFile = sceneManager->GetCurrentScene().levelFiles[0];
+		}
+		irr::io::IrrXMLReader *xmlReader = irr::io::createIrrXMLReader(levelFile.c_str());
 
 		WaveManager::Wave* newWave = nullptr;
 		while(xmlReader->read()) {
@@ -289,9 +306,98 @@ void Game::Win() {
 void Game::Quit() {
 	run = false;
 }
-void Game::ExitToMenu() {
+void Game::ExitToMainMenu() {
 	ChangeState(GAMESTATE_MainMenu);
 	ChangeScene("mainMenu");
+}
+
+//Main Scene Functions
+void Game::MainMenuLoaded() {
+	//Create Menu
+	DirectX::XMFLOAT4X4 menuPos = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1.7f, 2, 1);
+	mainMenu.SetSpawnPos(menuPos);
+	gameData.SetStateHard(GAMESTATE_MainMenu);
+	mainMenu.Show(false);
+	//Set Controllers
+	player->leftController->SetControllerState(CSTATE_MenuController);
+	player->rightController->SetControllerState(player->IsVR() ? CSTATE_MenuController : CSTATE_ModelOnly);
+
+	//Update Player
+	player->transform.MoveToOrigin(player->PlayerHeight());
+	player->ResetStance();
+	player->Teleport(DirectX::XMFLOAT3(0, 0, 0));
+	player->transform.LookAt({ menuPos._41, menuPos._42, menuPos._43 });
+}
+void Game::TutorialLoaded() {
+	gameData.AddGears(1000);
+	int index = 0;
+	player->leftController->SetControllerState(CSTATE_Inventory);
+	player->rightController->SetControllerState(CSTATE_Inventory);
+	player->leftController->ClearInventory();
+	player->rightController->ClearInventory();
+	//PDA
+	if (player->IsVR()) {
+		player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/PDA.ghost")));
+		player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/PDA.ghost")));
+		((PDA*)player->leftController->GetItem(index))->SetHand(HAND_Left);
+		((PDA*)player->rightController->GetItem(index))->SetHand(HAND_Right);
+		++index;
+	}
+	//Pistol
+	player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost")));
+	player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost")));
+	++index;
+	//SMG
+	player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/smgNoStock.ghost")));
+	player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/smgNoStock.ghost")));
+	++index;
+	//BuildTool
+	player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost")));
+	player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost")));
+	player->leftController->SetBuildItems({ ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost")) });
+	player->rightController->SetBuildItems({ ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost")) });
+
+	player->SetBuildToolData(&hexGrid, &gameData);
+}
+void Game::Level0Loaded() {
+	int index = 0;
+	player->leftController->SetControllerState(CSTATE_Inventory);
+	player->rightController->SetControllerState(CSTATE_Inventory);
+	player->leftController->ClearInventory();
+	player->rightController->ClearInventory();
+	//PDA
+	if (player->IsVR()) {
+		player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/PDA.ghost")));
+		player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/PDA.ghost")));
+		((PDA*)player->leftController->GetItem(index))->SetHand(HAND_Left);
+		((PDA*)player->rightController->GetItem(index))->SetHand(HAND_Right);
+		++index;
+	}
+	//Pistol
+	player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost")));
+	player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost")));
+	++index;
+	//SMG
+	player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/smgNoStock.ghost")));
+	player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/smgNoStock.ghost")));
+	++index;
+	//BuildTool
+	player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost")));
+	player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost")));
+	player->leftController->SetBuildItems({ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost")) });
+	player->rightController->SetBuildItems({ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost")) });
+	
+	player->SetBuildToolData(&hexGrid, &gameData);
+}
+void Game::CreditsLoaded() {
+	if (player->IsVR()) {
+		player->leftController->SetControllerState(CSTATE_ModelOnly);
+		player->rightController->SetControllerState(CSTATE_ModelOnly);
+	}
+	else {
+		player->leftController->SetControllerState(CSTATE_None);
+		player->rightController->SetControllerState(CSTATE_None);
+	}
 }
 
 //Main loop elements
@@ -338,7 +444,7 @@ void Game::Update() {
 
 	switch(gameData.GetState()) {
 		case GAMESTATE_InWave:
-		{
+			{
 			//--------Spawn Enemies if it's their time
 			{
 				std::vector<std::future<bool>> enemiesReady;
@@ -376,25 +482,9 @@ void Game::Update() {
 				engine->ExecuteLateUpdate();
 			}
 		}
-		break;
-		case GAMESTATE_BetweenWaves:
-		{
-			//--------Update Engine Structure
-			engine->ExecuteAnimationUpdate();
-			engine->ExecuteUpdate();
-			engine->ExecuteLateUpdate();
-		}
-		break;
-		case GAMESTATE_GameOver:
-		{
-			//--------Update Engine Structure
-			engine->ExecuteAnimationUpdate();
-			engine->ExecuteUpdate();
-			engine->ExecuteLateUpdate();
-		}
-		break;
+			break;
 		case GAMESTATE_SplashScreen:
-		{
+			{
 			//update time
 			gameData.ssManager.UpdateTimeInScene(dt);
 
@@ -454,14 +544,17 @@ void Game::Update() {
 			engine->ExecuteUpdate();
 			engine->ExecuteLateUpdate();
 		}
-		break;
+			break;
+		case GAMESTATE_BetweenWaves:
+		case GAMESTATE_GameOver:
 		case GAMESTATE_MainMenu:
-		{
-			engine->ExecuteAnimationUpdate();
-			engine->ExecuteUpdate();
-			engine->ExecuteLateUpdate();
-		}
-		break;
+		case GAMESTATE_Credits:
+			{
+				engine->ExecuteAnimationUpdate();
+				engine->ExecuteUpdate();
+				engine->ExecuteLateUpdate();
+			}
+			break;
 		default:
 			Console::ErrorLine << "Invalid Game State Reached!";
 			break;

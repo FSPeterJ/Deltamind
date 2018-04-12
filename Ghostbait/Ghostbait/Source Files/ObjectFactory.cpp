@@ -111,6 +111,10 @@ GameObject* ObjectFactory::ActivateObject(PrefabId pid) {
 
 unsigned ObjectFactory::CreatePrefab(const std::string* _filename, const char* DEBUG_STRING_NAME, bool objectPrefabOverride) {
 	int prefabID = prefabNames[*_filename];
+
+	if (_filename->c_str() == "Assets/ViveControllerMesh.ghost") {
+		int i = 9;
+	}
 	if(prefabID) {
 		//This Prefab already exists.
 		if(objectPrefabOverride) {

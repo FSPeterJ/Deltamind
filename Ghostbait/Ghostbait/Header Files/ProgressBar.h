@@ -7,5 +7,6 @@ class ProgressBar : public GameObject {
 
 	void Update() {};
 public:
+	void Awake(Object* obj);
 	void SetBarPercentage(float percent);
 };

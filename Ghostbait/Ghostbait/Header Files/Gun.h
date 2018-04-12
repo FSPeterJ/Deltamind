@@ -35,29 +35,24 @@ public:
 
 protected:
 	unsigned projectiePID = 0;
-private:
-	//Main Stats
+
 	FireType type = AUTO;
 	float fireRate = 2; //shotsPerSecond
 	float damage = 1;
+	Overheat overheat;
 
 public:
+
 	Gun();
 	void Awake(Object * obj);
 	void GivePID(unsigned pid, const char* tag) override;
 	void SetStats(FireType _type, float _fireRate, float _damage) { type = _type; fireRate = _fireRate; damage = _damage; };
-	bool Shoot(bool addOverheat = true);
+	virtual bool Shoot(bool addOverheat = true);
 	void InactiveUpdate() override;
 	void ActiveUpdate() override;
-
+	void Destroy() override;
 	void Selected() override;
 	void DeSelected() override;
-	Overheat overheat;
-	// This is essentially a copy constructor, but since objects are never truely instantiated post-start...
-#ifdef _DEBUG
-	void SmokeTest() override;
-#endif
-
 	void PassObject(unsigned pid, char* tag) {
 		if(strcmp(tag, "projectile")) {
 			projectiePID = pid;
@@ -66,5 +61,22 @@ public:
 			overheat.overheatBarPID = pid;
 		}
 	}
+
+	// This is essentially a copy constructor, but since objects are never truely instantiated post-start...
+#ifdef _DEBUG
+	void SmokeTest() override;
+#endif
+
+};
+
+class SMG : public Gun {
+public:
+	SMG();
+	void Awake(Object* obj) override;
+};
+class Pistol : public Gun {
+public:
+	Pistol();
+	void Awake(Object* obj) override;
 };
 

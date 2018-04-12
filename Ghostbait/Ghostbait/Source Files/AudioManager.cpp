@@ -13,8 +13,8 @@
 
 #include "MessageEvents.h"
 
-#define INIT_BANK "Assets/Soundbanks/Init.bnk"
-#define DEFAULT_BANK "Assets/Soundbanks/TestBank.bnk"
+#define INIT_BANK "Assets/Soundbanks/Init2.bnk"//"Assets/Soundbanks/Init.bnk"
+#define DEFAULT_BANK "Assets/Soundbanks/New_SoundBank.bnk"//"Assets/Soundbanks/TestBank.bnk"
 
 #define LISTENER_ID 9999999
 
@@ -81,10 +81,6 @@ AudioManager::AudioManager() //Thank the lord for SDK documentation
 	AK::MusicEngine::GetDefaultInitSettings(musicSettings);
 	AK::MusicEngine::Init(&musicSettings);
 
-	AkBankID wiseIsGood;
-	result = AK::SoundEngine::LoadBank(INIT_BANK, AK_DEFAULT_POOL_ID, wiseIsGood);
-
-	result = AK::SoundEngine::LoadBank(DEFAULT_BANK, AK_DEFAULT_POOL_ID, wiseIsGood);
 
 	MessageEvents::Subscribe(EVENT_RegisterNoisemaker, [this](EventMessageBase * _e) {this->registerObject(_e); });
 	MessageEvents::Subscribe(EVENT_RequestSound, [this](EventMessageBase * _e) {this->playSound(_e); });
@@ -107,6 +103,14 @@ void AudioManager::setCamera(const DirectX::XMFLOAT4X4 * _camera)
 	AkGameObjectID camId = LISTENER_ID;
 	AK::SoundEngine::RegisterGameObj(LISTENER_ID);
 	AK::SoundEngine::SetDefaultListeners(&camId, 1);
+}
+
+void AudioManager::LoadBanks()
+{
+	AkBankID wiseIsGood;
+	AKRESULT result = AK::SoundEngine::LoadBank(INIT_BANK, AK_DEFAULT_POOL_ID, wiseIsGood);
+
+	result = AK::SoundEngine::LoadBank(DEFAULT_BANK, AK_DEFAULT_POOL_ID, wiseIsGood);
 }
 
 void AudioManager::registerObject(EventMessageBase * e)

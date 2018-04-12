@@ -13,7 +13,22 @@ namespace AK
 {
     namespace EVENTS
     {
-        static const AkUniqueID PLAY_WEN = 2888877100U;
+        static const AkUniqueID PLAY_SFX_COREALARM = 2301795774U;
+        static const AkUniqueID PLAY_SFX_COREHUM = 4194804651U;
+        static const AkUniqueID PLAY_SFX_DOORCLOSE = 2059171582U;
+        static const AkUniqueID PLAY_SFX_DOOROPEN = 3387554074U;
+        static const AkUniqueID PLAY_SFX_GUNCOOLDOWN_FINISHED = 4290653268U;
+        static const AkUniqueID PLAY_SFX_GUNFIZZLE = 157897618U;
+        static const AkUniqueID PLAY_SFX_GUNOVERHEAT = 1509224444U;
+        static const AkUniqueID PLAY_SFX_GUNSHOT = 618606880U;
+        static const AkUniqueID PLAY_SFX_MECHANICALSTEPS = 2300088828U;
+        static const AkUniqueID PLAY_SFX_PURCHASETRIGGER = 2996118053U;
+        static const AkUniqueID PLAY_SFX_ROBOTSHORTCIRCUIT = 591570145U;
+        static const AkUniqueID PLAY_SFX_TURRETBUILD = 772728308U;
+        static const AkUniqueID PLAY_SFX_TURRETDAMAGE = 3822936399U;
+        static const AkUniqueID PLAY_SFX_TURRETDESTROYED = 3150944997U;
+        static const AkUniqueID PLAY_SFX_TURRETROTATE = 463299465U;
+        static const AkUniqueID PLAY_SFX_TURRETSHOT = 148971956U;
     } // namespace EVENTS
 
     namespace GAME_PARAMETERS
@@ -33,17 +48,17 @@ namespace AK
     namespace BANKS
     {
         static const AkUniqueID INIT = 1355168291U;
-        static const AkUniqueID TEST_SOUNDBANK = 4154996803U;
+        static const AkUniqueID NEW_SOUNDBANK = 4072029455U;
     } // namespace BANKS
 
     namespace BUSSES
     {
         static const AkUniqueID MASTER_AUDIO_BUS = 3803692087U;
+        static const AkUniqueID MASTER_SECONDARY_BUS = 805203703U;
     } // namespace BUSSES
 
     namespace AUDIO_DEVICES
     {
-        static const AkUniqueID COMMUNICATION = 530303819U;
         static const AkUniqueID NO_OUTPUT = 2317455096U;
         static const AkUniqueID SYSTEM = 3859886410U;
     } // namespace AUDIO_DEVICES

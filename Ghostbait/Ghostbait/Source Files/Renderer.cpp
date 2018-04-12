@@ -15,6 +15,7 @@
 #include "WICTextureLoader.h"
 #include "TextManager.h"
 #include "ScrollingUVManager.h"
+#include "HUD.h"
 
 //TODO: TEMP for testing a weird crash
 #include "Projectile.h"
@@ -274,7 +275,7 @@ void Renderer::blurTexture(D3D11_VIEWPORT & viewport, ID3D11Texture2D * tex, ID3
 
 	ID3D11RenderTargetView* clearrtv = nullptr;
 	ID3D11ShaderResourceView* clearsrv = nullptr;
-
+	context->OMSetRenderTargets(1, &clearrtv, nullptr);
 	context->OMSetRenderTargets(1, &tempRtv, dsv);
 	toShader.dir = { 1.0f, 0.0f };
 	context->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -282,7 +283,6 @@ void Renderer::blurTexture(D3D11_VIEWPORT & viewport, ID3D11Texture2D * tex, ID3
 	context->PSSetShaderResources(0, 1, &srv);
 	context->Draw(1, 0);
 	context->OMSetRenderTargets(1, &clearrtv, nullptr);
-	context->PSSetShaderResources(0, 1, &clearsrv);
 	toShader.dir = { 0.0f, 1.0f };
 	context->OMSetRenderTargets(1, &swapRtv, dsv);
 	context->UpdateSubresource(blurDataBuffer, NULL, NULL, &toShader, NULL, NULL);
@@ -291,7 +291,6 @@ void Renderer::blurTexture(D3D11_VIEWPORT & viewport, ID3D11Texture2D * tex, ID3
 	
 	for (unsigned int i = 0; i < passes - 1; ++i)
 	{
-		context->OMSetRenderTargets(1, &clearrtv, nullptr);
 		context->PSSetShaderResources(0, 1, &clearsrv);
 		context->OMSetRenderTargets(1, &tempRtv, dsv);
 		toShader.dir = { 1.0f, 0.0f };
@@ -311,16 +310,16 @@ void Renderer::blurTexture(D3D11_VIEWPORT & viewport, ID3D11Texture2D * tex, ID3
 		}
 		else
 		{
-			context->OMSetRenderTargets(1, &clearrtv, nullptr);
 			context->PSSetShaderResources(0, 1, &clearsrv);
 			toShader.dir = { 0.0f, 1.0f };
-			context->OMSetRenderTargets(1, &tempRtv, dsv);
+			context->OMSetRenderTargets(1, &swapRtv, dsv);
 			context->UpdateSubresource(blurDataBuffer, NULL, NULL, &toShader, NULL, NULL);
 			context->PSSetShaderResources(0, 1, &tempSrv);
 			context->Draw(1, 0);
 		}
 	}
-	
+	context->OMSetRenderTargets(1, &clearrtv, nullptr);
+	context->PSSetShaderResources(0, 1, &clearsrv);
 	tempSrv->Release();
 	swapSrv->Release();
 	tempTex->Release();
@@ -379,7 +378,7 @@ void Renderer::renderObjectDefaultState(const GameObject * obj) {
 		context->PSSetSamplers(0, 1, &PointSamplerState);
 		materialManagement->GetNullMaterial()->bindToShader(context, factorBuffer, true);
 	}
-
+	
 	Animator* anim = obj->GetComponent<Animator>();
 	if(anim) {
 		const std::vector<animJoint>* joints = anim->getTweens();
@@ -406,7 +405,7 @@ void Renderer::renderObjectDefaultState(const GameObject * obj) {
 void Renderer::renderToEye(eye * eyeTo) {
 	context->PSSetSamplers(0, 1, &LinearSamplerState);
 
-	float color[] = {0.0f, 0.0f, 0.0f, 1.0f};
+	float color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	for (int i = 0; i < 6; ++i)
 	{
 		context->ClearRenderTargetView(eyeTo->targets.RTVs[i], color);
@@ -660,6 +659,8 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 
 	TextManager::Initialize(device, context, TextVertexShader, PositionTexturePixelShader, ILPositionTexture);
 	TextManager::LoadFont("Assets/Fonts/defaultFontIndex.txt", "Assets/Fonts/defaultFont.png");
+
+	defaultHUD = new HUD(device, context, defaultPipeline.viewport.Width, defaultPipeline.viewport.Height, PassThroughPositionVS, NDCQuadGS, TexToQuadPS, ILPosition);
 }
 
 void Renderer::Destroy() {
@@ -688,6 +689,7 @@ void Renderer::Destroy() {
 	ParticleGS->Release();
 	NDCQuadGS->Release();
 	ParticlePS->Release();
+	TexToQuadPS->Release();
 	SkyboxVS->Release();
 	SkyboxPS->Release();
 	DeferredTargetPS->Release();
@@ -713,6 +715,7 @@ void Renderer::Destroy() {
 	animationManagement->Destroy();
 	//ParticleManager::Destroy();
 	delete animationManagement;
+	delete defaultHUD;
 #if _DEBUG
 	DebugRenderer::Destroy();
 #endif
@@ -927,6 +930,10 @@ void Renderer::Render() {
 	}
 	context->UpdateSubresource(cameraBuffer, NULL, NULL, &buff, NULL, NULL);
 	combineDeferredTargets(&deferredTextures, defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport);
+	if (!VRManager::GetInstance().IsEnabled())
+	{
+		defaultHUD->Draw(context, defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view);
+	}
 	swapchain->Present(0, 0);
 }
 
@@ -1109,6 +1116,10 @@ void Renderer::initShaders() {
 
 	LoadShaderFromCSO(&byteCode, byteCodeSize, "BlurPixelShader.cso");
 	device->CreatePixelShader(byteCode, byteCodeSize, NULL, &BlurPixelShader);
+	delete[] byteCode;
+
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "TexToQuadPS.cso");
+	device->CreatePixelShader(byteCode, byteCodeSize, NULL, &TexToQuadPS);
 	delete[] byteCode;
 
 	CD3D11_BUFFER_DESC constantBufferDesc(sizeof(viewProjectionConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);

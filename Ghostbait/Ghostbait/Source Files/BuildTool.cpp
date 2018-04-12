@@ -217,6 +217,7 @@ void BuildTool::Spawn() {
 				spawnPos.z = pos.y;
 				GameObject* newObj;
 				MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabs[currentPrefabIndex].ID, spawnPos, &newObj));
+				MessageEvents::SendMessage(EVENT_AddObstacle, SnapMessage(&DirectX::XMFLOAT2(spawnPos.x, spawnPos.z)));
 				builtItems.push_back(newObj);
 				newObj->Enable();
 				gameData->AdjustTurretsSpawned(1);
@@ -241,7 +242,7 @@ void BuildTool::Remove() {
 				toDestroy->Destroy();
 				toDestroy = nullptr;
 			});
-			Turret* tur = dynamic_cast<Turret*>(currentlySelectedItem);
+			Turret* tur = dynamic_cast<Turret*>(toDestroy);
 			if (tur) {
 				gameData->AddGears((int)(tur->GetBuildCost() * 0.5f));
 			}
@@ -267,7 +268,7 @@ void BuildTool::SpawnProjection(){
 		if (Raycast(&transform, transform.GetZAxis(), &spawnPos, nullptr, &ray, 6, "Ground")) {
 			prefabs[currentPrefabIndex].object->Render();
 			//snap to center of grid
-			ray.Create("green");
+			ray.Create(false, "green");
 			DirectX::XMFLOAT2 newPos = DirectX::XMFLOAT2(spawnPos.x, spawnPos.z);
 			Snap(&newPos);
 			spawnPos.x = newPos.x;
@@ -488,7 +489,6 @@ void BuildTool::SetColor(const char* colorVarient) {
 	SwapComponentVarient<Material>(colorVarient);
 }
 
-
 void BuildTool::Awake(Object* obj) {
 	ray.SetFile("Assets/Ray.ghost");
 	light.Enable();
@@ -499,5 +499,26 @@ void BuildTool::Awake(Object* obj) {
 	//TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", "This is a test!", newMat);
 	//TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", "This is a test!", GetComponent<Material>());
 	GameObject::Awake(obj);
+}
+void BuildTool::Destroy() {
+	if (gearDisplay) {
+		gearDisplay->Destroy();
+		gearDisplay = nullptr;
+	}
+	if (gearAdjustmentDisplay) {
+		gearAdjustmentDisplay->Destroy();
+		gearAdjustmentDisplay = nullptr;
+	}
+
+	toDestroy = nullptr;
+	currentlySelectedItem = nullptr;
+	ray.Destroy();
+
+	for (int i = 0; i < (int)prefabs.size(); ++i) {
+		if (prefabs[i].object) {
+			prefabs[i].object->Destroy();
+		}
+	}
+	Item::Destroy();
 }
 

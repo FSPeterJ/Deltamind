@@ -209,8 +209,7 @@ void InputManager::VRInput::CheckForInput() {
 				switch(event.data.controller.button) {
 					case vr::k_EButton_ApplicationMenu:
 						if(event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
-							//TODO::Move this to controller logic
-							MessageEvents::SendMessage(EVENT_PauseInputDetected, EventMessageBase());
+							//MessageEvents::SendMessage(EVENT_PauseInputDetected, EventMessageBase());
 						}
 						else {
 							input = teleportDown;
@@ -281,7 +280,8 @@ void InputManager::VRInput::CheckForInput() {
 			{
 				switch(event.data.controller.button) {
 					case vr::k_EButton_ApplicationMenu:
-						if(event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
+						if (event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
+							MessageEvents::SendMessage(EVENT_PauseInputDetected, EventMessageBase());
 						}
 						else {
 							input = teleportDown;
@@ -374,11 +374,10 @@ InputManager::KeyboardInput::KeyboardInput() {
 	MapKey(leftItem0, '1');
 	MapKey(leftItem1, '2');
 	MapKey(leftItem2, '3');
-	MapKey(leftItem3, '4');
-	MapKey(rightItem0, '5');
-	MapKey(rightItem1, '6');
-	MapKey(rightItem2, '7');
-	MapKey(rightItem3, '8');
+	MapKey(rightItem0, '4');
+	MapKey(rightItem1, '5');
+	MapKey(rightItem2, '6');
+	MapKey(rightItem3, '7');
 
 	MapKey(TestInputX, 'X');
 	MapKey(TestInputU, 'U');
@@ -461,11 +460,11 @@ void InputManager::KeyboardInput::CheckForInput() {
 				break;
 			case KeyboardDown:
 				switch(input) {
-					case pause:
-					{
-						MessageEvents::SendMessage(EVENT_PauseInputDetected, EventMessageBase());
-						break;
-					}
+					//case pause:
+					//{
+					//	MessageEvents::SendMessage(EVENT_PauseInputDetected, EventMessageBase());
+					//	break;
+					//}
 					case releaseKey:
 					{
 
@@ -492,6 +491,13 @@ void InputManager::KeyboardInput::CheckForInput() {
 				amount = 1.0f;
 				break;
 			case KeyboardUp:
+				switch (input) {
+					case pause:
+						{
+							MessageEvents::SendMessage(EVENT_PauseInputDetected, EventMessageBase());
+							break;
+						}
+				}
 				/*switch(input) {
 					case releaseKey:
 					{

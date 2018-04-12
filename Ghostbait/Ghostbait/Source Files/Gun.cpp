@@ -69,24 +69,75 @@ void Gun::Overheat::Update(bool active) {
 Gun::Gun() {
 	SetTag("Gun");
 }
-
 void Gun::Awake(Object* obj) {
 	state = GUN;
 	Gun* gun = ((Gun*)obj);
 	overheat.overheatBarPID = gun->overheat.overheatBarPID;
+	overheat.CreateBar(this);
 	projectiePID = gun->projectiePID;
 	fireRate = gun->fireRate;
 	damage = gun->damage;
 	type = gun->type;
 	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
 	GameObject::Awake(obj);
-	//TextManager::textOutput out = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "This is a test!");
-	//Material* newMat = TextManager::CreateRenderableTexture(100, 100);
-	//TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", "This is a test!", newMat);
-	//TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", "This is a test!", GetComponent<Material>());
-	//SetComponent<Material>(out.mat);
 }
-
+void Gun::ActiveUpdate() {
+	overheat.Update(true);
+	DirectX::XMFLOAT4X4 pos = transform.GetMatrix();
+	pos._41 += pos._31 * 0.4f;
+	pos._42 += pos._32 * 0.4f;
+	pos._43 += pos._33 * 0.4f;
+	flash.transform.SetMatrix(pos);
+}
+void Gun::InactiveUpdate() {
+	overheat.Update(false);
+}
+void Gun::Destroy() {
+	if (overheat.bar) {
+		overheat.bar->Destroy();
+		overheat.bar = nullptr;
+	}
+	Item::Destroy();
+}
+bool Gun::Shoot(bool addOverheat) {
+	if (!addOverheat || overheat.CanShoot(fireRate)) {
+		//Fire
+		Projectile* obj;
+		MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Projectile>(projectiePID, { 0, 0, 0 }, &obj));
+		MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_GUNSHOT));
+		DirectX::XMFLOAT4X4 newPos;
+		newPos = transform.GetMatrix();
+		newPos._41 += newPos._31 * 0.4f;
+		newPos._42 += newPos._32 * 0.4f;
+		newPos._43 += newPos._33 * 0.4f;
+		obj->transform.SetMatrix(newPos);
+		RigidBody* temp = &obj->GetComponent<PhysicsComponent>()->rigidBody;
+		temp->AdjustGravityMagnitude(0);
+		temp->SetVelocity(transform.GetMatrix()._31 * 50.0f, transform.GetMatrix()._32 * 50.0f, transform.GetMatrix()._33 * 50.0f);
+		flash.SetAsPoint({ 0.0f, 0.0f, 11.0f }, { newPos._41, newPos._42, newPos._43 }, 1.2f);
+		flash.SetTimed(0.1);
+		flash.Enable();
+		if (addOverheat) { obj->SetDamage(damage); }
+		else { obj->SetDamage(9999999); }
+		obj->Enable();
+		if (addOverheat) {
+			overheat.AddEnergy(overheat.energyBulletCost);
+			overheat.ResetTimeSinceLastShot();
+		}
+		if (type == SEMI) {
+			return false;
+		}
+	}
+	return true;
+}
+void Gun::Selected() {
+	Item::Selected();
+	if (overheat.bar) overheat.bar->Render();
+}
+void Gun::DeSelected() {
+	Item::DeSelected();
+	if (overheat.bar) overheat.bar->UnRender();
+}
 void Gun::GivePID(unsigned pid, const char* tag) {
 	// Look into a better system
 	if(!strcmp(tag, "projectile") ) {
@@ -97,86 +148,6 @@ void Gun::GivePID(unsigned pid, const char* tag) {
 	}
 }
 
-bool Gun::Shoot(bool addOverheat) {
-	// What does this switch statement do???
-	switch(type) {
-		case AUTO:
-			if(!addOverheat || overheat.CanShoot(fireRate)) {
-				//Fire
-				Projectile* obj;
-				MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Projectile>(projectiePID, { 0, 0, 0 }, &obj));
-				MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_WEN));
-				DirectX::XMFLOAT4X4 newPos;
-				newPos = transform.GetMatrix();
-				newPos._41 += newPos._31 * 0.4f;
-				newPos._42 += newPos._32 * 0.4f;
-				newPos._43 += newPos._33 * 0.4f;
-				obj->transform.SetMatrix(newPos);
-				flash.SetAsPoint({ 0.0f, 0.0f, 11.0f }, { newPos._41, newPos._42, newPos._43 }, 1.2f);
-				flash.SetTimed(0.1);
-				flash.Enable();
-				obj->GetComponent<PhysicsComponent>()->rigidBody.AdjustGravityMagnitude(0);
-				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(transform.GetMatrix()._31 * 50.0f, transform.GetMatrix()._32 * 50.0f, transform.GetMatrix()._33 * 50.0f);
-				if(addOverheat) { obj->SetDamage(damage); } else { obj->SetDamage(9999999); }
-				obj->Enable();
-				if (addOverheat) {
-					overheat.AddEnergy(overheat.energyBulletCost);
-					overheat.ResetTimeSinceLastShot();
-				}
-			}
-			break;
-		case SEMI:
-			if(!addOverheat || overheat.CanShoot(fireRate)) {
-				//Fire
-				Projectile* obj;
-				MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Projectile>(projectiePID, { 0, 0, 0 }, &obj));
-				MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_WEN));
-				DirectX::XMFLOAT4X4 newPos;
-				newPos = transform.GetMatrix();
-				newPos._41 += newPos._31 * 0.4f;
-				newPos._42 += newPos._32 * 0.4f;
-				newPos._43 += newPos._33 * 0.4f;
-				obj->transform.SetMatrix(newPos);
-				PhysicsComponent* temp2 = obj->GetComponent<PhysicsComponent>();
-				RigidBody* temp = &temp2->rigidBody;
-				temp->AdjustGravityMagnitude(0);
-				flash.SetAsPoint({ 0.0f, 0.0f, 11.0f }, { newPos._41, newPos._42, newPos._43 }, 1.2f);
-				flash.SetTimed(0.1);
-				flash.Enable();
-				obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(transform.GetMatrix()._31 * 50.0f, transform.GetMatrix()._32 * 50.0f, transform.GetMatrix()._33 * 50.0f);
-				if(addOverheat) { obj->SetDamage(damage); } else { obj->SetDamage(9999999); }
-				obj->Enable();
-				if (addOverheat) {
-					overheat.AddEnergy(overheat.energyBulletCost);
-					overheat.ResetTimeSinceLastShot();
-				}
-				return false;
-			}
-			break;
-	}
-	return true;
-}
-void Gun::InactiveUpdate() {
-	overheat.Update(false);
-}
-void Gun::ActiveUpdate() {
-	overheat.Update(true);
-	DirectX::XMFLOAT4X4 pos = transform.GetMatrix();
-	pos._41 += pos._31 * 0.4f;
-	pos._42 += pos._32 * 0.4f;
-	pos._43 += pos._33 * 0.4f;
-	flash.transform.SetMatrix(pos);
-}
-
-void Gun::Selected() {
-	Item::Selected();
-	overheat.bar->Render();
-}
-void Gun::DeSelected() {
-	Item::DeSelected();
-	overheat.bar->UnRender();
-}
-
 #ifdef _DEBUG
 void Gun::SmokeTest() {
 	assert(projectiePID != 0);
@@ -184,4 +155,29 @@ void Gun::SmokeTest() {
 }
 #endif
 
-
+SMG::SMG() {
+	SetTag("SMG");
+}
+void SMG::Awake(Object* obj) {
+	Gun::Awake(obj);
+	type = AUTO;
+	fireRate = 8;
+	damage = 20;
+	overheat.energyBulletCost = 1;
+	overheat.energyWaitCooldown = 3;
+	overheat.energyOverheatDelay = 5;
+	overheat.energyLimit = 25;
+}
+Pistol::Pistol() {
+	SetTag("Pistol");
+}
+void Pistol::Awake(Object* obj) {
+	Gun::Awake(obj);
+	type = SEMI;
+	fireRate = 60;
+	damage = 50;
+	overheat.energyBulletCost = 1;
+	overheat.energyWaitCooldown = 3;
+	overheat.energyOverheatDelay = 5;
+	overheat.energyLimit = 20;
+}

@@ -28,8 +28,7 @@ void Projectile::Update() {
 }
 
 void Projectile::OnCollision(GameObject* object) {
-
-	if (object->GetTag() != std::string("Turret"))
+	if (object->GetTag() != std::string("Turret") && object->GetTag() != std::string("Bullet"))
 	{
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 	}

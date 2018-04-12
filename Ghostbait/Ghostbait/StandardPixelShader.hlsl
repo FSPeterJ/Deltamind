@@ -102,7 +102,7 @@ float4 calcSpec(int i, float atten, float3 worldPos, float3 norm, float specInte
             ret = specIntense * specScale * lights[i].color * atten;
         }
     }
-    else if(specIntense != 0.0f)
+    else if (specIntense != 0.0f)
     {
         float3 dir = normalize(lights[i].dir);
         float3 reflectionDir = reflect(dir, norm);
@@ -116,7 +116,7 @@ float4 calcSpec(int i, float atten, float3 worldPos, float3 norm, float specInte
 float4 main(PixelShaderInput input) : SV_TARGET
 {
     float willBeUnlit = unlit.Sample(sample, input.uv).x;
-    if(willBeUnlit == 1.0f)
+    if (willBeUnlit == 1.0f)
     {
         return saturate(diffuse.Sample(sample, input.uv) + emissive.Sample(sample, input.uv));
     }
@@ -137,8 +137,8 @@ float4 main(PixelShaderInput input) : SV_TARGET
         if (lights[i].color.w == 0.0f)
             break;
         float2x4 result = calcLight(i, worldPos, norm);
-            finalLight += result._11_12_13_14;
-            finalSpec += calcSpec(i, result._21, worldPos, norm, specIntense);
+        finalLight += result._11_12_13_14;
+        finalSpec += calcSpec(i, result._21, worldPos, norm, specIntense);
     }
     float4 diffuseColor = diffuse.Sample(sample, input.uv);
     float4 emissiveColor = emissive.Sample(sample, input.uv);

@@ -76,4 +76,5 @@ public:
 	void Selected() override;
 
 	void Awake(Object* obj) override;
+	void Destroy() override;
 };

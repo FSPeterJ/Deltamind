@@ -57,6 +57,7 @@ class Player : public GameObject, public Controlable {
 
 	void ChangeStance(Stance newStance);
 	void GodDetected();
+	void GiveTransform(EventMessageBase* e);
 public:
 	CastObject teleportArc;
 	ControllerObject *leftController = 0, *rightController = 0;
@@ -69,12 +70,14 @@ public:
 	inline const float PlayerHeight() const { return playerHeight; }
 	inline const float PlayerSpeed() const { return playerSpeed; }
 	inline void ResetStance() { stance = STANCE_Stand; }
-	void LoadControllers(VRControllerTypes type = CONTROLLER_Full);
+	void InitControllers(VRControllerTypes type = CONTROLLER_Full);
 	void SetBuildToolData(HexGrid* _grid, GameData* _gameData);
 	inline HexGrid* GetBuildGrid() { return grid; }
 	inline const bool IsGod() const { return stance == STANCE_God; }
 
-	void Teleport(DirectX::XMFLOAT3* pos = nullptr);
+	void Teleport();
+	void Teleport(DirectX::XMFLOAT3 pos);
+
 
 	bool IsVR() const;
 };

@@ -32,7 +32,7 @@ public:
 	static lightBufferStruct* getLightBuffer() { return &cpu_light_info; };
 	static genericLight* getLight(int ID);
 	static void removeLight(int ID);
-	
+
 	static int addDirectionalLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 dir);
 	static int addPointLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, float radius);
 	static int addSpotLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 dir, float radius, float outerRadius);

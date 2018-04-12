@@ -10,6 +10,8 @@
 #include "Player.h"
 #include "HexGrid.h"
 #include "Material.h"
+#include "PDA.h"
+#include "MeshManager.h"
 //Only here to safely instantiate something. Should be done differently later
 #include "ObjectFactory.h"
 
@@ -99,8 +101,8 @@ void ControllerObject::SwitchCurrentItem(int itemIndex) {
 			}
 		}
 	}
-	else if(inventory.items[itemIndex] != inventory.currentItem) {
-		inventory.currentItem->DeSelected();
+	else if(inventory.items[itemIndex] != inventory.currentItem && inventory.items[itemIndex]) {
+		if(inventory.currentItem) inventory.currentItem->DeSelected();
 		inventory.currentItem = inventory.items[itemIndex];
 		inventory.currentItem->Selected();
 		return;
@@ -190,63 +192,87 @@ void ControllerObject::DisplayInventory() {
 
 
 void ControllerObject::AddToInventory(int itemSlot, unsigned prefabID) {
-	if (!inventory.items[itemSlot]) ++inventory.itemCount;
+	if (inventory.items[itemSlot])
+		RemoveItem(itemSlot);
 	//Actual Inventory
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Item>(prefabID, { 0,0,0 }, (Item**)&inventory.items[itemSlot]));
 	if(!inventory.currentItem) {
 		inventory.currentItem = inventory.items[itemSlot];
 		inventory.currentItem->Selected();
 	}
-	inventory.items[itemSlot]->UnRender();
-	inventory.items[itemSlot]->PersistOnReset();
-	inventory.items[itemSlot]->SetPhysicsComponent(false);
+	else {
+		inventory.items[itemSlot]->UnRender();
+		inventory.items[itemSlot]->PersistOnReset();
+		inventory.items[itemSlot]->SetPhysicsComponent(false);
+	}
+
+	PDA* pda = dynamic_cast<PDA*>(inventory.items[itemSlot]);
+	if (pda) {
+		pda->SwapComponentVarient<Mesh>("text");
+	}
 
 	//Inventory Display
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Item>(prefabID, { 0,0,0 }, (Item**)&inventory.displayItems[itemSlot]));
 	inventory.displayItems[itemSlot]->UnRender();
 	inventory.displayItems[itemSlot]->PersistOnReset();
 	inventory.displayItems[itemSlot]->SetPhysicsComponent(false);
-
-
+	++inventory.itemCount;
 }
 
 void ControllerObject::RemoveItem(int itemSlot) {
 	if (inventory.items[itemSlot]) {
+		if (inventory.currentItem == inventory.items[itemSlot]) {
+			for (int i = itemSlot + 1; i != itemSlot; ++i) {
+				if (i >= CONTROLLER_MAX_ITEMS) {
+					i = 0;
+				}
+				if (inventory.items[i]) {
+					inventory.currentItem->DeSelected();
+					inventory.currentItem = inventory.items[i];
+					inventory.currentItem->Selected();
+					break;
+				}
+			}
+		}
+		inventory.items[itemSlot]->Destroy();
+		inventory.displayItems[itemSlot]->Destroy();
 		inventory.items[itemSlot] = nullptr;
 		inventory.displayItems[itemSlot] = nullptr;
 		--inventory.itemCount;
+		if (inventory.itemCount == 0) 
+			inventory.currentItem = nullptr;
 	}
+}
+void ControllerObject::ClearInventory() {
+	for (int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
+		RemoveItem(i);
+	}
+	inventory.currentItem = nullptr;
+}
+const int ControllerObject::GetSelectedItemIndex()
+{
+	int ret = -1;
+	if (inventory.currentItem == nullptr)
+		return ret;
+	for (int i = 0; i < CONTROLLER_MAX_ITEMS; ++i)
+	{
+		if (inventory.items[i] == inventory.currentItem)
+		{
+			ret = i;
+			break;
+		}
+	}
+	return ret;
 }
 void ControllerObject::AddItem(int itemSlot, unsigned prefabID) {
 	AddToInventory(itemSlot, prefabID);
-
-	Gun* gun = dynamic_cast<Gun*>(inventory.items[itemSlot]);
-	BuildTool* tool = dynamic_cast<BuildTool*>(inventory.items[itemSlot]);
-	if(gun) {
-		gun->SetStats(Gun::FireType::SEMI, 60, 1);
-		gun->overheat.CreateBar(gun);
-	}
 }
 void ControllerObject::AddItem(int itemSlot, unsigned prefabID, std::vector<unsigned> prefabIDs) {
 	AddToInventory(itemSlot, prefabID);
 
-	Gun* gun = dynamic_cast<Gun*>(inventory.items[itemSlot]);
 	BuildTool* buildTool = dynamic_cast<BuildTool*>(inventory.items[itemSlot]);
-	if(gun) {
-		gun->SetStats(Gun::FireType::SEMI, 60, 1);
-		gun->overheat.CreateBar(gun);
-	}
-	else if(buildTool) {
+	if(buildTool) {
 		buildTool->SetPrefabs(prefabIDs);
-	}
-}
-void ControllerObject::AddItem(int itemSlot, unsigned prefabID, Gun::FireType _fireType, float _fireRate, float _damage) {
-	AddToInventory(itemSlot, prefabID);
-
-	Gun* gun = dynamic_cast<Gun*>(inventory.items[itemSlot]);
-	if(gun) {
-		gun->SetStats(_fireType, _fireRate, _damage);
-		gun->overheat.CreateBar(gun);
 	}
 }
 
@@ -265,8 +291,7 @@ void ControllerObject::SetControllerState(ControllerState newState) {
 						inventory.displayItems[i]->UnRender();
 					}
 				}
-				inventory.currentItem->DeSelected();
-				//inventory.currentItem = inventory.items[startItemIndex];
+				if(inventory.currentItem) inventory.currentItem->DeSelected();
 			}
 			break;
 		case ControllerState::CSTATE_MenuController:
@@ -289,7 +314,8 @@ void ControllerObject::SetControllerState(ControllerState newState) {
 	switch (newState) {
 		case ControllerState::CSTATE_Inventory:
 			{
-				inventory.currentItem->Selected();
+				if(inventory.currentItem)
+					inventory.currentItem->Selected();
 			}
 			break;
 		case ControllerState::CSTATE_MenuController:
@@ -505,18 +531,17 @@ void ControllerObject::Update() {
 
 // TEMPORARY - CHANGE OR REMOVE LATER
 void ControllerObject::SetBuildItems(std::vector<unsigned> prefabIDs) {
-	BuildTool* buildTool = (BuildTool*)inventory.items[3];
-	assert(buildTool);
+	BuildTool* buildTool;
+	for (int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
+		buildTool = dynamic_cast<BuildTool*>(inventory.items[i]);
+		if (buildTool) break;
+	}
+	if (!buildTool) {
+		Console::ErrorLine << "Tried to set build items but no build tool was found!";
+		return;
+	}
 	buildTool->SetPrefabs(prefabIDs);
 }
-
-// TEMPORARY - CHANGE OR REMOVE LATER
-void ControllerObject::SetGunData(int slot, Gun::FireType _fireType, float _fireRate, float _damage) {
-	Gun* gun = (Gun*)inventory.items[slot];
-	gun->SetStats(_fireType, _fireRate, _damage);
-
-}
-
 
 void ControllerObject::Enable() {
 	GameObject::Enable();
@@ -548,7 +573,11 @@ void ControllerObject::PositionNonVRController() {
 	float maxDist = 100;
 	DirectX::XMFLOAT3 direction = { player->transform.GetMatrix()._31, player->transform.GetMatrix()._32, player->transform.GetMatrix()._33 };
 	DirectX::XMFLOAT3 colPoint;
-	if (!Raycast(&player->transform, direction, &colPoint, nullptr, nullptr, maxDist)) {
+	GameObject* colObject = nullptr;
+	if (!Raycast(&player->transform, direction, &colPoint, &colObject, nullptr, maxDist)) {
+		colPoint = { player->transform.GetPosition().x + (direction.x * maxDist), player->transform.GetPosition().y + (direction.y * maxDist), player->transform.GetPosition().z + (direction.z * maxDist) };
+	}
+	else if (colObject && colObject->GetTag() == "Bullet") {
 		colPoint = { player->transform.GetPosition().x + (direction.x * maxDist), player->transform.GetPosition().y + (direction.y * maxDist), player->transform.GetPosition().z + (direction.z * maxDist) };
 	}
 

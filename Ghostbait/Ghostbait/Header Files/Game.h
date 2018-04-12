@@ -42,12 +42,18 @@ class Game {
 	void RemoveObstacleEvent(EventMessageBase* e);
 	void EnemyDiedEvent();
 	void PauseInputEvent();
-	void StartEvent();
-	void ExitToMenu();
+	void StartEvent(EventMessageBase* e = nullptr);
+	void ExitToMainMenu();
+
+	//Major Scenes Loaded
+	void MainMenuLoaded();
+	void TutorialLoaded();
+	void Level0Loaded();
+	void CreditsLoaded();
 
 	//Personal
 	void ChangeState(State newState);
-	void ChangeScene(const char* sceneName);
+	void ChangeScene(const char* sceneName, std::string levelName = "");
 	void StartNextWave();
 
 	//Handle primary function event logic

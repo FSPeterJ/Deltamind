@@ -44,6 +44,10 @@ void Monitor::Update() {
 		positioned = true;
 	}
 }
+void Monitor::Destroy() {
+	if (screen) screen->Destroy(); 
+	GameObject::Destroy();
+}
 
 void Monitor::WriteToScreen(const std::string text, const DirectX::XMFLOAT4 foreground, const DirectX::XMFLOAT4 background) {
 	if (screen) {

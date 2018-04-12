@@ -405,7 +405,9 @@ ColliderData* PhysicsManager::AddColliderData(float trfX, float trfY, float trfZ
 		colliderDataList.push_back(temp);
 		return &colliderDataList.back();
 	}
-	Console::WarningLine << "Maximum number of Colliders reached!!!";
+	else {
+		Console::ErrorLine << "Maximum colliders already exist! Another collider won't be created. THIS IS A SERIOUS ISSUE!";
+	}
 	return nullptr;
 }
 

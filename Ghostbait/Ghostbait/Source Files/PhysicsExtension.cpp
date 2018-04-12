@@ -20,6 +20,7 @@ void CastObject::Create(bool renderToFront, const char* varientColor) {
 		object->ToggleFlag(GAMEOBJECT_PUBLIC_FLAGS::UNLIT);
 		backup = object;
 		if (renderToFront) {
+			object->UnRender();
 			object->RenderToFront();
 		}
 		if (object->GetComponent<Animator>()) {

@@ -22,6 +22,8 @@ enum EVENT_TYPES {
 	EVENT_RegisterNoisemaker,
 	EVENT_RequestSound,
 	EVENT_UnregisterNoisemaker,
+	EVENT_GetPlayer,
+
 
 	//Cheats
 	EVENT_God,
@@ -32,6 +34,7 @@ enum EVENT_TYPES {
 	EVENT_SpawnerCreated,
 	EVENT_EnemyDied,
 	EVENT_Start,
+	EVENT_TutorialHit,
 	EVENT_GameWin,
 	EVENT_GameLose,
 	EVENT_GamePause,

@@ -18,8 +18,14 @@ Player::Player() {
 	transform.SetPosition(0, 1.7f, 0);
 	transform.LookAt({ 0, 1.7f, 1 });
 	MessageEvents::Subscribe(EVENT_God, [=](EventMessageBase* e) {this->GodDetected(); });
+	MessageEvents::Subscribe(EVENT_GetPlayer, [=](EventMessageBase* e) {this->GiveTransform(e); });
 }
 
+void Player::GiveTransform(EventMessageBase* e) {
+	GetPlayerMessage* message = (GetPlayerMessage*)e;
+	Player const** data = message->RetrieveData();
+	(*data) = this;
+}
 void Player::ChangeStance(Stance newStance) {
 	if (stance == newStance) return;
 	stance = newStance;
@@ -326,29 +332,23 @@ void Player::PausedUpdate() {
 	}
 }
 
-void Player::Teleport(DirectX::XMFLOAT3* pos) {
+void Player::Teleport(DirectX::XMFLOAT3 pos) {
 	if (IsVR()) {
-		if(pos)
-			VRManager::GetInstance().MovePlayer(*pos);
-		else
-			VRManager::GetInstance().Teleport();
+		VRManager::GetInstance().MovePlayer(pos);
 	}
 }
-void Player::LoadControllers(VRControllerTypes type) {
-	//Read in from save file and assign the correct items
+void Player::Teleport() {
+	if (IsVR())
+		VRManager::GetInstance().Teleport();
+}
 
+void Player::InitControllers(VRControllerTypes type) {
 	//Left
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 0,0,0 }, &leftController));
 	leftController->Init(this, ControllerHand::HAND_Left);
-	leftController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
-	leftController->SetGunData(2, Gun::FireType::AUTO, 8, 20);
-	leftController->SetBuildItems({ /*TODO: FIX THIS LATER*/ ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost"))});
 	//Right
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 1,0,1 }, &rightController));
 	rightController->Init(this, ControllerHand::HAND_Right);
-	rightController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
-	rightController->SetGunData(2, Gun::FireType::AUTO,  8, 20);
-	rightController->SetBuildItems({ /*TODO: FIX THIS LATER*/ ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost"))});
 
 
 	if (IsVR()) {

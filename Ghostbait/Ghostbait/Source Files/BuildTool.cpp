@@ -268,7 +268,7 @@ void BuildTool::SpawnProjection(){
 		if (Raycast(&transform, transform.GetZAxis(), &spawnPos, nullptr, &ray, 6, "Ground")) {
 			prefabs[currentPrefabIndex].object->Render();
 			//snap to center of grid
-			ray.Create("green");
+			ray.Create(false, "green");
 			DirectX::XMFLOAT2 newPos = DirectX::XMFLOAT2(spawnPos.x, spawnPos.z);
 			Snap(&newPos);
 			spawnPos.x = newPos.x;

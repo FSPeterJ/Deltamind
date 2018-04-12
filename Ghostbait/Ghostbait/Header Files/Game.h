@@ -52,7 +52,7 @@ class Game {
 
 	//Personal
 	void ChangeState(State newState);
-	void ChangeScene(const char* sceneName);
+	void ChangeScene(const char* sceneName, const char* levelName = "");
 	void StartNextWave();
 
 	//Handle primary function event logic

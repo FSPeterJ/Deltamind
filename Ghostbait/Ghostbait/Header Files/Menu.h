@@ -28,7 +28,8 @@ enum Template {
 	MENU_Main,
 	MENU_Pause,
 	MENU_Options,
-	MENU_Custom
+	MENU_Custom,
+	MENU_Difficulty
 };
 enum Button {
 	BUTTON_Resume,

@@ -69,7 +69,7 @@ void SceneManager::Initialize() {
 		level0Data.sceneName = "level0";
 		level0Data.levelName.push_back(std::string("Level Files//level0.xml"));
 		level0Data.levelName.push_back(std::string("Level Files//level0_easy.xml"));
-		level0Data.levelName.push_back(std::string("Leve lFiles//level0_hard.xml"));
+		level0Data.levelName.push_back(std::string("Level Files//level0_hard.xml"));
 		TestSceneData::Prefab ground;
 		{
 			ground.ghostFile = "Assets/SpaceshipHull.ghost";

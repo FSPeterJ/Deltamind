@@ -91,7 +91,7 @@ void Game::StartEvent() {
 			StartNextWave();
 			break;
 		case GAMESTATE_MainMenu:
-			ChangeScene("level0");
+			ChangeScene("level0", "Level Files//level0.xml");
 			break;
 	}
 }
@@ -173,13 +173,16 @@ void Game::ChangeScene(const char* sceneName, const char* levelName) {
 			levelFile = sceneManager->GetCurrentScene().levelFiles[0];
 		else
 		{
+			std::string comp = std::string(levelName);
 			for (size_t i = 0; i < sceneManager->GetCurrentScene().levelFiles.size(); ++i)
 			{
 				if (levelName == sceneManager->GetCurrentScene().levelFiles[i])
 					levelFile = sceneManager->GetCurrentScene().levelFiles[i];
 			}
+			if(levelFile.c_str() == "")
+				levelFile = sceneManager->GetCurrentScene().levelFiles[0];
 		}
-		irr::io::IrrXMLReader *xmlReader = irr::io::createIrrXMLReader(sceneManager->GetCurrentScene().levelFiles[0].c_str());
+		irr::io::IrrXMLReader *xmlReader = irr::io::createIrrXMLReader(levelFile.c_str());
 
 		WaveManager::Wave* newWave = nullptr;
 		while(xmlReader->read()) {

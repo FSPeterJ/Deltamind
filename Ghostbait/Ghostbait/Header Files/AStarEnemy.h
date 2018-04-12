@@ -4,6 +4,7 @@
 #include "HexTileVector.h"
 #include "Controlable.h"
 #include "AntColony.h"
+#include <future>
 //class RigidBody;
 
 namespace DirectX { struct XMFLOAT2; }
@@ -15,8 +16,9 @@ class AStarEnemy: public EnemyBase, public AntProperties {
 	//RigidBody* rb = 0;
 	HexTile* goal = 0;
 	HexTile* next = 0;
-
-
+	
+	bool isPathing = false;
+	std::future<void> pathing;
 	bool start = false;
 	unsigned eventAdd = 0;
 	unsigned eventRemove = 0;
@@ -42,7 +44,8 @@ public:
 	void SetGrid(HexGrid* _grid) override;
 	void Repath() override;
 
-	void Attack();
+	void Attack() override;
+	void Patrol() override;
 
 	void Subscribe() override;
 	void UnSubscribe() override;

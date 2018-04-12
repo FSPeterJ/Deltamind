@@ -5,6 +5,7 @@
 #include "MessageEvents.h"
 #include "PathPlanner.h"
 #include "GhostTime.h"
+#include "ThreadPool.h"
 
 AStarEnemy::AStarEnemy() {
 	tag = std::string("Enemy");
@@ -13,22 +14,20 @@ AStarEnemy::AStarEnemy() {
 //Main Overrides
 
 void AStarEnemy::Awake(Object* obj) {
+	EnemyBase::Awake(obj);
+	
 	howFarAlong = 0;
 	grid = 0;
 	//rb = 0;
 	goal = 0;
 	next = 0;
 
-
 	start = false;
 	eventAdd = 0;
 	eventRemove = 0;
 
-	lingerTime = 100.0f;
-	scentStrength = 10.0f;
-	
-	EnemyBase::Awake(obj);
-	rb = &(GetComponent<PhysicsComponent>()->rigidBody);
+	lingerTime = 10.0f;
+	scentStrength = 2.0f;	
 }
 
 void AStarEnemy::Subscribe() {
@@ -41,16 +40,22 @@ void AStarEnemy::UnSubscribe() {
 	if (eventRemove) { MessageEvents::UnSubscribe(EVENT_RemoveObstacle, eventRemove); eventRemove = 0; }
 }
 void AStarEnemy::Enable() {
-	if(!goal) {
-		NewRandPath();
+
+	if (isPathing) {
+		pathing.get();
+		isPathing = false;
 	}
-	rb->SetTerminalSpeed(maxSpeed);
+	if(!isPathing && (!goal || !(path.size() > 0))) {
+		isPathing = true;
+		pathing = Threadding::ThreadPool::MakeJob([&]() {NewRandPath(); });
+	}
+
 	AntColony::LeavePheromone(&path, lingerTime, scentStrength);
-	if (!(path.size() > 0)) 
-		NewRandPath();
 	next = path.start();
-	AStarEnemy::Subscribe();
+	rb->SetTerminalSpeed(maxSpeed);
+
 	EnemyBase::Enable();
+	AStarEnemy::Subscribe();
 }
 void AStarEnemy::Disable() {
 	AStarEnemy::UnSubscribe();
@@ -67,42 +72,50 @@ void AStarEnemy::Update() {
 	//DirectX::XMFLOAT3 newPoint = { transform.GetPosition().x + vel.x, transform.GetPosition().y, transform.GetPosition().z + vel.z };
 	//transform.TurnTowards(newPoint, 1);
 
+	//if (isPathing) { 
+	//	if (pathing.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready) return;
+	//	pathing.get(); 
+	//	isPathing = false; 
+	//};
 
-	//Update Path
-	HexTile* curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.GetMatrix()._41, transform.GetMatrix()._43));
-	if(curTile) {
-		if(curTile == next) {
-			if (path.size() > 0) {
-				if (path.goal() == curTile) {
-					//Console::WriteLine << "We made it to our goal.";
-					Attack();
+	////Update Path
+	//HexTile* curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.GetMatrix()._41, transform.GetMatrix()._43));
+	//if(curTile) {
+	//	if(curTile == next) {
+	//		if (path.size() > 0) {
+	//			if (path.goal() == curTile) {
+	//				//Console::WriteLine << "We made it to our goal.";
+	//				Attack();
 
-					rb->Stop();
-				}
-				else {
-					Step();
-					howFarAlong++;
-					if (howFarAlong > path.size() - 1) { return; }
-					next = path[howFarAlong];
-					auto nextPathPoint = grid->TileToPoint(next);
+	//				rb->Stop();
+	//			}
+	//			else {
+	//				Step();
+	//				howFarAlong++;
+	//				if (howFarAlong > path.size() - 1) { return; }
+	//				next = path[howFarAlong];
+	//				auto nextPathPoint = grid->TileToPoint(next);
 
-					//position._41 = nextPathPoint.x;
-					//position._43 = nextPathPoint.y;
-					DirectX::XMVECTOR nextDirection = DirectX::XMVectorSet(nextPathPoint.x - transform.GetMatrix()._41, 0.0f, nextPathPoint.y - transform.GetMatrix()._43, 1.0f);
-					DirectX::XMVECTOR velocity = rb->GetVelocity();
-					rb->AddForce(3.0f * (DirectX::XMVectorGetX(DirectX::XMVector3Dot(nextDirection, velocity)) + 1.0f), nextPathPoint.x - transform.GetMatrix()._41, 0.0f, nextPathPoint.y - transform.GetMatrix()._43, 0.5f);
-				}
-			}
-			else { 
-				NewRandPath(); 
-				return;
-			}
-		}
-	}
-	else {
-		//rb->SetVelocity(DirectX::XMVectorScale(rb->GetVelocity(), -1.0f));
-		//NewRandPath();
-	}
+	//				//position._41 = nextPathPoint.x;
+	//				//position._43 = nextPathPoint.y;
+	//				DirectX::XMVECTOR nextDirection = DirectX::XMVectorSet(nextPathPoint.x - transform.GetMatrix()._41, 0.0f, nextPathPoint.y - transform.GetMatrix()._43, 1.0f);
+	//				DirectX::XMVECTOR velocity = rb->GetVelocity();
+	//				rb->AddForce(3.0f * (DirectX::XMVectorGetX(DirectX::XMVector3Dot(nextDirection, velocity)) + 1.0f), nextPathPoint.x - transform.GetMatrix()._41, 0.0f, nextPathPoint.y - transform.GetMatrix()._43, 0.5f);
+	//			}
+	//		}
+	//		else { 
+	//			rb->Stop();
+	//			isPathing = true;
+	//			pathing = Threadding::ThreadPool::MakeJob([&]() {NewRandPath(); });
+	//			return;
+	//		}
+	//	}
+	//}
+	//else {
+	//	//rb->SetVelocity(DirectX::XMVectorScale(rb->GetVelocity(), -1.0f));
+	//	//NewRandPath();
+	//	rb->Stop();
+	//}
 }
 void AStarEnemy::Attack() {
 	if (timeSinceLastAttack == -1) {
@@ -125,10 +138,61 @@ void AStarEnemy::Attack() {
 	}
 }
 
+void AStarEnemy::Patrol() {
+	if (isPathing) {
+		if (pathing.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready) return;
+		pathing.get();
+		isPathing = false;
+	};
+
+	//Update Path
+	HexTile* curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.GetMatrix()._41, transform.GetMatrix()._43));
+
+	if (!curTile || path.size() < 1) {
+		rb->Stop();
+		isPathing = true;
+		pathing = Threadding::ThreadPool::MakeJob([&]() {NewRandPath(); });
+		return;
+	}
+
+	if (curTile == path.goal()) {
+		//Console::WriteLine << "We made it to our goal.";
+		rb->Stop();
+		ChangeState(ATTACK);
+		return;
+	}
+
+	EnemyBase::Patrol();
+	
+	if (curTile == next) {
+		Step();
+		howFarAlong++;
+		if (howFarAlong > path.size() - 1) { return; }
+		next = path[howFarAlong];
+		auto nextPathPoint = grid->TileToPoint(next);
+
+		//position._41 = nextPathPoint.x;
+		//position._43 = nextPathPoint.y;
+		DirectX::XMVECTOR nextDirection = DirectX::XMVectorSet(nextPathPoint.x - transform.GetMatrix()._41, 0.0f, nextPathPoint.y - transform.GetMatrix()._43, 1.0f);
+		DirectX::XMVECTOR velocity = rb->GetVelocity();
+		rb->AddForce(3.0f * (DirectX::XMVectorGetX(DirectX::XMVector3Dot(nextDirection, velocity)) + 1.0f), nextPathPoint.x - transform.GetMatrix()._41, 0.0f, nextPathPoint.y - transform.GetMatrix()._43, 0.5f);
+		return;
+	}
+
+	if (path.Next(curTile) != next) {
+		rb->Stop();
+		Repath();
+		next = curTile;
+		return;
+	}
+
+}
+
 
 //Other Overrides
 void AStarEnemy::Repath() {
-	NewPath();
+	isPathing = true;
+	pathing = Threadding::ThreadPool::MakeJob([&]() {NewPath(); });
 }
 void AStarEnemy::SetGrid(HexGrid* _grid) {
 	grid = _grid;
@@ -161,15 +225,16 @@ void AStarEnemy::NewRandPath() {
 	for (auto& tile : spire) {
 		if (!grid->IsBlocked(&tile)) {
 			CalcPath(&tile);
+			if (!path.size()) continue;
 			break;
 		}
 	}
 	//goal = grid->GetRandomTile();
 	//CalcPath(goal);
 
-	if(!path.size()) {
-		NewRandPath();
-	}
+	//if(!path.size()) {
+	//	NewRandPath();
+	//}
 }
 void AStarEnemy::CalcPath(DirectX::XMFLOAT2 where) {
 	HexTile* whereTile = grid->PointToTile(where);

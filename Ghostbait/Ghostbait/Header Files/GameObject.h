@@ -2,6 +2,7 @@
 #include "Object.h"
 #include "Controlable.h"
 #include "Console.h"
+#include <mutex>
 using namespace Common;
 
 enum GAMEOBJECT_FLAGS {
@@ -29,6 +30,7 @@ protected:
 	unsigned flags = 0;
 	unsigned publicFlags = 0;
 	bool destroyOnReset = true;
+	std::mutex gameObjMutex;
 
 public:
 	GameObject();

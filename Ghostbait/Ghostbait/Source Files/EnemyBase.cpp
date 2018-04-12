@@ -11,12 +11,13 @@ void EnemyBase::Awake(Object* obj) {
 	currState = IDLE;
 	maxSpeed = (float) ((rand() % 3) + 1);
 	target = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	hurt = false;
+	isHurting = false;
 	hurtTimer = 0;
-	hurtDuration = 1;
+	hurtDuration = 0.25;
 	sentDeathMessage = false;
-	rb = 0;
 
+	pc = GetComponent<PhysicsComponent>();
+	rb = &(pc->rigidBody);
 	
 	eventLose = 0;
 	smite = 0;
@@ -25,21 +26,27 @@ void EnemyBase::Awake(Object* obj) {
 }
 
 void EnemyBase::Start() {
+
+	if (!genetics) return;
 	genetics->performance.Reset();
 
 #undef max
-	auto mx = std::max({genetics->traits[STRENGTH],genetics->traits[INTELLIGENCE],genetics->traits[DEFENSE],genetics->traits[SPEED]});
+	float domTraits[] = { genetics->traits[STRENGTH] + genetics->traits[POWER] + genetics->traits[ACCURACY] + genetics->traits[LUCK],
+						  genetics->traits[INTELLIGENCE] + genetics->traits[WISDOM] + genetics->traits[EVASION] + genetics->traits[DEXTERITY],
+						  genetics->traits[DEFENSE] + genetics->traits[ENDURANCE] + genetics->traits[STAMINA] + genetics->traits[RESISTANCE],
+						  genetics->traits[SPEED] + genetics->traits[ENERGY] + genetics->traits[COORDINATION] + genetics->traits[BALANCE] };
 
-	if(mx == genetics->traits[STRENGTH]) {
+	auto mx = std::max({domTraits[0], domTraits[1], domTraits[2], domTraits[3]});
+
+	if(mx == domTraits[0]) {
 		SwapComponentVarient<Material>("pink");
-	} else if(mx == genetics->traits[INTELLIGENCE]) {
+	} else if(mx == domTraits[1]) {
 			SwapComponentVarient<Material>("blue");
-	} else if(mx == genetics->traits[DEFENSE]) {
+	} else if(mx == domTraits[2]) {
 		SwapComponentVarient<Material>("green");
-	} else if(mx == genetics->traits[SPEED]) {
+	} else if(mx == domTraits[3]) {
 		SwapComponentVarient<Material>("yellow");
 	}
-
 
 	SetStats();
 	spawnTime = GhostTime::Now();
@@ -61,68 +68,79 @@ void EnemyBase::UnSubscribe() {
 		smite = 0;
 	}
 }
+
 void EnemyBase::Enable() {
 	EnemyBase::Subscribe();
 	GameObject::Enable();
+	ChangeState(PATROL);
 }
+
 void EnemyBase::Disable() {
 	EnemyBase::UnSubscribe();
 	GameObject::Disable();
 }
+
 void EnemyBase::Destroy() {
+	gameObjMutex.lock();
 	CalculateResult();
 	MessageEvents::SendMessage(EVENT_EnemyDied, EventMessageBase());
 	GameObject::Destroy();
-}
-
-void EnemyBase::RecordAttack() {
-	genetics->performance.results.damageDelt += attackDamage;
-}
-
-void EnemyBase::Step() {
-	genetics->performance.results.nodesTraversed++;
+	gameObjMutex.unlock();
 }
 
 void EnemyBase::TakeDamage(float amount) {
-	genetics->performance.results.damageReceived += -AdjustHealth(amount);
-}
+	float damage = AdjustHealth(amount);
 
-void EnemyBase::CalculateResult() {
-	genetics->performance.results.timeLasted = (float)GhostTime::Duration(spawnTime, GhostTime::Now());
-	float timeRatio = 1.0f / (genetics->performance.results.timeLasted * 0.001f);
-	genetics->performance.results.nodesTraversed *= timeRatio;
-	genetics->performance.results.damageDelt *= timeRatio;
-	genetics->performance.results.damageReceived *= timeRatio;
-}
-
-void EnemyBase::SetStats() {
 	if (!genetics) return;
+	genetics->performance.results.damageReceived -= damage;
+}
+
+bool EnemyBase::ChangeState(State _s) {
+	if (currState == _s) return false;
 	
-	//Play around with the trait effects here
-	const float *traitFactors = genetics->traits.GetTraitArray();
-	maxSpeed = 4.0f + 6.0f * traitFactors[SPEED] + 4.0f * traitFactors[ENERGY] + 2.0f * traitFactors[COORDINATION] + 1.0f * traitFactors[BALANCE];
-	attackDamage = 3.0f + 10.0f * traitFactors[STRENGTH] + 7.0f * traitFactors[POWER] + 4.0f * traitFactors[ACCURACY] + 1.0f * traitFactors[LUCK];
-	attackSpeed = 2.0f * traitFactors[SPEED] + 1.5f * traitFactors[ENERGY] + 1.0f * traitFactors[COORDINATION] + 0.5f * traitFactors[BALANCE];
-	SetMaxHealth(90.0f + 200.0f * traitFactors[DEFENSE] + 150.0f * traitFactors[ENDURANCE] + 100.0f * traitFactors[STAMINA] + 50.0f * traitFactors[RESISTANCE]);
-	SetToFullHealth();
+	prevState = currState;
+	currState = _s;
+	return true;
 }
 
 void EnemyBase::Update() {
-	if(hurt) {
-		hurtTimer += GhostTime::DeltaTime();
-		if(hurtTimer >= 0.25f) {
-			hurt = false;
-			int id = TypeMap::GetComponentTypeID<Material>();
-			SetComponent(defaultMat, id);
-		}
+	GameObject::Update();
+	gameObjMutex.lock();
+	//if(hurt) {
+	//	hurtTimer += GhostTime::DeltaTime();
+	//	if(hurtTimer >= 0.25f) {
+	//		hurt = false;
+	//		int id = TypeMap::GetComponentTypeID<Material>();
+	//		SetComponent(defaultMat, id);
+	//	}
+	//}
+
+	//DirectX::XMFLOAT3 vel;
+	//DirectX::XMStoreFloat3(&vel, rb->GetVelocity());
+	//DirectX::XMFLOAT3 newPoint = {transform.GetPosition().x + vel.x, transform.GetPosition().y, transform.GetPosition().z + vel.z};
+	//transform.TurnTowards(newPoint, 1);
+
+	switch (currState)
+	{
+	case EnemyBase::IDLE:
+		Idle();
+		break;
+	case EnemyBase::PATROL:
+		Patrol();
+		break;
+	case EnemyBase::ATTACK:
+		Attack();
+		break;
+	case EnemyBase::INJURED:
+		Injured();
+		break;
+	case EnemyBase::DEATH:
+		Death();
+		break;
+	default:
+		break;
 	}
 
-	DirectX::XMFLOAT3 vel;
-	DirectX::XMStoreFloat3(&vel, rb->GetVelocity());
-	DirectX::XMFLOAT3 newPoint = {transform.GetPosition().x + vel.x, transform.GetPosition().y, transform.GetPosition().z + vel.z};
-	transform.TurnTowards(newPoint, 1);
-
-	GameObject::Update();
 	//DirectX::XMVECTOR directionToGoal = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&target), DirectX::XMLoadFloat4x4(&position).r[3]));
 	//PhysicsComponent* myPhys = GetComponent<PhysicsComponent>();
 	//
@@ -132,19 +150,125 @@ void EnemyBase::Update() {
 	//	DirectX::XMVECTOR clampedVelocity = DirectX::XMVectorScale(DirectX::XMVector3Normalize(myPhys->rigidBody.GetVelocity()), maxSpeed);
 	//	myPhys->rigidBody.SetVelocity(clampedVelocity);
 	//}
+	gameObjMutex.unlock();
 }
 
+#pragma region StateActions
+
+void EnemyBase::Idle() {
+	rb->Stop();
+}
+
+void EnemyBase::Patrol() {
+	DirectX::XMFLOAT3 vel;
+	DirectX::XMStoreFloat3(&vel, rb->GetVelocity());
+	DirectX::XMFLOAT3 newPoint = { transform.GetPosition().x + vel.x, transform.GetPosition().y, transform.GetPosition().z + vel.z };
+	transform.TurnTowards(newPoint, 1);
+}
+
+void EnemyBase::Attack() {
+
+}
+
+void EnemyBase::Injured() {
+	if (!isHurting) {
+		if (componentVarients.find("Hurt") != componentVarients.end()) {
+			int id = TypeMap::GetComponentTypeID<Material>();
+			defaultMat = GetComponent<Material>();
+			SetComponent(componentVarients["Hurt"], id);
+		}
+		isHurting = true;
+		hurtTimer = 0;
+		return;
+	}
+
+	hurtTimer += GhostTime::DeltaTime();
+	if (hurtTimer >= hurtDuration) {
+		currState = prevState;
+		isHurting = false;
+		int id = TypeMap::GetComponentTypeID<Material>();
+		SetComponent(defaultMat, id);
+	}
+}
+
+void EnemyBase::Death() {
+
+}
+
+#pragma endregion
+
+
+#pragma region Genetics
+
+void EnemyBase::RecordAttack() {
+	if (!genetics) return;
+
+	genetics->performance.results.damageDelt += attackDamage;
+}
+
+void EnemyBase::Step() {
+	if (!genetics) return;
+
+	genetics->performance.results.nodesTraversed++;
+}
+
+void EnemyBase::CalculateResult() {
+	//gameObjMutex.lock();
+	if (!genetics) {
+		Console::WarningLine << "There's no genetics!!!!";
+		return;
+	}
+
+	genetics->performance.results.timeLasted = (float)GhostTime::Duration(spawnTime, GhostTime::Now());
+	float timeRatio = 1.0f / (genetics->performance.results.timeLasted * 0.001f);
+	genetics->performance.results.nodesTraversed *= timeRatio;
+	genetics->performance.results.damageDelt *= timeRatio;
+	genetics->performance.results.damageReceived *= timeRatio;
+
+	//gameObjMutex.unlock();
+}
+
+void EnemyBase::SetStats() {
+	if (!genetics) {
+		Console::WarningLine << "There's no genetics!!!!";
+		return;
+	}
+	
+	gameObjMutex.lock();
+
+	//Play around with the trait effects here
+	const float *traitFactors = genetics->traits.GetTraitArray();
+	maxSpeed = 3.0f + 6.0f * traitFactors[SPEED] + 4.0f * traitFactors[ENERGY] + 2.0f * traitFactors[COORDINATION] + 1.0f * traitFactors[BALANCE];
+	attackDamage = 3.0f + 10.0f * traitFactors[STRENGTH] + 7.0f * traitFactors[POWER] + 4.0f * traitFactors[ACCURACY] + 1.0f * traitFactors[LUCK];
+	attackSpeed = 2.0f * traitFactors[INTELLIGENCE] + 1.5f * traitFactors[WISDOM] + 1.0f * traitFactors[EVASION] + 0.5f * traitFactors[DEXTERITY];
+	SetMaxHealth(90.0f + 200.0f * traitFactors[DEFENSE] + 150.0f * traitFactors[ENDURANCE] + 100.0f * traitFactors[STAMINA] + 50.0f * traitFactors[RESISTANCE]);
+	SetToFullHealth();
+	rb->SetTerminalSpeed(maxSpeed);
+
+	gameObjMutex.unlock();
+}
+
+#pragma endregion
+
+//overriding Health::DeathEvent()
+static int deatheventCount = 0;
 void EnemyBase::DeathEvent() {
-	genetics->performance.died = sentDeathMessage = true;
+	//gameObjMutex.lock();
+	if (genetics) genetics->performance.died = true;
+	sentDeathMessage = true;
+	ChangeState(DEATH);
 	MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
+	deatheventCount++;
+	//gameObjMutex.unlock();
 }
 
 //Other Overrides
 void EnemyBase::OnCollision(GameObject* _other) {
+	gameObjMutex.lock();
 	PhysicsComponent* myPhys = GetComponent<PhysicsComponent>();//component doesn't change?? this needs cached. set on awake or start.
 	DirectX::XMVECTOR incomingDirection = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat4x4(&transform.GetMatrix()).r[3], DirectX::XMLoadFloat4x4(&(_other->transform.GetMatrix())).r[3]));
 	if(_other->GetTag() == "Bullet") {
-		myPhys->rigidBody.AddForce(0.2f, DirectX::XMVectorGetX(incomingDirection), 0.0f, DirectX::XMVectorGetZ(incomingDirection));
+		myPhys->rigidBody.AddForce(1.0f, DirectX::XMVectorGetX(incomingDirection), 0.0f, DirectX::XMVectorGetZ(incomingDirection));
 
 		//auto& dam = (((Projectile*) _other)->damage);
 		//AdjustHealth(-dam);
@@ -152,15 +276,17 @@ void EnemyBase::OnCollision(GameObject* _other) {
 
 		TakeDamage(-(((Projectile*) _other)->damage));
 
-		if(componentVarients.find("Hurt") != componentVarients.end()) {
-			if(!hurt) {
-				int id = TypeMap::GetComponentTypeID<Material>();
-				defaultMat = GetComponent<Material>();
-				SetComponent(componentVarients["Hurt"], id);
-			}
-			hurt = true;
-			hurtTimer = 0;
-		}
+		ChangeState(INJURED);
+
+		//if(componentVarients.find("Hurt") != componentVarients.end()) {
+		//	if(!isHurting) {
+		//		int id = TypeMap::GetComponentTypeID<Material>();
+		//		defaultMat = GetComponent<Material>();
+		//		SetComponent(componentVarients["Hurt"], id);
+		//	}
+		//	isHurting = true;
+		//	hurtTimer = 0;
+		//}
 		//if(!IsAlive() && !sentDeathMessage) {
 		//	//Destroy itself
 		//	//if(temp > 3) {
@@ -172,11 +298,12 @@ void EnemyBase::OnCollision(GameObject* _other) {
 		//	//MessageEvents::SendQueueMessage(EVENT_Late, [=] { Destroy(); });
 		//	genetics->performance.died = sentDeathMessage = true;
 		//	MessageEvents::SendQueueMessage(EVENT_Late, [=] { Destroy(); });
-
 		//}
 	}
 
 	GameObject::OnCollision(_other);
+	gameObjMutex.unlock();
 }
+
 void EnemyBase::RandomizeStats() {
 }

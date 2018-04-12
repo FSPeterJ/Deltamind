@@ -25,8 +25,12 @@ const float Health::PercentHealth() const {
 	return (health / maxHealth);
 }
 float Health::AdjustHealth(const float amount) {
+	healthMutex.lock();
 	if (amount < 0) {
-		if (health == 0) return 0;
+		if (health == 0) {
+			healthMutex.unlock();
+			return 0;
+		}
 		HurtEvent();
 	}
 	if (amount > 0) HealedEvent();
@@ -34,6 +38,8 @@ float Health::AdjustHealth(const float amount) {
 	health += amount;
 	Clamp(0, maxHealth, &health);
 	if (health == 0) DeathEvent();
+
+	healthMutex.unlock();
 	return health - prevHealth;
 }
 const bool Health::IsAlive() const {

@@ -15,6 +15,7 @@ using namespace Omiracon::Genetics;
 
 class HexGrid;
 class RigidBody;
+struct PhysicsComponent;
 
 class EnemyBase: public GameObject, public Health {
 protected:
@@ -22,6 +23,7 @@ protected:
 		IDLE,
 		PATROL,
 		ATTACK,
+		INJURED,
 		DEATH,
 	};
 
@@ -29,7 +31,7 @@ protected:
 	Evolvable* genetics = nullptr;
 	GhostTime::Moment spawnTime;
 	
-	State currState = IDLE;
+	State currState = IDLE, prevState = IDLE;
 	DirectX::XMFLOAT3 target = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 
 	Core* core = nullptr;
@@ -45,11 +47,13 @@ protected:
 
 	unsigned eventLose = 0;
 	unsigned smite = 0;
-	bool hurt = false;
+	bool isHurting = false;
+	bool isDying = false;
 	double hurtTimer = 0;
 	double hurtDuration = 1;
 	bool sentDeathMessage = false;
 
+	PhysicsComponent* pc = 0;
 	RigidBody* rb = 0;
 
 public:
@@ -64,21 +68,28 @@ public:
 	void UnSubscribe() override;
 	void OnCollision(GameObject* _other) override;
 	void DeathEvent() override;
-	void RecordAttack();
 	void TakeDamage(float amount);
-	void Step();
-	void CalculateResult();
+
+	//Returns True if the current state was changed
+	bool ChangeState(State _s);
 
 	Evolvable*& SetTraits() { return genetics; }
 	void SetStats();
+	void RecordAttack();
+	void Step();
+	void CalculateResult();
 
 	virtual void SetGrid(HexGrid* _grid) {};
 	virtual void SetCore(Core* _core) { core = _core; };
 	virtual void Repath() {};
 	virtual void RandomizeStats();
 
-	//virtual void Attack() = 0;
-	//virtual void Move() = 0;
+	virtual void Idle();
+	virtual void Patrol();
+	virtual void Attack();
+	virtual void Injured();
+	virtual void Death();
+
 	//virtual void TakeDamage(float) = 0;
 	//virtual void Death() = 0;
 };

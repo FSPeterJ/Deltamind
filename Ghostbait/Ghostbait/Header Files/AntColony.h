@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <mutex>
 
 class HexGrid;
 class HexPath;
@@ -33,6 +34,7 @@ class AntColony {
 	static std::vector<Pheromone> trails;
 	static unsigned updateID;
 	static float timeElapsed;
+	static std::mutex antMutex;
 public:
 	static void SetGrid(HexGrid* _grid);
 	static void AddUpdateToEngineStruct();

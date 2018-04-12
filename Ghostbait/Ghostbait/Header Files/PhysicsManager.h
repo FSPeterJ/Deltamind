@@ -22,6 +22,8 @@ class PhysicsManager: public IComponentManager {
 	static Pool<PhysicsComponent> dynamicComponents;
 	static Pool<PhysicsComponent> staticComponents;
 	static SpatialPartition partitionSpace;
+	static std::mutex physicsMutex;
+	static std::mutex physCompPoolMutex;
 	std::vector<ColliderData> colliderDataList;
 	std::vector<PhysicsComponent> prefabComponents;
 
@@ -29,7 +31,7 @@ class PhysicsManager: public IComponentManager {
 	ColliderData* AddColliderData(float _radius, float _height);
 	ColliderData* AddColliderData(float x1, float y1, float z1, float x2, float y2, float z2);
 
-	void CollisionCheck(PhysicsComponent component1, PhysicsComponent component2);
+	void CollisionCheck(PhysicsComponent* component1, PhysicsComponent* component2);
 	void UpdateAABB(PhysicsComponent& component);
 	void TestAllComponentsCollision();
 	bool IsVectorZero(DirectX::XMVECTOR& _toTest);

@@ -28,6 +28,7 @@ HexGrid* AntColony::activeGrid = nullptr;
 std::vector<Pheromone> AntColony::trails;
 unsigned AntColony::updateID = 0;
 float AntColony::timeElapsed = 0.0f;
+std::mutex AntColony::antMutex;
 
 void AntColony::SetGrid(HexGrid* _grid) {
 	activeGrid = _grid;
@@ -49,14 +50,20 @@ void AntColony::LeavePheromone(const Pheromone& _pheromone) {
 }
 
 void AntColony::LeavePheromone(HexTile* const _tile, const AntProperties& _prop) {
+	antMutex.lock();
 	activeGrid->AddWeight(_tile, _prop.lingerTime * _prop.scentStrength);
 	trails.push_back(Pheromone(_tile, _prop));
+	antMutex.unlock();
 }
 
 void AntColony::LeavePheromone(HexPath* const _path, float _lingerTime, float _scentStrength) {
+	antMutex.lock();
+
 	for (size_t i = 0; i < _path->size(); ++i) {
 		LeavePheromone((*_path)[i], _lingerTime, _scentStrength);
 	}
+	
+	antMutex.unlock();
 }
 
 void AntColony::LeavePheromone(HexTile* const _tile, float _lingerTime, float _scentStrength) {
@@ -65,14 +72,17 @@ void AntColony::LeavePheromone(HexTile* const _tile, float _lingerTime, float _s
 }
 
 void AntColony::ClearTrails() {
+	antMutex.lock();
 	for (size_t i = 0; i < trails.size(); ++i) {
 		activeGrid->AddWeight(trails[i].tile, trails[i].prop.lingerTime * trails[i].prop.scentStrength);
 	}
+	antMutex.unlock();
 }
 
 void AntColony::Update() {
 	timeElapsed += (float)GhostTime::DeltaTime();
 	
+	antMutex.lock();
 	size_t index = 0;
 	Pheromone* currPtr;
 	while (index < trails.size()) {
@@ -89,5 +99,8 @@ void AntColony::Update() {
 			++index;
 		}
 	}
+	antMutex.unlock();
+
 	if (timeElapsed >= UPDATE_INTERVAL) { timeElapsed = 0.0f; }
+
 }

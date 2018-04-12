@@ -32,12 +32,14 @@ public:
 		size_t delsize = delegates.size();
 		//Iterators were not cutting the cake for us.  Accessing by index is ok, and we prevet iterator invalidation by pushback mid iteration
 		for(delegate_iteration = 0; delegate_iteration < delsize; ++delegate_iteration) {
-			delegates[delegate_iteration].function(e...);
+			auto f = delegates[delegate_iteration].function;
+			if(f) f(e...);
 		}
 		//Process the delegate further if more things were added to the current delegate by previous delegate calls in this update
 		if(delsize < delegates.size()) {
 			for(delegate_iteration = delsize; delegate_iteration < delegates.size(); ++delegate_iteration) {
-				delegates[delegate_iteration].function(e...);
+				auto f = delegates[delegate_iteration].function;
+				if (f) f(e...);
 			}
 		}
 		delegate_iteration = 0;
@@ -65,11 +67,13 @@ public:
 	//Possibly want to phase this out.  Unsure what problems we will run into with legacy support and 0 being an ID for permament registration
 	//ONLY use this if you NEVER want to remove your delegated function post-registration
 	void operator+=(const std::function<void(T...)> execute) {
+		if (!execute) return;
 		Delegate_Entry data = {0, execute};
 		delegates.push_back(data);
 	}
 
 	unsigned Add(const std::function<void(T...)> execute) {
+		if (!execute) std::runtime_error("Tried to add empty function.");
 		Delegate_Entry data = {++lastID, execute};
 		delegates.push_back(data);
 		return data.id;
@@ -98,7 +102,8 @@ public:
 
 	const inline size_t subscriber_count() const { return delegates.size(); }
 
-	inline void insert(const std::function<void(T...)> execute, size_t index) { delegates.insert(delegates.begin() + index, execute); }
+	
+	inline void insert(const std::function<void(T...)> execute, size_t index) { if (execute) delegates.insert(delegates.begin() + index, execute); }
 
 	Delegate(void) {};
 	~Delegate(void) {};

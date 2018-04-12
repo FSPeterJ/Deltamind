@@ -13,6 +13,7 @@
 #include "Player.h"
 //#include "DStarEnemy.h"
 //#include "MTDSLEnemy.h"
+#include <future>
 
 #include "Evolvable.h"
 using namespace Omiracon::Genetics;
@@ -340,6 +341,8 @@ void Game::Update() {
 		{
 			//--------Spawn Enemies if it's their time
 			{
+				std::vector<std::future<bool>> enemiesReady;
+				enemiesReady.reserve(64);
 				//For each spawn entry in the level file
 				for(int i = 0; i < gameData.waveManager.GetSpawnCount(); ++i) {
 					//Update this entry's timers
@@ -351,13 +354,21 @@ void Game::Update() {
 					if(spawner->ReadyToSpawn(nextSpawnTime) && spawner->EnemiesToSpawn()) {
 						//Spawns enemy at location
 						if(gameData.waveManager.GetSpawnObjectCount() == 0) Console::ErrorLine << "No spawners are in the scene! Wave will be infinite!";
-						else gameData.waveManager.SpawnEnemy(spawner, spawner->spawnerID, &hexGrid, core);
+						//else enemiesReady.push_back(gameData.waveManager.SpawnEnemy(spawner, spawner->spawnerID, &hexGrid, core));
+						else {
+							gameData.waveManager.SpawnEnemy(spawner, spawner->spawnerID, &hexGrid, core);
+						}
 						//Reset this entry's timeSinceLastSpawn
 						spawner->RestartTimer();
 					}
 				}
 
+				//Wait for enemies to be ready
+				//for (int j = 0; j < enemiesReady.size(); ++j) {
+				//	enemiesReady[j].get();
+				//}
 			}
+			
 			//--------Update Engine Structure
 			{
 				engine->ExecuteAnimationUpdate();

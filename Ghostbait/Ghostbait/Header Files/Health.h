@@ -1,6 +1,8 @@
 #pragma once
+#include <mutex>
 
 class Health {
+	std::mutex healthMutex;
 	float maxHealth;
 	float health;
 	void Clamp(float min, float max, float* val);

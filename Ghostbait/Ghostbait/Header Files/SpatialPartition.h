@@ -1,6 +1,8 @@
 #pragma once
 #include <unordered_map>
 #include <vector>
+#include <unordered_set>
+#include <mutex>
 
 namespace DirectX {
 	struct XMFLOAT3;
@@ -31,7 +33,8 @@ class SpatialPartition {
 	std::vector<PhysicsComponent*> toTest;
 	uint32_t Hash(const float x, const float y, const float z);
 	uint32_t Hash(DirectX::XMFLOAT3 point);
-	std::vector<uint32_t> Hash(const AABB aabb);
+	std::unordered_set<uint32_t> Hash(const AABB aabb);
+	std::mutex spatialMutex;
 
 public:
 	SpatialPartition();

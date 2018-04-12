@@ -1,5 +1,7 @@
 #pragma once
 #include <vector>
+#include <mutex>
+#include <future>
 #include "Spawner.h"
 
 #include "Evolve.h"
@@ -42,6 +44,7 @@ struct WaveManager {
 		int enemyCount = 0;
 		int numberOfEnemiesSpawned = 0;
 		std::vector<SpawnerData> spawns;
+
 	};
 private:
 	std::vector<Wave> waves;

@@ -39,15 +39,15 @@ namespace Threadding {
 			//return f.get();
 		}
 
-		template<typename F, typename... Args>
-		static void CreateAsyncJob(std::function<void(Args...) >f) {
+		static std::future<void> CreateAsyncJob(std::function<void() >f) {
 			Job task(f);
-
+			std::future<void> fut = task.get_future();
 			std::lock_guard<std::mutex> lock(queueMutex);
 			queue.push(std::move(task));
 			queueMutex.unlock();
 
 			condition.notify_one();
+			return fut;
 		}
 
 		template<typename F, typename... Args>
@@ -65,6 +65,24 @@ namespace Threadding {
 			condition.notify_one();
 			return fut;
 		}
+
+		//This might not work...
+		template<typename ReturnType, typename... Args>
+		static std::future<ReturnType> MakeJob(std::function<ReturnType(Args...)> f, Args&&... args) {
+			Job task(std::bind(f, std::forward<Args>(args)...));
+			auto fut = task.get_future();
+			{
+				//unique_lock is heavier to construct?
+				//This should be unlocked immediately after pushing, but which is better?
+				// Research futher, but this is probably irrelevant levels of performance
+				std::lock_guard<std::mutex> lock(queueMutex);
+				queue.push(std::move(task));
+
+			}
+			condition.notify_one();
+			return fut;
+		}
+
 		static void Shutdown();
 	};
 }

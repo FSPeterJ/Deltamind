@@ -16,12 +16,14 @@ void PDA::Awake(Object* obj) {
 
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/PDAWaveCounter.ghost")), { 0, 0, 0 }, &waveCounter));
 	waveCounter->UnRender();
-	waveCounter->RenderTransparent();
+	waveCounter->Render();
 	waveCounter->SetComponent<Material>(TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "Wave: 0", foreground, background).mat);
 	waveCounter->PersistOnReset();
+	TextManager::SetSpecularTexture(waveCounter->GetComponent<Material>(), L"Assets/PDA.fbm/PDATextSpecular.png");
+
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/PDAEnemyCounter.ghost")), { 0, 0, 0 }, &enemyCounter));
 	enemyCounter->UnRender();
-	enemyCounter->RenderTransparent();
+	enemyCounter->Render();
 	enemyCounter->SetComponent<Material>(TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "Enemies Remaining: 00", foreground, background).mat);
 	enemyCounter->PersistOnReset();
 

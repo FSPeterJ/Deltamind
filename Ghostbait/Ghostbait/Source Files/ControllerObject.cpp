@@ -255,34 +255,13 @@ const int ControllerObject::GetSelectedItemIndex()
 }
 void ControllerObject::AddItem(int itemSlot, unsigned prefabID) {
 	AddToInventory(itemSlot, prefabID);
-
-	Gun* gun = dynamic_cast<Gun*>(inventory.items[itemSlot]);
-	BuildTool* tool = dynamic_cast<BuildTool*>(inventory.items[itemSlot]);
-	if(gun) {
-		gun->SetStats(Gun::FireType::SEMI, 60, 1);
-		gun->overheat.CreateBar(gun);
-	}
 }
 void ControllerObject::AddItem(int itemSlot, unsigned prefabID, std::vector<unsigned> prefabIDs) {
 	AddToInventory(itemSlot, prefabID);
 
-	Gun* gun = dynamic_cast<Gun*>(inventory.items[itemSlot]);
 	BuildTool* buildTool = dynamic_cast<BuildTool*>(inventory.items[itemSlot]);
-	if(gun) {
-		gun->SetStats(Gun::FireType::SEMI, 60, 1);
-		gun->overheat.CreateBar(gun);
-	}
-	else if(buildTool) {
+	if(buildTool) {
 		buildTool->SetPrefabs(prefabIDs);
-	}
-}
-void ControllerObject::AddItem(int itemSlot, unsigned prefabID, Gun::FireType _fireType, float _fireRate, float _damage) {
-	AddToInventory(itemSlot, prefabID);
-
-	Gun* gun = dynamic_cast<Gun*>(inventory.items[itemSlot]);
-	if(gun) {
-		gun->SetStats(_fireType, _fireRate, _damage);
-		gun->overheat.CreateBar(gun);
 	}
 }
 
@@ -552,14 +531,6 @@ void ControllerObject::SetBuildItems(std::vector<unsigned> prefabIDs) {
 	}
 	buildTool->SetPrefabs(prefabIDs);
 }
-
-// TEMPORARY - CHANGE OR REMOVE LATER
-void ControllerObject::SetGunData(int slot, Gun::FireType _fireType, float _fireRate, float _damage) {
-	Gun* gun = (Gun*)inventory.items[slot];
-	gun->SetStats(_fireType, _fireRate, _damage);
-
-}
-
 
 void ControllerObject::Enable() {
 	GameObject::Enable();

@@ -13,8 +13,8 @@
 
 #include "MessageEvents.h"
 
-#define INIT_BANK "Assets/Soundbanks/Init.bnk"
-#define DEFAULT_BANK "Assets/Soundbanks/TestBank.bnk"
+#define INIT_BANK "Assets/Soundbanks/Init2.bnk"//"Assets/Soundbanks/Init.bnk"
+#define DEFAULT_BANK "Assets/Soundbanks/New_SoundBank.bnk"//"Assets/Soundbanks/TestBank.bnk"
 
 #define LISTENER_ID 9999999
 

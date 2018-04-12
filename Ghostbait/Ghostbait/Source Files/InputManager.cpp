@@ -209,8 +209,7 @@ void InputManager::VRInput::CheckForInput() {
 				switch(event.data.controller.button) {
 					case vr::k_EButton_ApplicationMenu:
 						if(event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
-							//TODO::Move this to controller logic
-							MessageEvents::SendMessage(EVENT_PauseInputDetected, EventMessageBase());
+							//MessageEvents::SendMessage(EVENT_PauseInputDetected, EventMessageBase());
 						}
 						else {
 							input = teleportDown;
@@ -281,7 +280,8 @@ void InputManager::VRInput::CheckForInput() {
 			{
 				switch(event.data.controller.button) {
 					case vr::k_EButton_ApplicationMenu:
-						if(event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
+						if (event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
+							MessageEvents::SendMessage(EVENT_PauseInputDetected, EventMessageBase());
 						}
 						else {
 							input = teleportDown;
@@ -459,11 +459,11 @@ void InputManager::KeyboardInput::CheckForInput() {
 				break;
 			case KeyboardDown:
 				switch(input) {
-					case pause:
-					{
-						MessageEvents::SendMessage(EVENT_PauseInputDetected, EventMessageBase());
-						break;
-					}
+					//case pause:
+					//{
+					//	MessageEvents::SendMessage(EVENT_PauseInputDetected, EventMessageBase());
+					//	break;
+					//}
 					case releaseKey:
 					{
 
@@ -490,6 +490,13 @@ void InputManager::KeyboardInput::CheckForInput() {
 				amount = 1.0f;
 				break;
 			case KeyboardUp:
+				switch (input) {
+					case pause:
+						{
+							MessageEvents::SendMessage(EVENT_PauseInputDetected, EventMessageBase());
+							break;
+						}
+				}
 				/*switch(input) {
 					case releaseKey:
 					{

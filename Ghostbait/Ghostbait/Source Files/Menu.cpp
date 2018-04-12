@@ -184,8 +184,8 @@ Menu::~Menu() {
 
 void PlayButton::Select() {
 	menu->Hide();
-	MessageEvents::SendMessage(EVENT_Start, EventMessageBase());
-	//menu->CreateAndLoadChild(MENU_Difficulty);
+	//MessageEvents::SendMessage(EVENT_Start, EventMessageBase());
+	menu->CreateAndLoadChild(MENU_Difficulty);
 	MenuOption::Select();
 }
 void TutorialButton::Select() {

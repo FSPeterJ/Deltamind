@@ -22,7 +22,7 @@ using namespace Omiracon::Genetics;
 Game::Game() {
 	MessageEvents::Subscribe(EVENT_SpawnerCreated, [=](EventMessageBase* e) {this->SpawnerCreatedEvent(e); });
 	MessageEvents::Subscribe(EVENT_EnemyDied, [=](EventMessageBase* e) {this->EnemyDiedEvent(); });
-	MessageEvents::Subscribe(EVENT_Start, [=](EventMessageBase* e) {this->StartEvent(); });
+	MessageEvents::Subscribe(EVENT_Start, [=](EventMessageBase* e) {this->StartEvent(e); });
 	MessageEvents::Subscribe(EVENT_PauseInputDetected, [=](EventMessageBase* e) {this->PauseInputEvent(); });
 	MessageEvents::Subscribe(EVENT_GamePause, [=](EventMessageBase* e) {this->PauseGame(); });
 	MessageEvents::Subscribe(EVENT_GameUnPause, [=](EventMessageBase* e) {this->ResumeGame(); });
@@ -77,13 +77,19 @@ void Game::EnemyDiedEvent() {
 		ChangeState(GAMESTATE_BetweenWaves);
 	}
 }
-void Game::StartEvent() {
+void Game::StartEvent(EventMessageBase* e) {
+	StartEventMessage* starter = nullptr;
+	if(e)
+		starter = (StartEventMessage*)e;
 	switch(gameData.GetState()) {
 		case GAMESTATE_SplashScreen:
 		{
+			std::string levelName = "";
+			if (starter)
+				levelName = starter->RetrieveLevelName();
 			char* sceneName = new char[gameData.ssManager.GetNextScene().length() + 1];
 			memcpy(sceneName, gameData.ssManager.GetNextScene().c_str(), gameData.ssManager.GetNextScene().length() + 1);
-			ChangeScene(sceneName);
+			ChangeScene(sceneName, levelName);
 			delete sceneName;
 		}
 		break;
@@ -91,8 +97,13 @@ void Game::StartEvent() {
 			StartNextWave();
 			break;
 		case GAMESTATE_MainMenu:
-			ChangeScene("level0", "Level Files//level0.xml");
+		{
+			std::string levelName = "";
+			if (starter)
+				levelName = starter->RetrieveLevelName();
+			ChangeScene("level0", levelName);
 			break;
+		}
 	}
 }
 
@@ -146,7 +157,7 @@ void Game::ChangeState(State newState) {
 		}
 	}
 }
-void Game::ChangeScene(const char* sceneName, const char* levelName) {
+void Game::ChangeScene(const char* sceneName, std::string levelName) {
 	//Delete all current scene Items
 	MessageEvents::SendMessage(EVENT_DeleteAllGameObjects, EventMessageBase());
 
@@ -169,11 +180,10 @@ void Game::ChangeScene(const char* sceneName, const char* levelName) {
 	//If it has level/wave data, load it
 	if(sceneManager->GetCurrentScene().levelFiles.size() > 0) {
 		std::string levelFile = std::string("");
-		if (levelName == "")
+		if (levelName == levelFile)
 			levelFile = sceneManager->GetCurrentScene().levelFiles[0];
 		else
 		{
-			std::string comp = std::string(levelName);
 			for (size_t i = 0; i < sceneManager->GetCurrentScene().levelFiles.size(); ++i)
 			{
 				if (levelName == sceneManager->GetCurrentScene().levelFiles[i])

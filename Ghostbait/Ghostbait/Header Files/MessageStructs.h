@@ -238,3 +238,10 @@ public:
 	GameObject* RetrieveObject() const { return obj; }
 	AkUniqueID RetrieveSound() const { return sound; }
 };
+
+class StartEventMessage : public EventMessageBase {
+	std::string levelName = "";
+public:
+	StartEventMessage(std::string _levelName) : levelName(_levelName) {}
+	std::string RetrieveLevelName() const { return levelName; }
+};

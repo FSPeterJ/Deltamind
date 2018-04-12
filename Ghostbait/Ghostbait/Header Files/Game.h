@@ -42,7 +42,7 @@ class Game {
 	void RemoveObstacleEvent(EventMessageBase* e);
 	void EnemyDiedEvent();
 	void PauseInputEvent();
-	void StartEvent();
+	void StartEvent(EventMessageBase* e = nullptr);
 	void ExitToMainMenu();
 
 	//Major Scenes Loaded
@@ -53,7 +53,7 @@ class Game {
 
 	//Personal
 	void ChangeState(State newState);
-	void ChangeScene(const char* sceneName, const char* levelName = "");
+	void ChangeScene(const char* sceneName, std::string levelName = "");
 	void StartNextWave();
 
 	//Handle primary function event logic

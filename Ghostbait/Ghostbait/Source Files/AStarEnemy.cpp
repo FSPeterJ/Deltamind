@@ -21,6 +21,7 @@ void AStarEnemy::Awake(Object* obj) {
 	//rb = 0;
 	goal = 0;
 	next = 0;
+	curTile = 0;
 
 	start = false;
 	eventAdd = 0;
@@ -45,13 +46,15 @@ void AStarEnemy::Enable() {
 		pathing.get();
 		isPathing = false;
 	}
+
 	if(!isPathing && (!goal || !(path.size() > 0))) {
 		isPathing = true;
 		pathing = Threadding::ThreadPool::MakeJob([&]() {NewRandPath(); });
 	}
 
+	//if (!path.size()) throw std::runtime_error("Enemy could not find path.");
 	AntColony::LeavePheromone(&path, lingerTime, scentStrength);
-	next = path.start();
+	next = curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.GetMatrix()._41, transform.GetMatrix()._43));
 	rb->SetTerminalSpeed(maxSpeed);
 
 	EnemyBase::Enable();
@@ -146,9 +149,16 @@ void AStarEnemy::Patrol() {
 	};
 
 	//Update Path
-	HexTile* curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.GetMatrix()._41, transform.GetMatrix()._43));
+	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.GetMatrix()._41, transform.GetMatrix()._43));
 
-	if (!curTile || path.size() < 1) {
+	if (!curTile) {
+		isOutofBounds = true;
+		rb->SetVelocity(DirectX::XMVectorScale(rb->GetVelocity(), -1.0f));
+		return;
+	}
+
+	isOutofBounds = false;
+	if (path.size() < 1) {
 		rb->Stop();
 		isPathing = true;
 		pathing = Threadding::ThreadPool::MakeJob([&]() {NewRandPath(); });
@@ -241,6 +251,8 @@ void AStarEnemy::CalcPath(DirectX::XMFLOAT2 where) {
 	CalcPath(whereTile);
 }
 void AStarEnemy::CalcPath(HexTile* where) {
-	HexTile* curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.GetMatrix()._41, transform.GetMatrix()._43));
+	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.GetMatrix()._41, transform.GetMatrix()._43));
+
+	if (!curTile || !where) return;
 	path = PathPlanner::FindPath(curTile, where, TileType::Static, TileType::Static);
 }

@@ -16,7 +16,9 @@ class AStarEnemy: public EnemyBase, public AntProperties {
 	//RigidBody* rb = 0;
 	HexTile* goal = 0;
 	HexTile* next = 0;
+	HexTile* curTile = 0;
 	
+	bool isOutofBounds = false;
 	bool isPathing = false;
 	std::future<void> pathing;
 	bool start = false;

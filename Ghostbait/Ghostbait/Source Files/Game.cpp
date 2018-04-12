@@ -317,6 +317,8 @@ void Game::TutorialLoaded() {
 void Game::Level0Loaded() {
 	int index = 0;
 
+	player->leftController->ClearInventory();
+	player->rightController->ClearInventory();
 	//PDA
 	if (player->IsVR()) {
 		player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/PDA.ghost")));
@@ -328,14 +330,10 @@ void Game::Level0Loaded() {
 	//Pistol
 	player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost")));
 	player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost")));
-	player->leftController->SetGunData(index, Gun::FireType::SEMI, 60, 50);
-	player->rightController->SetGunData(index, Gun::FireType::SEMI, 60, 50);
 	++index;
 	//SMG
 	player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/smgNoStock.ghost")));
 	player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/smgNoStock.ghost")));
-	player->leftController->SetGunData(index, Gun::FireType::AUTO, 8, 20);
-	player->rightController->SetGunData(index, Gun::FireType::AUTO, 8, 20);
 	++index;
 	//BuildTool
 	player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost")));

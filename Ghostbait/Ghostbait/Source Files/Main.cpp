@@ -130,7 +130,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<Item>(16);
 	ObjectFactory::RegisterPrefabBase<ControllerObject>(2);
 	ObjectFactory::RegisterPrefabBase<ViveController>(20);
-	ObjectFactory::RegisterPrefabBase<Gun>(8);
+	ObjectFactory::RegisterPrefabBase<SMG>(4);
+	ObjectFactory::RegisterPrefabBase<Pistol>(4);
 	ObjectFactory::RegisterPrefabBase<PDA>(4);
 	ObjectFactory::RegisterPrefabBase<ProgressBar>(8);
 	ObjectFactory::RegisterPrefabBase<MenuControllerItem>(2);
@@ -185,7 +186,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<ControllerObject>("ControllerObject");
 	TypeMap::RegisterObjectAlias<ViveController>("ViveController");
 	TypeMap::RegisterObjectAlias<MenuControllerItem>("MenuControllerItem");
-	TypeMap::RegisterObjectAlias<Gun>("Gun");
+	TypeMap::RegisterObjectAlias<SMG>("SMG");
+	TypeMap::RegisterObjectAlias<Pistol>("Pistol");
 	TypeMap::RegisterObjectAlias<Item>("Item");
 	TypeMap::RegisterObjectAlias<ProgressBar>("ProgressBar");
 	TypeMap::RegisterObjectAlias<Projectile>("Projectile");
@@ -279,7 +281,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	Console::WriteLine << "Prefabs created......";
 	//=============================
 
-	player->LoadControllers();
+	player->InitControllers();
 
 
 	//GameObject* teddy;

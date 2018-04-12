@@ -55,7 +55,7 @@ public:
 
 	void AddItem(int itemSlot, unsigned prefabID);
 	void AddItem(int itemSlot, unsigned prefabID, std::vector<unsigned> prefabIDs);
-	void AddItem(int itemSlot, unsigned prefabID, Gun::FireType _fireType, float _fireRate, float _damage);
+	//void AddItem(int itemSlot, unsigned prefabID, Gun::FireType _fireType, float _fireRate, float _damage);
 	void RemoveItem(int itemSlot);
 	void ClearInventory();
 	Item* GetItem(int itemSlot) const { return inventory.items[itemSlot]; };
@@ -67,7 +67,6 @@ public:
 
 	//TEMPORARY FUNCTION
 	void SetBuildItems(std::vector<unsigned> prefabIDs);
-	void SetGunData(int slot, Gun::FireType _fireType, float _fireRate, float _damage);
 	void Enable();
 
 	void SetControllerState(ControllerState newState);

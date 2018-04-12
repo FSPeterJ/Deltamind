@@ -316,7 +316,8 @@ void Game::TutorialLoaded() {
 }
 void Game::Level0Loaded() {
 	int index = 0;
-
+	player->leftController->ClearInventory();
+	player->rightController->ClearInventory();
 	//PDA
 	if (player->IsVR()) {
 		player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/PDA.ghost")));

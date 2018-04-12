@@ -352,13 +352,13 @@ void Game::Level0Loaded() {
 	player->leftController->ClearInventory();
 	player->rightController->ClearInventory();
 	//PDA
-	//if (player->IsVR()) {
+	if (player->IsVR()) {
 		player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/PDA.ghost")));
 		player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/PDA.ghost")));
 		((PDA*)player->leftController->GetItem(index))->SetHand(HAND_Left);
 		((PDA*)player->rightController->GetItem(index))->SetHand(HAND_Right);
 		++index;
-	//}
+	}
 	//Pistol
 	player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost")));
 	player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost")));

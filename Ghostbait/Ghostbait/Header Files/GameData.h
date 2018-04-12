@@ -21,6 +21,7 @@ enum State {
 	GAMESTATE_GameOver,
 	GAMESTATE_SplashScreen,
 	GAMESTATE_MainMenu,
+	GAMESTATE_Credits,
 };
 
 struct WaveManager {

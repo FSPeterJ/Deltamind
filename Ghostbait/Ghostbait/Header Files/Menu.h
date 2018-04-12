@@ -40,6 +40,7 @@ enum Button {
 	BUTTON_Quit,
 	BUTTON_Play,
 	BUTTON_Tutorial,
+	BUTTON_Credits,
 	BUTTON_Easy,
 	BUTTON_Medium,
 	BUTTON_Hard,
@@ -76,16 +77,25 @@ public:
 };
 
 
-class ResumeButton : public MenuOption {
+class PlayButton : public MenuOption {
 	void Select() override;
 };
-class RestartButton : public MenuOption {
+class TutorialButton : public MenuOption {
 	void Select() override;
 };
 class OptionsButton : public MenuOption {
 	void Select() override;
 };
+class CreditsButton : public MenuOption {
+	void Select() override;
+};
 class QuitButton : public MenuOption {
+	void Select() override;
+};
+class ResumeButton : public MenuOption {
+	void Select() override;
+};
+class RestartButton : public MenuOption {
 	void Select() override;
 };
 class ExitButton : public MenuOption {
@@ -94,12 +104,16 @@ class ExitButton : public MenuOption {
 class BackButton : public MenuOption {
 	void Select() override;
 };
-class PlayButton : public MenuOption {
+class EasyButton : public MenuOption {
 	void Select() override;
 };
-class TutorialButton : public MenuOption {
+class MediumButton : public MenuOption {
 	void Select() override;
 };
+class HardButton : public MenuOption {
+	void Select() override;
+};
+
 
 
 

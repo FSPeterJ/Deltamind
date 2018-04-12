@@ -375,6 +375,16 @@ void Game::Level0Loaded() {
 	
 	player->SetBuildToolData(&hexGrid, &gameData);
 }
+void Game::CreditsLoaded() {
+	if (player->IsVR()) {
+		player->leftController->SetControllerState(CSTATE_ModelOnly);
+		player->rightController->SetControllerState(CSTATE_ModelOnly);
+	}
+	else {
+		player->leftController->SetControllerState(CSTATE_None);
+		player->rightController->SetControllerState(CSTATE_None);
+	}
+}
 
 //Main loop elements
 void Game::Start(Player* _player, EngineStructure* _engine, char* startScene) {
@@ -420,7 +430,7 @@ void Game::Update() {
 
 	switch(gameData.GetState()) {
 		case GAMESTATE_InWave:
-		{
+			{
 			//--------Spawn Enemies if it's their time
 			{
 				//For each spawn entry in the level file
@@ -448,25 +458,9 @@ void Game::Update() {
 				engine->ExecuteLateUpdate();
 			}
 		}
-		break;
-		case GAMESTATE_BetweenWaves:
-		{
-			//--------Update Engine Structure
-			engine->ExecuteAnimationUpdate();
-			engine->ExecuteUpdate();
-			engine->ExecuteLateUpdate();
-		}
-		break;
-		case GAMESTATE_GameOver:
-		{
-			//--------Update Engine Structure
-			engine->ExecuteAnimationUpdate();
-			engine->ExecuteUpdate();
-			engine->ExecuteLateUpdate();
-		}
-		break;
+			break;
 		case GAMESTATE_SplashScreen:
-		{
+			{
 			//update time
 			gameData.ssManager.UpdateTimeInScene(dt);
 
@@ -526,14 +520,17 @@ void Game::Update() {
 			engine->ExecuteUpdate();
 			engine->ExecuteLateUpdate();
 		}
-		break;
+			break;
+		case GAMESTATE_BetweenWaves:
+		case GAMESTATE_GameOver:
 		case GAMESTATE_MainMenu:
-		{
-			engine->ExecuteAnimationUpdate();
-			engine->ExecuteUpdate();
-			engine->ExecuteLateUpdate();
-		}
-		break;
+		case GAMESTATE_Credits:
+			{
+				engine->ExecuteAnimationUpdate();
+				engine->ExecuteUpdate();
+				engine->ExecuteLateUpdate();
+			}
+			break;
 		default:
 			Console::ErrorLine << "Invalid Game State Reached!";
 			break;

@@ -1,5 +1,6 @@
 #include "TextManager.h"
 #include "VertexTypes.h"
+#include "WICTextureLoader.h"
 
 ID3D11Device* TextManager::device;
 ID3D11DeviceContext* TextManager::context;
@@ -229,8 +230,7 @@ TextManager::renderableMat TextManager::generateVertexBufferAndRender(Font * fon
 
 void TextManager::releaseRenderableMat(renderableMat * _mat)
 {
-	_mat->mat->diffuse.texture->Release();
-	_mat->mat->diffuse.texView->Release();
+	_mat->mat->release();
 
 	_mat->depthTex->Release();
 	_mat->dsv->Release();
@@ -343,4 +343,16 @@ float TextManager::DrawTextExistingMat(std::string _fontTexturePath, std::string
 		}
 	}
 	return -1.0f;
+}
+
+void TextManager::SetSpecularTexture(Material * _mat, std::wstring path, float factor)
+{
+	DirectX::CreateWICTextureFromFile(device, context, path.c_str(), (ID3D11Resource**)&_mat->specular.texture, &_mat->specular.texView);
+	_mat->specular.factor = factor;
+}
+
+void TextManager::SetEmissiveTexture(Material * _mat, std::wstring path, float factor)
+{
+	DirectX::CreateWICTextureFromFile(device, context, path.c_str(), (ID3D11Resource**)&_mat->emissive.texture, &_mat->emissive.texView);
+	_mat->emissive.factor = factor;
 }

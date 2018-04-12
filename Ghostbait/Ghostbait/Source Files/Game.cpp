@@ -146,7 +146,7 @@ void Game::ChangeState(State newState) {
 		}
 	}
 }
-void Game::ChangeScene(const char* sceneName) {
+void Game::ChangeScene(const char* sceneName, const char* levelName) {
 	//Delete all current scene Items
 	MessageEvents::SendMessage(EVENT_DeleteAllGameObjects, EventMessageBase());
 
@@ -168,6 +168,17 @@ void Game::ChangeScene(const char* sceneName) {
 
 	//If it has level/wave data, load it
 	if(sceneManager->GetCurrentScene().levelFiles.size() > 0) {
+		std::string levelFile = std::string("");
+		if (levelName == "")
+			levelFile = sceneManager->GetCurrentScene().levelFiles[0];
+		else
+		{
+			for (size_t i = 0; i < sceneManager->GetCurrentScene().levelFiles.size(); ++i)
+			{
+				if (levelName == sceneManager->GetCurrentScene().levelFiles[i])
+					levelFile = sceneManager->GetCurrentScene().levelFiles[i];
+			}
+		}
 		irr::io::IrrXMLReader *xmlReader = irr::io::createIrrXMLReader(sceneManager->GetCurrentScene().levelFiles[0].c_str());
 
 		WaveManager::Wave* newWave = nullptr;

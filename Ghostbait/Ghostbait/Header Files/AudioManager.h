@@ -23,6 +23,7 @@ public:
 	~AudioManager();
 
 	void setCamera(const DirectX::XMFLOAT4X4* _camera);
+	void LoadBanks();
 	void registerObject(EventMessageBase* e);
 	void unRegisterObject(EventMessageBase* e);
 	void playSound(EventMessageBase* e);

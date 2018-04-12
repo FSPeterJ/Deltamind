@@ -173,27 +173,27 @@ void HUD::Inventory::Initialize(ID3D11Device * device, ID3D11DeviceContext * con
 	viewport.Height = 92.0f;
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
-	loadTexture(L"Assets/InventoryPictures/leftSMGInv.png", device, context); //Replace with pistol picture when we get it
+	loadTexture(L"Assets/InventoryPictures/Slot1.png", device, context);
 	viewport.TopLeftX = (32.0f * normalRangeWidth) * windowWidth;
 	viewport.TopLeftY = (414.0f * normalRangeHeight) * windowHeight;
 	viewports.push_back(viewport);
-	loadTexture(L"Assets/InventoryPictures/leftSMGInv.png", device, context);
+	loadTexture(L"Assets/InventoryPictures/Slot2.png", device, context);
 	viewport.TopLeftX = (32.0f * normalRangeWidth) * windowWidth;
 	viewport.TopLeftY = (472.0f * normalRangeHeight) * windowHeight;
 	viewports.push_back(viewport);
-	loadTexture(L"Assets/InventoryPictures/leftBuildToolInv.png", device, context);
+	loadTexture(L"Assets/InventoryPictures/Slot3.png", device, context);
 	viewport.TopLeftX = (32.0f * normalRangeWidth) * windowWidth;
 	viewport.TopLeftY = (530.0f * normalRangeHeight) * windowHeight;
 	viewports.push_back(viewport);
-	loadTexture(L"Assets/InventoryPictures/rightSMGInv.png", device, context); //Same as before
+	loadTexture(L"Assets/InventoryPictures/Slot4.png", device, context);
 	viewport.TopLeftX = (1104.0f * normalRangeWidth) * windowWidth;
 	viewport.TopLeftY = (414.0f * normalRangeHeight) * windowHeight;
 	viewports.push_back(viewport);
-	loadTexture(L"Assets/InventoryPictures/rightSMGInv.png", device, context);
+	loadTexture(L"Assets/InventoryPictures/Slot5.png", device, context);
 	viewport.TopLeftX = (1104.0f * normalRangeWidth) * windowWidth;
 	viewport.TopLeftY = (472.0f * normalRangeHeight) * windowHeight;
 	viewports.push_back(viewport);
-	loadTexture(L"Assets/InventoryPictures/rightBuildToolInv.png", device, context);
+	loadTexture(L"Assets/InventoryPictures/Slot6.png", device, context);
 	viewport.TopLeftX = (1104.0f * normalRangeWidth) * windowWidth;
 	viewport.TopLeftY = (530.0f * normalRangeHeight) * windowHeight;
 	viewports.push_back(viewport);

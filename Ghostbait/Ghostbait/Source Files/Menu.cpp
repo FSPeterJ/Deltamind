@@ -226,16 +226,19 @@ void BackButton::Select() {
 	MenuOption::Select();
 }
 void EasyButton::Select() {
-	//menu->Hide();
+	menu->Hide();
 	MenuOption::Select();
+	MessageEvents::SendMessage(EVENT_Start, StartEventMessage("Level Files//level0_easy.xml"));
 }
 void MediumButton::Select() {
-	//menu->Hide();
+	menu->Hide();
 	MenuOption::Select();
+	MessageEvents::SendMessage(EVENT_Start, StartEventMessage("Level Files//level0.xml"));
 }
 void HardButton::Select() {
-	//menu->Hide();
+	menu->Hide();
 	MenuOption::Select();
+	MessageEvents::SendMessage(EVENT_Start, StartEventMessage("Level Files//level0_hard.xml"));
 }
 
 

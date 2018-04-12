@@ -40,6 +40,9 @@ enum Button {
 	BUTTON_Quit,
 	BUTTON_Play,
 	BUTTON_Tutorial,
+	BUTTON_Easy,
+	BUTTON_Medium,
+	BUTTON_Hard,
 };
 
 class Menu {

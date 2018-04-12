@@ -61,4 +61,6 @@ public:
 	static Material* CreateRenderableTexture(float width, float height);
 	static textOutput DrawTextTo(std::string _fontTexturePath, std::string _sentence, DirectX::XMFLOAT4 textColor, DirectX::XMFLOAT4 backgroundColor);
 	static float DrawTextExistingMat(std::string _fontTexturePath, std::string _sentence, Material* _mat, DirectX::XMFLOAT4 textColor, DirectX::XMFLOAT4 backgroundColor); //Returns a suggested aspect ratio for the quad as Y = (X * return)
+	static void SetSpecularTexture(Material* _mat, std::wstring path, float factor = 0.8f);
+	static void SetEmissiveTexture(Material* _mat, std::wstring path, float factor = 0.8f);
 };

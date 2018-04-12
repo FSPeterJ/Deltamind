@@ -230,8 +230,7 @@ TextManager::renderableMat TextManager::generateVertexBufferAndRender(Font * fon
 
 void TextManager::releaseRenderableMat(renderableMat * _mat)
 {
-	_mat->mat->diffuse.texture->Release();
-	_mat->mat->diffuse.texView->Release();
+	_mat->mat->release();
 
 	_mat->depthTex->Release();
 	_mat->dsv->Release();

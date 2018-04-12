@@ -315,20 +315,40 @@ void Game::MainMenuLoaded() {
 	player->transform.LookAt({ menuPos._41, menuPos._42, menuPos._43 });
 }
 void Game::TutorialLoaded() {
-	player->rightController->ClearInventory();
-	player->leftController->ClearInventory();
-	if (player->IsVR()) {
-		player->rightController->AddItem(0, ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")));
-		player->leftController->AddItem(0, ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")));
-		player->rightController->GetItem(0)->SwapComponentVarient<Material>("menu");
-	}
-	player->rightController->SetControllerState(CSTATE_Inventory);
+	gameData.AddGears(1000);
+	int index = 0;
 	player->leftController->SetControllerState(CSTATE_Inventory);
+	player->rightController->SetControllerState(CSTATE_Inventory);
+	player->leftController->ClearInventory();
+	player->rightController->ClearInventory();
+	//PDA
+	if (player->IsVR()) {
+		player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/PDA.ghost")));
+		player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/PDA.ghost")));
+		((PDA*)player->leftController->GetItem(index))->SetHand(HAND_Left);
+		((PDA*)player->rightController->GetItem(index))->SetHand(HAND_Right);
+		++index;
+	}
+	//Pistol
+	player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost")));
+	player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost")));
+	++index;
+	//SMG
+	player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/smgNoStock.ghost")));
+	player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/smgNoStock.ghost")));
+	++index;
+	//BuildTool
+	player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost")));
+	player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost")));
+	player->leftController->SetBuildItems({ ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost")) });
+	player->rightController->SetBuildItems({ ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost")) });
+
+	player->SetBuildToolData(&hexGrid, &gameData);
 }
 void Game::Level0Loaded() {
 	int index = 0;
-	player->leftController->ClearInventory();
-	player->rightController->ClearInventory();
+	player->leftController->SetControllerState(CSTATE_Inventory);
+	player->rightController->SetControllerState(CSTATE_Inventory);
 	player->leftController->ClearInventory();
 	player->rightController->ClearInventory();
 	//PDA

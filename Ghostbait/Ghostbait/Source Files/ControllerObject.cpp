@@ -99,8 +99,8 @@ void ControllerObject::SwitchCurrentItem(int itemIndex) {
 			}
 		}
 	}
-	else if(inventory.items[itemIndex] != inventory.currentItem) {
-		inventory.currentItem->DeSelected();
+	else if(inventory.items[itemIndex] != inventory.currentItem && inventory.items[itemIndex]) {
+		if(inventory.currentItem) inventory.currentItem->DeSelected();
 		inventory.currentItem = inventory.items[itemIndex];
 		inventory.currentItem->Selected();
 		return;
@@ -198,9 +198,11 @@ void ControllerObject::AddToInventory(int itemSlot, unsigned prefabID) {
 		inventory.currentItem = inventory.items[itemSlot];
 		inventory.currentItem->Selected();
 	}
-	inventory.items[itemSlot]->UnRender();
-	inventory.items[itemSlot]->PersistOnReset();
-	inventory.items[itemSlot]->SetPhysicsComponent(false);
+	else {
+		inventory.items[itemSlot]->UnRender();
+		inventory.items[itemSlot]->PersistOnReset();
+		inventory.items[itemSlot]->SetPhysicsComponent(false);
+	}
 
 	//Inventory Display
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Item>(prefabID, { 0,0,0 }, (Item**)&inventory.displayItems[itemSlot]));
@@ -230,13 +232,15 @@ void ControllerObject::RemoveItem(int itemSlot) {
 		inventory.items[itemSlot] = nullptr;
 		inventory.displayItems[itemSlot] = nullptr;
 		--inventory.itemCount;
-		if (inventory.itemCount == 0) inventory.currentItem = nullptr;
+		if (inventory.itemCount == 0) 
+			inventory.currentItem = nullptr;
 	}
 }
 void ControllerObject::ClearInventory() {
 	for (int i = 0; i < CONTROLLER_MAX_ITEMS; ++i) {
 		RemoveItem(i);
 	}
+	inventory.currentItem = nullptr;
 }
 const int ControllerObject::GetSelectedItemIndex()
 {

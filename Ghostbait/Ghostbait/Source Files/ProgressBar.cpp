@@ -1,6 +1,9 @@
 #include "ProgressBar.h"
 #include "DebugRenderer.h"
-
+void ProgressBar::Awake(Object* obj) {
+	GameObject::Awake(obj);
+	SetBarPercentage(0);
+}
 void ProgressBar::SetBarPercentage(float percent) {
 	percentage = percent;
 	DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();

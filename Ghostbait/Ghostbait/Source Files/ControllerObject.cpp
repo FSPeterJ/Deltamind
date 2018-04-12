@@ -10,6 +10,8 @@
 #include "Player.h"
 #include "HexGrid.h"
 #include "Material.h"
+#include "PDA.h"
+#include "MeshManager.h"
 //Only here to safely instantiate something. Should be done differently later
 #include "ObjectFactory.h"
 
@@ -202,6 +204,11 @@ void ControllerObject::AddToInventory(int itemSlot, unsigned prefabID) {
 		inventory.items[itemSlot]->UnRender();
 		inventory.items[itemSlot]->PersistOnReset();
 		inventory.items[itemSlot]->SetPhysicsComponent(false);
+	}
+
+	PDA* pda = dynamic_cast<PDA*>(inventory.items[itemSlot]);
+	if (pda) {
+		pda->SwapComponentVarient<Mesh>("text");
 	}
 
 	//Inventory Display

@@ -8,6 +8,11 @@ class Monitor : public GameObject {
 
 	std::string curWave;
 	std::string totalWaves;
+
+	unsigned eventCoreDamaged = 0;
+	unsigned eventWin = 0;
+	unsigned eventLose = 0;
+
 public:
 	void Awake(Object* obj) override;
 	void Update() override;

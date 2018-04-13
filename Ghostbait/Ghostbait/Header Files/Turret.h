@@ -4,6 +4,7 @@
 #include "Health.h"
 
 class Turret: public GameObject, public Health {
+protected:
 	GameObject* target;
 	unsigned projectiePID =0;
 	unsigned eventDestroy;
@@ -35,4 +36,17 @@ public:
 	void Shoot();
 	void GivePID(unsigned pid, const char* tag);
 	inline const unsigned GetBuildCost() const { return buildCost; }
+};
+
+class Turret_Long : public Turret {
+public:
+	void Awake(Object* obj) override;
+};
+class Turret_Medium : public Turret {
+public:
+	void Awake(Object* obj) override;
+};
+class Turret_Short : public Turret {
+public:
+	void Awake(Object* obj) override;
 };

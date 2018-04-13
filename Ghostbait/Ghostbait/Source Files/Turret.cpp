@@ -18,7 +18,6 @@
 Turret::Turret() {
 	tag = std::string("Turret");
 }
-
 void Turret::Enable() {
 	if (!eventDestroy) {
 		eventDestroy = MessageEvents::Subscribe(EVENT_Destroy, [=](EventMessageBase* e) {
@@ -30,14 +29,12 @@ void Turret::Enable() {
 	}
 	GameObject::Enable();
 }
-
 void Turret::Disable() {
 	if (eventDestroy) {
 		MessageEvents::UnSubscribe(EVENT_Destroy, eventDestroy);
 	}
 	GameObject::Disable();
 }
-
 void Turret::Awake(Object* obj) {
 	Turret* turret = ((Turret*)obj);
 	eventDestroy = 0;
@@ -53,7 +50,6 @@ void Turret::Awake(Object* obj) {
 	assert(launcherorigin);
 	GameObject::Awake(obj);
 }
-
 void Turret::Update() {
 	float dt = (float)GhostTime::DeltaTime();
 
@@ -162,7 +158,6 @@ void Turret::Update() {
 		GetComponent<Animator>()->ManipulateJointByName("Yaw", DirectX::XMLoadFloat4x4(&prevYaw));
 	}
 }
-
 float Turret::CalculateDistance(GameObject* obj) {
 	float length;
 	using namespace DirectX;
@@ -176,10 +171,8 @@ float Turret::CalculateDistance(GameObject* obj) {
 	XMStoreFloat(&length, pos);
 	return length;
 }
-
 Turret::~Turret() {
 }
-
 void Turret::OnTrigger(GameObject* object) {
 	if(!strcmp(object->GetTag().c_str(), "Enemy") || !strcmp(object->GetTag().c_str(), "PhysicsTestObj")) {
 		using namespace DirectX;
@@ -190,11 +183,9 @@ void Turret::OnTrigger(GameObject* object) {
 		}
 	}
 }
-
 bool Turret::CanShoot(float fireRate) {
 	return timeSinceLastShot >(1 / fireRate);
 }
-
 void Turret::Shoot() {
 	//Fire
 	using namespace DirectX;
@@ -219,15 +210,33 @@ void Turret::Shoot() {
 	obj->Enable();
 	timeSinceLastShot = (float)GhostTime::DeltaTime();
 }
-
 void Turret::Destroy() {
 	MessageEvents::SendMessage(EVENT_RemoveObstacle, SnapMessage(&DirectX::XMFLOAT2(transform.GetPosition().x, transform.GetPosition().z)));
 	GameObject::Destroy();
 }
-
 void Turret::GivePID(unsigned pid, const char* tag) {
 	// Look into a better system
 	if(!strcmp(tag, "projectile")) {
 		projectiePID = pid;
 	}
 }
+
+void Turret_Long::Awake(Object* obj) {
+	Turret::Awake(obj);
+	firerate = 0.5f;
+	damage = 75;
+	buildCost = 750;
+}
+void Turret_Medium::Awake(Object* obj) {
+	Turret::Awake(obj);
+	firerate = 3;
+	damage = 10;
+	buildCost = 500;
+}
+void Turret_Short::Awake(Object* obj) {
+	Turret::Awake(obj);
+	firerate = 6;
+	damage = 4;
+	buildCost = 250;
+}
+

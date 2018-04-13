@@ -28,7 +28,7 @@ void PDA::Awake(Object* obj) {
 	enemyCounter->PersistOnReset();
 
 
-	MessageEvents::Subscribe(EVENT_WaveChange, [=](EventMessageBase* e) {
+	eventWaveChange = MessageEvents::Subscribe(EVENT_WaveChange, [=](EventMessageBase* e) {
 		if (enemyCounter) {
 			totalEnemies = (*((GameDataMessage*)e)->RetrieveData())->waveManager.GetCurrentWave()->enemyCount;
 			std::string message = "Enemies Remaining: ";
@@ -43,7 +43,7 @@ void PDA::Awake(Object* obj) {
 			TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", message, waveCounter->GetComponent<Material>(), foreground, background);
 		}
 	});
-	MessageEvents::Subscribe(EVENT_EnemyDied, [=](EventMessageBase* e) {
+	eventEnemyDied = MessageEvents::Subscribe(EVENT_EnemyDied, [=](EventMessageBase* e) {
 		if (enemyCounter) {
 			--totalEnemies;
 			std::string message = "Enemies Remaining: ";
@@ -80,6 +80,10 @@ void PDA::Destroy() {
 		enemyCounter->Destroy();
 		enemyCounter = nullptr;
 	}
+	
+	if (eventWaveChange) MessageEvents::UnSubscribe(EVENT_WaveChange, eventWaveChange);
+	if (eventEnemyDied) MessageEvents::UnSubscribe(EVENT_EnemyDied, eventEnemyDied);
+
 	Item::Destroy();
 }
 

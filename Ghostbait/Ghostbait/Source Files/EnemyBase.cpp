@@ -4,6 +4,7 @@
 #include "Console.h"
 #include "Projectile.h"
 #include "Material.h"
+#include "Animator.h"
 
 #include "Evolvable.h"
 
@@ -98,6 +99,16 @@ void EnemyBase::TakeDamage(float amount) {
 bool EnemyBase::ChangeState(State _s) {
 	if (currState == _s) return false;
 	
+	if (_s == INJURED)
+	{
+		if(GetComponent<Animator>())
+		GetComponent<Animator>()->setState("Taunt");
+	}
+	else
+	{
+		if(GetComponent<Animator>())
+		GetComponent<Animator>()->setState("Move");
+	}
 	prevState = currState;
 	currState = _s;
 	return true;
@@ -184,10 +195,11 @@ void EnemyBase::Injured() {
 
 	hurtTimer += GhostTime::DeltaTime();
 	if (hurtTimer >= hurtDuration) {
-		currState = prevState;
+		//currState = prevState;
 		isHurting = false;
 		int id = TypeMap::GetComponentTypeID<Material>();
 		SetComponent(defaultMat, id);
+		ChangeState(prevState);
 	}
 }
 

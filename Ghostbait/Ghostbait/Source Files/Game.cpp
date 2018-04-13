@@ -179,7 +179,7 @@ void Game::ChangeScene(const char* sceneName, std::string levelName) {
 	//--------------------------------------
 
 	//If it has level/wave data, load it
-	if(sceneManager->GetCurrentScene().levelFiles.size() > 0) {
+	if (sceneManager->GetCurrentScene().levelFiles.size() > 0) {
 		std::string levelFile = std::string("");
 		if (levelName == levelFile)
 			levelFile = sceneManager->GetCurrentScene().levelFiles[0];
@@ -190,22 +190,23 @@ void Game::ChangeScene(const char* sceneName, std::string levelName) {
 				if (levelName == sceneManager->GetCurrentScene().levelFiles[i])
 					levelFile = sceneManager->GetCurrentScene().levelFiles[i];
 			}
-			if(levelFile.c_str() == "")
+			if (levelFile.c_str() == "")
 				levelFile = sceneManager->GetCurrentScene().levelFiles[0];
 		}
 		irr::io::IrrXMLReader *xmlReader = irr::io::createIrrXMLReader(levelFile.c_str());
+		currLevelName = levelFile;
 
 		WaveManager::Wave* newWave = nullptr;
-		while(xmlReader->read()) {
-			if(xmlReader->getNodeType() == irr::io::EXN_ELEMENT) {
-				if(!strcmp("Level", xmlReader->getNodeName())) {
+		while (xmlReader->read()) {
+			if (xmlReader->getNodeType() == irr::io::EXN_ELEMENT) {
+				if (!strcmp("Level", xmlReader->getNodeName())) {
 					gameData.AddGears(xmlReader->getAttributeValueAsInt("startGears"));
 					gameData.SetStateHard(GAMESTATE_BetweenWaves);
 					gameData.SetPrevStateHard(GAMESTATE_BetweenWaves);
 					player->leftController->SetControllerState(CSTATE_Inventory);
 					player->rightController->SetControllerState(CSTATE_Inventory);
 				}
-				else if(!strcmp("MenuScene", xmlReader->getNodeName())) {
+				else if (!strcmp("MenuScene", xmlReader->getNodeName())) {
 					gameData.ssManager.SetSceneTimeLimit(xmlReader->getAttributeValueAsFloat("sceneTimeLimit"));
 					gameData.ssManager.SetNextScene(xmlReader->getAttributeValue("nextScene"));
 					gameData.SetStateHard(GAMESTATE_SplashScreen);
@@ -213,15 +214,15 @@ void Game::ChangeScene(const char* sceneName, std::string levelName) {
 					player->leftController->SetControllerState(CSTATE_ModelOnly);
 					player->rightController->SetControllerState(CSTATE_ModelOnly);
 				}
-				else if(!strcmp("Wave", xmlReader->getNodeName())) {
-					if(newWave) {
+				else if (!strcmp("Wave", xmlReader->getNodeName())) {
+					if (newWave) {
 						gameData.waveManager.AddWave(*newWave);
 						delete newWave;
 					}
 					newWave = new WaveManager::Wave();
 					(*newWave).reward = xmlReader->getAttributeValueAsInt("reward");
 				}
-				else if(!strcmp("Spawner", xmlReader->getNodeName())) {
+				else if (!strcmp("Spawner", xmlReader->getNodeName())) {
 					WaveManager::Wave::SpawnerData newSpawner;
 					newSpawner.spawnerID = xmlReader->getAttributeValueAsInt("spawnerID");
 					newSpawner.enemyName = xmlReader->getAttributeValueSafe("enemyName");
@@ -231,7 +232,7 @@ void Game::ChangeScene(const char* sceneName, std::string levelName) {
 					(*newWave).spawns.push_back(newSpawner);
 					(*newWave).enemyCount += newSpawner.spawnCount;
 				}
-				else if(!strcmp("Logo", xmlReader->getNodeName())) {
+				else if (!strcmp("Logo", xmlReader->getNodeName())) {
 					SplashScreenManager::LogoData logo;
 					logo.fileName = xmlReader->getAttributeValue("ghostFile");
 					logo.spawnTime = xmlReader->getAttributeValueAsFloat("duration");
@@ -239,13 +240,14 @@ void Game::ChangeScene(const char* sceneName, std::string levelName) {
 				}
 			}
 		}
-		if(newWave) {
+		if (newWave) {
 			gameData.waveManager.AddWave(*newWave);
 			delete newWave;
 		}
 		delete xmlReader;
 	}
-
+	else
+		currLevelName = "";
 
 }
 void Game::StartNextWave() {
@@ -266,7 +268,7 @@ void Game::RestartLevel() {
 	std::string name = sceneManager->GetNameFromScene(sceneManager->ResetCurrentScene());
 
 	//Reinstantiate starting wave values and current scene
-	ChangeScene(name.c_str());
+	ChangeScene(name.c_str(), currLevelName);
 }
 void Game::ResumeGame() {
 	//Logic to run when game first gets unPaused

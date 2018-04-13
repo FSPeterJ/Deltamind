@@ -24,7 +24,7 @@ class Game {
 	
 	Evolver evolver;
 	GameData gameData = GameData(&evolver);
-
+	std::string currLevelName = "";
 	EngineStructure* engine;
 	SceneManager* sceneManager;
 	Player* player;

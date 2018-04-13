@@ -196,15 +196,16 @@ void ControllerObject::AddToInventory(int itemSlot, unsigned prefabID) {
 		RemoveItem(itemSlot);
 	//Actual Inventory
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Item>(prefabID, { 0,0,0 }, (Item**)&inventory.items[itemSlot]));
+	inventory.items[itemSlot]->PersistOnReset();
 	if(!inventory.currentItem) {
 		inventory.currentItem = inventory.items[itemSlot];
 		inventory.currentItem->Selected();
 	}
 	else {
 		inventory.items[itemSlot]->UnRender();
-		inventory.items[itemSlot]->PersistOnReset();
 		inventory.items[itemSlot]->SetPhysicsComponent(false);
 	}
+
 
 	PDA* pda = dynamic_cast<PDA*>(inventory.items[itemSlot]);
 	if (pda) {

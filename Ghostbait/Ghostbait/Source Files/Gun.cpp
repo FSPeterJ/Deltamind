@@ -22,6 +22,7 @@ bool Gun::Overheat::AddEnergy(float energy) {
 	if(currentEnergy >= energyLimit) {
 		currentEnergy = energyLimit;
 		energyOverheatDelayTimeLeft = energyOverheatDelay;
+		Overheated();
 		return false;
 	}
 	return true;
@@ -35,10 +36,12 @@ void Gun::Overheat::Update(bool active) {
 		if(energyOverheatDelayTimeLeft <= 0) {
 			energyOverheatDelayTimeLeft = 0;
 			currentEnergy = 0;
+			CooledDown();
 		}
 	}
 	else if(timeSinceLastShot >= energyWaitCooldown) {
 		currentEnergy = 0;
+		//CooledDown();
 	}
 
 	// This seems weird but I have no better ideas at the moment
@@ -64,6 +67,14 @@ void Gun::Overheat::Update(bool active) {
 
 	//Console Write
 	//Console::WriteLine << currentEnergy << "__" << energyLimit << " : " << energyOverheatDelayTimeLeft << " : " << timeSinceLastShot;
+}
+void Gun::Overheat::Overheated() {
+	overheated = true;
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(parent, AK::EVENTS::PLAY_SFX_GUNOVERHEAT));
+}
+void Gun::Overheat::CooledDown() {
+	overheated = false;
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(parent, AK::EVENTS::PLAY_SFX_GUNCOOLDOWN_FINISHED));
 }
 
 Gun::Gun() {
@@ -100,7 +111,10 @@ void Gun::Destroy() {
 	Item::Destroy();
 }
 bool Gun::Shoot(bool addOverheat) {
-	if (!addOverheat || overheat.CanShoot(fireRate)) {
+	if (!overheat.CanShoot(fireRate) && overheat.overheated) {
+		//MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_PURCHASETRIGGER));
+	}
+	else if (!addOverheat || overheat.CanShoot(fireRate)) {
 		//Fire
 		Projectile* obj;
 		MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Projectile>(projectiePID, { 0, 0, 0 }, &obj));
@@ -117,16 +131,14 @@ bool Gun::Shoot(bool addOverheat) {
 		flash.SetAsPoint({ 0.0f, 0.0f, 11.0f }, { newPos._41, newPos._42, newPos._43 }, 1.2f);
 		flash.SetTimed(0.1);
 		flash.Enable();
-		if (addOverheat) { obj->SetDamage(damage); }
-		else { obj->SetDamage(9999999); }
 		obj->Enable();
 		if (addOverheat) {
+			obj->SetDamage(damage);
 			overheat.AddEnergy(overheat.energyBulletCost);
 			overheat.ResetTimeSinceLastShot();
 		}
-		if (type == SEMI) {
-			return false;
-		}
+		else obj->SetDamage(9999999);
+		if (type == SEMI) return false;
 	}
 	return true;
 }

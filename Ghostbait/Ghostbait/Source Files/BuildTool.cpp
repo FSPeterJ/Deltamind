@@ -11,6 +11,7 @@
 #include "ObjectFactory.h"
 #include "DebugRenderer.h"
 #include "GameData.h"
+#include "Wwise_IDs.h"
 
 std::vector<GameObject*> BuildTool::builtItems = std::vector<GameObject*>();
 
@@ -220,6 +221,7 @@ void BuildTool::Spawn() {
 				GameObject* newObj;
 				MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabs[currentPrefabIndex].ID, spawnPos, &newObj));
 				MessageEvents::SendMessage(EVENT_AddObstacle, SnapMessage(&DirectX::XMFLOAT2(spawnPos.x, spawnPos.z)));
+				MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_TURRETDAMAGE));
 				builtItems.push_back(newObj);
 				newObj->Enable();
 				gameData->AdjustTurretsSpawned(1);
@@ -495,6 +497,7 @@ void BuildTool::Awake(Object* obj) {
 	ray.SetFile("Assets/Ray.ghost");
 	light.Enable();
 	light.SetAsPoint({ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 4.5f);
+	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
 	GameObject::Awake(obj);
 }
 void BuildTool::Destroy() {

@@ -5,7 +5,7 @@
 #include "Projectile.h"
 #include "Material.h"
 #include "Animator.h"
-
+#include "Wwise_IDs.h"
 #include "Evolvable.h"
 
 void EnemyBase::Awake(Object* obj) {
@@ -24,6 +24,7 @@ void EnemyBase::Awake(Object* obj) {
 	smite = 0;
 	SetToFullHealth();
 	GameObject::Awake(obj);
+	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
 }
 
 void EnemyBase::Start() {

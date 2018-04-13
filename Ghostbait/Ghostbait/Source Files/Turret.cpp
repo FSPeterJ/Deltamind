@@ -60,6 +60,7 @@ void Turret::Update() {
 
 	timeSinceLastShot += dt;
 	if(target != nullptr) {
+		hasTargeted = true;
 		using namespace DirectX;
 		////XMVECTOR jointoffset = XMLoadFloat3(&(XMFLOAT3)turretPitch->m[3]);
 		//XMVECTOR jointoffset = { 0,1.0f,0 };
@@ -122,7 +123,8 @@ void Turret::Update() {
 
 		GetComponent<Animator>()->ManipulateJointByName("Pitch", lookatPitch);
 		GetComponent<Animator>()->ManipulateJointByName("Yaw", lookatYaw);
-
+		DirectX::XMStoreFloat4x4(&prevPitch, lookatPitch);
+		DirectX::XMStoreFloat4x4(&prevYaw, lookatYaw);
 		
 
 		//lookat =  lookat * DirectX::XMMatrixTranslationFromVector(bulletpos);
@@ -153,7 +155,11 @@ void Turret::Update() {
 			target = nullptr;
 			targetDistance = 99999;
 		}
-
+		
+	}
+	else if(hasTargeted) {
+		GetComponent<Animator>()->ManipulateJointByName("Pitch", DirectX::XMLoadFloat4x4(&prevPitch));
+		GetComponent<Animator>()->ManipulateJointByName("Yaw", DirectX::XMLoadFloat4x4(&prevYaw));
 	}
 }
 

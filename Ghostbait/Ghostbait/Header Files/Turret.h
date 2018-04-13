@@ -16,6 +16,10 @@ class Turret: public GameObject, public Health {
 	DirectX::XMFLOAT4X4* launcherorigin;
 	DirectX::XMFLOAT4X4* turretYaw;
 
+	DirectX::XMFLOAT4X4 prevPitch;
+	DirectX::XMFLOAT4X4 prevYaw;
+	bool hasTargeted = false;
+
 public:
 
 	Turret();

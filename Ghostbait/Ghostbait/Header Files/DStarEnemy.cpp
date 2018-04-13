@@ -63,7 +63,6 @@ void DStarEnemy::Awake(Object* obj) {
 	eventRemove = 0;
 
 	EnemyBase::Awake(obj);
-	rb = &(GetComponent<PhysicsComponent>()->rigidBody);
 }
 
 void DStarEnemy::Attack() {

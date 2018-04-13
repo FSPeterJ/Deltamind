@@ -1,9 +1,12 @@
 #pragma once
 #include "GameObject.h"
 
+struct PhysicsComponent;
+
 class Item: public GameObject {
 protected:
 	bool physicsIsOn = true;
+	PhysicsComponent* pc = nullptr;
 public:
 	enum State {
 		INVALID,
@@ -15,6 +18,7 @@ public:
 	State state;
 	Item();
 
+	void Awake(Object* obj) override;
 	virtual void SetPhysicsComponent(bool active = true);
 	virtual void InactiveUpdate() {}
 	virtual void ActiveUpdate() {}

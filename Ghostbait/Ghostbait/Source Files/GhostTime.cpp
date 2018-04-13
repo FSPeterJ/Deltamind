@@ -9,7 +9,9 @@ void GhostTime::Initalize() {
 	//EngineStructure::Update += [=]() { Tick(); };
 }
 
-void GhostTime::Tick() { timer.Signal(); }
+void GhostTime::Tick() { 
+	timer.Signal(); 
+}
 
 GhostTime::Moment GhostTime::Now() {
 	return Moment(std::chrono::system_clock::now());

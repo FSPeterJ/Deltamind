@@ -6,6 +6,7 @@
 
 class HexGrid;
 class GameData;
+struct Material;
 
 class BuildTool : public Item {
 	struct BuildItem {
@@ -20,6 +21,8 @@ class BuildTool : public Item {
 
 	GameObject* gearDisplay = nullptr;
 	GameObject* gearAdjustmentDisplay = nullptr;
+	Material* gearMat = nullptr;
+	Material* gearAdjustmentMat = nullptr;
 
 	int currentPrefabIndex = 0;
 	std::vector<BuildItem> prefabs;

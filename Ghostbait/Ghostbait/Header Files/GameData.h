@@ -74,7 +74,8 @@ public:
 
 	inline const Wave* GetCurrentWave() const { return (currentWave != -1) ? &waves[currentWave] : nullptr;  }
 	inline const int GetWaveCount() const { return (int)waves.size(); }
-	inline const int GetAliveEnemyCount() const { return enemiesLeftAlive; }
+	inline const int GetAliveEnemyCount() const { 
+		return enemiesLeftAlive; }
 	inline void EnemyKilled(const int& enemyCount = 1) { enemiesLeftAlive -= enemyCount; }
 
 	inline const int GetSpawnObjectCount() const { return (int)spawnerObjects.size(); }

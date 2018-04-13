@@ -6,10 +6,13 @@ Item::Item() {
 	SetTag("Item");
 };
 
+void Item::Awake(Object* obj) {
+	GameObject::Awake(obj);
+	pc = GetComponent<PhysicsComponent>();
+}
 
 void Item::SetPhysicsComponent(bool active) {
 	if (active == physicsIsOn) return;
-	PhysicsComponent* pc = GetComponent<PhysicsComponent>();
 	if (pc) pc->isActive = active;
 	physicsIsOn = active;
 }

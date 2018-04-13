@@ -1,6 +1,8 @@
 #pragma once
 #include "GameObject.h"
 
+struct Material;
+
 class Monitor : public GameObject {
 	GameObject* screen = nullptr;
 	std::string font = "Assets/Fonts/defaultFont.png";
@@ -8,6 +10,13 @@ class Monitor : public GameObject {
 
 	std::string curWave;
 	std::string totalWaves;
+
+	Material* screenMat = nullptr;
+
+	unsigned eventCoreDamaged = 0;
+	unsigned eventWin = 0;
+	unsigned eventLose = 0;
+
 public:
 	void Awake(Object* obj) override;
 	void Update() override;

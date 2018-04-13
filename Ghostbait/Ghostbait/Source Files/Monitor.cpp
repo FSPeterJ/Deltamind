@@ -4,6 +4,7 @@
 #include "TextManager.h"
 #include "GameData.h"
 #include "Core.h"
+#include "GhostTime.h"
 #undef SendMessage
 
 void Monitor::Awake(Object* obj) {
@@ -12,7 +13,8 @@ void Monitor::Awake(Object* obj) {
 	positioned = false;
 	GameObject::Awake(obj);
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/MonitorScreen.ghost")), { 0, 0, 0 }, &screen));
-	screen->SetComponent<Material>(TextManager::DrawTextTo(font, "\n Core Health: 100%\n", { 1, 1, 1, 1 }, { 0, 0, 0, 1 }).mat);
+	screenMat = TextManager::DrawTextTo(font, "\n Core Health: 100%\n", { 1, 1, 1, 1 }, { 0, 0, 0, 1 }).mat;
+	screen->SetComponent<Material>(screenMat);
 
 	eventCoreDamaged = MessageEvents::Subscribe(EVENT_CoreDamaged, [=](EventMessageBase* e) {
 		std::string health = std::to_string((int)((*((CoreMessage*)e)->RetrieveData())->PercentHealth() * 100));
@@ -31,6 +33,7 @@ void Monitor::Update() {
 		if (screen) screen->transform.SetMatrix(transform.GetMatrix());
 		positioned = true;
 	}
+	WriteToScreen(std::to_string(GhostTime::FrameRate()));
 }
 void Monitor::Destroy() {
 	if (screen) screen->Destroy(); 
@@ -43,6 +46,6 @@ void Monitor::Destroy() {
 
 void Monitor::WriteToScreen(const std::string text, const DirectX::XMFLOAT4 foreground, const DirectX::XMFLOAT4 background) {
 	if (screen) {
-		TextManager::DrawTextExistingMat(font, text, screen->GetComponent<Material>(), foreground, background);
+		TextManager::DrawTextExistingMat(font, text, screenMat, foreground, background);
 	}
 }

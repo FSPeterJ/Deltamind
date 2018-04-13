@@ -4,15 +4,18 @@
 #include "ObjectFactory.h"
 #include "PhysicsComponent.h"
 
+void MenuOption::Awake(Object* obj) {
+	GameObject::Awake(obj);
+	pc = GetComponent<PhysicsComponent>();
+}
 void MenuOption::Select() {
 	//Console::WriteLine << "Menu Option: " << this << " was selected!";
 }
 void MenuOption::UnHighlight() {
 	//Console::WriteLine << "Menu Option: " << this << " was Un-highlighted!";
 	transform.SetMatrix(oldPos);
-	PhysicsComponent* comp = GetComponent<PhysicsComponent>();
-	if (comp && comp->colliders.size()) {
-		comp->colliders[0].colliderData->colliderInfo.boxCollider.topRightFrontCorner = oldColliderPoint;
+	if (pc && pc->colliders.size()) {
+		pc->colliders[0].colliderData->colliderInfo.boxCollider.topRightFrontCorner = oldColliderPoint;
 	}
 
 }
@@ -23,9 +26,8 @@ void MenuOption::Highlight() {
 	newPos.y -= oldPos._32 * popDistance;
 	newPos.z -= oldPos._33 * popDistance;
 	transform.SetPosition(newPos);
-	PhysicsComponent* comp = GetComponent<PhysicsComponent>();
-	if (comp && comp->colliders.size()) {
-		comp->colliders[0].colliderData->colliderInfo.boxCollider.topRightFrontCorner.z += popDistance * 2;
+	if (pc && pc->colliders.size()) {
+		pc->colliders[0].colliderData->colliderInfo.boxCollider.topRightFrontCorner.z += popDistance * 2;
 	}
 }
 
@@ -153,7 +155,7 @@ void Menu::Show(bool useCamera) {
 		newOption->PersistOnReset();
 		options[i] = newOption;
 		options[i]->SetOldPos(options[i]->transform.GetMatrix());
-		options[i]->SetOldColliderPoint(options[i]->GetComponent<PhysicsComponent>()->colliders[0].colliderData->colliderInfo.boxCollider.topRightFrontCorner);
+		options[i]->SetOldColliderPoint(options[i]->GetPhysics()->colliders[0].colliderData->colliderInfo.boxCollider.topRightFrontCorner);
 		options[i]->UnHighlight();
 		newOption->UnRender();
 		newOption->RenderToFront();

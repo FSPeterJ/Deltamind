@@ -3,6 +3,8 @@
 #include "Animator.h"
 #include "Health.h"
 
+class Animator;
+
 class Turret: public GameObject, public Health {
 protected:
 	GameObject* target;
@@ -16,10 +18,11 @@ protected:
 	DirectX::XMFLOAT4X4* turretPitch;
 	DirectX::XMFLOAT4X4* launcherorigin;
 	DirectX::XMFLOAT4X4* turretYaw;
-
 	DirectX::XMFLOAT4X4 prevPitch;
 	DirectX::XMFLOAT4X4 prevYaw;
 	bool hasTargeted = false;
+
+	Animator* anim = nullptr;
 
 public:
 

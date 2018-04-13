@@ -18,14 +18,16 @@ void CastObject::Create(bool renderToFront, const char* varientColor) {
 		MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<GameObject>(ObjectFactory::CreatePrefab(&std::string(fileName)), { 0, 0, 0 }, &object));
 		object->PersistOnReset();
 		object->ToggleFlag(GAMEOBJECT_PUBLIC_FLAGS::UNLIT);
+		mat = object->GetComponent<Material>();
+		anim = object->GetComponent<Animator>();
 		backup = object;
 		if (renderToFront) {
 			object->UnRender();
 			object->RenderToFront();
 		}
-		if (object->GetComponent<Animator>()) {
+		if (anim) {
 			for (int i = 0; i < ArcPoints; ++i) {
-				DirectX::XMFLOAT4X4 temp = object->GetComponent<Animator>()->GetJointMatrix(i);
+				DirectX::XMFLOAT4X4 temp = anim->GetJointMatrix(i);
 				temp._11 *= -1;
 				temp._12 *= -1;
 				temp._13 *= -1;
@@ -33,7 +35,7 @@ void CastObject::Create(bool renderToFront, const char* varientColor) {
 				temp._31 *= -1;
 				temp._32 *= -1;
 				temp._33 *= -1;
-				object->GetComponent<Animator>()->SetJointMatrix(i, temp);
+				anim->SetJointMatrix(i, temp);
 			}
 		}
 	}
@@ -43,8 +45,10 @@ void CastObject::Create(bool renderToFront, const char* varientColor) {
 }
 void CastObject::Destroy() {
 	if (object) {
-		//MessageEvents::SendQueueMessage(EVENT_Late, [=] { 
-			backup->Destroy(); backup = nullptr;// });
+		backup->Destroy(); 
+		backup = nullptr;
+		mat = nullptr;
+		anim = nullptr;
 		object = nullptr;
 	}
 }
@@ -102,7 +106,7 @@ namespace {
 				endMat._42 -= 1;
 				tran.LookAt(DirectX::XMFLOAT3(endMat.m[3]));
 			}
-			arc->Get()->GetComponent<Animator>()->SetJointMatrix(i, tran.GetMatrix());
+			arc->GetAnimator()->SetJointMatrix(i, tran.GetMatrix());
 		}
 	}
 	void DrawRay(Transform* transform, const DirectX::XMFLOAT3& end, CastObject* ray) {

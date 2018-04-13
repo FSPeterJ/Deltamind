@@ -174,7 +174,7 @@ void EnemyBase::Injured() {
 	if (!isHurting) {
 		if (componentVarients.find("Hurt") != componentVarients.end()) {
 			int id = TypeMap::GetComponentTypeID<Material>();
-			defaultMat = GetComponent<Material>();
+			defaultMat = GetComponent<Material>(); //FIXME
 			SetComponent(componentVarients["Hurt"], id);
 		}
 		isHurting = true;
@@ -265,10 +265,9 @@ void EnemyBase::DeathEvent() {
 //Other Overrides
 void EnemyBase::OnCollision(GameObject* _other) {
 	gameObjMutex.lock();
-	PhysicsComponent* myPhys = GetComponent<PhysicsComponent>();//component doesn't change?? this needs cached. set on awake or start.
 	DirectX::XMVECTOR incomingDirection = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat4x4(&transform.GetMatrix()).r[3], DirectX::XMLoadFloat4x4(&(_other->transform.GetMatrix())).r[3]));
 	if(_other->GetTag() == "Bullet") {
-		myPhys->rigidBody.AddForce(1.0f, DirectX::XMVectorGetX(incomingDirection), 0.0f, DirectX::XMVectorGetZ(incomingDirection));
+		pc->rigidBody.AddForce(1.0f, DirectX::XMVectorGetX(incomingDirection), 0.0f, DirectX::XMVectorGetZ(incomingDirection));
 
 		//auto& dam = (((Projectile*) _other)->damage);
 		//AdjustHealth(-dam);

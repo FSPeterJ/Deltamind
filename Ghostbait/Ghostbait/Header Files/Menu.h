@@ -3,6 +3,7 @@
 #include <map>
 
 class Menu;
+struct PhysicsComponent;
 
 class MenuOption : public GameObject {
 	//0.5 X 0.1 X 0.1
@@ -11,14 +12,13 @@ protected:
 	DirectX::XMFLOAT4X4 oldPos;
 	DirectX::XMFLOAT3 oldColliderPoint;
 	float popDistance = 0.15f;
+	PhysicsComponent* pc = nullptr;
 public:
-	void Awake(Object* obj) override {
-		menu = menu;
-		GameObject::Awake(obj);
-	}
+	void Awake(Object* obj) override;
 	inline void SetMenu(Menu* _menu) { menu = _menu; }
 	inline void SetOldPos(DirectX::XMFLOAT4X4 mat) { oldPos = mat; }
 	inline void SetOldColliderPoint(DirectX::XMFLOAT3 pos) { oldColliderPoint = pos; }
+	inline PhysicsComponent* GetPhysics() const { return pc; }
 	virtual void Select() = 0;
 	void Highlight();
 	void UnHighlight();

@@ -17,14 +17,16 @@ void PDA::Awake(Object* obj) {
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/PDAWaveCounter.ghost")), { 0, 0, 0 }, &waveCounter));
 	waveCounter->UnRender();
 	waveCounter->Render();
-	waveCounter->SetComponent<Material>(TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "Wave: 0", foreground, background).mat);
+	waveMat = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "Wave: 0", foreground, background).mat;
+	waveCounter->SetComponent<Material>(waveMat);
 	waveCounter->PersistOnReset();
 	TextManager::SetSpecularTexture(waveCounter->GetComponent<Material>(), L"Assets/PDA.fbm/PDATextSpecular.png");
 
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/PDAEnemyCounter.ghost")), { 0, 0, 0 }, &enemyCounter));
 	enemyCounter->UnRender();
 	enemyCounter->Render();
-	enemyCounter->SetComponent<Material>(TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "Enemies Remaining: 00", foreground, background).mat);
+	enemyMat = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "Enemies Remaining: 00", foreground, background).mat;
+	enemyCounter->SetComponent<Material>(enemyMat);
 	enemyCounter->PersistOnReset();
 
 
@@ -33,14 +35,14 @@ void PDA::Awake(Object* obj) {
 			totalEnemies = (*((GameDataMessage*)e)->RetrieveData())->waveManager.GetCurrentWave()->enemyCount;
 			std::string message = "Enemies Remaining: ";
 			message.append(std::to_string(totalEnemies));
-			TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", message, enemyCounter->GetComponent<Material>(), foreground, background);
+			TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", message, enemyMat, foreground, background);
 		}
 		if (waveCounter) {
 			std::string curWave = std::to_string((*((GameDataMessage*)e)->RetrieveData())->waveManager.GetCurrentWaveNumber());
 			std::string totalWaves = std::to_string((*((GameDataMessage*)e)->RetrieveData())->waveManager.GetWaveCount());
 			std::string message = "Wave: ";
 			message.append(curWave + " / " + totalWaves);
-			TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", message, waveCounter->GetComponent<Material>(), foreground, background);
+			TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", message, waveMat, foreground, background);
 		}
 	});
 	eventEnemyDied = MessageEvents::Subscribe(EVENT_EnemyDied, [=](EventMessageBase* e) {
@@ -48,7 +50,7 @@ void PDA::Awake(Object* obj) {
 			--totalEnemies;
 			std::string message = "Enemies Remaining: ";
 			message.append(std::to_string(totalEnemies));
-			TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", message, enemyCounter->GetComponent<Material>(), foreground, background);
+			TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", message, enemyMat, foreground, background);
 		}
 	});
 }

@@ -362,12 +362,12 @@ void Renderer::renderObjectDefaultState(const GameObject * obj) {
 	ID3D11Buffer* x = y->vertexBuffer;
 
 	context->IASetVertexBuffers(0, 1, &x, &stride, &offset);
-	context->IASetIndexBuffer(obj->GetComponent<Mesh>()->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	context->IASetIndexBuffer(y->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(XMLoadFloat4x4(&obj->transform.GetMatrix())), 0, 0);
 	Material* mat = obj->GetComponent<Material>();
 	if (mat)
 	{
-		obj->GetComponent<Material>()->bindToShader(context, factorBuffer, obj->GetFlags() & GAMEOBJECT_PUBLIC_FLAGS::UNLIT);
+		mat->bindToShader(context, factorBuffer, obj->GetFlags() & GAMEOBJECT_PUBLIC_FLAGS::UNLIT);
 		if (mat->flags & Material::MaterialFlags::POINT)
 			context->PSSetSamplers(0, 1, &PointSamplerState);
 		else
@@ -399,7 +399,7 @@ void Renderer::renderObjectDefaultState(const GameObject * obj) {
 	context->UpdateSubresource(uvDataBuffer, NULL, NULL, &uvData, NULL, NULL);
 	context->PSSetShader(DeferredTargetPS, NULL, NULL);
 	//materialManagement->GetElement(UINT_MAX)->bindToShader(context, factorBuffer);
-	context->DrawIndexed(obj->GetComponent<Mesh>()->indexCount, 0, 0);
+	context->DrawIndexed(y->indexCount, 0, 0);
 }
 
 void Renderer::renderToEye(eye * eyeTo) {

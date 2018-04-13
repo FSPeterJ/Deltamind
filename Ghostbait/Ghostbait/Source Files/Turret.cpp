@@ -43,10 +43,11 @@ void Turret::Awake(Object* obj) {
 	target = nullptr;
 	firerate = turret->firerate;
 	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
-	turretPitch = GetComponent<Animator>()->getJointByName("Pitch");
-	turretYaw = GetComponent<Animator>()->getJointByName("Yaw");
+	anim = GetComponent<Animator>();
+	turretPitch = anim->getJointByName("Pitch");
+	turretYaw = anim->getJointByName("Yaw");
 	assert(turretPitch);
-	launcherorigin = GetComponent<Animator>()->getJointByName("Launcher_1");
+	launcherorigin = anim->getJointByName("Launcher_1");
 	assert(launcherorigin);
 	GameObject::Awake(obj);
 }
@@ -117,8 +118,8 @@ void Turret::Update() {
 		//);
 
 
-		GetComponent<Animator>()->ManipulateJointByName("Pitch", lookatPitch);
-		GetComponent<Animator>()->ManipulateJointByName("Yaw", lookatYaw);
+		anim->ManipulateJointByName("Pitch", lookatPitch);
+		anim->ManipulateJointByName("Yaw", lookatYaw);
 		DirectX::XMStoreFloat4x4(&prevPitch, lookatPitch);
 		DirectX::XMStoreFloat4x4(&prevYaw, lookatYaw);
 		
@@ -154,8 +155,8 @@ void Turret::Update() {
 		
 	}
 	else if(hasTargeted) {
-		GetComponent<Animator>()->ManipulateJointByName("Pitch", DirectX::XMLoadFloat4x4(&prevPitch));
-		GetComponent<Animator>()->ManipulateJointByName("Yaw", DirectX::XMLoadFloat4x4(&prevYaw));
+		anim->ManipulateJointByName("Pitch", DirectX::XMLoadFloat4x4(&prevPitch));
+		anim->ManipulateJointByName("Yaw", DirectX::XMLoadFloat4x4(&prevYaw));
 	}
 }
 float Turret::CalculateDistance(GameObject* obj) {
@@ -199,13 +200,12 @@ void Turret::Shoot() {
 	newPos._42 += transform.matrix._42;
 	newPos._43 += transform.matrix._43;
 	obj->transform.SetMatrix(newPos);
-	PhysicsComponent* temp2 = obj->GetComponent<PhysicsComponent>();
-	RigidBody* temp = &temp2->rigidBody;
-	temp->AdjustGravityMagnitude(0);
+	PhysicsComponent* pc = obj->GetComponent<PhysicsComponent>();
+	pc->rigidBody.AdjustGravityMagnitude(0);
 
 	//why arent we using 
 	//temp->SetVelocity(obj->position._31 * 10.0f, obj->position._32 * 10.0f, obj->position._33 * 10.0f);
-	obj->GetComponent<PhysicsComponent>()->rigidBody.SetVelocity(launcherorigin->_31 * 35.0f, launcherorigin->_32 * 35.0f, launcherorigin->_33 * 35.0f);
+	pc->rigidBody.SetVelocity(launcherorigin->_31 * 35.0f, launcherorigin->_32 * 35.0f, launcherorigin->_33 * 35.0f);
 	obj->SetDamage(damage);
 	obj->Enable();
 	timeSinceLastShot = (float)GhostTime::DeltaTime();

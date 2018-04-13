@@ -230,7 +230,8 @@ TextManager::renderableMat TextManager::generateVertexBufferAndRender(Font * fon
 
 void TextManager::releaseRenderableMat(renderableMat * _mat)
 {
-	_mat->mat->release();
+	_mat->mat->diffuse.texture->Release();
+	_mat->mat->diffuse.texView->Release();
 
 	_mat->depthTex->Release();
 	_mat->dsv->Release();
@@ -347,7 +348,7 @@ float TextManager::DrawTextExistingMat(std::string _fontTexturePath, std::string
 
 void TextManager::SetSpecularTexture(Material* _mat, std::wstring path, float factor)
 {
-	DirectX::CreateWICTextureFromFile(device, context, path.c_str(), (ID3D11Resource**)&_mat->specular.texture, &_mat->specular.texView);
+	HRESULT didItBlend = DirectX::CreateWICTextureFromFile(device, context, path.c_str(), (ID3D11Resource**)&_mat->specular.texture, &_mat->specular.texView);
 	_mat->specular.factor = factor;
 }
 

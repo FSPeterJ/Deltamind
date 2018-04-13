@@ -39,40 +39,41 @@ struct PixelShaderInput
 float2x4 calcLight(int i, float3 worldPos, float3 norm)
 {
     float2x4 ret = float2x4(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-    if (lights[i].radius > 0.0f)
+    genericLight theLight = lights[i];
+    if (theLight.radius > 0.0f)
     {
-        if (lights[i].outerRadius > 0.0f)
+        if (theLight.outerRadius > 0.0f)
         {
-            float3 dir = normalize(lights[i].pos - worldPos);
-            float3 coneDir = normalize(lights[i].dir);
+            float3 dir = normalize(theLight.pos - worldPos);
+            float3 coneDir = normalize(theLight.dir);
             float surfaceRatio = saturate(dot(-dir, coneDir));
-            float spotFactor = (surfaceRatio > lights[i].outerRadius) ? 1.0f : 0.0f;
+            float spotFactor = (surfaceRatio > theLight.outerRadius) ? 1.0f : 0.0f;
             float lightRatio = saturate(dot(dir, norm) * spotFactor);
-            float atten = 1.0f - saturate((lights[i].radius - surfaceRatio) / (lights[i].radius - lights[i].outerRadius));
+            float atten = 1.0f - saturate((theLight.radius - surfaceRatio) / (theLight.radius - theLight.outerRadius));
             atten *= atten;
-            ret._11_12_13_14 = (lights[i].color * lightRatio) * atten;
+            ret._11_12_13_14 = (theLight.color * lightRatio) * atten;
             ret._21 = atten;
         }
         else
         {
-            float3 dir = lights[i].pos - worldPos;
-            if (length(dir) < lights[i].radius)
+            float3 dir = theLight.pos - worldPos;
+            if (length(dir) < theLight.radius)
             {
                 dir = normalize(dir);
                 float lightRatio = saturate(dot(dir, norm));
-                float atten = 1.0f - saturate(length(lights[i].pos - worldPos) / lights[i].radius);
+                float atten = 1.0f - saturate(length(theLight.pos - worldPos) / theLight.radius);
                 atten *= atten;
-                ret._11_12_13_14 = (lights[i].color * lightRatio) * atten;
+                ret._11_12_13_14 = (theLight.color * lightRatio) * atten;
                 ret._21 = atten;
             }
         }
     }
     else
     {
-        float3 dir = normalize(lights[i].dir);
+        float3 dir = normalize(theLight.dir);
         dir = -dir;
         float lightRatio = saturate(dot(dir, norm));
-        ret._11_12_13_14 = lights[i].color * lightRatio;
+        ret._11_12_13_14 = theLight.color * lightRatio;
     }
     return ret;
 }
@@ -115,8 +116,7 @@ float4 calcSpec(int i, float atten, float3 worldPos, float3 norm, float specInte
 
 float4 main(PixelShaderInput input) : SV_TARGET
 {
-    float willBeUnlit = unlit.Sample(sample, input.uv).x;
-    if (willBeUnlit == 1.0f)
+    if (unlit.Sample(sample, input.uv).x == 1.0f)
     {
         return saturate(diffuse.Sample(sample, input.uv) + emissive.Sample(sample, input.uv));
     }
@@ -124,21 +124,17 @@ float4 main(PixelShaderInput input) : SV_TARGET
     float4 finalSpec = float4(0.0f, 0.0f, 0.0f, 0.0f);
     float3 norm = (normal.Sample(sample, input.uv) - 0.5f).xyz * 2.0f;
     float specIntense = specular.Sample(sample, input.uv).x;
-    float2 tempDepth = depth.Sample(sample, input.uv).xy;
-    float x = input.uv.x * 2.0f - 1.0f;
-    float y = (1.0f - input.uv.y) * 2.0f - 1.0f;
-    float3 perspective = float3(x * tempDepth.y, y * tempDepth.y, tempDepth.x * tempDepth.y);
-    float4 posAlmost = mul(float4(perspective, tempDepth.y), projection);
+    float4 tempDepth = float4(float2(input.uv.x * 2.0f - 1.0f, (1.0f - input.uv.y) * 2.0f - 1.0f), depth.Sample(sample, input.uv).xy);
+    float4 posAlmost = mul(float4(float3(tempDepth.x * tempDepth.w, tempDepth.y * tempDepth.w, tempDepth.z * tempDepth.w), tempDepth.w), projection);
     posAlmost.w = 1.0f;
     posAlmost = mul(posAlmost, view);
-    float3 worldPos = posAlmost.xyz;
-    [unroll(83)] for (int i = 0; i < 83; ++i)
+    for (int i = 0; i < 83; ++i)
     {
         if (lights[i].color.w == 0.0f)
             break;
-        float2x4 result = calcLight(i, worldPos, norm);
+        float2x4 result = calcLight(i, posAlmost.xyz, norm);
         finalLight += result._11_12_13_14;
-        finalSpec += calcSpec(i, result._21, worldPos, norm, specIntense);
+        finalSpec += calcSpec(i, result._21, posAlmost.xyz, norm, specIntense);
     }
     float4 diffuseColor = diffuse.Sample(sample, input.uv);
     float4 emissiveColor = emissive.Sample(sample, input.uv);

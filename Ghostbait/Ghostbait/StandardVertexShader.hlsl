@@ -12,6 +12,7 @@ cbuffer animdataBuffer : register(b2) {
     bool animated;
 };
 
+
 struct vertexShaderInput {
 	float4 pos : POSITION;
 	float2 uv : TEXCOORD0;
@@ -41,10 +42,10 @@ outputstruct main(vertexShaderInput input) {
     else
 	    outputpos = pos;
 	float4 norm = float4(input.normal, 0.0f);
-	outputpos = mul(outputpos, model);
+	outputpos = mul(model, outputpos);
     output.worldPos = outputpos.xyz;
     outputpos = mul(outputpos, view);
-	outputpos = mul(outputpos, projection);
+	outputpos = mul(projection, outputpos);
 	output.pos = outputpos;
 
 	output.uv = input.uv;

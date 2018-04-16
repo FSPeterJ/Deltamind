@@ -5,7 +5,6 @@
 
 class GhostTime {
 	static XTime timer;
-
 	static void Tick();
 	friend void Loop();
 public:
@@ -21,4 +20,5 @@ public:
 
 	static double DeltaTime() { return timer.Delta(); }
 	static double SmoothDeltaTime() { return timer.SmoothDelta(); }
+	static double FrameRate() { return timer.SamplesPerSecond(); }
 };

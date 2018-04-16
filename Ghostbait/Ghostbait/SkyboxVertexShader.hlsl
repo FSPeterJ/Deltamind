@@ -32,7 +32,7 @@ outputstruct main(vertexShaderInput input)
     float4 norm = float4(input.normal, 0.0f);
     pos = mul(pos, model);
     pos = mul(pos, view);
-    pos = mul(pos, projection);
+    pos = mul(projection, pos);
     output.pos = pos;
     return output;
 }

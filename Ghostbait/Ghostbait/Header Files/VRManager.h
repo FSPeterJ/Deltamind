@@ -31,8 +31,8 @@ private:
 	DirectX::XMFLOAT4X4 rightEyeToHead;
 
 	DirectX::XMFLOAT4X4 VRProjectionToDirectXMatrix(vr::EVREye eye, float nearPlane, float farPlane);
-	DirectX::XMFLOAT4X4 VRMatrix34ToDirectXMatrix44(vr::HmdMatrix34_t m);
-	DirectX::XMFLOAT4X4 VRMatrix44ToDirectXMatrix44(vr::HmdMatrix44_t m);
+	DirectX::XMFLOAT4X4 VRMatrix34ToDirectXMatrix44(vr::HmdMatrix34_t& m);
+	DirectX::XMFLOAT4X4 VRMatrix44ToDirectXMatrix44(vr::HmdMatrix44_t& m);
 
 	vr::IVRRenderModels* pVRRenderModel;
 	vr::IVRCompositor* pVRCompositor;
@@ -67,7 +67,6 @@ public:
 
 	void Vibrate(ControllerHand ctrl, unsigned short durationMs);
 	void SetControllers(ControllerObject* left, ControllerObject* right);
-	void SetBuildItems(std::vector<unsigned> prefabIDs);
 
 	void Teleport();
 	void Teleport(float maxDist, float minAngle, float maxAngle);

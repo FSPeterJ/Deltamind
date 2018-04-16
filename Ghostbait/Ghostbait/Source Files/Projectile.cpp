@@ -12,12 +12,13 @@ Projectile::~Projectile() {}
 void Projectile::Awake(Object* obj) {
 	++instantiatedCount;
 	GameObject::Awake(obj);
+	pc = GetComponent<PhysicsComponent>();
 }
 
 void Projectile::Update() {
 	timeSinceShot += (float)GhostTime::DeltaTime();
 	
-	if (DirectX::XMVectorGetX(DirectX::XMVector3Length(GetComponent<PhysicsComponent>()->rigidBody.GetVelocity())) <= 5) {
+	if (DirectX::XMVectorGetX(DirectX::XMVector3Length(pc->rigidBody.GetVelocity())) <= 5) {
 		int i = 0;
 	}
 

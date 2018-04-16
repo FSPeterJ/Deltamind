@@ -139,7 +139,6 @@ void MTDSLEnemy::Awake(Object* obj) {
 	scentStrength = 15.0f;
 
 	EnemyBase::Awake(obj);
-	rb = &(GetComponent<PhysicsComponent>()->rigidBody);
 }
 
 void MTDSLEnemy::Attack() {

@@ -20,12 +20,15 @@ public:
 		float energyWaitCooldown = 4; //How long you go(seconds) without shooting to begin cooling down
 		float energyOverheatDelay = 6; //How long you need to wait (seconds) after reaching/exceeding energy limit to begin cooldown
 		float energyLimit = 25; //Max amount of energy before overheat
+		bool overheated = false;
 
 		bool AddEnergy(float energy);
 		bool CanShoot(float fireRate);
 		inline void ResetTimeSinceLastShot() { timeSinceLastShot = 0; };
 		void Update(bool active = true);
 		void CreateBar(Gun* _parent = nullptr);
+		void Overheated();
+		void CooledDown();
 	};
 	enum FireType {
 		AUTO,

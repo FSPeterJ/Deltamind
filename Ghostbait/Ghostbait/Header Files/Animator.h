@@ -25,6 +25,7 @@ public:
 	~Animator();
 
 	void Destroy();
+	void Enable();
 	void Initialize(AnimationManager* animManIn);
 	void Update();
 	void SetTime(float _timePos);

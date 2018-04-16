@@ -208,11 +208,15 @@ void Animator::Destroy() {
 	EngineStructure::AnimationUpdate.Remove(updateID);
 }
 
-void Animator::Initialize(AnimationManager* animManIn) {
-	animMan = animManIn;
+void Animator::Enable() {
 	updateID = EngineStructure::AnimationUpdate.Add([=]() {
 		this->Update();
 	});
+}
+
+void Animator::Initialize(AnimationManager* animManIn) {
+	animMan = animManIn;
+
 }
 
 void Animator::Update() {

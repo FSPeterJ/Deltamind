@@ -50,7 +50,7 @@ outputstruct main(vertexShaderInput input) {
 
 	output.uv = input.uv;
 
-	norm = mul(norm, model);
+	norm = mul(model, norm);
 	norm = normalize(norm);
 	output.norm = norm.xyz;
 	return output;

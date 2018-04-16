@@ -160,7 +160,7 @@ void Renderer::releaseDeferredTarget(DeferredRTVs * in)
 void Renderer::combineDeferredTargets(DeferredRTVs * in, ID3D11RenderTargetView * rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport)
 {
 	context->PSSetSamplers(0, 1, &LinearSamplerState);
-	blurTexture(viewport, in->textures[1], in->SRVs[1], 9, in->RTVs[1], in->DSV);
+	blurTexture(viewport, in->textures[1], in->SRVs[1], 6, in->RTVs[1], in->DSV);
 	context->PSSetSamplers(0, 1, &PointSamplerState);
 
 	float color[] = { 0.5f, 0.5f, 1.0f, 1.0f };

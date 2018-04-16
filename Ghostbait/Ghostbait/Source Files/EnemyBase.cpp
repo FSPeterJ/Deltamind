@@ -106,6 +106,12 @@ void EnemyBase::Destroy() {
 	gameObjMutex.unlock();
 }
 
+void EnemyBase::SetCore(Core* _core) {
+	core = _core;
+	targetObj = static_cast<Health*>(_core);
+	targetPos = &(_core->transform.matrix._41);
+}
+
 bool EnemyBase::ReTarget(GameObject* _obj) {
 	if (static_cast<void*>(targetObj) == static_cast<void*>(_obj)) { return false; }
 	if (_obj) {
@@ -222,9 +228,14 @@ void EnemyBase::Patrol() {
 void EnemyBase::Attack() {
 	
 	//May need to validate if target is next to current?
+	if (!targetObj) {
+		ReTarget();
+		ChangeState(PATROL);
+		return;
+	}
 
 	if (timeSinceLastAttack == -1) {
-		if (targetObj) targetObj->AdjustHealth(-attackDamage);
+		targetObj->AdjustHealth(-attackDamage);
 		RecordAttack();
 		Console::WriteLine << "Some health: " << targetObj->PercentHealth();
 		if (!targetObj->IsAlive() && targetObj != core) { 
@@ -240,7 +251,7 @@ void EnemyBase::Attack() {
 
 	float timeToAttack = 1 / attackSpeed;
 	if (timeSinceLastAttack >= timeToAttack) {
-		if (targetObj) targetObj->AdjustHealth(-attackDamage);
+		targetObj->AdjustHealth(-attackDamage);
 		RecordAttack();
 		Console::WriteLine << "Some health: " << targetObj->PercentHealth();
 		if (!targetObj->IsAlive() && targetObj != core) { 

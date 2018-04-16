@@ -85,7 +85,7 @@ public:
 	void CalculateResult();
 
 	virtual void SetGrid(HexGrid* _grid) {};
-	virtual void SetCore(Core* _core) { targetObj = core = _core; };
+	virtual void SetCore(Core* _core);
 	virtual void Repath() {};
 	virtual void RandomizeStats();
 	virtual bool ReTarget(GameObject* _obj = nullptr);

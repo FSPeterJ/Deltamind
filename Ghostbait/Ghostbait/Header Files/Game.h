@@ -70,7 +70,7 @@ public:
 
 	Game();
 
-	void Start(Player* _player, EngineStructure* _engine, char* level = "splashScreen");
+	void Start(Player* _player, EngineStructure* _engine, char* startScene = "splashScreen", char* xml = "");
 	void Update();
 	void Clean();
 

@@ -335,7 +335,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	audioMan->LoadBanks();
 	Console::WriteLine << "Starting Game Loop......";
 	game = new Game();
-	game->Start(player, &engine, "splashScreen");
+	game->Start(player, &engine, "level0", "Level Files//level0_hard.xml");
 }
 
 void Loop() {

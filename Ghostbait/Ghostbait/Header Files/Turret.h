@@ -36,7 +36,7 @@ public:
 	~Turret();
 	void OnTrigger(GameObject* object);
 	bool CanShoot(float fireRate);
-	void Shoot();
+	virtual void Shoot();
 	void GivePID(unsigned pid, const char* tag);
 	inline const unsigned GetBuildCost() const { return buildCost; }
 };
@@ -44,12 +44,22 @@ public:
 class Turret_Long : public Turret {
 public:
 	void Awake(Object* obj) override;
+	void Shoot() override;
 };
 class Turret_Medium : public Turret {
 public:
 	void Awake(Object* obj) override;
+	void Shoot() override;
 };
 class Turret_Short : public Turret {
+	struct Offset {
+		float dx = 0, dy = 0, dz = 0;
+		Offset() {}
+		Offset(float x, float y, float z) : dx(x), dy(y), dz(z) {}
+	};
+	Offset offset[4] = {Offset(0.25f, 0.4f, 0.45f), Offset(-0.2f, 0.4f, 0.45f), Offset(0.25f, 0.1f, 0.45f), Offset(-0.2f, 0.1f, 0.45f) };
+	int currentIndex = 0;
 public:
 	void Awake(Object* obj) override;
+	void Shoot() override;
 };

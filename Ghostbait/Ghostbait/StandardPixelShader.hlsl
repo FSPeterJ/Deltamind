@@ -16,9 +16,8 @@ struct genericLight
     float outerRadius;
 };
 
-cbuffer lightBuffer : register(b0)
+cbuffer lightInfoBuffer : register(b0)
 {
-    genericLight lights[83];
     float3 ambientColor;
     float ambientIntensity;
     float3 cameraPos;
@@ -28,6 +27,11 @@ cbuffer viewProjBuffer : register(b2)
 {
     matrix view;
     matrix projection;
+};
+
+cbuffer lightBuffer : register(b4)
+{
+    genericLight lights[83];
 };
 
 struct PixelShaderInput

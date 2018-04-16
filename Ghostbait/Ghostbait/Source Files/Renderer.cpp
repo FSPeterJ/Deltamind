@@ -115,12 +115,6 @@ void Renderer::setupVRTargets() {
 	texDesc.CPUAccessFlags = 0;
 	texDesc.SampleDesc = sampleDesc;
 
-	D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc;
-	viewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	viewDesc.Texture2D.MipLevels = texDesc.MipLevels;
-	viewDesc.Texture2D.MostDetailedMip = 0;
-
 	device->CreateTexture2D(&texDesc, nullptr, &leftEye.renderInfo.texture);
 	if(leftEye.renderInfo.texture)
 		device->CreateRenderTargetView(leftEye.renderInfo.texture, nullptr, &leftEye.renderInfo.rtv);
@@ -656,7 +650,7 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 
 	createDeferredRTVs(&deferredTextures, backBuffer);
 	context->OMSetBlendState(defaultPipeline.blend_state, 0, 0xffffffff);
-
+	LightManager::Initialize(device);
 	TextManager::Initialize(device, context, TextVertexShader, PositionTexturePixelShader, ILPositionTexture);
 	TextManager::LoadFont("Assets/Fonts/defaultFontIndex.txt", "Assets/Fonts/defaultFont.png");
 
@@ -664,6 +658,7 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 }
 
 void Renderer::Destroy() {
+	LightManager::Release();
 	TextManager::Destroy();
 	emptyFloat3Buffer->Release();
 	LinearSamplerState->Release();
@@ -829,6 +824,7 @@ void Renderer::Render() {
 	loadPipelineState(&defaultPipeline);
 	XMMATRIX cameraObj = XMMatrixTranspose(XMLoadFloat4x4(&cameraPos->GetMatrix()));
 	XMStoreFloat4x4(&defaultCamera.view, XMMatrixInverse(&XMMatrixDeterminant(cameraObj), cameraObj));
+	LightManager::bindToShader(context);
 	if(VRManager::GetInstance().IsEnabled()) {
 		VRManager::GetInstance().GetVRMatrices(&leftEye.camera.projection, &rightEye.camera.projection, &leftEye.camera.view, &rightEye.camera.view);
 

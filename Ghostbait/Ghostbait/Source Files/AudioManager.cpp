@@ -111,6 +111,8 @@ void AudioManager::LoadBanks()
 	AKRESULT result = AK::SoundEngine::LoadBank(INIT_BANK, AK_DEFAULT_POOL_ID, wiseIsGood);
 
 	result = AK::SoundEngine::LoadBank(DEFAULT_BANK, AK_DEFAULT_POOL_ID, wiseIsGood);
+	AkOutputDeviceID id = 0;
+	AK::SoundEngine::SetOutputVolume(id, (AkReal32)0.3f);
 }
 
 void AudioManager::registerObject(EventMessageBase * e)

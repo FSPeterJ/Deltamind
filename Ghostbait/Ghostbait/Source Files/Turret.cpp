@@ -227,16 +227,90 @@ void Turret_Long::Awake(Object* obj) {
 	damage = 75;
 	buildCost = 750;
 }
+void Turret_Long::Shoot() {
+	//Fire
+	using namespace DirectX;
+
+	Projectile* obj;
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Projectile>(projectiePID, { 0, 0, 0 }, &obj));
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_GUNSHOT));
+	DirectX::XMFLOAT4X4 newPos = *launcherorigin;
+	float dy = 0.2f;
+	float dz = 0.8f;
+	newPos._41 += transform.matrix._41 + (newPos._21 * dy) + (newPos._31 * dz);
+	newPos._42 += transform.matrix._42 + (newPos._22 * dy) + (newPos._32 * dz);
+	newPos._43 += transform.matrix._43 + (newPos._23 * dy) + (newPos._33 * dz);
+	obj->transform.SetMatrix(newPos);
+	PhysicsComponent* pc = obj->GetComponent<PhysicsComponent>();
+	pc->rigidBody.AdjustGravityMagnitude(0);
+
+	//why arent we using 
+	//temp->SetVelocity(obj->position._31 * 10.0f, obj->position._32 * 10.0f, obj->position._33 * 10.0f);
+	pc->rigidBody.SetVelocity(launcherorigin->_31 * 35.0f, launcherorigin->_32 * 35.0f, launcherorigin->_33 * 35.0f);
+	obj->SetDamage(damage);
+	obj->Enable();
+	timeSinceLastShot = (float)GhostTime::DeltaTime();
+}
 void Turret_Medium::Awake(Object* obj) {
 	Turret::Awake(obj);
 	firerate = 3;
 	damage = 10;
 	buildCost = 500;
 }
+void Turret_Medium::Shoot() {
+	//Fire
+	using namespace DirectX;
+
+	Projectile* obj;
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Projectile>(projectiePID, { 0, 0, 0 }, &obj));
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_GUNSHOT));
+	DirectX::XMFLOAT4X4 newPos = *launcherorigin;
+	float dy = 0.3f;
+	float dz = 0.8f;
+	newPos._41 += transform.matrix._41 + (newPos._21 * dy) + (newPos._31 * dz);
+	newPos._42 += transform.matrix._42 + (newPos._22 * dy) + (newPos._32 * dz);
+	newPos._43 += transform.matrix._43 + (newPos._23 * dy) + (newPos._33 * dz);
+	obj->transform.SetMatrix(newPos);
+	PhysicsComponent* pc = obj->GetComponent<PhysicsComponent>();
+	pc->rigidBody.AdjustGravityMagnitude(0);
+
+	//why arent we using 
+	//temp->SetVelocity(obj->position._31 * 10.0f, obj->position._32 * 10.0f, obj->position._33 * 10.0f);
+	pc->rigidBody.SetVelocity(launcherorigin->_31 * 35.0f, launcherorigin->_32 * 35.0f, launcherorigin->_33 * 35.0f);
+	obj->SetDamage(damage);
+	obj->Enable();
+	timeSinceLastShot = (float)GhostTime::DeltaTime();
+}
 void Turret_Short::Awake(Object* obj) {
 	Turret::Awake(obj);
 	firerate = 6;
 	damage = 4;
 	buildCost = 250;
+}
+void Turret_Short::Shoot() {
+	//Fire
+	using namespace DirectX;
+
+	Projectile* obj;
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Projectile>(projectiePID, { 0, 0, 0 }, &obj));
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_GUNSHOT));
+	DirectX::XMFLOAT4X4 newPos = *launcherorigin;
+
+	newPos._41 += transform.matrix._41 + (newPos._11 * offset[currentIndex].dx) + (newPos._21 * offset[currentIndex].dy) + (newPos._31 * offset[currentIndex].dz);
+	newPos._42 += transform.matrix._42 + (newPos._12 * offset[currentIndex].dx) + (newPos._22 * offset[currentIndex].dy) + (newPos._32 * offset[currentIndex].dz);
+	newPos._43 += transform.matrix._43 + (newPos._13 * offset[currentIndex].dx) + (newPos._23 * offset[currentIndex].dy) + (newPos._33 * offset[currentIndex].dz);
+	++currentIndex;
+	if (currentIndex >= 4) {
+		currentIndex = 0;
+	}
+	obj->transform.SetMatrix(newPos);
+	PhysicsComponent* pc = obj->GetComponent<PhysicsComponent>();
+	pc->rigidBody.AdjustGravityMagnitude(0);
+
+	//why arent we using 
+	pc->rigidBody.SetVelocity(launcherorigin->_31 * 35.0f, launcherorigin->_32 * 35.0f, launcherorigin->_33 * 35.0f);
+	obj->SetDamage(damage);
+	obj->Enable();
+	timeSinceLastShot = (float)GhostTime::DeltaTime();
 }
 

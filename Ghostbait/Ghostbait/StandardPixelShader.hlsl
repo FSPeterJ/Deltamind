@@ -131,7 +131,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
     float4 posAlmost = mul(projection, float4(float3(tempDepth.x * tempDepth.w, tempDepth.y * tempDepth.w, tempDepth.z * tempDepth.w), tempDepth.w));
     posAlmost.w = 1.0f;
     posAlmost = mul(posAlmost, view);
-    for (int i = 0; i < 83; ++i)
+    [unroll(83)] for (int i = 0; i < 83; ++i)
     {
         if (lights[i].color.w == 0.0f)
             break;

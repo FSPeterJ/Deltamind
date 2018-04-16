@@ -216,7 +216,7 @@ void BuildTool::Spawn() {
 				GameObject* newObj;
 				MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabs[currentPrefabIndex].ID, spawnPos, &newObj));
 				MessageEvents::SendMessage(EVENT_AddObstacle, SnapMessage(&DirectX::XMFLOAT2(spawnPos.x, spawnPos.z)));
-				MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_TURRETDAMAGE));
+				MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_DOOROPEN));
 				builtItems.push_back(newObj);
 				newObj->Enable();
 				gameData->AdjustTurretsSpawned(1);

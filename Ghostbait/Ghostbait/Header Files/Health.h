@@ -8,6 +8,7 @@ class Health {
 	void Clamp(float min, float max, float* val);
 public:
 	Health();
+	virtual ~Health() {};
 	Health(float _maxHealth);
 	Health(float _maxHealth, float _startingHealth);
 

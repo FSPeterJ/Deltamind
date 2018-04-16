@@ -10,19 +10,35 @@
 
 void EnemyBase::Awake(Object* obj) {
 	currState = IDLE;
-	maxSpeed = (float) ((rand() % 3) + 1);
-	target = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	prevState = IDLE;
+
+	genetics = nullptr;
+	core = nullptr;
+	targetObj = nullptr;
+	targetPos = nullptr;
+
+	reachedCore = false;
+	isOutofBounds = false;
 	isHurting = false;
+	isDying = false;
+	sentDeathMessage = false;
+
+	maxSpeed = (float)((rand() % 3) + 1);
+	attackSpeed = 1;
+	attackDamage = 5;
+	perceptionRange = 3;
+	timeSinceLastAttack = -1;
+
 	hurtTimer = 0;
 	hurtDuration = 0.25;
-	sentDeathMessage = false;
+	eventLose = 0;
+	smite = 0;
 
 	pc = GetComponent<PhysicsComponent>();
 	rb = &(pc->rigidBody);
-	
-	eventLose = 0;
-	smite = 0;
+
 	SetToFullHealth();
+
 	GameObject::Awake(obj);
 }
 
@@ -89,6 +105,20 @@ void EnemyBase::Destroy() {
 	gameObjMutex.unlock();
 }
 
+bool EnemyBase::ReTarget(GameObject* _obj) {
+	if (static_cast<void*>(targetObj) == static_cast<void*>(_obj)) { return false; }
+	if (_obj) {
+		Health* tar = dynamic_cast<Health*>(_obj);
+		targetObj = tar;
+		targetPos = &(_obj->transform.matrix._41);
+		return true;
+	}
+
+	targetObj = core;
+	targetPos = &(core->transform.matrix._41);
+	return true;
+}
+
 void EnemyBase::TakeDamage(float amount) {
 	float damage = AdjustHealth(amount);
 
@@ -99,18 +129,29 @@ void EnemyBase::TakeDamage(float amount) {
 bool EnemyBase::ChangeState(State _s) {
 	if (currState == _s) return false;
 	
-	if (_s == INJURED)
-	{
-		if(GetComponent<Animator>())
-		GetComponent<Animator>()->setState("Taunt");
-	}
-	else
-	{
-		if(GetComponent<Animator>())
-		GetComponent<Animator>()->setState("Move");
-	}
 	prevState = currState;
 	currState = _s;
+
+	switch (_s)
+	{
+	case EnemyBase::IDLE:
+		break;
+	case EnemyBase::PATROL:
+		if (GetComponent<Animator>())
+			GetComponent<Animator>()->setState("Move");
+		break;
+	case EnemyBase::ATTACK:
+		break;
+	case EnemyBase::INJURED:
+		if (GetComponent<Animator>())
+			GetComponent<Animator>()->setState("Taunt");
+		break;
+	case EnemyBase::DEATH:
+		break;
+	default:
+		break;
+	}
+
 	return true;
 }
 
@@ -178,7 +219,35 @@ void EnemyBase::Patrol() {
 }
 
 void EnemyBase::Attack() {
+	
+	//May need to validate if target is next to current?
 
+	if (timeSinceLastAttack == -1) {
+		if (targetObj) targetObj->AdjustHealth(-attackDamage);
+		RecordAttack();
+		Console::WriteLine << "Some health: " << targetObj->PercentHealth();
+		if (!targetObj->IsAlive() && targetObj != core) { 
+			ReTarget(); 
+			ChangeState(PATROL); 
+		}
+		timeSinceLastAttack = 0;
+		return;
+	}
+
+	float dt = (float)GhostTime::DeltaTime();
+	timeSinceLastAttack += dt;
+
+	float timeToAttack = 1 / attackSpeed;
+	if (timeSinceLastAttack >= timeToAttack) {
+		if (targetObj) targetObj->AdjustHealth(-attackDamage);
+		RecordAttack();
+		Console::WriteLine << "Some health: " << targetObj->PercentHealth();
+		if (!targetObj->IsAlive() && targetObj != core) { 
+			ReTarget();
+			ChangeState(PATROL);
+		}
+		timeSinceLastAttack = 0;
+	}
 }
 
 void EnemyBase::Injured() {
@@ -315,6 +384,15 @@ void EnemyBase::OnCollision(GameObject* _other) {
 
 	GameObject::OnCollision(_other);
 	gameObjMutex.unlock();
+}
+
+void EnemyBase::OnTrigger(GameObject* _other) {
+	if (isChasing || currState == ATTACK) return;
+	const char* othertag = _other->GetTag().c_str();
+	if (strcmp(othertag, "Turret") || strcmp(othertag, "Core")) {
+		isChasing = ReTarget(_other);
+		//ChangeState(ATTACK);
+	}
 }
 
 void EnemyBase::RandomizeStats() {

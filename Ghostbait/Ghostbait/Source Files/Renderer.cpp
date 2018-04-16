@@ -110,7 +110,7 @@ void Renderer::setupVRTargets() {
 	texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 	texDesc.MipLevels = 1;
 	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	texDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+	texDesc.MiscFlags = 0;
 	texDesc.ArraySize = 1;
 	texDesc.CPUAccessFlags = 0;
 	texDesc.SampleDesc = sampleDesc;
@@ -363,7 +363,7 @@ void Renderer::renderObjectDefaultState(const GameObject * obj) {
 
 	context->IASetVertexBuffers(0, 1, &x, &stride, &offset);
 	context->IASetIndexBuffer(y->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-	context->UpdateSubresource(modelBuffer, 0, NULL, &XMMatrixTranspose(XMLoadFloat4x4(&obj->transform.GetMatrix())), 0, 0);
+	context->UpdateSubresource(modelBuffer, 0, NULL, &obj->transform.GetMatrix(), 0, 0);
 	Material* mat = obj->GetComponent<Material>();
 	if (mat)
 	{
@@ -637,7 +637,7 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 #pragma endregion
 	
 	cameraPos->LookAt(DirectX::XMFLOAT3(0.0f, 0.0f, 5.0f));
-	XMStoreFloat4x4(&defaultCamera.projection, XMMatrixTranspose(XMMatrixPerspectiveFovLH(60.0f * XM_PI / 180.0f, defaultPipeline.viewport.Width / defaultPipeline.viewport.Height, 0.001f, 300.0f)));
+	XMStoreFloat4x4(&defaultCamera.projection, XMMatrixPerspectiveFovLH(60.0f * XM_PI / 180.0f, defaultPipeline.viewport.Width / defaultPipeline.viewport.Height, 0.001f, 300.0f));
 
 	if(VRManager::GetInstance().IsEnabled())
 		setupVRTargets();
@@ -835,13 +835,13 @@ void Renderer::Render() {
 		//XMStoreFloat4x4(&leftEye.camera.projection, (XMLoadFloat4x4(&defaultCamera.projection)));
 		//XMStoreFloat4x4(&rightEye.camera.projection, (XMLoadFloat4x4(&defaultCamera.projection)));
 
-		XMStoreFloat4x4(&leftEye.camera.projection, XMMatrixTranspose(XMLoadFloat4x4(&leftEye.camera.projection)));
-		XMStoreFloat4x4(&rightEye.camera.projection, XMMatrixTranspose(XMLoadFloat4x4(&rightEye.camera.projection)));
+		//XMStoreFloat4x4(&leftEye.camera.projection, XMMatrixTranspose(XMLoadFloat4x4(&leftEye.camera.projection)));
+		//XMStoreFloat4x4(&rightEye.camera.projection, XMMatrixTranspose(XMLoadFloat4x4(&rightEye.camera.projection)));
 		leftEye.camPos = DirectX::XMFLOAT3(leftEye.camera.view._41, leftEye.camera.view._42, leftEye.camera.view._43);
 		sortTransparentObjects(leftEye.camPos);
 		rightEye.camPos = DirectX::XMFLOAT3(rightEye.camera.view._41, rightEye.camera.view._42, rightEye.camera.view._43);
-		XMStoreFloat4x4(&leftEye.camera.view, XMMatrixTranspose(XMMatrixInverse(&XMVectorSet(0, 0, 0, 0), XMLoadFloat4x4(&leftEye.camera.view))));
-		XMStoreFloat4x4(&rightEye.camera.view, XMMatrixTranspose(XMMatrixInverse(&XMVectorSet(0, 0, 0, 0), XMLoadFloat4x4(&rightEye.camera.view))));
+		XMStoreFloat4x4(&leftEye.camera.view, XMMatrixTranspose(XMMatrixInverse(nullptr, XMLoadFloat4x4(&leftEye.camera.view))));
+		XMStoreFloat4x4(&rightEye.camera.view, XMMatrixTranspose(XMMatrixInverse(nullptr, XMLoadFloat4x4(&rightEye.camera.view))));
 
 		LightManager::getLightBuffer()->cameraPos = leftEye.camPos;
 		context->UpdateSubresource(lightBuffer, NULL, NULL, LightManager::getLightBuffer(), 0, 0);
@@ -903,25 +903,12 @@ void Renderer::Render() {
 	{
 		renderObjectDefaultState(frontRenderedObjects[i]);
 	}
-	//DirectX::XMFLOAT4X4 view, proj;
-	//if (VRManager::GetInstance().IsEnabled())
-	//{
-	//	view = leftEye.camera.view;
-	//	proj = leftEye.camera.projection;
-	//}
-	//else
-	//{
-	//	view = defaultCamera.view;
-	//	proj = defaultCamera.projection;
-	//}
-	//ParticleManager::RenderParticlesTo(defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport, view, proj);
-	//context->VSSetConstantBuffers(0, 1, &cameraBuffer);
 
 	viewProjectionConstantBuffer buff;
 	if (VRManager::GetInstance().IsEnabled())
 	{
-		XMStoreFloat4x4(&buff.view, XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat4x4(&leftEye.camera.view)), XMLoadFloat4x4(&leftEye.camera.view)));
-		XMStoreFloat4x4(&buff.projection, XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat4x4(&leftEye.camera.projection)), XMLoadFloat4x4(&leftEye.camera.projection)));
+		XMStoreFloat4x4(&buff.view, XMMatrixInverse(nullptr, XMLoadFloat4x4(&leftEye.camera.view)));
+		XMStoreFloat4x4(&buff.projection, XMMatrixInverse(nullptr, XMLoadFloat4x4(&leftEye.camera.projection)));
 	}
 	else
 	{

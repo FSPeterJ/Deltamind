@@ -101,6 +101,7 @@ private:
 	ID3D11DeviceContext* context;
 	IDXGISwapChain* swapchain;
 	ID3D11Texture2D* backBuffer;
+	ID3D11ShaderResourceView* rightSRV = nullptr; //Used to avoid a third render pass for the monitor in VR
 	DeferredRTVs deferredTextures;
 
 	ID3D11VertexShader* PassThroughPositionColorVS;
@@ -165,6 +166,7 @@ private:
 	void clearTextureMemory(renderTargetInfo* info);
 	bool LoadShaderFromCSO(char ** szByteCode, size_t& szByteCodeSize, const char* szFileName);
 	void setupVRTargets();
+	void renderRightEyeToMonitor();
 	void releaseDeferredTarget(DeferredRTVs* in);
 	void combineDeferredTargets(DeferredRTVs* in, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT& viewport);
 	bool compareDistToCam(const DirectX::XMFLOAT3& t1, const DirectX::XMFLOAT3& t2, const DirectX::XMFLOAT3& camPos);

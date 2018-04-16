@@ -6,6 +6,7 @@
 #include "PhysicsExtension.h"
 #include "ObjectFactory.h"
 #include "Transform.h"
+#include <thread>
 using namespace Common;
 
 VRManager& VRManager::GetInstance() {
@@ -143,9 +144,7 @@ void VRManager::GetVRMatrices(DirectX::XMFLOAT4X4* _leftProj, DirectX::XMFLOAT4X
 
 void VRManager::UpdateVRPoses() {
 	if(!pVRHMD) return;
-	vr::TrackedDevicePose_t trackedDevicePos[vr::k_unMaxTrackedDeviceCount];
 	pVRCompositor->WaitGetPoses(trackedDevicePos, vr::k_unMaxTrackedDeviceCount, NULL, 0);
-	//pVRCompositor->GetLastPoses(trackedDevicePos, vr::k_unMaxTrackedDeviceCount, NULL, 0);
 	DirectX::XMMATRIX room_mat = DirectX::XMLoadFloat4x4(&roomPos);
 	DirectX::XMMATRIX controllerRotation = DirectX::XMLoadFloat4x4(&cRotation);
 	

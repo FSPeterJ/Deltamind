@@ -43,7 +43,6 @@ class Player : public GameObject, public Controlable {
 	float runSpeed = 20;
 	float godSpeed = 40;
 	
-	GameObject* editItem = nullptr;
 	DirectX::XMFLOAT3 editScale;
 	DirectX::XMFLOAT3 editRotation;
 	DirectX::XMFLOAT3 editPos;

@@ -407,7 +407,7 @@ void Game::CreditsLoaded() {
 }
 
 //Main loop elements
-void Game::Start(Player* _player, EngineStructure* _engine, char* startScene) {
+void Game::Start(Player* _player, EngineStructure* _engine, char* startScene, char* xml) {
 	srand((unsigned int)time(NULL));
 	engine = _engine;
 	player = _player;
@@ -421,7 +421,7 @@ void Game::Start(Player* _player, EngineStructure* _engine, char* startScene) {
 	//hexGrid.Fill(false);
 	player->SetBuildToolData(&hexGrid, &gameData);
 
-	ChangeScene(startScene);
+	ChangeScene(startScene, xml);
 
 	//MessageEvents::SendMessage(EVENT_StartWave, EventMessageBase());
 	//DStarEnemy* newFred;

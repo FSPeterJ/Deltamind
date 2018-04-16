@@ -41,16 +41,21 @@ private:
 
 	vr::IVRRenderModels* pVRRenderModel;
 	vr::IVRCompositor* pVRCompositor;
+	vr::IVRSystem* pVRSystem;
 
 	void WriteMatrix(DirectX::XMFLOAT4X4 m, int frame);
 
 	void UpdateVRPoses();
 	void Shutdown();
 
+	vr::TrackedDevicePose_t trackedDevicePos[vr::k_unMaxTrackedDeviceCount];
+
 	DirectX::XMFLOAT4X4 roomPos = FLOAT4X4Identity;
 	DirectX::XMFLOAT4X4 playerPos = FLOAT4X4Identity;
 public:
 	static VRManager& GetInstance();
+	
+	long long duration = 0;
 
 	struct VRController {
 		int index;

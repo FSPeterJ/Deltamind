@@ -208,11 +208,15 @@ void Animator::Destroy() {
 	EngineStructure::AnimationUpdate.Remove(updateID);
 }
 
-void Animator::Initialize(AnimationManager* animManIn) {
-	animMan = animManIn;
+void Animator::Enable() {
 	updateID = EngineStructure::AnimationUpdate.Add([=]() {
 		this->Update();
 	});
+}
+
+void Animator::Initialize(AnimationManager* animManIn) {
+	animMan = animManIn;
+
 }
 
 void Animator::Update() {
@@ -266,7 +270,7 @@ void Animator::Update() {
 		tweens[i].transform._32 = interpolatedMat._32;
 		tweens[i].transform._33 = interpolatedMat._33;
 		for(int x = 0; x < tweens[i].child_count; ++x) {
-
+			//DebugRenderer::DrawAxes(tweens[i].transform, 0.5f);
 			//DebugRenderer::AddLine((XMFLOAT3)tweens[tweens[i].child_index[x]].transform.m[3], (XMFLOAT3)tweens[i].transform.m[3], { 0.1f, 1, 0 });
 		}
 		/*

@@ -677,5 +677,8 @@
     <FxCompile Include="TexToQuadPS.hlsl">
       <Filter>Shaders\Pixel Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="BrightnessPixelShader.hlsl">
+      <Filter>Shaders\Pixel Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

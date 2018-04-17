@@ -120,6 +120,7 @@ private:
 	ID3D11PixelShader* PositionTexturePixelShader;
 	ID3D11PixelShader* BlurPixelShader;
 	ID3D11PixelShader* TexToQuadPS;
+	ID3D11PixelShader* BrightnessPixelShader;
 
 	ID3D11InputLayout* ILPositionColor;
 	ID3D11InputLayout* ILPositionTexture;
@@ -136,6 +137,7 @@ private:
 	ID3D11Buffer* uvDataBuffer;
 
 	pipeline_state_t defaultPipeline;
+	ID3D11BlendState* additiveBlendState;
 	Transform* cameraPos;
 	viewProjectionConstantBuffer defaultCamera;
 	animDataBufferStruct cpuAnimationData;

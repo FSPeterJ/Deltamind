@@ -212,6 +212,11 @@ void Renderer::combineDeferredTargets(DeferredRTVs * in, ID3D11RenderTargetView 
 	context->IASetInputLayout(ILPosition);
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 	context->Draw(1, 0);
+	context->PSSetShader(BrightnessPixelShader, NULL, NULL);
+	context->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	context->OMSetBlendState(additiveBlendState, 0, 0xffffffff);
+	context->Draw(1, 0);
+	context->OMSetBlendState(defaultPipeline.blend_state, 0, 0xffffffff);
 	ID3D11GeometryShader* temp = nullptr;
 	context->GSSetShader(temp, NULL, NULL);
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -693,6 +698,7 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 void Renderer::Destroy() {
 	LightManager::Release();
 	TextManager::Destroy();
+	additiveBlendState->Release();
 	emptyFloat3Buffer->Release();
 	LinearSamplerState->Release();
 	PointSamplerState->Release();
@@ -713,6 +719,7 @@ void Renderer::Destroy() {
 	PassThroughPS->Release();
 	StandardVertexShader->Release();
 	StandardPixelShader->Release();
+	BrightnessPixelShader->Release();
 	ParticleVS->Release();
 	ParticleGS->Release();
 	NDCQuadGS->Release();
@@ -997,8 +1004,11 @@ void Renderer::initBlendState(pipeline_state_t * pipelineTo)
 	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
 	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-
+	
 	device->CreateBlendState(&blendDesc, &pipelineTo->blend_state);
+	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+	device->CreateBlendState(&blendDesc, &additiveBlendState);
 }
 
 void Renderer::initRasterState(pipeline_state_t * pipelineTo, bool wireFrame) {
@@ -1137,6 +1147,10 @@ void Renderer::initShaders() {
 
 	LoadShaderFromCSO(&byteCode, byteCodeSize, "TexToQuadPS.cso");
 	device->CreatePixelShader(byteCode, byteCodeSize, NULL, &TexToQuadPS);
+	delete[] byteCode;
+
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "BrightnessPixelShader.cso");
+	device->CreatePixelShader(byteCode, byteCodeSize, NULL, &BrightnessPixelShader);
 	delete[] byteCode;
 
 	CD3D11_BUFFER_DESC constantBufferDesc(sizeof(viewProjectionConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);

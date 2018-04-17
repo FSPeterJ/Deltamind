@@ -44,9 +44,28 @@ enum Button {
 	BUTTON_Easy,
 	BUTTON_Medium,
 	BUTTON_Hard,
+
+	BUTTON_MasterUp,
+	BUTTON_MasterDown,
+	BUTTON_MusicUp,
+	BUTTON_MusicDown,
+	BUTTON_SFXUp,
+	BUTTON_SFXDown,
+	BUTTON_BrightnessUp,
+	BUTTON_BrightnessDown,
+	BUTTON_MouseSensitivityUp,
+	BUTTON_MouseSensitivityDown,
+	BUTTON_AcceptOptions,
+	BUTTON_CancelOptions,
 };
 
 class Menu {
+public:
+	enum ColumnType {
+		OneColumn,
+		TwoColumn,
+	};
+private:
 	bool active = false;
 	Template menu_template;
 	std::map<Button, unsigned> buttonPrefabMap;
@@ -57,19 +76,22 @@ class Menu {
 	Menu* parent = nullptr;
 	Menu* child = nullptr;
 
+	ColumnType columnType = OneColumn;
+
 	DirectX::XMFLOAT4X4 FindCenter(float distFromPlayer = 1);
 	float FindDistanceFromCenter(int optionNumber, int optionCount, float optionHeight, float gapHeight);
 	void AssignPrefabIDs();
 
 public:
+
 	Menu();
-	Menu(Template t, std::vector<Button> buttons = std::vector<Button>());
-	void Create(Template t, std::vector<Button> buttons = std::vector<Button>());
+	Menu(Template t, std::vector<Button> buttons = std::vector<Button>(), ColumnType _columnType = OneColumn);
+	void Create(Template t, std::vector<Button> buttons = std::vector<Button>(), ColumnType _columnType = OneColumn);
 	void SetCamera(Transform* _camera);
 	inline void SetParent(Menu* _parent) { parent = _parent; };
 	inline void SetChild(Menu* _child) { child = _child; };
 	inline void SetSpawnPos(DirectX::XMFLOAT4X4& pos) { spawnPos = pos; }
-	void CreateAndLoadChild(Template t, std::vector<Button> buttons = std::vector<Button>());
+	void CreateAndLoadChild(Template t, std::vector<Button> buttons = std::vector<Button>(), ColumnType _columnType = OneColumn);
 	void LoadParent();
 	void Show(bool useCamera = true);
 	void Hide();
@@ -114,8 +136,42 @@ class HardButton : public MenuOption {
 	void Select() override;
 };
 
-
-
+class MasterUpButton : public MenuOption {
+	void Select() override;
+};
+class MasterDownButton : public MenuOption {
+	void Select() override;
+};
+class MusicUpButton : public MenuOption {
+	void Select() override;
+};
+class MusicDownButton : public MenuOption {
+	void Select() override;
+};
+class SFXUpButton : public MenuOption {
+	void Select() override;
+};
+class SFXDownButton : public MenuOption {
+	void Select() override;
+};
+class BrightnessUpButton : public MenuOption {
+	void Select() override;
+};
+class BrightnessDownButton : public MenuOption {
+	void Select() override;
+};
+class MouseSensitivityUpButton : public MenuOption {
+	void Select() override;
+};
+class MouseSensitivityDownButton : public MenuOption {
+	void Select() override;
+};
+class AcceptOptionsButton : public MenuOption {
+	void Select() override;
+};
+class CancelOptionsButton : public MenuOption {
+	void Select() override;
+};
 
 
 

@@ -146,29 +146,20 @@ void SceneManager::Initialize() {
 		//}
 	}
 	CreateSceneFile(splashScreenData);
+	*/
 	TestSceneData mainMenuData;
 	{
 		mainMenuData.fileName = "Scene Files//mainMenu.scene";
-
 		mainMenuData.sceneName = "mainMenu";
-		TestSceneData::Prefab tutorialQuad;
+		TestSceneData::Prefab floor;
 		{
-			tutorialQuad.ghostFile = "Assets/VRTutorialQuad.ghost";
-			tutorialQuad.name = "TutorialQuad";
-			DirectX::XMFLOAT4X4 mat1;
-			DirectX::XMMATRIX rotation = DirectX::XMMatrixMultiply(DirectX::XMMatrixRotationY(DirectX::XMConvertToRadians(180)), DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(90)));
-			DirectX::XMStoreFloat4x4(&mat1, rotation);
-			mat1._41 = 0;
-			mat1._42 = 1;
-			mat1._43 = -3;
-
-			tutorialQuad.positions.push_back(mat1);
-			mainMenuData.prefabs.push_back(tutorialQuad);
+			floor.ghostFile = "Assets/mainMenuFloor.ghost";
+			floor.positions.push_back(identity);
+			mainMenuData.prefabs.push_back(floor);
 		}
 	}
 	CreateSceneFile(mainMenuData);
 
-	*/
 
 	//Fill map of scenes using the ".scene" files from our "Scene Files" directory
 	FetchAllSceneFiles();

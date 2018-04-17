@@ -152,12 +152,25 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<PlayButton>(1);
 	ObjectFactory::RegisterPrefabBase<OptionsButton>(1);
 	ObjectFactory::RegisterPrefabBase<ExitButton>(1);
-	ObjectFactory::RegisterPrefabBase<BackButton>(1);
+	ObjectFactory::RegisterPrefabBase<BackButton>(12);
 	ObjectFactory::RegisterPrefabBase<EasyButton>(1);
 	ObjectFactory::RegisterPrefabBase<MediumButton>(1);
 	ObjectFactory::RegisterPrefabBase<HardButton>(1);
 	ObjectFactory::RegisterPrefabBase<TutorialButton>(1);
 	ObjectFactory::RegisterPrefabBase<CreditsButton>(1);
+	ObjectFactory::RegisterPrefabBase<MasterUpButton>(1);
+	ObjectFactory::RegisterPrefabBase<MasterDownButton>(1);
+	ObjectFactory::RegisterPrefabBase<MusicUpButton>(1);
+	ObjectFactory::RegisterPrefabBase<MusicDownButton>(1);
+	ObjectFactory::RegisterPrefabBase<SFXUpButton>(1);
+	ObjectFactory::RegisterPrefabBase<SFXDownButton>(1);
+	ObjectFactory::RegisterPrefabBase<BrightnessUpButton>(1);
+	ObjectFactory::RegisterPrefabBase<BrightnessDownButton>(1);
+	ObjectFactory::RegisterPrefabBase<MouseSensitivityUpButton>(1);
+	ObjectFactory::RegisterPrefabBase<MouseSensitivityDownButton>(1);
+	ObjectFactory::RegisterPrefabBase<AcceptOptionsButton>(1);
+	ObjectFactory::RegisterPrefabBase<CancelOptionsButton>(1);
+
 	ObjectFactory::RegisterPrefabBase<Ground>(1);
 	ObjectFactory::RegisterPrefabBase<Monitor>(1);
 	ObjectFactory::RegisterPrefabBase<DisplayBoard>(1);
@@ -206,6 +219,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<GameObject>("ghost");
 	TypeMap::RegisterObjectAlias<PhysicsTestObj>("PhysicsTestObj");
 	TypeMap::RegisterObjectAlias<BuildTool>("BuildTool");
+
 	TypeMap::RegisterObjectAlias<ResumeButton>("ResumeButton");
 	TypeMap::RegisterObjectAlias<RestartButton>("RestartButton");
 	TypeMap::RegisterObjectAlias<QuitButton>("QuitButton");
@@ -218,6 +232,19 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<HardButton>("HardButton");
 	TypeMap::RegisterObjectAlias<CreditsButton>("CreditsButton");
 	TypeMap::RegisterObjectAlias<TutorialButton>("TutorialButton");
+	TypeMap::RegisterObjectAlias<MasterUpButton>("MasterUpButton");
+	TypeMap::RegisterObjectAlias<MasterDownButton>("MasterDownButton");
+	TypeMap::RegisterObjectAlias<MusicUpButton>("MusicUpButton");
+	TypeMap::RegisterObjectAlias<MusicDownButton>("MusicDownButton");
+	TypeMap::RegisterObjectAlias<SFXUpButton>("SFXUpButton");
+	TypeMap::RegisterObjectAlias<SFXDownButton>("SFXDownButton");
+	TypeMap::RegisterObjectAlias<BrightnessUpButton>("BrightnessUpButton");
+	TypeMap::RegisterObjectAlias<BrightnessDownButton>("BrightnessDownButton");
+	TypeMap::RegisterObjectAlias<MouseSensitivityUpButton>("MouseSensitivityUpButton");
+	TypeMap::RegisterObjectAlias<MouseSensitivityDownButton>("MouseSensitivityDownButton");
+	TypeMap::RegisterObjectAlias<AcceptOptionsButton>("AcceptOptionsButton");
+	TypeMap::RegisterObjectAlias<CancelOptionsButton>("CancelOptionsButton");
+
 	TypeMap::RegisterObjectAlias<Ground>("Ground");
 	TypeMap::RegisterObjectAlias<PDA>("PDA");
 	TypeMap::RegisterObjectAlias<Monitor>("Monitor");

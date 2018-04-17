@@ -3,26 +3,50 @@
 #include "AudioManager.h"
 
 
+void OptionsManager::ApplyAllOptions(OptionsCluster & _in)
+{
+	SetMasterVolume(_in.MasterVolume);
+	SetSFXVolume(_in.SFXVolume);
+	SetMusicVolume(_in.MusicVolume);
+	SetGamma(_in.Gamma);
+}
+
 OptionsManager & OptionsManager::GetInstance()
 {
 	static OptionsManager option;
 	return option;
 }
 
+void OptionsManager::CacheValues()
+{
+	prevOptions = currOptions;
+}
+
+void OptionsManager::Cancel()
+{
+	ApplyAllOptions(prevOptions);
+}
+
 void OptionsManager::SetMasterVolume(float _VolumeIn)
 {
-	MasterVolume = _VolumeIn;
-	audioMan->setMasterVolume(MasterVolume);
+	currOptions.MasterVolume = _VolumeIn;
+	audioMan->setMasterVolume(currOptions.MasterVolume);
 }
 
 void OptionsManager::SetSFXVolume(float _VolumeIn)
 {
-	SFXVolume = _VolumeIn;
-	audioMan->setSFXVolume(SFXVolume);
+	currOptions.SFXVolume = _VolumeIn;
+	audioMan->setSFXVolume(currOptions.SFXVolume);
 }
 
 void OptionsManager::SetMusicVolume(float _VolumeIn)
 {
+	currOptions.MusicVolume = _VolumeIn;
+}
+
+void OptionsManager::SetGamma(float _GammaIn)
+{
+	currOptions.Gamma = _GammaIn;
 }
 
 void OptionsManager::Initialize(Renderer * _rendIn, AudioManager * _audioIn, const char * _optionsFilePath)

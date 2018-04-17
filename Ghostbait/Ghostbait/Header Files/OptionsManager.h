@@ -9,17 +9,27 @@ private:
 	AudioManager* audioMan;
 	Renderer* renderMan;
 
-	float MasterVolume;
-	float SFXVolume;
-	float MusicVolume;
+	struct OptionsCluster
+	{
+		float MasterVolume;
+		float SFXVolume;
+		float MusicVolume;
 
-	float Gamma;
+		float Gamma;
+	};
+	
+	OptionsCluster prevOptions;
+	OptionsCluster currOptions;
+	void ApplyAllOptions(OptionsCluster& _in);
 public:
 	static OptionsManager& GetInstance();
-	const float GetMasterVolume() { return MasterVolume; }
-	const float GetSFXVolume() { return SFXVolume; }
-	const float GetMusicVolume() { return MusicVolume; }
-	const float GetGamma() { return Gamma; }
+	const float GetMasterVolume() { return currOptions.MasterVolume; }
+	const float GetSFXVolume() { return currOptions.SFXVolume; }
+	const float GetMusicVolume() { return currOptions.MusicVolume; }
+	const float GetGamma() { return currOptions.Gamma; }
+
+	void CacheValues(); //Used to properly store previous settings in case of cancel
+	void Cancel();
 
 	void SetMasterVolume(float _VolumeIn); //0-1 range
 	void SetSFXVolume(float _VolumeIn); //0-100 range

@@ -366,6 +366,10 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	OptionsManager::GetInstance().Initialize(rendInter, audioMan, "no");
 	OptionsManager::GetInstance().SetMasterVolume(1.0f);
 	OptionsManager::GetInstance().SetSFXVolume(50.0f);
+	OptionsManager::GetInstance().CacheValues();
+	OptionsManager::GetInstance().SetMasterVolume(0.5f);
+	OptionsManager::GetInstance().SetSFXVolume(25.0f);
+	//OptionsManager::GetInstance().Cancel();
 	Console::WriteLine << "Starting Game Loop......";
 	game = new Game();
 	game->Start(player, &engine, "level0", "Level Files//level0_hard.xml");

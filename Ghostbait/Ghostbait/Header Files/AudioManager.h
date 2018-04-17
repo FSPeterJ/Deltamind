@@ -28,6 +28,7 @@ public:
 	void unRegisterObject(EventMessageBase* e);
 	void playSound(EventMessageBase* e);
 	void setSFXVolume(float value);
+	void setMasterVolume(float value);
 
 	void Update();
 };

@@ -112,7 +112,6 @@ void AudioManager::LoadBanks()
 
 	result = AK::SoundEngine::LoadBank(DEFAULT_BANK, AK_DEFAULT_POOL_ID, wiseIsGood);
 
-	setSFXVolume(90.0f);
 }
 
 void AudioManager::registerObject(EventMessageBase * e)
@@ -146,6 +145,11 @@ void AudioManager::playSound(EventMessageBase * e)
 void AudioManager::setSFXVolume(float value)
 {
 	AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::RTPC_SFXVOLUME, (AkRtpcValue)value);
+}
+
+void AudioManager::setMasterVolume(float value)
+{
+	AK::SoundEngine::SetOutputVolume(0, (AkReal32)value);
 }
 
 void AudioManager::Update()

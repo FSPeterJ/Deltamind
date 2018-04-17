@@ -265,6 +265,7 @@
     <ClInclude Include="Header Files\Object.h" />
     <ClInclude Include="Header Files\ObjectFactory.h" />
     <ClInclude Include="Header Files\ObjectManager.h" />
+    <ClInclude Include="Header Files\OptionsManager.h" />
     <ClInclude Include="Header Files\ParticleManager.h" />
     <ClInclude Include="Header Files\ParticleTextureManager.h" />
     <ClInclude Include="Header Files\PathPlanner.h" />
@@ -365,6 +366,7 @@
     <ClCompile Include="Source Files\Object.cpp" />
     <ClCompile Include="Source Files\ObjectFactory.cpp" />
     <ClCompile Include="Source Files\ObjectManager.cpp" />
+    <ClCompile Include="Source Files\OptionsManager.cpp" />
     <ClCompile Include="Source Files\ParticleManager.cpp" />
     <ClCompile Include="Source Files\ParticleTextureManager.cpp" />
     <ClCompile Include="Source Files\PathPlanner.cpp" />

@@ -2,7 +2,7 @@
 #include "MessageEvents.h"
 #include "ObjectFactory.h"
 #include "GhostTime.h"
-
+#include "Wwise_IDs.h"
 #define NORMALCOLOR {0.5f, 0.5f, 0.5f}
 #define PANICCOLOR {1.0f, 0.0f, 0.0f}
 
@@ -15,9 +15,11 @@ void Core::Awake(Object* obj) {
 	*/
 	panicTimer = -1;
 	panicDuration = 4;
+	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
 	light.SetAsPoint(NORMALCOLOR, transform.GetPosition(), 1000);
 	light.Enable();
 	SetToFullHealth();
+	panicking = false;
 }
 void Core::Update() {
 	float dt = (float)GhostTime::DeltaTime();
@@ -40,6 +42,7 @@ void Core::Update() {
 		if (panicTimer >= panicDuration) {
 			panicTimer = -1;
 			light.SetColor(NORMALCOLOR);
+			panicking = false;
 			MessageEvents::SendMessage(EVENT_CoreStopDamaged, EventMessageBase());
 		}
 		else {
@@ -51,8 +54,10 @@ void Core::HealedEvent() {
 }
 void Core::HurtEvent() {
 	panicTimer = 0;
+	if (!panicking)
+		MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_COREALARM));
 	light.SetColor(PANICCOLOR);
-
+	panicking = true;
 	Core const* core = this;
 	MessageEvents::SendMessage(EVENT_CoreDamaged, CoreMessage(&core));
 	/*
@@ -83,5 +88,6 @@ void Core::DeathEvent() {
 void Core::Destroy() {
 	light.SetColor({ 0, 0, 0 });
 	light.RemoveLightFromManager();
+	MessageEvents::SendMessage(EVENT_UnregisterNoisemaker, NewObjectMessage(this));
 	GameObject::Destroy();
 }

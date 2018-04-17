@@ -36,6 +36,7 @@
 #include "DisplayBoard.h"
 #include "ControllerPillar.h"
 #include "PDA.h"
+#include "OptionsManager.h"
 #include "SmokeWall.h"
 
 using namespace Threadding;
@@ -74,7 +75,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	_Pool_Base::RegisterMemory(&MemMan);
 	Console::WriteLine << "App has been initalized!";
-
+	
 	//=============================
 	//Multithreading Test
 	//=============================
@@ -96,6 +97,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	rendInter = new Renderer();
 	audioMan = new AudioManager();
+	
 	player = new Player();
 	if(player->IsVR()) {
 		rendInter->Initialize(wnd, &player->transform);
@@ -364,6 +366,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	GhostTime::Initalize();
 	MessageEvents::Initilize();
 	audioMan->LoadBanks();
+	OptionsManager::GetInstance().Initialize(rendInter, audioMan, "Saves//Settings.ghost");
 	Console::WriteLine << "Starting Game Loop......";
 	game = new Game();
 	game->Start(player, &engine, "level0", "Level Files//level0_hard.xml");

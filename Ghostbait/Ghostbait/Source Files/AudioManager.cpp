@@ -111,6 +111,7 @@ void AudioManager::LoadBanks()
 	AKRESULT result = AK::SoundEngine::LoadBank(INIT_BANK, AK_DEFAULT_POOL_ID, wiseIsGood);
 
 	result = AK::SoundEngine::LoadBank(DEFAULT_BANK, AK_DEFAULT_POOL_ID, wiseIsGood);
+
 }
 
 void AudioManager::registerObject(EventMessageBase * e)
@@ -139,6 +140,16 @@ void AudioManager::playSound(EventMessageBase * e)
 {
 	SoundRequestMessage* mess = (SoundRequestMessage*)e;
 	AK::SoundEngine::PostEvent(mess->RetrieveSound(), (AkGameObjectID)mess->RetrieveObject());
+}
+
+void AudioManager::setSFXVolume(float value)
+{
+	AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::RTPC_SFXVOLUME, (AkRtpcValue)value);
+}
+
+void AudioManager::setMasterVolume(float value)
+{
+	AK::SoundEngine::SetOutputVolume(0, (AkReal32)value);
 }
 
 void AudioManager::Update()

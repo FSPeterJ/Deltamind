@@ -356,8 +356,13 @@ void Game::TutorialLoaded() {
 	//BuildTool
 	player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost")));
 	player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost")));
-	player->leftController->SetBuildItems({ ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Medium.ghost")) });
-	player->rightController->SetBuildItems({ ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Medium.ghost")) });
+
+	player->leftController->SetBuildItems({ ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Short.ghost")), 
+											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Medium.ghost")),
+											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Long.ghost")) });
+	player->rightController->SetBuildItems({ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Short.ghost")),
+											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Medium.ghost")),
+											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Long.ghost")) });
 
 	player->SetBuildToolData(&hexGrid, &gameData);
 }

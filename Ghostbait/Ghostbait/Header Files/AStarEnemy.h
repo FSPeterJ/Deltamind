@@ -24,7 +24,7 @@ class AStarEnemy: public EnemyBase, public AntProperties {
 	unsigned eventAdd = 0;
 	unsigned eventRemove = 0;
 
-	void CalcPath(DirectX::XMFLOAT2 where);
+	void CalcPath(DirectX::XMFLOAT2& where);
 	void CalcPath(HexTile* where);
 
 	/// <summary>
@@ -43,7 +43,8 @@ public:
 	void SetGrid(HexGrid* _grid) override;
 	void Repath() override;
 	bool ReTarget(GameObject* _obj = nullptr) override;
-
+	bool ValidateAttackTarget() override;
+	
 	//void Attack() override;
 	void Patrol() override;
 

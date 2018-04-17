@@ -49,13 +49,16 @@ protected:
 	float maxSpeed = 100.0f;
 	float attackSpeed = 1;
 	float attackDamage = 5;
-	float perceptionRange = 3;
 	float timeSinceLastAttack = -1;
+	int perceptionRange = 3;
+	int attackRange = 1;
+
 
 	double hurtTimer = 0;
 	double hurtDuration = 1;
 	unsigned eventLose = 0;
 	unsigned smite = 0;
+	unsigned eventObstacleRemove = 0;
 
 	PhysicsComponent* pc = 0;
 	RigidBody* rb = 0;
@@ -74,6 +77,7 @@ public:
 	void OnTrigger(GameObject* _other) override;
 	void DeathEvent() override;
 	void TakeDamage(float amount);
+	void ValidateTarget(EventMessageBase* e);
 
 	//Returns True if the current state was changed
 	bool ChangeState(State _s);
@@ -89,6 +93,7 @@ public:
 	virtual void Repath() {};
 	virtual void RandomizeStats();
 	virtual bool ReTarget(GameObject* _obj = nullptr);
+	virtual bool ValidateAttackTarget() { return true; };
 
 	virtual void Idle();
 	virtual void Patrol();

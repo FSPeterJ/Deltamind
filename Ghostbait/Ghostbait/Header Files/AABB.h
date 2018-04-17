@@ -2,6 +2,7 @@
 #include <DirectXMath.h>
 
 #define PARTITION_UNIT_SIZE 3.0f
+#define UNIT_SIZE_DIV 0.33333334f
 
 struct AABB {
 	DirectX::XMFLOAT3 min, max;

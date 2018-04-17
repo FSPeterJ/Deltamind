@@ -37,6 +37,7 @@ void Turret::Disable() {
 }
 void Turret::Awake(Object* obj) {
 	Turret* turret = ((Turret*)obj);
+	isDestroyed = false;
 	eventDestroy = 0;
 	projectiePID = turret->projectiePID;
 	targetDistance = 9999999;
@@ -174,6 +175,14 @@ float Turret::CalculateDistance(GameObject* obj) {
 }
 Turret::~Turret() {
 }
+void Turret::DeathEvent() {
+	gameObjMutex.lock();
+	if (!isDestroyed) {
+		isDestroyed = true;
+		Destroy();
+	}
+	gameObjMutex.unlock();
+}
 void Turret::OnTrigger(GameObject* object) {
 	if(!strcmp(object->GetTag().c_str(), "Enemy") || !strcmp(object->GetTag().c_str(), "PhysicsTestObj")) {
 		using namespace DirectX;
@@ -211,7 +220,7 @@ void Turret::Shoot() {
 	timeSinceLastShot = (float)GhostTime::DeltaTime();
 }
 void Turret::Destroy() {
-	MessageEvents::SendMessage(EVENT_RemoveObstacle, SnapMessage(&DirectX::XMFLOAT2(transform.GetPosition().x, transform.GetPosition().z)));
+	MessageEvents::SendMessage(EVENT_RemoveObstacle, SnapMessage(&DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43)));
 	GameObject::Destroy();
 }
 void Turret::GivePID(unsigned pid, const char* tag) {
@@ -235,7 +244,7 @@ void Turret_Medium::Awake(Object* obj) {
 }
 void Turret_Short::Awake(Object* obj) {
 	Turret::Awake(obj);
-	firerate = 6;
+	firerate = 5;
 	damage = 4;
 	buildCost = 250;
 }

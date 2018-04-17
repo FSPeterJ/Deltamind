@@ -33,6 +33,7 @@ void EnemyBase::Awake(Object* obj) {
 	hurtDuration = 0.25;
 	eventLose = 0;
 	smite = 0;
+	eventObstacleRemove = 0;
 
 	pc = GetComponent<PhysicsComponent>();
 	rb = &(pc->rigidBody);
@@ -73,7 +74,7 @@ void EnemyBase::Start() {
 void EnemyBase::Subscribe() {
 	if(!eventLose) eventLose = MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) { MessageEvents::SendQueueMessage(EVENT_Late, [=] {this->Destroy(); }); });
 	if (!smite) smite = MessageEvents::Subscribe(EVENT_Smite, [=](EventMessageBase* e) { this->AdjustHealth(-1000); });
-
+	if(!eventObstacleRemove) eventObstacleRemove = MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {this->ValidateTarget(e); });
 }
 
 void EnemyBase::UnSubscribe() {
@@ -84,6 +85,10 @@ void EnemyBase::UnSubscribe() {
 	if (smite) {
 		MessageEvents::UnSubscribe(EVENT_Smite, smite);
 		smite = 0;
+	}
+	if (eventObstacleRemove) {
+		MessageEvents::UnSubscribe(EVENT_RemoveObstacle, eventObstacleRemove);
+		eventObstacleRemove = 0;
 	}
 }
 
@@ -113,9 +118,9 @@ void EnemyBase::SetCore(Core* _core) {
 }
 
 bool EnemyBase::ReTarget(GameObject* _obj) {
-	if (static_cast<void*>(targetObj) == static_cast<void*>(_obj)) { return false; }
+	Health* tar = dynamic_cast<Health*>(_obj);
+	if (targetObj == tar) { return false; }
 	if (_obj) {
-		Health* tar = dynamic_cast<Health*>(_obj);
 		targetObj = tar;
 		targetPos = &(_obj->transform.matrix._41);
 		return true;
@@ -133,32 +138,53 @@ void EnemyBase::TakeDamage(float amount) {
 	genetics->performance.results.damageReceived -= damage;
 }
 
+void EnemyBase::ValidateTarget(EventMessageBase* e) {
+	SnapMessage* s = (SnapMessage*)(e);
+	if (s->position->x == targetPos[0] && s->position->y == targetPos[2]) {
+		Console::WarningLine << "Target destroyed at: " << s->position->x << ", " << s->position->y;
+		ReTarget();
+		ChangeState(PATROL);
+	}
+}
+
 bool EnemyBase::ChangeState(State _s) {
-	if (currState == _s) return false;
+	if (currState == _s || isDying) return false;
 	
-	prevState = currState;
-	currState = _s;
 
 	switch (_s)
 	{
 	case EnemyBase::IDLE:
+		Console::WarningLine << "Changing state to IDLE";
 		break;
 	case EnemyBase::PATROL:
+		Console::WarningLine << "Changing state to PATROL";
 		if (GetComponent<Animator>())
 			GetComponent<Animator>()->setState("Move");
 		break;
 	case EnemyBase::ATTACK:
+		Console::WarningLine << "Changing state to ATTACK";
+		isChasing = false;
+		if (!ValidateAttackTarget()) {
+			ReTarget();
+			_s = PATROL;
+			Console::WarningLine << "Not Near Target!!";
+		}
 		break;
 	case EnemyBase::INJURED:
+		Console::WarningLine << "Changing state to INJURED";
 		if (GetComponent<Animator>())
 			GetComponent<Animator>()->setState("Taunt");
 		break;
 	case EnemyBase::DEATH:
+		Console::WarningLine << "Changing state to DEATH";
+		isDying = true;
 		break;
 	default:
 		break;
 	}
 
+	prevState = currState;
+	currState = _s;
 	return true;
 }
 
@@ -227,21 +253,28 @@ void EnemyBase::Patrol() {
 
 void EnemyBase::Attack() {
 	
+	//Console::WarningLine << "Attacking";
 	//May need to validate if target is next to current?
 	if (!targetObj) {
+		Console::ErrorLine << "INVALID TARGET!!!";
 		ReTarget();
 		ChangeState(PATROL);
+		return;
+	}
+
+	if (!targetObj->IsAlive()) {
+		Console::WriteLine << "Target was Destroyed!!";
+		ReTarget();
+		ChangeState(PATROL);
+		timeSinceLastAttack = 0;
 		return;
 	}
 
 	if (timeSinceLastAttack == -1) {
 		targetObj->AdjustHealth(-attackDamage);
 		RecordAttack();
-		Console::WriteLine << "Some health: " << targetObj->PercentHealth();
-		if (!targetObj->IsAlive() && targetObj != core) { 
-			ReTarget(); 
-			ChangeState(PATROL); 
-		}
+		Console::WriteLine << (dynamic_cast<GameObject*>(targetObj))->GetTag().c_str() << ": " << targetObj->PercentHealth();
+
 		timeSinceLastAttack = 0;
 		return;
 	}
@@ -253,11 +286,8 @@ void EnemyBase::Attack() {
 	if (timeSinceLastAttack >= timeToAttack) {
 		targetObj->AdjustHealth(-attackDamage);
 		RecordAttack();
-		Console::WriteLine << "Some health: " << targetObj->PercentHealth();
-		if (!targetObj->IsAlive() && targetObj != core) { 
-			ReTarget();
-			ChangeState(PATROL);
-		}
+		Console::WriteLine << (dynamic_cast<GameObject*>(targetObj))->GetTag().c_str() << ": " << targetObj->PercentHealth();
+
 		timeSinceLastAttack = 0;
 	}
 }
@@ -358,16 +388,20 @@ void EnemyBase::DeathEvent() {
 //Other Overrides
 void EnemyBase::OnCollision(GameObject* _other) {
 	gameObjMutex.lock();
-	DirectX::XMVECTOR incomingDirection = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat4x4(&transform.GetMatrix()).r[3], DirectX::XMLoadFloat4x4(&(_other->transform.GetMatrix())).r[3]));
+	//DirectX::XMVECTOR incomingDirection = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat4x4(&transform.GetMatrix()).r[3], DirectX::XMLoadFloat4x4(&(_other->transform.GetMatrix())).r[3]));
 	if(_other->GetTag() == "Bullet") {
-		pc->rigidBody.AddForce(1.0f, DirectX::XMVectorGetX(incomingDirection), 0.0f, DirectX::XMVectorGetZ(incomingDirection));
+		//pc->rigidBody.AddForce(1.0f, DirectX::XMVectorGetX(incomingDirection), 0.0f, DirectX::XMVectorGetZ(incomingDirection));
 
 		//auto& dam = (((Projectile*) _other)->damage);
 		//AdjustHealth(-dam);
 		//genetics->performance.results.damageReceived += dam;
 
-		TakeDamage(-(((Projectile*) _other)->damage));
+		if (((Projectile*)_other)->isDestroying) {
+			gameObjMutex.unlock();
+			return;
+		}
 
+		TakeDamage(-(((Projectile*) _other)->damage));
 		ChangeState(INJURED);
 
 		//if(componentVarients.find("Hurt") != componentVarients.end()) {
@@ -399,8 +433,7 @@ void EnemyBase::OnCollision(GameObject* _other) {
 
 void EnemyBase::OnTrigger(GameObject* _other) {
 	if (isChasing || currState == ATTACK) return;
-	const char* othertag = _other->GetTag().c_str();
-	if (strcmp(othertag, "Turret") || strcmp(othertag, "Core")) {
+	if (strcmp(_other->GetTag().c_str(), "Turret") == 0 ) {//|| strcmp(_other->GetTag().c_str(), "Core") == 0) {
 		isChasing = ReTarget(_other);
 		//ChangeState(ATTACK);
 	}

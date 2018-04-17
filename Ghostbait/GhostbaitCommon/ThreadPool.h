@@ -18,6 +18,8 @@ namespace Threadding {
 
 		static std::queue<Job> queue;
 
+		static std::queue<Job> priorityJobs;
+
 		static std::condition_variable condition;
 
 		static std::mutex queueMutex;
@@ -51,7 +53,7 @@ namespace Threadding {
 		}
 
 		template<typename F, typename... Args>
-		static std::future<void> MakeJob(F f, Args&&... args) {
+		static std::future<void> MakeJob(bool prioritize, F f, Args&&... args) {
 			Job task(std::bind(f, std::forward<Args>(args)...));
 			auto fut = task.get_future();
 			{
@@ -59,7 +61,7 @@ namespace Threadding {
 				//This should be unlocked immediately after pushing, but which is better?
 				// Research futher, but this is probably irrelevant levels of performance
 				std::lock_guard<std::mutex> lock(queueMutex);
-				queue.push(std::move(task));
+				prioritize ? priorityJobs.push(std::move(task)) : queue.push(std::move(task));
 				
 			}
 			condition.notify_one();
@@ -68,7 +70,7 @@ namespace Threadding {
 
 		//This might not work...
 		template<typename ReturnType, typename... Args>
-		static std::future<ReturnType> MakeJob(std::function<ReturnType(Args...)> f, Args&&... args) {
+		static std::future<ReturnType> MakeJob(bool prioritize, std::function<ReturnType(Args...)> f, Args&&... args) {
 			Job task(std::bind(f, std::forward<Args>(args)...));
 			auto fut = task.get_future();
 			{
@@ -76,7 +78,7 @@ namespace Threadding {
 				//This should be unlocked immediately after pushing, but which is better?
 				// Research futher, but this is probably irrelevant levels of performance
 				std::lock_guard<std::mutex> lock(queueMutex);
-				queue.push(std::move(task));
+				prioritize ? priorityJobs.push(std::move(task)) : queue.push(std::move(task));
 
 			}
 			condition.notify_one();

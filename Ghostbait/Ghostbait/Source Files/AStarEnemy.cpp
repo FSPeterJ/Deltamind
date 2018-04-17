@@ -6,6 +6,7 @@
 #include "PathPlanner.h"
 #include "GhostTime.h"
 #include "ThreadPool.h"
+#include "RandomEngine.h"
 
 AStarEnemy::AStarEnemy() {
 	tag = std::string("Enemy");
@@ -46,9 +47,9 @@ void AStarEnemy::Enable() {
 		isPathing = false;
 	}
 
-	if(!isPathing && (!goal || !(path.size() > 0))) {
+	if(!isPathing && (!goal || path.size() < 1)) {
 		isPathing = true;
-		pathing = Threadding::ThreadPool::MakeJob([&]() {NewAroundPath(); });
+		pathing = Threadding::ThreadPool::MakeJob(false, [&]() {NewAroundPath(); });
 	}
 
 	//if (!path.size()) throw std::runtime_error("Enemy could not find path.");
@@ -64,6 +65,8 @@ void AStarEnemy::Disable() {
 	EnemyBase::Disable();
 }
 void AStarEnemy::Destroy() {
+	isDying = true;
+	if (isPathing) pathing.get();
 	EnemyBase::Destroy();
 }
 //void AStarEnemy::Update() {
@@ -141,16 +144,14 @@ void AStarEnemy::Destroy() {
 //}
 
 void AStarEnemy::Patrol() {
-	if (isPathing) {
-		if (pathing.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready) return;
-		pathing.get();
-		isPathing = false;
-	};
+
+	if (isPathing && pathing.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready) return;
 
 	//Update Path
-	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.GetMatrix()._41, transform.GetMatrix()._43));
+	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
 
 	if (!curTile) {
+		Console::ErrorLine << "Out of BOUNDS!!";
 		isOutofBounds = true;
 		rb->SetVelocity(DirectX::XMVectorScale(rb->GetVelocity(), -1.0f));
 		return;
@@ -158,16 +159,19 @@ void AStarEnemy::Patrol() {
 
 	isOutofBounds = false;
 	if (path.size() < 1) {
+		Console::ErrorLine << "Lost its Path!!";
 		rb->Stop();
+		if (isPathing) return;
 		isPathing = true;
-		pathing = Threadding::ThreadPool::MakeJob([&]() {NewAroundPath(); });
+		pathing = Threadding::ThreadPool::MakeJob(false, [&]() {NewAroundPath(); });
 		return;
 	}
 
 	if (curTile == goal) {
-		//Console::WriteLine << "We made it to our goal.";
+		Console::WriteLine << "We made it to our goal.";
 		rb->Stop();
-		isChasing = false;
+		//isChasing = false;
+
 		ChangeState(ATTACK);
 		return;
 	}
@@ -189,39 +193,44 @@ void AStarEnemy::Patrol() {
 	}
 
 	if (path.Next(curTile) != next) {
+		Console::ErrorLine << "Strayed off path!!";
 		rb->Stop();
 		Repath();
 		next = curTile;
 		return;
 	}
-
 }
-
 
 //Other Overrides
 void AStarEnemy::Repath() {
+	if (isPathing) return;
 	isPathing = true;
-	pathing = Threadding::ThreadPool::MakeJob([&]() {NewPath(); });
+	pathing = Threadding::ThreadPool::MakeJob(false, [&]() {NewAroundPath(); });
 }
 void AStarEnemy::SetGrid(HexGrid* _grid) {
 	grid = _grid;
 }
 void AStarEnemy::SetCore(Core* _core) {
 	EnemyBase::SetCore(_core);
-	HexTile* goalTile = grid->PointToTile({ core->transform.GetPosition().x, core->transform.GetPosition().z });
-	if(goalTile) { goal = goalTile; }
+	//SetGoal(grid->PointToTile({ core->transform.GetPosition().x, core->transform.GetPosition().z }));
 }
 bool AStarEnemy::ReTarget(GameObject* _obj) {
+	if (_obj) Console::WriteLine << "Retargetting to a Turret...";
+	else Console::WriteLine << "Retargetting to CORE!!!...";
+
+	if (isPathing) return false;
 	if (!EnemyBase::ReTarget(_obj)) return false;
-	SetGoal(grid->PointToTile(DirectX::XMFLOAT2(_obj->transform.matrix._41, _obj->transform.matrix._43)));
+	//GameObject* goalObj = _obj ? _obj : core;
+	//SetGoal(grid->PointToTile(DirectX::XMFLOAT2(goalObj->transform.matrix._41, goalObj->transform.matrix._43)));
 	isPathing = true;
-	pathing = Threadding::ThreadPool::MakeJob([&]() {NewAroundPath(); });
+	pathing = Threadding::ThreadPool::MakeJob(false, [&]() {NewAroundPath(); });
 
 	return true;
 }
 
 //Other
 void AStarEnemy::SetGoal(HexTile* _goal) {
+	if (!grid->IsValidTile(*_goal)) throw std::runtime_error("Goal is Shit!");
 	goal = _goal;
 }
 bool AStarEnemy::NewPath() {
@@ -232,18 +241,38 @@ bool AStarEnemy::NewPath() {
 	return path.size();
 }
 bool AStarEnemy::NewAroundPath() {
+	HexTile* tempGoal = grid->PointToTile({ targetPos[0], targetPos[2] });
+	HexTile* tile = nullptr;
+	HexRegion ring;
+	bool pathFound = false;
+	int startInd = 0, endInd = 0, curInd = 0;
 	path.clear();
 
-	HexRegion spire = grid->Spiral(goal, 10);
-	spire.remove(*goal);
+	HexPath spire;// = grid->Spiral(goal, 5, false);
 
-	for (auto& tile : spire) {
-		if (!grid->IsBlocked(&tile)) {
-			CalcPath(&tile);
-			if (!path.size()) continue;
-			SetGoal(&tile);
-			break;
-		}
+	for (int i = 1; i < 10; ++i) {
+		ring = grid->Ring(tempGoal, i);
+		ring.Filter(*grid);
+		spire = ring.ToGrid(grid);
+
+		endInd = (int)spire.size();
+		curInd = startInd = Omiracon::Random::RandomNumber(0, endInd);
+		
+		do {
+			if (isDying) return false;
+			tile = spire[curInd];
+			if (!grid->IsBlocked(tile)) {
+				CalcPath(tile);
+				if (!path.size()) continue;
+				SetGoal(path.goal());
+				//Console::WarningLine << &goal <<" Goal: " << goal->q << ", " << goal->r;
+				pathFound = true;
+				break;
+			}
+			if (++curInd >= endInd) curInd = 0;
+		} while (curInd != startInd);
+
+		if (pathFound) break;
 	}
 	//goal = grid->GetRandomTile();
 	//CalcPath(goal);
@@ -251,15 +280,21 @@ bool AStarEnemy::NewAroundPath() {
 	//if(!path.size()) {
 	//	NewRandPath();
 	//}
-	return path.size();
+	isPathing = false;
+	return pathFound;
 }
-void AStarEnemy::CalcPath(DirectX::XMFLOAT2 where) {
+void AStarEnemy::CalcPath(DirectX::XMFLOAT2& where) {
 	HexTile* whereTile = grid->PointToTile(where);
 	CalcPath(whereTile);
 }
 void AStarEnemy::CalcPath(HexTile* where) {
-	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.GetMatrix()._41, transform.GetMatrix()._43));
+	HexTile* tempTile = grid->PointToTile({ transform.matrix._41, transform.matrix._43 });
 
-	if (!curTile || !where) return;
-	path = PathPlanner::FindPath(curTile, where, TileType::Static, TileType::Static);
+	if (!tempTile || !where) return;
+	path = PathPlanner::FindPath(tempTile, where, TileType::Static, TileType::Static);
+}
+
+bool AStarEnemy::ValidateAttackTarget() {
+	HexTile* tar = grid->PointToTile({ targetPos[0], targetPos[2] });
+	return grid->GetIntersectingTilesRanges(curTile, attackRange, tar, 0).size() > 0;
 }

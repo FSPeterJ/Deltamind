@@ -21,6 +21,7 @@ protected:
 	DirectX::XMFLOAT4X4 prevPitch;
 	DirectX::XMFLOAT4X4 prevYaw;
 	bool hasTargeted = false;
+	bool isDestroyed = false;
 
 	Animator* anim = nullptr;
 
@@ -34,6 +35,7 @@ public:
 	void Destroy() override;
 	float CalculateDistance(GameObject* obj);
 	~Turret();
+	void DeathEvent() override;
 	void OnTrigger(GameObject* object);
 	bool CanShoot(float fireRate);
 	void Shoot();

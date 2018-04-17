@@ -363,13 +363,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	GhostTime::Initalize();
 	MessageEvents::Initilize();
 	audioMan->LoadBanks();
-	OptionsManager::GetInstance().Initialize(rendInter, audioMan, "no");
-	OptionsManager::GetInstance().SetMasterVolume(1.0f);
-	OptionsManager::GetInstance().SetSFXVolume(50.0f);
-	OptionsManager::GetInstance().CacheValues();
-	OptionsManager::GetInstance().SetMasterVolume(0.5f);
-	OptionsManager::GetInstance().SetSFXVolume(25.0f);
-	//OptionsManager::GetInstance().Cancel();
+	OptionsManager::GetInstance().Initialize(rendInter, audioMan, "Saves//Settings.ghost");
 	Console::WriteLine << "Starting Game Loop......";
 	game = new Game();
 	game->Start(player, &engine, "level0", "Level Files//level0_hard.xml");

@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 class Renderer;
 class AudioManager;
@@ -20,6 +21,8 @@ private:
 	
 	OptionsCluster prevOptions;
 	OptionsCluster currOptions;
+	std::string Filepath;
+
 	void ApplyAllOptions(OptionsCluster& _in);
 public:
 	static OptionsManager& GetInstance();

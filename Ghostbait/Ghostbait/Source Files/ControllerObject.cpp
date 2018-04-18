@@ -368,17 +368,16 @@ void ControllerObject::Update() {
 						static bool teleportQueued = false;
 						DirectX::XMFLOAT3 endPos;
 						if (KeyIsDown(teleportDown) && hand == HAND_Right) {
-							if (ArcCast(&transform, &endPos, &player->teleportArc)) {
+							GameObject* colObject = nullptr;
+							if (ArcCast(&transform, &endPos, &colObject, &player->teleportArc)) {
 								player->teleportArc.Create();
 								player->teleportArc.GetMaterial()->flags |= Material::MaterialFlags::POINT;
-								if (!(player->GetBuildGrid()->IsBlocked(DirectX::XMFLOAT2(endPos.x, endPos.z))) && (player->teleportArc.Get()->componentVarients.find("valid") != player->teleportArc.Get()->componentVarients.end())) {
-									int id = TypeMap::GetComponentTypeID<Material>();
-									player->teleportArc.Get()->SetComponent(player->teleportArc.Get()->componentVarients["valid"], id);
+								if (!(player->GetBuildGrid()->IsBlocked(DirectX::XMFLOAT2(endPos.x, endPos.z))) && colObject->GetTag() == "Ground") {
+									player->teleportArc.Get()->SwapComponentVarient<Material>("valid");
 									teleportQueued = true;
 								}
-								else if (player->teleportArc.Get()->componentVarients.find("invalid") != player->teleportArc.Get()->componentVarients.end()) {
-									int id = TypeMap::GetComponentTypeID<Material>();
-									player->teleportArc.Get()->SetComponent(player->teleportArc.Get()->componentVarients["invalid"], id);
+								else {
+									player->teleportArc.Get()->SwapComponentVarient<Material>("invalid");
 									teleportQueued = false;
 								}
 							}

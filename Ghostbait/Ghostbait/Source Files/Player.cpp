@@ -113,17 +113,16 @@ void Player::Update() {
 		}
 
 		if (KeyIsDown(Control::CameraLeftRight)) {
-			//position._41 -= 50.0f * dt;
-			float prevY = rotationY;
-			rotationY += Amount(CameraLeftRight) * 0.01f;
+			//rotationY += Amount(CameraLeftRight) * 0.015f;
+			rotationY += Amount(CameraLeftRight) * 0.005f;
+
 			ResetKey(Control::CameraLeftRight);
-			//ResetKey(Control::left);
 		}
 		if (KeyIsDown(Control::CameraUpDown)) {
-			//position._41 += 50.0f * dt;
-			rotationX += Amount(CameraUpDown) * 0.01f;
+			//rotationX += Amount(CameraUpDown) * 0.015f;
+			rotationX += Amount(CameraUpDown) * 0.005f;
+
 			ResetKey(Control::CameraUpDown);
-			//ResetKey(Control::right);
 		}
 		if (KeyIsDown(Control::forward)) {
 			if (stance != STANCE_God) {

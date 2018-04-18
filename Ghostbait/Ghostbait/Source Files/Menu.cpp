@@ -353,9 +353,15 @@ void BrightnessDownButton::Select() {
 	MenuOption::Select();
 }
 void MouseSensitivityUpButton::Select() {
+	float currSens = OptionsManager::GetInstance().GetSensitivity();
+	if (currSens < 0.015f)
+		OptionsManager::GetInstance().SetSensitivity(currSens + 0.00135f);
 	MenuOption::Select();
 }
 void MouseSensitivityDownButton::Select() {
+	float currSens = OptionsManager::GetInstance().GetSensitivity();
+	if (currSens > 0.0015f)
+		OptionsManager::GetInstance().SetSensitivity(currSens - 0.00135f);
 	MenuOption::Select();
 }
 void AcceptOptionsButton::Select() {

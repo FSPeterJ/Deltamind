@@ -215,6 +215,7 @@ void Renderer::combineDeferredTargets(DeferredRTVs * in, ID3D11RenderTargetView 
 	context->PSSetShader(BrightnessPixelShader, NULL, NULL);
 	context->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	context->OMSetBlendState(additiveBlendState, 0, 0xffffffff);
+	context->PSSetConstantBuffers(5, 1, &gammaBuffer);
 	context->Draw(1, 0);
 	context->OMSetBlendState(defaultPipeline.blend_state, 0, 0xffffffff);
 	ID3D11GeometryShader* temp = nullptr;
@@ -698,6 +699,7 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 void Renderer::Destroy() {
 	LightManager::Release();
 	TextManager::Destroy();
+	gammaBuffer->Release();
 	additiveBlendState->Release();
 	emptyFloat3Buffer->Release();
 	LinearSamplerState->Release();
@@ -742,6 +744,7 @@ void Renderer::Destroy() {
 		releaseDeferredTarget(&rightEye.targets);
 		clearTextureMemory(&leftEye.renderInfo);
 		clearTextureMemory(&rightEye.renderInfo);
+		rightSRV->Release();
 	}
 	meshManagement->Destroy();
 	delete meshManagement;
@@ -886,6 +889,9 @@ void Renderer::Render() {
 		context->UpdateSubresource(lightBuffer, NULL, NULL, LightManager::getLightBuffer(), 0, 0);
 		renderToEye(&rightEye);
 		VRManager::GetInstance().SendToHMD((void*) leftEye.renderInfo.texture, (void*) rightEye.renderInfo.texture);
+#if _DEBUG
+		DebugRenderer::clear();
+#endif
 		renderRightEyeToMonitor();
 	}
 	else
@@ -1174,6 +1180,9 @@ void Renderer::initShaders() {
 	CD3D11_BUFFER_DESC uvOffsetBufferDesc(sizeof(uvOffsetData), D3D11_BIND_CONSTANT_BUFFER);
 	device->CreateBuffer(&uvOffsetBufferDesc, nullptr, &uvDataBuffer);
 
+	CD3D11_BUFFER_DESC gammaBufferDesc(sizeof(gammaData), D3D11_BIND_CONSTANT_BUFFER);
+	device->CreateBuffer(&gammaBufferDesc, nullptr, &gammaBuffer);
+
 	DirectX::XMFLOAT4 IseriouslyNeedthis = { 0.0f, 0.0f, 0.0f, 1.0f };
 	CD3D11_BUFFER_DESC pointBufferDesc(sizeof(IseriouslyNeedthis), D3D11_BIND_VERTEX_BUFFER);
 	D3D11_SUBRESOURCE_DATA bufferData = { 0 };
@@ -1247,6 +1256,13 @@ void Renderer::setSkybox(const char* directoryName, const char* filePrefix)
 	srvdesc.TextureCube.MipLevels = texdesc.MipLevels;
 	device->CreateShaderResourceView((ID3D11Resource*)toSet->box, &srvdesc, &toSet->srv);
 	currSkybox = toSet;
+}
+
+void Renderer::setGamma(float value)
+{
+	gammaData toSend;
+	toSend.gamma = value;
+	context->UpdateSubresource(gammaBuffer, NULL, NULL, &toSend, NULL, NULL);
 }
 
 MeshManager* Renderer::getMeshManager() { return meshManagement; }

@@ -343,3 +343,9 @@ void DebugRenderer::flushTo(ID3D11RenderTargetView ** rtv, ID3D11DepthStencilVie
 	v_count = 0;
 	tri_count = 0;
 }
+
+void DebugRenderer::clear()
+{
+	v_count = 0;
+	tri_count = 0;
+}

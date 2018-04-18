@@ -4,12 +4,12 @@ struct PixelShaderInput
     float2 uv : TEXCOORD;
 };
 
-cbuffer BrightnessFactor : register(b0)
+cbuffer BrightnessFactor : register(b5)
 {
     float Gamma;
 };
 
 float4 main() : SV_TARGET
 {
-	return float4(0.0f, 0.0f, 0.0f, 1.0f);
+	return float4(Gamma, Gamma, Gamma, 1.0f);
 }

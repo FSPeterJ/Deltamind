@@ -37,7 +37,7 @@ public:
 	void SetMasterVolume(float _VolumeIn); //0-1 range
 	void SetSFXVolume(float _VolumeIn); //0-100 range
 	void SetMusicVolume(float _VolumeIn); //0-100 range
-	void SetGamma(float _GammaIn);
+	void SetGamma(float _GammaIn); //0-0.5 range
 	
 	void Initialize(Renderer* _rendIn, AudioManager* _audioIn, const char* _optionsFilePath);
 	OptionsManager();

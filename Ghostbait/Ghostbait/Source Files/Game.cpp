@@ -13,6 +13,7 @@
 #include "ObjectFactory.h"
 #include "Player.h"
 #include "Material.h"
+#include "HUD.h"
 //#include "DStarEnemy.h"
 //#include "MTDSLEnemy.h"
 #include <future>
@@ -33,7 +34,7 @@ Game::Game() {
 	MessageEvents::Subscribe(EVENT_GameQuit, [=](EventMessageBase* e) {this->Quit(); });
 	MessageEvents::Subscribe(EVENT_GameExit, [=](EventMessageBase* e) {this->ExitToMainMenu(); });
 	MessageEvents::Subscribe(EVENT_FreeMoney, [=](EventMessageBase* e) {this->gameData.SetGears(500000); });
-	MessageEvents::Subscribe(EVENT_TutorialHit, [=](EventMessageBase* e) {this->ChangeScene("Tutorial"); });
+	MessageEvents::Subscribe(EVENT_ChangeScene, [=](EventMessageBase* e) { this->ChangeScene(((ChangeSceneMessage*)e)->RetrieveData()); });
 
 	MessageEvents::Subscribe(EVENT_GameDataRequest, [=](EventMessageBase* e) { this->GameDataRequestEvent(e); });
 	PathPlanner::SetGrid(&hexGrid);
@@ -59,7 +60,7 @@ void Game::RemoveObstacleEvent(EventMessageBase* e) {
 	hexGrid.RemoveObstacle(*message->position);
 }
 void Game::PauseInputEvent() {
-	if(gameData.GetState() == GAMESTATE_SplashScreen || gameData.GetState() == GAMESTATE_MainMenu) return;
+	if(gameData.GetState() == GAMESTATE_SplashScreen || gameData.GetState() == GAMESTATE_MainMenu || gameData.GetState() == GAMESTATE_Credits) return;
 	if(paused) {
 		ResumeGame();
 		MessageEvents::SendMessage(EVENT_GameUnPause, EventMessageBase());
@@ -102,6 +103,7 @@ void Game::StartEvent(EventMessageBase* e) {
 			std::string levelName = "";
 			if (starter)
 				levelName = starter->RetrieveLevelName();
+			ChangeState(GAMESTATE_BetweenWaves);
 			ChangeScene("level0", levelName);
 			break;
 		}
@@ -126,15 +128,7 @@ void Game::ChangeState(State newState) {
 					gameData.AddGears(gameData.waveManager.GetCurrentWaveReward());
 					GameData const* gd = &gameData;
 					MessageEvents::SendMessage(EVENT_WaveComplete, GameDataMessage(&gd));
-
-					//Spawn start cube
-					MenuCube* startCube;
-					unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"));
-					MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(ID, { 0, 1.5f, 0.0f }, &startCube));
-					DirectX::XMFLOAT4X4 newPos;
-					DirectX::XMStoreFloat4x4(&newPos, DirectX::XMLoadFloat4x4(&startCube->transform.GetMatrix()) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
-					startCube->transform.SetMatrix(newPos);
-					startCube->Enable();
+					currentTimeBetweenWaveReady = delayBetweenWaveReady;
 				}
 			}
 			break;
@@ -175,6 +169,8 @@ void Game::ChangeScene(const char* sceneName, std::string levelName) {
 		TutorialLoaded();
 	if (!strcmp(sceneName, "level0"))
 		Level0Loaded();
+	if (!strcmp(sceneName, "Credits"))
+		CreditsLoaded();
 
 	//--------------------------------------
 
@@ -329,6 +325,10 @@ void Game::MainMenuLoaded() {
 	player->ResetStance();
 	player->Teleport(DirectX::XMFLOAT3(0, 0, 0));
 	player->transform.LookAt({ menuPos._41, menuPos._42, menuPos._43 });
+
+	//Update HUD
+	if(currHUD)
+	currHUD->HideInventory();
 }
 void Game::TutorialLoaded() {
 	gameData.AddGears(1000);
@@ -356,10 +356,19 @@ void Game::TutorialLoaded() {
 	//BuildTool
 	player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost")));
 	player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost")));
-	player->leftController->SetBuildItems({ ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Medium.ghost")) });
-	player->rightController->SetBuildItems({ ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Medium.ghost")) });
+
+	player->leftController->SetBuildItems({ ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Short.ghost")), 
+											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Medium.ghost")),
+											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Long.ghost")) });
+	player->rightController->SetBuildItems({ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Short.ghost")),
+											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Medium.ghost")),
+											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Long.ghost")) });
 
 	player->SetBuildToolData(&hexGrid, &gameData);
+
+	//Update HUD
+	if(currHUD)
+	currHUD->ShowInventory();
 }
 void Game::Level0Loaded() {
 	int index = 0;
@@ -394,34 +403,44 @@ void Game::Level0Loaded() {
 											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Long.ghost")) });
 	
 	player->SetBuildToolData(&hexGrid, &gameData);
+
+	//Update HUD
+	if(currHUD)
+	currHUD->ShowInventory();
 }
 void Game::CreditsLoaded() {
-	if (player->IsVR()) {
-		player->leftController->SetControllerState(CSTATE_ModelOnly);
-		player->rightController->SetControllerState(CSTATE_ModelOnly);
-	}
-	else {
-		player->leftController->SetControllerState(CSTATE_None);
-		player->rightController->SetControllerState(CSTATE_None);
-	}
+	player->leftController->SetControllerState(CSTATE_MenuController);
+	player->rightController->SetControllerState(CSTATE_MenuController);
+
+	PDA* largePDA = nullptr;
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/PDA.ghost")), { 0, 0, 0 }, (GameObject**)&largePDA));
+	largePDA->transform.SetMatrix(DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 2, 3, 1));
+	largePDA->SetPurpose(PDA::Purpose::Credits);
+
+	credits.Show();
+
+
 }
 
 //Main loop elements
-void Game::Start(Player* _player, EngineStructure* _engine, char* startScene) {
+void Game::Start(Player* _player, EngineStructure* _engine, HUD* _hud, char* startScene, char* xml) {
 	srand((unsigned int)time(NULL));
 	engine = _engine;
 	player = _player;
+	currHUD = _hud;
 	AntColony::AddUpdateToEngineStruct();
 	mainMenu.Create(MENU_Main);
 	pauseMenu.Create(MENU_Pause);
 	pauseMenu.SetCamera(&player->transform);
+	credits.Create(MENU_Custom, { Button::BUTTON_Exit });
+	credits.SetSpawnPos(DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 3, 1));
 	sceneManager = new SceneManager();
 	sceneManager->Initialize();
 	gameData.Reset();
 	//hexGrid.Fill(false);
 	player->SetBuildToolData(&hexGrid, &gameData);
 
-	ChangeScene(startScene);
+	ChangeScene(startScene, xml);
 
 	//MessageEvents::SendMessage(EVENT_StartWave, EventMessageBase());
 	//DStarEnemy* newFred;
@@ -552,6 +571,23 @@ void Game::Update() {
 		}
 			break;
 		case GAMESTATE_BetweenWaves:
+			{
+				if (currentTimeBetweenWaveReady > 0) {
+					currentTimeBetweenWaveReady -= dt;
+					if (currentTimeBetweenWaveReady <= 0) {
+						currentTimeBetweenWaveReady = -1;
+						//Replace start cube eventually
+						//Spawn start cube
+						MenuCube* startCube;
+						unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"));
+						MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(ID, { 0, 1.5f, 0.0f }, &startCube));
+						DirectX::XMFLOAT4X4 newPos;
+						DirectX::XMStoreFloat4x4(&newPos, DirectX::XMLoadFloat4x4(&startCube->transform.GetMatrix()) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
+						startCube->transform.SetMatrix(newPos);
+						startCube->Enable();
+					}
+				}
+			}
 		case GAMESTATE_GameOver:
 		case GAMESTATE_MainMenu:
 		case GAMESTATE_Credits:

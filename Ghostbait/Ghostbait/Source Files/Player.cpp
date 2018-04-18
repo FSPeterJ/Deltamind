@@ -64,10 +64,6 @@ void Player::GodDetected() {
 
 void Player::Update() {
 	float dt = (float)GhostTime::DeltaTime();
-	if (editItem) {
-		DebugRenderer::DrawAxes(editItem->transform.GetMatrix(), 1);
-	}
-
 
 	if (IsVR()) {
 		transform.SetMatrix(VRManager::GetInstance().GetPlayerPosition());
@@ -81,52 +77,6 @@ void Player::Update() {
 				playerMat._42 += controllerMat._32;
 				playerMat._43 += controllerMat._33;
 				VRManager::GetInstance().MovePlayer({ playerMat._41, playerMat._42, playerMat._43 }, false);
-			}
-			if (editItem) {
-				if (Amount(Control::rightItem1) == 1) {
-					editScale.x -= editScaleSpeed;
-					editScale.y -= editScaleSpeed;
-					editScale.z -= editScaleSpeed;
-				}
-				if (Amount(Control::rightItem2) == 1) {
-					editScale.x += editScaleSpeed;
-					editScale.y += editScaleSpeed;
-					editScale.z += editScaleSpeed;
-				}
-				DirectX::XMMATRIX scale = DirectX::XMMatrixScaling(editScale.x, editScale.y, editScale.z);
-
-				if (Amount(Control::rightCyclePrefab)) {
-					editRotation.y += DirectX::XMConvertToRadians(editRotationSpeed);
-				}
-				if (Amount(Control::leftCyclePrefab)) {
-					editRotation.y -= DirectX::XMConvertToRadians(editRotationSpeed);
-				}
-				DirectX::XMMATRIX rotation = DirectX::XMMatrixRotationRollPitchYaw(editRotation.x, editRotation.y, editRotation.z);
-
-				DirectX::XMFLOAT4X4 noTranslation;
-				DirectX::XMStoreFloat4x4(&noTranslation, scale * rotation);
-				editItem->transform.SetMatrix(noTranslation);
-				editItem->transform.SetPosition(editPos);
-
-				if (Amount(Control::leftItem0) == 1) {
-					editItem->transform.MoveAlongForward(-editMoveSpeed);
-				}
-				if (Amount(Control::leftItem3) == 1) {
-					editItem->transform.MoveAlongForward(editMoveSpeed);
-				}
-				if (Amount(Control::leftItem2) == 1) {
-					editItem->transform.MoveAlongSide(editMoveSpeed);
-				}
-				if (Amount(Control::leftItem1) == 1) {
-					editItem->transform.MoveAlongSide(-editMoveSpeed);
-				}
-				if (Amount(Control::rightItem0) == 1) {
-					editItem->transform.MoveAlongUp(editMoveSpeed);
-				}
-				if (Amount(Control::rightItem3) == 1) {
-					editItem->transform.MoveAlongUp(-editMoveSpeed);
-				}
-				editPos = editItem->transform.GetPosition();
 			}
 		}
 	}
@@ -165,15 +115,13 @@ void Player::Update() {
 		if (KeyIsDown(Control::CameraLeftRight)) {
 			//position._41 -= 50.0f * dt;
 			float prevY = rotationY;
-			rotationY += Amount(CameraLeftRight) * 0.01f;
+			rotationY += Amount(CameraLeftRight) * sensitivity;
 			ResetKey(Control::CameraLeftRight);
-			//ResetKey(Control::left);
 		}
 		if (KeyIsDown(Control::CameraUpDown)) {
 			//position._41 += 50.0f * dt;
-			rotationX += Amount(CameraUpDown) * 0.01f;
+			rotationX += Amount(CameraUpDown) * sensitivity;
 			ResetKey(Control::CameraUpDown);
-			//ResetKey(Control::right);
 		}
 		if (KeyIsDown(Control::forward)) {
 			if (stance != STANCE_God) {
@@ -251,54 +199,6 @@ void Player::Update() {
 				transform.SetPosition(prevPos);
 			}
 		}
-		else {
-			if (editItem) {
-				if (KeyIsDown(Control::rightItem1)) {
-					editScale.x -= editScaleSpeed;
-					editScale.y -= editScaleSpeed;
-					editScale.z -= editScaleSpeed;
-				}
-				if (KeyIsDown(Control::rightItem2)) {
-					editScale.x += editScaleSpeed;
-					editScale.y += editScaleSpeed;
-					editScale.z += editScaleSpeed;
-				}
-				DirectX::XMMATRIX scale = DirectX::XMMatrixScaling(editScale.x, editScale.y, editScale.z);
-
-				if (KeyIsDown(Control::rightCyclePrefab)) {
-					editRotation.y += editRotationSpeed;
-				}
-				if (KeyIsDown(Control::leftCyclePrefab)) {
-					editRotation.y -= editRotationSpeed;
-				}
-				DirectX::XMMATRIX rotation = DirectX::XMMatrixRotationRollPitchYaw(editRotation.x, editRotation.y, editRotation.z);
-
-				DirectX::XMFLOAT4X4 noTranslation;
-				DirectX::XMStoreFloat4x4(&noTranslation, scale * rotation);
-				editItem->transform.SetMatrix(noTranslation);
-				editItem->transform.SetPosition(editPos);
-
-				if (KeyIsDown(Control::leftItem0)) {
-					editItem->transform.MoveAlongForward(-editMoveSpeed);
-				}
-				if (KeyIsDown(Control::leftItem3)) {
-					editItem->transform.MoveAlongForward(editMoveSpeed);
-				}
-				if (KeyIsDown(Control::leftItem2)) {
-					editItem->transform.MoveAlongSide(editMoveSpeed);
-				}
-				if (KeyIsDown(Control::leftItem1)) {
-					editItem->transform.MoveAlongSide(-editMoveSpeed);
-				}
-				if (KeyIsDown(Control::rightItem0)) {
-					editItem->transform.MoveAlongUp(editMoveSpeed);
-				}
-				if (KeyIsDown(Control::rightItem3)) {
-					editItem->transform.MoveAlongUp(-editMoveSpeed);
-				}
-				editPos = editItem->transform.GetPosition();
-			}
-		}
 	}
 }
 void Player::PausedUpdate() {
@@ -308,13 +208,13 @@ void Player::PausedUpdate() {
 
 		if (KeyIsDown(Control::CameraLeftRight)) {
 			//position._41 -= 50.0f * dt;
-			rotationY += Amount(CameraLeftRight) * dt;
+			rotationY += Amount(CameraLeftRight) * sensitivity;
 			ResetKey(Control::CameraLeftRight);
 			//ResetKey(Control::left);
 		}
 		if (KeyIsDown(Control::CameraUpDown)) {
 			//position._41 += 50.0f * dt;
-			rotationX += Amount(CameraUpDown) * dt;
+			rotationX += Amount(CameraUpDown) * sensitivity;
 			ResetKey(Control::CameraUpDown);
 			//ResetKey(Control::right);
 		}

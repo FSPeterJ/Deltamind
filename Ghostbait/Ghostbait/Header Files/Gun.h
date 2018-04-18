@@ -29,6 +29,7 @@ public:
 		void CreateBar(Gun* _parent = nullptr);
 		void Overheated();
 		void CooledDown();
+		void Reset();
 	};
 	enum FireType {
 		AUTO,

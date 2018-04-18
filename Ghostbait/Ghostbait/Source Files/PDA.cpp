@@ -5,6 +5,7 @@
 #include "TextManager.h"
 #include "MeshManager.h"
 #include "GameData.h"
+#include "ScrollingUVManager.h"
 #undef SendMessage
 
 PDA::PDA() {
@@ -13,46 +14,7 @@ PDA::PDA() {
 
 void PDA::Awake(Object* obj) {
 	Item::Awake(obj);
-
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/PDAWaveCounter.ghost")), { 0, 0, 0 }, &waveCounter));
-	waveCounter->UnRender();
-	waveCounter->Render();
-	waveMat = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "Wave: 0", foreground, background).mat;
-	waveCounter->SetComponent<Material>(waveMat);
-	waveCounter->PersistOnReset();
-	TextManager::SetSpecularTexture(waveCounter->GetComponent<Material>(), L"Assets/PDA.fbm/PDATextSpecular.png");
-
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/PDAEnemyCounter.ghost")), { 0, 0, 0 }, &enemyCounter));
-	enemyCounter->UnRender();
-	enemyCounter->Render();
-	enemyMat = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "Enemies Remaining: 00", foreground, background).mat;
-	enemyCounter->SetComponent<Material>(enemyMat);
-	enemyCounter->PersistOnReset();
-
-
-	eventWaveChange = MessageEvents::Subscribe(EVENT_WaveChange, [=](EventMessageBase* e) {
-		if (enemyCounter) {
-			totalEnemies = (*((GameDataMessage*)e)->RetrieveData())->waveManager.GetCurrentWave()->enemyCount;
-			std::string message = "Enemies Remaining: ";
-			message.append(std::to_string(totalEnemies));
-			TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", message, enemyMat, foreground, background);
-		}
-		if (waveCounter) {
-			std::string curWave = std::to_string((*((GameDataMessage*)e)->RetrieveData())->waveManager.GetCurrentWaveNumber());
-			std::string totalWaves = std::to_string((*((GameDataMessage*)e)->RetrieveData())->waveManager.GetWaveCount());
-			std::string message = "Wave: ";
-			message.append(curWave + " / " + totalWaves);
-			TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", message, waveMat, foreground, background);
-		}
-	});
-	eventEnemyDied = MessageEvents::Subscribe(EVENT_EnemyDied, [=](EventMessageBase* e) {
-		if (enemyCounter) {
-			--totalEnemies;
-			std::string message = "Enemies Remaining: ";
-			message.append(std::to_string(totalEnemies));
-			TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", message, enemyMat, foreground, background);
-		}
-	});
+	state = Item::State::PDA;
 }
 void PDA::ActiveUpdate() {
 	Item::ActiveUpdate();
@@ -66,21 +28,13 @@ void PDA::ActiveUpdate() {
 	mat._43 += (mat._13 * dist);
 	transform.SetMatrix(mat);
 
-	if (waveCounter) {
-		waveCounter->transform.SetMatrix(transform.GetMatrix());
-	}
-	if (enemyCounter) {
-		enemyCounter->transform.SetMatrix(transform.GetMatrix());
-	}
+	if (display)
+		display->transform.SetMatrix(transform.GetMatrix());
 }
 void PDA::Destroy() {
-	if (waveCounter) {
-		waveCounter->Destroy();
-		waveCounter = nullptr;
-	}
-	if (enemyCounter) {
-		enemyCounter->Destroy();
-		enemyCounter = nullptr;
+	if (display) {
+		display->Destroy();
+		display = nullptr;
 	}
 	
 	if (eventWaveChange) MessageEvents::UnSubscribe(EVENT_WaveChange, eventWaveChange);
@@ -88,14 +42,77 @@ void PDA::Destroy() {
 
 	Item::Destroy();
 }
-
 void PDA::Selected() {
 	Item::Selected();
-	if (waveCounter) waveCounter->Render();
-	if (enemyCounter) enemyCounter->Render();
+	if (display) display->Render();
 }
 void PDA::DeSelected() {
 	Item::DeSelected();
-	if (waveCounter) waveCounter->UnRender();
-	if (enemyCounter) enemyCounter->UnRender();
+	if (display) display->UnRender();
+}
+
+void PDA::SetPurpose(Purpose _purpose) {
+	purpose = _purpose;
+	ScrollingUV* comp = nullptr;
+	switch (purpose) {
+		case Purpose::InventoryItem:
+			SwapComponentVarient<Mesh>("inHand");
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/PDAScreen.ghost")), { 0, 0, 0 }, &display));
+			displayMat = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", " Wave: 0 \n EnemiesRemaining: 0 ", foreground, background).mat;
+			display->SetComponent<Material>(displayMat);
+			display->PersistOnReset();
+			display->ToggleFlag(UNLIT);
+			eventWaveChange = MessageEvents::Subscribe(EVENT_WaveChange, [=](EventMessageBase* e) { if (display) UpdateDisplay(e); });
+			eventEnemyDied = MessageEvents::Subscribe(EVENT_EnemyDied, [=](EventMessageBase* e) { if (display) UpdateDisplay(); });
+			
+			comp = display->GetComponent<ScrollingUV>();
+			if (comp) {
+				comp->velocity.x = 0;
+				comp->velocity.y = 0;
+			}
+
+			break;
+		case Purpose::DisplayItem:
+			break;
+		case Purpose::Credits:
+			SwapComponentVarient<Mesh>("large");
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/PDAScreen.ghost")), { 0, 0, 0 }, &display));
+			displayMat = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", " Wave: 0 \n EnemiesRemaining: 0 ", foreground, background).mat;
+			display->SetComponent<Material>(displayMat);
+			display->SwapComponentVarient<Mesh>("large");
+			display->PersistOnReset();
+			display->ToggleFlag(UNLIT);
+			display->transform.SetMatrix(transform.GetMatrix());
+
+			if (eventWaveChange) MessageEvents::UnSubscribe(EVENT_WaveChange, eventWaveChange);
+			if (eventEnemyDied) MessageEvents::UnSubscribe(EVENT_EnemyDied, eventEnemyDied);
+
+			comp = display->GetComponent<ScrollingUV>();
+			if (comp) {
+				comp->offset.y = 0;
+				comp->velocity.y = 0.02f;
+			}
+			break;
+	}
+}
+void PDA::UpdateDisplay(EventMessageBase* e) {
+	//Get new data
+	if (e) {
+		const GameData* gameData = *((GameDataMessage*)e)->RetrieveData();
+		if (gameData) {
+			totalEnemies = gameData->waveManager.GetCurrentWave()->enemyCount;
+			curWave = gameData->waveManager.GetCurrentWaveNumber();
+			totalWaves = gameData->waveManager.GetWaveCount();
+		}
+	}
+	else {
+		totalEnemies -= 1;
+	}
+	//Write to file
+	std::string message = " Wave: ";
+	message.append(std::to_string(curWave) + " / " + std::to_string(totalWaves));
+	message.append(" \n Enemies Remaining: ");
+	message.append(std::to_string(totalEnemies));
+	message.append(" ");
+	TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", message, displayMat, foreground, background);
 }

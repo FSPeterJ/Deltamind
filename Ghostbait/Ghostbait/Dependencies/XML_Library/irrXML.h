@@ -41,7 +41,8 @@
 	 - With its optional file access abstraction it has the advantage that it can read not
 	   only from files but from any type of data (memory, network, ...). For example when 
 	   used with the Irrlicht Engine, it directly reads from compressed .zip files. 
-	 - Just like the Irrlicht Engine for which it was originally created, it is extremely easy 
+	 - Just like the Irrlicht Engine for which it was 
+	 ally created, it is extremely easy 
 	   to use.
 	 - It has no external dependencies, it does not even need the STL. 
 

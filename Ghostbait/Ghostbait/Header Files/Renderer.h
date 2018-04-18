@@ -92,6 +92,12 @@ private:
 		DirectX::XMFLOAT2 offsets = DirectX::XMFLOAT2(0.0f, 0.0f);
 		DirectX::XMFLOAT2 padding;
 	};
+
+	struct gammaData
+	{
+		float gamma;
+		DirectX::XMFLOAT3 padding; //I hate this
+	};
 #pragma endregion
 
 	ID3D11SamplerState* LinearSamplerState;
@@ -101,6 +107,7 @@ private:
 	ID3D11DeviceContext* context;
 	IDXGISwapChain* swapchain;
 	ID3D11Texture2D* backBuffer;
+	ID3D11ShaderResourceView* rightSRV = nullptr; //Used to avoid a third render pass for the monitor in VR
 	DeferredRTVs deferredTextures;
 
 	ID3D11VertexShader* PassThroughPositionColorVS;
@@ -119,6 +126,7 @@ private:
 	ID3D11PixelShader* PositionTexturePixelShader;
 	ID3D11PixelShader* BlurPixelShader;
 	ID3D11PixelShader* TexToQuadPS;
+	ID3D11PixelShader* BrightnessPixelShader;
 
 	ID3D11InputLayout* ILPositionColor;
 	ID3D11InputLayout* ILPositionTexture;
@@ -133,14 +141,16 @@ private:
 	ID3D11Buffer* animDataBuffer;
 	ID3D11Buffer* blurDataBuffer;
 	ID3D11Buffer* uvDataBuffer;
+	ID3D11Buffer* gammaBuffer;
 
 	pipeline_state_t defaultPipeline;
+	ID3D11BlendState* additiveBlendState;
 	Transform* cameraPos;
 	viewProjectionConstantBuffer defaultCamera;
 	animDataBufferStruct cpuAnimationData;
 	uvOffsetData uvData;
 	Mesh* skyball;
-	HUD* defaultHUD;
+	HUD* defaultHUD = nullptr;
 
 	ID3D11Buffer* emptyFloat3Buffer; //Needed to upload to the shaders that don't need specific vertex values (may replace with techniques later)
 	Skybox* currSkybox = nullptr;
@@ -165,6 +175,7 @@ private:
 	void clearTextureMemory(renderTargetInfo* info);
 	bool LoadShaderFromCSO(char ** szByteCode, size_t& szByteCodeSize, const char* szFileName);
 	void setupVRTargets();
+	void renderRightEyeToMonitor();
 	void releaseDeferredTarget(DeferredRTVs* in);
 	void combineDeferredTargets(DeferredRTVs* in, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT& viewport);
 	bool compareDistToCam(const DirectX::XMFLOAT3& t1, const DirectX::XMFLOAT3& t2, const DirectX::XMFLOAT3& camPos);
@@ -232,6 +243,10 @@ public:
 	void moveToTransparent(EventMessageBase* e);
 
 	void setSkybox(const char* directoryName, const char* filePrefix);
+
+	void setGamma(float value);
+
+	HUD* getHud() { return defaultHUD; }
 
 	MeshManager* getMeshManager();
 	MaterialManager* getMaterialManager();

@@ -42,8 +42,8 @@ class Player : public GameObject, public Controlable {
 	float walkSpeed = 10;
 	float runSpeed = 20;
 	float godSpeed = 40;
+	float sensitivity = 0.005f;
 	
-	GameObject* editItem = nullptr;
 	DirectX::XMFLOAT3 editScale;
 	DirectX::XMFLOAT3 editRotation;
 	DirectX::XMFLOAT3 editPos;
@@ -78,6 +78,7 @@ public:
 	void Teleport();
 	void Teleport(DirectX::XMFLOAT3 pos);
 
+	void SetSensitivity(float _sensIn) { sensitivity = _sensIn; }
 
 	bool IsVR() const;
 };

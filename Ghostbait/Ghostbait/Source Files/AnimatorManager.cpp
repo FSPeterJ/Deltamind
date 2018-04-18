@@ -54,6 +54,7 @@ Animator * AnimatorManager::CloneComponent(ComponentBase * reference) {
 	Animator* toReturn = animators.ActivateMemory();
 	toReturn->Copy(((Animator*)reference));
 	toReturn->Initialize(animMan);
+	toReturn->Enable();
 	return toReturn;
 }
 

@@ -161,7 +161,7 @@ bool Raycast(Transform* transform, DirectX::XMFLOAT3& direction, DirectX::XMFLOA
 	return success;
 }
 
-bool ArcCast(Transform* transform, DirectX::XMFLOAT3* outPos, CastObject* arc, float maxDistance, float minAngle, float maxAngle, float castHeight, const char* tag) {
+bool ArcCast(Transform* transform, DirectX::XMFLOAT3* outPos, GameObject** colObject, CastObject* arc, float maxDistance, float minAngle, float maxAngle, float castHeight, const char* tag) {
 	DirectX::XMMATRIX controllerMat = DirectX::XMLoadFloat4x4(&transform->GetMatrix());
 	DirectX::XMVECTOR planeNormalVec = DirectX::XMVectorSet(0, 1, 0, 0);
 	DirectX::XMVECTOR forwardVec = DirectX::XMVector3Normalize(controllerMat.r[2]);
@@ -207,7 +207,7 @@ bool ArcCast(Transform* transform, DirectX::XMFLOAT3* outPos, CastObject* arc, f
 		DirectX::XMStoreFloat3(&rayDirection, castDirection);
 		Transform tran;
 		tran.SetPosition(rayStart);
-		if (Raycast(&tran, rayDirection, outPos, nullptr, nullptr, 100, tag)) {
+		if (Raycast(&tran, rayDirection, outPos, colObject, nullptr, 100, tag)) {
 			if (arc && arc->Get()) DrawArc(transform, *outPos, arc);
 			return true;
 		}

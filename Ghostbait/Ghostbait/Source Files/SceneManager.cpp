@@ -62,6 +62,7 @@ void SceneManager::CreateSceneFile(SceneManager::TestSceneData& data) {
 
 void SceneManager::Initialize() {
 	DirectX::XMFLOAT4X4 identity = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+
 	TestSceneData level0Data;
 	{
 		level0Data.fileName = "Scene Files//level0.scene";
@@ -92,17 +93,17 @@ void SceneManager::Initialize() {
 		{
 			spawner.ghostFile = "Assets/Spawner.ghost";
 			spawner.name = "Spawner";
-			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, -50, 0, 50, 1);
+			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, -105, 0, -51.5f, 1);
 			spawner.positions.push_back(mat1);
-			DirectX::XMFLOAT4X4 mat2 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, -50, 0, -50, 1);
+			DirectX::XMFLOAT4X4 mat2 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, -105, 0, 33, 1);
 			spawner.positions.push_back(mat2);
-			DirectX::XMFLOAT4X4 mat3 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, 50, 0, 50, 1);
+			DirectX::XMFLOAT4X4 mat3 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, -105, 0, 0, 1);
 			spawner.positions.push_back(mat3);
-			DirectX::XMFLOAT4X4 mat4 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, 50, 0, -50, 1);
+			DirectX::XMFLOAT4X4 mat4 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, 105, 0, 51.5f, 1);
 			spawner.positions.push_back(mat4);
-			DirectX::XMFLOAT4X4 mat5 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, 50, 0, 0, 1);
+			DirectX::XMFLOAT4X4 mat5 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, 105, 0, -33, 1);
 			spawner.positions.push_back(mat5);
-			DirectX::XMFLOAT4X4 mat6 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, -50, 0, 0, 1);
+			DirectX::XMFLOAT4X4 mat6 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, 105, 0, 0, 1);
 			spawner.positions.push_back(mat6);
 			level0Data.prefabs.push_back(spawner);
 		}
@@ -127,6 +128,28 @@ void SceneManager::Initialize() {
 			monitor.positions.push_back(mat1);
 			level0Data.prefabs.push_back(monitor);
 		}
+		TestSceneData::Prefab forceField;
+		{
+			forceField.ghostFile = "Assets/ForceField.ghost";
+			DirectX::XMFLOAT4X4 mat = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -100, 0, 0, 1);
+			//left
+			forceField.positions.push_back(mat);
+			mat._43 = -51.5f;
+			forceField.positions.push_back(mat);
+			mat._43 = 33;
+			forceField.positions.push_back(mat);
+
+			DirectX::XMStoreFloat4x4(&mat, DirectX::XMMatrixRotationY(DirectX::XMConvertToRadians(180)));
+			mat._41 = 100;
+			//right
+			forceField.positions.push_back(mat);
+			mat._43 = 51.5f;
+			forceField.positions.push_back(mat);
+			mat._43 = -33;
+			forceField.positions.push_back(mat);
+
+			level0Data.prefabs.push_back(forceField);
+		}
 	}
 	CreateSceneFile(level0Data);
 	/*
@@ -146,29 +169,34 @@ void SceneManager::Initialize() {
 		//}
 	}
 	CreateSceneFile(splashScreenData);
+
 	TestSceneData mainMenuData;
 	{
 		mainMenuData.fileName = "Scene Files//mainMenu.scene";
-
 		mainMenuData.sceneName = "mainMenu";
-		TestSceneData::Prefab tutorialQuad;
+		TestSceneData::Prefab floor;
 		{
-			tutorialQuad.ghostFile = "Assets/VRTutorialQuad.ghost";
-			tutorialQuad.name = "TutorialQuad";
-			DirectX::XMFLOAT4X4 mat1;
-			DirectX::XMMATRIX rotation = DirectX::XMMatrixMultiply(DirectX::XMMatrixRotationY(DirectX::XMConvertToRadians(180)), DirectX::XMMatrixRotationX(DirectX::XMConvertToRadians(90)));
-			DirectX::XMStoreFloat4x4(&mat1, rotation);
-			mat1._41 = 0;
-			mat1._42 = 1;
-			mat1._43 = -3;
-
-			tutorialQuad.positions.push_back(mat1);
-			mainMenuData.prefabs.push_back(tutorialQuad);
+			floor.ghostFile = "Assets/mainMenuFloor.ghost";
+			floor.positions.push_back(identity);
+			mainMenuData.prefabs.push_back(floor);
 		}
 	}
 	CreateSceneFile(mainMenuData);
-
 	*/
+
+	TestSceneData CreditsData;
+	{
+		CreditsData.fileName = "Scene Files//Credits.scene";
+		CreditsData.sceneName = "Credits";
+		TestSceneData::Prefab floor;
+		{
+			floor.ghostFile = "Assets/mainMenuFloor.ghost";
+			floor.positions.push_back(identity);
+			CreditsData.prefabs.push_back(floor);
+		}
+	}
+	CreateSceneFile(CreditsData);
+
 
 	//Fill map of scenes using the ".scene" files from our "Scene Files" directory
 	FetchAllSceneFiles();

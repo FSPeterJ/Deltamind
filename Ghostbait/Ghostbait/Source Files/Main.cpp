@@ -36,6 +36,8 @@
 #include "DisplayBoard.h"
 #include "ControllerPillar.h"
 #include "PDA.h"
+#include "OptionsManager.h"
+#include "ForceField.h"
 
 using namespace Threadding;
 
@@ -73,7 +75,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	_Pool_Base::RegisterMemory(&MemMan);
 	Console::WriteLine << "App has been initalized!";
-
+	
 	//=============================
 	//Multithreading Test
 	//=============================
@@ -95,6 +97,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	rendInter = new Renderer();
 	audioMan = new AudioManager();
+	
 	player = new Player();
 	if(player->IsVR()) {
 		rendInter->Initialize(wnd, &player->transform);
@@ -152,12 +155,26 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<PlayButton>(1);
 	ObjectFactory::RegisterPrefabBase<OptionsButton>(1);
 	ObjectFactory::RegisterPrefabBase<ExitButton>(1);
-	ObjectFactory::RegisterPrefabBase<BackButton>(1);
+	ObjectFactory::RegisterPrefabBase<BackButton>(12);
 	ObjectFactory::RegisterPrefabBase<EasyButton>(1);
 	ObjectFactory::RegisterPrefabBase<MediumButton>(1);
 	ObjectFactory::RegisterPrefabBase<HardButton>(1);
 	ObjectFactory::RegisterPrefabBase<TutorialButton>(1);
 	ObjectFactory::RegisterPrefabBase<CreditsButton>(1);
+	ObjectFactory::RegisterPrefabBase<MasterUpButton>(1);
+	ObjectFactory::RegisterPrefabBase<MasterDownButton>(1);
+	ObjectFactory::RegisterPrefabBase<MusicUpButton>(1);
+	ObjectFactory::RegisterPrefabBase<MusicDownButton>(1);
+	ObjectFactory::RegisterPrefabBase<SFXUpButton>(1);
+	ObjectFactory::RegisterPrefabBase<SFXDownButton>(1);
+	ObjectFactory::RegisterPrefabBase<BrightnessUpButton>(1);
+	ObjectFactory::RegisterPrefabBase<BrightnessDownButton>(1);
+	ObjectFactory::RegisterPrefabBase<MouseSensitivityUpButton>(1);
+	ObjectFactory::RegisterPrefabBase<MouseSensitivityDownButton>(1);
+	ObjectFactory::RegisterPrefabBase<AcceptOptionsButton>(1);
+	ObjectFactory::RegisterPrefabBase<CancelOptionsButton>(1);
+
+	ObjectFactory::RegisterPrefabBase<ForceField>(6);
 	ObjectFactory::RegisterPrefabBase<Ground>(1);
 	ObjectFactory::RegisterPrefabBase<Monitor>(1);
 	ObjectFactory::RegisterPrefabBase<DisplayBoard>(1);
@@ -206,6 +223,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<GameObject>("ghost");
 	TypeMap::RegisterObjectAlias<PhysicsTestObj>("PhysicsTestObj");
 	TypeMap::RegisterObjectAlias<BuildTool>("BuildTool");
+
 	TypeMap::RegisterObjectAlias<ResumeButton>("ResumeButton");
 	TypeMap::RegisterObjectAlias<RestartButton>("RestartButton");
 	TypeMap::RegisterObjectAlias<QuitButton>("QuitButton");
@@ -218,6 +236,20 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<HardButton>("HardButton");
 	TypeMap::RegisterObjectAlias<CreditsButton>("CreditsButton");
 	TypeMap::RegisterObjectAlias<TutorialButton>("TutorialButton");
+	TypeMap::RegisterObjectAlias<MasterUpButton>("MasterUpButton");
+	TypeMap::RegisterObjectAlias<MasterDownButton>("MasterDownButton");
+	TypeMap::RegisterObjectAlias<MusicUpButton>("MusicUpButton");
+	TypeMap::RegisterObjectAlias<MusicDownButton>("MusicDownButton");
+	TypeMap::RegisterObjectAlias<SFXUpButton>("SFXUpButton");
+	TypeMap::RegisterObjectAlias<SFXDownButton>("SFXDownButton");
+	TypeMap::RegisterObjectAlias<BrightnessUpButton>("BrightnessUpButton");
+	TypeMap::RegisterObjectAlias<BrightnessDownButton>("BrightnessDownButton");
+	TypeMap::RegisterObjectAlias<MouseSensitivityUpButton>("MouseSensitivityUpButton");
+	TypeMap::RegisterObjectAlias<MouseSensitivityDownButton>("MouseSensitivityDownButton");
+	TypeMap::RegisterObjectAlias<AcceptOptionsButton>("AcceptOptionsButton");
+	TypeMap::RegisterObjectAlias<CancelOptionsButton>("CancelOptionsButton");
+
+	TypeMap::RegisterObjectAlias<ForceField>("ForceField");
 	TypeMap::RegisterObjectAlias<Ground>("Ground");
 	TypeMap::RegisterObjectAlias<PDA>("PDA");
 	TypeMap::RegisterObjectAlias<Monitor>("Monitor");
@@ -274,6 +306,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//ObjectFactory::CreatePrefab(&std::string("Assets/Gun.ghost"), "GunTest", true);
 	ObjectFactory::CreatePrefab(&std::string("Assets/TestProjectile.ghost"), "TestProjectile");
 	ObjectFactory::CreatePrefab(&std::string("Assets/AStarEnemyEdit.ghost"), "AStarEnemy");
+	ObjectFactory::CreatePrefab(&std::string("Assets/AStarEnemyEditEdit.ghost"), "AStarEnemy");
 	ObjectFactory::CreatePrefab(&std::string("Assets/DStarEnemyEdit.ghost"), "DStarEnemy");
 	ObjectFactory::CreatePrefab(&std::string("Assets/ResumeButton.ghost"), "ResumeButton");
 	//unsigned basicTurret = ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost"), "TestTurret", true);
@@ -333,9 +366,11 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	GhostTime::Initalize();
 	MessageEvents::Initilize();
 	audioMan->LoadBanks();
+	OptionsManager::GetInstance().Initialize(rendInter, audioMan, player, "Saves//Settings.ghost");
 	Console::WriteLine << "Starting Game Loop......";
 	game = new Game();
-	game->Start(player, &engine, "splashScreen");
+	game->Start(player, &engine, rendInter->getHud());
+	//game->Start(player, &engine, "level0", "Level Files//level0_hard.xml");
 }
 
 void Loop() {

@@ -3,6 +3,7 @@
 #include "Console.h"
 #include "ObjectFactory.h"
 #include "PhysicsComponent.h"
+#include "OptionsManager.h"
 
 void MenuOption::Awake(Object* obj) {
 	GameObject::Awake(obj);
@@ -34,9 +35,9 @@ void MenuOption::Highlight() {
 Menu::Menu() {
 	AssignPrefabIDs();
 }
-Menu::Menu(Template t, std::vector<Button> buttons) {
+Menu::Menu(Template t, std::vector<Button> buttons, ColumnType _columnType) {
 	AssignPrefabIDs();
-	Create(t, buttons);
+	Create(t, buttons, _columnType);
 }
 void Menu::SetCamera(Transform* _camera) {
 	camera = _camera;
@@ -47,7 +48,7 @@ void Menu::AssignPrefabIDs() {
 	buttonPrefabMap[BUTTON_Options] = ObjectFactory::CreatePrefab(&std::string("Assets/OptionsButton.ghost"));
 	buttonPrefabMap[BUTTON_Credits] = ObjectFactory::CreatePrefab(&std::string("Assets/CreditsButton.ghost"));
 	buttonPrefabMap[BUTTON_Quit] = ObjectFactory::CreatePrefab(&std::string("Assets/QuitButton.ghost"));
-	
+
 	buttonPrefabMap[BUTTON_Resume] = ObjectFactory::CreatePrefab(&std::string("Assets/ResumeButton.ghost"));
 	buttonPrefabMap[BUTTON_Restart] = ObjectFactory::CreatePrefab(&std::string("Assets/RestartButton.ghost"));
 	buttonPrefabMap[BUTTON_Exit] = ObjectFactory::CreatePrefab(&std::string("Assets/ExitButton.ghost"));
@@ -56,8 +57,21 @@ void Menu::AssignPrefabIDs() {
 	buttonPrefabMap[BUTTON_Easy] = ObjectFactory::CreatePrefab(&std::string("Assets/EasyButton.ghost"));
 	buttonPrefabMap[BUTTON_Medium] = ObjectFactory::CreatePrefab(&std::string("Assets/MediumButton.ghost"));
 	buttonPrefabMap[BUTTON_Hard] = ObjectFactory::CreatePrefab(&std::string("Assets/HardButton.ghost"));
-	
+
 	buttonPrefabMap[BUTTON_Back] = ObjectFactory::CreatePrefab(&std::string("Assets/BackButton.ghost"));
+
+	buttonPrefabMap[BUTTON_MasterUp] = ObjectFactory::CreatePrefab(&std::string("Assets/MasterUpButton.ghost"));
+	buttonPrefabMap[BUTTON_MasterDown] = ObjectFactory::CreatePrefab(&std::string("Assets/MasterDownButton.ghost"));
+	buttonPrefabMap[BUTTON_MusicUp] = ObjectFactory::CreatePrefab(&std::string("Assets/MusicUpButton.ghost"));
+	buttonPrefabMap[BUTTON_MusicDown] = ObjectFactory::CreatePrefab(&std::string("Assets/MusicDownButton.ghost"));
+	buttonPrefabMap[BUTTON_SFXUp] = ObjectFactory::CreatePrefab(&std::string("Assets/SFXUpButton.ghost"));
+	buttonPrefabMap[BUTTON_SFXDown] = ObjectFactory::CreatePrefab(&std::string("Assets/SFXDownButton.ghost"));
+	buttonPrefabMap[BUTTON_BrightnessUp] = ObjectFactory::CreatePrefab(&std::string("Assets/BrightnessUpButton.ghost"));
+	buttonPrefabMap[BUTTON_BrightnessDown] = ObjectFactory::CreatePrefab(&std::string("Assets/BrightnessDownButton.ghost"));
+	buttonPrefabMap[BUTTON_MouseSensitivityUp] = ObjectFactory::CreatePrefab(&std::string("Assets/MouseSensitivityUpButton.ghost"));
+	buttonPrefabMap[BUTTON_MouseSensitivityDown] = ObjectFactory::CreatePrefab(&std::string("Assets/MouseSensitivityDownButton.ghost"));
+	buttonPrefabMap[BUTTON_AcceptOptions] = ObjectFactory::CreatePrefab(&std::string("Assets/AcceptOptionsButton.ghost"));
+	buttonPrefabMap[BUTTON_CancelOptions] = ObjectFactory::CreatePrefab(&std::string("Assets/CancelOptionsButton.ghost"));
 }
 
 DirectX::XMFLOAT4X4 Menu::FindCenter(float distFromPlayer) {
@@ -92,7 +106,7 @@ float Menu::FindDistanceFromCenter(int optionNumber, int optionCount, float opti
 	}
 	return (optionNumber < center ? distanceFromCenter : -distanceFromCenter);
 }
-void Menu::Create(Template t, std::vector<Button> _buttons) {
+void Menu::Create(Template t, std::vector<Button> _buttons, ColumnType _columnType) {
 	menu_template = t;
 	switch (t) {
 		case MENU_Main:
@@ -103,6 +117,7 @@ void Menu::Create(Template t, std::vector<Button> _buttons) {
 			buttons[2] = BUTTON_Options;
 			buttons[3] = BUTTON_Credits;
 			buttons[4] = BUTTON_Quit;
+			columnType = OneColumn;
 			break;
 		case MENU_Pause:
 			buttons.empty();
@@ -110,13 +125,26 @@ void Menu::Create(Template t, std::vector<Button> _buttons) {
 			buttons[0] = BUTTON_Resume;
 			buttons[1] = BUTTON_Restart;
 			buttons[2] = BUTTON_Exit;
+			columnType = OneColumn;
 			MessageEvents::Subscribe(EVENT_GamePause, [=](EventMessageBase* e) {this->Show(); });
 			MessageEvents::Subscribe(EVENT_GameUnPause, [=](EventMessageBase* e) {this->Hide(); });
 			break;
 		case MENU_Options:
 			buttons.empty();
-			buttons.resize(1);
-			buttons[0] = BUTTON_Back;
+			buttons.resize(12);
+			buttons[0] = BUTTON_MasterUp;
+			buttons[1] = BUTTON_MasterDown;
+			buttons[2] = BUTTON_MusicUp;
+			buttons[3] = BUTTON_MusicDown;
+			buttons[4] = BUTTON_SFXUp;
+			buttons[5] = BUTTON_SFXDown;
+			buttons[6] = BUTTON_BrightnessUp;
+			buttons[7] = BUTTON_BrightnessDown;
+			buttons[8] = BUTTON_MouseSensitivityUp;
+			buttons[9] = BUTTON_MouseSensitivityDown;
+			buttons[10] = BUTTON_AcceptOptions;
+			buttons[11] = BUTTON_CancelOptions;
+			columnType = TwoColumn;
 			break;
 		case MENU_Difficulty:
 			buttons.empty();
@@ -125,10 +153,12 @@ void Menu::Create(Template t, std::vector<Button> _buttons) {
 			buttons[1] = BUTTON_Easy;
 			buttons[2] = BUTTON_Medium;
 			buttons[3] = BUTTON_Hard;
+			columnType = OneColumn;
 			break;
 		case MENU_Custom:
 			buttons.empty();
 			buttons = _buttons;
+			columnType = _columnType;
 			break;
 	}
 }
@@ -143,22 +173,54 @@ void Menu::Show(bool useCamera) {
 	options.resize(buttons.size());
 	DirectX::XMFLOAT4X4 center = (useCamera && camera) ? FindCenter() : spawnPos;
 	DirectX::XMMATRIX center_M = DirectX::XMLoadFloat4x4(&center);
-	for (size_t i = 0; i < buttons.size(); ++i) {
-		MenuOption* newOption;
-		DirectX::XMFLOAT4X4 newObjPos;
-		float distFromCenter = FindDistanceFromCenter((int)i, (int)options.size(), 0.25f, 0.05f);
-		DirectX::XMStoreFloat4x4(&newObjPos, center_M * DirectX::XMMatrixTranslation(0, distFromCenter, 0));
-		MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuOption>(buttonPrefabMap[buttons[i]], newObjPos, &newOption));
-		newOption->ToggleFlag(GAMEOBJECT_PUBLIC_FLAGS::UNLIT);
-		newOption->SetMenu(this);
-		newOption->Enable();
-		newOption->PersistOnReset();
-		options[i] = newOption;
-		options[i]->SetOldPos(options[i]->transform.GetMatrix());
-		options[i]->SetOldColliderPoint(options[i]->GetPhysics()->colliders[0].colliderData->colliderInfo.boxCollider.topRightFrontCorner);
-		options[i]->UnHighlight();
-		newOption->UnRender();
-		newOption->RenderToFront();
+	switch (columnType) {
+		case OneColumn:
+			for (size_t i = 0; i < buttons.size(); ++i) {
+				MenuOption* newOption;
+				DirectX::XMFLOAT4X4 newObjPos;
+				float distFromCenter = FindDistanceFromCenter((int)i, (int)options.size(), 0.25f, 0.05f);
+				DirectX::XMStoreFloat4x4(&newObjPos, center_M * DirectX::XMMatrixTranslation(0, distFromCenter, 0));
+				MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuOption>(buttonPrefabMap[buttons[i]], newObjPos, &newOption));
+				newOption->ToggleFlag(GAMEOBJECT_PUBLIC_FLAGS::UNLIT);
+				newOption->SetMenu(this);
+				newOption->Enable();
+				newOption->PersistOnReset();
+				options[i] = newOption;
+				options[i]->SetOldPos(options[i]->transform.GetMatrix());
+				options[i]->SetOldColliderPoint(options[i]->GetPhysics()->colliders[0].colliderData->colliderInfo.boxCollider.topRightFrontCorner);
+				options[i]->UnHighlight();
+				newOption->UnRender();
+				newOption->RenderToFront();
+			}
+			break;
+		case TwoColumn:
+			for (size_t i = 0; i < buttons.size(); ++i) {
+				MenuOption* newOption;
+				DirectX::XMFLOAT4X4 newObjPos;
+				int buttonID = 0;
+				float shift = 0.3f;
+				if (i % 2 == 0) {
+					buttonID = (int)i / 2;
+					shift = -shift;
+				}
+				else {
+					buttonID = (int)((float)i / 2.0f);
+				}
+				float distFromCenter = FindDistanceFromCenter((int)buttonID, (int)(options.size() / 2), 0.25f, 0.05f);
+				DirectX::XMStoreFloat4x4(&newObjPos, center_M * DirectX::XMMatrixTranslation(shift, distFromCenter, 0));
+				MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuOption>(buttonPrefabMap[buttons[i]], newObjPos, &newOption));
+				newOption->ToggleFlag(GAMEOBJECT_PUBLIC_FLAGS::UNLIT);
+				newOption->SetMenu(this);
+				newOption->Enable();
+				newOption->PersistOnReset();
+				options[i] = newOption;
+				options[i]->SetOldPos(options[i]->transform.GetMatrix());
+				options[i]->SetOldColliderPoint(options[i]->GetPhysics()->colliders[0].colliderData->colliderInfo.boxCollider.topRightFrontCorner);
+				options[i]->UnHighlight();
+				newOption->UnRender();
+				newOption->RenderToFront();
+			}
+			break;
 	}
 }
 void Menu::Hide() {
@@ -170,10 +232,14 @@ void Menu::Hide() {
 	}
 	options.empty();
 }
-void Menu::CreateAndLoadChild(Template t, std::vector<Button> buttons) {
-	child = new Menu(t, buttons);
+void Menu::CreateAndLoadChild(Template t, std::vector<Button> buttons, ColumnType _columnType) {
+	child = new Menu(t, buttons, _columnType);
 	child->SetCamera(camera);
-	child->SetSpawnPos(spawnPos);
+	DirectX::XMFLOAT4X4 newSpawn = spawnPos;
+	if (t == Template::MENU_Options) {
+		//newSpawn._41 += 0.25f;
+	}
+	child->SetSpawnPos(newSpawn);
 	child->SetParent(this);
 	MessageEvents::SendQueueMessage(EVENT_Late, [=] {child->Show(); });
 }
@@ -185,23 +251,25 @@ Menu::~Menu() {
 }
 
 void PlayButton::Select() {
-	menu->Hide();
-	//MessageEvents::SendMessage(EVENT_Start, EventMessageBase());
-	menu->CreateAndLoadChild(MENU_Difficulty);
 	MenuOption::Select();
+	menu->Hide();
+	menu->CreateAndLoadChild(MENU_Difficulty);
 }
 void TutorialButton::Select() {
-	menu->Hide();
 	MenuOption::Select();
-	MessageEvents::SendMessage(EVENT_TutorialHit, EventMessageBase());
+	menu->Hide();
+	MessageEvents::SendMessage(EVENT_ChangeScene, ChangeSceneMessage("Tutorial"));
 }
 void OptionsButton::Select() {
-	menu->Hide();
-	menu->CreateAndLoadChild(MENU_Options);
 	MenuOption::Select();
+	menu->Hide();
+	OptionsManager::GetInstance().CacheValues();
+	menu->CreateAndLoadChild(MENU_Options);
 }
 void CreditsButton::Select() {
 	MenuOption::Select();
+	menu->Hide();
+	MessageEvents::SendMessage(EVENT_ChangeScene, ChangeSceneMessage("Credits"));
 }
 void QuitButton::Select() {
 	MenuOption::Select();
@@ -219,30 +287,96 @@ void RestartButton::Select() {
 }
 void ExitButton::Select() {
 	MenuOption::Select();
+	menu->Hide();
 	MessageEvents::SendMessage(EVENT_GameUnPause, EventMessageBase());
 	MessageEvents::SendQueueMessage(EVENT_Late, []() { MessageEvents::SendMessage(EVENT_GameExit, EventMessageBase()); });
 }
 void BackButton::Select() {
+	MenuOption::Select();
+	menu->Hide();
+	menu->LoadParent();
+}
+void EasyButton::Select() {
+	MenuOption::Select();
+	menu->Hide();
+	MessageEvents::SendMessage(EVENT_Start, StartEventMessage("Level Files//level0_easy.xml"));
+}
+void MediumButton::Select() {
+	MenuOption::Select();
+	menu->Hide();
+	MessageEvents::SendMessage(EVENT_Start, StartEventMessage("Level Files//level0.xml"));
+}
+void HardButton::Select() {
+	MenuOption::Select();
+	menu->Hide();
+	MessageEvents::SendMessage(EVENT_Start, StartEventMessage("Level Files//level0_hard.xml"));
+}
+
+void MasterUpButton::Select() {
+	float tempVolume = OptionsManager::GetInstance().GetMasterVolume();
+	if (tempVolume < 1.0f)
+		OptionsManager::GetInstance().SetMasterVolume(tempVolume + 0.1f);
+	MenuOption::Select();
+}
+void MasterDownButton::Select() {
+	float tempVolume = OptionsManager::GetInstance().GetMasterVolume();
+	if (tempVolume > 0.0f)
+		OptionsManager::GetInstance().SetMasterVolume(tempVolume - 0.1f);
+	MenuOption::Select();
+}
+void MusicUpButton::Select() {
+	MenuOption::Select();
+}
+void MusicDownButton::Select() {
+	MenuOption::Select();
+}
+void SFXUpButton::Select() {
+	float tempVolume = OptionsManager::GetInstance().GetSFXVolume();
+	if (tempVolume < 100.0f)
+		OptionsManager::GetInstance().SetSFXVolume(tempVolume + 10.0f);
+	MenuOption::Select();
+}
+void SFXDownButton::Select() {
+	float tempVolume = OptionsManager::GetInstance().GetSFXVolume();
+	if (tempVolume > 0.0f)
+		OptionsManager::GetInstance().SetSFXVolume(tempVolume - 10.0f);
+	MenuOption::Select();
+}
+void BrightnessUpButton::Select() {
+	float tempGam = OptionsManager::GetInstance().GetGamma();
+	if (tempGam < 0.5f)
+		OptionsManager::GetInstance().SetGamma(tempGam + 0.05f);
+	MenuOption::Select();
+}
+void BrightnessDownButton::Select() {
+	float tempGam = OptionsManager::GetInstance().GetGamma();
+	if(tempGam > 0.0f)
+		OptionsManager::GetInstance().SetGamma(tempGam - 0.05f);
+	MenuOption::Select();
+}
+void MouseSensitivityUpButton::Select() {
+	float currSens = OptionsManager::GetInstance().GetSensitivity();
+	if (currSens < 0.015f)
+		OptionsManager::GetInstance().SetSensitivity(currSens + 0.00135f);
+	MenuOption::Select();
+}
+void MouseSensitivityDownButton::Select() {
+	float currSens = OptionsManager::GetInstance().GetSensitivity();
+	if (currSens > 0.0015f)
+		OptionsManager::GetInstance().SetSensitivity(currSens - 0.00135f);
+	MenuOption::Select();
+}
+void AcceptOptionsButton::Select() {
 	menu->Hide();
 	menu->LoadParent();
 	MenuOption::Select();
 }
-void EasyButton::Select() {
+void CancelOptionsButton::Select() {
+	OptionsManager::GetInstance().Cancel();
 	menu->Hide();
+	menu->LoadParent();
 	MenuOption::Select();
-	MessageEvents::SendMessage(EVENT_Start, StartEventMessage("Level Files//level0_easy.xml"));
 }
-void MediumButton::Select() {
-	menu->Hide();
-	MenuOption::Select();
-	MessageEvents::SendMessage(EVENT_Start, StartEventMessage("Level Files//level0.xml"));
-}
-void HardButton::Select() {
-	menu->Hide();
-	MenuOption::Select();
-	MessageEvents::SendMessage(EVENT_Start, StartEventMessage("Level Files//level0_hard.xml"));
-}
-
 
 //Other
 void MenuCube::Update() {

@@ -4,11 +4,13 @@ int LightManager::numLights = 0;
 int LightManager::nextID = 0;
 lightBufferStruct LightManager::cpu_light_info;
 int LightManager::IDList[MAX_LIGHTS];
+genericLight LightManager::cpu_side_lights[MAX_LIGHTS];
+ID3D11Buffer* LightManager::toShader;
 
 int LightManager::addLight(genericLight toAdd)
 {
 	if (numLights < MAX_LIGHTS) {
-		cpu_light_info.cpu_side_lights[numLights] = toAdd;
+		cpu_side_lights[numLights] = toAdd;
 		IDList[numLights] = nextID;
 		numLights++;
 		return nextID++;
@@ -26,11 +28,11 @@ genericLight * LightManager::getLight(int ID)
 {
 	for (int i = 0; i < MAX_LIGHTS; ++i)
 	{
-		if (cpu_light_info.cpu_side_lights[i].color.w == 0.0f)
+		if (cpu_side_lights[i].color.w == 0.0f)
 			break;
 		if (IDList[i] == ID)
 		{
-			return cpu_light_info.cpu_side_lights[i].color.w == 0.0f ? nullptr : &cpu_light_info.cpu_side_lights[i];
+			return cpu_side_lights[i].color.w == 0.0f ? nullptr : &cpu_side_lights[i];
 		}
 	}
 	return nullptr;
@@ -40,23 +42,29 @@ void LightManager::removeLight(int ID)
 {
 	for (int i = 0; i < MAX_LIGHTS; ++i)
 	{
-		if (cpu_light_info.cpu_side_lights[i].color.w == 0.0f)
+		if (cpu_side_lights[i].color.w == 0.0f)
 			break;
 		if (IDList[i] == ID)
 		{
 			if (i == numLights - 1)
 			{
-				cpu_light_info.cpu_side_lights[--numLights].color.w = 0.0f;
+				cpu_side_lights[--numLights].color.w = 0.0f;
 				break;
 			}
-			genericLight temp = cpu_light_info.cpu_side_lights[numLights - 1];
-			cpu_light_info.cpu_side_lights[numLights - 1].color.w = 0.0f;
-			cpu_light_info.cpu_side_lights[i] = temp;
+			genericLight temp = cpu_side_lights[numLights - 1];
+			cpu_side_lights[numLights - 1].color.w = 0.0f;
+			cpu_side_lights[i] = temp;
 			IDList[i] = IDList[numLights - 1];
 			IDList[--numLights] = ID;
 			break;
 		}
 	}
+}
+
+void LightManager::bindToShader(ID3D11DeviceContext * context)
+{
+	context->UpdateSubresource(toShader, NULL, NULL, &cpu_side_lights, NULL, NULL);
+	context->PSSetConstantBuffers(4, 1, &toShader);
 }
 
 int LightManager::addDirectionalLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 dir)
@@ -85,6 +93,17 @@ int LightManager::addSpotLight(DirectX::XMFLOAT3 color, DirectX::XMFLOAT3 pos, D
 	toManager.radius = radius;
 	toManager.outerRadius = outerRadius;
 	return addLight(toManager);
+}
+
+void LightManager::Initialize(ID3D11Device * device)
+{
+	CD3D11_BUFFER_DESC temp = CD3D11_BUFFER_DESC(sizeof(genericLight)*MAX_LIGHTS, D3D11_BIND_CONSTANT_BUFFER);
+	device->CreateBuffer(&temp, NULL, &toShader);
+}
+
+void LightManager::Release()
+{
+	toShader->Release();
 }
 
 LightManager::LightManager()

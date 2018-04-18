@@ -10,6 +10,8 @@ ScrollingUVManager::~ScrollingUVManager() {
 }
 
 void ScrollingUVManager::Update() {
+	float min = 0.1f;
+	float max = 0.9f;
 	std::vector<ScrollingUV*>* activeList = pooledUVs.GetActiveList();
 	for (int i = 0; i < (int)activeList->size(); ++i) {
 		ScrollingUV* element = (*activeList)[i];

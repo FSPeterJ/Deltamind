@@ -18,7 +18,6 @@ std::vector<GameObject*> BuildTool::builtItems = std::vector<GameObject*>();
 BuildTool::BuildTool() { 
 	state = State::BUILD;
 }
-
 void BuildTool::SetPrefabs(std::vector<unsigned> prefabIDs) {
 	prefabs.empty();
 	prefabs.resize(prefabIDs.size() + 2);
@@ -41,11 +40,9 @@ void BuildTool::SetPrefabs(std::vector<unsigned> prefabIDs) {
 	prefabs[prefabs.size() - 2] = BuildItem();
 	prefabs[prefabs.size() - 2].ID = -1;
 }
-
 void BuildTool::Enable() {
 	Item::Enable();
 }
-
 void BuildTool::Disable() {
 	Item::Disable();
 }
@@ -53,14 +50,12 @@ void BuildTool::Disable() {
 void BuildTool::ActiveUpdate() {
 	if (!gearDisplay) {
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/CurrencyQuad.ghost")), { 0, 0, 0 }, &gearDisplay));
-		gearDisplay->UnRender();
 		gearDisplay->RenderTransparent();
 		gearMat = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "$5000000", DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 0.75f), DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 0.5f)).mat;
 		gearDisplay->SetComponent<Material>(gearMat);
 		gearDisplay->PersistOnReset();
 		gearDisplay->ToggleFlag(GAMEOBJECT_PUBLIC_FLAGS::UNLIT);
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/CurrencyQuadSmall.ghost")), { 0, 0, 0 }, &gearAdjustmentDisplay));
-		gearAdjustmentDisplay->UnRender();
 		gearAdjustmentDisplay->RenderTransparent();
 		gearAdjustmentMat = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "-$5000000", DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 0.75f), DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f)).mat;
 		gearAdjustmentDisplay->SetComponent<Material>(gearAdjustmentMat);
@@ -221,7 +216,7 @@ void BuildTool::Spawn() {
 				GameObject* newObj;
 				MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabs[currentPrefabIndex].ID, spawnPos, &newObj));
 				MessageEvents::SendMessage(EVENT_AddObstacle, SnapMessage(&DirectX::XMFLOAT2(spawnPos.x, spawnPos.z)));
-				MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_TURRETDAMAGE));
+				MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_DOOROPEN));
 				builtItems.push_back(newObj);
 				newObj->Enable();
 				gameData->AdjustTurretsSpawned(1);

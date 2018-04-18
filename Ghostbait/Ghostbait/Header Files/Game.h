@@ -13,6 +13,7 @@ class EventMessageBase;
 class EngineStructure;
 class Player;
 class Core;
+class HUD;
 
 using namespace Omiracon::Genetics;
 
@@ -25,16 +26,21 @@ class Game {
 	Evolver evolver;
 	GameData gameData = GameData(&evolver);
 	std::string currLevelName = "";
-	EngineStructure* engine;
-	SceneManager* sceneManager;
-	Player* player;
-	
+	EngineStructure* engine = nullptr;
+	SceneManager* sceneManager = nullptr;
+	Player* player = nullptr;
+	Core* core = nullptr;
+	HUD* currHUD;
+
 	Menu pauseMenu;
 	Menu mainMenu;
+	Menu credits;
 
 	bool paused = false;
+	float delayBetweenWaveReady = 3;
+	float currentTimeBetweenWaveReady = -1;
 
-	Core* core = nullptr;
+
 
 	//Event Catchers
 	void GameDataRequestEvent(EventMessageBase* e);
@@ -70,7 +76,7 @@ public:
 
 	Game();
 
-	void Start(Player* _player, EngineStructure* _engine, char* level = "splashScreen");
+	void Start(Player* _player, EngineStructure* _engine, HUD* _hud, char* startScene = "splashScreen", char* xml = "");
 	void Update();
 	void Clean();
 

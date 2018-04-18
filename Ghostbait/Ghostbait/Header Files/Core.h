@@ -7,7 +7,7 @@ class Core : public GameObject,  public Health {
 	Light light;
 	float panicTimer;
 	float panicDuration;
-
+	bool panicking;
 public:
 	Core() { SetTag("Core"); };
 	void Awake(Object* obj) override;

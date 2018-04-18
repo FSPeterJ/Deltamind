@@ -65,7 +65,6 @@ void ControllerObject::GivePID(unsigned pid, const char* tag) {
 	inventory.itemPrefabs[*tag - '0'] = pid;
 }
 
-
 void ControllerObject::SwitchCurrentItem(int itemIndex) {
 	if(itemIndex == -1) {
 		Control item0 = (hand == HAND_Left ? leftItem0 : rightItem0);
@@ -190,7 +189,6 @@ void ControllerObject::DisplayInventory() {
 	}
 }
 
-
 void ControllerObject::AddToInventory(int itemSlot, unsigned prefabID) {
 	if (inventory.items[itemSlot])
 		RemoveItem(itemSlot);
@@ -206,10 +204,9 @@ void ControllerObject::AddToInventory(int itemSlot, unsigned prefabID) {
 		inventory.items[itemSlot]->SetPhysicsComponent(false);
 	}
 
-
 	PDA* pda = dynamic_cast<PDA*>(inventory.items[itemSlot]);
 	if (pda) {
-		pda->SwapComponentVarient<Mesh>("text");
+		pda->SetPurpose(PDA::Purpose::InventoryItem);
 	}
 
 	//Inventory Display
@@ -218,6 +215,11 @@ void ControllerObject::AddToInventory(int itemSlot, unsigned prefabID) {
 	inventory.displayItems[itemSlot]->PersistOnReset();
 	inventory.displayItems[itemSlot]->SetPhysicsComponent(false);
 	++inventory.itemCount;
+
+	pda = dynamic_cast<PDA*>(inventory.displayItems[itemSlot]);
+	if (pda) {
+		pda->SetPurpose(PDA::Purpose::DisplayItem);
+	}
 }
 
 void ControllerObject::RemoveItem(int itemSlot) {
@@ -364,17 +366,16 @@ void ControllerObject::Update() {
 						static bool teleportQueued = false;
 						DirectX::XMFLOAT3 endPos;
 						if (KeyIsDown(teleportDown) && hand == HAND_Right) {
-							if (ArcCast(&transform, &endPos, &player->teleportArc)) {
+							GameObject* colObject = nullptr;
+							if (ArcCast(&transform, &endPos, &colObject, &player->teleportArc)) {
 								player->teleportArc.Create();
 								player->teleportArc.GetMaterial()->flags |= Material::MaterialFlags::POINT;
-								if (!(player->GetBuildGrid()->IsBlocked(DirectX::XMFLOAT2(endPos.x, endPos.z))) && (player->teleportArc.Get()->componentVarients.find("valid") != player->teleportArc.Get()->componentVarients.end())) {
-									int id = TypeMap::GetComponentTypeID<Material>();
-									player->teleportArc.Get()->SetComponent(player->teleportArc.Get()->componentVarients["valid"], id);
+								if (!(player->GetBuildGrid()->IsBlocked(DirectX::XMFLOAT2(endPos.x, endPos.z))) && colObject->GetTag() == "Ground") {
+									player->teleportArc.Get()->SwapComponentVarient<Material>("valid");
 									teleportQueued = true;
 								}
-								else if (player->teleportArc.Get()->componentVarients.find("invalid") != player->teleportArc.Get()->componentVarients.end()) {
-									int id = TypeMap::GetComponentTypeID<Material>();
-									player->teleportArc.Get()->SetComponent(player->teleportArc.Get()->componentVarients["invalid"], id);
+								else {
+									player->teleportArc.Get()->SwapComponentVarient<Material>("invalid");
 									teleportQueued = false;
 								}
 							}
@@ -460,36 +461,25 @@ void ControllerObject::Update() {
 								}
 							}
 							break;
-						case Item::State::CONTROLLER:
-							{
-							}
-							break;
 						case Item::State::BUILD:
 							{
-								//static bool leftCycled = false, rightCycled = false;
-								if (/*!(hand == HAND_Left ? leftCycled : rightCycled) && */KeyIsDown(cyclePrefab)) {
+								if (KeyIsDown(cyclePrefab)) {
 									((BuildTool*)inventory.currentItem)->CycleForward();
 									ResetKey(cyclePrefab);
-									//if(hand == HAND_Left) leftCycled = true;
-									//else if (hand == HAND_Right) rightCycled = true;
 								}
-								//if (!KeyIsDown(cyclePrefab)) {
-								//	if (hand == HAND_Left) leftCycled = false;
-								//	else if (hand == HAND_Right) rightCycled = false;
-								//}
-
-								//static bool leftAttacked = false, rightAttacked = false;
-								if (/*!(hand == HAND_Left ? leftAttacked : rightAttacked) && */KeyIsDown(attack)) {
+								if (KeyIsDown(attack)) {
 									((BuildTool*)inventory.currentItem)->Activate();
-									//if (hand == HAND_Left) leftAttacked = true;
-									//else if (hand == HAND_Right) rightAttacked = true;
 									ResetKey(attack);
 								}
 								if (!KeyIsDown(attack)) {
 									((BuildTool*)inventory.currentItem)->Projection();
-									//	if (hand == HAND_Left) leftAttacked = false;
-									//	else if (hand == HAND_Right) rightAttacked = false;
 								}
+							}
+							break;
+						case Item::State::PDA:
+							break;
+						case Item::State::CONTROLLER:
+							{
 							}
 							break;
 						case Item::State::INVALID:

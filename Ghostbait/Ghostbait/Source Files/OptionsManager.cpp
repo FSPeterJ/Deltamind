@@ -48,6 +48,7 @@ void OptionsManager::SetMusicVolume(float _VolumeIn)
 void OptionsManager::SetGamma(float _GammaIn)
 {
 	currOptions.Gamma = _GammaIn;
+	renderMan->setGamma(currOptions.Gamma);
 }
 
 void OptionsManager::Initialize(Renderer * _rendIn, AudioManager * _audioIn, const char * _optionsFilePath)

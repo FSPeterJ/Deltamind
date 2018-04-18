@@ -28,30 +28,37 @@ protected:
 	};
 
 	std::mutex enemyMutex;
-	Evolvable* genetics = nullptr;
-	GhostTime::Moment spawnTime;
-	
 	State currState = IDLE, prevState = IDLE;
-	DirectX::XMFLOAT3 target = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	
+	GhostTime::Moment spawnTime;
+	Evolvable* genetics = nullptr;
 
 	Core* core = nullptr;
+	Health* targetObj = nullptr;
+	float* targetPos = nullptr;
 
 	//float speed = 100.0f;
 	//float denfense = 5;
 	bool reachedCore = false;
+	bool isOutofBounds = false;
+	bool isHurting = false;
+	bool isDying = false;
+	bool isChasing = false;
+	bool sentDeathMessage = false;
+
 	float maxSpeed = 100.0f;
 	float attackSpeed = 1;
 	float attackDamage = 5;
-	float perceptionRange = 3;
 	float timeSinceLastAttack = -1;
+	int perceptionRange = 3;
+	int attackRange = 1;
 
-	unsigned eventLose = 0;
-	unsigned smite = 0;
-	bool isHurting = false;
-	bool isDying = false;
+
 	double hurtTimer = 0;
 	double hurtDuration = 1;
-	bool sentDeathMessage = false;
+	unsigned eventLose = 0;
+	unsigned smite = 0;
+	unsigned eventObstacleRemove = 0;
 
 	PhysicsComponent* pc = 0;
 	RigidBody* rb = 0;
@@ -67,8 +74,10 @@ public:
 	void Subscribe() override;
 	void UnSubscribe() override;
 	void OnCollision(GameObject* _other) override;
+	void OnTrigger(GameObject* _other) override;
 	void DeathEvent() override;
 	void TakeDamage(float amount);
+	void ValidateTarget(EventMessageBase* e);
 
 	//Returns True if the current state was changed
 	bool ChangeState(State _s);
@@ -80,9 +89,11 @@ public:
 	void CalculateResult();
 
 	virtual void SetGrid(HexGrid* _grid) {};
-	virtual void SetCore(Core* _core) { core = _core; };
+	virtual void SetCore(Core* _core);
 	virtual void Repath() {};
 	virtual void RandomizeStats();
+	virtual bool ReTarget(GameObject* _obj = nullptr);
+	virtual bool ValidateAttackTarget() { return true; };
 
 	virtual void Idle();
 	virtual void Patrol();

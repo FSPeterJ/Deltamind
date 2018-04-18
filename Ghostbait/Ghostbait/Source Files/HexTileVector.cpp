@@ -9,7 +9,10 @@ HexTile* HexRegion::getData() { return &data[0]; }
 
 HexRegion::HexRegion(std::vector<HexTile>& that) { data.swap(that); }
 
-std::vector<HexTile>::iterator HexRegion::remove(const HexTile & v) { return data.erase(std::find(data.begin(), data.end(), v), data.end()); }
+std::vector<HexTile>::iterator HexRegion::remove(const HexTile & v) { 
+	auto it = std::find(data.begin(), data.end(), v);
+	return it == data.end() ? data.end() : data.erase(std::find(data.begin(), data.end(), v)); 
+}
 
 void HexRegion::push_back(const HexTile & v) { data.emplace_back(v); }
 
@@ -67,6 +70,15 @@ void HexRegion::Filter(HexGrid & grid) {
 	}
 }
 
+HexPath HexRegion::ToGrid( HexGrid*const grid) {
+	HexPath p;
+
+	for (auto& t : data)
+		if (grid->IsValidTile(t)) p.push_back(grid->GetTileExact(t));
+	return p;
+}
+
+
 HexTile** HexPath::getData() { return &data[0]; }
 
 
@@ -120,7 +132,7 @@ void HexPath::Color(HexagonalGridLayout * const layout, DirectX::XMFLOAT3 color,
 
 void HexPath::BuildPath(HexTilePtr const start, HexTilePtr const goal, VisitedMap& came_from) {
 	HexTilePtr current = goal;
-
+	data.clear();
 	while(current != start && current) {
 		data.push_back(current);
 		current = came_from[current];

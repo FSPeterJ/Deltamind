@@ -40,6 +40,8 @@ public:
 		return *this;
 	}
 
+	HexPath ToGrid(  HexGrid*const grid);
+
 	/// <summary>
 	/// Determines whether this region contains the specified HexTile.
 	/// </summary>
@@ -101,6 +103,10 @@ public:
 	HexPath() {}
 
 	HexPath(std::vector<HexTilePtr>& that);
+
+
+	std::vector<HexTilePtr>::iterator begin() { return data.begin(); }
+	std::vector<HexTilePtr>::iterator end() { return data.end(); }
 
 	HexPath& operator=(std::vector<HexTilePtr>& that) {
 		data.swap(that);

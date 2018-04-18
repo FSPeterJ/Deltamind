@@ -61,9 +61,9 @@ uint32_t SpatialPartition::Hash(const float x, const float y, const float z) {
 	const int h1 = 0x8da6b343;	// Arbitrary, large primes.
 	const int h2 = 0xd8163841;	// Primes are popular for hash functions
 	const int h3 = 0xcb1ab31f;	// for reducing the chance of hash collision.
-	int cellX = (int)(x / unitSize);
-	int cellY = (int)(y / unitSize);
-	int cellZ = (int)(z / unitSize);
+	int cellX = (int)(x * UNIT_SIZE_DIV);
+	int cellY = (int)(y * UNIT_SIZE_DIV);
+	int cellZ = (int)(z * UNIT_SIZE_DIV);
 	uint32_t n = (uint32_t)(h1*cellX + h2*cellY + h3*cellZ);
 	n = n % bucketCount;	// Wrap indices to stay in bucket range
 	//Console::WriteLine << cellX << ", " << cellY << ", " << cellZ << "  bucket: " << n;

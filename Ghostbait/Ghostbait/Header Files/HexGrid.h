@@ -56,7 +56,7 @@ class HexGrid {
 	/// <returns>HexRegion.</returns>
 	HexRegion GetRegion(int xmin, int xmax, int ymin, int ymax, int zmin, int zmax);
 
-	HexRegion DoRing(bool spiral, HexTile *const center, std::size_t radius);
+	HexRegion DoRing(bool spiral, HexTile *const center, std::size_t radius, bool includeCenter = true);
 
 	static const float Blocked;
 public:
@@ -140,8 +140,9 @@ public:
 	/// </summary>
 	/// <param name="center">The center.</param>
 	/// <param name="radius">The radius.</param>
+	/// <param name="includeCenter">Flag to include center.</param>
 	/// <returns>HexRegion.</returns>
-	HexRegion Spiral(HexTile *const center, std::size_t radius);
+	HexRegion Spiral(HexTile *const center, std::size_t radius, bool includeCenter = true);
 
 	/// <summary>
 	/// Sets the weight of the tile at tilePosition. If the tile does not map to a tile on the grid, nothing happens.
@@ -251,7 +252,7 @@ public:
 	/// <returns>False if tile is invalid, blocked or at max weight.</returns>
 	bool AddWeight(HexTile*const tile, float value);
 
-
+	bool IsValidTile(HexTile& _tile);
 
 	HexGrid(const char* _filename, HexagonalGridLayout _layout = HexagonalGridLayout::FlatLayout);
 

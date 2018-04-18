@@ -1,9 +1,11 @@
 #pragma once
 #include "GameObject.h"
 
-class SmokeWall :public GameObject {
+class ForceField : public GameObject {
 public:
-	SmokeWall();
+	bool first = true;
+	ForceField();
 	void Awake(Object* obj) override;
 	void Destroy() override;
+	void Update() override;
 };

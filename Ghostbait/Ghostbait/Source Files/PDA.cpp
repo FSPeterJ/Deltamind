@@ -14,6 +14,7 @@ PDA::PDA() {
 
 void PDA::Awake(Object* obj) {
 	Item::Awake(obj);
+	state = Item::State::PDA;
 }
 void PDA::ActiveUpdate() {
 	Item::ActiveUpdate();

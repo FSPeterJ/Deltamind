@@ -47,6 +47,7 @@ enum EVENT_TYPES {
 	EVENT_RemoveObstacle,
 	EVENT_PauseInputDetected,
 	EVENT_ChangeScene,
+	EVENT_ReadyToStart,
 
 	//Other Feedback
 	EVENT_GameDataRequest,

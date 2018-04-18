@@ -63,7 +63,6 @@ void SceneManager::CreateSceneFile(SceneManager::TestSceneData& data) {
 void SceneManager::Initialize() {
 	DirectX::XMFLOAT4X4 identity = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
-	/*
 	TestSceneData level0Data;
 	{
 		level0Data.fileName = "Scene Files//level0.scene";
@@ -94,17 +93,17 @@ void SceneManager::Initialize() {
 		{
 			spawner.ghostFile = "Assets/Spawner.ghost";
 			spawner.name = "Spawner";
-			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, -50, 0, 50, 1);
+			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, -105, 0, -51.5f, 1);
 			spawner.positions.push_back(mat1);
-			DirectX::XMFLOAT4X4 mat2 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, -50, 0, -50, 1);
+			DirectX::XMFLOAT4X4 mat2 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, -105, 0, 33, 1);
 			spawner.positions.push_back(mat2);
-			DirectX::XMFLOAT4X4 mat3 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, 50, 0, 50, 1);
+			DirectX::XMFLOAT4X4 mat3 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, -105, 0, 0, 1);
 			spawner.positions.push_back(mat3);
-			DirectX::XMFLOAT4X4 mat4 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, 50, 0, -50, 1);
+			DirectX::XMFLOAT4X4 mat4 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, 105, 0, 51.5f, 1);
 			spawner.positions.push_back(mat4);
-			DirectX::XMFLOAT4X4 mat5 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, 50, 0, 0, 1);
+			DirectX::XMFLOAT4X4 mat5 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, 105, 0, -33, 1);
 			spawner.positions.push_back(mat5);
-			DirectX::XMFLOAT4X4 mat6 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, -50, 0, 0, 1);
+			DirectX::XMFLOAT4X4 mat6 = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, 105, 0, 0, 1);
 			spawner.positions.push_back(mat6);
 			level0Data.prefabs.push_back(spawner);
 		}
@@ -129,23 +128,31 @@ void SceneManager::Initialize() {
 			monitor.positions.push_back(mat1);
 			level0Data.prefabs.push_back(monitor);
 		}
-		TestSceneData::Prefab smokeWall;
+		TestSceneData::Prefab forceField;
 		{
-			smokeWall.ghostFile = "Assets/SmokeWall.ghost";
-			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -100, 0, 0, 1);
-			smokeWall.positions.push_back(mat1);
-			DirectX::XMFLOAT4X4 mat2 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -101, 0, 0, 1);
-			smokeWall.positions.push_back(mat2);
-			DirectX::XMFLOAT4X4 mat3 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -102, 0, 0, 1);
-			smokeWall.positions.push_back(mat3);
-			//DirectX::XMFLOAT4X4 mat2 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 101, 4, 0, 1);
-			//smokeWall.positions.push_back(mat2);
-			//DirectX::XMFLOAT4X4 mat3 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 102, 4, 0, 1);
-			//smokeWall.positions.push_back(mat3);
-			level0Data.prefabs.push_back(smokeWall);
+			forceField.ghostFile = "Assets/ForceField.ghost";
+			DirectX::XMFLOAT4X4 mat = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -100, 0, 0, 1);
+			//left
+			forceField.positions.push_back(mat);
+			mat._43 = -51.5f;
+			forceField.positions.push_back(mat);
+			mat._43 = 33;
+			forceField.positions.push_back(mat);
+
+			DirectX::XMStoreFloat4x4(&mat, DirectX::XMMatrixRotationY(DirectX::XMConvertToRadians(180)));
+			mat._41 = 100;
+			//right
+			forceField.positions.push_back(mat);
+			mat._43 = 51.5f;
+			forceField.positions.push_back(mat);
+			mat._43 = -33;
+			forceField.positions.push_back(mat);
+
+			level0Data.prefabs.push_back(forceField);
 		}
 	}
 	CreateSceneFile(level0Data);
+	/*
 	TestSceneData splashScreenData;
 	{
 		splashScreenData.fileName = "Scene Files//splashScreen.scene";

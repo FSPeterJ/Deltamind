@@ -351,7 +351,7 @@
     <ClInclude Include="Header Files\OptionsManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\SmokeWall.h">
+    <ClInclude Include="Header Files\ForceField.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -617,7 +617,7 @@
     <ClCompile Include="Source Files\OptionsManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\SmokeWall.cpp">
+    <ClCompile Include="Source Files\ForceField.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

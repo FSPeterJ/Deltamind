@@ -103,6 +103,7 @@ void Game::StartEvent(EventMessageBase* e) {
 			std::string levelName = "";
 			if (starter)
 				levelName = starter->RetrieveLevelName();
+			ChangeState(GAMESTATE_BetweenWaves);
 			ChangeScene("level0", levelName);
 			break;
 		}
@@ -127,15 +128,7 @@ void Game::ChangeState(State newState) {
 					gameData.AddGears(gameData.waveManager.GetCurrentWaveReward());
 					GameData const* gd = &gameData;
 					MessageEvents::SendMessage(EVENT_WaveComplete, GameDataMessage(&gd));
-
-					//Spawn start cube
-					MenuCube* startCube;
-					unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"));
-					MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(ID, { 0, 1.5f, 0.0f }, &startCube));
-					DirectX::XMFLOAT4X4 newPos;
-					DirectX::XMStoreFloat4x4(&newPos, DirectX::XMLoadFloat4x4(&startCube->transform.GetMatrix()) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
-					startCube->transform.SetMatrix(newPos);
-					startCube->Enable();
+					currentTimeBetweenWaveReady = delayBetweenWaveReady;
 				}
 			}
 			break;
@@ -578,6 +571,23 @@ void Game::Update() {
 		}
 			break;
 		case GAMESTATE_BetweenWaves:
+			{
+				if (currentTimeBetweenWaveReady > 0) {
+					currentTimeBetweenWaveReady -= dt;
+					if (currentTimeBetweenWaveReady <= 0) {
+						currentTimeBetweenWaveReady = -1;
+						//Replace start cube eventually
+						//Spawn start cube
+						MenuCube* startCube;
+						unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"));
+						MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(ID, { 0, 1.5f, 0.0f }, &startCube));
+						DirectX::XMFLOAT4X4 newPos;
+						DirectX::XMStoreFloat4x4(&newPos, DirectX::XMLoadFloat4x4(&startCube->transform.GetMatrix()) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
+						startCube->transform.SetMatrix(newPos);
+						startCube->Enable();
+					}
+				}
+			}
 		case GAMESTATE_GameOver:
 		case GAMESTATE_MainMenu:
 		case GAMESTATE_Credits:

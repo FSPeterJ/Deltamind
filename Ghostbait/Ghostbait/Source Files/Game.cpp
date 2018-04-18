@@ -129,10 +129,6 @@ void Game::ChangeState(State newState) {
 					MessageEvents::SendMessage(EVENT_WaveComplete, GameDataMessage(&gd));
 					currentTimeBetweenWaveReady = delayBetweenWaveReady;
 				}
-
-				if (gameData.GetPrevState() == GAMESTATE_MainMenu) {
-					currentTimeBetweenWaveReady = delayBetweenWaveReady;
-				}
 			}
 			break;
 			case GAMESTATE_InWave:

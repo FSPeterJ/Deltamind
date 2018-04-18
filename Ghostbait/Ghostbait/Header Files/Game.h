@@ -25,17 +25,20 @@ class Game {
 	Evolver evolver;
 	GameData gameData = GameData(&evolver);
 	std::string currLevelName = "";
-	EngineStructure* engine;
-	SceneManager* sceneManager;
-	Player* player;
+	EngineStructure* engine = nullptr;
+	SceneManager* sceneManager = nullptr;
+	Player* player = nullptr;
+	Core* core = nullptr;
 	
 	Menu pauseMenu;
 	Menu mainMenu;
 	Menu credits;
 
 	bool paused = false;
+	float delayBetweenWaveReady = 3;
+	float currentTimeBetweenWaveReady = -1;
 
-	Core* core = nullptr;
+
 
 	//Event Catchers
 	void GameDataRequestEvent(EventMessageBase* e);

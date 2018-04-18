@@ -13,6 +13,7 @@ public:
 		GUN,
 		CONTROLLER,
 		BUILD,
+		PDA,
 		HAND,
 	};
 	State state;

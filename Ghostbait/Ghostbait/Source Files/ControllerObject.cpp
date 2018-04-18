@@ -65,7 +65,6 @@ void ControllerObject::GivePID(unsigned pid, const char* tag) {
 	inventory.itemPrefabs[*tag - '0'] = pid;
 }
 
-
 void ControllerObject::SwitchCurrentItem(int itemIndex) {
 	if(itemIndex == -1) {
 		Control item0 = (hand == HAND_Left ? leftItem0 : rightItem0);
@@ -189,7 +188,6 @@ void ControllerObject::DisplayInventory() {
 		}
 	}
 }
-
 
 void ControllerObject::AddToInventory(int itemSlot, unsigned prefabID) {
 	if (inventory.items[itemSlot])
@@ -463,36 +461,25 @@ void ControllerObject::Update() {
 								}
 							}
 							break;
-						case Item::State::CONTROLLER:
-							{
-							}
-							break;
 						case Item::State::BUILD:
 							{
-								//static bool leftCycled = false, rightCycled = false;
-								if (/*!(hand == HAND_Left ? leftCycled : rightCycled) && */KeyIsDown(cyclePrefab)) {
+								if (KeyIsDown(cyclePrefab)) {
 									((BuildTool*)inventory.currentItem)->CycleForward();
 									ResetKey(cyclePrefab);
-									//if(hand == HAND_Left) leftCycled = true;
-									//else if (hand == HAND_Right) rightCycled = true;
 								}
-								//if (!KeyIsDown(cyclePrefab)) {
-								//	if (hand == HAND_Left) leftCycled = false;
-								//	else if (hand == HAND_Right) rightCycled = false;
-								//}
-
-								//static bool leftAttacked = false, rightAttacked = false;
-								if (/*!(hand == HAND_Left ? leftAttacked : rightAttacked) && */KeyIsDown(attack)) {
+								if (KeyIsDown(attack)) {
 									((BuildTool*)inventory.currentItem)->Activate();
-									//if (hand == HAND_Left) leftAttacked = true;
-									//else if (hand == HAND_Right) rightAttacked = true;
 									ResetKey(attack);
 								}
 								if (!KeyIsDown(attack)) {
 									((BuildTool*)inventory.currentItem)->Projection();
-									//	if (hand == HAND_Left) leftAttacked = false;
-									//	else if (hand == HAND_Right) rightAttacked = false;
 								}
+							}
+							break;
+						case Item::State::PDA:
+							break;
+						case Item::State::CONTROLLER:
+							{
 							}
 							break;
 						case Item::State::INVALID:

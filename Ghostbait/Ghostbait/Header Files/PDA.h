@@ -28,7 +28,6 @@ private:
 	unsigned eventWaveChange = 0;
 	unsigned eventEnemyDied = 0;
 
-
 public:
 	
 	PDA();

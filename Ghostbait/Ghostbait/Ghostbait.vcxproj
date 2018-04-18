@@ -283,6 +283,7 @@
     <ClInclude Include="Header Files\RigidBody.h" />
     <ClInclude Include="Header Files\SceneManager.h" />
     <ClInclude Include="Header Files\ScrollingUVManager.h" />
+    <ClInclude Include="Header Files\SmokeWall.h" />
     <ClInclude Include="Header Files\SpatialPartition.h" />
     <ClInclude Include="Header Files\Spawner.h" />
     <ClInclude Include="Header Files\StdHeader.h" />
@@ -384,6 +385,7 @@
     <ClCompile Include="Source Files\RigidBody.cpp" />
     <ClCompile Include="Source Files\SceneManager.cpp" />
     <ClCompile Include="Source Files\ScrollingUVManager.cpp" />
+    <ClCompile Include="Source Files\SmokeWall.cpp" />
     <ClCompile Include="Source Files\SpatialPartition.cpp" />
     <ClCompile Include="Source Files\Spawner.cpp" />
     <ClCompile Include="Source Files\TextManager.cpp" />

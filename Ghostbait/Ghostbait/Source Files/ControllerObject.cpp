@@ -206,10 +206,9 @@ void ControllerObject::AddToInventory(int itemSlot, unsigned prefabID) {
 		inventory.items[itemSlot]->SetPhysicsComponent(false);
 	}
 
-
 	PDA* pda = dynamic_cast<PDA*>(inventory.items[itemSlot]);
 	if (pda) {
-		pda->SwapComponentVarient<Mesh>("text");
+		pda->SetPurpose(PDA::Purpose::InventoryItem);
 	}
 
 	//Inventory Display
@@ -218,6 +217,11 @@ void ControllerObject::AddToInventory(int itemSlot, unsigned prefabID) {
 	inventory.displayItems[itemSlot]->PersistOnReset();
 	inventory.displayItems[itemSlot]->SetPhysicsComponent(false);
 	++inventory.itemCount;
+
+	pda = dynamic_cast<PDA*>(inventory.displayItems[itemSlot]);
+	if (pda) {
+		pda->SetPurpose(PDA::Purpose::DisplayItem);
+	}
 }
 
 void ControllerObject::RemoveItem(int itemSlot) {

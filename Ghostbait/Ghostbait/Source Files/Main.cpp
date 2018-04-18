@@ -37,6 +37,7 @@
 #include "ControllerPillar.h"
 #include "PDA.h"
 #include "OptionsManager.h"
+#include "SmokeWall.h"
 
 using namespace Threadding;
 
@@ -173,6 +174,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<AcceptOptionsButton>(1);
 	ObjectFactory::RegisterPrefabBase<CancelOptionsButton>(1);
 
+	ObjectFactory::RegisterPrefabBase<SmokeWall>(18);
 	ObjectFactory::RegisterPrefabBase<Ground>(1);
 	ObjectFactory::RegisterPrefabBase<Monitor>(1);
 	ObjectFactory::RegisterPrefabBase<DisplayBoard>(1);
@@ -247,6 +249,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<AcceptOptionsButton>("AcceptOptionsButton");
 	TypeMap::RegisterObjectAlias<CancelOptionsButton>("CancelOptionsButton");
 
+	TypeMap::RegisterObjectAlias<SmokeWall>("SmokeWall");
 	TypeMap::RegisterObjectAlias<Ground>("Ground");
 	TypeMap::RegisterObjectAlias<PDA>("PDA");
 	TypeMap::RegisterObjectAlias<Monitor>("Monitor");

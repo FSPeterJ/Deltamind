@@ -262,13 +262,26 @@ void HUD::WaveIndicator::Initialize(ID3D11Device * device, ID3D11DeviceContext *
 
 	std::wstring path(L"Assets/InventoryPictures/HUDWaveInfoBorder.png");
 	HRESULT didItBlend = DirectX::CreateWICTextureFromFile(device, context, path.c_str(), (ID3D11Resource**)&tex, &srv);
-	mats[0] = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", " W: 0/0", { 1.0f, 1.0f, 1.0f, 0.8f }, { 0.0f, 0.0f, 0.0f, 0.0f }).mat;
-	viewport[0].Height = 128.0f;
+	mats[0] = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "W: 0/0", { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }).mat;
+	mats[1] = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "E: 13", { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }).mat;
+	viewport[0].Height = 96.0f;
 	viewport[0].Width = 256.0f;
 	viewport[0].TopLeftX = (windowWidth * 0.5f) - (viewport[0].Width * 0.5f);
 	viewport[0].TopLeftY = (20.0f * normalRangeHeight) * windowHeight;
 	viewport[0].MinDepth = 0.0f;
 	viewport[0].MaxDepth = 1.0f;
+	viewport[1].Height = 88.0f;
+	viewport[1].Width = 120.0f;
+	viewport[1].TopLeftX = viewport[0].TopLeftX + 6;
+	viewport[1].TopLeftY = viewport[0].TopLeftY + 4;
+	viewport[1].MinDepth = 0.0f;
+	viewport[1].MaxDepth = 1.0f;
+	viewport[2].Height = 88.0f;
+	viewport[2].Width = 114.0f;
+	viewport[2].TopLeftX = viewport[0].TopLeftX + 137;
+	viewport[2].TopLeftY = viewport[0].TopLeftY + 4;
+	viewport[2].MinDepth = 0.0f;
+	viewport[2].MaxDepth = 1.0f;
 }
 
 void HUD::WaveIndicator::Draw(ID3D11DeviceContext * context, ID3D11DepthStencilView * dsv)
@@ -276,4 +289,11 @@ void HUD::WaveIndicator::Draw(ID3D11DeviceContext * context, ID3D11DepthStencilV
 	context->PSSetShaderResources(0, 1, &srv);
 	context->RSSetViewports(1, &viewport[0]);
 	context->Draw(1,0);
+	context->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	context->PSSetShaderResources(0, 1, &mats[0]->diffuse.texView);
+	context->RSSetViewports(1, &viewport[1]);
+	context->Draw(1, 0);
+	context->PSSetShaderResources(0, 1, &mats[1]->diffuse.texView);
+	context->RSSetViewports(1, &viewport[2]);
+	context->Draw(1, 0);
 }

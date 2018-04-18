@@ -57,7 +57,7 @@ void PDA::SetPurpose(Purpose _purpose) {
 		case Purpose::InventoryItem:
 			SwapComponentVarient<Mesh>("inHand");
 			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/PDAScreen.ghost")), { 0, 0, 0 }, &display));
-			displayMat = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "Wave: 0\nEnemiesRemaining: 0", foreground, background).mat;
+			displayMat = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", " Wave: 0 \n EnemiesRemaining: 0 ", foreground, background).mat;
 			display->SetComponent<Material>(displayMat);
 			display->PersistOnReset();
 			display->ToggleFlag(UNLIT);
@@ -76,7 +76,7 @@ void PDA::SetPurpose(Purpose _purpose) {
 		case Purpose::Credits:
 			SwapComponentVarient<Mesh>("large");
 			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/PDAScreen.ghost")), { 0, 0, 0 }, &display));
-			displayMat = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", " Wave: 0\nEnemiesRemaining: 0", foreground, background).mat;
+			displayMat = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", " Wave: 0 \n EnemiesRemaining: 0 ", foreground, background).mat;
 			display->SetComponent<Material>(displayMat);
 			display->SwapComponentVarient<Mesh>("large");
 			display->PersistOnReset();
@@ -108,9 +108,10 @@ void PDA::UpdateDisplay(EventMessageBase* e) {
 		totalEnemies -= 1;
 	}
 	//Write to file
-	std::string message = "Wave: ";
+	std::string message = " Wave: ";
 	message.append(std::to_string(curWave) + " / " + std::to_string(totalWaves));
-	message.append("\nEnemies Remaining: ");
+	message.append(" \n Enemies Remaining: ");
 	message.append(std::to_string(totalEnemies));
+	message.append(" ");
 	TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", message, displayMat, foreground, background);
 }

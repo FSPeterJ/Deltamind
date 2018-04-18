@@ -117,13 +117,11 @@ void Player::Update() {
 			float prevY = rotationY;
 			rotationY += Amount(CameraLeftRight) * sensitivity;
 			ResetKey(Control::CameraLeftRight);
-			//ResetKey(Control::left);
 		}
 		if (KeyIsDown(Control::CameraUpDown)) {
 			//position._41 += 50.0f * dt;
 			rotationX += Amount(CameraUpDown) * sensitivity;
 			ResetKey(Control::CameraUpDown);
-			//ResetKey(Control::right);
 		}
 		if (KeyIsDown(Control::forward)) {
 			if (stance != STANCE_God) {

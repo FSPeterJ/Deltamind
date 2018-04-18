@@ -49,6 +49,8 @@ class HUD
 	};
 
 	std::vector<BaseHUDElement*> HUDElements;
+	bool showingInventory = false;
+	Inventory* inv;
 	ID3D11PixelShader* TexToQuadPS;
 	ID3D11GeometryShader* PointToNDCQuadGS;
 	ID3D11VertexShader* PassThroughVS;
@@ -61,5 +63,7 @@ public:
 	~HUD();
 
 	void Draw(ID3D11DeviceContext* context, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv);
+	void HideInventory();
+	void ShowInventory();
 };
 

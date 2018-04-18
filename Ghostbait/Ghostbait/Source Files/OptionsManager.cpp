@@ -2,6 +2,7 @@
 #include "Renderer.h"
 #include "AudioManager.h"
 #include "BinaryFileIO.h"
+#include "Player.h"
 #include <fstream>
 
 void OptionsManager::ApplyAllOptions(OptionsCluster & _in)
@@ -10,6 +11,7 @@ void OptionsManager::ApplyAllOptions(OptionsCluster & _in)
 	SetSFXVolume(_in.SFXVolume);
 	SetMusicVolume(_in.MusicVolume);
 	SetGamma(_in.Gamma);
+	SetSensitivity(_in.Sensitivity);
 }
 
 OptionsManager & OptionsManager::GetInstance()
@@ -51,10 +53,17 @@ void OptionsManager::SetGamma(float _GammaIn)
 	renderMan->setGamma(currOptions.Gamma);
 }
 
-void OptionsManager::Initialize(Renderer * _rendIn, AudioManager * _audioIn, const char * _optionsFilePath)
+void OptionsManager::SetSensitivity(float _SensIn)
+{
+	currOptions.Sensitivity = _SensIn;
+	player->SetSensitivity(currOptions.Sensitivity);
+}
+
+void OptionsManager::Initialize(Renderer * _rendIn, AudioManager * _audioIn, Player* _playerIn, const char * _optionsFilePath)
 {
 	renderMan = _rendIn;
 	audioMan = _audioIn;
+	player = _playerIn;
 	Filepath = std::string(_optionsFilePath);
 	std::ifstream reader;
 	reader.open(_optionsFilePath, std::ios_base::binary);
@@ -65,14 +74,16 @@ void OptionsManager::Initialize(Renderer * _rendIn, AudioManager * _audioIn, con
 		SetSFXVolume(Reader::ReadFloat());
 		SetMusicVolume(Reader::ReadFloat());
 		SetGamma(Reader::ReadFloat());
+		SetSensitivity(Reader::ReadFloat());
 		Reader::CloseStream();
 	}
 	else
 	{
 		SetMasterVolume(1.0f);
-		SetSFXVolume(99.0f);
+		SetSFXVolume(100.0f);
 		SetMusicVolume(100.0f);
 		SetGamma(0.0f);
+		SetSensitivity(0.005f);
 	}
 	reader.close();
 }
@@ -91,6 +102,7 @@ OptionsManager::~OptionsManager()
 	Writer::WriteFloat(currOptions.SFXVolume);
 	Writer::WriteFloat(currOptions.MusicVolume);
 	Writer::WriteFloat(currOptions.Gamma);
+	Writer::WriteFloat(currOptions.Sensitivity);
 	Writer::CloseStream();
 	writer.close();
 }

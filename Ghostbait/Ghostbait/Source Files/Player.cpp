@@ -113,15 +113,14 @@ void Player::Update() {
 		}
 
 		if (KeyIsDown(Control::CameraLeftRight)) {
-			//rotationY += Amount(CameraLeftRight) * 0.015f;
-			rotationY += Amount(CameraLeftRight) * 0.005f;
-
+			//position._41 -= 50.0f * dt;
+			float prevY = rotationY;
+			rotationY += Amount(CameraLeftRight) * sensitivity;
 			ResetKey(Control::CameraLeftRight);
 		}
 		if (KeyIsDown(Control::CameraUpDown)) {
-			//rotationX += Amount(CameraUpDown) * 0.015f;
-			rotationX += Amount(CameraUpDown) * 0.005f;
-
+			//position._41 += 50.0f * dt;
+			rotationX += Amount(CameraUpDown) * sensitivity;
 			ResetKey(Control::CameraUpDown);
 		}
 		if (KeyIsDown(Control::forward)) {
@@ -209,13 +208,13 @@ void Player::PausedUpdate() {
 
 		if (KeyIsDown(Control::CameraLeftRight)) {
 			//position._41 -= 50.0f * dt;
-			rotationY += Amount(CameraLeftRight) * dt;
+			rotationY += Amount(CameraLeftRight) * sensitivity;
 			ResetKey(Control::CameraLeftRight);
 			//ResetKey(Control::left);
 		}
 		if (KeyIsDown(Control::CameraUpDown)) {
 			//position._41 += 50.0f * dt;
-			rotationX += Amount(CameraUpDown) * dt;
+			rotationX += Amount(CameraUpDown) * sensitivity;
 			ResetKey(Control::CameraUpDown);
 			//ResetKey(Control::right);
 		}

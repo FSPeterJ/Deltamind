@@ -156,7 +156,7 @@ void Renderer::setupVRTargets() {
 
 void Renderer::renderRightEyeToMonitor()
 {
-	UINT stride = sizeof(XMFLOAT3);
+	UINT stride = sizeof(XMFLOAT4);
 	UINT offset = 0;
 	float color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	context->ClearRenderTargetView(defaultPipeline.render_target_view, color);

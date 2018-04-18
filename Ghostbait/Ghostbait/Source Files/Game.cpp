@@ -566,7 +566,7 @@ void Game::Update() {
 					currentTimeBetweenWaveReady -= dt;
 					if (currentTimeBetweenWaveReady <= 0) {
 						currentTimeBetweenWaveReady = -1;
-						//MessageEvents::SendMessage(EVENT_ReadyToStart, EventMessageBase());
+						//Replace start cube eventually
 						//Spawn start cube
 						MenuCube* startCube;
 						unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"));

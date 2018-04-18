@@ -3,6 +3,7 @@
 #include "Console.h"
 #include "ObjectFactory.h"
 #include "PhysicsComponent.h"
+#include "OptionsManager.h"
 
 void MenuOption::Awake(Object* obj) {
 	GameObject::Awake(obj);
@@ -262,6 +263,7 @@ void TutorialButton::Select() {
 }
 void OptionsButton::Select() {
 	menu->Hide();
+	OptionsManager::GetInstance().CacheValues();
 	menu->CreateAndLoadChild(MENU_Options);
 	MenuOption::Select();
 }
@@ -309,9 +311,15 @@ void HardButton::Select() {
 }
 
 void MasterUpButton::Select() {
+	float tempVolume = OptionsManager::GetInstance().GetMasterVolume();
+	if (tempVolume < 1.0f)
+		OptionsManager::GetInstance().SetMasterVolume(tempVolume + 0.1f);
 	MenuOption::Select();
 }
 void MasterDownButton::Select() {
+	float tempVolume = OptionsManager::GetInstance().GetMasterVolume();
+	if (tempVolume > 0.0f)
+		OptionsManager::GetInstance().SetMasterVolume(tempVolume - 0.1f);
 	MenuOption::Select();
 }
 void MusicUpButton::Select() {
@@ -321,15 +329,27 @@ void MusicDownButton::Select() {
 	MenuOption::Select();
 }
 void SFXUpButton::Select() {
+	float tempVolume = OptionsManager::GetInstance().GetSFXVolume();
+	if (tempVolume < 100.0f)
+		OptionsManager::GetInstance().SetSFXVolume(tempVolume + 10.0f);
 	MenuOption::Select();
 }
 void SFXDownButton::Select() {
+	float tempVolume = OptionsManager::GetInstance().GetSFXVolume();
+	if (tempVolume > 0.0f)
+		OptionsManager::GetInstance().SetSFXVolume(tempVolume - 10.0f);
 	MenuOption::Select();
 }
 void BrightnessUpButton::Select() {
+	float tempGam = OptionsManager::GetInstance().GetGamma();
+	if (tempGam < 0.5f)
+		OptionsManager::GetInstance().SetGamma(tempGam + 0.05f);
 	MenuOption::Select();
 }
 void BrightnessDownButton::Select() {
+	float tempGam = OptionsManager::GetInstance().GetGamma();
+	if(tempGam > 0.0f)
+		OptionsManager::GetInstance().SetGamma(tempGam - 0.05f);
 	MenuOption::Select();
 }
 void MouseSensitivityUpButton::Select() {
@@ -339,9 +359,12 @@ void MouseSensitivityDownButton::Select() {
 	MenuOption::Select();
 }
 void AcceptOptionsButton::Select() {
+	menu->Hide();
+	menu->LoadParent();
 	MenuOption::Select();
 }
 void CancelOptionsButton::Select() {
+	OptionsManager::GetInstance().Cancel();
 	menu->Hide();
 	menu->LoadParent();
 	MenuOption::Select();

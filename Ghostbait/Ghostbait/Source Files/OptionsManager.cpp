@@ -70,7 +70,7 @@ void OptionsManager::Initialize(Renderer * _rendIn, AudioManager * _audioIn, con
 	else
 	{
 		SetMasterVolume(1.0f);
-		SetSFXVolume(99.0f);
+		SetSFXVolume(100.0f);
 		SetMusicVolume(100.0f);
 		SetGamma(0.0f);
 	}

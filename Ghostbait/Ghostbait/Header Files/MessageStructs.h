@@ -216,6 +216,13 @@ public:
 	Core const** RetrieveData() const { return data; }
 };
 
+class ChangeSceneMessage : public EventMessageBase {
+	const char* sceneName = nullptr;
+public:
+	ChangeSceneMessage(const char* _sceneName) : sceneName(_sceneName) {}
+	const char* RetrieveData() const { return sceneName; }
+};
+
 //Duplicate is unnessessary
 class NewObjectMessage: public EventMessageBase {
 public:

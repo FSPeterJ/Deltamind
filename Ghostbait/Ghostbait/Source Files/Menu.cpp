@@ -251,24 +251,25 @@ Menu::~Menu() {
 }
 
 void PlayButton::Select() {
-	menu->Hide();
-	//MessageEvents::SendMessage(EVENT_Start, EventMessageBase());
-	menu->CreateAndLoadChild(MENU_Difficulty);
 	MenuOption::Select();
+	menu->Hide();
+	menu->CreateAndLoadChild(MENU_Difficulty);
 }
 void TutorialButton::Select() {
-	menu->Hide();
 	MenuOption::Select();
-	MessageEvents::SendMessage(EVENT_TutorialHit, EventMessageBase());
+	menu->Hide();
+	MessageEvents::SendMessage(EVENT_ChangeScene, ChangeSceneMessage("Tutorial"));
 }
 void OptionsButton::Select() {
+	MenuOption::Select();
 	menu->Hide();
 	OptionsManager::GetInstance().CacheValues();
 	menu->CreateAndLoadChild(MENU_Options);
-	MenuOption::Select();
 }
 void CreditsButton::Select() {
 	MenuOption::Select();
+	menu->Hide();
+	MessageEvents::SendMessage(EVENT_ChangeScene, ChangeSceneMessage("Credits"));
 }
 void QuitButton::Select() {
 	MenuOption::Select();
@@ -286,27 +287,28 @@ void RestartButton::Select() {
 }
 void ExitButton::Select() {
 	MenuOption::Select();
+	menu->Hide();
 	MessageEvents::SendMessage(EVENT_GameUnPause, EventMessageBase());
 	MessageEvents::SendQueueMessage(EVENT_Late, []() { MessageEvents::SendMessage(EVENT_GameExit, EventMessageBase()); });
 }
 void BackButton::Select() {
+	MenuOption::Select();
 	menu->Hide();
 	menu->LoadParent();
-	MenuOption::Select();
 }
 void EasyButton::Select() {
-	menu->Hide();
 	MenuOption::Select();
+	menu->Hide();
 	MessageEvents::SendMessage(EVENT_Start, StartEventMessage("Level Files//level0_easy.xml"));
 }
 void MediumButton::Select() {
-	menu->Hide();
 	MenuOption::Select();
+	menu->Hide();
 	MessageEvents::SendMessage(EVENT_Start, StartEventMessage("Level Files//level0.xml"));
 }
 void HardButton::Select() {
-	menu->Hide();
 	MenuOption::Select();
+	menu->Hide();
 	MessageEvents::SendMessage(EVENT_Start, StartEventMessage("Level Files//level0_hard.xml"));
 }
 

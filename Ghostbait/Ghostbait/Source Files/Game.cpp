@@ -33,7 +33,7 @@ Game::Game() {
 	MessageEvents::Subscribe(EVENT_GameQuit, [=](EventMessageBase* e) {this->Quit(); });
 	MessageEvents::Subscribe(EVENT_GameExit, [=](EventMessageBase* e) {this->ExitToMainMenu(); });
 	MessageEvents::Subscribe(EVENT_FreeMoney, [=](EventMessageBase* e) {this->gameData.SetGears(500000); });
-	MessageEvents::Subscribe(EVENT_TutorialHit, [=](EventMessageBase* e) {this->ChangeScene("Tutorial"); });
+	MessageEvents::Subscribe(EVENT_ChangeScene, [=](EventMessageBase* e) { this->ChangeScene(((ChangeSceneMessage*)e)->RetrieveData()); });
 
 	MessageEvents::Subscribe(EVENT_GameDataRequest, [=](EventMessageBase* e) { this->GameDataRequestEvent(e); });
 	PathPlanner::SetGrid(&hexGrid);
@@ -59,7 +59,7 @@ void Game::RemoveObstacleEvent(EventMessageBase* e) {
 	hexGrid.RemoveObstacle(*message->position);
 }
 void Game::PauseInputEvent() {
-	if(gameData.GetState() == GAMESTATE_SplashScreen || gameData.GetState() == GAMESTATE_MainMenu) return;
+	if(gameData.GetState() == GAMESTATE_SplashScreen || gameData.GetState() == GAMESTATE_MainMenu || gameData.GetState() == GAMESTATE_Credits) return;
 	if(paused) {
 		ResumeGame();
 		MessageEvents::SendMessage(EVENT_GameUnPause, EventMessageBase());
@@ -175,6 +175,8 @@ void Game::ChangeScene(const char* sceneName, std::string levelName) {
 		TutorialLoaded();
 	if (!strcmp(sceneName, "level0"))
 		Level0Loaded();
+	if (!strcmp(sceneName, "Credits"))
+		CreditsLoaded();
 
 	//--------------------------------------
 
@@ -401,14 +403,17 @@ void Game::Level0Loaded() {
 	player->SetBuildToolData(&hexGrid, &gameData);
 }
 void Game::CreditsLoaded() {
-	if (player->IsVR()) {
-		player->leftController->SetControllerState(CSTATE_ModelOnly);
-		player->rightController->SetControllerState(CSTATE_ModelOnly);
-	}
-	else {
-		player->leftController->SetControllerState(CSTATE_None);
-		player->rightController->SetControllerState(CSTATE_None);
-	}
+	player->leftController->SetControllerState(CSTATE_MenuController);
+	player->rightController->SetControllerState(CSTATE_MenuController);
+
+	PDA* largePDA = nullptr;
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/PDA.ghost")), { 0, 0, 0 }, (GameObject**)&largePDA));
+	largePDA->transform.SetMatrix(DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 2, 3, 1));
+	largePDA->SetPurpose(PDA::Purpose::Credits);
+
+	credits.Show();
+
+
 }
 
 //Main loop elements
@@ -420,6 +425,8 @@ void Game::Start(Player* _player, EngineStructure* _engine, char* startScene, ch
 	mainMenu.Create(MENU_Main);
 	pauseMenu.Create(MENU_Pause);
 	pauseMenu.SetCamera(&player->transform);
+	credits.Create(MENU_Custom, { Button::BUTTON_Exit });
+	credits.SetSpawnPos(DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 3, 1));
 	sceneManager = new SceneManager();
 	sceneManager->Initialize();
 	gameData.Reset();

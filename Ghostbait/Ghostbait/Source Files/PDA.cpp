@@ -74,17 +74,22 @@ void PDA::SetPurpose(Purpose _purpose) {
 		case Purpose::DisplayItem:
 			break;
 		case Purpose::Credits:
-			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/PDAScreen_Large.ghost")), { 0, 0, 0 }, &display));
-			displayMat = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "Wave: 0\nEnemiesRemaining: 0", foreground, background).mat;
+			SwapComponentVarient<Mesh>("large");
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/PDAScreen.ghost")), { 0, 0, 0 }, &display));
+			displayMat = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", " Wave: 0\nEnemiesRemaining: 0", foreground, background).mat;
 			display->SetComponent<Material>(displayMat);
+			display->SwapComponentVarient<Mesh>("large");
 			display->PersistOnReset();
 			display->ToggleFlag(UNLIT);
-			eventWaveChange = MessageEvents::Subscribe(EVENT_WaveChange, [=](EventMessageBase* e) { if (display) UpdateDisplay(e); });
-			eventEnemyDied = MessageEvents::Subscribe(EVENT_EnemyDied, [=](EventMessageBase* e) { if (display) UpdateDisplay(); });
+			display->transform.SetMatrix(transform.GetMatrix());
+
+			if (eventWaveChange) MessageEvents::UnSubscribe(EVENT_WaveChange, eventWaveChange);
+			if (eventEnemyDied) MessageEvents::UnSubscribe(EVENT_EnemyDied, eventEnemyDied);
 
 			comp = display->GetComponent<ScrollingUV>();
 			if (comp) {
-				comp->velocity.y = 0.01f;
+				comp->offset.y = 0;
+				comp->velocity.y = 0.02f;
 			}
 			break;
 	}

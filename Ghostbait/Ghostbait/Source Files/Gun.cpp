@@ -76,6 +76,11 @@ void Gun::Overheat::CooledDown() {
 	overheated = false;
 	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(parent, AK::EVENTS::PLAY_SFX_GUNCOOLDOWN_FINISHED));
 }
+void Gun::Overheat::Reset() {
+	currentEnergy = 0;
+	energyOverheatDelayTimeLeft = 0;
+	timeSinceLastShot = 0;
+}
 
 Gun::Gun() {
 	SetTag("Gun");
@@ -83,6 +88,7 @@ Gun::Gun() {
 void Gun::Awake(Object* obj) {
 	state = GUN;
 	Gun* gun = ((Gun*)obj);
+	overheat.Reset();
 	overheat.overheatBarPID = gun->overheat.overheatBarPID;
 	overheat.CreateBar(this);
 	projectiePID = gun->projectiePID;

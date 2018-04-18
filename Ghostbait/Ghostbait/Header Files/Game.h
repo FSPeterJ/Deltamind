@@ -31,6 +31,7 @@ class Game {
 	
 	Menu pauseMenu;
 	Menu mainMenu;
+	Menu credits;
 
 	bool paused = false;
 

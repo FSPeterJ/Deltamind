@@ -63,6 +63,7 @@ void SceneManager::CreateSceneFile(SceneManager::TestSceneData& data) {
 void SceneManager::Initialize() {
 	DirectX::XMFLOAT4X4 identity = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
+	/*
 	TestSceneData level0Data;
 	{
 		level0Data.fileName = "Scene Files//level0.scene";
@@ -145,7 +146,6 @@ void SceneManager::Initialize() {
 		}
 	}
 	CreateSceneFile(level0Data);
-	/*
 	TestSceneData splashScreenData;
 	{
 		splashScreenData.fileName = "Scene Files//splashScreen.scene";
@@ -162,7 +162,7 @@ void SceneManager::Initialize() {
 		//}
 	}
 	CreateSceneFile(splashScreenData);
-	*/
+
 	TestSceneData mainMenuData;
 	{
 		mainMenuData.fileName = "Scene Files//mainMenu.scene";
@@ -175,6 +175,20 @@ void SceneManager::Initialize() {
 		}
 	}
 	CreateSceneFile(mainMenuData);
+	*/
+
+	TestSceneData CreditsData;
+	{
+		CreditsData.fileName = "Scene Files//Credits.scene";
+		CreditsData.sceneName = "Credits";
+		TestSceneData::Prefab floor;
+		{
+			floor.ghostFile = "Assets/mainMenuFloor.ghost";
+			floor.positions.push_back(identity);
+			CreditsData.prefabs.push_back(floor);
+		}
+	}
+	CreateSceneFile(CreditsData);
 
 
 	//Fill map of scenes using the ".scene" files from our "Scene Files" directory

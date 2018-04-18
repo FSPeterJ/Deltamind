@@ -1294,12 +1294,12 @@ void PhysicsManager::TestAllComponentsCollision() {
 
 	for (size_t comp1Index = 0; comp1Index < collidingList->size(); ++comp1Index) {
 		comp1 = (*collidingList)[comp1Index];
-		
-		if (!comp1)
+		if (!comp1 || (!comp1->isActive))
 			continue;
 		
 		for (size_t comp2Index = comp1Index + 1; (*collidingList)[comp2Index]; ++comp2Index) {
 			comp2 = (*collidingList)[comp2Index];
+			if (!(comp2->isActive)) continue;
 			//CollisionCheck(*((*collidingList)[comp1Index]), *((*collidingList)[comp2Index]));
 
 			//collisions.push_back(std::thread([=](){ CollisionCheck(*((*collidingList)[comp1Index]), *((*collidingList)[comp2Index])); }));
@@ -1312,7 +1312,7 @@ void PhysicsManager::TestAllComponentsCollision() {
 			//)
 			//);
 
-			collisions.push_back( Threadding::ThreadPool::MakeJob([=]() {
+			collisions.push_back( Threadding::ThreadPool::MakeJob(true, [=]() {
 				CollisionCheck(comp1, comp2);
 			}) );
 		}
@@ -1323,6 +1323,7 @@ void PhysicsManager::TestAllComponentsCollision() {
 
 			comp1 = (*staticComp)[staticIndex];
 			comp2 = (*dynamicComp)[dynamicIndex];
+			if (!comp1->isActive || !comp2->isActive) continue;
 			//CollisionCheck(*(*staticComp)[staticIndex], *(*dynamicComp)[dynamicIndex]);
 
 			//collisions.push_back(std::thread([=]() {CollisionCheck(*(*staticComp)[staticIndex], *(*dynamicComp)[dynamicIndex]); }));
@@ -1335,7 +1336,7 @@ void PhysicsManager::TestAllComponentsCollision() {
 			//	)
 			//);
 
-			collisions.push_back(Threadding::ThreadPool::MakeJob([=]() {
+			collisions.push_back(Threadding::ThreadPool::MakeJob(true, [=]() {
 				CollisionCheck(comp1, comp2);
 			}));
 		}

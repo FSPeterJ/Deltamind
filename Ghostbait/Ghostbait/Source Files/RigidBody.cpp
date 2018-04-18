@@ -22,9 +22,12 @@ RigidBody::RigidBody(bool _hasGravity, float _mass, float veloX, float veloY, fl
 	actingForces.push_back(AppliedForce(9.8f, 0.0f, -1.0f, 0.0f, 1.0f, true));
 }
 void RigidBody::SetVelocity(float x, float y, float z) {
-	velocity = XMFLOAT3(x, y, z);
+	SetVelocity(XMVectorSet(x, y, z, 1.0f));
 }
 void RigidBody::SetVelocity(XMVECTOR _velocity) {
+	if (XMVectorGetX(XMVector3LengthSq(XMLoadFloat3(&velocity))) > terminalSpeed * terminalSpeed) {
+		_velocity = XMVectorScale(XMVector3Normalize(_velocity), terminalSpeed);
+	}
 	XMStoreFloat3(&velocity, _velocity);
 }
 void RigidBody::SetMass(float _mass) {

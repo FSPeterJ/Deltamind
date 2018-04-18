@@ -55,6 +55,10 @@ HexTile* HexGrid::GetTileExact(HexTile& t) const {
 	return it == map.end() ? nullptr : *it;
 }
 
+bool HexGrid::IsValidTile(HexTile& _tile) {
+	return map.find(&_tile) != map.end();
+}
+
 bool HexGrid::IsBlocked(HexTile* tile) {
 	return tile ? tile->weight == Blocked : true;
 }
@@ -103,6 +107,7 @@ bool HexGrid::RemoveObstacle(const DirectX::XMFLOAT2& obstaclePosition) {
 }
 bool HexGrid::RemoveObstacle(HexTile*const obstaclePosition) {
 	if(obstaclePosition) {
+		Console::WriteLine << "Obstacle Removed: Tile (" << obstaclePosition->q << ", " << obstaclePosition->r << ")";
 		//PathPlanner::CostChangeNotice(obstaclePosition);
 		//cost_delta[obstaclePosition] = obstaclePosition->weight;
 		SetWeight(obstaclePosition, 1.0f);
@@ -452,11 +457,11 @@ void HexGrid::Color(HexPath& p, DirectX::XMFLOAT3 color, int fill) {
 	p.Color(&layout, color, 0, (ColorType) fill);
 }
 
-HexRegion HexGrid::DoRing(bool spiral, HexTile *const center, std::size_t radius) {
+HexRegion HexGrid::DoRing(bool spiral, HexTile *const center, std::size_t radius, bool includeCenter) {
 	HexRegion ring;
 	if(radius == 0) { return ring; }
 
-	if(spiral) { ring.push_back(*center); }
+	if(includeCenter) { ring.push_back(*center); }
 	for(std::size_t k = spiral ? 1 : radius; k <= radius; ++k) {
 		HexTile H = *center + (center->Direction(NEIGHBOR_DIRECTION::BottomLeft) * (int) k);
 		for(std::size_t i = 0; i < Hexagon::NUMBER_OF_SIDES; ++i) {
@@ -469,12 +474,12 @@ HexRegion HexGrid::DoRing(bool spiral, HexTile *const center, std::size_t radius
 	return ring;
 }
 
-HexRegion HexGrid::Spiral(HexTile *const center, std::size_t radius) {
-	return DoRing(true, center, radius);
+HexRegion HexGrid::Spiral(HexTile *const center, std::size_t radius, bool includeCenter) {
+	return DoRing(true, center, radius, includeCenter);
 }
 
 HexRegion HexGrid::Ring(HexTile *const center, std::size_t radius) {
-	return DoRing(false, center, radius);
+	return DoRing(false, center, radius, false);
 }
 
 bool HexGrid::AddWeight(HexTile *const tile, float value) {

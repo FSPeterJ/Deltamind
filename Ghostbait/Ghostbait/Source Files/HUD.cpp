@@ -3,6 +3,7 @@
 #include <string>
 #include <DirectXMath.h>
 #include "MessageEvents.h"
+#include "TextManager.h"
 
 void HUD::ClearHUDElements()
 {
@@ -33,6 +34,9 @@ HUD::HUD(ID3D11Device* device, ID3D11DeviceContext* context, float windowWidth, 
 	HUDElements.push_back(temp);
 	inv = new Inventory();
 	inv->Initialize(device, context, windowWidth, windowHeight);
+	wavIn = new WaveIndicator();
+	wavIn->Initialize(device, context, windowWidth, windowHeight);
+	HUDElements.push_back(wavIn);
 }
 
 HUD::~HUD()
@@ -82,6 +86,10 @@ void HUD::ShowInventory()
 		HUDElements.push_back(inv);
 		showingInventory = true;
 	}
+}
+
+void HUD::UpdateWaveInfo(EventMessageBase * e)
+{
 }
 
 HUD::Crosshair::~Crosshair()
@@ -155,7 +163,7 @@ bool HUD::Inventory::determineSelected(const int index)
 	{
 		int invItem = index - 3;
 		int selectedItem = player->rightController->GetSelectedItemIndex();
-		
+
 		if (selectedItem == -1)
 			return false;
 		else if (selectedItem == invItem)
@@ -240,4 +248,32 @@ void HUD::Inventory::Draw(ID3D11DeviceContext * context, ID3D11DepthStencilView*
 		context->Draw(1, 0);
 		context->OMSetBlendState(blend, 0, 0xffffffff);
 	}
+}
+
+HUD::WaveIndicator::~WaveIndicator()
+{
+	tex->Release();
+	srv->Release();
+}
+
+void HUD::WaveIndicator::Initialize(ID3D11Device * device, ID3D11DeviceContext * context, float windowWidth, float windowHeight)
+{
+	float normalRangeHeight = 1.0f / 600.0f;
+
+	std::wstring path(L"Assets/InventoryPictures/HUDWaveInfoBorder.png");
+	HRESULT didItBlend = DirectX::CreateWICTextureFromFile(device, context, path.c_str(), (ID3D11Resource**)&tex, &srv);
+	mats[0] = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", " W: 0/0", { 1.0f, 1.0f, 1.0f, 0.8f }, { 0.0f, 0.0f, 0.0f, 0.0f }).mat;
+	viewport[0].Height = 128.0f;
+	viewport[0].Width = 256.0f;
+	viewport[0].TopLeftX = (windowWidth * 0.5f) - (viewport[0].Width * 0.5f);
+	viewport[0].TopLeftY = (20.0f * normalRangeHeight) * windowHeight;
+	viewport[0].MinDepth = 0.0f;
+	viewport[0].MaxDepth = 1.0f;
+}
+
+void HUD::WaveIndicator::Draw(ID3D11DeviceContext * context, ID3D11DepthStencilView * dsv)
+{
+	context->PSSetShaderResources(0, 1, &srv);
+	context->RSSetViewports(1, &viewport[0]);
+	context->Draw(1,0);
 }

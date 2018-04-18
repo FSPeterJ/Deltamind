@@ -2,6 +2,7 @@
 #include <d3d11.h>
 #include <vector>
 #include "Player.h"
+#include "MessageStructs.h"
 
 class HUD
 {
@@ -48,9 +49,22 @@ class HUD
 		void Draw(ID3D11DeviceContext* context, ID3D11DepthStencilView* dsv) override;
 	};
 
+	class WaveIndicator : public BaseHUDElement
+	{
+		D3D11_VIEWPORT viewport[3];
+		ID3D11Texture2D* tex;
+		ID3D11ShaderResourceView* srv;
+		Material* mats[2];
+	public:
+		~WaveIndicator();
+		void Initialize(ID3D11Device* device, ID3D11DeviceContext* context, float windowWidth, float windowHeight) override;
+		void Draw(ID3D11DeviceContext* context, ID3D11DepthStencilView* dsv) override;
+	};
+
 	std::vector<BaseHUDElement*> HUDElements;
 	bool showingInventory = false;
 	Inventory* inv;
+	WaveIndicator* wavIn;
 	ID3D11PixelShader* TexToQuadPS;
 	ID3D11GeometryShader* PointToNDCQuadGS;
 	ID3D11VertexShader* PassThroughVS;
@@ -65,5 +79,7 @@ public:
 	void Draw(ID3D11DeviceContext* context, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv);
 	void HideInventory();
 	void ShowInventory();
+
+	void UpdateWaveInfo(EventMessageBase* e);
 };
 

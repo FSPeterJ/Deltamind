@@ -4,6 +4,10 @@ namespace Threadding {
 
 	int ThreadPool::maxThreads = std::thread::hardware_concurrency();
 
+	int ThreadPool::maxNonPriorityThreads = (int)(std::thread::hardware_concurrency() * 0.70f);
+
+	int ThreadPool::runningNonPriorityThreads = 0;
+
 	bool ThreadPool::quit = false;
 
 	std::vector<std::thread*> ThreadPool::pool;
@@ -30,15 +34,23 @@ namespace Threadding {
 			if (!priorityJobs.empty()) {
 				job = std::move(priorityJobs.front());
 				priorityJobs.pop();
+				lock.unlock();
+				job();
 			}
 			else {
+				if (!(runningNonPriorityThreads < maxNonPriorityThreads)) continue;
+
 				job = std::move(queue.front());
 				queue.pop();
-			}
+				++runningNonPriorityThreads;
+				lock.unlock();
+				job();
 
+				lock.lock();
+				--runningNonPriorityThreads;
+				lock.unlock();
+			}
 			// We are done with the queue, can release now
-			lock.unlock();
-			job();
 		}
 	}
 

@@ -10,6 +10,10 @@ namespace Threadding {
 	class ThreadPool {
 		static int maxThreads;
 
+		static int maxNonPriorityThreads;
+
+		static int runningNonPriorityThreads;
+
 		static bool quit;
 
 		static std::vector<std::thread*> pool;

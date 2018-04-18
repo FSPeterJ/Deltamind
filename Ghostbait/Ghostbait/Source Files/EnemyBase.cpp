@@ -178,6 +178,7 @@ bool EnemyBase::ChangeState(State _s) {
 	case EnemyBase::DEATH:
 		Console::WarningLine << "Changing state to DEATH";
 		isDying = true;
+		rb->Stop();
 		break;
 	default:
 		break;

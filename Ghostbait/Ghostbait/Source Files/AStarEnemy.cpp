@@ -29,6 +29,8 @@ void AStarEnemy::Awake(Object* obj) {
 
 	lingerTime = 10.0f;
 	scentStrength = 2.0f;	
+
+	path.clear();
 }
 
 void AStarEnemy::Subscribe() {
@@ -41,24 +43,22 @@ void AStarEnemy::UnSubscribe() {
 	if (eventRemove) { MessageEvents::UnSubscribe(EVENT_RemoveObstacle, eventRemove); eventRemove = 0; }
 }
 void AStarEnemy::Enable() {
+	AStarEnemy::Subscribe();
+	EnemyBase::Enable();
 
-	if (isPathing) {
-		pathing.get();
-		isPathing = false;
-	}
-
-	if(!isPathing && (!goal || path.size() < 1)) {
-		isPathing = true;
-		pathing = Threadding::ThreadPool::MakeJob(false, [&]() {NewAroundPath(); });
-	}
-
-	//if (!path.size()) throw std::runtime_error("Enemy could not find path.");
-	AntColony::LeavePheromone(&path, lingerTime, scentStrength);
 	next = curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.GetMatrix()._41, transform.GetMatrix()._43));
 	rb->SetTerminalSpeed(maxSpeed);
 
-	EnemyBase::Enable();
-	AStarEnemy::Subscribe();
+	//if (isPathing) {
+	//	pathing.get();
+	//	isPathing = false;
+	//}
+
+	if(!isPathing && (!goal || path.size() < 1)) {
+		ReTarget();
+	}
+
+	//if (!path.size()) throw std::runtime_error("Enemy could not find path.");
 }
 void AStarEnemy::Disable() {
 	AStarEnemy::UnSubscribe();
@@ -145,25 +145,23 @@ void AStarEnemy::Destroy() {
 
 void AStarEnemy::Patrol() {
 
-	if (isPathing && pathing.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready) return;
-
 	//Update Path
 	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
 
 	if (!curTile) {
 		Console::ErrorLine << "Out of BOUNDS!!";
 		isOutofBounds = true;
-		rb->SetVelocity(DirectX::XMVectorScale(rb->GetVelocity(), -1.0f));
+		rb->SetVelocity(targetPos[0] - transform.matrix._41, targetPos[1] - transform.matrix._42, targetPos[2] - transform.matrix._43);
 		return;
 	}
 
+	if (isPathing && pathing.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready) return;
+	
 	isOutofBounds = false;
 	if (path.size() < 1) {
 		Console::ErrorLine << "Lost its Path!!";
 		rb->Stop();
-		if (isPathing) return;
-		isPathing = true;
-		pathing = Threadding::ThreadPool::MakeJob(false, [&]() {NewAroundPath(); });
+		Repath();
 		return;
 	}
 
@@ -281,6 +279,9 @@ bool AStarEnemy::NewAroundPath() {
 	//	NewRandPath();
 	//}
 	isPathing = false;
+	if(pathFound)
+		AntColony::LeavePheromone(&path, lingerTime, scentStrength);
+
 	return pathFound;
 }
 void AStarEnemy::CalcPath(DirectX::XMFLOAT2& where) {

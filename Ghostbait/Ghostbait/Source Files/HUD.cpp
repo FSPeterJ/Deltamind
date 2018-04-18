@@ -6,10 +6,12 @@
 
 void HUD::ClearHUDElements()
 {
+	HideInventory();
 	for (size_t i = 0; i < HUDElements.size(); ++i)
 	{
 		delete HUDElements[i];
 	}
+	delete inv;
 	HUDElements.clear();
 }
 
@@ -29,9 +31,8 @@ HUD::HUD(ID3D11Device* device, ID3D11DeviceContext* context, float windowWidth, 
 	Crosshair* temp = new Crosshair();
 	temp->Initialize(device, context, windowWidth, windowHeight);
 	HUDElements.push_back(temp);
-	Inventory* inv = new Inventory();
+	inv = new Inventory();
 	inv->Initialize(device, context, windowWidth, windowHeight);
-	HUDElements.push_back(inv);
 }
 
 HUD::~HUD()
@@ -59,6 +60,28 @@ void HUD::Draw(ID3D11DeviceContext * context, ID3D11RenderTargetView* rtv, ID3D1
 	context->GSSetShader(clearGS, NULL, NULL);
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+}
+
+void HUD::HideInventory()
+{
+	for (auto iter = HUDElements.begin(); iter != HUDElements.end(); ++iter)
+	{
+		if (*iter == inv)
+		{
+			HUDElements.erase(iter);
+			break;
+		}
+	}
+	showingInventory = false;
+}
+
+void HUD::ShowInventory()
+{
+	if (!showingInventory)
+	{
+		HUDElements.push_back(inv);
+		showingInventory = true;
+	}
 }
 
 HUD::Crosshair::~Crosshair()

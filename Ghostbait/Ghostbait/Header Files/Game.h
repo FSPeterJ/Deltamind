@@ -13,6 +13,7 @@ class EventMessageBase;
 class EngineStructure;
 class Player;
 class Core;
+class HUD;
 
 using namespace Omiracon::Genetics;
 
@@ -28,7 +29,8 @@ class Game {
 	EngineStructure* engine;
 	SceneManager* sceneManager;
 	Player* player;
-	
+	HUD* currHUD;
+
 	Menu pauseMenu;
 	Menu mainMenu;
 	Menu credits;
@@ -71,7 +73,7 @@ public:
 
 	Game();
 
-	void Start(Player* _player, EngineStructure* _engine, char* startScene = "splashScreen", char* xml = "");
+	void Start(Player* _player, EngineStructure* _engine, HUD* _hud, char* startScene = "splashScreen", char* xml = "");
 	void Update();
 	void Clean();
 

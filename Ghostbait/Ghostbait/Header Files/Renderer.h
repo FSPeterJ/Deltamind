@@ -150,7 +150,7 @@ private:
 	animDataBufferStruct cpuAnimationData;
 	uvOffsetData uvData;
 	Mesh* skyball;
-	HUD* defaultHUD;
+	HUD* defaultHUD = nullptr;
 
 	ID3D11Buffer* emptyFloat3Buffer; //Needed to upload to the shaders that don't need specific vertex values (may replace with techniques later)
 	Skybox* currSkybox = nullptr;
@@ -245,6 +245,9 @@ public:
 	void setSkybox(const char* directoryName, const char* filePrefix);
 
 	void setGamma(float value);
+
+	HUD* getHud() { return defaultHUD; }
+
 	MeshManager* getMeshManager();
 	MaterialManager* getMaterialManager();
 	AnimationManager* getAnimationManager();

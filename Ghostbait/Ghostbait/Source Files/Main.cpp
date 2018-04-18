@@ -369,7 +369,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	OptionsManager::GetInstance().Initialize(rendInter, audioMan, player, "Saves//Settings.ghost");
 	Console::WriteLine << "Starting Game Loop......";
 	game = new Game();
-	game->Start(player, &engine);
+	game->Start(player, &engine, rendInter->getHud());
 	//game->Start(player, &engine, "level0", "Level Files//level0_hard.xml");
 }
 

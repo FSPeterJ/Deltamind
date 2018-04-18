@@ -13,6 +13,7 @@
 #include "ObjectFactory.h"
 #include "Player.h"
 #include "Material.h"
+#include "HUD.h"
 //#include "DStarEnemy.h"
 //#include "MTDSLEnemy.h"
 #include <future>
@@ -331,6 +332,10 @@ void Game::MainMenuLoaded() {
 	player->ResetStance();
 	player->Teleport(DirectX::XMFLOAT3(0, 0, 0));
 	player->transform.LookAt({ menuPos._41, menuPos._42, menuPos._43 });
+
+	//Update HUD
+	if(currHUD)
+	currHUD->HideInventory();
 }
 void Game::TutorialLoaded() {
 	gameData.AddGears(1000);
@@ -367,6 +372,10 @@ void Game::TutorialLoaded() {
 											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Long.ghost")) });
 
 	player->SetBuildToolData(&hexGrid, &gameData);
+
+	//Update HUD
+	if(currHUD)
+	currHUD->ShowInventory();
 }
 void Game::Level0Loaded() {
 	int index = 0;
@@ -401,6 +410,10 @@ void Game::Level0Loaded() {
 											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Long.ghost")) });
 	
 	player->SetBuildToolData(&hexGrid, &gameData);
+
+	//Update HUD
+	if(currHUD)
+	currHUD->ShowInventory();
 }
 void Game::CreditsLoaded() {
 	player->leftController->SetControllerState(CSTATE_MenuController);
@@ -417,10 +430,11 @@ void Game::CreditsLoaded() {
 }
 
 //Main loop elements
-void Game::Start(Player* _player, EngineStructure* _engine, char* startScene, char* xml) {
+void Game::Start(Player* _player, EngineStructure* _engine, HUD* _hud, char* startScene, char* xml) {
 	srand((unsigned int)time(NULL));
 	engine = _engine;
 	player = _player;
+	currHUD = _hud;
 	AntColony::AddUpdateToEngineStruct();
 	mainMenu.Create(MENU_Main);
 	pauseMenu.Create(MENU_Pause);

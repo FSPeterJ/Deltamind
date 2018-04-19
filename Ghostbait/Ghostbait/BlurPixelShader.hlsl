@@ -23,7 +23,7 @@ float4 main(PixelShaderInput input) : SV_TARGET
     float4 originalColor = tex.Sample(sample, input.uv) * weights[0];
     float3 color = float3(0.0f, 0.0f, 0.0f);
     float2 position;
-    for (int index = 1; index < 3; ++index)
+    [unroll(2)] for (int index = 1; index < 3; ++index)
     {
         position.x = input.uv.x + (offsets[index] * width * dir.x);
         position.y = input.uv.y + (offsets[index] * height * dir.y);

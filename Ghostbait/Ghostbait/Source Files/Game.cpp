@@ -334,8 +334,11 @@ void Game::MainMenuLoaded() {
 	player->transform.LookAt({ menuPos._41, menuPos._42, menuPos._43 });
 
 	//Update HUD
-	if(currHUD)
-	currHUD->HideInventory();
+	if (currHUD)
+	{
+		currHUD->HideInventory();
+		currHUD->HideWaveInfo();
+	}
 }
 void Game::TutorialLoaded() {
 	gameData.AddGears(1000);
@@ -374,8 +377,10 @@ void Game::TutorialLoaded() {
 	player->SetBuildToolData(&hexGrid, &gameData);
 
 	//Update HUD
-	if(currHUD)
-	currHUD->ShowInventory();
+	if (currHUD)
+	{
+		currHUD->ShowInventory();
+	}
 }
 void Game::Level0Loaded() {
 	int index = 0;
@@ -412,8 +417,11 @@ void Game::Level0Loaded() {
 	player->SetBuildToolData(&hexGrid, &gameData);
 
 	//Update HUD
-	if(currHUD)
-	currHUD->ShowInventory();
+	if (currHUD)
+	{
+		currHUD->ShowInventory();
+		currHUD->ShowWaveInfo();
+	}
 }
 void Game::CreditsLoaded() {
 	player->leftController->SetControllerState(CSTATE_MenuController);

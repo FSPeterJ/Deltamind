@@ -138,7 +138,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<ViveController>(20);
 	ObjectFactory::RegisterPrefabBase<SMG>(4);
 	ObjectFactory::RegisterPrefabBase<Pistol>(4);
-	ObjectFactory::RegisterPrefabBase<PDA>(4);
+	ObjectFactory::RegisterPrefabBase<PDA>(5);
 	ObjectFactory::RegisterPrefabBase<ProgressBar>(8);
 	ObjectFactory::RegisterPrefabBase<MenuControllerItem>(2);
 	ObjectFactory::RegisterPrefabBase<GameObject>(512);

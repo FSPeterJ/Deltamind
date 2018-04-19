@@ -72,6 +72,7 @@ void Menu::AssignPrefabIDs() {
 	buttonPrefabMap[BUTTON_MouseSensitivityDown] = ObjectFactory::CreatePrefab(&std::string("Assets/MouseSensitivityDownButton.ghost"));
 	buttonPrefabMap[BUTTON_AcceptOptions] = ObjectFactory::CreatePrefab(&std::string("Assets/AcceptOptionsButton.ghost"));
 	buttonPrefabMap[BUTTON_CancelOptions] = ObjectFactory::CreatePrefab(&std::string("Assets/CancelOptionsButton.ghost"));
+	buttonPrefabMap[BUTTON_Revert] = ObjectFactory::CreatePrefab(&std::string("Assets/RevertOptionsButton.ghost"));
 }
 
 DirectX::XMFLOAT4X4 Menu::FindCenter(float distFromPlayer) {
@@ -131,7 +132,7 @@ void Menu::Create(Template t, std::vector<Button> _buttons, ColumnType _columnTy
 			break;
 		case MENU_Options:
 			buttons.empty();
-			buttons.resize(12);
+			buttons.resize(13);
 			buttons[0] = BUTTON_MasterUp;
 			buttons[1] = BUTTON_MasterDown;
 			buttons[2] = BUTTON_MusicUp;
@@ -144,6 +145,7 @@ void Menu::Create(Template t, std::vector<Button> _buttons, ColumnType _columnTy
 			buttons[9] = BUTTON_MouseSensitivityDown;
 			buttons[10] = BUTTON_AcceptOptions;
 			buttons[11] = BUTTON_CancelOptions;
+			buttons[12] = BUTTON_Revert;
 			columnType = TwoColumn;
 			break;
 		case MENU_Difficulty:
@@ -375,6 +377,11 @@ void CancelOptionsButton::Select() {
 	OptionsManager::GetInstance().Cancel();
 	menu->Hide();
 	menu->LoadParent();
+	MenuOption::Select();
+}
+void RevertOptionsButton::Select()
+{
+	OptionsManager::GetInstance().Revert();
 	MenuOption::Select();
 }
 

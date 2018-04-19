@@ -57,6 +57,7 @@ enum Button {
 	BUTTON_MouseSensitivityDown,
 	BUTTON_AcceptOptions,
 	BUTTON_CancelOptions,
+	BUTTON_Revert,
 };
 
 class Menu {
@@ -173,6 +174,9 @@ class CancelOptionsButton : public MenuOption {
 	void Select() override;
 };
 
+class RevertOptionsButton : public MenuOption {
+	void Select() override;
+};
 
 
 

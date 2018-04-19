@@ -173,6 +173,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<MouseSensitivityDownButton>(1);
 	ObjectFactory::RegisterPrefabBase<AcceptOptionsButton>(1);
 	ObjectFactory::RegisterPrefabBase<CancelOptionsButton>(1);
+	ObjectFactory::RegisterPrefabBase<RevertOptionsButton>(1);
 
 	ObjectFactory::RegisterPrefabBase<ForceField>(6);
 	ObjectFactory::RegisterPrefabBase<Ground>(1);
@@ -248,6 +249,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<MouseSensitivityDownButton>("MouseSensitivityDownButton");
 	TypeMap::RegisterObjectAlias<AcceptOptionsButton>("AcceptOptionsButton");
 	TypeMap::RegisterObjectAlias<CancelOptionsButton>("CancelOptionsButton");
+	TypeMap::RegisterObjectAlias<RevertOptionsButton>("RevertOptionsButton");
 
 	TypeMap::RegisterObjectAlias<ForceField>("ForceField");
 	TypeMap::RegisterObjectAlias<Ground>("Ground");

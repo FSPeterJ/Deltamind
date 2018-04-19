@@ -3,7 +3,7 @@
 #include "ObjectFactory.h"
 
 ForceField::ForceField() {
-	SetTag("SmokeWall");
+	SetTag("ForceField");
 }
 
 void ForceField::Awake(Object* obj) {
@@ -14,6 +14,8 @@ void ForceField::Awake(Object* obj) {
 void ForceField::Update() {
 	GameObject::Update();
 	if (first) {
+		UnRender();
+		RenderTransparent();
 		GameObject* backdrop = nullptr;
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/ForceFieldBackdrop.ghost")), { 0, 0, 0 }, &backdrop));
 		backdrop->transform.SetMatrix(transform.GetMatrix());
@@ -24,6 +26,5 @@ void ForceField::Update() {
 }
 
 void ForceField::Destroy() {
-	UnRender();
 	GameObject::Destroy();
 }

@@ -367,6 +367,9 @@ void Game::TutorialLoaded() {
 	player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost")));
 	player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost")));
 
+	player->leftController->SwapItem(index - 2);
+	player->rightController->SwapItem(index - 2);
+
 	player->leftController->SetBuildItems({ ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Short.ghost")), 
 											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Medium.ghost")),
 											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Long.ghost")) });
@@ -413,6 +416,9 @@ void Game::Level0Loaded() {
 	player->rightController->SetBuildItems({ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Short.ghost")), 
 											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Medium.ghost")), 
 											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Long.ghost")) });
+
+	player->leftController->SwapItem(index - 2);
+	player->rightController->SwapItem(index - 2);
 	
 	player->SetBuildToolData(&hexGrid, &gameData);
 
@@ -436,7 +442,7 @@ void Game::CreditsLoaded() {
 }
 void Game::SplashScreenLoaded() {
 	player->leftController->SetControllerState(CSTATE_MenuController);
-	player->rightController->SetControllerState(CSTATE_MenuController);
+	player->rightController->SetControllerState(player->IsVR() ? CSTATE_MenuController : CSTATE_ModelOnly);
 	splashScreenMenu.Show();
 }
 

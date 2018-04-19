@@ -73,4 +73,6 @@ public:
 	void SetControllerStateToPrevious();
 	inline const ControllerState& GetControllerState() const {return state;};
 	BuildTool* GetBuildTool();
+
+	void SwapItem(int itemIndex);
 };

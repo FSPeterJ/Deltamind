@@ -395,7 +395,7 @@ void NextButton::Select() {
 }
 void SkipButton::Select() {
 	MenuOption::Select();
-	MessageEvents::SendMessage(EVENT_Start, EventMessageBase());
+	MessageEvents::SendMessage(EVENT_Start, StartEventMessage(""));
 }
 
 //Other

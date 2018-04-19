@@ -520,6 +520,10 @@ void ControllerObject::Update() {
 	GameObject::Update();
 }
 
+void ControllerObject::SwapItem(int itemIndex) {
+	if (itemIndex >= CONTROLLER_MAX_ITEMS || !inventory.items[itemIndex]) return;
+	SwitchCurrentItem(itemIndex);
+}
 
 // TEMPORARY - CHANGE OR REMOVE LATER
 void ControllerObject::SetBuildItems(std::vector<unsigned> prefabIDs) {

@@ -30,7 +30,7 @@ public:
 
 	void* ActivateMemory() {
 		if(inactiveList.size()) {
-			activeList.push_back(inactiveList[0]);
+			 activeList.push_back(inactiveList[0]);
 			inactiveList.erase(inactiveList.begin());
 			return activeList.back();
 		} else {

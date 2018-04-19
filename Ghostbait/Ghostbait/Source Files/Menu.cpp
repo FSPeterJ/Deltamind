@@ -72,6 +72,10 @@ void Menu::AssignPrefabIDs() {
 	buttonPrefabMap[BUTTON_MouseSensitivityDown] = ObjectFactory::CreatePrefab(&std::string("Assets/MouseSensitivityDownButton.ghost"));
 	buttonPrefabMap[BUTTON_AcceptOptions] = ObjectFactory::CreatePrefab(&std::string("Assets/AcceptOptionsButton.ghost"));
 	buttonPrefabMap[BUTTON_CancelOptions] = ObjectFactory::CreatePrefab(&std::string("Assets/CancelOptionsButton.ghost"));
+
+	buttonPrefabMap[BUTTON_Next] = ObjectFactory::CreatePrefab(&std::string("Assets/NextButton.ghost"));
+	buttonPrefabMap[BUTTON_Skip] = ObjectFactory::CreatePrefab(&std::string("Assets/SkipButton.ghost"));
+
 	buttonPrefabMap[BUTTON_Revert] = ObjectFactory::CreatePrefab(&std::string("Assets/RevertOptionsButton.ghost"));
 	buttonPrefabMap[BUTTON_QuitConfirm] = ObjectFactory::CreatePrefab(&std::string("Assets/QuitConfirmButton.ghost"));
 	buttonPrefabMap[BUTTON_QuitCancel] = ObjectFactory::CreatePrefab(&std::string("Assets/QuitCancelButton.ghost"));
@@ -158,6 +162,13 @@ void Menu::Create(Template t, std::vector<Button> _buttons, ColumnType _columnTy
 			buttons[2] = BUTTON_Medium;
 			buttons[3] = BUTTON_Hard;
 			columnType = OneColumn;
+			break;
+		case MENU_SplashScreen:
+			buttons.empty();
+			buttons.resize(2);
+			buttons[0] = BUTTON_Next;
+			buttons[1] = BUTTON_Skip;
+			columnType = TwoColumn;
 			break;
 		case MENU_QuitConfirm:
 			buttons.empty();
@@ -404,6 +415,15 @@ void QuitCancelButton::Select()
 	menu->Hide();
 	menu->LoadParent();
 	MenuOption::Select();
+}
+
+void NextButton::Select() {
+	MenuOption::Select();
+	MessageEvents::SendMessage(EVENT_NextLogo, EventMessageBase());
+}
+void SkipButton::Select() {
+	MenuOption::Select();
+	MessageEvents::SendMessage(EVENT_Start, EventMessageBase());
 }
 
 //Other

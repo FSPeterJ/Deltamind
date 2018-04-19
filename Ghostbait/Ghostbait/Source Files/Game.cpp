@@ -35,6 +35,7 @@ Game::Game() {
 	MessageEvents::Subscribe(EVENT_GameExit, [=](EventMessageBase* e) {this->ExitToMainMenu(); });
 	MessageEvents::Subscribe(EVENT_FreeMoney, [=](EventMessageBase* e) {this->gameData.SetGears(500000); });
 	MessageEvents::Subscribe(EVENT_ChangeScene, [=](EventMessageBase* e) { this->ChangeScene(((ChangeSceneMessage*)e)->RetrieveData()); });
+	MessageEvents::Subscribe(EVENT_NextLogo, [=](EventMessageBase* e) { this->NextLogoEvent(); });
 
 	MessageEvents::Subscribe(EVENT_GameDataRequest, [=](EventMessageBase* e) { this->GameDataRequestEvent(e); });
 	PathPlanner::SetGrid(&hexGrid);
@@ -79,13 +80,19 @@ void Game::EnemyDiedEvent() {
 		ChangeState(GAMESTATE_BetweenWaves);
 	}
 }
+void Game::NextLogoEvent() {
+	if (gameData.ssManager.NextLogoExists())
+		gameData.ssManager.MoveToNextLogo();
+	else
+		StartEvent();
+}
 void Game::StartEvent(EventMessageBase* e) {
 	StartEventMessage* starter = nullptr;
-	if(e)
-		starter = (StartEventMessage*)e;
+	if(e) starter = (StartEventMessage*)e;
 	switch(gameData.GetState()) {
 		case GAMESTATE_SplashScreen:
 		{
+			splashScreenMenu.Hide();
 			std::string levelName = "";
 			if (starter)
 				levelName = starter->RetrieveLevelName();
@@ -163,6 +170,8 @@ void Game::ChangeScene(const char* sceneName, std::string levelName) {
 	sceneManager->LoadScene(sceneName, &core);
 
 	//TODO: TEMPORARY main menu code--------
+	if (!strcmp(sceneName, "splashScreen"))
+		SplashScreenLoaded();
 	if(!strcmp(sceneName, "mainMenu"))
 		MainMenuLoaded();
 	if (!strcmp(sceneName, "Tutorial"))
@@ -199,16 +208,12 @@ void Game::ChangeScene(const char* sceneName, std::string levelName) {
 					gameData.AddGears(xmlReader->getAttributeValueAsInt("startGears"));
 					gameData.SetStateHard(GAMESTATE_BetweenWaves);
 					gameData.SetPrevStateHard(GAMESTATE_BetweenWaves);
-					player->leftController->SetControllerState(CSTATE_Inventory);
-					player->rightController->SetControllerState(CSTATE_Inventory);
 				}
 				else if (!strcmp("MenuScene", xmlReader->getNodeName())) {
 					gameData.ssManager.SetSceneTimeLimit(xmlReader->getAttributeValueAsFloat("sceneTimeLimit"));
 					gameData.ssManager.SetNextScene(xmlReader->getAttributeValue("nextScene"));
 					gameData.SetStateHard(GAMESTATE_SplashScreen);
 					gameData.SetPrevStateHard(GAMESTATE_SplashScreen);
-					player->leftController->SetControllerState(CSTATE_ModelOnly);
-					player->rightController->SetControllerState(CSTATE_ModelOnly);
 				}
 				else if (!strcmp("Wave", xmlReader->getNodeName())) {
 					if (newWave) {
@@ -427,9 +432,12 @@ void Game::CreditsLoaded() {
 	largePDA->transform.SetMatrix(DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 2, 3, 1));
 	largePDA->SetPurpose(PDA::Purpose::Credits);
 
-	credits.Show();
-
-
+	creditsMenu.Show();
+}
+void Game::SplashScreenLoaded() {
+	player->leftController->SetControllerState(CSTATE_MenuController);
+	player->rightController->SetControllerState(CSTATE_MenuController);
+	splashScreenMenu.Show();
 }
 
 //Main loop elements
@@ -442,8 +450,10 @@ void Game::Start(Player* _player, EngineStructure* _engine, HUD* _hud, char* sta
 	mainMenu.Create(MENU_Main);
 	pauseMenu.Create(MENU_Pause);
 	pauseMenu.SetCamera(&player->transform);
-	credits.Create(MENU_Custom, { Button::BUTTON_Exit });
-	credits.SetSpawnPos(DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 3, 1));
+	creditsMenu.Create(MENU_Custom, { Button::BUTTON_Exit });
+	creditsMenu.SetSpawnPos(DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 3, 1));
+	splashScreenMenu.Create(MENU_SplashScreen);
+	splashScreenMenu.SetSpawnPos(DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 2, 1));
 	sceneManager = new SceneManager();
 	sceneManager->Initialize();
 	gameData.Reset();

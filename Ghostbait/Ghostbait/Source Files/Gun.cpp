@@ -165,6 +165,9 @@ void Gun::GivePID(unsigned pid, const char* tag) {
 		overheat.overheatBarPID = pid;
 	}
 }
+void Gun::SetDisplay() {
+	overheat.bar->Destroy();
+}
 
 #ifdef _DEBUG
 void Gun::SmokeTest() {

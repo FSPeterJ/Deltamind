@@ -317,6 +317,8 @@ void Game::MainMenuLoaded() {
 	gameData.SetStateHard(GAMESTATE_MainMenu);
 	mainMenu.Show(false);
 	//Set Controllers
+	player->leftController->ClearInventory();
+	player->rightController->ClearInventory();
 	player->leftController->SetControllerState(CSTATE_MenuController);
 	player->rightController->SetControllerState(player->IsVR() ? CSTATE_MenuController : CSTATE_ModelOnly);
 

@@ -26,4 +26,6 @@ public:
 
 	virtual void Selected();
 	virtual void DeSelected();
+
+	virtual void SetDisplay() {}
 };

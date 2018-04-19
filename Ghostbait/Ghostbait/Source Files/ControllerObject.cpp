@@ -214,6 +214,7 @@ void ControllerObject::AddToInventory(int itemSlot, unsigned prefabID) {
 	inventory.displayItems[itemSlot]->UnRender();
 	inventory.displayItems[itemSlot]->PersistOnReset();
 	inventory.displayItems[itemSlot]->SetPhysicsComponent(false);
+	inventory.displayItems[itemSlot]->SetDisplay();
 	++inventory.itemCount;
 
 	pda = dynamic_cast<PDA*>(inventory.displayItems[itemSlot]);

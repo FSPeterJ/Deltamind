@@ -6,6 +6,7 @@
 
 class HUD
 {
+#pragma region HUD Element Classes
 	class BaseHUDElement
 	{
 	public:
@@ -55,14 +56,20 @@ class HUD
 		ID3D11Texture2D* tex;
 		ID3D11ShaderResourceView* srv;
 		Material* mats[2];
+		int EnemiesRemaining = 0;
 	public:
 		~WaveIndicator();
 		void Initialize(ID3D11Device* device, ID3D11DeviceContext* context, float windowWidth, float windowHeight) override;
 		void Draw(ID3D11DeviceContext* context, ID3D11DepthStencilView* dsv) override;
+		void OffsetEnemyCount(int offset = -1);
+		void SetEnemyCount(int enemies);
+		void SetWave(int wave, int maxWaves);
 	};
+#pragma endregion
 
 	std::vector<BaseHUDElement*> HUDElements;
 	bool showingInventory = false;
+	bool showingWave = false;
 	Inventory* inv;
 	WaveIndicator* wavIn;
 	ID3D11PixelShader* TexToQuadPS;
@@ -79,7 +86,9 @@ public:
 	void Draw(ID3D11DeviceContext* context, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv);
 	void HideInventory();
 	void ShowInventory();
+	void HideWaveInfo();
+	void ShowWaveInfo();
 
-	void UpdateWaveInfo(EventMessageBase* e);
+	void UpdateWaveInfo(EventMessageBase* e = nullptr);
 };
 

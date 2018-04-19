@@ -4,15 +4,18 @@
 #include <DirectXMath.h>
 #include "MessageEvents.h"
 #include "TextManager.h"
+#include "GameData.h"
 
 void HUD::ClearHUDElements()
 {
 	HideInventory();
+	HideWaveInfo();
 	for (size_t i = 0; i < HUDElements.size(); ++i)
 	{
 		delete HUDElements[i];
 	}
 	delete inv;
+	delete wavIn;
 	HUDElements.clear();
 }
 
@@ -36,7 +39,9 @@ HUD::HUD(ID3D11Device* device, ID3D11DeviceContext* context, float windowWidth, 
 	inv->Initialize(device, context, windowWidth, windowHeight);
 	wavIn = new WaveIndicator();
 	wavIn->Initialize(device, context, windowWidth, windowHeight);
-	HUDElements.push_back(wavIn);
+	MessageEvents::Subscribe(EVENT_WaveChange, [=](EventMessageBase* e) { UpdateWaveInfo(e); });
+	MessageEvents::Subscribe(EVENT_EnemyDied, [=](EventMessageBase* e) { UpdateWaveInfo(); });
+
 }
 
 HUD::~HUD()
@@ -88,8 +93,42 @@ void HUD::ShowInventory()
 	}
 }
 
+void HUD::HideWaveInfo()
+{
+	for (auto iter = HUDElements.begin(); iter != HUDElements.end(); ++iter)
+	{
+		if (*iter == wavIn)
+		{
+			HUDElements.erase(iter);
+			break;
+		}
+	}
+	showingWave = false;
+}
+
+void HUD::ShowWaveInfo()
+{
+	if (!showingWave)
+	{
+		HUDElements.push_back(wavIn);
+		showingWave = true;
+	}
+}
+
 void HUD::UpdateWaveInfo(EventMessageBase * e)
 {
+	if (e)
+	{
+		const GameData* gameData = *((GameDataMessage*)e)->RetrieveData();
+		if (gameData) {
+			wavIn->SetEnemyCount(gameData->waveManager.GetCurrentWave()->enemyCount);
+			wavIn->SetWave(gameData->waveManager.GetCurrentWaveNumber(), gameData->waveManager.GetWaveCount());
+		}
+	}
+	else
+	{
+		wavIn->OffsetEnemyCount();
+	}
 }
 
 HUD::Crosshair::~Crosshair()
@@ -263,7 +302,7 @@ void HUD::WaveIndicator::Initialize(ID3D11Device * device, ID3D11DeviceContext *
 	std::wstring path(L"Assets/InventoryPictures/HUDWaveInfoBorder.png");
 	HRESULT didItBlend = DirectX::CreateWICTextureFromFile(device, context, path.c_str(), (ID3D11Resource**)&tex, &srv);
 	mats[0] = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "W: 0/0", { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }).mat;
-	mats[1] = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "E: 13", { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }).mat;
+	mats[1] = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "E: 0", { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }).mat;
 	viewport[0].Height = 96.0f;
 	viewport[0].Width = 256.0f;
 	viewport[0].TopLeftX = (windowWidth * 0.5f) - (viewport[0].Width * 0.5f);
@@ -296,4 +335,24 @@ void HUD::WaveIndicator::Draw(ID3D11DeviceContext * context, ID3D11DepthStencilV
 	context->PSSetShaderResources(0, 1, &mats[1]->diffuse.texView);
 	context->RSSetViewports(1, &viewport[2]);
 	context->Draw(1, 0);
+}
+
+void HUD::WaveIndicator::OffsetEnemyCount(int offset)
+{
+	EnemiesRemaining += offset;
+	TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", std::string("E: " + std::to_string(EnemiesRemaining)), mats[1], { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 0.0f });
+
+}
+
+void HUD::WaveIndicator::SetEnemyCount(int enemies)
+{
+	EnemiesRemaining = enemies;
+	TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", std::string("E: " + std::to_string(EnemiesRemaining)), mats[1], { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 0.0f });
+
+}
+
+
+void HUD::WaveIndicator::SetWave(int wave, int maxWaves)
+{
+	TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", std::string("W: " + std::to_string(wave) + "/" + std::to_string(maxWaves)), mats[0], { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 0.0f });
 }

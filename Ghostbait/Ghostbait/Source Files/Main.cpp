@@ -175,6 +175,9 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<CancelOptionsButton>(1);
 	ObjectFactory::RegisterPrefabBase<NextButton>(1);
 	ObjectFactory::RegisterPrefabBase<SkipButton>(1);
+	ObjectFactory::RegisterPrefabBase<RevertOptionsButton>(1);
+	ObjectFactory::RegisterPrefabBase<QuitConfirmButton>(1);
+	ObjectFactory::RegisterPrefabBase<QuitCancelButton>(1);
 
 
 	ObjectFactory::RegisterPrefabBase<ForceField>(6);
@@ -253,6 +256,9 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<CancelOptionsButton>("CancelOptionsButton");
 	TypeMap::RegisterObjectAlias<NextButton>("NextButton");
 	TypeMap::RegisterObjectAlias<SkipButton>("SkipButton");
+	TypeMap::RegisterObjectAlias<RevertOptionsButton>("RevertOptionsButton");
+	TypeMap::RegisterObjectAlias<QuitConfirmButton>("QuitConfirmButton");
+	TypeMap::RegisterObjectAlias<QuitCancelButton>("QuitCancelButton");
 
 
 	TypeMap::RegisterObjectAlias<ForceField>("ForceField");

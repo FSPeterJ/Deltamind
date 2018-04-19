@@ -31,6 +31,7 @@ enum Template {
 	MENU_Custom,
 	MENU_Difficulty,
 	MENU_SplashScreen,
+	MENU_QuitConfirm
 };
 enum Button {
 	BUTTON_Resume,
@@ -60,6 +61,9 @@ enum Button {
 	BUTTON_CancelOptions,
 	BUTTON_Next,
 	BUTTON_Skip,
+	BUTTON_Revert,
+	BUTTON_QuitConfirm,
+	BUTTON_QuitCancel
 };
 
 class Menu {
@@ -182,8 +186,17 @@ class NextButton : public MenuOption {
 class SkipButton : public MenuOption {
 	void Select() override;
 };
+class RevertOptionsButton : public MenuOption {
+	void Select() override;
+};
 
+class QuitConfirmButton : public MenuOption {
+	void Select() override;
+};
 
+class QuitCancelButton : public MenuOption {
+	void Select() override;
+};
 
 
 

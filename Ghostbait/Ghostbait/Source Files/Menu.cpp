@@ -76,6 +76,9 @@ void Menu::AssignPrefabIDs() {
 	buttonPrefabMap[BUTTON_Next] = ObjectFactory::CreatePrefab(&std::string("Assets/NextButton.ghost"));
 	buttonPrefabMap[BUTTON_Skip] = ObjectFactory::CreatePrefab(&std::string("Assets/SkipButton.ghost"));
 
+	buttonPrefabMap[BUTTON_Revert] = ObjectFactory::CreatePrefab(&std::string("Assets/RevertOptionsButton.ghost"));
+	buttonPrefabMap[BUTTON_QuitConfirm] = ObjectFactory::CreatePrefab(&std::string("Assets/QuitConfirmButton.ghost"));
+	buttonPrefabMap[BUTTON_QuitCancel] = ObjectFactory::CreatePrefab(&std::string("Assets/QuitCancelButton.ghost"));
 }
 
 DirectX::XMFLOAT4X4 Menu::FindCenter(float distFromPlayer) {
@@ -135,7 +138,7 @@ void Menu::Create(Template t, std::vector<Button> _buttons, ColumnType _columnTy
 			break;
 		case MENU_Options:
 			buttons.empty();
-			buttons.resize(12);
+			buttons.resize(13);
 			buttons[0] = BUTTON_MasterUp;
 			buttons[1] = BUTTON_MasterDown;
 			buttons[2] = BUTTON_MusicUp;
@@ -148,6 +151,7 @@ void Menu::Create(Template t, std::vector<Button> _buttons, ColumnType _columnTy
 			buttons[9] = BUTTON_MouseSensitivityDown;
 			buttons[10] = BUTTON_AcceptOptions;
 			buttons[11] = BUTTON_CancelOptions;
+			buttons[12] = BUTTON_Revert;
 			columnType = TwoColumn;
 			break;
 		case MENU_Difficulty:
@@ -164,6 +168,13 @@ void Menu::Create(Template t, std::vector<Button> _buttons, ColumnType _columnTy
 			buttons.resize(2);
 			buttons[0] = BUTTON_Next;
 			buttons[1] = BUTTON_Skip;
+			columnType = TwoColumn;
+			break;
+		case MENU_QuitConfirm:
+			buttons.empty();
+			buttons.resize(2);
+			buttons[0] = BUTTON_QuitConfirm;
+			buttons[1] = BUTTON_QuitCancel;
 			columnType = TwoColumn;
 			break;
 		case MENU_Custom:
@@ -283,9 +294,9 @@ void CreditsButton::Select() {
 	MessageEvents::SendMessage(EVENT_ChangeScene, ChangeSceneMessage("Credits"));
 }
 void QuitButton::Select() {
+	menu->Hide();
+	menu->CreateAndLoadChild(MENU_QuitConfirm);
 	MenuOption::Select();
-	MessageEvents::SendMessage(EVENT_GameUnPause, EventMessageBase());
-	MessageEvents::SendQueueMessage(EVENT_Late, []() { MessageEvents::SendMessage(EVENT_GameQuit, EventMessageBase()); });
 }
 void ResumeButton::Select() {
 	MenuOption::Select();
@@ -388,6 +399,23 @@ void CancelOptionsButton::Select() {
 	menu->LoadParent();
 	MenuOption::Select();
 }
+void RevertOptionsButton::Select()
+{
+	OptionsManager::GetInstance().Revert();
+	MenuOption::Select();
+}
+void QuitConfirmButton::Select()
+{
+	MenuOption::Select();
+	MessageEvents::SendMessage(EVENT_GameUnPause, EventMessageBase());
+	MessageEvents::SendQueueMessage(EVENT_Late, []() { MessageEvents::SendMessage(EVENT_GameQuit, EventMessageBase()); });
+}
+void QuitCancelButton::Select()
+{
+	menu->Hide();
+	menu->LoadParent();
+	MenuOption::Select();
+}
 
 void NextButton::Select() {
 	MenuOption::Select();
@@ -419,3 +447,5 @@ void MenuCube::OnCollision(GameObject* other) {
 	}
 	GameObject::OnCollision(other);
 }
+
+

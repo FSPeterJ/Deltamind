@@ -72,6 +72,10 @@ void Menu::AssignPrefabIDs() {
 	buttonPrefabMap[BUTTON_MouseSensitivityDown] = ObjectFactory::CreatePrefab(&std::string("Assets/MouseSensitivityDownButton.ghost"));
 	buttonPrefabMap[BUTTON_AcceptOptions] = ObjectFactory::CreatePrefab(&std::string("Assets/AcceptOptionsButton.ghost"));
 	buttonPrefabMap[BUTTON_CancelOptions] = ObjectFactory::CreatePrefab(&std::string("Assets/CancelOptionsButton.ghost"));
+
+	buttonPrefabMap[BUTTON_Next] = ObjectFactory::CreatePrefab(&std::string("Assets/NextButton.ghost"));
+	buttonPrefabMap[BUTTON_Skip] = ObjectFactory::CreatePrefab(&std::string("Assets/SkipButton.ghost"));
+
 }
 
 DirectX::XMFLOAT4X4 Menu::FindCenter(float distFromPlayer) {
@@ -154,6 +158,13 @@ void Menu::Create(Template t, std::vector<Button> _buttons, ColumnType _columnTy
 			buttons[2] = BUTTON_Medium;
 			buttons[3] = BUTTON_Hard;
 			columnType = OneColumn;
+			break;
+		case MENU_SplashScreen:
+			buttons.empty();
+			buttons.resize(2);
+			buttons[0] = BUTTON_Next;
+			buttons[1] = BUTTON_Skip;
+			columnType = TwoColumn;
 			break;
 		case MENU_Custom:
 			buttons.empty();
@@ -376,6 +387,15 @@ void CancelOptionsButton::Select() {
 	menu->Hide();
 	menu->LoadParent();
 	MenuOption::Select();
+}
+
+void NextButton::Select() {
+	MenuOption::Select();
+	MessageEvents::SendMessage(EVENT_NextLogo, EventMessageBase());
+}
+void SkipButton::Select() {
+	MenuOption::Select();
+	MessageEvents::SendMessage(EVENT_Start, EventMessageBase());
 }
 
 //Other

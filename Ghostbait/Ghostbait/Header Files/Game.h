@@ -34,7 +34,8 @@ class Game {
 
 	Menu pauseMenu;
 	Menu mainMenu;
-	Menu credits;
+	Menu creditsMenu;
+	Menu splashScreenMenu;
 
 	bool paused = false;
 	float delayBetweenWaveReady = 3;
@@ -49,6 +50,7 @@ class Game {
 	void EnemyDiedEvent();
 	void PauseInputEvent();
 	void StartEvent(EventMessageBase* e = nullptr);
+	void NextLogoEvent();
 	void ExitToMainMenu();
 
 	//Major Scenes Loaded
@@ -56,6 +58,7 @@ class Game {
 	void TutorialLoaded();
 	void Level0Loaded();
 	void CreditsLoaded();
+	void SplashScreenLoaded();
 
 	//Personal
 	void ChangeState(State newState);

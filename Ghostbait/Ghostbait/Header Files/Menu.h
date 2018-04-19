@@ -29,7 +29,8 @@ enum Template {
 	MENU_Pause,
 	MENU_Options,
 	MENU_Custom,
-	MENU_Difficulty
+	MENU_Difficulty,
+	MENU_SplashScreen,
 };
 enum Button {
 	BUTTON_Resume,
@@ -57,6 +58,8 @@ enum Button {
 	BUTTON_MouseSensitivityDown,
 	BUTTON_AcceptOptions,
 	BUTTON_CancelOptions,
+	BUTTON_Next,
+	BUTTON_Skip,
 };
 
 class Menu {
@@ -172,6 +175,14 @@ class AcceptOptionsButton : public MenuOption {
 class CancelOptionsButton : public MenuOption {
 	void Select() override;
 };
+
+class NextButton : public MenuOption {
+	void Select() override;
+};
+class SkipButton : public MenuOption {
+	void Select() override;
+};
+
 
 
 

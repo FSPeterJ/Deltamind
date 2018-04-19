@@ -233,8 +233,8 @@ void Turret::GivePID(unsigned pid, const char* tag) {
 void Turret_Long::Awake(Object* obj) {
 	Turret::Awake(obj);
 	firerate = 0.5f;
-	damage = 75;
-	buildCost = 750;
+	damage = 100;
+	buildCost = 500;
 }
 void Turret_Long::Shoot() {
 	//Fire
@@ -264,7 +264,7 @@ void Turret_Medium::Awake(Object* obj) {
 	Turret::Awake(obj);
 	firerate = 3;
 	damage = 10;
-	buildCost = 500;
+	buildCost = 400;
 }
 void Turret_Medium::Shoot() {
 	//Fire
@@ -292,9 +292,9 @@ void Turret_Medium::Shoot() {
 }
 void Turret_Short::Awake(Object* obj) {
 	Turret::Awake(obj);
-	firerate = 5;
-	damage = 4;
-	buildCost = 250;
+	firerate = 3.25F;
+	damage = 3;
+	buildCost = 350;
 }
 void Turret_Short::Shoot() {
 	//Fire
@@ -322,4 +322,3 @@ void Turret_Short::Shoot() {
 	obj->Enable();
 	timeSinceLastShot = (float)GhostTime::DeltaTime();
 }
-

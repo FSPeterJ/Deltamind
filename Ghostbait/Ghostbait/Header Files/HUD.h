@@ -32,6 +32,7 @@ class HUD
 		std::vector<D3D11_VIEWPORT> viewports;
 		std::vector<ID3D11Texture2D*> textures;
 		std::vector < ID3D11ShaderResourceView*> srvs;
+		std::vector<ID3D11ShaderResourceView*> screenSRVs;
 		const Player* player;
 		ID3D11Texture2D* inactiveTex;
 		ID3D11Texture2D* activeTex;
@@ -41,7 +42,7 @@ class HUD
 		ID3D11BlendState* noBlend;
 		ID3D11BlendState* blend;
 
-		void loadTexture(const wchar_t* name, ID3D11Device* device, ID3D11DeviceContext* context);
+		void loadTexture(const wchar_t* name, ID3D11Device* device, ID3D11DeviceContext* context, bool screenshot = false);
 		void initBlendStates(ID3D11Device* device);
 		bool determineSelected(const int index);
 	public:

@@ -157,14 +157,17 @@ void HUD::Crosshair::Draw(ID3D11DeviceContext* context, ID3D11DepthStencilView* 
 	context->Draw(1, 0);
 }
 
-void HUD::Inventory::loadTexture(const wchar_t * name, ID3D11Device* device, ID3D11DeviceContext* context)
+void HUD::Inventory::loadTexture(const wchar_t * name, ID3D11Device* device, ID3D11DeviceContext* context, bool screenshot)
 {
 	std::wstring path(name);
 	ID3D11Texture2D* tex;
 	ID3D11ShaderResourceView* srv;
 	HRESULT didItBlend = DirectX::CreateWICTextureFromFile(device, context, path.c_str(), (ID3D11Resource**)&tex, &srv);
 	textures.push_back(tex);
-	srvs.push_back(srv);
+	if (screenshot)
+		screenSRVs.push_back(srv);
+	else
+		srvs.push_back(srv);
 }
 
 void HUD::Inventory::initBlendStates(ID3D11Device* device)
@@ -215,8 +218,12 @@ HUD::Inventory::~Inventory()
 {
 	for (size_t i = 0; i < viewports.size(); ++i)
 	{
-		textures[i]->Release();
 		srvs[i]->Release();
+		screenSRVs[i]->Release();
+	}
+	for (size_t i = 0; i < textures.size(); ++i)
+	{
+		textures[i]->Release();
 	}
 	inactiveSRV->Release();
 	inactiveTex->Release();
@@ -267,6 +274,14 @@ void HUD::Inventory::Initialize(ID3D11Device * device, ID3D11DeviceContext * con
 	viewport.TopLeftX = (1104.0f * normalRangeWidth) * windowWidth;
 	viewport.TopLeftY = (530.0f * normalRangeHeight) * windowHeight;
 	viewports.push_back(viewport);
+
+	loadTexture(L"Assets/InventoryPictures/leftPistolInv.png", device, context, true);
+	loadTexture(L"Assets/InventoryPictures/leftSMGInv.png", device, context, true);
+	loadTexture(L"Assets/InventoryPictures/leftBuildToolInv.png", device, context, true);
+	loadTexture(L"Assets/InventoryPictures/rightPistolInv.png", device, context, true);
+	loadTexture(L"Assets/InventoryPictures/rightSMGInv.png", device, context, true);
+	loadTexture(L"Assets/InventoryPictures/rightBuildToolInv.png", device, context, true);
+
 #pragma endregion
 }
 
@@ -284,6 +299,9 @@ void HUD::Inventory::Draw(ID3D11DeviceContext * context, ID3D11DepthStencilView*
 		context->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 		context->PSSetShaderResources(0, 1, &srvs[i]);
 		context->OMSetBlendState(noBlend, 0, 0xffffffff);
+		context->Draw(1, 0);
+		context->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		context->PSSetShaderResources(0, 1, &screenSRVs[i]);
 		context->Draw(1, 0);
 		context->OMSetBlendState(blend, 0, 0xffffffff);
 	}

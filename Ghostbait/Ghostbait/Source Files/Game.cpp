@@ -300,7 +300,7 @@ void Game::Lose() {
 }
 void Game::Win() {
 	//Logic to run when the player wins
-	//MessageEvents::SendMessage(EVENT_GameWin, EventMessageBase());
+	MessageEvents::SendMessage(EVENT_GameWin, EventMessageBase());
 	//Console::WriteLine << "GAME WAS WON";
 	//MenuCube* winCube;
 	//unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"));
@@ -480,6 +480,13 @@ void Game::CreditsLoaded() {
 }
 void Game::SplashScreenLoaded() {
 	worldLight.SetAsDirectional({ 0.5f, 0.5f, 0.5f }, { 0, 0, 1 });
+
+	//Update Player
+	player->transform.MoveToOrigin(player->PlayerHeight());
+	player->ResetStance();
+	player->Teleport(DirectX::XMFLOAT3(0, 0, 0));
+	player->transform.LookAt({ 0, 1.7f, 2 });
+	//
 	player->leftController->ClearInventory();
 	player->rightController->ClearInventory();
 	player->leftController->SetControllerState(CSTATE_MenuController);

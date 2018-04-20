@@ -16,6 +16,9 @@ namespace Omiracon {
 			/// <returns>Omiracon.Genetics.Evolvable * const.</returns>
 			Evolvable *const GenePool(void) { return &genepool[0]; }
 
+			int GetUsableSize(void) const { return (int)usableSize; }
+
+
 			Evolver(void);
 			~Evolver(void);
 
@@ -44,7 +47,10 @@ namespace Omiracon {
 				randomCount = (size_t(waveSize * randPercentage));
 				traitPoolSize = 2 * (surviveCount + randomCount);
 
+				usableSize = wave_size;
+
 				genepool.resize(traitPoolSize * DOMINANT_TRAITS);
+				
 
 				testpool.resize(waveSize);
 
@@ -76,6 +82,8 @@ namespace Omiracon {
 
 				testpool.resize(waveSize);
 
+				usableSize = genepool.size();
+
 				genepool.resize((genepool.size() /*- genDeathSize*/) + (traitPoolSize * DOMINANT_TRAITS));
 				//previousSize = genepool.size();
 
@@ -106,7 +114,8 @@ namespace Omiracon {
 				traitPoolSize, //size of current trait pool
 				combineOffset = 0, //offset of combine. after first wave this is just genDeathSize
 				genDeathSize = 0, //number of entities that died off due to old age
-				nextGenDeathSize = 0; //number of entities that will die off next generation
+				nextGenDeathSize = 0, //number of entities that will die off next generation
+				usableSize = 0;
 
 			DominantPool genepool, testpool, aliveTimePool, damageDeltPool, damageReceivedPool, nodesTraversedPool;
 

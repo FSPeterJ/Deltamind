@@ -425,27 +425,3 @@ void SkipButton::Select() {
 	MenuOption::Select();
 	MessageEvents::SendMessage(EVENT_Start, StartEventMessage(""));
 }
-
-//Other
-void MenuCube::Update() {
-	//position.m[3][1] += 0.4f * (float) GhostTime::DeltaTime();
-	//if(position.m[3][1] > 1.5f) {
-	//	Disable();
-	//}
-	GameObject::Update();
-}
-
-void MenuCube::OnCollision(GameObject* other) {
-	if(other->GetTag() == "Bullet") {
-		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
-		Console::WriteLine << "StartCube Shot!";
-		MessageEvents::SendMessage(EVENT_Start, EventMessageBase());
-		//GameObject* obj;
-		//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(8/*Core*/, {0, 1.5f, 0}, &obj));
-		//DirectX::XMStoreFloat4x4(&obj->position,
-		//	DirectX::XMLoadFloat4x4(&obj->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
-	}
-	GameObject::OnCollision(other);
-}
-
-

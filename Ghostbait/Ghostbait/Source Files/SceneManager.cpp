@@ -81,14 +81,6 @@ void SceneManager::Initialize() {
 			ground.positions.push_back(identity);
 			level0Data.prefabs.push_back(ground);
 		}
-		TestSceneData::Prefab startCube;
-		{
-			startCube.ghostFile = "Assets/StartCube.ghost";
-			startCube.name = "StartCube";
-			DirectX::XMFLOAT4X4 mat = DirectX::XMFLOAT4X4(0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 0, 0, 0.5f, 0, 0, 1.5f, 3, 1);
-			startCube.positions.push_back(mat);
-			level0Data.prefabs.push_back(startCube);
-		}
 		TestSceneData::Prefab spawner;
 		{
 			spawner.ghostFile = "Assets/Spawner.ghost";
@@ -120,6 +112,12 @@ void SceneManager::Initialize() {
 			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 5.25f, 1);
 			core.positions.push_back(mat1);
 			level0Data.prefabs.push_back(core);
+		}
+		TestSceneData::Prefab coreShield;
+		{
+			coreShield.ghostFile = "Assets/CoreShield.ghost";
+			coreShield.positions.push_back(core.positions[0]);
+			level0Data.prefabs.push_back(coreShield);
 		}
 		TestSceneData::Prefab monitor;
 		{

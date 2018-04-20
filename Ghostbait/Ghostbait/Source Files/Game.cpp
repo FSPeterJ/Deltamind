@@ -19,6 +19,7 @@
 //#include "MTDSLEnemy.h"
 #include <future>
 #include "Evolvable.h"
+#include "CoreShield.h"
 using namespace Omiracon::Genetics;
 
 Game::Game() {
@@ -287,24 +288,24 @@ void Game::PauseGame() {
 }
 void Game::Lose() {
 	//Logic to run when the player loses
-	MenuCube* loseCube;
-	unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"));
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(ID, { 0, 0.75f, 0 }, &loseCube));
-	DirectX::XMFLOAT4X4 newPos;
-	DirectX::XMStoreFloat4x4(&newPos, DirectX::XMLoadFloat4x4(&loseCube->transform.GetMatrix()) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));
-	loseCube->transform.SetMatrix(newPos);
-	loseCube->Enable();
+	//Game* loseCube;
+	//unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(ID, { 0, 0.75f, 0 }, &loseCube));
+	//DirectX::XMFLOAT4X4 newPos;
+	//DirectX::XMStoreFloat4x4(&newPos, DirectX::XMLoadFloat4x4(&loseCube->transform.GetMatrix()) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));
+	//loseCube->transform.SetMatrix(newPos);
+	//loseCube->Enable();
 
 	ChangeState(GAMESTATE_GameOver);
 }
 void Game::Win() {
 	//Logic to run when the player wins
-	MessageEvents::SendMessage(EVENT_GameWin, EventMessageBase());
-	Console::WriteLine << "GAME WAS WON";
-	MenuCube* winCube;
-	unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"));
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(ID, { 0, 0.75f, 0 }, &winCube));
-	winCube->Enable();
+	//MessageEvents::SendMessage(EVENT_GameWin, EventMessageBase());
+	//Console::WriteLine << "GAME WAS WON";
+	//MenuCube* winCube;
+	//unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(ID, { 0, 0.75f, 0 }, &winCube));
+	//winCube->Enable();
 }
 void Game::Quit() {
 	run = false;
@@ -478,6 +479,8 @@ void Game::CreditsLoaded() {
 }
 void Game::SplashScreenLoaded() {
 	worldLight.SetAsDirectional({ 0.5f, 0.5f, 0.5f }, { 0, 0, 1 });
+	player->leftController->ClearInventory();
+	player->rightController->ClearInventory();
 	player->leftController->SetControllerState(CSTATE_MenuController);
 	player->rightController->SetControllerState(player->IsVR() ? CSTATE_MenuController : CSTATE_ModelOnly);
 	splashScreenMenu.Show();
@@ -641,13 +644,11 @@ void Game::Update() {
 						currentTimeBetweenWaveReady = -1;
 						//Replace start cube eventually
 						//Spawn start cube
-						MenuCube* startCube;
-						unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"));
-						MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(ID, { 0, 1.5f, 0.0f }, &startCube));
-						DirectX::XMFLOAT4X4 newPos;
-						DirectX::XMStoreFloat4x4(&newPos, DirectX::XMLoadFloat4x4(&startCube->transform.GetMatrix()) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
-						startCube->transform.SetMatrix(newPos);
-						startCube->Enable();
+						CoreShield* coreShield;
+						unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/CoreShield.ghost"));
+						MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<CoreShield>(ID, { 0, 0, 0 }, &coreShield));
+						coreShield->transform.SetMatrix(core->transform.GetMatrix());
+						coreShield->Enable();
 					}
 				}
 			}

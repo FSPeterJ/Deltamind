@@ -109,7 +109,7 @@ void SceneManager::Initialize() {
 		{
 			core.ghostFile = "Assets/Core.ghost";
 			core.name = "Core";
-			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 10.00f, 1);
+			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 10.25f, 1);
 			core.positions.push_back(mat1);
 			level0Data.prefabs.push_back(core);
 		}

@@ -167,7 +167,7 @@ bool EnemyBase::ChangeState(State _s) {
 	case EnemyBase::PATROL:
 		//Console::WarningLine << "Changing state to PATROL";
 		if (GetComponent<Animator>())
-			GetComponent<Animator>()->setState("Move");
+			GetComponent<Animator>()->setState("Walk");
 		break;
 	case EnemyBase::ATTACK:
 		//Console::WarningLine << "Changing state to ATTACK";
@@ -178,18 +178,21 @@ bool EnemyBase::ChangeState(State _s) {
 			_s = PATROL;
 			Console::WarningLine << "Not Near Target!!";
 		}
+		else {
+			if (GetComponent<Animator>())
+				GetComponent<Animator>()->setState("Attack");
+		}
 		break;
 	case EnemyBase::INJURED:
 		//Console::WarningLine << "Changing state to INJURED";
 		if (GetComponent<Animator>())
-			GetComponent<Animator>()->setState("Taunt");
+			GetComponent<Animator>()->setState("Injured");
 		break;
 	case EnemyBase::DEATH:
 		//Console::WarningLine << "Changing state to DEATH";
 		isDying = true;
-		Console::consoleMutex.lock();
-		Console::ErrorLine << &isDying << " isDying is TRUE";
-		Console::consoleMutex.unlock();
+		if (GetComponent<Animator>())
+			GetComponent<Animator>()->setState("Death");
 		rb->Stop();
 		break;
 	default:

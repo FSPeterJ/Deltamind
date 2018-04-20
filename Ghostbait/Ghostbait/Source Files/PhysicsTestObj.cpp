@@ -75,16 +75,15 @@ void PhysicsTestObj::Awake(GameObject* _other) {
 void PhysicsTestObj::AnExtremelyBadTemporaryFunction(ParticleManager* partman, MaterialManager* matman) {
 	Emitter* emitter = new Emitter();
 	emitter->transform = transform;
-	emitter->EndSize = 4.0f;
-	emitter->Materials[0] = matman->GetReferenceComponent("Assets/exitOption.mat", nullptr);
-	emitter->ParticleLifeSpan = 5.0f;
-	emitter->Velocity = DirectX::XMFLOAT3(0, 0, 1.0f);
-	emitter->Position = emitter->transform.GetPosition();
-	emitter->TextureIndex = partman->AddMaterial(emitter->Materials[0]);
-
+	emitter->mainData.EndSize = 4.0f;
+	emitter->materials[0] = matman->GetReferenceComponent("Assets/exitOption.mat", nullptr);
+	emitter->mainData.ParticleLifeSpan = 5.0f;
+	emitter->mainData.Velocity = DirectX::XMFLOAT3(0, 0, 10.0f);
+	emitter->mainData.Position = emitter->transform.GetPosition();
+	emitter->mainData.TextureIndex = partman->AddMaterial(emitter->materials[0]);
+	emitter->mainData.emissionIntervalSec = 0.1f;
 	D3D11_TEXTURE2D_DESC desc;
-	((ID3D11Texture2D*)emitter->Materials[0]->diffuse.texture)->GetDesc(&desc);
-
+	((ID3D11Texture2D*)emitter->materials[0]->diffuse.texture)->GetDesc(&desc);
 
 
 	//ID3D11Texture2D *pTextureInterface = nullptr;
@@ -93,6 +92,9 @@ void PhysicsTestObj::AnExtremelyBadTemporaryFunction(ParticleManager* partman, M
 	//((Material*)&emitter->Materials[0])->diffuse.texView->GetResource(&dec);
 	////((ID3D11Resource*)dec)
 
-	emitter->TextureIndex = ((desc.Width & 0xFFF) << 20) | ((desc.Height & 0xFFF) << 8) |emitter->TextureIndex;
+	emitter->mainData.TextureIndex = ((desc.Width & 0xFFF) << 20) | ((desc.Height & 0xFFF) << 8) |emitter->mainData.TextureIndex;
 	SetComponent(partman->CloneComponent(emitter), TypeMap::GetComponentTypeID<Emitter>());
+	emitter = GetComponent<Emitter>();
+	emitter->Enable();
+
 }

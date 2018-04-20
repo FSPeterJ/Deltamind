@@ -341,11 +341,13 @@ void ParticleManager::Update() {
 	const unsigned activeCount = (unsigned)emitterPool.GetActiveCount();
 
 	for(unsigned i = 0; i < activeCount; ++i) {
-		Emitter* activeEmit = &activeEmitters[activeCount];
-		emitterConstant.EndColor = activeEmit->EndColor;
-		emitterConstant.Position = activeEmit->Position;
-		emitterConstant.Velocity = activeEmit->Velocity;
-		emitterConstant.TextureIndex = activeEmit->TextureIndex;
+		Emitter* activeEmit = &activeEmitters[i];
+		emitterConstant.EndColor = activeEmit->mainData.EndColor;
+		emitterConstant.Position = *((DirectX::XMFLOAT3*)&activeEmit->transform.matrix._41);
+		emitterConstant.Velocity = activeEmit->mainData.Velocity;
+		emitterConstant.emissionIntervalMS = activeEmit->mainData.emissionIntervalSec;
+		emitterConstant.emissionOverflow = activeEmit->mainData.emissionOverflow;
+		emitterConstant.TextureIndex = activeEmit->mainData.TextureIndex;
 		context->UpdateSubresource(EmitterConstantBuffer, NULL, NULL, &emitterConstant, NULL, NULL);
 		context->Dispatch(numThreadGroups, 1, 1);
 	}

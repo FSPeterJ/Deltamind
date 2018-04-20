@@ -12,6 +12,7 @@ class EngineStructure {
 	friend class Game;
 	friend class Animator;
 	friend class GhostTime;
+	friend class Emitter;
 
 	static Delegate<> Awake;
 	static Delegate<> OnEnable;

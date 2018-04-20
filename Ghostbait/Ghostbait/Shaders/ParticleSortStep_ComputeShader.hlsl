@@ -33,7 +33,7 @@ void main(uint3 Gid : SV_GroupID,
     uint index_low = localID & (job_params.x - 1);
     uint index_high = 2 * (localID - index_low);
 
-    uint index = tgp.y + index_high + index_low;
+    uint index = index_high + index_low;
     uint nSwapElem =  index_high + job_params.y + job_params.z * index_low;
 
     if (nSwapElem < tgp.z)

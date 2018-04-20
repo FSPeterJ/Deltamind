@@ -15,11 +15,11 @@ RWBuffer<uint> DrawArgs : register(u3);
 
 
 
-
+//float3 float float3 float float3 float float float float uint float4 float4 float uint float float float float3
 cbuffer EmitterConstantBuffer : register(b3)
 {
     float3 Position;
-    uint MaxParticlesThisFrame;
+    float emissionRateMS;
 
     float3 Velocity;
     float ParticleVelocityVariance;
@@ -41,7 +41,7 @@ cbuffer EmitterConstantBuffer : register(b3)
     float xAngleVariance;
     float yAngleVariance;
 
-    float emissionRateMS;
+    float emissionOverflow;
     float paddingEM[3];
 };
 
@@ -51,18 +51,22 @@ cbuffer EmitterConstantBuffer : register(b3)
 [numthreads(1024, 1, 1)]
 void main(uint3 DThreadID : SV_DispatchThreadID)
 {
+
+    //0.001
+    //0.002
+    float emTimestamp = emissionRateMS * (DThreadID.x + 1) ;
+    float totalTime = FrameTime + emissionOverflow;
     //Stop other threads from attempting to process particle emissions if there are none left to process
-    if (DThreadID.x < InactiveParticleCount && DThreadID.x < MaxParticlesThisFrame)
+    if (DThreadID.x < InactiveParticleCount && emTimestamp < totalTime)
     {
         Particle particle = (Particle) 0;
         float3 randomPosition;
 
         //float2 uv = float2(DThreadID.x / 1024.0, ElapsedTime);
-       // float3 randomvelocity = RandomNumbers.SampleLevel(SamplerWrapLinear, uv, 0).xyz;
+        //float3 randomvelocity = RandomNumbers.SampleLevel(SamplerWrapLinear, uv, 0).xyz;
 
-        particle.position = float3(0, 1, 1);
-
-        particle.velocity = float3(0, 0, 1); //+ //(randomvelocity * VelocityMagnatude * ParticleVelocityVariance);
+        particle.velocity = Velocity; //+ //(randomvelocity * VelocityMagnatude * ParticleVelocityVariance);
+        particle.position = Position + float3(0, 1, 1) + particle.velocity * (emissionRateMS * DThreadID.x + emissionOverflow);
         particle.age = ParticleLifeSpan;
 
 

@@ -693,7 +693,7 @@ void Renderer::Render() {
 		XMStoreFloat4x4(&rightEye.camera.view, XMMatrixTranspose(XMMatrixInverse(&XMVectorSet(0, 0, 0, 0), XMLoadFloat4x4(&rightEye.camera.view))));
 
 		//Right Here we need a position from the center of the headset
-		XMStoreFloat3(&perFrameDataConstantBuffer.cameraCenterpoint,mHMDWorldPos.r[3]);
+		XMStoreFloat3(&perFrameDataConstantBuffer.cameraCenterpoint, mHMDWorldPos.r[3]);
 
 		LightManager::getLightBuffer()->cameraPos = leftEye.camPos;
 		context->UpdateSubresource(lightBuffer, NULL, NULL, LightManager::getLightBuffer(), 0, 0);

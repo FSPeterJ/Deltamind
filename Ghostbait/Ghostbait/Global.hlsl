@@ -7,6 +7,7 @@ cbuffer PerFrameConstantBuffer : register(b0)
     float ElapsedTime;
     float lastElapsed;
     float paddingThing;
+
     float3 CameraCenterpoint;
     float paddingThing2;
 };

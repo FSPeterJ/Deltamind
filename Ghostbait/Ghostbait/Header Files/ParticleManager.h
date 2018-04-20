@@ -15,14 +15,17 @@ class ParticleManager: public IComponentManager {
 
 
 
+
+
+
 	struct EmitterConstant {
 		//16
 		DirectX::XMFLOAT3 Position = DirectX::XMFLOAT3(0, 1, 0);
-		unsigned MaxParticlesThisFrame = 1;
+		float emissionIntervalMS = 10;
 
 		//16
 		DirectX::XMFLOAT3 Velocity = DirectX::XMFLOAT3(0, 0, 1);
-		float ParticleVelocityVariance;
+		float ParticleVelocityVariance = 0;
 		//16
 		DirectX::XMFLOAT3 ParticlePositionVariance;
 		float VelocityMagnatude;  // This might be removed soon
@@ -42,8 +45,8 @@ class ParticleManager: public IComponentManager {
 		float xAngleVariance;
 		float yAngleVariance;
 		//16
-		float emissionRateMS;
-		float paddingEM[3];
+		float emissionOverflow = 0;
+		float padding[3];
 	} emitterConstant;
 
 

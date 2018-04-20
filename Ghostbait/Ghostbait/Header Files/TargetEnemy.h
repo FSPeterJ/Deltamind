@@ -12,6 +12,7 @@ class TargetEnemy : public EnemyBase {
 	void SwitchTarget();
 	bool IsPastTarget();
 public:
+	void Awake(Object* obj) override;
 	void SetRange(const DirectX::XMFLOAT3& start, const DirectX::XMFLOAT3& end);
 	void SetRange(const DirectX::XMFLOAT3& delta);
 	void Patrol() override;

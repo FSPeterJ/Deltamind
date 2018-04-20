@@ -33,7 +33,7 @@ void Monitor::Update() {
 		if (screen) screen->transform.SetMatrix(transform.GetMatrix());
 		positioned = true;
 	}
-	WriteToScreen(std::to_string(GhostTime::FrameRate()));
+	//WriteToScreen(std::to_string(GhostTime::FrameRate()));
 }
 void Monitor::Destroy() {
 	if (screen) screen->Destroy(); 

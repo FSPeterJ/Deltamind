@@ -139,6 +139,7 @@ void EnemyBase::TakeDamage(float amount) {
 }
 
 void EnemyBase::ValidateTarget(EventMessageBase* e) {
+	if (!targetPos) return;
 	SnapMessage* s = (SnapMessage*)(e);
 	if (s->position->x == targetPos[0] && s->position->y == targetPos[2]) {
 		Console::WarningLine << "Target destroyed at: " << s->position->x << ", " << s->position->y;

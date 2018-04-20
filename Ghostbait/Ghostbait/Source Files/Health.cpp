@@ -45,3 +45,7 @@ float Health::AdjustHealth(const float amount) {
 const bool Health::IsAlive() const {
 	return health > 0;
 }
+
+void Health::MakeInvincible() {
+	health = 0;
+}

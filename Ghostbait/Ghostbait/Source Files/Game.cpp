@@ -14,10 +14,10 @@
 #include "Player.h"
 #include "Material.h"
 #include "HUD.h"
+#include "TargetEnemy.h"
 //#include "DStarEnemy.h"
 //#include "MTDSLEnemy.h"
 #include <future>
-
 #include "Evolvable.h"
 using namespace Omiracon::Genetics;
 
@@ -316,6 +316,7 @@ void Game::ExitToMainMenu() {
 
 //Main Scene Functions
 void Game::MainMenuLoaded() {
+	worldLight.RemoveLightFromManager();
 	//Create Menu
 	DirectX::XMFLOAT4X4 menuPos = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1.7f, 2, 1);
 	mainMenu.SetSpawnPos(menuPos);
@@ -341,51 +342,85 @@ void Game::MainMenuLoaded() {
 	}
 }
 void Game::TutorialLoaded() {
+	worldLight.SetAsDirectional({ 0.25f, 0.25f, 0.25f }, { 0, -0.5f, 0.5f });
+
 	gameData.AddGears(1000);
-	int index = 0;
-	player->leftController->SetControllerState(CSTATE_Inventory);
-	player->rightController->SetControllerState(CSTATE_Inventory);
-	player->leftController->ClearInventory();
-	player->rightController->ClearInventory();
-	//PDA
-	if (player->IsVR()) {
-		player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/PDA.ghost")));
-		player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/PDA.ghost")));
-		((PDA*)player->leftController->GetItem(index))->SetHand(HAND_Left);
-		((PDA*)player->rightController->GetItem(index))->SetHand(HAND_Right);
+	//Update Controllers
+	{
+		int index = 0;
+		player->leftController->SetControllerState(CSTATE_Inventory);
+		player->rightController->SetControllerState(CSTATE_Inventory);
+		player->leftController->ClearInventory();
+		player->rightController->ClearInventory();
+		//PDA
+		if (player->IsVR()) {
+			player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/PDA.ghost")));
+			player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/PDA.ghost")));
+			((PDA*)player->leftController->GetItem(index))->SetHand(HAND_Left);
+			((PDA*)player->rightController->GetItem(index))->SetHand(HAND_Right);
+			++index;
+		}
+		//Pistol
+		player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost")));
+		player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost")));
 		++index;
+		//SMG
+		player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/smgNoStock.ghost")));
+		player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/smgNoStock.ghost")));
+		++index;
+		//BuildTool
+		player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost")));
+		player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost")));
+
+		player->leftController->SwapItem(index - 2);
+		player->rightController->SwapItem(index - 2);
+
+		player->leftController->SetBuildItems({ ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Short.ghost")),
+												ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Medium.ghost")),
+												ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Long.ghost")) });
+		player->rightController->SetBuildItems({ ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Short.ghost")),
+												ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Medium.ghost")),
+												ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Long.ghost")) });
+
+		player->SetBuildToolData(&hexGrid, &gameData);
 	}
-	//Pistol
-	player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost")));
-	player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost")));
-	++index;
-	//SMG
-	player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/smgNoStock.ghost")));
-	player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/smgNoStock.ghost")));
-	++index;
-	//BuildTool
-	player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost")));
-	player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost")));
-
-	player->leftController->SwapItem(index - 2);
-	player->rightController->SwapItem(index - 2);
-
-	player->leftController->SetBuildItems({ ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Short.ghost")), 
-											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Medium.ghost")),
-											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Long.ghost")) });
-	player->rightController->SetBuildItems({ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Short.ghost")),
-											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Medium.ghost")),
-											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Long.ghost")) });
-
-	player->SetBuildToolData(&hexGrid, &gameData);
 
 	//Update HUD
 	if (currHUD)
 	{
 		currHUD->ShowInventory();
 	}
+	
+	//Spawn Target
+	{
+		MessageEvents::SendQueueMessage(EVENT_Late, [=] {
+			TargetEnemy* targetEnemy;
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/TargetEnemy.ghost")), { 14, 0, -10 }, (GameObject**)&targetEnemy));
+			targetEnemy->SetRange({ 14, 0, 0 });
+			targetEnemy->Enable();
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/TargetEnemy.ghost")), { 14, 0, -10 }, (GameObject**)&targetEnemy));
+			targetEnemy->SetRange({ -14, 0, 0 });
+			targetEnemy->Enable();
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/TargetEnemy.ghost")), { 14, 0, -20 }, (GameObject**)&targetEnemy));
+			targetEnemy->SetRange({ 14, 0, 0 });
+			targetEnemy->Enable();
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/TargetEnemy.ghost")), { 14, 0, -20 }, (GameObject**)&targetEnemy));
+			targetEnemy->SetRange({ -14, 0, 0 });
+			targetEnemy->Enable();
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/TargetEnemy.ghost")), { 14, 0, -30 }, (GameObject**)&targetEnemy));
+			targetEnemy->SetRange({ 14, 0, 0 });
+			targetEnemy->Enable();
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/TargetEnemy.ghost")), { 14, 0, -30 }, (GameObject**)&targetEnemy));
+			targetEnemy->SetRange({ -14, 0, 0 });
+			targetEnemy->Enable();
+		});
+	}
+
+	//Light
+	
 }
 void Game::Level0Loaded() {
+	worldLight.RemoveLightFromManager();
 	int index = 0;
 	player->leftController->SetControllerState(CSTATE_Inventory);
 	player->rightController->SetControllerState(CSTATE_Inventory);
@@ -430,6 +465,7 @@ void Game::Level0Loaded() {
 	}
 }
 void Game::CreditsLoaded() {
+	worldLight.RemoveLightFromManager();
 	player->leftController->SetControllerState(CSTATE_MenuController);
 	player->rightController->SetControllerState(CSTATE_MenuController);
 
@@ -441,6 +477,7 @@ void Game::CreditsLoaded() {
 	creditsMenu.Show();
 }
 void Game::SplashScreenLoaded() {
+	worldLight.SetAsDirectional({ 0.5f, 0.5f, 0.5f }, { 0, 0, 1 });
 	player->leftController->SetControllerState(CSTATE_MenuController);
 	player->rightController->SetControllerState(player->IsVR() ? CSTATE_MenuController : CSTATE_ModelOnly);
 	splashScreenMenu.Show();

@@ -47,4 +47,8 @@ public:
 	//Purpose: 
 	//	Child classes should override this to react to their death (when they reach 0 health)
 	virtual void DeathEvent() {};
+
+	//Purpose: 
+	//	Make the object unkillable
+	void MakeInvincible();
 };

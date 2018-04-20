@@ -6,7 +6,7 @@
 #include "Menu.h"
 #include "GameData.h"
 #include "Evolve.h"
-
+#include "Light.h"
 class SceneManager;
 class SpawnerObject;
 class EventMessageBase;
@@ -36,6 +36,8 @@ class Game {
 	Menu mainMenu;
 	Menu creditsMenu;
 	Menu splashScreenMenu;
+
+	Light worldLight;
 
 	bool paused = false;
 	float delayBetweenWaveReady = 3;

@@ -124,8 +124,10 @@ void SceneManager::Initialize() {
 		TestSceneData::Prefab monitor;
 		{
 			monitor.ghostFile = "Assets/Monitor.ghost";
-			DirectX::XMFLOAT4X4 mat1 = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -0.216f, 12.735f, -86.283f, 1);
-			monitor.positions.push_back(mat1);
+			DirectX::XMFLOAT4X4 mat = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -0.216f, 12.735f, -86.283f, 1);
+			monitor.positions.push_back(mat);
+			mat = DirectX::XMFLOAT4X4(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, -0.216f, 12.735f, 86.283f, 1);
+			monitor.positions.push_back(mat);
 			level0Data.prefabs.push_back(monitor);
 		}
 		TestSceneData::Prefab forceField;

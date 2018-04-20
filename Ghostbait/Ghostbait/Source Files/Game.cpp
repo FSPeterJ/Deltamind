@@ -112,6 +112,8 @@ void Game::StartEvent(EventMessageBase* e) {
 				levelName = starter->RetrieveLevelName();
 			ChangeState(GAMESTATE_BetweenWaves);
 			ChangeScene("level0", levelName);
+			GameData const* gd = &gameData;
+			MessageEvents::SendMessage(EVENT_ReadyToStart, GameDataMessage(&gd));
 			break;
 		}
 	}
@@ -270,6 +272,8 @@ void Game::RestartLevel() {
 
 	//Reinstantiate starting wave values and current scene
 	ChangeScene(name.c_str(), currLevelName);
+	GameData const* gd = &gameData;
+	MessageEvents::SendMessage(EVENT_ReadyToStart, GameDataMessage(&gd));
 }
 void Game::ResumeGame() {
 	//Logic to run when game first gets unPaused

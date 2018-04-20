@@ -16,6 +16,10 @@ class Monitor : public GameObject {
 	unsigned eventCoreDamaged = 0;
 	unsigned eventWin = 0;
 	unsigned eventLose = 0;
+	unsigned eventWaveComplete = 0;
+	unsigned eventWaveChange = 0;
+
+	int coreHealth = 100;
 
 public:
 	void Awake(Object* obj) override;

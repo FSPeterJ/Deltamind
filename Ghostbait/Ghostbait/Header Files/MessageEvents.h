@@ -55,8 +55,10 @@ enum EVENT_TYPES {
 	EVENT_GearChange,
 	EVENT_WaveChange,
 	EVENT_WaveComplete,
+	EVENT_CoreSpawned,
 	EVENT_CoreDamaged,
 	EVENT_CoreStopDamaged,
+	EVENT_CoreDestroyed,
 };
 
 class EventMessageBase;

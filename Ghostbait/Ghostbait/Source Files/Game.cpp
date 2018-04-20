@@ -14,11 +14,13 @@
 #include "Player.h"
 #include "Material.h"
 #include "HUD.h"
+#include "ThreadPool.h"
 #include "TargetEnemy.h"
 //#include "DStarEnemy.h"
 //#include "MTDSLEnemy.h"
 #include <future>
 #include "Evolvable.h"
+#include "CoreShield.h"
 using namespace Omiracon::Genetics;
 
 Game::Game() {
@@ -38,6 +40,9 @@ Game::Game() {
 	MessageEvents::Subscribe(EVENT_NextLogo, [=](EventMessageBase* e) { this->NextLogoEvent(); });
 
 	MessageEvents::Subscribe(EVENT_GameDataRequest, [=](EventMessageBase* e) { this->GameDataRequestEvent(e); });
+	MessageEvents::Subscribe(EVENT_CoreSpawned, [=](EventMessageBase* e) { this->CoreSetup(e); });
+	MessageEvents::Subscribe(EVENT_CoreDestroyed, [=](EventMessageBase* e) { this->CoreRemoval(e); });
+
 	PathPlanner::SetGrid(&hexGrid);
 	AntColony::SetGrid(&hexGrid);
 	//gameData = GameData(&evolver);
@@ -116,6 +121,22 @@ void Game::StartEvent(EventMessageBase* e) {
 			MessageEvents::SendMessage(EVENT_ReadyToStart, GameDataMessage(&gd));
 			break;
 		}
+	}
+}
+void Game::CoreSetup(EventMessageBase* e) {
+	const Core* core = *(((CoreMessage*)e)->RetrieveData());
+	
+	HexPath spire = hexGrid.Spiral(hexGrid.PointToTile({ core->transform.matrix._41, core->transform.matrix._43 }), core->gridRadius).ToGrid(&hexGrid);
+	for (std::size_t i = 0; i < spire.size(); ++i) {
+		hexGrid.AddObstacle(spire[i]);
+	}
+}
+void Game::CoreRemoval(EventMessageBase* e) {
+	const Core* core = *(((CoreMessage*)e)->RetrieveData());
+
+	HexPath spire = hexGrid.Spiral(hexGrid.PointToTile({ core->transform.matrix._41, core->transform.matrix._43 }), core->gridRadius).ToGrid(&hexGrid);
+	for (std::size_t i = 0; i < spire.size(); ++i) {
+		hexGrid.RemoveObstacle(spire[i]);
 	}
 }
 
@@ -252,6 +273,7 @@ void Game::ChangeScene(const char* sceneName, std::string levelName) {
 	else
 		currLevelName = "";
 
+	Console::WriteLine << "SCENE HAS BEEN LOADED.";
 }
 void Game::StartNextWave() {
 	if(!gameData.waveManager.NextWaveExists()) {
@@ -267,6 +289,8 @@ void Game::StartNextWave() {
 
 //Handle primary function event logic
 void Game::RestartLevel() {
+	ThreadPool::AcceptNonCriticalJobs(false);
+	Threadding::ThreadPool::ClearQueues();
 	//Reset currentScene pointer
 	std::string name = sceneManager->GetNameFromScene(sceneManager->ResetCurrentScene());
 
@@ -274,6 +298,12 @@ void Game::RestartLevel() {
 	ChangeScene(name.c_str(), currLevelName);
 	GameData const* gd = &gameData;
 	MessageEvents::SendMessage(EVENT_ReadyToStart, GameDataMessage(&gd));
+
+	MessageEvents::SendQueueMessage(EVENT_Late, [=]() { 
+		//ThreadPool::ClearQueues(); 
+		ThreadPool::AcceptNonCriticalJobs(true);
+	});
+
 }
 void Game::ResumeGame() {
 	//Logic to run when game first gets unPaused
@@ -291,24 +321,24 @@ void Game::PauseGame() {
 }
 void Game::Lose() {
 	//Logic to run when the player loses
-	MenuCube* loseCube;
-	unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"));
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(ID, { 0, 0.75f, 0 }, &loseCube));
-	DirectX::XMFLOAT4X4 newPos;
-	DirectX::XMStoreFloat4x4(&newPos, DirectX::XMLoadFloat4x4(&loseCube->transform.GetMatrix()) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));
-	loseCube->transform.SetMatrix(newPos);
-	loseCube->Enable();
+	//Game* loseCube;
+	//unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(ID, { 0, 0.75f, 0 }, &loseCube));
+	//DirectX::XMFLOAT4X4 newPos;
+	//DirectX::XMStoreFloat4x4(&newPos, DirectX::XMLoadFloat4x4(&loseCube->transform.GetMatrix()) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));
+	//loseCube->transform.SetMatrix(newPos);
+	//loseCube->Enable();
 
 	ChangeState(GAMESTATE_GameOver);
 }
 void Game::Win() {
 	//Logic to run when the player wins
-	MessageEvents::SendMessage(EVENT_GameWin, EventMessageBase());
-	Console::WriteLine << "GAME WAS WON";
-	MenuCube* winCube;
-	unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"));
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(ID, { 0, 0.75f, 0 }, &winCube));
-	winCube->Enable();
+	//MessageEvents::SendMessage(EVENT_GameWin, EventMessageBase());
+	//Console::WriteLine << "GAME WAS WON";
+	//MenuCube* winCube;
+	//unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(ID, { 0, 0.75f, 0 }, &winCube));
+	//winCube->Enable();
 }
 void Game::Quit() {
 	run = false;
@@ -425,6 +455,7 @@ void Game::TutorialLoaded() {
 }
 void Game::Level0Loaded() {
 	worldLight.RemoveLightFromManager();
+	currentTimeBetweenWaveReady = -1;
 	int index = 0;
 	player->leftController->SetControllerState(CSTATE_Inventory);
 	player->rightController->SetControllerState(CSTATE_Inventory);
@@ -482,6 +513,8 @@ void Game::CreditsLoaded() {
 }
 void Game::SplashScreenLoaded() {
 	worldLight.SetAsDirectional({ 0.5f, 0.5f, 0.5f }, { 0, 0, 1 });
+	player->leftController->ClearInventory();
+	player->rightController->ClearInventory();
 	player->leftController->SetControllerState(CSTATE_MenuController);
 	player->rightController->SetControllerState(player->IsVR() ? CSTATE_MenuController : CSTATE_ModelOnly);
 	splashScreenMenu.Show();
@@ -508,7 +541,7 @@ void Game::Start(Player* _player, EngineStructure* _engine, HUD* _hud, char* sta
 	player->SetBuildToolData(&hexGrid, &gameData);
 
 	ChangeScene(startScene, xml);
-
+	ThreadPool::AcceptNonCriticalJobs(true);
 	//MessageEvents::SendMessage(EVENT_StartWave, EventMessageBase());
 	//DStarEnemy* newFred;
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<DStarEnemy>("DStarEnemy", {40,0,40}, &newFred));
@@ -645,13 +678,11 @@ void Game::Update() {
 						currentTimeBetweenWaveReady = -1;
 						//Replace start cube eventually
 						//Spawn start cube
-						MenuCube* startCube;
-						unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"));
-						MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(ID, { 0, 1.5f, 0.0f }, &startCube));
-						DirectX::XMFLOAT4X4 newPos;
-						DirectX::XMStoreFloat4x4(&newPos, DirectX::XMLoadFloat4x4(&startCube->transform.GetMatrix()) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
-						startCube->transform.SetMatrix(newPos);
-						startCube->Enable();
+						CoreShield* coreShield;
+						unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/CoreShield.ghost"));
+						MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<CoreShield>(ID, { 0, 0, 0 }, &coreShield));
+						coreShield->transform.SetMatrix(core->transform.GetMatrix());
+						coreShield->Enable();
 					}
 				}
 			}

@@ -198,21 +198,3 @@ class QuitCancelButton : public MenuOption {
 	void Select() override;
 };
 
-
-
-
-//Other
-class MenuCube: public GameObject {
-	void Update();
-public:
-	void OnCollision(GameObject* other);
-
-	void Enable() override {
-		GameObject::Enable();
-	}
-
-	void Destroy() {
-		GameObject::Destroy();
-	};
-};
-

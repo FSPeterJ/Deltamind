@@ -39,6 +39,7 @@
 #include "OptionsManager.h"
 #include "ForceField.h"
 #include "TargetEnemy.h"
+#include "CoreShield.h"
 
 using namespace Threadding;
 
@@ -70,7 +71,7 @@ void ExecuteAsync() {
 void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ThreadPool::Start();
 	Console::Allocate();
-	Window wnd(1024, 900);
+	Window wnd(1200, 900);
 	if(!wnd.Initialize(hInstance, FULLSCREEN ? SW_MAXIMIZE : nCmdShow)) { Messagebox::ShowError("Error!!", "Main window is not initialized!"); }
 	wnd.UpdateTitle(L"Ghostbait");
 
@@ -146,7 +147,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<Projectile>(512);
 	ObjectFactory::RegisterPrefabBase<SpawnerObject>(6);
 	ObjectFactory::RegisterPrefabBase<EnemyBase>(300);
-	ObjectFactory::RegisterPrefabBase<MenuCube>(1);
+	ObjectFactory::RegisterPrefabBase<CoreShield>(1);
 	ObjectFactory::RegisterPrefabBase<Core>(1);
 	ObjectFactory::RegisterPrefabBase<BuildTool>(24);
 	ObjectFactory::RegisterPrefabBase<PhysicsTestObj>(32);
@@ -225,7 +226,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<Projectile>("Projectile");
 	TypeMap::RegisterObjectAlias<SpawnerObject>("Spawner");
 	TypeMap::RegisterObjectAlias<EnemyBase>("EnemyBase");
-	TypeMap::RegisterObjectAlias<MenuCube>("MenuCube");
+	TypeMap::RegisterObjectAlias<CoreShield>("CoreShield");
 	TypeMap::RegisterObjectAlias<Core>("Core");
 	TypeMap::RegisterObjectAlias<GameObject>("GameObject");
 	TypeMap::RegisterObjectAlias<GameObject>("ghost");
@@ -303,7 +304,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//ObjectFactory::CreatePrefab(&std::string("Assets/Laser.ghost"), "Projectile");
 	ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost"), "Spawner");
 	ObjectFactory::CreatePrefab(&std::string("Assets/EnemyRobot.ghost"), "TestEnemy");
-	ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"), "startCube");
+//	ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"), "startCube");
 	ObjectFactory::CreatePrefab(&std::string("Assets/Core.ghost"), "Core");
 	ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"), "WinCube");
 	ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"), "LoseCube");

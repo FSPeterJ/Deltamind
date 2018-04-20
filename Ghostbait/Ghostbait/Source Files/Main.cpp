@@ -38,10 +38,12 @@
 #include "PDA.h"
 #include "OptionsManager.h"
 #include "ForceField.h"
+#include "TargetEnemy.h"
+#include "CoreShield.h"
 
 using namespace Threadding;
 
-const bool FULLSCREEN = false;
+const bool FULLSCREEN = true;
 
 //#include "..\Omiracron\Omiracron\Omiracron.h"
 //using namespace Omiracron;
@@ -138,14 +140,14 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<ViveController>(20);
 	ObjectFactory::RegisterPrefabBase<SMG>(4);
 	ObjectFactory::RegisterPrefabBase<Pistol>(4);
-	ObjectFactory::RegisterPrefabBase<PDA>(4);
+	ObjectFactory::RegisterPrefabBase<PDA>(5);
 	ObjectFactory::RegisterPrefabBase<ProgressBar>(8);
 	ObjectFactory::RegisterPrefabBase<MenuControllerItem>(2);
 	ObjectFactory::RegisterPrefabBase<GameObject>(512);
 	ObjectFactory::RegisterPrefabBase<Projectile>(512);
 	ObjectFactory::RegisterPrefabBase<SpawnerObject>(6);
 	ObjectFactory::RegisterPrefabBase<EnemyBase>(300);
-	ObjectFactory::RegisterPrefabBase<MenuCube>(1);
+	ObjectFactory::RegisterPrefabBase<CoreShield>(1);
 	ObjectFactory::RegisterPrefabBase<Core>(1);
 	ObjectFactory::RegisterPrefabBase<BuildTool>(24);
 	ObjectFactory::RegisterPrefabBase<PhysicsTestObj>(32);
@@ -173,10 +175,16 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<MouseSensitivityDownButton>(1);
 	ObjectFactory::RegisterPrefabBase<AcceptOptionsButton>(1);
 	ObjectFactory::RegisterPrefabBase<CancelOptionsButton>(1);
+	ObjectFactory::RegisterPrefabBase<NextButton>(1);
+	ObjectFactory::RegisterPrefabBase<SkipButton>(1);
+	ObjectFactory::RegisterPrefabBase<RevertOptionsButton>(1);
+	ObjectFactory::RegisterPrefabBase<QuitConfirmButton>(1);
+	ObjectFactory::RegisterPrefabBase<QuitCancelButton>(1);
+
 
 	ObjectFactory::RegisterPrefabBase<ForceField>(6);
-	ObjectFactory::RegisterPrefabBase<Ground>(1);
-	ObjectFactory::RegisterPrefabBase<Monitor>(1);
+	ObjectFactory::RegisterPrefabBase<Ground>(4);
+	ObjectFactory::RegisterPrefabBase<Monitor>(2);
 	ObjectFactory::RegisterPrefabBase<DisplayBoard>(1);
 	ObjectFactory::RegisterPrefabBase<DisplayBoard_Move>(1);
 	ObjectFactory::RegisterPrefabBase<DisplayBoard_Pause>(1);
@@ -193,6 +201,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<AStarEnemy>(300);
 	ObjectFactory::RegisterPrefabBase<DStarEnemy>(10);
 	ObjectFactory::RegisterPrefabBase<MTDSLEnemy>(300);
+	ObjectFactory::RegisterPrefabBase<TargetEnemy>(6);
 	Console::WriteLine << "Prefab base registered......";
 
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->getMeshManager());
@@ -217,7 +226,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<Projectile>("Projectile");
 	TypeMap::RegisterObjectAlias<SpawnerObject>("Spawner");
 	TypeMap::RegisterObjectAlias<EnemyBase>("EnemyBase");
-	TypeMap::RegisterObjectAlias<MenuCube>("MenuCube");
+	TypeMap::RegisterObjectAlias<CoreShield>("CoreShield");
 	TypeMap::RegisterObjectAlias<Core>("Core");
 	TypeMap::RegisterObjectAlias<GameObject>("GameObject");
 	TypeMap::RegisterObjectAlias<GameObject>("ghost");
@@ -248,6 +257,12 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<MouseSensitivityDownButton>("MouseSensitivityDownButton");
 	TypeMap::RegisterObjectAlias<AcceptOptionsButton>("AcceptOptionsButton");
 	TypeMap::RegisterObjectAlias<CancelOptionsButton>("CancelOptionsButton");
+	TypeMap::RegisterObjectAlias<NextButton>("NextButton");
+	TypeMap::RegisterObjectAlias<SkipButton>("SkipButton");
+	TypeMap::RegisterObjectAlias<RevertOptionsButton>("RevertOptionsButton");
+	TypeMap::RegisterObjectAlias<QuitConfirmButton>("QuitConfirmButton");
+	TypeMap::RegisterObjectAlias<QuitCancelButton>("QuitCancelButton");
+
 
 	TypeMap::RegisterObjectAlias<ForceField>("ForceField");
 	TypeMap::RegisterObjectAlias<Ground>("Ground");
@@ -276,6 +291,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<Turret_Short>("Turret_Short");
 
 	TypeMap::RegisterObjectAlias<MTDSLEnemy>("MTDSLEnemy");
+	TypeMap::RegisterObjectAlias<TargetEnemy>("TargetEnemy");
 
 
 	Console::WriteLine << "Object Alias registered......";
@@ -288,7 +304,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//ObjectFactory::CreatePrefab(&std::string("Assets/Laser.ghost"), "Projectile");
 	ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost"), "Spawner");
 	ObjectFactory::CreatePrefab(&std::string("Assets/EnemyRobot.ghost"), "TestEnemy");
-	ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"), "startCube");
+//	ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"), "startCube");
 	ObjectFactory::CreatePrefab(&std::string("Assets/Core.ghost"), "Core");
 	ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"), "WinCube");
 	ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"), "LoseCube");

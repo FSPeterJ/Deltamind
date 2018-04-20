@@ -36,6 +36,7 @@ public:
 
 	void CacheValues(); //Used to properly store previous settings in case of cancel
 	void Cancel();
+	void Revert();
 
 	void SetMasterVolume(float _VolumeIn); //0-1 range
 	void SetSFXVolume(float _VolumeIn); //0-100 range

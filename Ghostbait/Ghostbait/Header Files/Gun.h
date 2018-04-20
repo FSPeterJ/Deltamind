@@ -66,6 +66,8 @@ public:
 		}
 	}
 
+	void SetDisplay() override;
+
 	// This is essentially a copy constructor, but since objects are never truely instantiated post-start...
 #ifdef _DEBUG
 	void SmokeTest() override;

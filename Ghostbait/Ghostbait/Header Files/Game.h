@@ -6,7 +6,7 @@
 #include "Menu.h"
 #include "GameData.h"
 #include "Evolve.h"
-
+#include "Light.h"
 class SceneManager;
 class SpawnerObject;
 class EventMessageBase;
@@ -34,7 +34,10 @@ class Game {
 
 	Menu pauseMenu;
 	Menu mainMenu;
-	Menu credits;
+	Menu creditsMenu;
+	Menu splashScreenMenu;
+
+	Light worldLight;
 
 	bool paused = false;
 	float delayBetweenWaveReady = 3;
@@ -49,6 +52,7 @@ class Game {
 	void EnemyDiedEvent();
 	void PauseInputEvent();
 	void StartEvent(EventMessageBase* e = nullptr);
+	void NextLogoEvent();
 	void ExitToMainMenu();
 	void CoreSetup(EventMessageBase* e);
 	void CoreRemoval(EventMessageBase* e);
@@ -58,6 +62,7 @@ class Game {
 	void TutorialLoaded();
 	void Level0Loaded();
 	void CreditsLoaded();
+	void SplashScreenLoaded();
 
 	//Personal
 	void ChangeState(State newState);

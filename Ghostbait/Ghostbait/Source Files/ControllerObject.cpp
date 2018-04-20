@@ -214,6 +214,7 @@ void ControllerObject::AddToInventory(int itemSlot, unsigned prefabID) {
 	inventory.displayItems[itemSlot]->UnRender();
 	inventory.displayItems[itemSlot]->PersistOnReset();
 	inventory.displayItems[itemSlot]->SetPhysicsComponent(false);
+	inventory.displayItems[itemSlot]->SetDisplay();
 	++inventory.itemCount;
 
 	pda = dynamic_cast<PDA*>(inventory.displayItems[itemSlot]);
@@ -519,6 +520,10 @@ void ControllerObject::Update() {
 	GameObject::Update();
 }
 
+void ControllerObject::SwapItem(int itemIndex) {
+	if (itemIndex >= CONTROLLER_MAX_ITEMS || !inventory.items[itemIndex]) return;
+	SwitchCurrentItem(itemIndex);
+}
 
 // TEMPORARY - CHANGE OR REMOVE LATER
 void ControllerObject::SetBuildItems(std::vector<unsigned> prefabIDs) {

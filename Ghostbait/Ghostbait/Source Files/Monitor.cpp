@@ -13,12 +13,20 @@ void Monitor::Awake(Object* obj) {
 	positioned = false;
 	GameObject::Awake(obj);
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/MonitorScreen.ghost")), { 0, 0, 0 }, &screen));
-	screenMat = TextManager::DrawTextTo(font, "\n Core Health: 100%\n", { 1, 1, 1, 1 }, { 0, 0, 0, 1 }).mat;
+	screenMat = TextManager::DrawTextTo(font, "\n Shoot the core's\n shield to begin \n", { 1, 1, 1, 1 }, { 0, 0, 0, 1 }).mat;
 	screen->SetComponent<Material>(screenMat);
+	coreHealth = 100;
 
 	eventCoreDamaged = MessageEvents::Subscribe(EVENT_CoreDamaged, [=](EventMessageBase* e) {
-		std::string health = std::to_string((int)((*((CoreMessage*)e)->RetrieveData())->PercentHealth() * 100));
-		WriteToScreen("\n Core Health: " + health + "%\n");
+		coreHealth = (int)((*((CoreMessage*)e)->RetrieveData())->PercentHealth() * 100);
+		WriteToScreen("\n Core Health: " + std::to_string(coreHealth) + "%\n");
+	});
+	eventWaveChange = MessageEvents::Subscribe(EVENT_WaveChange, [=](EventMessageBase* e) {
+		WriteToScreen("\n Core Health: " + std::to_string(coreHealth) + "%\n");
+	});
+	eventWaveComplete = MessageEvents::Subscribe(EVENT_WaveComplete, [=](EventMessageBase* e) {
+		const GameData* gameData = *((GameDataMessage*)e)->RetrieveData();
+		WriteToScreen("\n Shoot the core's\n shield to start wave " + std::to_string(gameData->waveManager.GetCurrentWaveNumber() + 1) + "\n");
 	});
 	eventLose = MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) {
 		WriteToScreen("\nYOU LOSE!\n");
@@ -33,13 +41,15 @@ void Monitor::Update() {
 		if (screen) screen->transform.SetMatrix(transform.GetMatrix());
 		positioned = true;
 	}
-	WriteToScreen(std::to_string(GhostTime::FrameRate()));
+	//WriteToScreen(std::to_string(GhostTime::FrameRate()));
 }
 void Monitor::Destroy() {
 	if (screen) screen->Destroy(); 
 	if (eventCoreDamaged) MessageEvents::UnSubscribe(EVENT_CoreDamaged, eventCoreDamaged);
 	if (eventWin) MessageEvents::UnSubscribe(EVENT_GameWin, eventWin);
 	if (eventLose) MessageEvents::UnSubscribe(EVENT_GameLose, eventLose);
+	if (eventWaveComplete) MessageEvents::UnSubscribe(EVENT_WaveComplete, eventWaveComplete);
+	if (eventWaveChange) MessageEvents::UnSubscribe(EVENT_WaveChange, eventWaveChange);
 
 	GameObject::Destroy();
 }

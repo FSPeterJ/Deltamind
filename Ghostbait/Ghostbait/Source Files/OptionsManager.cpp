@@ -30,6 +30,15 @@ void OptionsManager::Cancel()
 	ApplyAllOptions(prevOptions);
 }
 
+void OptionsManager::Revert()
+{
+	SetMasterVolume(1.0f);
+	SetSFXVolume(100.0f);
+	SetMusicVolume(100.0f);
+	SetGamma(0.0f);
+	SetSensitivity(0.005f);
+}
+
 void OptionsManager::SetMasterVolume(float _VolumeIn)
 {
 	currOptions.MasterVolume = _VolumeIn;
@@ -79,11 +88,7 @@ void OptionsManager::Initialize(Renderer * _rendIn, AudioManager * _audioIn, Pla
 	}
 	else
 	{
-		SetMasterVolume(1.0f);
-		SetSFXVolume(100.0f);
-		SetMusicVolume(100.0f);
-		SetGamma(0.0f);
-		SetSensitivity(0.005f);
+		Revert();
 	}
 	reader.close();
 }

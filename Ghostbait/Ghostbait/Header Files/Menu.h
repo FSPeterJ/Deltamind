@@ -29,7 +29,9 @@ enum Template {
 	MENU_Pause,
 	MENU_Options,
 	MENU_Custom,
-	MENU_Difficulty
+	MENU_Difficulty,
+	MENU_SplashScreen,
+	MENU_QuitConfirm
 };
 enum Button {
 	BUTTON_Resume,
@@ -57,6 +59,11 @@ enum Button {
 	BUTTON_MouseSensitivityDown,
 	BUTTON_AcceptOptions,
 	BUTTON_CancelOptions,
+	BUTTON_Next,
+	BUTTON_Skip,
+	BUTTON_Revert,
+	BUTTON_QuitConfirm,
+	BUTTON_QuitCancel
 };
 
 class Menu {
@@ -173,22 +180,21 @@ class CancelOptionsButton : public MenuOption {
 	void Select() override;
 };
 
+class NextButton : public MenuOption {
+	void Select() override;
+};
+class SkipButton : public MenuOption {
+	void Select() override;
+};
+class RevertOptionsButton : public MenuOption {
+	void Select() override;
+};
 
+class QuitConfirmButton : public MenuOption {
+	void Select() override;
+};
 
-
-
-//Other
-class MenuCube: public GameObject {
-	void Update();
-public:
-	void OnCollision(GameObject* other);
-
-	void Enable() override {
-		GameObject::Enable();
-	}
-
-	void Destroy() {
-		GameObject::Destroy();
-	};
+class QuitCancelButton : public MenuOption {
+	void Select() override;
 };
 

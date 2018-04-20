@@ -15,11 +15,12 @@
 #include "Material.h"
 #include "HUD.h"
 #include "ThreadPool.h"
+#include "TargetEnemy.h"
 //#include "DStarEnemy.h"
 //#include "MTDSLEnemy.h"
 #include <future>
-
 #include "Evolvable.h"
+#include "CoreShield.h"
 using namespace Omiracon::Genetics;
 
 Game::Game() {
@@ -36,6 +37,7 @@ Game::Game() {
 	MessageEvents::Subscribe(EVENT_GameExit, [=](EventMessageBase* e) {this->ExitToMainMenu(); });
 	MessageEvents::Subscribe(EVENT_FreeMoney, [=](EventMessageBase* e) {this->gameData.SetGears(500000); });
 	MessageEvents::Subscribe(EVENT_ChangeScene, [=](EventMessageBase* e) { this->ChangeScene(((ChangeSceneMessage*)e)->RetrieveData()); });
+	MessageEvents::Subscribe(EVENT_NextLogo, [=](EventMessageBase* e) { this->NextLogoEvent(); });
 
 	MessageEvents::Subscribe(EVENT_GameDataRequest, [=](EventMessageBase* e) { this->GameDataRequestEvent(e); });
 	MessageEvents::Subscribe(EVENT_CoreSpawned, [=](EventMessageBase* e) { this->CoreSetup(e); });
@@ -83,13 +85,19 @@ void Game::EnemyDiedEvent() {
 		ChangeState(GAMESTATE_BetweenWaves);
 	}
 }
+void Game::NextLogoEvent() {
+	if (gameData.ssManager.NextLogoExists())
+		gameData.ssManager.MoveToNextLogo();
+	else
+		StartEvent();
+}
 void Game::StartEvent(EventMessageBase* e) {
 	StartEventMessage* starter = nullptr;
-	if(e)
-		starter = (StartEventMessage*)e;
+	if(e) starter = (StartEventMessage*)e;
 	switch(gameData.GetState()) {
 		case GAMESTATE_SplashScreen:
 		{
+			splashScreenMenu.Hide();
 			std::string levelName = "";
 			if (starter)
 				levelName = starter->RetrieveLevelName();
@@ -183,6 +191,8 @@ void Game::ChangeScene(const char* sceneName, std::string levelName) {
 	sceneManager->LoadScene(sceneName, &core);
 
 	//TODO: TEMPORARY main menu code--------
+	if (!strcmp(sceneName, "splashScreen"))
+		SplashScreenLoaded();
 	if(!strcmp(sceneName, "mainMenu"))
 		MainMenuLoaded();
 	if (!strcmp(sceneName, "Tutorial"))
@@ -219,16 +229,12 @@ void Game::ChangeScene(const char* sceneName, std::string levelName) {
 					gameData.AddGears(xmlReader->getAttributeValueAsInt("startGears"));
 					gameData.SetStateHard(GAMESTATE_BetweenWaves);
 					gameData.SetPrevStateHard(GAMESTATE_BetweenWaves);
-					player->leftController->SetControllerState(CSTATE_Inventory);
-					player->rightController->SetControllerState(CSTATE_Inventory);
 				}
 				else if (!strcmp("MenuScene", xmlReader->getNodeName())) {
 					gameData.ssManager.SetSceneTimeLimit(xmlReader->getAttributeValueAsFloat("sceneTimeLimit"));
 					gameData.ssManager.SetNextScene(xmlReader->getAttributeValue("nextScene"));
 					gameData.SetStateHard(GAMESTATE_SplashScreen);
 					gameData.SetPrevStateHard(GAMESTATE_SplashScreen);
-					player->leftController->SetControllerState(CSTATE_ModelOnly);
-					player->rightController->SetControllerState(CSTATE_ModelOnly);
 				}
 				else if (!strcmp("Wave", xmlReader->getNodeName())) {
 					if (newWave) {
@@ -311,24 +317,24 @@ void Game::PauseGame() {
 }
 void Game::Lose() {
 	//Logic to run when the player loses
-	MenuCube* loseCube;
-	unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"));
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(ID, { 0, 0.75f, 0 }, &loseCube));
-	DirectX::XMFLOAT4X4 newPos;
-	DirectX::XMStoreFloat4x4(&newPos, DirectX::XMLoadFloat4x4(&loseCube->transform.GetMatrix()) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));
-	loseCube->transform.SetMatrix(newPos);
-	loseCube->Enable();
+	//Game* loseCube;
+	//unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(ID, { 0, 0.75f, 0 }, &loseCube));
+	//DirectX::XMFLOAT4X4 newPos;
+	//DirectX::XMStoreFloat4x4(&newPos, DirectX::XMLoadFloat4x4(&loseCube->transform.GetMatrix()) * DirectX::XMMatrixScaling(1.1f, 1.1f, 1.1f));
+	//loseCube->transform.SetMatrix(newPos);
+	//loseCube->Enable();
 
 	ChangeState(GAMESTATE_GameOver);
 }
 void Game::Win() {
 	//Logic to run when the player wins
-	MessageEvents::SendMessage(EVENT_GameWin, EventMessageBase());
-	Console::WriteLine << "GAME WAS WON";
-	MenuCube* winCube;
-	unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"));
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(ID, { 0, 0.75f, 0 }, &winCube));
-	winCube->Enable();
+	//MessageEvents::SendMessage(EVENT_GameWin, EventMessageBase());
+	//Console::WriteLine << "GAME WAS WON";
+	//MenuCube* winCube;
+	//unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(ID, { 0, 0.75f, 0 }, &winCube));
+	//winCube->Enable();
 }
 void Game::Quit() {
 	run = false;
@@ -340,12 +346,15 @@ void Game::ExitToMainMenu() {
 
 //Main Scene Functions
 void Game::MainMenuLoaded() {
+	worldLight.RemoveLightFromManager();
 	//Create Menu
 	DirectX::XMFLOAT4X4 menuPos = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1.7f, 2, 1);
 	mainMenu.SetSpawnPos(menuPos);
 	gameData.SetStateHard(GAMESTATE_MainMenu);
 	mainMenu.Show(false);
 	//Set Controllers
+	player->leftController->ClearInventory();
+	player->rightController->ClearInventory();
 	player->leftController->SetControllerState(CSTATE_MenuController);
 	player->rightController->SetControllerState(player->IsVR() ? CSTATE_MenuController : CSTATE_ModelOnly);
 
@@ -356,50 +365,93 @@ void Game::MainMenuLoaded() {
 	player->transform.LookAt({ menuPos._41, menuPos._42, menuPos._43 });
 
 	//Update HUD
-	if(currHUD)
-	currHUD->HideInventory();
+	if (currHUD)
+	{
+		currHUD->HideInventory();
+		currHUD->HideWaveInfo();
+	}
 }
 void Game::TutorialLoaded() {
+	worldLight.SetAsDirectional({ 0.25f, 0.25f, 0.25f }, { 0, -0.5f, 0.5f });
+
 	gameData.AddGears(1000);
-	int index = 0;
-	player->leftController->SetControllerState(CSTATE_Inventory);
-	player->rightController->SetControllerState(CSTATE_Inventory);
-	player->leftController->ClearInventory();
-	player->rightController->ClearInventory();
-	//PDA
-	if (player->IsVR()) {
-		player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/PDA.ghost")));
-		player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/PDA.ghost")));
-		((PDA*)player->leftController->GetItem(index))->SetHand(HAND_Left);
-		((PDA*)player->rightController->GetItem(index))->SetHand(HAND_Right);
+	//Update Controllers
+	{
+		int index = 0;
+		player->leftController->SetControllerState(CSTATE_Inventory);
+		player->rightController->SetControllerState(CSTATE_Inventory);
+		player->leftController->ClearInventory();
+		player->rightController->ClearInventory();
+		//PDA
+		if (player->IsVR()) {
+			player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/PDA.ghost")));
+			player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/PDA.ghost")));
+			((PDA*)player->leftController->GetItem(index))->SetHand(HAND_Left);
+			((PDA*)player->rightController->GetItem(index))->SetHand(HAND_Right);
+			++index;
+		}
+		//Pistol
+		player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost")));
+		player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost")));
 		++index;
+		//SMG
+		player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/smgNoStock.ghost")));
+		player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/smgNoStock.ghost")));
+		++index;
+		//BuildTool
+		player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost")));
+		player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost")));
+
+		player->leftController->SwapItem(index - 2);
+		player->rightController->SwapItem(index - 2);
+
+		player->leftController->SetBuildItems({ ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Short.ghost")),
+												ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Medium.ghost")),
+												ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Long.ghost")) });
+		player->rightController->SetBuildItems({ ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Short.ghost")),
+												ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Medium.ghost")),
+												ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Long.ghost")) });
+
+		player->SetBuildToolData(&hexGrid, &gameData);
 	}
-	//Pistol
-	player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost")));
-	player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost")));
-	++index;
-	//SMG
-	player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/smgNoStock.ghost")));
-	player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/smgNoStock.ghost")));
-	++index;
-	//BuildTool
-	player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost")));
-	player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost")));
-
-	player->leftController->SetBuildItems({ ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Short.ghost")), 
-											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Medium.ghost")),
-											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Long.ghost")) });
-	player->rightController->SetBuildItems({ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Short.ghost")),
-											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Medium.ghost")),
-											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Long.ghost")) });
-
-	player->SetBuildToolData(&hexGrid, &gameData);
 
 	//Update HUD
-	if(currHUD)
-	currHUD->ShowInventory();
+	if (currHUD)
+	{
+		currHUD->ShowInventory();
+	}
+	
+	//Spawn Target
+	{
+		MessageEvents::SendQueueMessage(EVENT_Late, [=] {
+			TargetEnemy* targetEnemy;
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/TargetEnemy.ghost")), { 14, 0, -10 }, (GameObject**)&targetEnemy));
+			targetEnemy->SetRange({ 14, 0, 0 });
+			targetEnemy->Enable();
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/TargetEnemy.ghost")), { 14, 0, -10 }, (GameObject**)&targetEnemy));
+			targetEnemy->SetRange({ -14, 0, 0 });
+			targetEnemy->Enable();
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/TargetEnemy.ghost")), { 14, 0, -20 }, (GameObject**)&targetEnemy));
+			targetEnemy->SetRange({ 14, 0, 0 });
+			targetEnemy->Enable();
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/TargetEnemy.ghost")), { 14, 0, -20 }, (GameObject**)&targetEnemy));
+			targetEnemy->SetRange({ -14, 0, 0 });
+			targetEnemy->Enable();
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/TargetEnemy.ghost")), { 14, 0, -30 }, (GameObject**)&targetEnemy));
+			targetEnemy->SetRange({ 14, 0, 0 });
+			targetEnemy->Enable();
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/TargetEnemy.ghost")), { 14, 0, -30 }, (GameObject**)&targetEnemy));
+			targetEnemy->SetRange({ -14, 0, 0 });
+			targetEnemy->Enable();
+		});
+	}
+
+	//Light
+	
 }
 void Game::Level0Loaded() {
+	worldLight.RemoveLightFromManager();
+	currentTimeBetweenWaveReady = -1;
 	int index = 0;
 	player->leftController->SetControllerState(CSTATE_Inventory);
 	player->rightController->SetControllerState(CSTATE_Inventory);
@@ -430,14 +482,21 @@ void Game::Level0Loaded() {
 	player->rightController->SetBuildItems({ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Short.ghost")), 
 											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Medium.ghost")), 
 											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Long.ghost")) });
+
+	player->leftController->SwapItem(index - 2);
+	player->rightController->SwapItem(index - 2);
 	
 	player->SetBuildToolData(&hexGrid, &gameData);
 
 	//Update HUD
-	if(currHUD)
-	currHUD->ShowInventory();
+	if (currHUD)
+	{
+		currHUD->ShowInventory();
+		currHUD->ShowWaveInfo();
+	}
 }
 void Game::CreditsLoaded() {
+	worldLight.RemoveLightFromManager();
 	player->leftController->SetControllerState(CSTATE_MenuController);
 	player->rightController->SetControllerState(CSTATE_MenuController);
 
@@ -446,9 +505,15 @@ void Game::CreditsLoaded() {
 	largePDA->transform.SetMatrix(DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 2, 3, 1));
 	largePDA->SetPurpose(PDA::Purpose::Credits);
 
-	credits.Show();
-
-
+	creditsMenu.Show();
+}
+void Game::SplashScreenLoaded() {
+	worldLight.SetAsDirectional({ 0.5f, 0.5f, 0.5f }, { 0, 0, 1 });
+	player->leftController->ClearInventory();
+	player->rightController->ClearInventory();
+	player->leftController->SetControllerState(CSTATE_MenuController);
+	player->rightController->SetControllerState(player->IsVR() ? CSTATE_MenuController : CSTATE_ModelOnly);
+	splashScreenMenu.Show();
 }
 
 //Main loop elements
@@ -461,8 +526,10 @@ void Game::Start(Player* _player, EngineStructure* _engine, HUD* _hud, char* sta
 	mainMenu.Create(MENU_Main);
 	pauseMenu.Create(MENU_Pause);
 	pauseMenu.SetCamera(&player->transform);
-	credits.Create(MENU_Custom, { Button::BUTTON_Exit });
-	credits.SetSpawnPos(DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 3, 1));
+	creditsMenu.Create(MENU_Custom, { Button::BUTTON_Exit });
+	creditsMenu.SetSpawnPos(DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 3, 1));
+	splashScreenMenu.Create(MENU_SplashScreen);
+	splashScreenMenu.SetSpawnPos(DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 2, 1));
 	sceneManager = new SceneManager();
 	sceneManager->Initialize();
 	gameData.Reset();
@@ -607,13 +674,11 @@ void Game::Update() {
 						currentTimeBetweenWaveReady = -1;
 						//Replace start cube eventually
 						//Spawn start cube
-						MenuCube* startCube;
-						unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"));
-						MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuCube>(ID, { 0, 1.5f, 0.0f }, &startCube));
-						DirectX::XMFLOAT4X4 newPos;
-						DirectX::XMStoreFloat4x4(&newPos, DirectX::XMLoadFloat4x4(&startCube->transform.GetMatrix()) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
-						startCube->transform.SetMatrix(newPos);
-						startCube->Enable();
+						CoreShield* coreShield;
+						unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/CoreShield.ghost"));
+						MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<CoreShield>(ID, { 0, 0, 0 }, &coreShield));
+						coreShield->transform.SetMatrix(core->transform.GetMatrix());
+						coreShield->Enable();
 					}
 				}
 			}

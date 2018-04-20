@@ -72,6 +72,13 @@ void Menu::AssignPrefabIDs() {
 	buttonPrefabMap[BUTTON_MouseSensitivityDown] = ObjectFactory::CreatePrefab(&std::string("Assets/MouseSensitivityDownButton.ghost"));
 	buttonPrefabMap[BUTTON_AcceptOptions] = ObjectFactory::CreatePrefab(&std::string("Assets/AcceptOptionsButton.ghost"));
 	buttonPrefabMap[BUTTON_CancelOptions] = ObjectFactory::CreatePrefab(&std::string("Assets/CancelOptionsButton.ghost"));
+
+	buttonPrefabMap[BUTTON_Next] = ObjectFactory::CreatePrefab(&std::string("Assets/NextButton.ghost"));
+	buttonPrefabMap[BUTTON_Skip] = ObjectFactory::CreatePrefab(&std::string("Assets/SkipButton.ghost"));
+
+	buttonPrefabMap[BUTTON_Revert] = ObjectFactory::CreatePrefab(&std::string("Assets/RevertOptionsButton.ghost"));
+	buttonPrefabMap[BUTTON_QuitConfirm] = ObjectFactory::CreatePrefab(&std::string("Assets/QuitConfirmButton.ghost"));
+	buttonPrefabMap[BUTTON_QuitCancel] = ObjectFactory::CreatePrefab(&std::string("Assets/QuitCancelButton.ghost"));
 }
 
 DirectX::XMFLOAT4X4 Menu::FindCenter(float distFromPlayer) {
@@ -131,7 +138,7 @@ void Menu::Create(Template t, std::vector<Button> _buttons, ColumnType _columnTy
 			break;
 		case MENU_Options:
 			buttons.empty();
-			buttons.resize(12);
+			buttons.resize(13);
 			buttons[0] = BUTTON_MasterUp;
 			buttons[1] = BUTTON_MasterDown;
 			buttons[2] = BUTTON_MusicUp;
@@ -144,6 +151,7 @@ void Menu::Create(Template t, std::vector<Button> _buttons, ColumnType _columnTy
 			buttons[9] = BUTTON_MouseSensitivityDown;
 			buttons[10] = BUTTON_AcceptOptions;
 			buttons[11] = BUTTON_CancelOptions;
+			buttons[12] = BUTTON_Revert;
 			columnType = TwoColumn;
 			break;
 		case MENU_Difficulty:
@@ -154,6 +162,20 @@ void Menu::Create(Template t, std::vector<Button> _buttons, ColumnType _columnTy
 			buttons[2] = BUTTON_Medium;
 			buttons[3] = BUTTON_Hard;
 			columnType = OneColumn;
+			break;
+		case MENU_SplashScreen:
+			buttons.empty();
+			buttons.resize(2);
+			buttons[0] = BUTTON_Next;
+			buttons[1] = BUTTON_Skip;
+			columnType = TwoColumn;
+			break;
+		case MENU_QuitConfirm:
+			buttons.empty();
+			buttons.resize(2);
+			buttons[0] = BUTTON_QuitConfirm;
+			buttons[1] = BUTTON_QuitCancel;
+			columnType = TwoColumn;
 			break;
 		case MENU_Custom:
 			buttons.empty();
@@ -272,9 +294,9 @@ void CreditsButton::Select() {
 	MessageEvents::SendMessage(EVENT_ChangeScene, ChangeSceneMessage("Credits"));
 }
 void QuitButton::Select() {
+	menu->Hide();
+	menu->CreateAndLoadChild(MENU_QuitConfirm);
 	MenuOption::Select();
-	MessageEvents::SendMessage(EVENT_GameUnPause, EventMessageBase());
-	MessageEvents::SendQueueMessage(EVENT_Late, []() { MessageEvents::SendMessage(EVENT_GameQuit, EventMessageBase()); });
 }
 void ResumeButton::Select() {
 	MenuOption::Select();
@@ -377,25 +399,29 @@ void CancelOptionsButton::Select() {
 	menu->LoadParent();
 	MenuOption::Select();
 }
-
-//Other
-void MenuCube::Update() {
-	//position.m[3][1] += 0.4f * (float) GhostTime::DeltaTime();
-	//if(position.m[3][1] > 1.5f) {
-	//	Disable();
-	//}
-	GameObject::Update();
+void RevertOptionsButton::Select()
+{
+	OptionsManager::GetInstance().Revert();
+	MenuOption::Select();
+}
+void QuitConfirmButton::Select()
+{
+	MenuOption::Select();
+	MessageEvents::SendMessage(EVENT_GameUnPause, EventMessageBase());
+	MessageEvents::SendQueueMessage(EVENT_Late, []() { MessageEvents::SendMessage(EVENT_GameQuit, EventMessageBase()); });
+}
+void QuitCancelButton::Select()
+{
+	menu->Hide();
+	menu->LoadParent();
+	MenuOption::Select();
 }
 
-void MenuCube::OnCollision(GameObject* other) {
-	if(other->GetTag() == "Bullet") {
-		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
-		Console::WriteLine << "StartCube Shot!";
-		MessageEvents::SendMessage(EVENT_Start, EventMessageBase());
-		//GameObject* obj;
-		//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(8/*Core*/, {0, 1.5f, 0}, &obj));
-		//DirectX::XMStoreFloat4x4(&obj->position,
-		//	DirectX::XMLoadFloat4x4(&obj->position) * DirectX::XMMatrixScaling(0.5f, 0.5f, 0.5f));
-	}
-	GameObject::OnCollision(other);
+void NextButton::Select() {
+	MenuOption::Select();
+	MessageEvents::SendMessage(EVENT_NextLogo, EventMessageBase());
+}
+void SkipButton::Select() {
+	MenuOption::Select();
+	MessageEvents::SendMessage(EVENT_Start, StartEventMessage(""));
 }

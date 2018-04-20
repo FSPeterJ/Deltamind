@@ -220,6 +220,7 @@
     <ClInclude Include="Header Files\ControllerObject.h" />
     <ClInclude Include="Header Files\ControllerPillar.h" />
     <ClInclude Include="Header Files\Core.h" />
+    <ClInclude Include="Header Files\CoreShield.h" />
     <ClInclude Include="Header Files\DebugRenderer.h" />
     <ClInclude Include="Header Files\Delegate.h" />
     <ClInclude Include="Header Files\DisplayBoard.h" />
@@ -287,6 +288,7 @@
     <ClInclude Include="Header Files\SpatialPartition.h" />
     <ClInclude Include="Header Files\Spawner.h" />
     <ClInclude Include="Header Files\StdHeader.h" />
+    <ClInclude Include="Header Files\TargetEnemy.h" />
     <ClInclude Include="Header Files\targetver.h" />
     <ClInclude Include="Header Files\TestObject.h" />
     <ClInclude Include="Header Files\TextManager.h" />
@@ -327,6 +329,7 @@
     <ClCompile Include="Source Files\ControllerObject.cpp" />
     <ClCompile Include="Source Files\ControllerPillar.cpp" />
     <ClCompile Include="Source Files\Core.cpp" />
+    <ClCompile Include="Source Files\CoreShield.cpp" />
     <ClCompile Include="Source Files\DebugRenderer.cpp" />
     <ClCompile Include="Source Files\DisplayBoard.cpp" />
     <ClCompile Include="Source Files\DStar.cpp" />
@@ -388,6 +391,7 @@
     <ClCompile Include="Source Files\ForceField.cpp" />
     <ClCompile Include="Source Files\SpatialPartition.cpp" />
     <ClCompile Include="Source Files\Spawner.cpp" />
+    <ClCompile Include="Source Files\TargetEnemy.cpp" />
     <ClCompile Include="Source Files\TextManager.cpp" />
     <ClCompile Include="Source Files\Transform.cpp" />
     <ClCompile Include="Source Files\Turret.cpp" />

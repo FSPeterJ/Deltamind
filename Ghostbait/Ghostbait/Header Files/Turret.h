@@ -5,7 +5,7 @@
 
 class Animator;
 
-class Turret: public GameObject, public Health {
+class Turret: public GameObject, public Health, public GridBasedObject {
 protected:
 	GameObject* target;
 	unsigned projectiePID =0;

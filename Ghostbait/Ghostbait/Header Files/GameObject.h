@@ -19,6 +19,10 @@ enum GAMEOBJECT_PUBLIC_FLAGS {
 	UNLIT = 1,
 };
 
+struct GridBasedObject {
+	int gridRadius = 0;
+};
+
 class GameObject: public Object {
 	friend class ObjectFactory;
 	virtual void GameObject::SetData(char* data) {};

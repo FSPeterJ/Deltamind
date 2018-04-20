@@ -40,8 +40,9 @@ HUD::HUD(ID3D11Device* device, ID3D11DeviceContext* context, float windowWidth, 
 	wavIn = new WaveIndicator();
 	wavIn->Initialize(device, context, windowWidth, windowHeight);
 	MessageEvents::Subscribe(EVENT_WaveChange, [=](EventMessageBase* e) { UpdateWaveInfo(e); });
+	MessageEvents::Subscribe(EVENT_WaveComplete, [=](EventMessageBase* e) { UpdateWaveInfo(nullptr, true); });
+	MessageEvents::Subscribe(EVENT_ReadyToStart, [=](EventMessageBase * e) {ResetWaveInfo(e); });
 	MessageEvents::Subscribe(EVENT_EnemyDied, [=](EventMessageBase* e) { UpdateWaveInfo(); });
-
 }
 
 HUD::~HUD()
@@ -115,20 +116,35 @@ void HUD::ShowWaveInfo()
 	}
 }
 
-void HUD::UpdateWaveInfo(EventMessageBase * e)
+void HUD::UpdateWaveInfo(EventMessageBase * e, bool complete)
 {
+	if (complete)
+	{
+		wavIn->OffsetWave(1);
+		return;
+	}
 	if (e)
 	{
 		const GameData* gameData = *((GameDataMessage*)e)->RetrieveData();
 		if (gameData) {
 			wavIn->SetEnemyCount(gameData->waveManager.GetCurrentWave()->enemyCount);
 			wavIn->SetWave(gameData->waveManager.GetCurrentWaveNumber(), gameData->waveManager.GetWaveCount());
+			willUpdateEnemies = true;
 		}
 	}
 	else
 	{
-		wavIn->OffsetEnemyCount();
+		if(willUpdateEnemies)
+			wavIn->OffsetEnemyCount();
 	}
+}
+
+void HUD::ResetWaveInfo(EventMessageBase * e)
+{
+	const GameData* gameData = *((GameDataMessage*)e)->RetrieveData();
+	wavIn->SetWave(1, gameData->waveManager.GetWaveCount());
+	wavIn->SetEnemyCount(0);
+	willUpdateEnemies = false;
 }
 
 HUD::Crosshair::~Crosshair()
@@ -369,8 +385,14 @@ void HUD::WaveIndicator::SetEnemyCount(int enemies)
 
 }
 
-
 void HUD::WaveIndicator::SetWave(int wave, int maxWaves)
 {
+	CurrWave = wave;
+	MaxWave = maxWaves;
 	TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", std::string("W: " + std::to_string(wave) + "/" + std::to_string(maxWaves)), mats[0], { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 0.0f });
+}
+
+void HUD::WaveIndicator::OffsetWave(int waveCount)
+{
+	SetWave(waveCount + CurrWave, MaxWave);
 }

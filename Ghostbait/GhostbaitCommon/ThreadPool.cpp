@@ -1,14 +1,17 @@
 #include "ThreadPool.h"
+#include "Console.h"
 
 namespace Threadding {
 
 	int ThreadPool::maxThreads = std::thread::hardware_concurrency();
 
-	int ThreadPool::maxNonPriorityThreads = (int)(std::thread::hardware_concurrency() * 0.70f);
+	int ThreadPool::maxNonPriorityThreads = (int)(std::thread::hardware_concurrency() * 0.75f);
 
 	int ThreadPool::runningNonPriorityThreads = 0;
 
 	bool ThreadPool::quit = false;
+
+	bool ThreadPool::isAcceptingJobs = false;
 
 	std::vector<std::thread*> ThreadPool::pool;
 
@@ -32,10 +35,22 @@ namespace Threadding {
 
 			Job job;
 			if (!priorityJobs.empty()) {
+
+				//Common::Console::consoleMutex.lock();
+				//Common::Console::WarningLine << "PRIORITY JOBS: " << priorityJobs.size() << "  REGULAR JOBS: " << queue.size();
+				//Common::Console::consoleMutex.unlock();
+
 				job = std::move(priorityJobs.front());
 				priorityJobs.pop();
 				lock.unlock();
-				job();
+				try {
+					job();
+				}
+				catch (...) {
+					Common::Console::consoleMutex.lock();
+					Common::Console::ErrorLine << "THREAD: PRIORITY JOB CRASH!!!";
+					Common::Console::consoleMutex.unlock();
+				}
 			}
 			else {
 				if (!(runningNonPriorityThreads < maxNonPriorityThreads)) continue;
@@ -44,7 +59,15 @@ namespace Threadding {
 				queue.pop();
 				++runningNonPriorityThreads;
 				lock.unlock();
-				job();
+
+				try {
+					job();
+				}
+				catch (...) {
+					Common::Console::consoleMutex.lock();
+					Common::Console::ErrorLine << "THREAD: REGULAR JOB CRASH!!!";
+					Common::Console::consoleMutex.unlock();
+				}
 
 				lock.lock();
 				--runningNonPriorityThreads;
@@ -58,6 +81,32 @@ namespace Threadding {
 		for(int i = 0; i < maxThreads; ++i) {
 			pool.push_back(new std::thread(WaitForJob));
 		}
+	}
+
+	void ThreadPool::ClearQueues() {
+		queueMutex.lock();
+
+
+		while(!priorityJobs.empty()) {
+			priorityJobs.pop();
+		}
+		while(!queue.empty()) {
+			queue.pop();
+		}
+
+		Common::Console::consoleMutex.lock();
+		Common::Console::ErrorLine << "ALL JOB QUEUES CLEARED!";
+		Common::Console::consoleMutex.unlock();
+
+		queueMutex.unlock();
+	}
+
+	void ThreadPool::AcceptNonCriticalJobs(bool _isAccept) {
+		isAcceptingJobs = _isAccept;
+
+		Common::Console::consoleMutex.lock();
+		isAcceptingJobs ? Common::Console::WarningLine << "QUEUE IS OPEN FOR ALL JOBS." : Common::Console::WarningLine << "ACCEPTING PRIORITY JOBS ONLY!";
+		Common::Console::consoleMutex.unlock();
 	}
 
 	void ThreadPool::Shutdown() {

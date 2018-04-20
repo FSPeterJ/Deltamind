@@ -94,6 +94,7 @@ bool HexGrid::AddObstacle(HexTile*const obstaclePosition) {
 		Console::WriteLine << "Obstacle added: Tile (" << obstaclePosition->q << ", " << obstaclePosition->r << ")";
 		//PathPlanner::CostChangeNotice(obstaclePosition);
 		//cost_delta[obstaclePosition] = obstaclePosition->weight;
+		if (obstaclePosition->weight >= Blocked) return false;
 		SetWeight(obstaclePosition, Blocked);
 		blocked.push_back(*obstaclePosition);
 		return true;

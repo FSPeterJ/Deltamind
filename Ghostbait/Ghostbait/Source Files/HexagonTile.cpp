@@ -58,7 +58,8 @@ DirectX::XMFLOAT2 HexagonTile<T>::Center(HexagonalGridLayout layout)
 
 template<typename T>
 std::vector<HexTile> HexagonTile<T>::Neighbors() {
-	std::vector<HexTile> neighbors = {};
+	std::vector<HexTile> neighbors;
+	neighbors.reserve(Hexagon::NUMBER_OF_SIDES);
 	for(size_t i = 0; i < Hexagon::NUMBER_OF_SIDES; ++i) {
 		neighbors.push_back(*this + Direction((NEIGHBOR_DIRECTION) i));
 	}

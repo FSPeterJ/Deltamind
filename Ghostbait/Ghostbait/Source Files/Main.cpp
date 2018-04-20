@@ -71,7 +71,7 @@ void ExecuteAsync() {
 void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ThreadPool::Start();
 	Console::Allocate();
-	Window wnd(1024, 900);
+	Window wnd(1200, 900);
 	if(!wnd.Initialize(hInstance, FULLSCREEN ? SW_MAXIMIZE : nCmdShow)) { Messagebox::ShowError("Error!!", "Main window is not initialized!"); }
 	wnd.UpdateTitle(L"Ghostbait");
 

@@ -58,6 +58,8 @@ class HUD
 		ID3D11ShaderResourceView* srv;
 		Material* mats[2];
 		int EnemiesRemaining = 0;
+		int CurrWave = 0;
+		int MaxWave = 0;
 	public:
 		~WaveIndicator();
 		void Initialize(ID3D11Device* device, ID3D11DeviceContext* context, float windowWidth, float windowHeight) override;
@@ -65,12 +67,14 @@ class HUD
 		void OffsetEnemyCount(int offset = -1);
 		void SetEnemyCount(int enemies);
 		void SetWave(int wave, int maxWaves);
+		void OffsetWave(int waveCount);
 	};
 #pragma endregion
 
 	std::vector<BaseHUDElement*> HUDElements;
 	bool showingInventory = false;
 	bool showingWave = false;
+	bool willUpdateEnemies = false;
 	Inventory* inv;
 	WaveIndicator* wavIn;
 	ID3D11PixelShader* TexToQuadPS;
@@ -90,6 +94,7 @@ public:
 	void HideWaveInfo();
 	void ShowWaveInfo();
 
-	void UpdateWaveInfo(EventMessageBase* e = nullptr);
+	void UpdateWaveInfo(EventMessageBase* e = nullptr, bool complete = false);
+	void ResetWaveInfo(EventMessageBase* e);
 };
 

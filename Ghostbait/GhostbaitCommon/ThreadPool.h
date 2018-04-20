@@ -16,6 +16,8 @@ namespace Threadding {
 
 		static bool quit;
 
+		static bool isAcceptingJobs;
+
 		static std::vector<std::thread*> pool;
 
 		using Job = std::packaged_task<void()>;
@@ -32,6 +34,9 @@ namespace Threadding {
 
 	public:
 		static void Start();
+		static void Shutdown();
+		static void ClearQueues();
+		static void AcceptNonCriticalJobs(bool _isAccepting);
 
 		template<typename ReturnType, typename Class, typename... Args, typename Member = ReturnType(Class::*)(Args...)>
 		static ReturnType CreateMemberJob(Class* p, Member mf, Args&&... args) {
@@ -58,6 +63,7 @@ namespace Threadding {
 
 		template<typename F, typename... Args>
 		static std::future<void> MakeJob(bool prioritize, F f, Args&&... args) {
+			if (!isAcceptingJobs && !prioritize) return std::future<void>();
 			Job task(std::bind(f, std::forward<Args>(args)...));
 			auto fut = task.get_future();
 			{
@@ -66,6 +72,7 @@ namespace Threadding {
 				// Research futher, but this is probably irrelevant levels of performance
 				std::lock_guard<std::mutex> lock(queueMutex);
 				prioritize ? priorityJobs.push(std::move(task)) : queue.push(std::move(task));
+				//Common::Console::WriteLine << "JOB ADDED...";
 				
 			}
 			condition.notify_one();
@@ -75,6 +82,7 @@ namespace Threadding {
 		//This might not work...
 		template<typename ReturnType, typename... Args>
 		static std::future<ReturnType> MakeJob(bool prioritize, std::function<ReturnType(Args...)> f, Args&&... args) {
+			if (!isAcceptingJobs && !prioritize) return std::future<void>();
 			Job task(std::bind(f, std::forward<Args>(args)...));
 			auto fut = task.get_future();
 			{
@@ -83,12 +91,12 @@ namespace Threadding {
 				// Research futher, but this is probably irrelevant levels of performance
 				std::lock_guard<std::mutex> lock(queueMutex);
 				prioritize ? priorityJobs.push(std::move(task)) : queue.push(std::move(task));
+				//Common::Console::WriteLine << "JOB ADDED...";
 
 			}
 			condition.notify_one();
 			return fut;
 		}
 
-		static void Shutdown();
 	};
 }

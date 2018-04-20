@@ -3,7 +3,7 @@
 #include "Health.h"
 #include "Light.h"
 
-class Core : public GameObject,  public Health {
+class Core : public GameObject,  public Health, public GridBasedObject {
 	Light light;
 	float panicTimer;
 	float panicDuration;

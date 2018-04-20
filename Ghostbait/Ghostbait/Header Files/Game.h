@@ -54,6 +54,8 @@ class Game {
 	void StartEvent(EventMessageBase* e = nullptr);
 	void NextLogoEvent();
 	void ExitToMainMenu();
+	void CoreSetup(EventMessageBase* e);
+	void CoreRemoval(EventMessageBase* e);
 
 	//Major Scenes Loaded
 	void MainMenuLoaded();

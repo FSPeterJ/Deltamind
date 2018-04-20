@@ -14,6 +14,7 @@
 #include "Player.h"
 #include "Material.h"
 #include "HUD.h"
+#include "ThreadPool.h"
 #include "TargetEnemy.h"
 //#include "DStarEnemy.h"
 //#include "MTDSLEnemy.h"
@@ -39,6 +40,9 @@ Game::Game() {
 	MessageEvents::Subscribe(EVENT_NextLogo, [=](EventMessageBase* e) { this->NextLogoEvent(); });
 
 	MessageEvents::Subscribe(EVENT_GameDataRequest, [=](EventMessageBase* e) { this->GameDataRequestEvent(e); });
+	MessageEvents::Subscribe(EVENT_CoreSpawned, [=](EventMessageBase* e) { this->CoreSetup(e); });
+	MessageEvents::Subscribe(EVENT_CoreDestroyed, [=](EventMessageBase* e) { this->CoreRemoval(e); });
+
 	PathPlanner::SetGrid(&hexGrid);
 	AntColony::SetGrid(&hexGrid);
 	//gameData = GameData(&evolver);
@@ -113,8 +117,26 @@ void Game::StartEvent(EventMessageBase* e) {
 				levelName = starter->RetrieveLevelName();
 			ChangeState(GAMESTATE_BetweenWaves);
 			ChangeScene("level0", levelName);
+			GameData const* gd = &gameData;
+			MessageEvents::SendMessage(EVENT_ReadyToStart, GameDataMessage(&gd));
 			break;
 		}
+	}
+}
+void Game::CoreSetup(EventMessageBase* e) {
+	const Core* core = *(((CoreMessage*)e)->RetrieveData());
+	
+	HexPath spire = hexGrid.Spiral(hexGrid.PointToTile({ core->transform.matrix._41, core->transform.matrix._43 }), core->gridRadius).ToGrid(&hexGrid);
+	for (std::size_t i = 0; i < spire.size(); ++i) {
+		hexGrid.AddObstacle(spire[i]);
+	}
+}
+void Game::CoreRemoval(EventMessageBase* e) {
+	const Core* core = *(((CoreMessage*)e)->RetrieveData());
+
+	HexPath spire = hexGrid.Spiral(hexGrid.PointToTile({ core->transform.matrix._41, core->transform.matrix._43 }), core->gridRadius).ToGrid(&hexGrid);
+	for (std::size_t i = 0; i < spire.size(); ++i) {
+		hexGrid.RemoveObstacle(spire[i]);
 	}
 }
 
@@ -251,6 +273,7 @@ void Game::ChangeScene(const char* sceneName, std::string levelName) {
 	else
 		currLevelName = "";
 
+	Console::WriteLine << "SCENE HAS BEEN LOADED.";
 }
 void Game::StartNextWave() {
 	if(!gameData.waveManager.NextWaveExists()) {
@@ -266,11 +289,21 @@ void Game::StartNextWave() {
 
 //Handle primary function event logic
 void Game::RestartLevel() {
+	ThreadPool::AcceptNonCriticalJobs(false);
+	Threadding::ThreadPool::ClearQueues();
 	//Reset currentScene pointer
 	std::string name = sceneManager->GetNameFromScene(sceneManager->ResetCurrentScene());
 
 	//Reinstantiate starting wave values and current scene
 	ChangeScene(name.c_str(), currLevelName);
+	GameData const* gd = &gameData;
+	MessageEvents::SendMessage(EVENT_ReadyToStart, GameDataMessage(&gd));
+
+	MessageEvents::SendQueueMessage(EVENT_Late, [=]() { 
+		//ThreadPool::ClearQueues(); 
+		ThreadPool::AcceptNonCriticalJobs(true);
+	});
+
 }
 void Game::ResumeGame() {
 	//Logic to run when game first gets unPaused
@@ -515,7 +548,7 @@ void Game::Start(Player* _player, EngineStructure* _engine, HUD* _hud, char* sta
 	player->SetBuildToolData(&hexGrid, &gameData);
 
 	ChangeScene(startScene, xml);
-
+	ThreadPool::AcceptNonCriticalJobs(true);
 	//MessageEvents::SendMessage(EVENT_StartWave, EventMessageBase());
 	//DStarEnemy* newFred;
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<DStarEnemy>("DStarEnemy", {40,0,40}, &newFred));

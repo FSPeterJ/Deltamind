@@ -10,13 +10,13 @@
 
 void MTDSLEnemy::Enable() {
 	tag = std::string("Enemy");
-	if (!goalReference) {
-		if (!core) { Console::ErrorLine << "No Goal! I'm gonna blowwwwww!!!!"; }
-		else { goalReference = &core->transform.matrix; }
-	}
-	ultimateTarget = goalReference;
-	SetGoalReference(ultimateTarget);
-	if (!goal) { Console::ErrorLine << "Goal Tile DOESN'T EXIST!!!"; }
+	//if (!goalReference) {
+	//	if (!core) { Console::ErrorLine << "No Goal! I'm gonna blowwwwww!!!!"; }
+	//	else { goalReference = &core->transform.matrix; }
+	//}
+	//ultimateTarget = goalReference;
+	//SetGoalReference(ultimateTarget);
+	//if (!goal) { Console::ErrorLine << "Goal Tile DOESN'T EXIST!!!"; }
 
 	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
 	if (!curTile) { Console::ErrorLine << "Ahhhh! Initalize me on the grid please!!"; }
@@ -58,12 +58,6 @@ void MTDSLEnemy::SetGoal(DirectX::XMFLOAT2 _goal) {
 	else Console::WriteLine << "Goal Tile does not exist!";
 }
 
-void MTDSLEnemy::SetGoalReference(DirectX::XMFLOAT4X4* _goal) {
-	goalReference = _goal;
-	//PathPlanner::UpdateMTDSLTargetReference(mtdstarId, _goal);
-	SetGoal(DirectX::XMFLOAT2(_goal->_41, _goal->_43));
-}
-
 void MTDSLEnemy::SetGrid(HexGrid* _grid) {
 	grid = _grid;
 }
@@ -72,54 +66,54 @@ void MTDSLEnemy::SetCore(Core* _core) {
 	EnemyBase::SetCore(_core);
 }
 
-void MTDSLEnemy::FindTempPath() {
-	//rb->Stop();
-	Console::WriteLine << "Finding temporary path!!";
-
-	float closest = grid->BlockWeight() + 1;
-	float temp = 0;
-	HexTile* nextClosest = nullptr;
-	HexRegion ring;
-	//HexTile* currentlyOn = curTile ? curTile : goal;
-	HexTile currentlyOn = grid->PointToTileOffGrid(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
-	HexTile* ultiGoal = grid->PointToTile(DirectX::XMFLOAT2(ultimateTarget->_41, ultimateTarget->_43));
-
-	//if (currentlyOn) {
-	Console::WriteLine << "Enemy #" << mtdstarId << " ";
-	//int range = 3 * 2; //Perception range
-	int currFromGoal = currentlyOn.DistanceFrom(ultiGoal);
-	//range = range > currFromGoal ? currFromGoal : range;
-	int range = (int)(currFromGoal * 0.5);
-		for (; range > 0; --range) { //Perception range
-			ring = grid->Ring(&currentlyOn, range);
-			//Console::WarningLine << "RING SIZE BEFORE: " << ring.size();
-			ring.Filter(*grid);
-			//Console::WarningLine << "RING SIZE AFTER: " << ring.size();
-			for (int region = 0; region < ring.size(); ++region) {
-				if (!grid->GetTileExact(ring[region])) { Console::ErrorLine << "SOMEBODY DONE MESSED UP!!"; }
-				if (grid->IsBlocked(&ring[region])) continue;
-				temp = (float)ring[region].DistanceFrom(ultiGoal);
-				if (temp < closest) {
-					closest = temp;
-					nextClosest = &ring[region];
-				}
-			}
-			if (nextClosest) break;
-		}
-		if (nextClosest) {
-			DirectX::XMFLOAT2 holder = grid->TileToPoint(nextClosest);
-			tempGoal._41 = holder.x;
-			tempGoal._43 = holder.y;
-			SetGoalReference(&tempGoal);
-		
-			Console::WriteLine << "Found temporary objective...";
-		}
-	//}
-
-		if (!goal) {
-			Console::ErrorLine << "WHERE THE F IS THE GOAL!?!?!?!";
-	}
-}
+//void MTDSLEnemy::FindTempPath() {
+//	//rb->Stop();
+//	Console::WriteLine << "Finding temporary path!!";
+//
+//	float closest = grid->BlockWeight() + 1;
+//	float temp = 0;
+//	HexTile* nextClosest = nullptr;
+//	HexRegion ring;
+//	//HexTile* currentlyOn = curTile ? curTile : goal;
+//	HexTile currentlyOn = grid->PointToTileOffGrid(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
+//	HexTile* ultiGoal = grid->PointToTile(DirectX::XMFLOAT2(ultimateTarget->_41, ultimateTarget->_43));
+//
+//	//if (currentlyOn) {
+//	Console::WriteLine << "Enemy #" << mtdstarId << " ";
+//	//int range = 3 * 2; //Perception range
+//	int currFromGoal = currentlyOn.DistanceFrom(ultiGoal);
+//	//range = range > currFromGoal ? currFromGoal : range;
+//	int range = (int)(currFromGoal * 0.5);
+//		for (; range > 0; --range) { //Perception range
+//			ring = grid->Ring(&currentlyOn, range);
+//			//Console::WarningLine << "RING SIZE BEFORE: " << ring.size();
+//			ring.Filter(*grid);
+//			//Console::WarningLine << "RING SIZE AFTER: " << ring.size();
+//			for (int region = 0; region < ring.size(); ++region) {
+//				if (!grid->GetTileExact(ring[region])) { Console::ErrorLine << "SOMEBODY DONE MESSED UP!!"; }
+//				if (grid->IsBlocked(&ring[region])) continue;
+//				temp = (float)ring[region].DistanceFrom(ultiGoal);
+//				if (temp < closest) {
+//					closest = temp;
+//					nextClosest = &ring[region];
+//				}
+//			}
+//			if (nextClosest) break;
+//		}
+//		if (nextClosest) {
+//			DirectX::XMFLOAT2 holder = grid->TileToPoint(nextClosest);
+//			tempGoal._41 = holder.x;
+//			tempGoal._43 = holder.y;
+//			SetGoalReference(&tempGoal);
+//		
+//			Console::WriteLine << "Found temporary objective...";
+//		}
+//	//}
+//
+//		if (!goal) {
+//			Console::ErrorLine << "WHERE THE F IS THE GOAL!?!?!?!";
+//	}
+//}
 
 void MTDSLEnemy::Awake(Object* obj) {
 	grid = 0;
@@ -130,8 +124,6 @@ void MTDSLEnemy::Awake(Object* obj) {
 	curTile = 0;
 	//lastTile = 0;
 	mtdstarId = 0;
-	goalReference = 0;
-	ultimateTarget = 0;
 	eventAdd = 0;
 	eventRemove = 0;
 
@@ -141,48 +133,26 @@ void MTDSLEnemy::Awake(Object* obj) {
 	EnemyBase::Awake(obj);
 }
 
-void MTDSLEnemy::Attack() {
-	if (timeSinceLastAttack == -1) {
-		if (core) core->AdjustHealth(-attackDamage);
-		RecordAttack();
-		Console::WriteLine << "Core health: " << core->PercentHealth();
-		timeSinceLastAttack = 0;
-		return;
-	}
-
-	float dt = (float)GhostTime::DeltaTime();
-	timeSinceLastAttack += dt;
-
-	float timeToAttack = 1 / attackSpeed;
-	if (timeSinceLastAttack >= timeToAttack) {
-		core->AdjustHealth(-attackDamage);
-		RecordAttack();
-		Console::WriteLine << "Core health: " << core->PercentHealth();
-		timeSinceLastAttack = 0;
-	}
-}
-
-void MTDSLEnemy::Update() {
-	EnemyBase::Update();
+void MTDSLEnemy::Patrol() {
 
 	//grid->Color(path, DirectX::XMFLOAT3(0.0f, 0.0f, 1.0f), 3);
-	if (goalReference) {
-		goal = grid->PointToTile(DirectX::XMFLOAT2(goalReference->_41, goalReference->_43));
-		if (!goal) {
-			if(goalReference == &tempGoal)
-				Console::WarningLine << "GOAL IS NULL";
- 		}
-	}
-	//lastTile = curTile;
-	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
+	//if (goalReference) {
+	//	goal = grid->PointToTile(DirectX::XMFLOAT2(goalReference->_41, goalReference->_43));
+	//	if (!goal) {
+	//		if(goalReference == &tempGoal)
+	//			Console::WarningLine << "GOAL IS NULL";
+ //		}
+	//}
+	////lastTile = curTile;
+	//curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
 
-	if (!curTile) {
-		Console::WriteLine << "OUT OF BOUNDS!";
-		rb->Stop();
-		//rb->SetVelocity(DirectX::XMVectorScale(rb->GetVelocity(), -1.0f));
-		FindTempPath();
-		curTile = lastTile;
-	}
+	//if (!curTile) {
+	//	Console::WriteLine << "OUT OF BOUNDS!";
+	//	rb->Stop();
+	//	//rb->SetVelocity(DirectX::XMVectorScale(rb->GetVelocity(), -1.0f));
+	//	FindTempPath();
+	//	curTile = lastTile;
+	//}
 	//else {
 
 		//if (curTile == next) {
@@ -212,11 +182,11 @@ void MTDSLEnemy::Update() {
 			if (goal == curTile) {
 				//Console::WriteLine << "We made it to our goal.";
 				rb->Stop();
-				if (goalReference == ultimateTarget) {
-					Attack();
-					return;
-				}
-				SetGoalReference(ultimateTarget);
+				//if (goalReference == ultimateTarget) {
+				//	Attack();
+				//	return;
+				//}
+				//SetGoalReference(ultimateTarget);
 			}
 			else {
 				//if (KeyIsHit(Control::TestInputO)) {
@@ -241,7 +211,7 @@ void MTDSLEnemy::Update() {
 					}
 					else {
 						rb->Stop();
-						FindTempPath();
+						//FindTempPath();
 					}
 				//} while (!next);
 				//}
@@ -258,4 +228,11 @@ void MTDSLEnemy::Update() {
 	//}
 
 	lastTile = curTile;
+
+	EnemyBase::Patrol();
+}
+
+bool MTDSLEnemy::ValidateAttackTarget() {
+	HexTile* tar = grid->PointToTile({ targetPos[0], targetPos[2] });
+	return grid->GetIntersectingTilesRanges(curTile, attackRange, tar, 0).size() > 0;
 }

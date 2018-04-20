@@ -422,6 +422,7 @@ void Game::TutorialLoaded() {
 }
 void Game::Level0Loaded() {
 	worldLight.RemoveLightFromManager();
+	currentTimeBetweenWaveReady = -1;
 	int index = 0;
 	player->leftController->SetControllerState(CSTATE_Inventory);
 	player->rightController->SetControllerState(CSTATE_Inventory);

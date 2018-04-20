@@ -38,6 +38,9 @@ Game::Game() {
 	MessageEvents::Subscribe(EVENT_ChangeScene, [=](EventMessageBase* e) { this->ChangeScene(((ChangeSceneMessage*)e)->RetrieveData()); });
 
 	MessageEvents::Subscribe(EVENT_GameDataRequest, [=](EventMessageBase* e) { this->GameDataRequestEvent(e); });
+	MessageEvents::Subscribe(EVENT_CoreSpawned, [=](EventMessageBase* e) { this->CoreSetup(e); });
+	MessageEvents::Subscribe(EVENT_CoreDestroyed, [=](EventMessageBase* e) { this->CoreRemoval(e); });
+
 	PathPlanner::SetGrid(&hexGrid);
 	AntColony::SetGrid(&hexGrid);
 	//gameData = GameData(&evolver);
@@ -108,6 +111,22 @@ void Game::StartEvent(EventMessageBase* e) {
 			ChangeScene("level0", levelName);
 			break;
 		}
+	}
+}
+void Game::CoreSetup(EventMessageBase* e) {
+	const Core* core = *(((CoreMessage*)e)->RetrieveData());
+	
+	HexPath spire = hexGrid.Spiral(hexGrid.PointToTile({ core->transform.matrix._41, core->transform.matrix._43 }), core->gridRadius).ToGrid(&hexGrid);
+	for (std::size_t i = 0; i < spire.size(); ++i) {
+		hexGrid.AddObstacle(spire[i]);
+	}
+}
+void Game::CoreRemoval(EventMessageBase* e) {
+	const Core* core = *(((CoreMessage*)e)->RetrieveData());
+
+	HexPath spire = hexGrid.Spiral(hexGrid.PointToTile({ core->transform.matrix._41, core->transform.matrix._43 }), core->gridRadius).ToGrid(&hexGrid);
+	for (std::size_t i = 0; i < spire.size(); ++i) {
+		hexGrid.RemoveObstacle(spire[i]);
 	}
 }
 

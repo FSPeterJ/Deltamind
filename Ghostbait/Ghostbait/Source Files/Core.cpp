@@ -13,6 +13,7 @@ void Core::Awake(Object* obj) {
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/healthCube.ghost")), { 0, 0, 0 }, &healthCubes[i]));
 	}
 	*/
+	gridRadius = 2;
 	panicTimer = -1;
 	panicDuration = 4;
 	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
@@ -89,5 +90,7 @@ void Core::Destroy() {
 	light.SetColor({ 0, 0, 0 });
 	light.RemoveLightFromManager();
 	MessageEvents::SendMessage(EVENT_UnregisterNoisemaker, NewObjectMessage(this));
+	Core const* co = this;
+	MessageEvents::SendMessage(EVENT_CoreDestroyed, CoreMessage(&co));
 	GameObject::Destroy();
 }

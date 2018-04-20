@@ -343,5 +343,6 @@ void AStarEnemy::CalcPath(HexTile* where) {
 
 bool AStarEnemy::ValidateAttackTarget() {
 	HexTile* tar = grid->PointToTile({ targetPos[0], targetPos[2] });
-	return grid->GetIntersectingTilesRanges(curTile, attackRange, tar, 0).size() > 0;
+	GridBasedObject* obj = dynamic_cast<GridBasedObject*>(targetObj);
+	return grid->GetIntersectingTilesRanges(curTile, attackRange, tar, obj->gridRadius).size() > 0;
 }

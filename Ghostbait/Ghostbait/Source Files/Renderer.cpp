@@ -18,6 +18,7 @@
 #include "RenderUtil.h"
 #include "GhostTime.h"
 
+
 using namespace DirectX;
 
 void Renderer::createDeviceContextAndSwapchain(Window window) {
@@ -39,18 +40,21 @@ void Renderer::createDeviceContextAndSwapchain(Window window) {
 	desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
-
+	HRESULT Result;
 	D3D_FEATURE_LEVEL* feature = new D3D_FEATURE_LEVEL(D3D_FEATURE_LEVEL_11_0);
 	D3D_FEATURE_LEVEL* outputFeature = nullptr;
 #if _DEBUG
-	D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, D3D11_CREATE_DEVICE_DEBUG, feature, 1, D3D11_SDK_VERSION, &desc, &swapchain, &device, outputFeature, &context);
+	Result = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, D3D11_CREATE_DEVICE_DEBUG, feature, 1, D3D11_SDK_VERSION, &desc, &swapchain, &device, outputFeature, &context);
 #else
-	D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, feature, 1, D3D11_SDK_VERSION, &desc, &swapchain, &device, outputFeature, &context);
+	Result =D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, feature, 1, D3D11_SDK_VERSION, &desc, &swapchain, &device, outputFeature, &context);
 #endif
 	swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
 
-	HRESULT Result = device->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&DebugDevice));
 
+#if _DEBUG
+	Result  = device->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&DebugDevice));
+	HRESULT getAnalysis = DXGIGetDebugInterface1(0, __uuidof(graphicsAnalysis), reinterpret_cast<void**>(&graphicsAnalysis));
+#endif
 
 	delete feature;
 }
@@ -576,7 +580,8 @@ void Renderer::Destroy() {
 	releaseDeferredTarget(&deferredTextures);
 #if _DEBUG
 	//DebugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
-	DebugDevice->Release();
+	SAFE_RELEASE(graphicsAnalysis);
+	SAFE_RELEASE(DebugDevice);
 #endif
 }
 
@@ -664,13 +669,17 @@ XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 }
 
 void Renderer::Render() {
+	//graphicsAnalysis->BeginCapture();
+
 	perFrameDataConstantBuffer.FrameTime = (float)GhostTime::DeltaTime();
-	context->UpdateSubresource(perFrameConstantBuffer, NULL, NULL, &perFrameDataConstantBuffer, 0, 0);
+	perFrameDataConstantBuffer.lastElapsed = perFrameDataConstantBuffer.ElapsedTime;
+	perFrameDataConstantBuffer.ElapsedTime += perFrameDataConstantBuffer.FrameTime;
+
 	loadPipelineState(&defaultPipeline);
 	XMMATRIX cameraObj = XMMatrixTranspose(XMLoadFloat4x4(&cameraPos->GetMatrix()));
 	XMStoreFloat4x4(&defaultCamera.view, XMMatrixInverse(&XMMatrixDeterminant(cameraObj), cameraObj));
 	if(VRManager::GetInstance().IsEnabled()) {
-		VRManager::GetInstance().GetVRMatrices(&leftEye.camera.projection, &rightEye.camera.projection, &leftEye.camera.view, &rightEye.camera.view);
+		VRManager::GetInstance().GetVRMatrices(&leftEye.camera.projection, &rightEye.camera.projection, &leftEye.camera.view, &rightEye.camera.view, &mHMDWorldPos);
 
 		//XMStoreFloat4x4(&leftEye.camera.projection, (XMLoadFloat4x4(&defaultCamera.projection)));
 		//XMStoreFloat4x4(&rightEye.camera.projection, (XMLoadFloat4x4(&defaultCamera.projection)));
@@ -682,6 +691,9 @@ void Renderer::Render() {
 		rightEye.camPos = DirectX::XMFLOAT3(rightEye.camera.view._41, rightEye.camera.view._42, rightEye.camera.view._43);
 		XMStoreFloat4x4(&leftEye.camera.view, XMMatrixTranspose(XMMatrixInverse(&XMVectorSet(0, 0, 0, 0), XMLoadFloat4x4(&leftEye.camera.view))));
 		XMStoreFloat4x4(&rightEye.camera.view, XMMatrixTranspose(XMMatrixInverse(&XMVectorSet(0, 0, 0, 0), XMLoadFloat4x4(&rightEye.camera.view))));
+
+		//Right Here we need a position from the center of the headset
+		XMStoreFloat3(&perFrameDataConstantBuffer.cameraCenterpoint,mHMDWorldPos.r[3]);
 
 		LightManager::getLightBuffer()->cameraPos = leftEye.camPos;
 		context->UpdateSubresource(lightBuffer, NULL, NULL, LightManager::getLightBuffer(), 0, 0);
@@ -696,7 +708,14 @@ void Renderer::Render() {
 		context->UpdateSubresource(cameraBuffer, 0, NULL, &defaultCamera, 0, 0);
 		DirectX::XMFLOAT3 tempPos = cameraPos->GetPosition();
 		sortTransparentObjects(tempPos);
+
+
 	}
+
+
+
+
+
 	float color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	context->ClearRenderTargetView(defaultPipeline.render_target_view, color);
 	context->ClearDepthStencilView(defaultPipeline.depth_stencil_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -716,6 +735,10 @@ void Renderer::Render() {
 	drawSkyboxTo(deferredTextures.RTVs, deferredTextures.DSV, defaultPipeline.viewport, camPos);
 
 	context->RSSetViewports(1, &defaultPipeline.viewport);
+
+	perFrameDataConstantBuffer.cameraCenterpoint = camPos;
+
+	context->UpdateSubresource(perFrameConstantBuffer, NULL, NULL, &perFrameDataConstantBuffer, 0, 0);
 
 #if _DEBUG
 	DebugRenderer::flushTo(deferredTextures.RTVs, deferredTextures.DSV, defaultPipeline.viewport);
@@ -750,7 +773,7 @@ void Renderer::Render() {
 	//	view = leftEye.camera.view;
 	//	proj = leftEye.camera.projection;
 	//}
-	//else
+	//elsea
 	//{
 	//	view = defaultCamera.view;
 	//	proj = defaultCamera.projection;
@@ -773,6 +796,8 @@ void Renderer::Render() {
 	context->UpdateSubresource(cameraBuffer, NULL, NULL, &buff, NULL, NULL);
 	combineDeferredTargets(&deferredTextures, defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport);
 	swapchain->Present(0, 0);
+	//graphicsAnalysis->EndCapture();
+
 }
 
 void Renderer::initDepthStencilBuffer(pipeline_state_t* pipelineTo) {

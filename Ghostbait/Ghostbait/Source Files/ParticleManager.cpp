@@ -9,17 +9,14 @@ void ParticleManager::InitShaders() {
 	LoadShaderFromCSO(&byteCode, byteCodeSize, "Particle_GeometryShader.cso");
 	device->CreateGeometryShader(byteCode, byteCodeSize, NULL, &GeometryShader);
 	delete[] byteCode;
-	byteCode = nullptr;
 
 	LoadShaderFromCSO(&byteCode, byteCodeSize, "Particle_PixelShader.cso");
 	device->CreatePixelShader(byteCode, byteCodeSize, NULL, &PixelShader);
 	delete[] byteCode;
-	byteCode = nullptr;
 
 	LoadShaderFromCSO(&byteCode, byteCodeSize, "Particle_VertexShader.cso");
 	device->CreateVertexShader(byteCode, byteCodeSize, NULL, &VertexShader);
 	delete[] byteCode;
-	byteCode = nullptr;
 
 	LoadShaderFromCSO(&byteCode, byteCodeSize, "ParticleEmit_ComputeShader.cso");
 	device->CreateComputeShader(byteCode, byteCodeSize, NULL, &ParticleEmitShader);
@@ -28,6 +25,23 @@ void ParticleManager::InitShaders() {
 	LoadShaderFromCSO(&byteCode, byteCodeSize, "ParticleUpdate_ComputeShader.cso");
 	device->CreateComputeShader(byteCode, byteCodeSize, NULL, &ParticleUpdateShader);
 	delete[] byteCode;
+
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "ParticleSortInitial_ComputeShader.cso");
+	device->CreateComputeShader(byteCode, byteCodeSize, NULL, &ParticleSortInitialShader);
+	delete[] byteCode;
+
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "ParticleSortStep_ComputeShader.cso");
+	device->CreateComputeShader(byteCode, byteCodeSize, NULL, &ParticleSortStepShader);
+	delete[] byteCode;
+
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "ParticleSortFinal_ComputeShader.cso");
+	device->CreateComputeShader(byteCode, byteCodeSize, NULL, &ParticleSortFinalShader);
+	delete[] byteCode;
+
+	LoadShaderFromCSO(&byteCode, byteCodeSize, "ParticleSortInitArgs_ComputeShader.cso");
+	device->CreateComputeShader(byteCode, byteCodeSize, NULL, &ParticleSortInitArgsShader);
+	delete[] byteCode;
+
 }
 
 ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _context, ID3D11Buffer* _perFrame) {//no mom I don't do member initializer lists on long function signatures
@@ -113,8 +127,8 @@ ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _
 
 	//END TEST
 
-	//device->CreateBuffer(&bufferDesc, nullptr, &ActiveParticleIndexBuffer);
-	device->CreateBuffer(&bufferDesc, &resData, &ActiveParticleIndexBuffer);
+	device->CreateBuffer(&bufferDesc, nullptr, &ActiveParticleIndexBuffer);
+	//device->CreateBuffer(&bufferDesc, &resData, &ActiveParticleIndexBuffer);
 	device->CreateShaderResourceView(ActiveParticleIndexBuffer, &srvDesc, &ActiveParticleIndexSRV);
 	device->CreateUnorderedAccessView(ActiveParticleIndexBuffer, &uavDesc, &ActiveParticleIndexUAV);
 
@@ -129,6 +143,16 @@ ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _
 	device->CreateUnorderedAccessView(InactiveParticleIndexBuffer, &uavDesc, &InactiveParticleIndexUAV);
 	delete[] indexData;
 
+	bufferDesc.ByteWidth = sizeof(SortIndex) * MAX_PARTICLES;
+	bufferDesc.StructureByteStride = sizeof(SortIndex);
+
+	uavDesc.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_APPEND;
+
+	//Sort Buffer
+	device->CreateBuffer(&bufferDesc, &resData, &SortParticleIndexBuffer);
+	device->CreateShaderResourceView(SortParticleIndexBuffer, &srvDesc, &SortParticleIndexSRV);
+	device->CreateUnorderedAccessView(SortParticleIndexBuffer, &uavDesc, &SortParticleIndexUAV);
+
 	//Active / Inactive count Constant buffer
 	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	bufferDesc.ByteWidth = sizeof(UINT) * 4;
@@ -136,11 +160,11 @@ ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _
 
 	ZeroMemory(&resData, sizeof(resData));
 	UINT* countData = new UINT[4];
-	countData[0] = 1u;
+	//countData[0] = 1u;
 
 	resData.pSysMem = countData;
 	device->CreateBuffer(&bufferDesc, &resData, &ActiveParticleConstantBuffer);
-	countData[0] = MAX_PARTICLES;
+	//countData[0] = MAX_PARTICLES;
 	resData.pSysMem = countData;
 	device->CreateBuffer(&bufferDesc, &resData, &InactiveParticleConstantBuffer);
 	delete[] countData;
@@ -153,8 +177,12 @@ ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _
 
 	CD3D11_BUFFER_DESC NconstantBufferDesc(sizeof(EmitterConstant), D3D11_BIND_CONSTANT_BUFFER);
 	resData.pSysMem = &emitterConstant;
-
 	device->CreateBuffer(&NconstantBufferDesc, &resData, &EmitterConstantBuffer);
+
+	CD3D11_BUFFER_DESC SortParametersconstantBufferDesc(sizeof(SortParameters), D3D11_BIND_CONSTANT_BUFFER);
+
+	resData.pSysMem = &sortParams;
+	device->CreateBuffer(&NconstantBufferDesc, &resData, &SortParametersConstantBuffer);
 
 	ZeroMemory(&resData, sizeof(resData));
 	UINT* argData = new UINT[5];
@@ -180,26 +208,21 @@ ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _
 	uavDesc.Buffer.Flags = 0;
 	device->CreateUnorderedAccessView(IndirectDrawArgsBuffer, &uavDesc, &IndirectDrawArgsUAV);
 
-	ID3D11UnorderedAccessView* uavs[] = { ActiveParticleIndexUAV, InactiveParticleIndexUAV };
-	UINT counts[] = { 0, (MAX_PARTICLES) };
-	//This fakes setting one particle as active
+
+	bufferDesc.ByteWidth = sizeof(UINT) * 4;
+	device->CreateBuffer(&bufferDesc, nullptr, &IndirectSortArgsBuffer);
+
+	uavDesc.Buffer.NumElements = 4;
+	device->CreateUnorderedAccessView(IndirectSortArgsBuffer, &uavDesc, &IndirectSortArgsBufferUAV);
+
+	ID3D11UnorderedAccessView* uavs[] = {  InactiveParticleIndexUAV, SortParticleIndexUAV, IndirectSortArgsBufferUAV };
+	UINT counts[] = { (MAX_PARTICLES), 0, 0 };
+	//This initializes the count in a worse way.  Please look into setting it on creation
 	context->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavs), uavs, counts);
-	uavs[0] = nullptr;
-	uavs[1] = nullptr;
+	ZeroMemory(uavs, sizeof(uavs)); // Disconnect
 	context->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavs), uavs, counts);
 
-	//ID3D11UnorderedAccessView* uavs[] = { ParticleUAV, ActiveParticleIndexUAV, InactiveParticleIndexUAV };
-
-	//UINT counts[] = { (UINT)1, (UINT)1, (UINT)(MAX_PARTICLES) };
-	////This fakes setting one particle as active
-	//context->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavs), uavs, counts);
-	//uavs[0] = nullptr;
-	//uavs[1] = nullptr;
-	//uavs[2] = nullptr;
-	//context->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavs), uavs, counts);
-
-
-	ID3D11Buffer* buffers[] = { perFrame, ActiveParticleConstantBuffer, InactiveParticleConstantBuffer, EmitterConstantBuffer };
+	ID3D11Buffer* buffers[] = { perFrame, ActiveParticleConstantBuffer, InactiveParticleConstantBuffer, EmitterConstantBuffer, SortParametersConstantBuffer };
 	context->CSSetConstantBuffers(0, ARRAYSIZE(buffers), buffers);
 
 }
@@ -214,19 +237,18 @@ void ParticleManager::RenderParticles() {
 	context->GSSetShader(GeometryShader, NULL, NULL);
 	context->PSSetShader(PixelShader, NULL, NULL);
 
-	ID3D11ShaderResourceView* SRV[] = { ParticleSRV, ActiveParticleIndexSRV };
+	ID3D11ShaderResourceView* SRV[] = { ParticleSRV, SortParticleIndexSRV };
 	context->VSSetShaderResources(10, 2, SRV);
 
-	context->CopyStructureCount(IndirectDrawArgsBuffer, 0, ActiveParticleIndexUAV);
+	context->CopyStructureCount(IndirectDrawArgsBuffer, 0, SortParticleIndexUAV);
 	context->DrawInstancedIndirect(IndirectDrawArgsBuffer, 0);
 	//context->Draw(20, 0);
 	context->GSSetShader(nullptr, NULL, NULL);
-	//SRV[0] = nullptr;
-	//SRV[1] = nullptr;
+
 	//context->VSSetShaderResources(10, 2, SRV);
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	SRV[0] = nullptr;
-	SRV[1] = nullptr;
+
+	ZeroMemory(SRV, sizeof(SRV));
 	context->VSSetShaderResources(10, 2, SRV);
 
 	Update();
@@ -301,11 +323,13 @@ ParticleManager::~ParticleManager() {
 void ParticleManager::Update() {
 
 	//Map emitters and fire off Emit shader
-	ID3D11UnorderedAccessView* uavs[] = { ParticleUAV, ActiveParticleIndexUAV, InactiveParticleIndexUAV, IndirectDrawArgsUAV };
+	ID3D11UnorderedAccessView* uavs[] = { ParticleUAV, ActiveParticleIndexUAV, InactiveParticleIndexUAV, IndirectDrawArgsUAV, SortParticleIndexUAV, IndirectSortArgsBufferUAV };
+	int counters[] = { -1, -1, -1, -1, 0 }; //Reset the sorted particle Index Append/Consume
 
-	context->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavs), uavs, nullptr);
+	context->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavs), uavs, (UINT*)&counters);
+
+
 	context->CSSetShader(ParticleEmitShader, nullptr, 0);
-
 	context->CopyStructureCount(ActiveParticleConstantBuffer, 0, ActiveParticleIndexUAV);
 	context->CopyStructureCount(InactiveParticleConstantBuffer, 0, InactiveParticleIndexUAV);
 	int numThreadGroups = 1;
@@ -314,7 +338,8 @@ void ParticleManager::Update() {
 	// It should give access to the vector array and you should then ask for the active count.
 	// A discussion with Kody on an unrelated system has made this apparent to me.
 	Emitter* activeEmitters = (*emitterPool.GetActiveList())[0];
-	unsigned activeCount = (unsigned)emitterPool.GetActiveCount();
+	const unsigned activeCount = (unsigned)emitterPool.GetActiveCount();
+
 	for(unsigned i = 0; i < activeCount; ++i) {
 		Emitter* activeEmit = &activeEmitters[activeCount];
 		emitterConstant.EndColor = activeEmit->EndColor;
@@ -330,6 +355,7 @@ void ParticleManager::Update() {
 	context->CSSetShader(ParticleUpdateShader, nullptr, 0);
 	context->CopyStructureCount(ActiveParticleConstantBuffer, 0, ActiveParticleIndexUAV);
 	context->CopyStructureCount(InactiveParticleConstantBuffer, 0, InactiveParticleIndexUAV);
+	context->CopyStructureCount(IndirectSortArgsBuffer, 0, ActiveParticleIndexUAV);
 
 	//This fakes setting one particle as active
 
@@ -340,13 +366,157 @@ void ParticleManager::Update() {
 	//int numThreadGroups = MAX_PARTICLES / 1024;
 	context->Dispatch(numThreadGroups, 1, 1);
 
-	uavs[0] = nullptr;
-	uavs[1] = nullptr;
-	uavs[2] = nullptr;
+	ZeroMemory(uavs, sizeof(uavs));
+
 	context->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavs), uavs, nullptr);
-	//srvs[0] = nullptr;
-	//context->CSSetShaderResources(0, ARRAYSIZE(srvs), srvs);
 
-	//context->CopyStructureCount(IndirectDrawArgsBuffer, sizeof(unsigned)*2, ActiveParticleIndexUAV);
+	Sort();
+}
 
+
+
+
+//
+//
+//void ParticleManager::Sort() {
+//
+//	//ID3D11Buffer* cbs[] = { itemCountBuffer, m_pcbDispatchInfo };
+//	//context->CSSetConstantBuffers(0, ARRAYSIZE(cbs), cbs);
+//
+//	// Write the indirect args to a UAV
+//	//context->CSSetUnorderedAccessViews(0, 1, &IndirectSortArgsBufferUAV, nullptr);
+//
+//	context->CSSetUnorderedAccessViews(0, 1, &sortBufferUAV, nullptr);
+//
+//
+//
+//	bool completed = false;
+//
+//	context->CSSetShader(ParticleSortStepShader, nullptr, 0);
+//
+//	unsigned int numThreadGroups = 0;
+//
+//	UINT Data[100];
+//	for(int subArraySize = 2; subArraySize < MAX_PARTICLES; subArraySize <<= 1) {
+//		for(int compareDistance = (subArraySize >> 1); compareDistance > 0; compareDistance >>= 1) {
+//
+//			//double result = ((Data[GI & ~comparedistance] <= Data[GI | comparedistance]) == (bool)(g_iLevelMask & DTid.x)) ? Data[GI ^ comparedistance] : Data[GI];
+//			//Data[GI] = result;
+//
+//			D3D11_MAPPED_SUBRESOURCE MappedResource;
+//
+//			context->Map(SortParametersConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource);
+//			SortParameters* JobParameters = (SortParameters*)MappedResource.pData;
+//			JobParameters->distance = compareDistance;
+//			if(compareDistance == subArraySize) {
+//				JobParameters->jump = (2*compareDistance-1);
+//				JobParameters->direction = -1;
+//			}
+//			else {
+//				JobParameters->jump = compareDistance;
+//				JobParameters->direction = 1;
+//			}
+//			context->Unmap(SortParametersConstantBuffer, 0);
+//			context->Dispatch(1024, 1, 1);
+//		}
+//	}
+//
+//
+//}
+
+
+
+
+
+const int MAX_NUM_TG = 1024;//128; // max 128 * 512 elements = 64k elements
+
+
+
+
+void ParticleManager::Sort() const {
+
+
+	context->CSSetShader(ParticleSortInitArgsShader, nullptr, 0);
+	context->Dispatch(1, 1, 1);
+
+	//This looks terrible
+	bool bDone = sortInitial();
+
+	int presorted = 512;
+	while(!bDone) {
+		bDone = sortIncremental(presorted);
+		presorted *= 2;
+	}
+
+
+}
+
+
+
+bool ParticleManager::sortInitial() const {
+	bool bDone = true;
+
+	// calculate how many threads we'll require:
+	//   we'll sort 512 elements per CU (threadgroupsize 256)
+	//     maybe need to optimize this or make it changeable during init
+	//     TGS=256 is a good intermediate value
+
+
+	const unsigned int numThreadGroups = ((MAX_PARTICLES-1)>>9)+1;
+
+	assert(numThreadGroups <=MAX_NUM_TG);
+
+	if(numThreadGroups>1) bDone = false;
+
+	// sort all buffers of size 512 (and presort bigger ones)
+	context->CSSetShader(ParticleSortInitialShader, nullptr, 0);
+	context->DispatchIndirect(IndirectSortArgsBuffer, 0);
+
+	return bDone;
+}
+
+bool ParticleManager::sortIncremental(unsigned presorted) const {
+	bool bDone = true;
+	context->CSSetShader(ParticleSortStepShader, nullptr, 0);
+
+	// prepare thread group description data
+	unsigned numThreadGroups = 0;
+
+	if(MAX_PARTICLES > presorted) {
+		if(MAX_PARTICLES>presorted*2)
+			bDone = false;
+
+		unsigned pow2 = presorted;
+		while(pow2<MAX_PARTICLES)
+			pow2 *= 2;
+		numThreadGroups = pow2>>9;
+	}
+
+	const unsigned subArraySize = presorted;
+
+	for(unsigned distance = subArraySize; distance>256; distance = distance>>1)
+		//	for( int nMergeSubSize=nMergeSize>>1; nMergeSubSize>0; nMergeSubSize=nMergeSubSize>>1 ) 
+	{
+		D3D11_MAPPED_SUBRESOURCE MappedResource;
+
+		context->Map(SortParametersConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource);
+		SortParameters* sc = (SortParameters*)MappedResource.pData;
+		sc->distance = distance;
+		if(distance == subArraySize) {
+			sc->jump = (2*distance-1);
+			sc->direction = -1;
+		}
+		else {
+			sc->jump = distance;
+			sc->direction = 1;
+		}
+		context->Unmap(SortParametersConstantBuffer, 0);
+
+		context->Dispatch(numThreadGroups, 1, 1);
+	}
+
+	context->CSSetShader(ParticleSortFinalShader, nullptr, 0);
+	context->Dispatch(numThreadGroups, 1, 1);
+
+	return bDone;
 }

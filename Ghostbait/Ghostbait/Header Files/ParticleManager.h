@@ -8,28 +8,29 @@
 #include "IComponentManager.h"
 #include "Emitter.h"
 
-#define MAX_PARTICLES 100
-#define MAX_REFERENCE_PARTICLES 10
+//#define MAX_PARTICLES 524288 // 2^19
+#define MAX_PARTICLES 16 // 2^4
+#define MAX_REFERENCE_PARTICLES 100
 class ParticleManager: public IComponentManager {
 
 
 
 	struct EmitterConstant {
 		//16
-		DirectX::XMFLOAT3 Position = DirectX::XMFLOAT3(0,1,0);
+		DirectX::XMFLOAT3 Position = DirectX::XMFLOAT3(0, 1, 0);
 		unsigned MaxParticlesThisFrame = 1;
 
 		//16
-		DirectX::XMFLOAT3 Velocity = DirectX::XMFLOAT3(0,0,1);
+		DirectX::XMFLOAT3 Velocity = DirectX::XMFLOAT3(0, 0, 1);
 		float ParticleVelocityVariance;
 		//16
 		DirectX::XMFLOAT3 ParticlePositionVariance;
 		float VelocityMagnatude;  // This might be removed soon
 
 		//16
-		float StartSize = 0.5f;
-		float EndSize = 1.5f;
-		float ParticleLifeSpan = 10;
+		float StartSize = 0.1f;
+		float EndSize = 0.1f;
+		float ParticleLifeSpan = 3;
 		unsigned TextureIndex;
 		//16
 		DirectX::XMFLOAT4 StartColor = DirectX::XMFLOAT4(0, 0, 1, 0.8f);
@@ -41,7 +42,11 @@ class ParticleManager: public IComponentManager {
 		float xAngleVariance;
 		float yAngleVariance;
 		//16
+		float emissionRateMS;
+		float paddingEM[3];
 	} emitterConstant;
+
+
 
 	//float3 float float3 float float float float uint float4 float4
 	struct GPUParticle {
@@ -74,6 +79,18 @@ class ParticleManager: public IComponentManager {
 		DirectX::XMFLOAT4 EndColor;
 	};
 
+	struct SortParameters {
+		int distance;
+		int jump;
+		int direction;
+		int padding = 0;
+	} sortParams;
+
+	struct SortIndex {
+		float distanceToCamera;
+		float index;
+	};
+
 	Pool<Emitter> emitterPool = Pool<Emitter>(MAX_PARTICLES);
 	Pool<Emitter> referenceEemitterPool = Pool<Emitter>(MAX_REFERENCE_PARTICLES);
 
@@ -91,11 +108,14 @@ class ParticleManager: public IComponentManager {
 	ID3D11Buffer* ParticleBuffer = nullptr;
 	ID3D11ShaderResourceView* ParticleSRV = nullptr;
 	ID3D11UnorderedAccessView* ParticleUAV = nullptr;
-	ID3D11Buffer* InactiveParticleIndexBuffer = nullptr;
-	ID3D11UnorderedAccessView* InactiveParticleIndexUAV = nullptr;
 	ID3D11Buffer* InactiveParticleConstantBuffer = nullptr;
 	ID3D11Buffer* ActiveParticleConstantBuffer = nullptr;
 	ID3D11Buffer* EmitterConstantBuffer = nullptr;
+	ID3D11Buffer* InactiveParticleIndexBuffer = nullptr;
+	ID3D11UnorderedAccessView* InactiveParticleIndexUAV = nullptr;
+	ID3D11Buffer* SortParticleIndexBuffer = nullptr;
+	ID3D11ShaderResourceView* SortParticleIndexSRV = nullptr;
+	ID3D11UnorderedAccessView* SortParticleIndexUAV = nullptr;
 	ID3D11Buffer* ActiveParticleIndexBuffer = nullptr;
 	ID3D11ShaderResourceView* ActiveParticleIndexSRV = nullptr;
 	ID3D11UnorderedAccessView* ActiveParticleIndexUAV = nullptr;
@@ -104,6 +124,17 @@ class ParticleManager: public IComponentManager {
 	ID3D11UnorderedAccessView* IndirectDrawArgsUAV = nullptr;
 	ID3D11ComputeShader* ParticleUpdateShader = nullptr;
 	ID3D11ComputeShader* ParticleEmitShader = nullptr;
+	ID3D11ComputeShader* ParticleSortInitialShader = nullptr;
+	ID3D11ComputeShader* ParticleSortStepShader = nullptr;
+	ID3D11ComputeShader* ParticleSortFinalShader = nullptr;
+	ID3D11ComputeShader* ParticleSortInitArgsShader = nullptr;
+
+
+	ID3D11Buffer* SortParametersConstantBuffer = nullptr;
+	ID3D11Buffer* IndirectSortArgsBuffer = nullptr;
+	ID3D11UnorderedAccessView* IndirectSortArgsBufferUAV = nullptr;
+
+
 
 	//static ID3D11Buffer* viewBuff;
 	//static ID3D11Buffer* projBuff;
@@ -112,6 +143,9 @@ class ParticleManager: public IComponentManager {
 public:
 	~ParticleManager();
 	void Update();
+	void Sort() const;
+	bool sortInitial() const;
+	bool sortIncremental(unsigned presorted) const;
 	void InitShaders();
 	ParticleManager(ID3D11Device* _device, ID3D11DeviceContext* _context, ID3D11Buffer* _perFrame);
 	void RenderParticles();

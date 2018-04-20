@@ -4,7 +4,7 @@
 //To optimize this further, split the calculation data from the render data into seperate buffers
 // It is important that 16 byte alignment is maintained.
 //https://developer.nvidia.com/content/understanding-structured-buffer-performance
-struct BillboardParticle // (112 bytes) 500,000  = 53 + 20 = 73MB of VRAM for all particle data and index list (not including textures)
+struct Particle // (112 bytes) 500,000  = 53 + 20 = 73MB of VRAM for all particle data and index list (not including textures)
 {
      //Dynamic data  (16 bytes)
     float3 position;
@@ -24,7 +24,7 @@ struct BillboardParticle // (112 bytes) 500,000  = 53 + 20 = 73MB of VRAM for al
 
     //May move UV data to this section or compact size into something else
     float size;
-    float size1;
+    float distanceToCamera;
     float size2;
     float size3;
 
@@ -35,10 +35,13 @@ struct BillboardParticle // (112 bytes) 500,000  = 53 + 20 = 73MB of VRAM for al
 };
 
 // The number of alive particles this frame
+
+//In reality, it would be best to just use 1 cbuff and map set unmap
 cbuffer ActiveParticles : register(b1)
 {
     uint ActiveParticleCount;
-    uint APCpad[3];
+    uint MaxParticles;
+    uint APCpad[2];
 };
 
 cbuffer InactiveParticles : register(b2)

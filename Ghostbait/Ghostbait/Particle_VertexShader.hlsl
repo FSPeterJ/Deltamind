@@ -2,8 +2,9 @@
 
 //The draw call to this shader should have no input layout elements as the data is in GPU buffers
 
-StructuredBuffer<BillboardParticle> BillboardParticleBuffer : register(t10);
-StructuredBuffer<uint> ActiveBillboardParticleIndex : register(t11); 
+StructuredBuffer<Particle> ParticleBuffer : register(t10);
+StructuredBuffer<float2> SortedParticleIndex : register(t11);
+
 
 cbuffer ModelViewProjectionConstantBuffer : register(b0)
 {
@@ -22,10 +23,11 @@ struct VSOutput
 
 VSOutput main(uint VertexID : SV_VertexID)
 {
+
     VSOutput output = (VSOutput) 0;
     uint particleIndex = VertexID;
-    uint sortedIndex = ActiveBillboardParticleIndex[particleIndex]; // Adjust this later when sorting is added
-    BillboardParticle BParticle = BillboardParticleBuffer[sortedIndex];
+    uint sortedIndex = asuint(SortedParticleIndex[particleIndex].y); // Adjust this later when sorting is added
+    Particle BParticle = ParticleBuffer[sortedIndex];
 
     //This can be optimized by computing the view space data beforehand in a compute shader
     //output.pos = mul(float4(BParticle.position, 1.0f), view);

@@ -5,6 +5,14 @@
 #include <vector>
 #include "ParticleManager.h"
 
+#if _DEBUG
+#include <DXGItype.h>  
+#include <dxgi1_2.h>  
+#include <dxgi1_3.h>  
+#include <DXProgrammableCapture.h>  
+#endif
+
+
 
 class Transform;
 class GameObject;
@@ -43,7 +51,10 @@ private:
 	struct PerFrameConstantBuffer {
 		float FrameTime;
 		float ElapsedTime;
-		UINT padding[2];
+		float lastElapsed;
+		float padding;
+		DirectX::XMFLOAT3 cameraCenterpoint;
+		float padding2;
 	} perFrameDataConstantBuffer;
 
 	struct viewProjectionConstantBuffer {
@@ -144,6 +155,7 @@ private:
 	ID3D11ShaderResourceView* randomTextureSRV;
 
 	ID3D11Debug* DebugDevice = nullptr;
+	IDXGraphicsAnalysis* graphicsAnalysis = nullptr;
 
 
 
@@ -179,6 +191,8 @@ public:
 	//test
 	eye leftEye;
 	eye rightEye;
+	DirectX::XMMATRIX mHMDWorldPos;
+
 
 	Renderer();
 	~Renderer();

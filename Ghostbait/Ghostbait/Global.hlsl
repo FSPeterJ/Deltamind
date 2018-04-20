@@ -5,7 +5,10 @@ cbuffer PerFrameConstantBuffer : register(b0)
 {
     float FrameTime;
     float ElapsedTime;
-    uint padding[2];
+    float lastElapsed;
+    float paddingThing;
+    float3 CameraCenterpoint;
+    float paddingThing2;
 };
 
 SamplerState SamplerWrapLinear : register(s0);

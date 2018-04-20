@@ -527,12 +527,6 @@
     <ClCompile Include="Source Files\Turret.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\ParticleManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source Files\ParticleTextureManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source Files\HexTileVector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -594,6 +588,12 @@
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\Emitter.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\ParticleManager.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\ParticleTextureManager.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
@@ -658,6 +658,18 @@
     </FxCompile>
     <FxCompile Include="Particle_PixelShader.hlsl">
       <Filter>Shaders\Pixel Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ParticleSortStep_ComputeShader.hlsl">
+      <Filter>Shaders\Compute Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ParticleSortFinal_ComputeShader.hlsl">
+      <Filter>Shaders\Compute Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ParticleSortInitial_ComputeShader.hlsl">
+      <Filter>Shaders\Compute Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ParticleSortInitArgs_ComputeShader.hlsl">
+      <Filter>Shaders\Compute Shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

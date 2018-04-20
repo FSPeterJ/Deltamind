@@ -21,6 +21,8 @@ void EnemyBase::Awake(Object* obj) {
 	isOutofBounds = false;
 	isHurting = false;
 	isDying = false;
+	isChasing = false;
+	isRedirecting = false;
 	sentDeathMessage = false;
 
 	maxSpeed = (float)((rand() % 3) + 1);
@@ -72,9 +74,9 @@ void EnemyBase::Start() {
 }
 
 void EnemyBase::Subscribe() {
-	if(!eventLose) eventLose = MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) { MessageEvents::SendQueueMessage(EVENT_Late, [=] {this->Destroy(); }); });
+	if(!eventLose) eventLose = MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) { MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); }); });
 	if (!smite) smite = MessageEvents::Subscribe(EVENT_Smite, [=](EventMessageBase* e) { this->AdjustHealth(-1000); });
-	if(!eventObstacleRemove) eventObstacleRemove = MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {this->ValidateTarget(e); });
+	if(!eventObstacleRemove) eventObstacleRemove = MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {ValidateTarget(e); });
 }
 
 void EnemyBase::UnSubscribe() {
@@ -104,7 +106,12 @@ void EnemyBase::Disable() {
 }
 
 void EnemyBase::Destroy() {
+	Console::consoleMutex.lock();
+	Console::WarningLine << "REGULAR enemy Destory!!";
+	Console::consoleMutex.unlock();
+
 	gameObjMutex.lock();
+	//isDying = true;
 	CalculateResult();
 	MessageEvents::SendMessage(EVENT_EnemyDied, EventMessageBase());
 	GameObject::Destroy();
@@ -154,15 +161,16 @@ bool EnemyBase::ChangeState(State _s) {
 	switch (_s)
 	{
 	case EnemyBase::IDLE:
-		Console::WarningLine << "Changing state to IDLE";
+		//Console::WarningLine << "Changing state to IDLE";
 		break;
 	case EnemyBase::PATROL:
-		Console::WarningLine << "Changing state to PATROL";
+		//Console::WarningLine << "Changing state to PATROL";
 		if (GetComponent<Animator>())
 			GetComponent<Animator>()->setState("Move");
 		break;
 	case EnemyBase::ATTACK:
-		Console::WarningLine << "Changing state to ATTACK";
+		//Console::WarningLine << "Changing state to ATTACK";
+		isRedirecting = false;
 		isChasing = false;
 		if (!ValidateAttackTarget()) {
 			ReTarget();
@@ -171,13 +179,16 @@ bool EnemyBase::ChangeState(State _s) {
 		}
 		break;
 	case EnemyBase::INJURED:
-		Console::WarningLine << "Changing state to INJURED";
+		//Console::WarningLine << "Changing state to INJURED";
 		if (GetComponent<Animator>())
 			GetComponent<Animator>()->setState("Taunt");
 		break;
 	case EnemyBase::DEATH:
-		Console::WarningLine << "Changing state to DEATH";
+		//Console::WarningLine << "Changing state to DEATH";
 		isDying = true;
+		Console::consoleMutex.lock();
+		Console::ErrorLine << &isDying << " isDying is TRUE";
+		Console::consoleMutex.unlock();
 		rb->Stop();
 		break;
 	default:

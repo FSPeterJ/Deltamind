@@ -65,8 +65,21 @@ void AStarEnemy::Disable() {
 	EnemyBase::Disable();
 }
 void AStarEnemy::Destroy() {
+	Console::consoleMutex.lock();
+	Console::WarningLine <<"ASTAR Destory!!";
+	Console::consoleMutex.unlock();
 	isDying = true;
-	if (isPathing) pathing.get();
+
+	if (isPathing) {
+		try {
+			pathing.get();
+		}
+		catch (...) {
+			Console::consoleMutex.lock();
+			Console::WarningLine << "Something went wrong with the Thread!!!";
+			Console::consoleMutex.unlock();
+		}
+	}
 	EnemyBase::Destroy();
 }
 //void AStarEnemy::Update() {
@@ -149,15 +162,22 @@ void AStarEnemy::Patrol() {
 	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
 
 	if (!curTile) {
+		if (isOutofBounds) return;
+		
 		Console::ErrorLine << "Out of BOUNDS!!";
 		isOutofBounds = true;
-		rb->SetVelocity(targetPos[0] - transform.matrix._41, targetPos[1] - transform.matrix._42, targetPos[2] - transform.matrix._43);
+		rb->SetVelocity(DirectX::XMVectorScale(rb->GetVelocity(), -1.0f));
 		return;
 	}
 
-	if (isPathing && pathing.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready) return;
+	if (pathing.valid() && (isPathing && pathing.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready)) return;
 	
-	isOutofBounds = false;
+	if (isOutofBounds) {
+		Repath();
+		isOutofBounds = false;
+		return;
+	}
+
 	if (path.size() < 1) {
 		Console::ErrorLine << "Lost its Path!!";
 		rb->Stop();
@@ -177,6 +197,7 @@ void AStarEnemy::Patrol() {
 	EnemyBase::Patrol();
 	
 	if (curTile == next) {
+		isRedirecting = false;
 		Step();
 		next = path.Next(curTile);
 		if (!next) { return; }
@@ -191,8 +212,21 @@ void AStarEnemy::Patrol() {
 	}
 
 	if (path.Next(curTile) != next) {
+		if (isRedirecting) return;
 		Console::ErrorLine << "Strayed off path!!";
 		rb->Stop();
+
+		isRedirecting = true;
+		if (next) {
+			auto nextPathPoint = grid->TileToPoint(next);
+
+			DirectX::XMVECTOR nextDirection = DirectX::XMVectorSet(nextPathPoint.x - transform.GetMatrix()._41, 0.0f, nextPathPoint.y - transform.GetMatrix()._43, 1.0f);
+			DirectX::XMVECTOR velocity = rb->GetVelocity();
+			rb->AddForce(3.0f * (DirectX::XMVectorGetX(DirectX::XMVector3Dot(nextDirection, velocity)) + 1.0f), nextPathPoint.x - transform.GetMatrix()._41, 0.0f, nextPathPoint.y - transform.GetMatrix()._43, 0.5f);
+
+			return;
+		}
+
 		Repath();
 		next = curTile;
 		return;
@@ -203,6 +237,9 @@ void AStarEnemy::Patrol() {
 void AStarEnemy::Repath() {
 	if (isPathing) return;
 	isPathing = true;
+	Console::consoleMutex.lock();
+	Console::ErrorLine << "isDying address Before Thread: " << &isDying;
+	Console::consoleMutex.unlock();
 	pathing = Threadding::ThreadPool::MakeJob(false, [&]() {NewAroundPath(); });
 }
 void AStarEnemy::SetGrid(HexGrid* _grid) {
@@ -248,6 +285,10 @@ bool AStarEnemy::NewAroundPath() {
 
 	HexPath spire;// = grid->Spiral(goal, 5, false);
 
+	Console::consoleMutex.lock();
+	Console::ErrorLine << "isDying address in Thread: " << &isDying;
+	Console::consoleMutex.unlock();
+
 	for (int i = 1; i < 10; ++i) {
 		ring = grid->Ring(tempGoal, i);
 		ring.Filter(*grid);
@@ -257,7 +298,12 @@ bool AStarEnemy::NewAroundPath() {
 		curInd = startInd = Omiracon::Random::RandomNumber(0, endInd);
 		
 		do {
-			if (isDying) return false;
+			if (isDying) {
+				Console::consoleMutex.lock();
+				Console::ErrorLine << &isDying << "isDying is TRUE in Thread!";
+				Console::consoleMutex.unlock();
+				return false;
+			}
 			tile = spire[curInd];
 			if (!grid->IsBlocked(tile)) {
 				CalcPath(tile);

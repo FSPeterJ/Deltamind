@@ -9,43 +9,42 @@
 
 namespace DirectX { struct XMFLOAT2; struct XMFLOAT4X4; }
 class HexGrid;
-class MTDSLEnemy : public EnemyBase, public Controlable, public AntProperties {
+class MTDSLEnemy : public EnemyBase, public AntProperties {
 
 protected:
+	HexPath path;
+	HexGrid* grid = 0;
+	//RigidBody* rb = 0;
+	HexTile* goal = 0;
+	HexTile* next = 0;
+	HexTile* curTile = 0;
+	HexTile* lastTile = nullptr;
 
-	HexGrid* grid;
-	//RigidBody* rb;
+	bool isPathing = false;
+	bool pathIsBlocked = false;
+	std::future<void> pathing;
+	bool start = false;
+	unsigned eventAdd = 0;
+	unsigned eventRemove = 0;
 
 	std::size_t mtdstarId = 0;
-
-	DirectX::XMFLOAT4X4* goalReference = nullptr, *ultimateTarget = nullptr;
-	DirectX::XMFLOAT4X4 tempGoal = { 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f };
-	//HexTile* start = nullptr;
-	HexTile* goal = nullptr;
-	HexTile* next = nullptr;
-	HexTile* curTile = nullptr;
-	HexTile* lastTile = nullptr;
-	HexPath path;
-	bool tempTarget = false;
-
-	unsigned eventAdd;
-	unsigned eventRemove;
 
 public:
 	void SetGrid(HexGrid* _grid) override;
 	void SetCore(Core* _core) override;
 	void SetGoal(HexTile* _goal);
 	void SetGoal(DirectX::XMFLOAT2 _goal);
-	void SetGoalReference(DirectX::XMFLOAT4X4* _goal);
-	void FindTempPath();
 
+	//bool ReTarget(GameObject* _obj = nullptr) override;
+	bool ValidateAttackTarget() override;
 	void Repath() override {};
+
 	void Enable() override;
 	void Disable() override;
 	void Subscribe() override;
 	void UnSubscribe() override;
 	void Destroy() override;
 	void Awake(Object* obj) override;
-	void Attack();
-	void Update();
+
+	void Patrol() override;
 };

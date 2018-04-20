@@ -44,9 +44,10 @@ protected:
 	bool isHurting = false;
 	bool isDying = false;
 	bool isChasing = false;
+	bool isRedirecting = false;
 	bool sentDeathMessage = false;
 
-	float maxSpeed = 100.0f;
+	float maxSpeed = 3.0f;
 	float attackSpeed = 1;
 	float attackDamage = 5;
 	float timeSinceLastAttack = -1;

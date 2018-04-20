@@ -14,6 +14,7 @@
 #include "Player.h"
 #include "Material.h"
 #include "HUD.h"
+#include "ThreadPool.h"
 //#include "DStarEnemy.h"
 //#include "MTDSLEnemy.h"
 #include <future>
@@ -245,6 +246,7 @@ void Game::ChangeScene(const char* sceneName, std::string levelName) {
 	else
 		currLevelName = "";
 
+	Console::WriteLine << "SCENE HAS BEEN LOADED.";
 }
 void Game::StartNextWave() {
 	if(!gameData.waveManager.NextWaveExists()) {
@@ -260,11 +262,19 @@ void Game::StartNextWave() {
 
 //Handle primary function event logic
 void Game::RestartLevel() {
+	ThreadPool::AcceptNonCriticalJobs(false);
+	Threadding::ThreadPool::ClearQueues();
 	//Reset currentScene pointer
 	std::string name = sceneManager->GetNameFromScene(sceneManager->ResetCurrentScene());
 
 	//Reinstantiate starting wave values and current scene
 	ChangeScene(name.c_str(), currLevelName);
+
+	MessageEvents::SendQueueMessage(EVENT_Late, [=]() { 
+		//ThreadPool::ClearQueues(); 
+		ThreadPool::AcceptNonCriticalJobs(true);
+	});
+
 }
 void Game::ResumeGame() {
 	//Logic to run when game first gets unPaused
@@ -441,7 +451,7 @@ void Game::Start(Player* _player, EngineStructure* _engine, HUD* _hud, char* sta
 	player->SetBuildToolData(&hexGrid, &gameData);
 
 	ChangeScene(startScene, xml);
-
+	ThreadPool::AcceptNonCriticalJobs(true);
 	//MessageEvents::SendMessage(EVENT_StartWave, EventMessageBase());
 	//DStarEnemy* newFred;
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<DStarEnemy>("DStarEnemy", {40,0,40}, &newFred));

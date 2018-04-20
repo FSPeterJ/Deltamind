@@ -109,7 +109,7 @@ namespace Common {
 	Console::WriteLiner Console::ErrorOutLine(&outErrorPrefix);
 	Console::WriteLiner Console::Log(&logger);
 
-
+	std::mutex Console::consoleMutex;
 	void* Console::hConsole;
 
 	void Console::Allocate() {
@@ -141,6 +141,7 @@ namespace Common {
 	}
 #else 
 
+std::mutex Console::consoleMutex;
 std::ostream Console::oo(std::cout.rdbuf());
 
 Console::Writer Console::Write;

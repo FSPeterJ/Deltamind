@@ -2,6 +2,7 @@
 
 #include <ostream> //required for koenig lookups
 #include <time.h>
+#include <mutex>
 
 
 namespace Common {
@@ -77,6 +78,7 @@ namespace Common {
 		static Logger logger;
 
 	public:
+		static std::mutex	consoleMutex;
 		static Writer		Write;
 		static WriteLiner   WriteLine;
 		static Writer		Error;
@@ -134,6 +136,7 @@ namespace Common {
 			std::ostream& operator<< (std::ostream& o) { return o; }
 		};
 
+		static std::mutex	consoleMutex;
 		static Writer		Write;
 		static WriteLiner   WriteLine;
 		static Writer		Error;

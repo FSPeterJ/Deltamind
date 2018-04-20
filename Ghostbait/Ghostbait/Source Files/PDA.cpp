@@ -115,3 +115,7 @@ void PDA::UpdateDisplay(EventMessageBase* e) {
 	message.append(" ");
 	TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", message, displayMat, foreground, background);
 }
+
+void PDA::ResetDisplay(EventMessageBase * e)
+{
+}

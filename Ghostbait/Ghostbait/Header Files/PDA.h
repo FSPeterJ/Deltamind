@@ -27,7 +27,7 @@ private:
 
 	unsigned eventWaveChange = 0;
 	unsigned eventEnemyDied = 0;
-
+	unsigned eventReset = 0;
 public:
 	
 	PDA();
@@ -40,6 +40,7 @@ public:
 	void DeSelected() override;
 
 	void UpdateDisplay(EventMessageBase* e = nullptr);
+	void ResetDisplay(EventMessageBase* e);
 
 	void SetHand(ControllerHand _hand) { hand = _hand; }
 	void SetPurpose(Purpose _purpose);

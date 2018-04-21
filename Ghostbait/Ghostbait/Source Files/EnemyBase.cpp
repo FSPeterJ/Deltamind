@@ -7,6 +7,7 @@
 #include "Animator.h"
 #include "Wwise_IDs.h"
 #include "Evolvable.h"
+#include <cmath>
 
 void EnemyBase::Awake(Object* obj) {
 	currState = IDLE;
@@ -52,8 +53,18 @@ void EnemyBase::Awake(Object* obj) {
 
 void EnemyBase::Start() {
 
-	if (!genetics) return;
+	if (!genetics) {
+		throw std::runtime_error("enemy has no genetics");
+		return;
+	}
 	genetics->performance.Reset();
+	if (abs(genetics->traits.Sum() - 1.0f) > FLT_EPSILON) {
+		throw std::runtime_error("enemy has no genetics");
+	}
+
+	if ( std::isnan(genetics->traits[Trait::ACCURACY])) {
+		throw std::runtime_error("enemy has bad genes");
+	}
 
 #undef max
 	float domTraits[] = { genetics->traits[STRENGTH] + genetics->traits[POWER] + genetics->traits[ACCURACY] + genetics->traits[LUCK],

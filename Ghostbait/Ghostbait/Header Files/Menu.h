@@ -20,8 +20,8 @@ public:
 	inline void SetOldColliderPoint(DirectX::XMFLOAT3 pos) { oldColliderPoint = pos; }
 	inline PhysicsComponent* GetPhysics() const { return pc; }
 	virtual void Select() = 0;
-	void Highlight();
-	void UnHighlight();
+	virtual void Highlight();
+	virtual void UnHighlight();
 };
 
 enum Template {
@@ -34,6 +34,8 @@ enum Template {
 	MENU_QuitConfirm
 };
 enum Button {
+	BUTTON_Blank,
+
 	BUTTON_Resume,
 	BUTTON_Restart,
 	BUTTON_Options,
@@ -59,18 +61,31 @@ enum Button {
 	BUTTON_MouseSensitivityDown,
 	BUTTON_AcceptOptions,
 	BUTTON_CancelOptions,
+
+	LABEL_Master,
+	LABEL_MasterVal,
+	LABEL_Music,
+	LABEL_MusicVal,
+	LABEL_SFX,
+	LABEL_SFXVal,
+	LABEL_Brightness,
+	LABEL_BrightnessVal,
+	LABEL_MouseSensitivity,
+	LABEL_MouseSensitivityVal,
+
 	BUTTON_Next,
 	BUTTON_Skip,
 	BUTTON_Revert,
 	BUTTON_QuitConfirm,
-	BUTTON_QuitCancel
+	BUTTON_QuitCancel,
 };
 
 class Menu {
 public:
 	enum ColumnType {
-		OneColumn,
-		TwoColumn,
+		OneColumn_B,
+		TwoColumn_BB,
+		FourColumn_LBBL,
 	};
 private:
 	bool active = false;
@@ -83,7 +98,7 @@ private:
 	Menu* parent = nullptr;
 	Menu* child = nullptr;
 
-	ColumnType columnType = OneColumn;
+	ColumnType columnType = OneColumn_B;
 
 	DirectX::XMFLOAT4X4 FindCenter(float distFromPlayer = 1);
 	float FindDistanceFromCenter(int optionNumber, int optionCount, float optionHeight, float gapHeight);
@@ -92,13 +107,13 @@ private:
 public:
 
 	Menu();
-	Menu(Template t, std::vector<Button> buttons = std::vector<Button>(), ColumnType _columnType = OneColumn);
-	void Create(Template t, std::vector<Button> buttons = std::vector<Button>(), ColumnType _columnType = OneColumn);
+	Menu(Template t, std::vector<Button> buttons = std::vector<Button>(), ColumnType _columnType = OneColumn_B);
+	void Create(Template t, std::vector<Button> buttons = std::vector<Button>(), ColumnType _columnType = OneColumn_B);
 	void SetCamera(Transform* _camera);
 	inline void SetParent(Menu* _parent) { parent = _parent; };
 	inline void SetChild(Menu* _child) { child = _child; };
 	inline void SetSpawnPos(DirectX::XMFLOAT4X4& pos) { spawnPos = pos; }
-	void CreateAndLoadChild(Template t, std::vector<Button> buttons = std::vector<Button>(), ColumnType _columnType = OneColumn);
+	void CreateAndLoadChild(Template t, std::vector<Button> buttons = std::vector<Button>(), ColumnType _columnType = OneColumn_B);
 	void LoadParent();
 	void Show(bool useCamera = true);
 	void Hide();
@@ -142,7 +157,6 @@ class MediumButton : public MenuOption {
 class HardButton : public MenuOption {
 	void Select() override;
 };
-
 class MasterUpButton : public MenuOption {
 	void Select() override;
 };
@@ -179,7 +193,6 @@ class AcceptOptionsButton : public MenuOption {
 class CancelOptionsButton : public MenuOption {
 	void Select() override;
 };
-
 class NextButton : public MenuOption {
 	void Select() override;
 };
@@ -189,12 +202,16 @@ class SkipButton : public MenuOption {
 class RevertOptionsButton : public MenuOption {
 	void Select() override;
 };
-
 class QuitConfirmButton : public MenuOption {
 	void Select() override;
 };
-
 class QuitCancelButton : public MenuOption {
 	void Select() override;
+};
+
+class Label : public MenuOption {
+	void Highlight() override {};
+	void UnHighlight() override {};
+	void Select() override {};
 };
 

@@ -79,10 +79,10 @@ void Menu::AssignPrefabIDs() {
 	buttonPrefabMap[BUTTON_QuitCancel] = ObjectFactory::CreatePrefab(&std::string("Assets/QuitCancelButton.ghost"));
 
 	buttonPrefabMap[LABEL_Master] = ObjectFactory::CreatePrefab(&std::string("Assets/MasterLabel.ghost"));
-	buttonPrefabMap[LABEL_Music] = buttonPrefabMap[LABEL_Master];
-	buttonPrefabMap[LABEL_SFX] = buttonPrefabMap[LABEL_Master];
-	buttonPrefabMap[LABEL_Brightness] = buttonPrefabMap[LABEL_Master];
-	buttonPrefabMap[LABEL_MouseSensitivity] = buttonPrefabMap[LABEL_Master];
+	buttonPrefabMap[LABEL_Music] = ObjectFactory::CreatePrefab(&std::string("Assets/MusicLabel.ghost"));
+	buttonPrefabMap[LABEL_SFX] = ObjectFactory::CreatePrefab(&std::string("Assets/SFXLabel.ghost"));
+	buttonPrefabMap[LABEL_Brightness] = ObjectFactory::CreatePrefab(&std::string("Assets/BrightnessLabel.ghost"));
+	buttonPrefabMap[LABEL_MouseSensitivity] = ObjectFactory::CreatePrefab(&std::string("Assets/SensitivityLabel.ghost"));
 }
 
 DirectX::XMFLOAT4X4 Menu::FindCenter(float distFromPlayer) {

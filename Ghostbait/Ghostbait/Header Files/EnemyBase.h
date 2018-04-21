@@ -58,7 +58,7 @@ protected:
 	double hurtTimer = 0;
 	double hurtDuration = 1;
 	double deathTimer = 0;
-	double deathDuration = 1.25;
+	double deathDuration = 1.23;
 	unsigned eventLose = 0;
 	unsigned smite = 0;
 	unsigned eventObstacleRemove = 0;

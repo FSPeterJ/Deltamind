@@ -31,8 +31,12 @@ void EnemyBase::Awake(Object* obj) {
 	perceptionRange = 3;
 	timeSinceLastAttack = -1;
 
+	prevVelocity = { 0.0f, 0.0f, 0.0f };
+
 	hurtTimer = 0;
 	hurtDuration = 0.25;
+	deathTimer = 0;
+	deathDuration = 1.25;
 	eventLose = 0;
 	smite = 0;
 	eventObstacleRemove = 0;
@@ -111,7 +115,7 @@ void EnemyBase::Destroy() {
 	Console::consoleMutex.unlock();
 
 	gameObjMutex.lock();
-	//isDying = true;
+	isDying = true;
 	CalculateResult();
 	MessageEvents::SendMessage(EVENT_EnemyDied, EventMessageBase());
 	GameObject::Destroy();
@@ -158,7 +162,6 @@ void EnemyBase::ValidateTarget(EventMessageBase* e) {
 bool EnemyBase::ChangeState(State _s) {
 	if (currState == _s || isDying) return false;
 	
-
 	switch (_s)
 	{
 	case EnemyBase::IDLE:
@@ -190,10 +193,11 @@ bool EnemyBase::ChangeState(State _s) {
 		break;
 	case EnemyBase::DEATH:
 		//Console::WarningLine << "Changing state to DEATH";
-		isDying = true;
+		//isDying = true;
 		if (GetComponent<Animator>())
 			GetComponent<Animator>()->setState("Death");
 		rb->Stop();
+		pc->isActive = false;
 		break;
 	default:
 		break;
@@ -315,6 +319,8 @@ void EnemyBase::Injured() {
 			defaultMat = GetComponent<Material>(); //FIXME
 			SetComponent(componentVarients["Hurt"], id);
 		}
+		prevVelocity = rb->GetVelocityFloat3();
+		rb->Stop();
 		isHurting = true;
 		hurtTimer = 0;
 		return;
@@ -327,11 +333,17 @@ void EnemyBase::Injured() {
 		int id = TypeMap::GetComponentTypeID<Material>();
 		SetComponent(defaultMat, id);
 		ChangeState(prevState);
+		rb->SetVelocity(prevVelocity);
 	}
 }
 
 void EnemyBase::Death() {
-
+	if (sentDeathMessage) return;
+	deathTimer += GhostTime::DeltaTime();
+	if (deathTimer >= deathDuration) {
+		sentDeathMessage = true;
+		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
+	}
 }
 
 #pragma endregion
@@ -394,9 +406,7 @@ static int deatheventCount = 0;
 void EnemyBase::DeathEvent() {
 	//gameObjMutex.lock();
 	if (genetics) genetics->performance.died = true;
-	sentDeathMessage = true;
 	ChangeState(DEATH);
-	MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 	deatheventCount++;
 	//gameObjMutex.unlock();
 }

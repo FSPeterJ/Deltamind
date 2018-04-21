@@ -289,6 +289,7 @@ void Game::StartNextWave() {
 
 //Handle primary function event logic
 void Game::RestartLevel() {
+	player->transform.SetPosition({ 0.0f, player->PlayerHeight() , 0.0f });
 	ThreadPool::AcceptNonCriticalJobs(false);
 	Threadding::ThreadPool::ClearQueues();
 	//Reset currentScene pointer

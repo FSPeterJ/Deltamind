@@ -5,7 +5,9 @@
 
 struct Material;
 
-
+enum ParticleProps {
+	HASGRAVITY = 1
+};
 
 
 struct EmitterData {
@@ -31,12 +33,13 @@ struct EmitterData {
 	DirectX::XMFLOAT4 EndColor = DirectX::XMFLOAT4(1, 0, 0, 1);
 	//16
 	float rotationVarience;
-	unsigned properties;
-	float xAngleVariance;
-	float yAngleVariance;
+	unsigned properties = 0;
+	float xAngleVariance = 1;
+	float yAngleVariance = 1;
 	//16
 	float emissionOverflow = 0;
-	float padding[3];
+	float EmissionCount = 10;
+	float padding[2];
 };
 
 
@@ -46,7 +49,10 @@ class Emitter: public InstantiatedCompBase {
 	float carryoverTick = 0;
 	float previousDT = 0;
 	float previousOverflow = 0;
+	float age = 0;
 public:
+	float lifespan = 4;
+	bool enabled = false;
 	Material* materials[4] = { 0 };
 	Transform transform;
 	EmitterData mainData;

@@ -46,13 +46,13 @@ void Renderer::createDeviceContextAndSwapchain(Window window) {
 #if _DEBUG
 	Result = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, D3D11_CREATE_DEVICE_DEBUG, feature, 1, D3D11_SDK_VERSION, &desc, &swapchain, &device, outputFeature, &context);
 #else
-	Result =D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, feature, 1, D3D11_SDK_VERSION, &desc, &swapchain, &device, outputFeature, &context);
+	Result = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, feature, 1, D3D11_SDK_VERSION, &desc, &swapchain, &device, outputFeature, &context);
 #endif
 	swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
 
 
 #if _DEBUG
-	Result  = device->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&DebugDevice));
+	Result = device->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&DebugDevice));
 	HRESULT getAnalysis = DXGIGetDebugInterface1(0, __uuidof(graphicsAnalysis), reinterpret_cast<void**>(&graphicsAnalysis));
 #endif
 
@@ -459,10 +459,10 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 	context->GSSetConstantBuffers(2, 2, &lightBuffer);
 	context->PSSetConstantBuffers(1, 1, &factorBuffer);
 	context->CSSetConstantBuffers(0, 1, &perFrameConstantBuffer);
-
 	//Particles
 	//==========================
-	particleManager = new ParticleManager(device, context, perFrameConstantBuffer);
+	FillRandomTexture();
+	particleManager = new ParticleManager(device, context, perFrameConstantBuffer, randomTextureSRV);
 
 	//SamplerState
 	//===========================
@@ -479,6 +479,7 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 	sampleDesc.MaxLOD = 3.402823466e+38F;
 	device->CreateSamplerState(&sampleDesc, &OnlySamplerState);
 	context->PSSetSamplers(0, 1, &OnlySamplerState);
+	context->CSSetSamplers(0, 1, &OnlySamplerState);
 #pragma endregion
 
 	cameraPos->LookAt(DirectX::XMFLOAT3(0.0f, 0.0f, 5.0f));
@@ -669,7 +670,8 @@ XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 }
 
 void Renderer::Render() {
-	//graphicsAnalysis->BeginCapture();
+	if(graphicsAnalysis && countCapture < MAX_CAPTURES)
+		graphicsAnalysis->BeginCapture();
 
 	perFrameDataConstantBuffer.FrameTime = (float)GhostTime::DeltaTime();
 	perFrameDataConstantBuffer.lastElapsed = perFrameDataConstantBuffer.ElapsedTime;
@@ -795,8 +797,11 @@ void Renderer::Render() {
 
 	context->UpdateSubresource(cameraBuffer, NULL, NULL, &buff, NULL, NULL);
 	combineDeferredTargets(&deferredTextures, defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport);
+	if(graphicsAnalysis && countCapture < MAX_CAPTURES) {
+		graphicsAnalysis->EndCapture();
+		countCapture++;
+	}
 	swapchain->Present(0, 0);
-	//graphicsAnalysis->EndCapture();
 
 }
 

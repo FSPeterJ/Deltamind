@@ -44,11 +44,12 @@ void ParticleManager::InitShaders() {
 
 }
 
-ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _context, ID3D11Buffer* _perFrame) {//no mom I don't do member initializer lists on long function signatures
+ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _context, ID3D11Buffer* _perFrame, ID3D11ShaderResourceView* randomTexture):
+	device(_device),
+	context(_context),
+	perFrame(_perFrame) {
 
-	device = _device;
-	context = _context;
-	perFrame = _perFrame;
+	context->CSSetShaderResources(0, 1, &randomTexture);
 
 	InitShaders();
 
@@ -149,7 +150,7 @@ ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _
 	uavDesc.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_APPEND;
 
 	//Sort Buffer
-	device->CreateBuffer(&bufferDesc, &resData, &SortParticleIndexBuffer);
+	device->CreateBuffer(&bufferDesc, nullptr, &SortParticleIndexBuffer);
 	device->CreateShaderResourceView(SortParticleIndexBuffer, &srvDesc, &SortParticleIndexSRV);
 	device->CreateUnorderedAccessView(SortParticleIndexBuffer, &uavDesc, &SortParticleIndexUAV);
 
@@ -179,10 +180,12 @@ ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _
 	resData.pSysMem = &emitterConstant;
 	device->CreateBuffer(&NconstantBufferDesc, &resData, &EmitterConstantBuffer);
 
-	CD3D11_BUFFER_DESC SortParametersconstantBufferDesc(sizeof(SortParameters), D3D11_BIND_CONSTANT_BUFFER);
 
+	CD3D11_BUFFER_DESC SortParametersconstantBufferDesc(sizeof(SortParameters), D3D11_BIND_CONSTANT_BUFFER);
+	SortParametersconstantBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	SortParametersconstantBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	resData.pSysMem = &sortParams;
-	device->CreateBuffer(&NconstantBufferDesc, &resData, &SortParametersConstantBuffer);
+	device->CreateBuffer(&SortParametersconstantBufferDesc, &resData, &SortParametersConstantBuffer);
 
 	ZeroMemory(&resData, sizeof(resData));
 	UINT* argData = new UINT[5];
@@ -215,7 +218,7 @@ ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _
 	uavDesc.Buffer.NumElements = 4;
 	device->CreateUnorderedAccessView(IndirectSortArgsBuffer, &uavDesc, &IndirectSortArgsBufferUAV);
 
-	ID3D11UnorderedAccessView* uavs[] = {  InactiveParticleIndexUAV, SortParticleIndexUAV, IndirectSortArgsBufferUAV };
+	ID3D11UnorderedAccessView* uavs[] = { InactiveParticleIndexUAV, SortParticleIndexUAV, IndirectSortArgsBufferUAV };
 	UINT counts[] = { (MAX_PARTICLES), 0, 0 };
 	//This initializes the count in a worse way.  Please look into setting it on creation
 	context->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavs), uavs, counts);
@@ -317,6 +320,13 @@ ParticleManager::~ParticleManager() {
 	GeometryShader->Release();
 	PixelShader->Release();
 
+	SAFE_RELEASE(SortParticleIndexBuffer);
+	SAFE_RELEASE(SortParticleIndexUAV);
+	SAFE_RELEASE(SortParticleIndexSRV);
+	SAFE_RELEASE(IndirectSortArgsBuffer);
+	SAFE_RELEASE(IndirectSortArgsBufferUAV);
+	SAFE_RELEASE(SortParametersConstantBuffer);
+
 	//==========================================
 }
 
@@ -342,22 +352,30 @@ void ParticleManager::Update() {
 
 	for(unsigned i = 0; i < activeCount; ++i) {
 		Emitter* activeEmit = &activeEmitters[i];
-		emitterConstant.EndColor = activeEmit->mainData.EndColor;
-		emitterConstant.Position = *((DirectX::XMFLOAT3*)&activeEmit->transform.matrix._41);
-		emitterConstant.Velocity = activeEmit->mainData.Velocity;
-		emitterConstant.emissionIntervalMS = activeEmit->mainData.emissionIntervalSec;
-		emitterConstant.emissionOverflow = activeEmit->mainData.emissionOverflow;
-		emitterConstant.TextureIndex = activeEmit->mainData.TextureIndex;
-		context->UpdateSubresource(EmitterConstantBuffer, NULL, NULL, &emitterConstant, NULL, NULL);
-		context->Dispatch(numThreadGroups, 1, 1);
+		if(activeEmit->enabled) {
+			//emitterConstant.EndColor = activeEmit->mainData.EndColor;
+			//emitterConstant.Position = *((DirectX::XMFLOAT3*)&activeEmit->transform.matrix._41);
+			//emitterConstant.Velocity = activeEmit->mainData.Velocity;
+			//emitterConstant.VelocityMagnatude = activeEmit->mainData.VelocityMagnatude;
+			//emitterConstant.emissionIntervalMS = activeEmit->mainData.emissionIntervalSec;
+			//emitterConstant.emissionOverflow = activeEmit->mainData.emissionOverflow;
+			//emitterConstant.TextureIndex = activeEmit->mainData.TextureIndex;
+			//emitterConstant.xAngleVariance = activeEmit->mainData.xAngleVariance;
+			//emitterConstant.yAngleVariance = activeEmit->mainData.yAngleVariance;
+			//emitterConstant.properties = activeEmit->mainData.properties;
+			memcpy(&emitterConstant, &activeEmit->mainData, sizeof(EmitterConstant));
+			context->UpdateSubresource(EmitterConstantBuffer, NULL, NULL, &emitterConstant, NULL, NULL);
+			context->Dispatch(numThreadGroups, 1, 1);
+			context->CopyStructureCount(ActiveParticleConstantBuffer, 0, ActiveParticleIndexUAV);
+			context->CopyStructureCount(InactiveParticleConstantBuffer, 0, InactiveParticleIndexUAV);
+		}
 	}
 
 	//Process Update of shaders
+	context->CopyStructureCount(IndirectSortArgsBuffer, 0, ActiveParticleIndexUAV);
 
 	context->CSSetShader(ParticleUpdateShader, nullptr, 0);
-	context->CopyStructureCount(ActiveParticleConstantBuffer, 0, ActiveParticleIndexUAV);
-	context->CopyStructureCount(InactiveParticleConstantBuffer, 0, InactiveParticleIndexUAV);
-	context->CopyStructureCount(IndirectSortArgsBuffer, 0, ActiveParticleIndexUAV);
+
 
 	//This fakes setting one particle as active
 

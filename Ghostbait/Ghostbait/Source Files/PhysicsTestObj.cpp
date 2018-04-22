@@ -75,13 +75,21 @@ void PhysicsTestObj::Awake(GameObject* _other) {
 void PhysicsTestObj::AnExtremelyBadTemporaryFunction(ParticleManager* partman, MaterialManager* matman) {
 	Emitter* emitter = new Emitter();
 	emitter->transform = transform;
-	emitter->mainData.EndSize = 4.0f;
+	emitter->mainData.StartSize = 0.1f;
+	emitter->mainData.EndSize = 0.1f;
 	emitter->materials[0] = matman->GetReferenceComponent("Assets/exitOption.mat", nullptr);
 	emitter->mainData.ParticleLifeSpan = 5.0f;
-	emitter->mainData.Velocity = DirectX::XMFLOAT3(0, 0, 10.0f);
+	//emitter->mainData.Velocity = DirectX::XMFLOAT3(0, 0, 10.0f);
+	emitter->mainData.VelocityMagnatude = 2;
 	emitter->mainData.Position = emitter->transform.GetPosition();
 	emitter->mainData.TextureIndex = partman->AddMaterial(emitter->materials[0]);
-	emitter->mainData.emissionIntervalSec = 0.1f;
+	emitter->mainData.emissionIntervalSec = 0.001f;
+	emitter->mainData.StartColor = DirectX::XMFLOAT4(0, 0, 10.0f, 0.5f);
+	emitter->mainData.EndColor = DirectX::XMFLOAT4(10.0f, 0, 0,  0.5f);
+	emitter->lifespan = 4;
+	emitter->mainData.xAngleVariance = 0.5f;
+	emitter->mainData.yAngleVariance = 0.5f;
+	emitter->mainData.properties = HASGRAVITY;
 	D3D11_TEXTURE2D_DESC desc;
 	((ID3D11Texture2D*)emitter->materials[0]->diffuse.texture)->GetDesc(&desc);
 
@@ -95,6 +103,7 @@ void PhysicsTestObj::AnExtremelyBadTemporaryFunction(ParticleManager* partman, M
 	emitter->mainData.TextureIndex = ((desc.Width & 0xFFF) << 20) | ((desc.Height & 0xFFF) << 8) |emitter->mainData.TextureIndex;
 	SetComponent(partman->CloneComponent(emitter), TypeMap::GetComponentTypeID<Emitter>());
 	emitter = GetComponent<Emitter>();
+	emitter->parentObject = this;
 	emitter->Enable();
 
 }

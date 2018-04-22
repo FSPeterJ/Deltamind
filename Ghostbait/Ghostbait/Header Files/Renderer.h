@@ -6,6 +6,8 @@
 #include "ParticleManager.h"
 
 #if _DEBUG
+
+#define MAX_CAPTURES 3
 #include <DXGItype.h>  
 #include <dxgi1_2.h>  
 #include <dxgi1_3.h>  
@@ -56,6 +58,8 @@ private:
 		DirectX::XMFLOAT3 cameraCenterpoint;
 		float padding2;
 	} perFrameDataConstantBuffer;
+
+	int countCapture;
 
 	struct viewProjectionConstantBuffer {
 		DirectX::XMFLOAT4X4 view;
@@ -155,7 +159,9 @@ private:
 	ID3D11ShaderResourceView* randomTextureSRV;
 
 	ID3D11Debug* DebugDevice = nullptr;
+#if _DEBUG
 	IDXGraphicsAnalysis* graphicsAnalysis = nullptr;
+#endif
 
 
 

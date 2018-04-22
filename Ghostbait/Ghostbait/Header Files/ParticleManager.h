@@ -9,7 +9,7 @@
 #include "Emitter.h"
 
 //#define MAX_PARTICLES 524288 // 2^19
-#define MAX_PARTICLES 16 // 2^4
+#define MAX_PARTICLES 1000 // 2^4
 #define MAX_REFERENCE_PARTICLES 100
 class ParticleManager: public IComponentManager {
 
@@ -150,7 +150,7 @@ public:
 	bool sortInitial() const;
 	bool sortIncremental(unsigned presorted) const;
 	void InitShaders();
-	ParticleManager(ID3D11Device* _device, ID3D11DeviceContext* _context, ID3D11Buffer* _perFrame);
+	ParticleManager(ID3D11Device* _device, ID3D11DeviceContext* _context, ID3D11Buffer* _perFrame, ID3D11ShaderResourceView* randomTexture);
 	void RenderParticles();
 	ComponentBase* GetReferenceComponent(const char * _FilePath, const char * _data) override;
 	ComponentBase* CloneComponent(ComponentBase* reference) override;

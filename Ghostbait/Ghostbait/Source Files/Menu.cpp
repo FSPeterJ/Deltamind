@@ -4,13 +4,16 @@
 #include "ObjectFactory.h"
 #include "PhysicsComponent.h"
 #include "OptionsManager.h"
+#include "Wwise_IDs.h"
 
 void MenuOption::Awake(Object* obj) {
 	GameObject::Awake(obj);
 	pc = GetComponent<PhysicsComponent>();
+	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, StandardObjectMessage(this));
 }
 void MenuOption::Select() {
 	//Console::WriteLine << "Menu Option: " << this << " was selected!";
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_DOOROPEN));
 }
 void MenuOption::UnHighlight() {
 	//Console::WriteLine << "Menu Option: " << this << " was Un-highlighted!";

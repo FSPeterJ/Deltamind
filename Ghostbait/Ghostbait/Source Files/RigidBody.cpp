@@ -30,6 +30,13 @@ void RigidBody::SetVelocity(XMVECTOR _velocity) {
 	}
 	XMStoreFloat3(&velocity, _velocity);
 }
+void RigidBody::SetVelocity(XMFLOAT3& _velocity) {
+	XMVECTOR newVelo = XMLoadFloat3(&_velocity);
+	if (XMVectorGetX(XMVector3LengthSq(XMLoadFloat3(&velocity))) > terminalSpeed * terminalSpeed) {
+		newVelo = XMVectorScale(XMVector3Normalize(newVelo), terminalSpeed);
+	}
+	XMStoreFloat3(&velocity, newVelo);
+}
 void RigidBody::SetMass(float _mass) {
 	mass = _mass;
 }
@@ -96,6 +103,10 @@ void RigidBody::Update(XMMATRIX* _orientation) {
 }
 XMVECTOR RigidBody::GetVelocity() {
 	return XMLoadFloat3(&velocity);
+}
+
+XMFLOAT3 RigidBody::GetVelocityFloat3() {
+	return velocity;
 }
 
 float RigidBody::GetSpeedSq() {

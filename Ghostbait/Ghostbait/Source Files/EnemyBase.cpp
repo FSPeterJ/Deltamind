@@ -7,6 +7,7 @@
 #include "Animator.h"
 #include "Wwise_IDs.h"
 #include "Evolvable.h"
+#include <cmath>
 
 void EnemyBase::Awake(Object* obj) {
 	currState = IDLE;
@@ -31,8 +32,12 @@ void EnemyBase::Awake(Object* obj) {
 	perceptionRange = 3;
 	timeSinceLastAttack = -1;
 
+	prevVelocity = { 0.0f, 0.0f, 0.0f };
+
 	hurtTimer = 0;
 	hurtDuration = 0.25;
+	deathTimer = 0;
+	deathDuration = 1.23;
 	eventLose = 0;
 	smite = 0;
 	eventObstacleRemove = 0;
@@ -48,8 +53,18 @@ void EnemyBase::Awake(Object* obj) {
 
 void EnemyBase::Start() {
 
-	if (!genetics) return;
+	if (!genetics) {
+		throw std::runtime_error("enemy has no genetics");
+		return;
+	}
 	genetics->performance.Reset();
+	if (abs(genetics->traits.Sum() - 1.0f) > FLT_EPSILON) {
+		throw std::runtime_error("enemy has no genetics");
+	}
+
+	if ( std::isnan(genetics->traits[Trait::ACCURACY])) {
+		throw std::runtime_error("enemy has bad genes");
+	}
 
 #undef max
 	float domTraits[] = { genetics->traits[STRENGTH] + genetics->traits[POWER] + genetics->traits[ACCURACY] + genetics->traits[LUCK],
@@ -111,7 +126,7 @@ void EnemyBase::Destroy() {
 	Console::consoleMutex.unlock();
 
 	gameObjMutex.lock();
-	//isDying = true;
+	isDying = true;
 	CalculateResult();
 	MessageEvents::SendMessage(EVENT_EnemyDied, EventMessageBase());
 	GameObject::Destroy();
@@ -158,7 +173,6 @@ void EnemyBase::ValidateTarget(EventMessageBase* e) {
 bool EnemyBase::ChangeState(State _s) {
 	if (currState == _s || isDying) return false;
 	
-
 	switch (_s)
 	{
 	case EnemyBase::IDLE:
@@ -167,7 +181,7 @@ bool EnemyBase::ChangeState(State _s) {
 	case EnemyBase::PATROL:
 		//Console::WarningLine << "Changing state to PATROL";
 		if (GetComponent<Animator>())
-			GetComponent<Animator>()->setState("Move");
+			GetComponent<Animator>()->setState("Walk");
 		break;
 	case EnemyBase::ATTACK:
 		//Console::WarningLine << "Changing state to ATTACK";
@@ -178,19 +192,23 @@ bool EnemyBase::ChangeState(State _s) {
 			_s = PATROL;
 			Console::WarningLine << "Not Near Target!!";
 		}
+		else {
+			if (GetComponent<Animator>())
+				GetComponent<Animator>()->setState("Attack");
+		}
 		break;
 	case EnemyBase::INJURED:
 		//Console::WarningLine << "Changing state to INJURED";
 		if (GetComponent<Animator>())
-			GetComponent<Animator>()->setState("Taunt");
+			GetComponent<Animator>()->setState("Injured");
 		break;
 	case EnemyBase::DEATH:
 		//Console::WarningLine << "Changing state to DEATH";
-		isDying = true;
-		Console::consoleMutex.lock();
-		Console::ErrorLine << &isDying << " isDying is TRUE";
-		Console::consoleMutex.unlock();
+		//isDying = true;
+		if (GetComponent<Animator>())
+			GetComponent<Animator>()->setState("Death");
 		rb->Stop();
+		pc->isActive = false;
 		break;
 	default:
 		break;
@@ -312,6 +330,8 @@ void EnemyBase::Injured() {
 			defaultMat = GetComponent<Material>(); //FIXME
 			SetComponent(componentVarients["Hurt"], id);
 		}
+		prevVelocity = rb->GetVelocityFloat3();
+		rb->Stop();
 		isHurting = true;
 		hurtTimer = 0;
 		return;
@@ -324,11 +344,17 @@ void EnemyBase::Injured() {
 		int id = TypeMap::GetComponentTypeID<Material>();
 		SetComponent(defaultMat, id);
 		ChangeState(prevState);
+		rb->SetVelocity(prevVelocity);
 	}
 }
 
 void EnemyBase::Death() {
-
+	if (sentDeathMessage) return;
+	deathTimer += GhostTime::DeltaTime();
+	if (deathTimer >= deathDuration) {
+		sentDeathMessage = true;
+		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
+	}
 }
 
 #pragma endregion
@@ -391,9 +417,7 @@ static int deatheventCount = 0;
 void EnemyBase::DeathEvent() {
 	//gameObjMutex.lock();
 	if (genetics) genetics->performance.died = true;
-	sentDeathMessage = true;
 	ChangeState(DEATH);
-	MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 	deatheventCount++;
 	//gameObjMutex.unlock();
 }

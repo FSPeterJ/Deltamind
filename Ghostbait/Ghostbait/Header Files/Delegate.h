@@ -70,12 +70,16 @@ public:
 		if (!execute) return;
 		Delegate_Entry data = {0, execute};
 		delegates.push_back(data);
+		assert(delegates.size() < 10000);
+
 	}
 
 	unsigned Add(const std::function<void(T...)> execute) {
 		if (!execute) std::runtime_error("Tried to add empty function.");
 		Delegate_Entry data = {++lastID, execute};
 		delegates.push_back(data);
+		assert(delegates.size() < 10000);
+
 		return data.id;
 	}
 
@@ -96,8 +100,10 @@ public:
 
 		Delegate_Entry data = {id, nullptr};
 		std::vector<Delegate_Entry>::iterator it = find(delegates.begin(), delegates.end(), data);
-		*it = std::move(delegates.back());
-		delegates.pop_back();
+		if (it != delegates.end()) {
+			*it = std::move(delegates.back());
+			delegates.pop_back();
+		}
 	}
 
 	const inline size_t subscriber_count() const { return delegates.size(); }

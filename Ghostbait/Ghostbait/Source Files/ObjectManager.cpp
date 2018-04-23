@@ -42,7 +42,10 @@ GameObject* ObjectManager::Instantiate(unsigned typeID) {
 }
 
 void ObjectManager::Destroy(EventMessageBase *e) {
-	StandardObjectMessage* destroy = (StandardObjectMessage*) e;
+	StandardObjectMessage* destroy = (StandardObjectMessage*)e;
 	Object* o = destroy->RetrieveObject();
-	pointers2Bucket.find(o)->second->DeactivateMemory((char*) o);
+	auto it = pointers2Bucket.find(o);
+	if (it != pointers2Bucket.end()) {
+	pointers2Bucket.find(o)->second->DeactivateMemory((char*)o);
+}
 }

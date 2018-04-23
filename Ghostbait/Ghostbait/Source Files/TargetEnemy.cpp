@@ -22,13 +22,18 @@ bool TargetEnemy::IsPastTarget() {
 	return actualDist >= dist;
 }
 
+void TargetEnemy::Awake(Object* obj) {
+	EnemyBase::Awake(obj);
+	toEnd = true;
+	speed = 1;
+}
 void TargetEnemy::SetRange(const DirectX::XMFLOAT3& start, const DirectX::XMFLOAT3& end) {
 	startPos = start;
 	endPos = end;
 	s2e = DirectX::XMFLOAT3(endPos.x - startPos.x, endPos.y - startPos.y, endPos.z - startPos.z);
 	e2s = DirectX::XMFLOAT3(startPos.x - endPos.x, startPos.y - endPos.y, startPos.z - endPos.z);
 	dist = DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMLoadFloat3(&s2e)));
-	rb->SetTerminalSpeed(speed);
+	rb->SetTerminalSpeed(Omiracon::Random::RandomNumber(0.25f, 2.0f));
 	rb->SetVelocity(DirectX::XMLoadFloat3(&s2e));
 	MakeInvincible();
 }

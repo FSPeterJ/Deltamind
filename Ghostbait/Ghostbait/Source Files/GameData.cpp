@@ -90,9 +90,9 @@ void WaveManager::SpawnEnemy(WaveManager::Wave::SpawnerData* spawnerData, const 
 		if (spawnedEnemies >= evolver->GetUsableSize()) {
 			enemy->SetTraits() = nullptr;
 			Console::WarningLine << "Requested genetics out of range!";
+			throw std::runtime_error("genetics pool not large enough");
 		}
-		else 
-			enemy->SetTraits() = &evolver->GenePool()[spawnedEnemies++]; //hopefully this wont break... if it does that means the pool does not have enough in it to account for the number of enemies spawned. which case we would randomly sample the existing pool until we have traits for each enemy. But that wouldnt work because each enemy has a poitner to the traits inside the genepool and random sampleing would cause the random ones to overwrite the prformance data of the enemies that have it first.. so.. dont have this crash.. there'd need to be a expand in genetics that makes new objects thats a copy of existing
+		else enemy->SetTraits() = &evolver->GenePool()[spawnedEnemies++]; //hopefully this wont break... if it does that means the pool does not have enough in it to account for the number of enemies spawned. which case we would randomly sample the existing pool until we have traits for each enemy. But that wouldnt work because each enemy has a poitner to the traits inside the genepool and random sampleing would cause the random ones to overwrite the prformance data of the enemies that have it first.. so.. dont have this crash.. there'd need to be a expand in genetics that makes new objects thats a copy of existing
 		
 																		 
 		//Console::ErrorLine << &currentWave;

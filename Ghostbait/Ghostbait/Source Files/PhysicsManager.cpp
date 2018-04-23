@@ -7,6 +7,8 @@
 #include <future>
 using namespace DirectX;
 
+#define DRAWSTATICOBJECTS false
+
 std::mutex PhysicsManager::physicsMutex;
 std::mutex PhysicsManager::physCompPoolMutex;
 Collider PhysicsManager::defaultColider;
@@ -275,6 +277,68 @@ void PhysicsManager::Update() {
 
 #endif
 	}
+#if _DEBUG && DRAWSTATICOBJECTS
+		const int inActiveCount = (int)staticComponents.GetActiveCount();
+		for (int i = 0; i < inActiveCount; ++i) {
+			if (!staticComponents[i].isActive) continue;
+			for (unsigned int colInd = 0; colInd < staticComponents[i].colliders.size(); ++colInd) {
+				XMVECTOR offset = XMLoadFloat3(&(staticComponents[i].colliders[colInd].centerOffset));
+				XMFLOAT3 colPos;
+				XMStoreFloat3(&colPos, offset);
+
+				switch (staticComponents[i].colliders[colInd].colliderData->colliderType) {
+					case SPHERE:
+						DebugRenderer::AddSphere(colPos, staticComponents[i].colliders[colInd].colliderData->colliderInfo.sphereCollider.radius, XMFLOAT3(1.0f, 0.0f, 0.0f));
+						break;
+					case CAPSULE:
+						{
+							float _height = staticComponents[i].colliders[colInd].colliderData->colliderInfo.capsuleCollider.height;
+							XMVECTOR cap1A = offset + XMVectorSet(0, _height * 0.5f, 0, 0);
+							XMVECTOR cap1B = offset - XMVectorSet(0, _height * 0.5f, 0, 0);
+							cap1A = XMVector3TransformCoord(cap1A, XMLoadFloat4x4(&(staticComponents[i].parentObject->transform.GetMatrix())));
+							cap1B = XMVector3TransformCoord(cap1B, XMLoadFloat4x4(&(staticComponents[i].parentObject->transform.GetMatrix())));
+							XMFLOAT3 capStart, capEnd;
+							XMStoreFloat3(&capStart, cap1A);
+							XMStoreFloat3(&capEnd, cap1B);
+							DebugRenderer::AddSphere(capStart, staticComponents[i].colliders[colInd].colliderData->colliderInfo.capsuleCollider.radius, XMFLOAT3(1.0f, 0.0f, 0.0f));
+							DebugRenderer::AddSphere(capEnd, staticComponents[i].colliders[colInd].colliderData->colliderInfo.capsuleCollider.radius, XMFLOAT3(1.0f, 0.0f, 0.0f));
+							DebugRenderer::AddLine(capStart, capEnd, XMFLOAT3(1.0f, 0.0f, 0.0f));
+						} break;
+					case BOX:
+						{
+							std::vector<XMVECTOR> corners = GetBoxCorners(staticComponents[i].colliders[colInd], XMLoadFloat4x4(&(staticComponents[i].parentObject->transform.GetMatrix())));
+							std::vector<XMFLOAT3> cornersStored;
+							XMFLOAT3 temp;
+							for (unsigned int i = 0; i < corners.size(); ++i) {
+								XMStoreFloat3(&temp, corners[i]);
+								cornersStored.push_back(temp);
+							}
+
+							DebugRenderer::AddLine(cornersStored[0], cornersStored[1], XMFLOAT3(1.0f, 0.0f, 0.0f));
+							DebugRenderer::AddLine(cornersStored[1], cornersStored[3], XMFLOAT3(1.0f, 0.0f, 0.0f));
+							DebugRenderer::AddLine(cornersStored[3], cornersStored[2], XMFLOAT3(1.0f, 0.0f, 0.0f));
+							DebugRenderer::AddLine(cornersStored[2], cornersStored[0], XMFLOAT3(1.0f, 0.0f, 0.0f));
+
+							DebugRenderer::AddLine(cornersStored[4], cornersStored[5], XMFLOAT3(1.0f, 0.0f, 0.0f));
+							DebugRenderer::AddLine(cornersStored[5], cornersStored[7], XMFLOAT3(1.0f, 0.0f, 0.0f));
+							DebugRenderer::AddLine(cornersStored[7], cornersStored[6], XMFLOAT3(1.0f, 0.0f, 0.0f));
+							DebugRenderer::AddLine(cornersStored[6], cornersStored[4], XMFLOAT3(1.0f, 0.0f, 0.0f));
+
+							DebugRenderer::AddLine(cornersStored[4], cornersStored[0], XMFLOAT3(1.0f, 0.0f, 0.0f));
+							DebugRenderer::AddLine(cornersStored[5], cornersStored[1], XMFLOAT3(1.0f, 0.0f, 0.0f));
+							DebugRenderer::AddLine(cornersStored[6], cornersStored[2], XMFLOAT3(1.0f, 0.0f, 0.0f));
+							DebugRenderer::AddLine(cornersStored[7], cornersStored[3], XMFLOAT3(1.0f, 0.0f, 0.0f));
+
+						} break;
+					default:
+						break;
+				}
+			}
+
+			DebugRenderer::AddBox(staticComponents[i].currentAABB.min, staticComponents[i].currentAABB.max, XMFLOAT3(0.0f, 1.0f, 0.0f));
+
+		}
+#endif
 	//components[0].srcObj->position.r[3] -= XMVectorSet(0, dt, 0, 0);
 	TestAllComponentsCollision();
 

@@ -180,6 +180,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<RevertOptionsButton>(1);
 	ObjectFactory::RegisterPrefabBase<QuitConfirmButton>(1);
 	ObjectFactory::RegisterPrefabBase<QuitCancelButton>(1);
+	ObjectFactory::RegisterPrefabBase<Label>(5);
 
 
 	ObjectFactory::RegisterPrefabBase<ForceField>(6);
@@ -232,6 +233,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<GameObject>("ghost");
 	TypeMap::RegisterObjectAlias<PhysicsTestObj>("PhysicsTestObj");
 	TypeMap::RegisterObjectAlias<BuildTool>("BuildTool");
+	TypeMap::RegisterObjectAlias<Label>("Label");
 
 	TypeMap::RegisterObjectAlias<ResumeButton>("ResumeButton");
 	TypeMap::RegisterObjectAlias<RestartButton>("RestartButton");

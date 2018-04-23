@@ -344,5 +344,9 @@ void AStarEnemy::CalcPath(HexTile* where) {
 bool AStarEnemy::ValidateAttackTarget() {
 	HexTile* tar = grid->PointToTile({ targetPos[0], targetPos[2] });
 	GridBasedObject* obj = dynamic_cast<GridBasedObject*>(targetObj);
-	return grid->GetIntersectingTilesRanges(curTile, attackRange, tar, obj->gridRadius).size() > 0;
+	bool res = grid->GetIntersectingTilesRanges(curTile, attackRange, tar, obj->gridRadius).size() > 0;
+	if (!res) return false;
+	DirectX::XMFLOAT3 newPoint = { targetPos[0], transform.GetPosition().y, targetPos[2] };
+	transform.TurnTowards(newPoint, 1);
+	return true;
 }

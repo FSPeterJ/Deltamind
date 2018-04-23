@@ -25,6 +25,9 @@ void ControllerObject::Init(Player* _player, ControllerHand _hand) {
 	//Create MenuController
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuControllerItem>({ 0,0,0 }, &menuController));
 	menuController->UnRender();
+	if (!player->IsVR()) {
+		menuController->source = &player->transform;
+	}
 	//Create ModelOnly controller
 	unsigned modelOnlyID;
 	if(player->IsVR()) modelOnlyID = ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost"));
@@ -300,12 +303,14 @@ void ControllerObject::SetControllerState(ControllerState newState) {
 			break;
 		case ControllerState::CSTATE_MenuController:
 			{
-				menuController->DeSelected();
+				if(player->IsVR())
+					menuController->DeSelected();
 			}
 			break;
 		case ControllerState::CSTATE_ModelOnly:
 			{
-				modelOnly->DeSelected();
+				if (player->IsVR())
+					modelOnly->DeSelected();
 			}
 			break;
 		case ControllerState::CSTATE_None:
@@ -324,12 +329,14 @@ void ControllerObject::SetControllerState(ControllerState newState) {
 			break;
 		case ControllerState::CSTATE_MenuController:
 			{
-				menuController->Selected();
+				if(player->IsVR())
+					menuController->Selected();
 			}
 			break;
 		case ControllerState::CSTATE_ModelOnly:
 			{
-				modelOnly->Selected();
+				if (player->IsVR())
+					modelOnly->Selected();
 			}
 			break;
 		case ControllerState::CSTATE_None:

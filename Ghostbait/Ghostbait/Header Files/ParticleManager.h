@@ -9,14 +9,9 @@
 #include "Emitter.h"
 
 //#define MAX_PARTICLES 524288 // 2^19
-#define MAX_PARTICLES 1000 // 2^4
-#define MAX_REFERENCE_PARTICLES 100
+#define MAX_PARTICLES 100 // 2^4
+#define MAX_REFERENCE_PARTICLES
 class ParticleManager: public IComponentManager {
-
-
-
-
-
 
 	struct EmitterConstant {
 		//16
@@ -130,11 +125,11 @@ class ParticleManager: public IComponentManager {
 	ID3D11ComputeShader* ParticleSortInitialShader = nullptr;
 	ID3D11ComputeShader* ParticleSortStepShader = nullptr;
 	ID3D11ComputeShader* ParticleSortFinalShader = nullptr;
-	ID3D11ComputeShader* ParticleSortInitArgsShader = nullptr;
+	ID3D11ComputeShader* ParticleIndirectArgsInitShader = nullptr;
 
 
 	ID3D11Buffer* SortParametersConstantBuffer = nullptr;
-	ID3D11Buffer* IndirectSortArgsBuffer = nullptr;
+	ID3D11Buffer* DispatchIndirectArgsBuffer = nullptr;
 	ID3D11UnorderedAccessView* IndirectSortArgsBufferUAV = nullptr;
 
 

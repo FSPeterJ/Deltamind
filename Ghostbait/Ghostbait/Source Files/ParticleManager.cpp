@@ -39,7 +39,7 @@ void ParticleManager::InitShaders() {
 	delete[] byteCode;
 
 	LoadShaderFromCSO(&byteCode, byteCodeSize, "ParticleSortInitArgs_ComputeShader.cso");
-	device->CreateComputeShader(byteCode, byteCodeSize, NULL, &ParticleSortInitArgsShader);
+	device->CreateComputeShader(byteCode, byteCodeSize, NULL, &ParticleIndirectArgsInitShader);
 	delete[] byteCode;
 
 }
@@ -213,10 +213,10 @@ ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _
 
 
 	bufferDesc.ByteWidth = sizeof(UINT) * 4;
-	device->CreateBuffer(&bufferDesc, nullptr, &IndirectSortArgsBuffer);
+	device->CreateBuffer(&bufferDesc, nullptr, &DispatchIndirectArgsBuffer);
 
 	uavDesc.Buffer.NumElements = 4;
-	device->CreateUnorderedAccessView(IndirectSortArgsBuffer, &uavDesc, &IndirectSortArgsBufferUAV);
+	device->CreateUnorderedAccessView(DispatchIndirectArgsBuffer, &uavDesc, &IndirectSortArgsBufferUAV);
 
 	ID3D11UnorderedAccessView* uavs[] = { InactiveParticleIndexUAV, SortParticleIndexUAV, IndirectSortArgsBufferUAV };
 	UINT counts[] = { (MAX_PARTICLES), 0, 0 };
@@ -255,6 +255,7 @@ void ParticleManager::RenderParticles() {
 	context->VSSetShaderResources(10, 2, SRV);
 
 	Update();
+	Sort();
 }
 
 ComponentBase* ParticleManager::GetReferenceComponent(const char* _FilePath, const char* _data) {
@@ -323,7 +324,7 @@ ParticleManager::~ParticleManager() {
 	SAFE_RELEASE(SortParticleIndexBuffer);
 	SAFE_RELEASE(SortParticleIndexUAV);
 	SAFE_RELEASE(SortParticleIndexSRV);
-	SAFE_RELEASE(IndirectSortArgsBuffer);
+	SAFE_RELEASE(DispatchIndirectArgsBuffer);
 	SAFE_RELEASE(IndirectSortArgsBufferUAV);
 	SAFE_RELEASE(SortParametersConstantBuffer);
 
@@ -350,102 +351,43 @@ void ParticleManager::Update() {
 	Emitter* activeEmitters = (*emitterPool.GetActiveList())[0];
 	const unsigned activeCount = (unsigned)emitterPool.GetActiveCount();
 
+
+
+	//Emitters should be packaged into larger blocks and processed multiple at a time
 	for(unsigned i = 0; i < activeCount; ++i) {
 		Emitter* activeEmit = &activeEmitters[i];
 		if(activeEmit->enabled) {
-			//emitterConstant.EndColor = activeEmit->mainData.EndColor;
-			//emitterConstant.Position = *((DirectX::XMFLOAT3*)&activeEmit->transform.matrix._41);
-			//emitterConstant.Velocity = activeEmit->mainData.Velocity;
-			//emitterConstant.VelocityMagnatude = activeEmit->mainData.VelocityMagnatude;
-			//emitterConstant.emissionIntervalMS = activeEmit->mainData.emissionIntervalSec;
-			//emitterConstant.emissionOverflow = activeEmit->mainData.emissionOverflow;
-			//emitterConstant.TextureIndex = activeEmit->mainData.TextureIndex;
-			//emitterConstant.xAngleVariance = activeEmit->mainData.xAngleVariance;
-			//emitterConstant.yAngleVariance = activeEmit->mainData.yAngleVariance;
-			//emitterConstant.properties = activeEmit->mainData.properties;
 			memcpy(&emitterConstant, &activeEmit->mainData, sizeof(EmitterConstant));
 			context->UpdateSubresource(EmitterConstantBuffer, NULL, NULL, &emitterConstant, NULL, NULL);
 			context->Dispatch(numThreadGroups, 1, 1);
+			//We copy the active count into a const buffer
+
 			context->CopyStructureCount(ActiveParticleConstantBuffer, 0, ActiveParticleIndexUAV);
 			context->CopyStructureCount(InactiveParticleConstantBuffer, 0, InactiveParticleIndexUAV);
 		}
 	}
 
-	//Process Update of shaders
-	context->CopyStructureCount(IndirectSortArgsBuffer, 0, ActiveParticleIndexUAV);
+	//Process Update of particles
 
+	//We copy the amount of active particles post-emission into the args buffer
+	context->CopyStructureCount(DispatchIndirectArgsBuffer, 0, ActiveParticleIndexUAV);
+	context->CSSetShader(ParticleIndirectArgsInitShader, nullptr, 0);
+	//The shader is run to convert number of active particles to number of necessary thread groups to run
+	context->Dispatch(1, 1, 1);
+
+	// With the correct threadgroup count in the buffer, we now process the particle updates without using unecessary thread groups.
+	// Note: It is unknown if it is faster to simply process all particles (even if only 10% may be in use) and not assign a thread group count dynamically or if 
+	// it is faster to use the copy count -> process into threadgroup and dispatch indirect.
+	// This should be profiled to see.
 	context->CSSetShader(ParticleUpdateShader, nullptr, 0);
-
-
-	//This fakes setting one particle as active
-
-
-	//ID3D11ShaderResourceView* srvs[] = { ParticleSRV };
-	//context->CSSetShaderResources(0, ARRAYSIZE(srvs), srvs);
-	numThreadGroups = 1;
-	//int numThreadGroups = MAX_PARTICLES / 1024;
-	context->Dispatch(numThreadGroups, 1, 1);
+	context->DispatchIndirect(DispatchIndirectArgsBuffer, 0);
 
 	ZeroMemory(uavs, sizeof(uavs));
 
 	context->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavs), uavs, nullptr);
 
-	Sort();
+	
 }
-
-
-
-
-//
-//
-//void ParticleManager::Sort() {
-//
-//	//ID3D11Buffer* cbs[] = { itemCountBuffer, m_pcbDispatchInfo };
-//	//context->CSSetConstantBuffers(0, ARRAYSIZE(cbs), cbs);
-//
-//	// Write the indirect args to a UAV
-//	//context->CSSetUnorderedAccessViews(0, 1, &IndirectSortArgsBufferUAV, nullptr);
-//
-//	context->CSSetUnorderedAccessViews(0, 1, &sortBufferUAV, nullptr);
-//
-//
-//
-//	bool completed = false;
-//
-//	context->CSSetShader(ParticleSortStepShader, nullptr, 0);
-//
-//	unsigned int numThreadGroups = 0;
-//
-//	UINT Data[100];
-//	for(int subArraySize = 2; subArraySize < MAX_PARTICLES; subArraySize <<= 1) {
-//		for(int compareDistance = (subArraySize >> 1); compareDistance > 0; compareDistance >>= 1) {
-//
-//			//double result = ((Data[GI & ~comparedistance] <= Data[GI | comparedistance]) == (bool)(g_iLevelMask & DTid.x)) ? Data[GI ^ comparedistance] : Data[GI];
-//			//Data[GI] = result;
-//
-//			D3D11_MAPPED_SUBRESOURCE MappedResource;
-//
-//			context->Map(SortParametersConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource);
-//			SortParameters* JobParameters = (SortParameters*)MappedResource.pData;
-//			JobParameters->distance = compareDistance;
-//			if(compareDistance == subArraySize) {
-//				JobParameters->jump = (2*compareDistance-1);
-//				JobParameters->direction = -1;
-//			}
-//			else {
-//				JobParameters->jump = compareDistance;
-//				JobParameters->direction = 1;
-//			}
-//			context->Unmap(SortParametersConstantBuffer, 0);
-//			context->Dispatch(1024, 1, 1);
-//		}
-//	}
-//
-//
-//}
-
-
-
 
 
 const int MAX_NUM_TG = 1024;//128; // max 128 * 512 elements = 64k elements
@@ -456,7 +398,7 @@ const int MAX_NUM_TG = 1024;//128; // max 128 * 512 elements = 64k elements
 void ParticleManager::Sort() const {
 
 
-	context->CSSetShader(ParticleSortInitArgsShader, nullptr, 0);
+	context->CSSetShader(ParticleIndirectArgsInitShader, nullptr, 0);
 	context->Dispatch(1, 1, 1);
 
 	//This looks terrible
@@ -490,7 +432,7 @@ bool ParticleManager::sortInitial() const {
 
 	// sort all buffers of size 512 (and presort bigger ones)
 	context->CSSetShader(ParticleSortInitialShader, nullptr, 0);
-	context->DispatchIndirect(IndirectSortArgsBuffer, 0);
+	context->DispatchIndirect(DispatchIndirectArgsBuffer, 0);
 
 	return bDone;
 }

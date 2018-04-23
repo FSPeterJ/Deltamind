@@ -232,11 +232,11 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	test1->PersistOnReset();
 	test1->AnExtremelyBadTemporaryFunction(rendInter->GetParticleManager(), rendInter->GetMaterialManager());
 	test1->Enable();
-	((PhysicsTestObj*)test2)->isControllable = true;
-	((PhysicsTestObj*)test2)->isRayCasting = true;
-	test2->PersistOnReset();
-	test2->AnExtremelyBadTemporaryFunction(rendInter->GetParticleManager(), rendInter->GetMaterialManager());
-	test2->Enable();
+	//((PhysicsTestObj*)test2)->isControllable = true;
+	//((PhysicsTestObj*)test2)->isRayCasting = true;
+	//test2->PersistOnReset();
+	//test2->AnExtremelyBadTemporaryFunction(rendInter->GetParticleManager(), rendInter->GetMaterialManager());
+	//test2->Enable();
 
 
 

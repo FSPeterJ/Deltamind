@@ -68,69 +68,68 @@ void main(uint3 DThreadID : SV_DispatchThreadID)
         //float randomAnglesy = RandomNumbers.SampleLevel(SamplerWrapLinear, uv, 0).y;
         
         //float x = sin() * (cos(randomAnglesx) + sin(randomAnglesy)) + cos(xAngleVariance * 2);
-        float cycle = 1.55;
-        float2 Angles;
-        while (true)
-        {
 
-            float2 uv = float2(((float) DThreadID.x + cycle) / 1024.0, ElapsedTime);
-            float randomAnglesx = RandomNumbers.SampleLevel(SamplerWrapLinear, uv, 0).x;
-            float randomAnglesy = RandomNumbers.SampleLevel(SamplerWrapLinear, uv, 0).y;
-            Angles = float2((randomAnglesx % xAngleVariance * 2) - xAngleVariance, (randomAnglesy % yAngleVariance * 2) - yAngleVariance);
 
-            if (length(Angles) < 1)
-                break;
-            cycle++;
-        }
+        float2 uv = float2(DThreadID.x / 1024.0f, ElapsedTime);
+        float randomAnglesx = RandomNumbers.SampleLevel(SamplerWrapLinear, uv, 0).x;
+        float randomAnglesy = RandomNumbers.SampleLevel(SamplerWrapLinear, uv, 0).y;
+        //float2 Angles = float2((randomAnglesx % xAngleVariance * 2) - xAngleVariance, (randomAnglesy % yAngleVariance * 2) - yAngleVariance);
+
         //float2
         //float2 Angles = float2(sqrt(xAngleVariance) * cos(randomAnglesx), sqrt(yAngleVariance) * sin(randomAnglesy));
         //float2 Angles = float2(sqrt(randomAnglesx) * cos(xAngleVariance * 2), sqrt(randomAnglesy) * sin(yAngleVariance * 2));
         //float2 Angles = float2(sqrt(randomAnglesx) * cos(xAngleVariance), sqrt(randomAnglesy) * sin(yAngleVariance));
         //float2 Angles = float2(sin(* cos(xAngleVariance), sqrt(randomAnglesy) * sin(yAngleVariance));
 
+                static const float PI = 3.14159265f;
 
-        //float z = randomAnglesx * (1 - cos(xAngleVariance)) + cos(xAngleVariance);
-        //float phi = randomAnglesx;
-        //float x = sqrt(z*z ) * cos(phi);
-        //float y = sqrt(z*z ) * sin(phi);
+        //float z = randomAnglesx * (1 - cos(xAngleVariance)) + cos(xAngleVariance);        
+        //float z = randomAnglesx*2;         
+        float z = randomAnglesx * 2 + randomAnglesx;
+        //float z = -(randomAnglesx * PI);
+        float phi = randomAnglesy *2 * PI;
+        //float phi = (randomAnglesy + randomAnglesy) * PI;
+        float x = sqrt(1-z*z ) * cos(phi);
+        float y = sqrt(1-z*z ) * sin(phi);
+        float3 randomDirection = float3(x, y, z);
         
 
-    //float x = randomAnglesx * (1 - cos(randomAnglesx)) + cos(randomAnglesx);
-    //static const float PI = 3.14159265f;
+        //float x = randomAnglesx * (1 - cos(randomAnglesx)) + cos(randomAnglesx);
 
-    //    //float r = sqrt(max(1E-30, x * x - 1)); // warning - it's better to check for negative value. calculation is bit imprecise. use sqrt(max(1E-30,x*x-1)) or something instead
-    //float r = sqrt(x * x); // warning - it's better to check for negative value. calculation is bit imprecise. use sqrt(max(1E-30,x*x-1)) or something instead
-    //float random_angle = 2 * PI * randomAnglesx;
-    //float y = r * sin(random_angle);
-    //float z = r * cos(random_angle);
-    //float3 randomDirection = float3(x, y, z);
+        //    //float r = sqrt(max(1E-30, x * x - 1)); 
+        //float r = sqrt(x * x); 
+        //float random_angle = 2 * PI * randomAnglesx;
+        //float y = r * sin(random_angle);
+        //float z = r * cos(random_angle);
 
 
-        float3 randomDirection = float3(cos(Angles.y) * sin(Angles.x), sin(Angles.y), cos(Angles.y) * cos(Angles.x));
+        //float3 randomDirection = float3(cos(Angles.y) * sin(Angles.x), sin(Angles.y), cos(Angles.y) * cos(Angles.x));
 
 
-    float3 V = Velocity;
-    float velocityMagnitude = length(V);
-    particle.velocity = VelocityMagnatude * randomDirection;
-    particle.position = Position + float3(0, 1, 1) + particle.velocity * (emissionRateMS * DThreadID.x + emissionOverflow);
-    particle.age = ParticleLifeSpan;
+        float3 V = Velocity;
+        float velocityMagnitude = length(V);
+        particle.velocity = float3(0, 0, 0);
+        //particle.velocity = VelocityMagnatude * randomDirection;
+        //particle.position = Position + float3(0, 1, 1) + particle.velocity * (emissionRateMS * DThreadID.x + emissionOverflow);
+        particle.position = randomDirection * VelocityMagnatude + float3(0, 1, 1);
+        particle.age = ParticleLifeSpan;
 
 
-    particle.lifespan = ParticleLifeSpan;
-    particle.startSize = StartSize;
-    particle.endSize = EndSize;
-    particle.texturedata = TextureIndex;
+        particle.lifespan = ParticleLifeSpan;
+        particle.startSize = StartSize;
+        particle.endSize = EndSize;
+        particle.texturedata = TextureIndex;
 
-    particle.startColor = startColor;
-    particle.endColor = endColor;
+        particle.startColor = startColor;
+        particle.endColor = endColor;
 
 
         
-    uint index = InactiveParticleIndex.DecrementCounter(); // The conversion from count to 
-    uint particleindex = InactiveParticleIndex[index];
+        uint index = InactiveParticleIndex.DecrementCounter(); // The conversion from count to 
+        uint particleindex = InactiveParticleIndex[index];
 
-    ParticleBuffer[particleindex] = particle;
-    index = ActiveParticleIndex.IncrementCounter();
-    ActiveParticleIndex[index] = particleindex;
-}
+        ParticleBuffer[particleindex] = particle;
+        index = ActiveParticleIndex.IncrementCounter();
+        ActiveParticleIndex[index] = particleindex;
+    }
 }

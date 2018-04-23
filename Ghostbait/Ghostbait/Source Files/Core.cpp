@@ -29,6 +29,10 @@ void Core::Awake(Object* obj) {
 	light.Enable();
 	SetToFullHealth();
 	panicking = false;
+	Test(PercentHealth());
+}
+void Test(float s) {
+	int i = 0;
 }
 void Core::Update() {
 	float dt = (float)GhostTime::DeltaTime();

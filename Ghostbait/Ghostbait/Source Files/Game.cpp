@@ -317,6 +317,7 @@ void Game::ResumeGame() {
 	paused = false;
 	player->leftController->SetControllerStateToPrevious();
 	player->rightController->SetControllerStateToPrevious();
+	MessageEvents::SendMessage(EVENT_ToggleAudio, EventMessageBase());
 }
 void Game::PauseGame() {
 	//Logic to run when game first gets paused
@@ -324,6 +325,7 @@ void Game::PauseGame() {
 	paused = true;
 	player->leftController->SetControllerState(CSTATE_MenuController);
 	player->rightController->SetControllerState(player->IsVR() ? CSTATE_MenuController : CSTATE_ModelOnly);
+	MessageEvents::SendMessage(EVENT_ToggleAudio, EventMessageBase());
 }
 void Game::Lose() {
 	//Logic to run when the player loses

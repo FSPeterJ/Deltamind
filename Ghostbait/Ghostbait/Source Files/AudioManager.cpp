@@ -85,6 +85,7 @@ AudioManager::AudioManager() //Thank the lord for SDK documentation
 	MessageEvents::Subscribe(EVENT_RegisterNoisemaker, [this](EventMessageBase * _e) {this->registerObject(_e); });
 	MessageEvents::Subscribe(EVENT_RequestSound, [this](EventMessageBase * _e) {this->playSound(_e); });
 	MessageEvents::Subscribe(EVENT_UnregisterNoisemaker, [this](EventMessageBase * _e) {this->unRegisterObject(_e); });
+	MessageEvents::Subscribe(EVENT_ToggleAudio, [this](EventMessageBase* _e) {this->toggleAudio(_e); });
 }
 
 
@@ -112,6 +113,7 @@ void AudioManager::LoadBanks()
 
 	result = AK::SoundEngine::LoadBank(DEFAULT_BANK, AK_DEFAULT_POOL_ID, wiseIsGood);
 	AK::SoundEngine::RegisterGameObj(1);
+	playing = true;
 }
 
 void AudioManager::registerObject(EventMessageBase * e)
@@ -158,6 +160,16 @@ void AudioManager::setMusicVolume(float value)
 void AudioManager::setMasterVolume(float value)
 {
 	AK::SoundEngine::SetOutputVolume(0, (AkReal32)value);
+}
+
+void AudioManager::toggleAudio(EventMessageBase * e)
+{
+	if (playing)
+		AK::SoundEngine::Suspend();
+	else
+		AK::SoundEngine::WakeupFromSuspend();
+
+	playing = !playing;
 }
 
 void AudioManager::Update()

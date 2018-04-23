@@ -59,6 +59,7 @@ enum EVENT_TYPES {
 	EVENT_CoreDamaged,
 	EVENT_CoreStopDamaged,
 	EVENT_CoreDestroyed,
+	EVENT_ToggleAudio,
 };
 
 class EventMessageBase;

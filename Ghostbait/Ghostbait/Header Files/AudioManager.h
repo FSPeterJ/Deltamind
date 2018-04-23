@@ -18,6 +18,7 @@ class AudioManager
 {
 	const DirectX::XMFLOAT4X4* cam;
 	std::vector<GameObject*> objects;
+	bool playing;
 public:
 	AudioManager();
 	~AudioManager();
@@ -30,7 +31,7 @@ public:
 	void setSFXVolume(float value);
 	void setMusicVolume(float value);
 	void setMasterVolume(float value);
-
+	void toggleAudio(EventMessageBase* e);
 	void Update();
 };
 

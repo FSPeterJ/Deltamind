@@ -293,6 +293,7 @@ void Game::StartNextWave() {
 
 //Handle primary function event logic
 void Game::RestartLevel() {
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::STOP_MUSIC_ROBOT_THEME_REVISED));
 	player->transform.SetPosition({ 0.0f, player->PlayerHeight() , 0.0f });
 	ThreadPool::AcceptNonCriticalJobs(false);
 	Threadding::ThreadPool::ClearQueues();

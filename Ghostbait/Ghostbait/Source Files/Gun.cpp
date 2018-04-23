@@ -126,7 +126,16 @@ bool Gun::Shoot(bool addOverheat) {
 		//Fire
 		Projectile* obj;
 		MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Projectile>(projectiePID, { 0, 0, 0 }, &obj));
-		MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_GUNSHOT));
+		switch (type)
+		{
+		case SEMI:
+			MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_GUNSHOT));
+			break;
+		case AUTO:
+			MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_LAZER_SLINKY));
+			break;
+		}
+		
 		DirectX::XMFLOAT4X4 newPos;
 		newPos = transform.GetMatrix();
 		newPos._41 += newPos._31 * 0.4f;

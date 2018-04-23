@@ -36,7 +36,7 @@ void OptionsManager::Revert()
 	SetSFXVolume(100.0f);
 	SetMusicVolume(100.0f);
 	SetGamma(0.0f);
-	SetSensitivity(0.005f);
+	SetSensitivity(0.00555f);
 }
 
 void OptionsManager::SetMasterVolume(float _VolumeIn)

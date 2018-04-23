@@ -181,6 +181,12 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<QuitConfirmButton>(1);
 	ObjectFactory::RegisterPrefabBase<QuitCancelButton>(1);
 	ObjectFactory::RegisterPrefabBase<Label>(5);
+	ObjectFactory::RegisterPrefabBase<MasterValue>(5);
+	ObjectFactory::RegisterPrefabBase<MusicValue>(1);
+	ObjectFactory::RegisterPrefabBase<SFXValue>(1);
+	ObjectFactory::RegisterPrefabBase<BrightnessValue>(1);
+	ObjectFactory::RegisterPrefabBase<MouseSensitivityValue>(1);
+
 
 
 	ObjectFactory::RegisterPrefabBase<ForceField>(6);
@@ -264,6 +270,12 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<RevertOptionsButton>("RevertOptionsButton");
 	TypeMap::RegisterObjectAlias<QuitConfirmButton>("QuitConfirmButton");
 	TypeMap::RegisterObjectAlias<QuitCancelButton>("QuitCancelButton");
+	TypeMap::RegisterObjectAlias<MasterValue>("MasterValue");
+	TypeMap::RegisterObjectAlias<MusicValue>("MusicValue");
+	TypeMap::RegisterObjectAlias<SFXValue>("SFXValue");
+	TypeMap::RegisterObjectAlias<BrightnessValue>("BrightnessValue");
+	TypeMap::RegisterObjectAlias<MouseSensitivityValue>("MouseSensitivityValue");
+
 
 
 	TypeMap::RegisterObjectAlias<ForceField>("ForceField");

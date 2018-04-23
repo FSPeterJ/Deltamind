@@ -49,6 +49,7 @@ enum EVENT_TYPES {
 	EVENT_ChangeScene,
 	EVENT_ReadyToStart,
 	EVENT_NextLogo,
+	EVENT_SettingsChanged,
 
 	//Other Feedback
 	EVENT_GameDataRequest,

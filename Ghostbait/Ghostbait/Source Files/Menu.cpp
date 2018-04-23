@@ -347,9 +347,15 @@ void MasterDownButton::Select() {
 	MenuOption::Select();
 }
 void MusicUpButton::Select() {
+	float tempVolume = OptionsManager::GetInstance().GetMusicVolume();
+	if (tempVolume < 100.0f)
+		OptionsManager::GetInstance().SetMusicVolume(tempVolume + 10.0f);
 	MenuOption::Select();
 }
 void MusicDownButton::Select() {
+	float tempVolume = OptionsManager::GetInstance().GetMusicVolume();
+	if (tempVolume > 0.0f)
+		OptionsManager::GetInstance().SetMusicVolume(tempVolume - 10.0f);
 	MenuOption::Select();
 }
 void SFXUpButton::Select() {

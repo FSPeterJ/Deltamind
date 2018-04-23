@@ -21,6 +21,7 @@
 #include <future>
 #include "Evolvable.h"
 #include "CoreShield.h"
+#include "Wwise_IDs.h"
 using namespace Omiracon::Genetics;
 
 Game::Game() {
@@ -368,6 +369,7 @@ void Game::MainMenuLoaded() {
 	player->Teleport(DirectX::XMFLOAT3(0, 0, 0));
 	player->transform.LookAt({ menuPos._41, menuPos._42, menuPos._43 });
 
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::PLAY_MUSIC_ROBOT_TITLE_INTRO));
 	//Update HUD
 	if (currHUD)
 	{
@@ -454,6 +456,7 @@ void Game::TutorialLoaded() {
 	
 }
 void Game::Level0Loaded() {
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::STOP_MUSIC_ROBOT_TITLE_INTRO));
 	worldLight.RemoveLightFromManager();
 	currentTimeBetweenWaveReady = -1;
 	int index = 0;

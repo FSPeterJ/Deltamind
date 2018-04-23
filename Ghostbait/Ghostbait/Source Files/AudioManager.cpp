@@ -111,7 +111,7 @@ void AudioManager::LoadBanks()
 	AKRESULT result = AK::SoundEngine::LoadBank(INIT_BANK, AK_DEFAULT_POOL_ID, wiseIsGood);
 
 	result = AK::SoundEngine::LoadBank(DEFAULT_BANK, AK_DEFAULT_POOL_ID, wiseIsGood);
-
+	AK::SoundEngine::RegisterGameObj(1);
 }
 
 void AudioManager::registerObject(EventMessageBase * e)
@@ -139,12 +139,20 @@ void AudioManager::unRegisterObject(EventMessageBase * e)
 void AudioManager::playSound(EventMessageBase * e)
 {
 	SoundRequestMessage* mess = (SoundRequestMessage*)e;
-	AK::SoundEngine::PostEvent(mess->RetrieveSound(), (AkGameObjectID)mess->RetrieveObject());
+	if (mess->RetrieveObject())
+		AK::SoundEngine::PostEvent(mess->RetrieveSound(), (AkGameObjectID)mess->RetrieveObject());
+	else
+		AK::SoundEngine::PostEvent(mess->RetrieveSound(), 1);
 }
 
 void AudioManager::setSFXVolume(float value)
 {
 	AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::RTPC_SFXVOLUME, (AkRtpcValue)value);
+}
+
+void AudioManager::setMusicVolume(float value)
+{
+	AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::RTPC_MUSICVOLUME, (AkRtpcValue)value);
 }
 
 void AudioManager::setMasterVolume(float value)

@@ -17,12 +17,8 @@ void Monitor::Awake(Object* obj) {
 	screen->SetComponent<Material>(screenMat);
 	coreHealth = 100;
 
-	eventCoreDamaged = MessageEvents::Subscribe(EVENT_CoreDamaged, [=](EventMessageBase* e) {
-		coreHealth = (int)((*((CoreMessage*)e)->RetrieveData())->PercentHealth() * 100);
-		WriteToScreen("\n Core Health: " + std::to_string(coreHealth) + "%\n");
-	});
 	eventWaveChange = MessageEvents::Subscribe(EVENT_WaveChange, [=](EventMessageBase* e) {
-		WriteToScreen("\n Core Health: " + std::to_string(coreHealth) + "%\n");
+		WriteToScreen("\n Enemies Detected!\n Protect the core! \n");
 	});
 	eventWaveComplete = MessageEvents::Subscribe(EVENT_WaveComplete, [=](EventMessageBase* e) {
 		const GameData* gameData = *((GameDataMessage*)e)->RetrieveData();

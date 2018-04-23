@@ -4,6 +4,7 @@
 #include "Console.h"
 #include "Projectile.h"
 #include "Material.h"
+#include "MeshManager.h"
 #include "Animator.h"
 #include "Wwise_IDs.h"
 #include "Evolvable.h"
@@ -75,12 +76,15 @@ void EnemyBase::Start() {
 	auto mx = std::max({domTraits[0], domTraits[1], domTraits[2], domTraits[3]});
 
 	if(mx == domTraits[0]) {
+		SwapComponentVarient<Mesh>("medium");
 		SwapComponentVarient<Material>("pink");
 	} else if(mx == domTraits[1]) {
-			SwapComponentVarient<Material>("blue");
+		SwapComponentVarient<Material>("blue");
 	} else if(mx == domTraits[2]) {
+		SwapComponentVarient<Mesh>("heavy");
 		SwapComponentVarient<Material>("green");
 	} else if(mx == domTraits[3]) {
+		SwapComponentVarient<Mesh>("light");
 		SwapComponentVarient<Material>("yellow");
 	}
 

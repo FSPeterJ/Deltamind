@@ -17,16 +17,18 @@ private:
 	GameObject* display = nullptr;
 	DirectX::XMFLOAT4 foreground = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1);
 	DirectX::XMFLOAT4 background = DirectX::XMFLOAT4(40.0f /255.0f, 173.0f /255.0f, 174.0f/255.0f, 1);
+	int coreHealth;
+	int curWave;
+	int totalWaves;
 	int totalEnemies = 0;
 	bool willUpdateEnemies = false;
 
 	Material* displayMat = nullptr;
 	Purpose purpose = DisplayItem;
 
-	int curWave;
-	int totalWaves;
 
 	unsigned eventWaveChange = 0;
+	unsigned eventCoreDamaged = 0;
 	unsigned eventEnemyDied = 0;
 	unsigned eventReset = 0;
 	unsigned eventComplete = 0;
@@ -41,7 +43,10 @@ public:
 	void Selected() override;
 	void DeSelected() override;
 
-	void UpdateDisplay(EventMessageBase* e = nullptr, bool completed = false);
+	void UpdateWaveData(GameDataMessage* e);
+	void UpdateEnemyData();
+	void UpdateCoreData(CoreMessage* e);
+
 	void ResetDisplay(EventMessageBase* e);
 
 	void WriteData();

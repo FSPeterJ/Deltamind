@@ -6,6 +6,7 @@
 #include "MeshManager.h"
 #include "GameData.h"
 #include "ScrollingUVManager.h"
+#include "Core.h"
 #undef SendMessage
 
 PDA::PDA() {
@@ -16,6 +17,7 @@ void PDA::Awake(Object* obj) {
 	Item::Awake(obj);
 	state = Item::State::PDA;
 	eventWaveChange = 0;
+	eventCoreDamaged = 0;
 	eventEnemyDied = 0;
 	eventReset = 0;
 	eventComplete = 0;
@@ -43,6 +45,7 @@ void PDA::Destroy() {
 	}
 	
 	if (eventWaveChange) MessageEvents::UnSubscribe(EVENT_WaveChange, eventWaveChange);
+	if (eventCoreDamaged) MessageEvents::UnSubscribe(EVENT_CoreDamaged, eventCoreDamaged);
 	if (eventEnemyDied) MessageEvents::UnSubscribe(EVENT_EnemyDied, eventEnemyDied);
 	if (eventReset) MessageEvents::UnSubscribe(EVENT_ReadyToStart, eventReset);
 	if (eventComplete) MessageEvents::UnSubscribe(EVENT_WaveComplete, eventComplete);
@@ -68,10 +71,11 @@ void PDA::SetPurpose(Purpose _purpose) {
 			display->SetComponent<Material>(displayMat);
 			display->PersistOnReset();
 			display->ToggleFlag(UNLIT);
-			eventWaveChange = MessageEvents::Subscribe(EVENT_WaveChange, [=](EventMessageBase* e) { if (display) UpdateDisplay(e); });
-			eventEnemyDied = MessageEvents::Subscribe(EVENT_EnemyDied, [=](EventMessageBase* e) { if (display) UpdateDisplay(); });
+			eventWaveChange = MessageEvents::Subscribe(EVENT_WaveChange, [=](EventMessageBase* e) { if (display) UpdateWaveData((GameDataMessage*)e); });
+			eventEnemyDied = MessageEvents::Subscribe(EVENT_EnemyDied, [=](EventMessageBase* e) { if (display) UpdateEnemyData(); });
 			eventReset = MessageEvents::Subscribe(EVENT_ReadyToStart, [=](EventMessageBase* e) {if (display) ResetDisplay(e); });
-			eventComplete = MessageEvents::Subscribe(EVENT_WaveComplete, [=](EventMessageBase* e) {if (display) UpdateDisplay(nullptr, true); });
+			eventComplete = MessageEvents::Subscribe(EVENT_WaveComplete, [=](EventMessageBase* e) {if (display) curWave += 1; });
+			eventCoreDamaged = MessageEvents::Subscribe(EVENT_CoreDamaged, [=](EventMessageBase* e) {if (display) UpdateCoreData((CoreMessage*)e); });
 			comp = display->GetComponent<ScrollingUV>();
 			if (comp) {
 				comp->velocity.x = 0;
@@ -104,26 +108,24 @@ void PDA::SetPurpose(Purpose _purpose) {
 			break;
 	}
 }
-void PDA::UpdateDisplay(EventMessageBase* e, bool completed) {
-	//Get new data
-	if (completed)
-	{
-		curWave += 1;
-		return;
+
+void PDA::UpdateWaveData(GameDataMessage* e) {
+	const GameData* gameData = *(e->RetrieveData());
+	if (gameData) {
+		totalEnemies = gameData->waveManager.GetCurrentWave()->enemyCount;
+		curWave = gameData->waveManager.GetCurrentWaveNumber();
+		totalWaves = gameData->waveManager.GetWaveCount();
+		willUpdateEnemies = true;
 	}
-	if (e) {
-		const GameData* gameData = *((GameDataMessage*)e)->RetrieveData();
-		if (gameData) {
-			totalEnemies = gameData->waveManager.GetCurrentWave()->enemyCount;
-			curWave = gameData->waveManager.GetCurrentWaveNumber();
-			totalWaves = gameData->waveManager.GetWaveCount();
-			willUpdateEnemies = true;
-		}
-	}
-	else {
-		if(willUpdateEnemies)
-			totalEnemies -= 1;
-	}
+	WriteData();
+}
+void PDA::UpdateEnemyData() {
+	if (willUpdateEnemies)
+		totalEnemies -= 1;
+	WriteData();
+}
+void PDA::UpdateCoreData(CoreMessage* e) {
+	coreHealth = (int)((*(e->RetrieveData()))->PercentHealth() * 100);
 	WriteData();
 }
 
@@ -133,6 +135,7 @@ void PDA::ResetDisplay(EventMessageBase * e)
 	curWave = 1;
 	totalEnemies = 0;
 	totalWaves = gameData->waveManager.GetWaveCount();
+	coreHealth = 100;
 	WriteData();
 	willUpdateEnemies = false;
 }
@@ -140,7 +143,9 @@ void PDA::ResetDisplay(EventMessageBase * e)
 void PDA::WriteData()
 {
 	//Write to file
-	std::string message = " Wave: ";
+	std::string message = " Core Health: ";
+	message.append(std::to_string(coreHealth) + "%");
+	message.append(" \n Wave: ");
 	message.append(std::to_string(curWave) + " / " + std::to_string(totalWaves));
 	message.append(" \n Enemies Remaining: ");
 	message.append(std::to_string(totalEnemies));

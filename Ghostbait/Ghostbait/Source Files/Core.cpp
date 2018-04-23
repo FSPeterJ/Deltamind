@@ -3,6 +3,8 @@
 #include "ObjectFactory.h"
 #include "GhostTime.h"
 #include "Wwise_IDs.h"
+#include "TextManager.h"
+#include "Material.h"
 #define NORMALCOLOR {0.5f, 0.5f, 0.5f}
 #define PANICCOLOR {1.0f, 0.0f, 0.0f}
 
@@ -13,6 +15,12 @@ void Core::Awake(Object* obj) {
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/healthCube.ghost")), { 0, 0, 0 }, &healthCubes[i]));
 	}
 	*/
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/CoreRing.ghost")), { 0, 0, 0 }, &coreRing));
+	coreRingMat = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "\n      Core Health 100%      \n", foreground, background).mat;
+	coreRing->SetComponent<Material>(coreRingMat);
+	coreRing->ToggleFlag(UNLIT);
+	coreRing->UnRender();
+	coreRing->RenderTransparent();
 	gridRadius = 2;
 	panicTimer = -1;
 	panicDuration = 4;
@@ -25,19 +33,8 @@ void Core::Awake(Object* obj) {
 void Core::Update() {
 	float dt = (float)GhostTime::DeltaTime();
 	
-	//-----TODO: TEMP. Should be done in awake, (can't now because position is set after awake is called)
-	/*
-	float radius = 0.5f;
-	float height = 2;
-
-	for (int i = 0; i < cubeCount; ++i) {
-		float xVal = sinf(DirectX::XMConvertToRadians((360.0f / cubeCount)*i)) * radius;
-		float zVal = cosf(DirectX::XMConvertToRadians((360.0f / cubeCount)*i)) * radius;
-		healthCubes[i]->transform.SetPosition({ transform.GetPosition().x + xVal, transform.GetPosition().y + height, transform.GetPosition().z + zVal });
-	}
-	*/
 	light.transform.SetPosition({ transform.GetPosition().x, transform.GetPosition().y + 2, transform.GetPosition().z });
-	//---- END TODO
+	if(coreRing) coreRing->transform.SetMatrix(transform.GetMatrix());
 
 	if (panicTimer != -1) {
 		if (panicTimer >= panicDuration) {
@@ -59,6 +56,11 @@ void Core::HurtEvent() {
 		MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_COREALARM));
 	light.SetColor(PANICCOLOR);
 	panicking = true;
+
+	std::string message = "\n      Core Health ";
+	message.append(std::to_string((int)(PercentHealth() * 100)) + "%      \n");
+	TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", message, coreRingMat, foreground, background);
+
 	Core const* core = this;
 	MessageEvents::SendMessage(EVENT_CoreDamaged, CoreMessage(&core));
 	/*
@@ -89,6 +91,7 @@ void Core::DeathEvent() {
 void Core::Destroy() {
 	light.SetColor({ 0, 0, 0 });
 	light.RemoveLightFromManager();
+	if (coreRing) coreRing->Destroy();
 	MessageEvents::SendMessage(EVENT_UnregisterNoisemaker, NewObjectMessage(this));
 	Core const* co = this;
 	MessageEvents::SendMessage(EVENT_CoreDestroyed, CoreMessage(&co));

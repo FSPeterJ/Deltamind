@@ -13,7 +13,7 @@ void MenuOption::Awake(Object* obj) {
 }
 void MenuOption::Select() {
 	//Console::WriteLine << "Menu Option: " << this << " was selected!";
-	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_DOOROPEN));
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_ANALOG_MENU_CLICK));
 }
 void MenuOption::UnHighlight() {
 	//Console::WriteLine << "Menu Option: " << this << " was Un-highlighted!";

@@ -149,6 +149,7 @@ void Game::ChangeState(State newState) {
 		switch(newState) {
 			case GAMESTATE_BetweenWaves:
 			{
+				MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::STOP_MUSIC_ROBOT_THEME_REVISED));
 				//if upcoming wave doesnt exist...
 				if(!gameData.waveManager.NextWaveExists()) {
 					Win();
@@ -165,11 +166,13 @@ void Game::ChangeState(State newState) {
 			break;
 			case GAMESTATE_InWave:
 			{
-				
+				MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::PLAY_MUSIC_ROBOT_THEME_REVISED));
+				MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::PLAY_SFX_COREALARM_DARKER));
 			}
 			break;
 			case GAMESTATE_GameOver:
 			{
+				MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::STOP_MUSIC_ROBOT_THEME_REVISED));
 				//gameData.Reset();
 			}
 			break;
@@ -370,6 +373,7 @@ void Game::MainMenuLoaded() {
 	player->Teleport(DirectX::XMFLOAT3(0, 0, 0));
 	player->transform.LookAt({ menuPos._41, menuPos._42, menuPos._43 });
 
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::STOP_MUSIC_ROBOT_THEME_REVISED));
 	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::PLAY_MUSIC_ROBOT_TITLE_INTRO));
 	//Update HUD
 	if (currHUD)

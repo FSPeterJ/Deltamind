@@ -4,6 +4,7 @@
 
 class Menu;
 struct PhysicsComponent;
+struct Material;
 
 class MenuOption : public GameObject {
 	//0.5 X 0.1 X 0.1
@@ -83,9 +84,9 @@ enum Button {
 class Menu {
 public:
 	enum ColumnType {
-		OneColumn_B,
-		TwoColumn_BB,
-		FourColumn_LBBL,
+		OneColumn,
+		TwoColumn,
+		FourColumn,
 	};
 private:
 	bool active = false;
@@ -98,7 +99,7 @@ private:
 	Menu* parent = nullptr;
 	Menu* child = nullptr;
 
-	ColumnType columnType = OneColumn_B;
+	ColumnType columnType = OneColumn;
 
 	DirectX::XMFLOAT4X4 FindCenter(float distFromPlayer = 1);
 	float FindDistanceFromCenter(int optionNumber, int optionCount, float optionHeight, float gapHeight);
@@ -107,13 +108,13 @@ private:
 public:
 
 	Menu();
-	Menu(Template t, std::vector<Button> buttons = std::vector<Button>(), ColumnType _columnType = OneColumn_B);
-	void Create(Template t, std::vector<Button> buttons = std::vector<Button>(), ColumnType _columnType = OneColumn_B);
+	Menu(Template t, std::vector<Button> buttons = std::vector<Button>(), ColumnType _columnType = OneColumn);
+	void Create(Template t, std::vector<Button> buttons = std::vector<Button>(), ColumnType _columnType = OneColumn);
 	void SetCamera(Transform* _camera);
 	inline void SetParent(Menu* _parent) { parent = _parent; };
 	inline void SetChild(Menu* _child) { child = _child; };
 	inline void SetSpawnPos(DirectX::XMFLOAT4X4& pos) { spawnPos = pos; }
-	void CreateAndLoadChild(Template t, std::vector<Button> buttons = std::vector<Button>(), ColumnType _columnType = OneColumn_B);
+	void CreateAndLoadChild(Template t, std::vector<Button> buttons = std::vector<Button>(), ColumnType _columnType = OneColumn);
 	void LoadParent();
 	void Show(bool useCamera = true);
 	void Hide();
@@ -215,3 +216,27 @@ class Label : public MenuOption {
 	void Select() override {};
 };
 
+class ValueLabel : public Label {
+protected:
+	Material* mat;
+	int buffer = 8;
+public:
+	void Awake(Object* obj) override;
+};
+
+class MasterValue : public ValueLabel {
+public:
+	void Awake(Object* obj) override;
+};
+class MusicValue : public ValueLabel {
+	void Awake(Object* obj) override;
+};
+class SFXValue : public ValueLabel {
+	void Awake(Object* obj) override;
+};
+class BrightnessValue : public ValueLabel {
+	void Awake(Object* obj) override;
+}; 
+class MouseSensitivityValue : public ValueLabel {
+	void Awake(Object* obj) override;
+};

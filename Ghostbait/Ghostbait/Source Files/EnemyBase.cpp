@@ -34,6 +34,7 @@ void EnemyBase::Awake(Object* obj) {
 	timeSinceLastAttack = -1;
 
 	prevVelocity = { 0.0f, 0.0f, 0.0f };
+	enemyType = Default;
 
 	hurtTimer = 0;
 	hurtDuration = 0.25;
@@ -42,7 +43,8 @@ void EnemyBase::Awake(Object* obj) {
 	eventLose = 0;
 	smite = 0;
 	eventObstacleRemove = 0;
-
+	
+	animator = GetComponent<Animator>();
 	pc = GetComponent<PhysicsComponent>();
 	rb = &(pc->rigidBody);
 
@@ -73,19 +75,27 @@ void EnemyBase::Start() {
 						  genetics->traits[DEFENSE] + genetics->traits[ENDURANCE] + genetics->traits[STAMINA] + genetics->traits[RESISTANCE],
 						  genetics->traits[SPEED] + genetics->traits[ENERGY] + genetics->traits[COORDINATION] + genetics->traits[BALANCE] };
 
-	auto mx = std::max({domTraits[0], domTraits[1], domTraits[2], domTraits[3]});
+	auto domTrait = std::max({domTraits[0], domTraits[1], domTraits[2], domTraits[3]});
 
-	if(mx == domTraits[0]) {
+	if(domTrait == domTraits[0]) {
 		SwapComponentVarient<Mesh>("medium");
 		SwapComponentVarient<Material>("pink");
-	} else if(mx == domTraits[1]) {
+		animator->setState("Walk_Medium");
+		enemyType = Medium;
+	} else if(domTrait == domTraits[1]) {
 		SwapComponentVarient<Material>("blue");
-	} else if(mx == domTraits[2]) {
+		animator->setState("Walk");
+		enemyType = Default;
+	} else if(domTrait == domTraits[2]) {
 		SwapComponentVarient<Mesh>("heavy");
 		SwapComponentVarient<Material>("green");
-	} else if(mx == domTraits[3]) {
+		animator->setState("Walk_Heavy");
+		enemyType = Heavy;
+	} else if(domTrait == domTraits[3]) {
 		SwapComponentVarient<Mesh>("light");
 		SwapComponentVarient<Material>("yellow");
+		animator->setState("Walk_Light");
+		enemyType = Light;
 	}
 
 	SetStats();
@@ -176,7 +186,7 @@ void EnemyBase::ValidateTarget(EventMessageBase* e) {
 
 bool EnemyBase::ChangeState(State _s) {
 	if (currState == _s || isDying) return false;
-	
+
 	switch (_s)
 	{
 	case EnemyBase::IDLE:
@@ -184,8 +194,18 @@ bool EnemyBase::ChangeState(State _s) {
 		break;
 	case EnemyBase::PATROL:
 		//Console::WarningLine << "Changing state to PATROL";
-		if (GetComponent<Animator>())
-			GetComponent<Animator>()->setState("Walk");
+		if (animator) {
+			if (genetics) {
+				switch (enemyType) {
+					case Default: animator->setState("Walk"); break;
+					case Light: animator->setState("Walk_Light"); break;
+					case Medium: animator->setState("Walk_Medium"); break;
+					case Heavy: animator->setState("Walk_Heavy"); break;
+				}
+			}
+			else 
+				animator->setState("Walk");
+		}
 		break;
 	case EnemyBase::ATTACK:
 		//Console::WarningLine << "Changing state to ATTACK";
@@ -197,20 +217,50 @@ bool EnemyBase::ChangeState(State _s) {
 			Console::WarningLine << "Not Near Target!!";
 		}
 		else {
-			if (GetComponent<Animator>())
-				GetComponent<Animator>()->setState("Attack");
+			if (animator) {
+				if (genetics) {
+					switch (enemyType) {
+						case Default: animator->setState("Attack"); break;
+						case Light: animator->setState("Attack_Light"); break;
+						case Medium: animator->setState("Attack_Medium"); break;
+						case Heavy: animator->setState("Attack_Heavy"); break;
+					}
+				}
+				else
+					animator->setState("Attack");
+			}
 		}
 		break;
 	case EnemyBase::INJURED:
 		//Console::WarningLine << "Changing state to INJURED";
-		if (GetComponent<Animator>())
-			GetComponent<Animator>()->setState("Injured");
+		if (animator) {
+			if (genetics) {
+				switch (enemyType) {
+					case Default: animator->setState("Injured"); break;
+					case Light: animator->setState("Injured_Light"); break;
+					case Medium: animator->setState("Injured_Medium"); break;
+					case Heavy: animator->setState("Injured_Heavy"); break;
+				}
+			}
+			else
+				animator->setState("Injured");
+		}
 		break;
 	case EnemyBase::DEATH:
 		//Console::WarningLine << "Changing state to DEATH";
 		//isDying = true;
-		if (GetComponent<Animator>())
-			GetComponent<Animator>()->setState("Death");
+		if (animator) {
+			if (genetics) {
+				switch (enemyType) {
+					case Default: animator->setState("Death"); break;
+					case Light: animator->setState("Death_Light"); break;
+					case Medium: animator->setState("Death_Medium"); break;
+					case Heavy: animator->setState("Death_Heavy"); break;
+				}
+			}
+			else
+				animator->setState("Death");
+		}
 		rb->Stop();
 		pc->isActive = false;
 		break;

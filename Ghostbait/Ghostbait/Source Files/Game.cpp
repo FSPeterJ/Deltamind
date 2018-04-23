@@ -513,6 +513,7 @@ void Game::Level0Loaded() {
 	}
 }
 void Game::CreditsLoaded() {
+	ChangeState(GAMESTATE_Credits);
 	worldLight.RemoveLightFromManager();
 	player->leftController->SetControllerState(CSTATE_MenuController);
 	player->rightController->SetControllerState(CSTATE_MenuController);

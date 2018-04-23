@@ -5,6 +5,8 @@
 #include "PhysicsComponent.h"
 #include "OptionsManager.h"
 #include "Wwise_IDs.h"
+#include "TextManager.h"
+#undef SendMessage
 
 void MenuOption::Awake(Object* obj) {
 	GameObject::Awake(obj);
@@ -86,6 +88,12 @@ void Menu::AssignPrefabIDs() {
 	buttonPrefabMap[LABEL_SFX] = ObjectFactory::CreatePrefab(&std::string("Assets/SFXLabel.ghost"));
 	buttonPrefabMap[LABEL_Brightness] = ObjectFactory::CreatePrefab(&std::string("Assets/BrightnessLabel.ghost"));
 	buttonPrefabMap[LABEL_MouseSensitivity] = ObjectFactory::CreatePrefab(&std::string("Assets/SensitivityLabel.ghost"));
+
+	buttonPrefabMap[LABEL_MasterVal] = ObjectFactory::CreatePrefab(&std::string("Assets/MasterValue.ghost"));
+	buttonPrefabMap[LABEL_MusicVal] = ObjectFactory::CreatePrefab(&std::string("Assets/MusicValue.ghost"));
+	buttonPrefabMap[LABEL_SFXVal] = ObjectFactory::CreatePrefab(&std::string("Assets/SFXValue.ghost"));
+	buttonPrefabMap[LABEL_BrightnessVal] = ObjectFactory::CreatePrefab(&std::string("Assets/BrightnessValue.ghost"));
+	buttonPrefabMap[LABEL_MouseSensitivityVal] = ObjectFactory::CreatePrefab(&std::string("Assets/MouseSensitivityValue.ghost"));
 }
 
 DirectX::XMFLOAT4X4 Menu::FindCenter(float distFromPlayer) {
@@ -131,7 +139,7 @@ void Menu::Create(Template t, std::vector<Button> _buttons, ColumnType _columnTy
 			buttons[2] = BUTTON_Options;
 			buttons[3] = BUTTON_Credits;
 			buttons[4] = BUTTON_Quit;
-			columnType = OneColumn_B;
+			columnType = OneColumn;
 			break;
 		case MENU_Pause:
 			buttons.empty();
@@ -139,7 +147,7 @@ void Menu::Create(Template t, std::vector<Button> _buttons, ColumnType _columnTy
 			buttons[0] = BUTTON_Resume;
 			buttons[1] = BUTTON_Restart;
 			buttons[2] = BUTTON_Exit;
-			columnType = OneColumn_B;
+			columnType = OneColumn;
 			MessageEvents::Subscribe(EVENT_GamePause, [=](EventMessageBase* e) {this->Show(); });
 			MessageEvents::Subscribe(EVENT_GameUnPause, [=](EventMessageBase* e) {this->Hide(); });
 			break;
@@ -169,7 +177,7 @@ void Menu::Create(Template t, std::vector<Button> _buttons, ColumnType _columnTy
 			buttons[20] = BUTTON_Revert;
 			buttons[21] = BUTTON_CancelOptions;
 			buttons[22] = BUTTON_AcceptOptions;
-			columnType = FourColumn_LBBL;
+			columnType = FourColumn;
 			break;
 		case MENU_Difficulty:
 			buttons.empty();
@@ -178,21 +186,21 @@ void Menu::Create(Template t, std::vector<Button> _buttons, ColumnType _columnTy
 			buttons[1] = BUTTON_Easy;
 			buttons[2] = BUTTON_Medium;
 			buttons[3] = BUTTON_Hard;
-			columnType = OneColumn_B;
+			columnType = OneColumn;
 			break;
 		case MENU_SplashScreen:
 			buttons.empty();
 			buttons.resize(2);
 			buttons[0] = BUTTON_Next;
 			buttons[1] = BUTTON_Skip;
-			columnType = TwoColumn_BB;
+			columnType = TwoColumn;
 			break;
 		case MENU_QuitConfirm:
 			buttons.empty();
 			buttons.resize(2);
 			buttons[0] = BUTTON_QuitCancel;
 			buttons[1] = BUTTON_QuitConfirm;
-			columnType = TwoColumn_BB;
+			columnType = TwoColumn;
 			break;
 		case MENU_Custom:
 			buttons.empty();
@@ -213,7 +221,7 @@ void Menu::Show(bool useCamera) {
 	DirectX::XMFLOAT4X4 center = (useCamera && camera) ? FindCenter() : spawnPos;
 	DirectX::XMMATRIX center_M = DirectX::XMLoadFloat4x4(&center);
 	switch (columnType) {
-		case OneColumn_B:
+		case OneColumn:
 			for (size_t i = 0; i < buttons.size(); ++i) {
 				if (buttons[i] == BUTTON_Blank) continue;
 				MenuOption* newOption;
@@ -233,7 +241,7 @@ void Menu::Show(bool useCamera) {
 				newOption->RenderToFront();
 			}
 			break;
-		case TwoColumn_BB:
+		case TwoColumn:
 			for (size_t i = 0; i < buttons.size(); ++i) {
 				if (buttons[i] == BUTTON_Blank) continue;
 				MenuOption* newOption;
@@ -262,7 +270,7 @@ void Menu::Show(bool useCamera) {
 				newOption->RenderToFront();
 			}
 			break;
-		case FourColumn_LBBL:
+		case FourColumn:
 			for (size_t i = 0; i < buttons.size(); ++i) {
 				if (buttons[i] == BUTTON_Blank) 
 					continue;
@@ -276,24 +284,23 @@ void Menu::Show(bool useCamera) {
 					case 1: offset = -offset; break;
 					case 3: offset = 3 * offset; break;
 				}
-				if (column == 0 || column == 1 || column == 2) {
-					float distFromCenter = FindDistanceFromCenter(row, (int)(options.size() / 4), 0.25f, 0.05f);
-					DirectX::XMStoreFloat4x4(&newObjPos, center_M * DirectX::XMMatrixTranslation(offset, distFromCenter, 0));
-					MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuOption>(buttonPrefabMap[buttons[i]], newObjPos, &newOption));
-					newOption->ToggleFlag(GAMEOBJECT_PUBLIC_FLAGS::UNLIT);
-					newOption->SetMenu(this);
-					newOption->Enable();
-					newOption->PersistOnReset();
-					newOption->UnRender();
-					newOption->RenderToFront();
-					options[i] = newOption;
-					options[i]->SetOldPos(options[i]->transform.GetMatrix());
-					if (options[i]->GetPhysics()) {
-						options[i]->SetOldColliderPoint(options[i]->GetPhysics()->colliders[0].colliderData->colliderInfo.boxCollider.topRightFrontCorner);
-					}
-					options[i]->UnHighlight();
+				float distFromCenter = FindDistanceFromCenter(row, (int)(options.size() / 4), 0.25f, 0.05f);
+				DirectX::XMStoreFloat4x4(&newObjPos, center_M * DirectX::XMMatrixTranslation(offset, distFromCenter, 0));
+				MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuOption>(buttonPrefabMap[buttons[i]], newObjPos, &newOption));
+				newOption->ToggleFlag(GAMEOBJECT_PUBLIC_FLAGS::UNLIT);
+				newOption->SetMenu(this);
+				newOption->Enable();
+				newOption->PersistOnReset();
+				newOption->UnRender();
+				newOption->RenderToFront();
+				options[i] = newOption;
+				options[i]->SetOldPos(options[i]->transform.GetMatrix());
+				if (options[i]->GetPhysics()) {
+					options[i]->SetOldColliderPoint(options[i]->GetPhysics()->colliders[0].colliderData->colliderInfo.boxCollider.topRightFrontCorner);
 				}
+				options[i]->UnHighlight();
 			}
+			MessageEvents::SendMessage(EVENT_SettingsChanged, EventMessageBase());
 			break;
 	}
 }
@@ -387,62 +394,83 @@ void HardButton::Select() {
 }
 void MasterUpButton::Select() {
 	float tempVolume = OptionsManager::GetInstance().GetMasterVolume();
-	if (tempVolume < 1.0f)
+	if (tempVolume < 1.0f) {
 		OptionsManager::GetInstance().SetMasterVolume(tempVolume + 0.1f);
+		MessageEvents::SendMessage(EVENT_SettingsChanged, EventMessageBase());
+	}
+
 	MenuOption::Select();
 }
 void MasterDownButton::Select() {
 	float tempVolume = OptionsManager::GetInstance().GetMasterVolume();
-	if (tempVolume > 0.0f)
+	if (tempVolume > 0.0f) {
 		OptionsManager::GetInstance().SetMasterVolume(tempVolume - 0.1f);
+		MessageEvents::SendMessage(EVENT_SettingsChanged, EventMessageBase());
+	}
 	MenuOption::Select();
 }
 void MusicUpButton::Select() {
 	float tempVolume = OptionsManager::GetInstance().GetMusicVolume();
-	if (tempVolume < 100.0f)
+	if (tempVolume < 100.0f) {
 		OptionsManager::GetInstance().SetMusicVolume(tempVolume + 10.0f);
+		MessageEvents::SendMessage(EVENT_SettingsChanged, EventMessageBase());
+	}
 	MenuOption::Select();
 }
 void MusicDownButton::Select() {
 	float tempVolume = OptionsManager::GetInstance().GetMusicVolume();
-	if (tempVolume > 0.0f)
+	if (tempVolume > 0.0f) {
 		OptionsManager::GetInstance().SetMusicVolume(tempVolume - 10.0f);
+		MessageEvents::SendMessage(EVENT_SettingsChanged, EventMessageBase());
+	}
 	MenuOption::Select();
 }
 void SFXUpButton::Select() {
 	float tempVolume = OptionsManager::GetInstance().GetSFXVolume();
-	if (tempVolume < 100.0f)
+	if (tempVolume < 100.0f) {
 		OptionsManager::GetInstance().SetSFXVolume(tempVolume + 10.0f);
+		MessageEvents::SendMessage(EVENT_SettingsChanged, EventMessageBase());
+	}
 	MenuOption::Select();
 }
 void SFXDownButton::Select() {
 	float tempVolume = OptionsManager::GetInstance().GetSFXVolume();
-	if (tempVolume > 0.0f)
+	if (tempVolume > 0.0f) {
 		OptionsManager::GetInstance().SetSFXVolume(tempVolume - 10.0f);
+		MessageEvents::SendMessage(EVENT_SettingsChanged, EventMessageBase());
+	}
 	MenuOption::Select();
 }
 void BrightnessUpButton::Select() {
 	float tempGam = OptionsManager::GetInstance().GetGamma();
-	if (tempGam < 0.5f)
+	if (tempGam < 0.5f) {
 		OptionsManager::GetInstance().SetGamma(tempGam + 0.05f);
+		MessageEvents::SendMessage(EVENT_SettingsChanged, EventMessageBase());
+	}
 	MenuOption::Select();
 }
 void BrightnessDownButton::Select() {
 	float tempGam = OptionsManager::GetInstance().GetGamma();
-	if(tempGam > 0.0f)
+	if (tempGam > 0.0001f) {
 		OptionsManager::GetInstance().SetGamma(tempGam - 0.05f);
+		MessageEvents::SendMessage(EVENT_SettingsChanged, EventMessageBase());
+	}
 	MenuOption::Select();
 }
 void MouseSensitivityUpButton::Select() {
 	float currSens = OptionsManager::GetInstance().GetSensitivity();
-	if (currSens < 0.015f)
+	if (currSens < 0.015f) {
 		OptionsManager::GetInstance().SetSensitivity(currSens + 0.00135f);
+		MessageEvents::SendMessage(EVENT_SettingsChanged, EventMessageBase());
+	}
 	MenuOption::Select();
 }
 void MouseSensitivityDownButton::Select() {
 	float currSens = OptionsManager::GetInstance().GetSensitivity();
-	if (currSens > 0.0015f)
+	if (currSens > 0.0015f) {
 		OptionsManager::GetInstance().SetSensitivity(currSens - 0.00135f);
+		MessageEvents::SendMessage(EVENT_SettingsChanged, EventMessageBase());
+	}
 	MenuOption::Select();
 }
 void AcceptOptionsButton::Select() {
@@ -459,6 +487,7 @@ void CancelOptionsButton::Select() {
 void RevertOptionsButton::Select()
 {
 	OptionsManager::GetInstance().Revert();
+	MessageEvents::SendMessage(EVENT_SettingsChanged, EventMessageBase());
 	MenuOption::Select();
 }
 void QuitConfirmButton::Select()
@@ -480,4 +509,73 @@ void NextButton::Select() {
 void SkipButton::Select() {
 	MenuOption::Select();
 	MessageEvents::SendMessage(EVENT_Start, StartEventMessage(""));
+}
+
+void ValueLabel::Awake(Object* obj) {
+	MenuOption::Awake(obj);
+	mat = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", "100		", { 1, 1, 1, 1 }, { 0, 0, 0, 0 }).mat;
+	SetComponent<Material>(mat);
+	buffer = 12;
+}
+
+void MasterValue::Awake(Object* obj) {
+	ValueLabel::Awake(obj);
+	MessageEvents::Subscribe(EVENT_SettingsChanged, [=](EventMessageBase* e){
+		std::string message = " ";
+		message.append(std::to_string((int)(std::ceil(OptionsManager::GetInstance().GetMasterVolume() * 10) * 10)));
+		for (int i = (int)message.length(); i < buffer; ++i) {
+			message.append(" ");
+		}
+		message.append("");
+		TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", message, mat, { 1, 1, 1, 1 }, { 0, 0, 0, 0 });
+	});
+}
+void MusicValue::Awake(Object* obj) {
+	ValueLabel::Awake(obj);
+	MessageEvents::Subscribe(EVENT_SettingsChanged, [=](EventMessageBase* e) {
+		std::string message = " ";
+		message.append(std::to_string((int)(OptionsManager::GetInstance().GetMusicVolume())));
+		for (int i = (int)message.length(); i < buffer; ++i) {
+			message.append(" ");
+		}
+		message.append("");
+		TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", message, mat, { 1, 1, 1, 1 }, { 0, 0, 0, 0 });
+	});
+}
+void SFXValue::Awake(Object* obj) {
+	ValueLabel::Awake(obj);
+	MessageEvents::Subscribe(EVENT_SettingsChanged, [=](EventMessageBase* e) {
+		std::string message = " ";
+		message.append(std::to_string((int)(OptionsManager::GetInstance().GetSFXVolume())));
+		for (int i = (int)message.length(); i < buffer; ++i) {
+			message.append(" ");
+		}
+		message.append("");
+		TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", message, mat, { 1, 1, 1, 1 }, { 0, 0, 0, 0 });
+	});
+}
+void BrightnessValue::Awake(Object* obj) {
+	ValueLabel::Awake(obj);
+	MessageEvents::Subscribe(EVENT_SettingsChanged, [=](EventMessageBase* e) {
+		std::string message = " ";
+		message.append(std::to_string((int)(OptionsManager::GetInstance().GetGamma() * 200)));
+		for (int i = (int)message.length(); i < buffer; ++i) {
+			message.append(" ");
+		}
+		message.append("");
+		TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", message, mat, { 1, 1, 1, 1 }, { 0, 0, 0, 0 });
+	});
+}
+void MouseSensitivityValue::Awake(Object* obj) {
+	ValueLabel::Awake(obj);
+	MessageEvents::Subscribe(EVENT_SettingsChanged, [=](EventMessageBase* e) {
+		std::string message = " ";
+		int value = (int)std::roundf((OptionsManager::GetInstance().GetSensitivity() - 0.0015f) / 0.0135f * 100);
+		message.append(std::to_string(value));
+		for (int i = (int)message.length(); i < buffer; ++i) {
+			message.append(" ");
+		}
+		message.append("");
+		TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", message, mat, { 1, 1, 1, 1 }, { 0, 0, 0, 0 });
+	});
 }

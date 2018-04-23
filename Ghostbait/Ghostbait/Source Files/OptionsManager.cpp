@@ -54,6 +54,7 @@ void OptionsManager::SetSFXVolume(float _VolumeIn)
 void OptionsManager::SetMusicVolume(float _VolumeIn)
 {
 	currOptions.MusicVolume = _VolumeIn;
+	audioMan->setMusicVolume(currOptions.MusicVolume);
 }
 
 void OptionsManager::SetGamma(float _GammaIn)

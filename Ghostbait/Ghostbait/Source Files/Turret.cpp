@@ -242,7 +242,7 @@ void Turret_Long::Shoot() {
 
 	Projectile* obj;
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Projectile>(projectiePID, { 0, 0, 0 }, &obj));
-	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_GUNSHOT));
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_TURRET_SINGLE_SHOT));
 	DirectX::XMFLOAT4X4 newPos = *launcherorigin;
 	float dy = 0.2f;
 	float dz = 0.8f;
@@ -273,7 +273,7 @@ void Turret_Medium::Shoot() {
 
 	Projectile* obj;
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Projectile>(projectiePID, { 0, 0, 0 }, &obj));
-	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_GUNSHOT));
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_PLASMADECAYFIZZLE));
 	DirectX::XMFLOAT4X4 newPos = *launcherorigin;
 	float dy = 0.3f;
 	float dz = 0.8f;
@@ -304,7 +304,7 @@ void Turret_Short::Shoot() {
 
 	Projectile* obj;
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<Projectile>(projectiePID, { 0, 0, 0 }, &obj));
-	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_GUNSHOT));
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_LAZER_COMPUTERMADE));
 	DirectX::XMFLOAT4X4 newPos = *launcherorigin;
 
 	newPos._41 += transform.matrix._41 + (newPos._11 * offset[currentIndex].dx) + (newPos._21 * offset[currentIndex].dy) + (newPos._31 * offset[currentIndex].dz);

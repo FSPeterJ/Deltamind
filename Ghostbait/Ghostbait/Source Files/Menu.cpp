@@ -15,7 +15,7 @@ void MenuOption::Awake(Object* obj) {
 }
 void MenuOption::Select() {
 	//Console::WriteLine << "Menu Option: " << this << " was selected!";
-	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_DOOROPEN));
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_ANALOG_MENU_CLICK));
 }
 void MenuOption::UnHighlight() {
 	//Console::WriteLine << "Menu Option: " << this << " was Un-highlighted!";
@@ -410,9 +410,19 @@ void MasterDownButton::Select() {
 	MenuOption::Select();
 }
 void MusicUpButton::Select() {
+	float tempVolume = OptionsManager::GetInstance().GetMusicVolume();
+	if (tempVolume < 100.0f) {
+		OptionsManager::GetInstance().SetMusicVolume(tempVolume + 10.0f);
+		MessageEvents::SendMessage(EVENT_SettingsChanged, EventMessageBase());
+	}
 	MenuOption::Select();
 }
 void MusicDownButton::Select() {
+	float tempVolume = OptionsManager::GetInstance().GetMusicVolume();
+	if (tempVolume > 0.0f) {
+		OptionsManager::GetInstance().SetMusicVolume(tempVolume - 10.0f);
+		MessageEvents::SendMessage(EVENT_SettingsChanged, EventMessageBase());
+	}
 	MenuOption::Select();
 }
 void SFXUpButton::Select() {
@@ -524,7 +534,7 @@ void MusicValue::Awake(Object* obj) {
 	ValueLabel::Awake(obj);
 	MessageEvents::Subscribe(EVENT_SettingsChanged, [=](EventMessageBase* e) {
 		std::string message = " ";
-		message.append(std::to_string((int)(std::ceil(OptionsManager::GetInstance().GetMusicVolume() * 10) * 10)));
+		message.append(std::to_string((int)(OptionsManager::GetInstance().GetMusicVolume())));
 		for (int i = (int)message.length(); i < buffer; ++i) {
 			message.append(" ");
 		}

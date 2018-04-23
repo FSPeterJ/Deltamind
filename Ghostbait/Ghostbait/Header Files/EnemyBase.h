@@ -16,6 +16,7 @@ using namespace Omiracon::Genetics;
 class HexGrid;
 class RigidBody;
 struct PhysicsComponent;
+class Animator;
 
 class EnemyBase: public GameObject, public Health {
 protected:
@@ -26,12 +27,19 @@ protected:
 		INJURED,
 		DEATH,
 	};
+	enum EnemyType {
+		Light,
+		Medium,
+		Heavy,
+		Default,
+	};
 
 	std::mutex enemyMutex;
 	State currState = IDLE, prevState = IDLE;
 	
 	GhostTime::Moment spawnTime;
 	Evolvable* genetics = nullptr;
+	EnemyType enemyType = Default;
 
 	Core* core = nullptr;
 	Health* targetObj = nullptr;
@@ -64,6 +72,7 @@ protected:
 	unsigned eventObstacleRemove = 0;
 
 	PhysicsComponent* pc = 0;
+	Animator* animator = 0;
 	RigidBody* rb = 0;
 
 public:

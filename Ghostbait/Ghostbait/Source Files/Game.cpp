@@ -303,6 +303,7 @@ void Game::RestartLevel() {
 	//Reinstantiate starting wave values and current scene
 	ChangeScene(name.c_str(), currLevelName);
 	GameData const* gd = &gameData;
+	MessageEvents::SendMessage(EVENT_StopAllSounds, EventMessageBase());
 	MessageEvents::SendMessage(EVENT_ReadyToStart, GameDataMessage(&gd));
 
 	MessageEvents::SendQueueMessage(EVENT_Late, [=]() { 
@@ -352,6 +353,7 @@ void Game::Quit() {
 	run = false;
 }
 void Game::ExitToMainMenu() {
+	MessageEvents::SendMessage(EVENT_StopAllSounds, EventMessageBase());
 	ChangeState(GAMESTATE_MainMenu);
 	ChangeScene("mainMenu");
 }

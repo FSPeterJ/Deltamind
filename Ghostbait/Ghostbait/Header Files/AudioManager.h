@@ -32,6 +32,7 @@ public:
 	void setMusicVolume(float value);
 	void setMasterVolume(float value);
 	void toggleAudio(EventMessageBase* e);
+	void stopAllSounds(EventMessageBase* e);
 	void Update();
 };
 

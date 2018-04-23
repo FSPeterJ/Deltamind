@@ -86,6 +86,7 @@ AudioManager::AudioManager() //Thank the lord for SDK documentation
 	MessageEvents::Subscribe(EVENT_RequestSound, [this](EventMessageBase * _e) {this->playSound(_e); });
 	MessageEvents::Subscribe(EVENT_UnregisterNoisemaker, [this](EventMessageBase * _e) {this->unRegisterObject(_e); });
 	MessageEvents::Subscribe(EVENT_ToggleAudio, [this](EventMessageBase* _e) {this->toggleAudio(_e); });
+	MessageEvents::Subscribe(EVENT_StopAllSounds, [this](EventMessageBase* _e) {this->stopAllSounds(_e); });
 }
 
 
@@ -170,6 +171,11 @@ void AudioManager::toggleAudio(EventMessageBase * e)
 		AK::SoundEngine::WakeupFromSuspend();
 
 	playing = !playing;
+}
+
+void AudioManager::stopAllSounds(EventMessageBase * e)
+{
+	AK::SoundEngine::StopAll();
 }
 
 void AudioManager::Update()

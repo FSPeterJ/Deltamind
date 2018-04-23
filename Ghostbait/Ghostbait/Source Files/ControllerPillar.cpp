@@ -146,7 +146,7 @@ void ControllerPillar_Shoot::Awake(Object* obj) {
 		rightDisplay->ToggleFlag(UNLIT);
 	}
 	else {
-		//Get mouse model
-		//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/WASD.ghost")), { 0, 0, 0 }, &centerDisplay));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/Mouse.ghost")), { 0, 0, 0 }, &centerDisplay));
+		//centerDisplay->ToggleFlag(UNLIT);
 	}
 }

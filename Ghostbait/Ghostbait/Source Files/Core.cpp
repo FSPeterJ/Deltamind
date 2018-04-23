@@ -29,7 +29,7 @@ void Core::Awake(Object* obj) {
 	light.Enable();
 	SetToFullHealth();
 	panicking = false;
-	Test(PercentHealth());
+	//Test(PercentHealth());
 }
 void Test(float s) {
 	int i = 0;

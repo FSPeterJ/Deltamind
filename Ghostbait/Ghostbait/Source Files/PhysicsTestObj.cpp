@@ -6,6 +6,7 @@
 
 #include "ParticleManager.h"
 #include "MaterialManager.h"
+#include "MessageEvents.h"
 
 PhysicsTestObj::PhysicsTestObj() {
 	SetTag("PhysicsTestObj");
@@ -73,37 +74,49 @@ void PhysicsTestObj::Awake(GameObject* _other) {
 
 
 void PhysicsTestObj::AnExtremelyBadTemporaryFunction(ParticleManager* partman, MaterialManager* matman) {
-	Emitter* emitter = new Emitter();
-	emitter->transform = transform;
-	emitter->mainData.StartSize = 0.1f;
-	emitter->mainData.EndSize = 0.1f;
-	emitter->materials[0] = matman->GetReferenceComponent("Assets/exitOption.mat", nullptr);
-	emitter->mainData.ParticleLifeSpan = 5.0f;
-	//emitter->mainData.Velocity = DirectX::XMFLOAT3(0, 0, 10.0f);
-	emitter->mainData.VelocityMagnatude = 1;
-	emitter->mainData.Position = emitter->transform.GetPosition();
-	emitter->mainData.TextureIndex = partman->AddMaterial(emitter->materials[0]);
-	emitter->mainData.emissionIntervalSec = 0.00001f;
-	emitter->mainData.StartColor = DirectX::XMFLOAT4(0, 0, 10.0f, 0.75f);
-	emitter->mainData.EndColor = DirectX::XMFLOAT4(10.0f, 0, 0,  0);
-	emitter->lifespan = 4;
-	emitter->mainData.xAngleVariance = 0.5f;
-	emitter->mainData.yAngleVariance = 2;
-	emitter->mainData.properties = HASGRAVITY;
-	D3D11_TEXTURE2D_DESC desc;
-	((ID3D11Texture2D*)emitter->materials[0]->diffuse.texture)->GetDesc(&desc);
 
+	Emitter* emitter = nullptr;
 
-	//ID3D11Texture2D *pTextureInterface = nullptr;
-	//((Material*)&emitter->Materials[0])->diffuse.texture->QueryInterface<ID3D11Texture2D>(&pTextureInterface);
-	//ID3D11Resource* dec;
-	//((Material*)&emitter->Materials[0])->diffuse.texView->GetResource(&dec);
-	////((ID3D11Resource*)dec)
-
-	emitter->mainData.TextureIndex = ((desc.Width & 0xFFF) << 20) | ((desc.Height & 0xFFF) << 8) |emitter->mainData.TextureIndex;
-	SetComponent(partman->CloneComponent(emitter), TypeMap::GetComponentTypeID<Emitter>());
-	emitter = GetComponent<Emitter>();
+	MessageEvents::SendMessage(EVENT_NewEmitter, NewEmitterMessage(&transform.GetPosition(), 0, (ComponentBase**)&emitter));
 	emitter->parentObject = this;
 	emitter->Enable();
+	//emitter->transform = transform;
+	//emitter->mainData.StartSize = 0;
+	//emitter->mainData.EndSize = 0.1f;
+	//emitter->materials[0] = matman->GetReferenceComponent("Assets/exitOption.mat", nullptr);
+	//emitter->mainData.ParticleLifeSpan = 10.0f;
+	////emitter->mainData.Velocity = DirectX::XMFLOAT3(0, 0, 10.0f);
+	//emitter->mainData.VelocityMagnatude = 2;
+	//emitter->mainData.Position = emitter->transform.GetPosition();
+	//emitter->mainData.TextureIndex = partman->AddMaterial(emitter->materials[0]);
+	//emitter->mainData.emissionIntervalSec = 0.01f;
+	//emitter->mainData.StartColor = DirectX::XMFLOAT4(1.0f, 0.6f, 0.0f, 1.0f);
+	//emitter->mainData.EndColor = DirectX::XMFLOAT4(1.0f, 0.6f, 0.0f, 0.0f);
+	//emitter->lifespan = 4;
+	//emitter->mainData.xAngleVariance = 0.5f;
+	//emitter->mainData.yAngleVariance = 2;
+	//emitter->mainData.mass = 0.2f;
+	//emitter->mainData.perInterval = 50;
+	//emitter->mainData.properties = HASGRAVITY;
+	//D3D11_TEXTURE2D_DESC desc;
+	//((ID3D11Texture2D*)emitter->materials[0]->diffuse.texture)->GetDesc(&desc);
+
+	//emitter->mainData.TextureIndex = ((desc.Width & 0xFFF) << 20) | ((desc.Height & 0xFFF) << 8) | emitter->mainData.TextureIndex;
+
+	//UINT debugUw = (emitter->mainData.TextureIndex & ((0xFFF) << 20)) >> 20;
+	////float debugU = (float)(emitter->mainData.TextureIndex >> 20) ;
+	////float debugV = (float)((emitter->mainData.TextureIndex & (0xFFF << 8)) >>8);
+	////debugUw /= desc.Width;
+	////int x = 0;
+	////for (int i = 0; i < 32; ++i) {
+	////	
+	////	if(emitter->mainData.TextureIndex & (1 << i))
+	////		x++;
+	////}
+	////debugU /= (float)desc.Width;
+	////debugV /= (float)desc.Height;
+	//SetComponent(partman->CloneComponent(emitter), TypeMap::GetComponentTypeID<Emitter>());
+	//emitter = GetComponent<Emitter>();
+
 
 }

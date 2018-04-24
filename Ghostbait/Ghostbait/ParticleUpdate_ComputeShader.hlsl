@@ -18,13 +18,6 @@ AppendStructuredBuffer<float2> SortingData : register(u4);
 [numthreads(256, 1, 1)]
 void main(uint3 DThreadID : SV_DispatchThreadID)
 {
-    //if (DThreadID.x == 0)
-    //{
-    //    DrawArgs[0] = 1;
-
-    //}
-    //GroupMemoryBarrierWithGroupSync();
-
     //The reason behind this system is to quit out of cycling particles early.  From what I understand that way that GPU thread groups work
     //is they are processed in batches.  This means if 64 threads are assigned a task and only 2 of them are active, the entire thread group must wait 
     //until all have processed in order to release the batch.
@@ -33,6 +26,7 @@ void main(uint3 DThreadID : SV_DispatchThreadID)
     {
         uint particleBufferIndex = ActiveParticleIndex[DThreadID.x];
         Particle particle = ParticleBuffer[particleBufferIndex];
+        const float3 Gravity = float3(0.0, -9.81, 0.0);
 
 
         particle.age -= FrameTime;
@@ -43,9 +37,11 @@ void main(uint3 DThreadID : SV_DispatchThreadID)
             particle.color = lerp(particle.startColor, particle.endColor, scaledLife);
             particle.size = lerp(particle.startSize, particle.endSize, scaledLife);
 
-            //Possible Additions: variable rotation speed, acceleration
-            //Bparticle.m_Rotation += 0.24 * FrameTime;
+            //Possible variable rotation speed, acceleration
+            particle.rotation += 0.24 * FrameTime;
             float3 NewPosition = particle.position;
+            particle.velocity += Gravity * FrameTime * particle.mass;
+
             NewPosition += particle.velocity * FrameTime;
             particle.position = NewPosition;
             particle.distanceToCamera = length(NewPosition - CameraCenterpoint.xyz);
@@ -56,27 +52,8 @@ void main(uint3 DThreadID : SV_DispatchThreadID)
         }
         else
         {
-            //InterlockedAdd(DrawArgs[1], -1);// Wait, can't we use copy subresource count to this buffer?
-            //Bparticle.age = -1;
-            //Swap
-            //BillboardParticleBuffer[particleIndex] = Bparticle; // There is no need to spend time writing data of a dead particle
-            //uint Index = ActiveBillboardParticleIndex.DecrementCounter();
+
             ActiveParticleIndex.DecrementCounter();
-            //uint tempNotUsed;
-            //uint particleMax;
-            //uint particleNotUsed;
-            //InactiveBillboardParticleIndex.GetDimensions(particleMax, particleNotUsed);
-
-            //GroupMemoryBarrierWithGroupSync();
-
-            //if (Index > DThreadID.x)
-            //{
-            //    //InterlockedExchange(ActiveBillboardParticleIndex[DThreadID.x], ActiveBillboardParticleIndex[Index], tempNotUsed);
-            //    //SortingData[DThreadID.x].y = ActiveBillboardParticleIndex[DThreadID.x];
-            //    //SortingData[DThreadID.x].y = ActiveBillboardParticleIndex[DThreadID.x];
-
-            //}
-            //Add particle to Inactive
             uint Index = InactiveParticleIndex.IncrementCounter();
             InactiveParticleIndex[Index] = particleBufferIndex;
         }

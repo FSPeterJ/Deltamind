@@ -49,7 +49,10 @@ struct GSInput
 //This is to determine the end of the texture UV in relation to the texturearray size
 float2 calculateUVOffset(uint texturedata)
 {
-    return float2((float) (texturedata & (0xFFF << 20)) / (float) maxU, (float) (texturedata & (0xFFF << 8)) / (float) maxU);
+    float2 temp = float2((float) (texturedata >> 20), (float) ((texturedata & (0xFFF << 8)) >> 8));
+    temp.x /= (float)maxU;
+    temp.y /= (float)maxV;
+    return temp;
 }
 
 

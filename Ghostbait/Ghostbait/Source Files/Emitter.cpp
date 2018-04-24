@@ -20,7 +20,9 @@ void Emitter::Update() {
 	//	Disable();
 
 	//}
-	transform.matrix = parentObject->transform.matrix;
+	if(parentObject) {
+		transform.matrix = parentObject->transform.matrix;
+	}
 	mainData.Position = transform.GetPosition();
 	mainData.emissionOverflow = previousOverflow;
 	if(mainData.emissionIntervalSec >= mainData.emissionOverflow + dt) {

@@ -1,5 +1,6 @@
 #include "ParticleManager.h"
 #include "RenderUtil.h"
+#include "MessageEvents.h"
 
 void ParticleManager::InitShaders() {
 
@@ -228,6 +229,7 @@ ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _
 	ID3D11Buffer* buffers[] = { perFrame, ActiveParticleConstantBuffer, InactiveParticleConstantBuffer, EmitterConstantBuffer, SortParametersConstantBuffer };
 	context->CSSetConstantBuffers(0, ARRAYSIZE(buffers), buffers);
 
+	InitEmitters();
 }
 
 
@@ -243,7 +245,7 @@ void ParticleManager::RenderParticles() {
 	ID3D11ShaderResourceView* SRV[] = { ParticleSRV, SortParticleIndexSRV };
 	context->VSSetShaderResources(10, 2, SRV);
 
-	context->CopyStructureCount(IndirectDrawArgsBuffer, 0, SortParticleIndexUAV);
+	context->CopyStructureCount(IndirectDrawArgsBuffer, 0, ActiveParticleIndexUAV);
 	context->DrawInstancedIndirect(IndirectDrawArgsBuffer, 0);
 	//context->Draw(20, 0);
 	context->GSSetShader(nullptr, NULL, NULL);
@@ -255,11 +257,12 @@ void ParticleManager::RenderParticles() {
 	context->VSSetShaderResources(10, 2, SRV);
 
 	Update();
-	Sort();
+	//Sort();
+
 }
 
 ComponentBase* ParticleManager::GetReferenceComponent(const char* _FilePath, const char* _data) {
-	ComponentBase* newEmitter = referenceEemitterPool.ActivateMemory();
+	ComponentBase* newEmitter = referenceEmitterPool.ActivateMemory();
 	//EmitterComponent* data = (EmitterComponent*)reference;
 	return newEmitter;
 }
@@ -348,25 +351,32 @@ void ParticleManager::Update() {
 	// I do not like that the pool gives access to the vector because that makes it modifiable.  
 	// It should give access to the vector array and you should then ask for the active count.
 	// A discussion with Kody on an unrelated system has made this apparent to me.
-	Emitter* activeEmitters = (*emitterPool.GetActiveList())[0];
 	const unsigned activeCount = (unsigned)emitterPool.GetActiveCount();
+	if(activeCount) {
+
+		Emitter* activeEmitters = (*emitterPool.GetActiveList())[0];
 
 
 
-	//Emitters should be packaged into larger blocks and processed multiple at a time
-	for(unsigned i = 0; i < activeCount; ++i) {
-		Emitter* activeEmit = &activeEmitters[i];
-		if(activeEmit->enabled) {
-			memcpy(&emitterConstant, &activeEmit->mainData, sizeof(EmitterConstant));
-			context->UpdateSubresource(EmitterConstantBuffer, NULL, NULL, &emitterConstant, NULL, NULL);
-			context->Dispatch(numThreadGroups, 1, 1);
-			//We copy the active count into a const buffer
+		//Emitters should be packaged into larger blocks and processed multiple at a time
+		for(unsigned i = 0; i < activeCount; ++i) {
+			Emitter* activeEmit = &activeEmitters[i];
+			if(activeEmit->enabled) {
+				memcpy(&emitterConstant, &activeEmit->mainData, sizeof(EmitterConstant));
+				context->UpdateSubresource(EmitterConstantBuffer, NULL, NULL, &emitterConstant, NULL, NULL);
+				context->Dispatch(numThreadGroups, 1, 1);
+				//We copy the active count into a const buffer
 
-			context->CopyStructureCount(ActiveParticleConstantBuffer, 0, ActiveParticleIndexUAV);
-			context->CopyStructureCount(InactiveParticleConstantBuffer, 0, InactiveParticleIndexUAV);
+				context->CopyStructureCount(ActiveParticleConstantBuffer, 0, ActiveParticleIndexUAV);
+				context->CopyStructureCount(InactiveParticleConstantBuffer, 0, InactiveParticleIndexUAV);
+			}
 		}
-	}
 
+	}
+	else {
+		context->CopyStructureCount(ActiveParticleConstantBuffer, 0, ActiveParticleIndexUAV);
+		context->CopyStructureCount(InactiveParticleConstantBuffer, 0, InactiveParticleIndexUAV);
+	}
 	//Process Update of particles
 
 	//We copy the amount of active particles post-emission into the args buffer
@@ -386,11 +396,11 @@ void ParticleManager::Update() {
 
 	context->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavs), uavs, nullptr);
 
-	
+
 }
 
 
-const int MAX_NUM_TG = 1024;//128; // max 128 * 512 elements = 64k elements
+const int MAX_NUM_TG = 1024;
 
 
 
@@ -457,7 +467,6 @@ bool ParticleManager::sortIncremental(unsigned presorted) const {
 	const unsigned subArraySize = presorted;
 
 	for(unsigned distance = subArraySize; distance>256; distance = distance>>1)
-		//	for( int nMergeSubSize=nMergeSize>>1; nMergeSubSize>0; nMergeSubSize=nMergeSubSize>>1 ) 
 	{
 		D3D11_MAPPED_SUBRESOURCE MappedResource;
 
@@ -481,4 +490,41 @@ bool ParticleManager::sortIncremental(unsigned presorted) const {
 	context->Dispatch(numThreadGroups, 1, 1);
 
 	return bDone;
+}
+
+
+void ParticleManager::NewEmitter(EventMessageBase* _e) {
+	NewEmitterMessage* msg = (NewEmitterMessage*)_e;
+	*msg->emit = emitterPool.ActivateMemory();
+	memcpy(*msg->emit, &referenceEmitterPool.GetItems()[msg->EmitterID], sizeof(Emitter));
+	memcpy(&((Emitter*)*msg->emit)->transform.matrix._41, &msg->position, sizeof(float)*3);
+}
+
+void ParticleManager::InitEmitters() {
+
+	MessageEvents::Subscribe(EVENT_NewEmitter, [this](EventMessageBase * _e) {
+		this->NewEmitter(_e);
+	});
+
+	Emitter* emitter = referenceEmitterPool.ActivateMemory();
+
+	ZeroMemory(emitter, sizeof(Emitter));
+	emitter->mainData.StartSize = 0;
+	emitter->mainData.EndSize = 0.06f;
+	//emitter->materials[0] = matman->GetReferenceComponent("Assets/exitOption.mat", nullptr);
+	emitter->mainData.ParticleLifeSpan = 1.0f;
+	//emitter->mainData.Velocity = DirectX::XMFLOAT3(0, 0, 10.0f);
+	emitter->mainData.VelocityMagnatude = 1;
+	emitter->mainData.Position = emitter->transform.GetPosition();
+	//emitter->mainData.TextureIndex = AddMaterial(emitter->materials[0]);
+	emitter->mainData.emissionIntervalSec = 0.1f;
+	emitter->mainData.StartColor = DirectX::XMFLOAT4(1.0f, 0.6f, 0.0f, 1.0f);
+	emitter->mainData.EndColor = DirectX::XMFLOAT4(1.0f, 0.6f, 0.0f, 0.0f);
+	emitter->lifespan = 4;
+	emitter->mainData.xAngleVariance = 0.5f;
+	emitter->mainData.yAngleVariance = 2;
+	emitter->mainData.mass = 0.2f;
+	emitter->mainData.perInterval = 50;
+	emitter->mainData.properties = HASGRAVITY;
+	emitter->mainData.Gravity = DirectX::XMFLOAT3(0.0f, 9.81f, 0.0f);;
 }

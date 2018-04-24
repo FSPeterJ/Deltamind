@@ -249,6 +249,7 @@
     <ClInclude Include="Header Files\Object.h" />
     <ClInclude Include="Header Files\ObjectFactory.h" />
     <ClInclude Include="Header Files\ObjectManager.h" />
+    <ClInclude Include="Header Files\ParticleLists.h" />
     <ClInclude Include="Header Files\ParticleManager.h" />
     <ClInclude Include="Header Files\ParticlesGPU.h" />
     <ClInclude Include="Header Files\ParticleTextureManager.h" />

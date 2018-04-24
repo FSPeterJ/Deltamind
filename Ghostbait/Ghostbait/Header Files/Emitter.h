@@ -39,7 +39,16 @@ struct EmitterData {
 	//16
 	float emissionOverflow = 0;
 	float EmissionCount = 10;
-	float padding[2];
+	float mass = 1;
+	unsigned perInterval = 10;
+
+	DirectX::XMFLOAT3 acceleration;
+	float velocityLossFactor;
+
+	DirectX::XMFLOAT3 Gravity;
+	float Unused;
+
+
 };
 
 

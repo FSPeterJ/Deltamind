@@ -7,10 +7,11 @@
 #include "Transform.h"
 #include "IComponentManager.h"
 #include "Emitter.h"
+#include "MessageStructs.h"
 
 //#define MAX_PARTICLES 524288 // 2^19
-#define MAX_PARTICLES 100 // 2^4
-#define MAX_REFERENCE_PARTICLES
+#define MAX_PARTICLES 200 // 2^4
+#define MAX_REFERENCE_PARTICLES 100
 class ParticleManager: public IComponentManager {
 
 	struct EmitterConstant {
@@ -41,7 +42,17 @@ class ParticleManager: public IComponentManager {
 		float yAngleVariance;
 		//16
 		float emissionOverflow = 0;
-		float padding[3];
+		float EmissionCount;
+		float mass;
+		unsigned Per;
+
+		DirectX::XMFLOAT3 acceleration;
+		float velocityLossFactor;
+
+		DirectX::XMFLOAT3 Gravity;
+		float Unused;
+
+
 	} emitterConstant;
 
 
@@ -75,6 +86,13 @@ class ParticleManager: public IComponentManager {
 
 		//Constant data (16 bytes)
 		DirectX::XMFLOAT4 EndColor;
+
+		DirectX::XMFLOAT3 acceleration;
+		float velocityLossFactor;
+
+		//Constant data (16 bytes)
+		DirectX::XMFLOAT3 Gravity;
+		float Unused;
 	};
 
 	struct SortParameters {
@@ -90,7 +108,7 @@ class ParticleManager: public IComponentManager {
 	};
 
 	Pool<Emitter> emitterPool = Pool<Emitter>(MAX_PARTICLES);
-	Pool<Emitter> referenceEemitterPool = Pool<Emitter>(MAX_REFERENCE_PARTICLES);
+	Pool<Emitter> referenceEmitterPool = Pool<Emitter>(MAX_REFERENCE_PARTICLES);
 
 	ID3D11Device* device = nullptr;
 	ID3D11DeviceContext* context = nullptr;
@@ -144,6 +162,8 @@ public:
 	void Sort() const;
 	bool sortInitial() const;
 	bool sortIncremental(unsigned presorted) const;
+	void NewEmitter(EventMessageBase* _e);
+	void InitEmitters();
 	void InitShaders();
 	ParticleManager(ID3D11Device* _device, ID3D11DeviceContext* _context, ID3D11Buffer* _perFrame, ID3D11ShaderResourceView* randomTexture);
 	void RenderParticles();

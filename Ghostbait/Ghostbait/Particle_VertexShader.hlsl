@@ -21,11 +21,10 @@ struct VSOutput
     float rotation : TEXCOORD1;
 };
 
-VSOutput main(uint VertexID : SV_VertexID)
+VSOutput main(uint particleIndex : SV_VertexID)
 {
 
     VSOutput output = (VSOutput) 0;
-    uint particleIndex = VertexID;
     uint sortedIndex = asuint(SortedParticleIndex[particleIndex].y); // Adjust this later when sorting is added
     Particle BParticle = ParticleBuffer[sortedIndex];
 

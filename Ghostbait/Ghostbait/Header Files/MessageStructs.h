@@ -12,6 +12,8 @@ typedef AkUInt32			AkUniqueID;
 
 class GameObject;
 
+class ComponentBase;
+
 enum Control {
 	none,
 	forward,
@@ -46,7 +48,7 @@ enum Control {
 	TestInputK,
 	TestInputL,
 	TestInputX,
-	
+
 	GodMode,
 	Sprint,
 	Crouch,
@@ -64,6 +66,10 @@ public:
 	EventMessageBase() {};
 	~EventMessageBase() {};
 };
+
+
+
+
 
 class InputMessage: public EventMessageBase {
 	Control ctrl;
@@ -186,10 +192,10 @@ public:
 	GameObject* RetrieveObject() const { return obj; }
 };
 
-class SnapMessage : public EventMessageBase {
+class SnapMessage: public EventMessageBase {
 public:
 	DirectX::XMFLOAT2* position;
-	SnapMessage(DirectX::XMFLOAT2* _position) : position(_position){}
+	SnapMessage(DirectX::XMFLOAT2* _position): position(_position) {}
 };
 
 //Duplicate is unnessessary
@@ -205,6 +211,24 @@ public:
 
 	GameObject* RetrieveObject() const { return obj; }
 };
+
+//Duplicate is unnessessary
+class NewEmitterMessage: public EventMessageBase {
+public:
+	ComponentBase** emit = nullptr;
+	unsigned EmitterID;
+	const DirectX::XMFLOAT3* position;
+	/// <summary>
+	/// Initializes a new instance of the <see cref="NewObjectMessage"/> class.
+	/// </summary>
+	/// <param name="_obj">The object.</param>
+	NewEmitterMessage(const DirectX::XMFLOAT3* _position, unsigned _emitterID,  ComponentBase** _obj = nullptr): emit(_obj), EmitterID(_emitterID), position(_position){}
+
+	ComponentBase** RetrieveObject() const { return emit; }
+};
+
+
+
 
 class SoundRequestMessage: public EventMessageBase {
 	GameObject* obj = nullptr;

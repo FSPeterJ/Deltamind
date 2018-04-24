@@ -22,16 +22,26 @@ struct Particle // (112 bytes) 500,000  = 53 + 20 = 73MB of VRAM for all particl
     //This limits a particle texture max size to 4095x4095 (dx11 max size is 16384x16384) with max indexing of 256 different textures (one 4095 is 64MB of VRAM unless DXT1 compression is used)
     //The data stored is the endpoint for the UV within the texturearray as the texture may be smaller than the actual sample array size
 
-    //May move UV data to this section or compact size into something else
+    //Constant data (16 bytes)
     float size;
     float distanceToCamera;
-    float size2;
+    float mass;
     float size3;
 
+    //Constant data (16 bytes)
     float4 color;
-
+    //Constant data (16 bytes)
     float4 startColor;
+    //Constant data (16 bytes)
     float4 endColor;
+
+    //Constant data (16 bytes)
+    float3 acceleration;
+    float velocityLossFactor;
+
+    //Constant data (16 bytes)
+    float3 Gravity;
+    float Unused;
 };
 
 // The number of alive particles this frame

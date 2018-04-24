@@ -3,6 +3,7 @@
 #include "Material.h"
 #include <memory>
 #include "Renderer.h"
+#include "RenderUtil.h"
 
 
 ParticleTextureManager::ParticleTextureManager(ID3D11Device* _device, ID3D11DeviceContext* _context) {
@@ -18,7 +19,7 @@ ParticleTextureManager::ParticleTextureManager(ID3D11Device* _device, ID3D11Devi
 	desc.SampleDesc.Quality = 0;
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	desc.CPUAccessFlags = 0;
 	desc.MiscFlags = 0;
 	device->CreateTexture2D(&desc, nullptr, &texArray);
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvdesc;
@@ -30,169 +31,117 @@ ParticleTextureManager::ParticleTextureManager(ID3D11Device* _device, ID3D11Devi
 	srvdesc.Texture2DArray.FirstArraySlice = 0;
 	device->CreateShaderResourceView((ID3D11Resource*)texArray, &srvdesc, &srv);
 
-	desc.ArraySize = 1;
-	desc.Usage = D3D11_USAGE_STAGING;
-	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE | D3D11_CPU_ACCESS_READ;
-	desc.BindFlags = 0;
-	device->CreateTexture2D(&desc, nullptr, &stagingTex);
+	//desc.ArraySize = 1;
+	//desc.Usage = D3D11_USAGE_STAGING;
+	//desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE | D3D11_CPU_ACCESS_READ;
+	//desc.BindFlags = 0;
+	//device->CreateTexture2D(&desc, nullptr, &stagingTex);
 }
 
 
-ParticleTextureManager::~ParticleTextureManager()
-{
-	for (size_t i = 0; i < textures.size(); ++i)
-	{
-		textures[i].tex->Release();
-		textures[i].srv->Release();
-	}
-	stagingTex->Release();
+ParticleTextureManager::~ParticleTextureManager() {
+
+	//stagingTex->Release();
 	texArray->Release();
 	srv->Release();
 }
 
-int ParticleTextureManager::AddTexture(const char * filePath) {
-	texture toAdd;
-	std::string thePath(filePath);
-	thePath = "Assets\\" + thePath;
-	std::wstring path(thePath.begin(), thePath.end());
-	HRESULT didItBlend = DirectX::CreateWICTextureFromFile(device, context, path.c_str(), (ID3D11Resource**)&toAdd.tex, &toAdd.srv);
-	textures.push_back(toAdd);
-	srvPointers.push_back(toAdd.srv);
-	//context->UpdateSubresource(stagingTex, (UINT)textures.size() - 1, nullptr, toAdd.tex, NULL, NULL);
 
-	for(UINT j = 0; j < 1; j++) {
-		//This doesn't work
-		context->UpdateSubresource(stagingTex, D3D11CalcSubresource(j, (UINT)textures.size() - 1, 1), nullptr, stagingTex, NULL, NULL);
+
+void ParticleTextureManager::RegenerateTexture2DArray() {
+	SAFE_RELEASE(texArray);
+	SAFE_RELEASE(srv);
+	D3D11_TEXTURE2D_DESC desc = { 0 };
+	desc.MipLevels = maxMipLevel;
+	desc.ArraySize = (unsigned)mats.size();
+	desc.Width = maxWidth;
+	desc.Height = maxHeight;
+	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	;
+	desc.CPUAccessFlags = 0;
+	desc.MiscFlags = 0;
+	device->CreateTexture2D(&desc, nullptr, &texArray);
+	//D3D11 ERROR: ID3D11Device::CreateShaderResourceView: 
+	//The Dimensions of the View are invalid due to at least one of the following conditions. 
+	//		MostDetailedMip (value = 8) must be between 0 and MipLevels-1 of the Texture Resource, 8, inclusively. 
+	//		With the current MostDetailedMip, MipLevels (value = 9) must be between 1 and 1, inclusively, or -1 to default to all mips from MostDetailedMip, in order that the View fit on the Texture. 
+	//		FirstArraySlice (value = 0) must be between 0 and ArraySize-1 of the Texture Resource, 0, inclusively. 
+	//		With the current FirstArraySlice, ArraySize (value = 1) must be between 1 and 1, inclusively, or -1 to default to all slices from FirstArraySlice, in order that the View fit on the Texture. 
+	//		[ STATE_CREATION ERROR #128: CREATESHADERRESOURCEVIEW_INVALIDDIMENSIONS]
+
+	
+
+	for(UINT i = 0; i < mats.size(); ++i) {
+		context->CopySubresourceRegion(texArray, i, 0, 0, 0, mats[i]->diffuse.texture, 0, nullptr);
 	}
-	context->CopySubresourceRegion(texArray, (UINT)textures.size() - 1, 0, 0, 0, stagingTex, (UINT)textures.size() - 1, nullptr);
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvdesc;
+	srvdesc.Format = desc.Format;
+	srvdesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
+	srvdesc.Texture2DArray.MostDetailedMip = desc.MipLevels - 1;
+	srvdesc.Texture2DArray.MipLevels = -1;
+	srvdesc.Texture2DArray.ArraySize = (unsigned)mats.size();;
+	srvdesc.Texture2DArray.FirstArraySlice = 0;
+	device->CreateShaderResourceView((ID3D11Resource*)texArray, &srvdesc, &srv);
 
 
+	rData.height = maxHeight;
+	rData.width = maxWidth;
 
-	return (int)srvPointers.size()-1;
-
-
-	////*/
-	////---------------------------------------------------------------------------------------
-	////	Load all textures into Texture2D array with D3DX11CreateTextureFromFile
-	////---------------------------------------------------------------------------------------
-	//UINT iNumOfMaterials = g_sFileNames.size();
-	//
-	//vector<ID3D11Texture2D*> pTexture2Ds;
-	//pTexture2Ds.resize(iNumOfMaterials);;
-	//
-	//for (int i=0; i<iNumOfMaterials; i++)
-	//{
-	//	D3DX11_IMAGE_LOAD_INFO loadInfo;
-
-	//	loadInfo.Width = resolution;		
-	//	loadInfo.Height = resolution;
-	//	loadInfo.Depth  = 0;
-	//	loadInfo.FirstMipLevel = 0;
-	//	loadInfo.MipLevels = 0;
-	//	loadInfo.Usage = D3D11_USAGE_STAGING;
-	//	loadInfo.BindFlags = 0;
-	//	loadInfo.CpuAccessFlags = D3D10_CPU_ACCESS_WRITE | D3D10_CPU_ACCESS_READ;
-	//	loadInfo.MiscFlags = 0;
-	//	loadInfo.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	//	loadInfo.Filter = D3DX11_FILTER_NONE;
-	//	loadInfo.MipFilter = D3DX11_FILTER_NONE;
-	//	loadInfo.pSrcInfo  = 0;
-
-	//	hr = D3DX11CreateTextureFromFile(pd3dDevice, g_sFileNames[i].c_str(), 		
-	//		//&loadInfo, 0, (ID3D11Resource**)&pTexture2Ds[i], 0);
-	//		&loadInfo, 0, &pTexture2Ds[i], 0);
-	//}
-
-	////---------------------------------------------------------------------------------------
-	////	Create the texture array.  Each element in the texture 
-	////		array has the same format/dimensions.
-	////---------------------------------------------------------------------------------------
-	//D3D11_TEXTURE2D_DESC texElementDesc;
-	//pTexture2Ds[0]->GetDesc(&texElementDesc);
-
-	//D3D11_TEXTURE2D_DESC texArrayDesc;
-	//texArrayDesc.Width              = texElementDesc.Width;
-	//texArrayDesc.Height             = texElementDesc.Height;
-	//texArrayDesc.MipLevels          = texElementDesc.MipLevels;
-	//texArrayDesc.ArraySize          = iNumOfMaterials;
-	//texArrayDesc.Format             = DXGI_FORMAT_R8G8B8A8_UNORM;
-	//texArrayDesc.SampleDesc.Count   = 1;
-	//texArrayDesc.SampleDesc.Quality = 0;
-	//texArrayDesc.Usage              = D3D11_USAGE_DEFAULT;
-	//texArrayDesc.BindFlags          = D3D11_BIND_SHADER_RESOURCE;
-	//texArrayDesc.CPUAccessFlags     = 0;
-	//texArrayDesc.MiscFlags          = 0;
-
-	//ID3D11Texture2D* texArray = 0;
-	//hr = pd3dDevice->CreateTexture2D( &texArrayDesc, 0, &texArray);
-	////---------------------------------------------------------------------------------------
+	D3D11_SUBRESOURCE_DATA resData = { 0 };
 
 
-	////---------------------------------------------------------------------------------------
-	////	Copy individual texture elements into texture array.
-	////---------------------------------------------------------------------------------------
-	//// for each texture element...
-	//ID3D11DeviceContext* pd3dImmediateContext;
-	//pd3dDevice->GetImmediateContext(&pd3dImmediateContext);
-	//for(UINT i = 0; i < g_sFileNames.size(); ++i)
-	//{
-	//	// for each mipmap level...
-	//	for(UINT j = 0; j < texElementDesc.MipLevels; ++j)
-	//	{			
-	//		D3D11_MAPPED_SUBRESOURCE MappedResource;
-	//		hr = pd3dImmediateContext->Map( pTexture2Ds[i], j, D3D11_MAP_READ, 0, &MappedResource ) ;			
-
-	//		pd3dImmediateContext->UpdateSubresource(texArray, D3D11CalcSubresource(j, i, texElementDesc.MipLevels), 0, MappedResource.pData, MappedResource.RowPitch, 0);			
-
-	//		pd3dImmediateContext->Unmap(pTexture2Ds[i], j);
-	//	}
-	//}	
-	////---------------------------------------------------------------------------------------
+	//countData[0] = 1u;
+	CD3D11_BUFFER_DESC UVDimensionsConstant(sizeof(dimens), D3D11_BIND_CONSTANT_BUFFER);
+	resData.pSysMem = &rData;
+	device->CreateBuffer(&UVDimensionsConstant, &resData, &UVDimensionsConstantBuffer);
 
 
-	////---------------------------------------------------------------------------------------
-	////					Create a resource view to the texture array.
-	////---------------------------------------------------------------------------------------
-	//D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc;
-	//viewDesc.Format = texArrayDesc.Format;
-	//viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
-	//viewDesc.Texture2DArray.MostDetailedMip = 0;
-	//viewDesc.Texture2DArray.MipLevels = texArrayDesc.MipLevels;
-	//viewDesc.Texture2DArray.FirstArraySlice = 0;
-	//viewDesc.Texture2DArray.ArraySize = iNumOfMaterials;
-
-	//hr = pd3dDevice->CreateShaderResourceView(texArray, &viewDesc, &g_pTextureArray);
-	////---------------------------------------------------------------------------------------
-
-	//SAFE_RELEASE(texArray);
-	//for (int i=0; i<pTexture2Ds.size(); i++)
-	//	SAFE_RELEASE(pTexture2Ds[i]); 
+	context->GSSetConstantBuffers(1,1, &UVDimensionsConstantBuffer);
 
 }
 
 unsigned ParticleTextureManager::AddTexture(Material* mat) {
-	/*texture toAdd;
-	mat->diffuse.texture;*/
+
+	mats.push_back(mat);
+
+	//texture toAdd;	
+	//toAdd.tex = mat->diffuse.texture;
 	++activatedCount;
-	//textures.push_back(toAdd);
-	//srvPointers.push_back(toAdd.srv);
-	//context->UpdateSubresource(stagingTex, 0, nullptr, mat->diffuse.texture, NULL, NULL);
-	//context->UpdateSubresource(texArray, activatedCount - 1u, nullptr, mat->diffuse.texture, NULL, NULL);
-	////D3D11_MAPPED_SUBRESOURCE MappedResource;
 
-	////context->CopySubresourceRegion(stagingTex, activatedCount - 1u, 0, 0, 0, mat->diffuse.texture, activatedCount - 1u, nullptr);
-	////for(UINT j = 0; j < MIP_LEVELS; ++j) {
-	////	HRESULT hresult = context->Map((ID3D11Texture2D*)mat->diffuse.texture, 0 , D3D11_MAP_READ, 0, &MappedResource);
-	////	context->UpdateSubresource(texArray, D3D11CalcSubresource(j, activatedCount - 1u, MIP_LEVELS), 0, MappedResource.pData, MappedResource.RowPitch, 0);
-	////	context->Unmap(mat->diffuse.texture, j);
+	ID3D11Texture2D *pTextureInterface = 0;
+	ID3D11Resource *res;
+	mat->diffuse.texView->GetResource(&res);
+	res->QueryInterface<ID3D11Texture2D>(&pTextureInterface);
+	D3D11_TEXTURE2D_DESC desc;
+	pTextureInterface->GetDesc(&desc);
+	if(desc.Width > maxWidth) {
 
-	////}
+		maxWidth = desc.Width;
+	}
+	if(desc.Height > maxHeight) {
+		maxHeight = desc.Height;
+	}
+	if(desc.MipLevels > maxMipLevel) {
+		maxMipLevel = desc.MipLevels;
+	}
+	RegenerateTexture2DArray();
 
+	return (unsigned)mats.size() - 1u;
 
-
-	return (unsigned)activatedCount - 1u;
 }
 
 void ParticleTextureManager::BindToShader() {
-	//context->PSSetShaderResources(0, (UINT)textures.size(), &srv);
+	//ID3D11ShaderResourceView* prevSRV = nullptr;
+	//ID3D11ShaderResourceView* newSRV = nullptr;
+	//context->PSGetShaderResources(0, 6, &prevSRV);
+	//context->PSGetShaderResources(0, 6, &newSRV);
+	//newSRV[0] = *srv;
+	context->PSSetShaderResources(6, 1, &srv);
+	//context->PSSetShaderResources(6, 1, &mats[0]->diffuse.texView);
 }
+
+

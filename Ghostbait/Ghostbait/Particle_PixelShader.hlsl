@@ -1,4 +1,4 @@
-#include "PixelShaderUtilities.hlsl"
+//#include "PixelShaderUtilities.hlsl"
 
 
 cbuffer ModelViewProjectionConstantBuffer : register(b0)
@@ -15,12 +15,12 @@ cbuffer factorBuffer : register(b2)
     float morepadding;
 };
 
-Texture2DArray diffusearray : register(t0);
 Texture2D emissive : register(t1);
 Texture2D normal : register(t2);
 Texture2D specular : register(t3);
 Texture2D depth : register(t4);
 Texture2D unlit : register(t5);
+Texture2DArray diffusearray : register(t6);
 
 SamplerState sample : register(s0);
 
@@ -44,18 +44,21 @@ struct PixelShaderOutput
 PixelShaderOutput main(PixelShaderInput input)
 {
     PixelShaderOutput output;
-    float4 diffuseFloat = diffusearray.Sample(sample, input.uvw);
-    if (diffuseFloat.w == 0.0f)
-        discard;
+    float4 diffuseFloat = diffusearray.Sample(sample,input.uvw);
+    //float4 diffuseFloat = diffusearray.Sample(sample, (float2)input.uvw);
+    //if (diffuseFloat.w == 0.0f)
+    //    discard;
     //output.diffuse = float4(diffuseFloat.xyz * diffuseFactor, diffuseFloat.w);    
     //output.diffuse = float4(diffuseFloat.xyz * 1.0f, diffuseFloat.w);
     //output.diffuse = float4(0.5f, 0.5f, 0.5f, 1.0f);
     output.diffuse = input.color;
-    output.emissive = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    //output.emissive = input.color;
+    //output.diffuse = diffuseFloat;
+    //output.emissive = diffuseFloat;
     output.normal = float4(0.5f, 0.5f, 0.5f, 1.0f);
     output.specular = float4(0.0f, 0.0f, 0.0f, 1.0f);
     output.depth = float4(input.pos.z, input.pos.w, input.pos.z, 1.0f);
-    output.unlit = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    output.unlit = float4(1.0f, 0.0f, 0.0f, 0.0f);
     return output;
 }
 

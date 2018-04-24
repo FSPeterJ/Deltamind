@@ -311,7 +311,7 @@ void Game::RestartLevel() {
 	GameData const* gd = &gameData;
 	MessageEvents::SendMessage(EVENT_StopAllSounds, EventMessageBase());
 	MessageEvents::SendMessage(EVENT_ReadyToStart, GameDataMessage(&gd));
-
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::PLAY_AMB_02));
 	MessageEvents::SendQueueMessage(EVENT_Late, [=]() { 
 		//ThreadPool::ClearQueues(); 
 		ThreadPool::AcceptNonCriticalJobs(true);

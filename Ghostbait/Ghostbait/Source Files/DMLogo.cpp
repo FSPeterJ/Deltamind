@@ -10,7 +10,7 @@ void DMLogo::Awake(Object* obj) {
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/DM_LogoText.ghost")), {0, 0, 0}, &text));
 }
 void DMLogo::Update() {
-	if(!rot) text->transform.SetMatrix(transform.GetMatrix());
+	if(!rot && text) text->transform.SetMatrix(transform.GetMatrix());
 	rot += (speed * (float)GhostTime::DeltaTime());
 	transform.SetRotationRadians(0, rot, rot);
 }

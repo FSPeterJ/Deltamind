@@ -366,7 +366,7 @@ void Game::ExitToMainMenu() {
 
 //Main Scene Functions
 void Game::MainMenuLoaded() {
-	worldLight.RemoveLightFromManager();
+	worldLight.SetAsDirectional({ 0.5f, 0.5f, 0.5f }, { 0, 0, 1 });
 	for (int i = 0; i < 9; ++i)
 	{
 		tutorialSpots[i].RemoveLightFromManager();
@@ -378,9 +378,11 @@ void Game::MainMenuLoaded() {
 	mainMenu.Show(false);
 
 	//Create Logo
-	GameObject* logo;
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/DM_Logo.ghost")), { 0, 3, 20 }, &logo));
-	logo->Enable();
+	MessageEvents::SendQueueMessage(EVENT_Late, [=] {
+		GameObject* logo;
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/DM_Logo.ghost")), { 0, 3, 20 }, &logo));
+		logo->Enable();
+	});
 
 	//Set Controllers
 	player->leftController->ClearInventory();

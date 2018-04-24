@@ -43,6 +43,7 @@
 #include "Emitter.h"
 #include "Door.h"
 #include "DMLogo.h"
+#include "SSLogo.h"
 
 using namespace Threadding;
 
@@ -195,6 +196,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	ObjectFactory::RegisterPrefabBase<ForceField>(6);
 	ObjectFactory::RegisterPrefabBase<DMLogo>(1);
+	ObjectFactory::RegisterPrefabBase<SSLogo>(1);
 	ObjectFactory::RegisterPrefabBase<Door>(2);
 	ObjectFactory::RegisterPrefabBase<Ground>(4);
 	ObjectFactory::RegisterPrefabBase<Monitor>(2);
@@ -247,6 +249,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<BuildTool>("BuildTool");
 	TypeMap::RegisterObjectAlias<Label>("Label");
 	TypeMap::RegisterObjectAlias<DMLogo>("DMLogo");
+	TypeMap::RegisterObjectAlias<SSLogo>("SSLogo");
 
 	TypeMap::RegisterObjectAlias<ResumeButton>("ResumeButton");
 	TypeMap::RegisterObjectAlias<RestartButton>("RestartButton");

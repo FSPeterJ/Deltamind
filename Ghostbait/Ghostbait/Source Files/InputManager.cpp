@@ -4,6 +4,7 @@
 #include "MessageEvents.h"
 #include "Console.h"
 #include "WindowsX.h"
+#include "Wwise_IDs.h"
 using namespace Common;
 
 #define RAD_PI 3.14159265359
@@ -586,6 +587,6 @@ void InputManager::SetInputType(InputType type) {
 
 
 //Cheats
-CheatCode InputManager::godMode(CheatCode::CodePreset::Konami, [=]() {MessageEvents::SendMessage(EVENT_God, EventMessageBase()); });
-CheatCode InputManager::freeMoney(std::vector<Control>({ Control::rightItem1, Control::rightItem0, Control::rightItem2, Control::rightItem0, Control::rightItem1 }), [=]() {MessageEvents::SendMessage(EVENT_FreeMoney, EventMessageBase()); });
+CheatCode InputManager::godMode(CheatCode::CodePreset::Konami, [=]() {MessageEvents::SendMessage(EVENT_God, EventMessageBase()); MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::PLAY_SFX_GUN_COOLDOWN_FUNNY)); });
+CheatCode InputManager::freeMoney(std::vector<Control>({ Control::rightItem1, Control::rightItem0, Control::rightItem2, Control::rightItem0, Control::rightItem1 }), [=]() {MessageEvents::SendMessage(EVENT_FreeMoney, EventMessageBase()); MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::PLAY_SFX_GUN_COOLDOWN_FUNNY)); });
 CheatCode InputManager::smite(std::vector<Control>({ Control::rightItem0, Control::rightItem0, Control::rightItem0, Control::rightItem3, Control::rightItem3 }), [=]() {MessageEvents::SendMessage(EVENT_Smite, EventMessageBase()); });

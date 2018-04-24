@@ -21,6 +21,7 @@
 #include <future>
 #include "Evolvable.h"
 #include "CoreShield.h"
+#include "Wwise_IDs.h"
 using namespace Omiracon::Genetics;
 
 Game::Game() {
@@ -148,6 +149,9 @@ void Game::ChangeState(State newState) {
 		switch(newState) {
 			case GAMESTATE_BetweenWaves:
 			{
+				MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::STOP_MUSIC_ROBOT_THEME_REVISED));
+				MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::STOP_AMB_01));
+				MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::PLAY_AMB_02));
 				//if upcoming wave doesnt exist...
 				if(!gameData.waveManager.NextWaveExists()) {
 					Win();
@@ -164,11 +168,17 @@ void Game::ChangeState(State newState) {
 			break;
 			case GAMESTATE_InWave:
 			{
-				
+				MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::STOP_AMB_02));
+				MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::PLAY_AMB_01));
+				MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::PLAY_MUSIC_ROBOT_THEME_REVISED));
+				MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::PLAY_SFX_COREALARM_DARKER));
 			}
 			break;
 			case GAMESTATE_GameOver:
 			{
+				MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::STOP_MUSIC_ROBOT_THEME_REVISED));
+				MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::STOP_AMB_02));
+				MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::STOP_AMB_01));
 				//gameData.Reset();
 			}
 			break;
@@ -289,6 +299,7 @@ void Game::StartNextWave() {
 
 //Handle primary function event logic
 void Game::RestartLevel() {
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::STOP_MUSIC_ROBOT_THEME_REVISED));
 	player->transform.SetPosition({ 0.0f, player->PlayerHeight() , 0.0f });
 	ThreadPool::AcceptNonCriticalJobs(false);
 	Threadding::ThreadPool::ClearQueues();
@@ -298,6 +309,7 @@ void Game::RestartLevel() {
 	//Reinstantiate starting wave values and current scene
 	ChangeScene(name.c_str(), currLevelName);
 	GameData const* gd = &gameData;
+	MessageEvents::SendMessage(EVENT_StopAllSounds, EventMessageBase());
 	MessageEvents::SendMessage(EVENT_ReadyToStart, GameDataMessage(&gd));
 
 	MessageEvents::SendQueueMessage(EVENT_Late, [=]() { 
@@ -312,6 +324,7 @@ void Game::ResumeGame() {
 	paused = false;
 	player->leftController->SetControllerStateToPrevious();
 	player->rightController->SetControllerStateToPrevious();
+	MessageEvents::SendMessage(EVENT_ToggleAudio, EventMessageBase());
 }
 void Game::PauseGame() {
 	//Logic to run when game first gets paused
@@ -319,6 +332,7 @@ void Game::PauseGame() {
 	paused = true;
 	player->leftController->SetControllerState(CSTATE_MenuController);
 	player->rightController->SetControllerState(player->IsVR() ? CSTATE_MenuController : CSTATE_ModelOnly);
+	MessageEvents::SendMessage(EVENT_ToggleAudio, EventMessageBase());
 }
 void Game::Lose() {
 	//Logic to run when the player loses
@@ -345,6 +359,7 @@ void Game::Quit() {
 	run = false;
 }
 void Game::ExitToMainMenu() {
+	//MessageEvents::SendMessage(EVENT_StopAllSounds, EventMessageBase());
 	ChangeState(GAMESTATE_MainMenu);
 	ChangeScene("mainMenu");
 }
@@ -369,6 +384,10 @@ void Game::MainMenuLoaded() {
 	player->Teleport(DirectX::XMFLOAT3(0, 0, 0));
 	player->transform.LookAt({ menuPos._41, menuPos._42, menuPos._43 });
 
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::STOP_MUSIC_ROBOT_THEME_REVISED));
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::STOP_AMB_02));
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::STOP_AMB_01));
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::PLAY_MUSIC_ROBOT_TITLE_INTRO));
 	//Update HUD
 	if (currHUD)
 	{
@@ -455,6 +474,7 @@ void Game::TutorialLoaded() {
 	
 }
 void Game::Level0Loaded() {
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::STOP_MUSIC_ROBOT_TITLE_INTRO));
 	worldLight.RemoveLightFromManager();
 	currentTimeBetweenWaveReady = -1;
 	int index = 0;
@@ -501,6 +521,7 @@ void Game::Level0Loaded() {
 	}
 }
 void Game::CreditsLoaded() {
+	ChangeState(GAMESTATE_Credits);
 	worldLight.RemoveLightFromManager();
 	player->leftController->SetControllerState(CSTATE_MenuController);
 	player->rightController->SetControllerState(CSTATE_MenuController);

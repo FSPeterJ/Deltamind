@@ -4,6 +4,7 @@
 
 class Menu;
 struct PhysicsComponent;
+struct Material;
 
 class MenuOption : public GameObject {
 	//0.5 X 0.1 X 0.1
@@ -20,8 +21,8 @@ public:
 	inline void SetOldColliderPoint(DirectX::XMFLOAT3 pos) { oldColliderPoint = pos; }
 	inline PhysicsComponent* GetPhysics() const { return pc; }
 	virtual void Select() = 0;
-	void Highlight();
-	void UnHighlight();
+	virtual void Highlight();
+	virtual void UnHighlight();
 };
 
 enum Template {
@@ -34,6 +35,8 @@ enum Template {
 	MENU_QuitConfirm
 };
 enum Button {
+	BUTTON_Blank,
+
 	BUTTON_Resume,
 	BUTTON_Restart,
 	BUTTON_Options,
@@ -59,11 +62,23 @@ enum Button {
 	BUTTON_MouseSensitivityDown,
 	BUTTON_AcceptOptions,
 	BUTTON_CancelOptions,
+
+	LABEL_Master,
+	LABEL_MasterVal,
+	LABEL_Music,
+	LABEL_MusicVal,
+	LABEL_SFX,
+	LABEL_SFXVal,
+	LABEL_Brightness,
+	LABEL_BrightnessVal,
+	LABEL_MouseSensitivity,
+	LABEL_MouseSensitivityVal,
+
 	BUTTON_Next,
 	BUTTON_Skip,
 	BUTTON_Revert,
 	BUTTON_QuitConfirm,
-	BUTTON_QuitCancel
+	BUTTON_QuitCancel,
 };
 
 class Menu {
@@ -71,6 +86,7 @@ public:
 	enum ColumnType {
 		OneColumn,
 		TwoColumn,
+		FourColumn,
 	};
 private:
 	bool active = false;
@@ -142,7 +158,6 @@ class MediumButton : public MenuOption {
 class HardButton : public MenuOption {
 	void Select() override;
 };
-
 class MasterUpButton : public MenuOption {
 	void Select() override;
 };
@@ -179,7 +194,6 @@ class AcceptOptionsButton : public MenuOption {
 class CancelOptionsButton : public MenuOption {
 	void Select() override;
 };
-
 class NextButton : public MenuOption {
 	void Select() override;
 };
@@ -189,12 +203,40 @@ class SkipButton : public MenuOption {
 class RevertOptionsButton : public MenuOption {
 	void Select() override;
 };
-
 class QuitConfirmButton : public MenuOption {
 	void Select() override;
 };
-
 class QuitCancelButton : public MenuOption {
 	void Select() override;
 };
 
+class Label : public MenuOption {
+	void Highlight() override {};
+	void UnHighlight() override {};
+	void Select() override {};
+};
+
+class ValueLabel : public Label {
+protected:
+	Material* mat;
+	int buffer = 8;
+public:
+	void Awake(Object* obj) override;
+};
+
+class MasterValue : public ValueLabel {
+public:
+	void Awake(Object* obj) override;
+};
+class MusicValue : public ValueLabel {
+	void Awake(Object* obj) override;
+};
+class SFXValue : public ValueLabel {
+	void Awake(Object* obj) override;
+};
+class BrightnessValue : public ValueLabel {
+	void Awake(Object* obj) override;
+}; 
+class MouseSensitivityValue : public ValueLabel {
+	void Awake(Object* obj) override;
+};

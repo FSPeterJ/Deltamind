@@ -8,6 +8,7 @@ class MenuControllerItem : public Item {
 	MenuOption* currentMenuItem = nullptr;
 	CastObject ray;
 public:
+	Transform* source = &transform;
 	MenuControllerItem();
 
 	void UpdateRay();

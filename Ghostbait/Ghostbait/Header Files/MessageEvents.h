@@ -49,6 +49,7 @@ enum EVENT_TYPES {
 	EVENT_ChangeScene,
 	EVENT_ReadyToStart,
 	EVENT_NextLogo,
+	EVENT_SettingsChanged,
 
 	//Other Feedback
 	EVENT_GameDataRequest,
@@ -59,6 +60,8 @@ enum EVENT_TYPES {
 	EVENT_CoreDamaged,
 	EVENT_CoreStopDamaged,
 	EVENT_CoreDestroyed,
+	EVENT_ToggleAudio,
+	EVENT_StopAllSounds,
 };
 
 class EventMessageBase;

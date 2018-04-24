@@ -40,6 +40,7 @@
 #include "ForceField.h"
 #include "TargetEnemy.h"
 #include "CoreShield.h"
+#include "Door.h"
 
 using namespace Threadding;
 
@@ -190,6 +191,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 
 	ObjectFactory::RegisterPrefabBase<ForceField>(6);
+	ObjectFactory::RegisterPrefabBase<Door>(2);
 	ObjectFactory::RegisterPrefabBase<Ground>(4);
 	ObjectFactory::RegisterPrefabBase<Monitor>(2);
 	ObjectFactory::RegisterPrefabBase<DisplayBoard>(1);
@@ -282,6 +284,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<Ground>("Ground");
 	TypeMap::RegisterObjectAlias<PDA>("PDA");
 	TypeMap::RegisterObjectAlias<Monitor>("Monitor");
+	TypeMap::RegisterObjectAlias<Door>("Door");
 
 	TypeMap::RegisterObjectAlias<DisplayBoard>("DisplayBoard");
 	TypeMap::RegisterObjectAlias<DisplayBoard_Move>("DisplayBoard_Move");

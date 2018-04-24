@@ -14,9 +14,9 @@ namespace DirectX
 class GameObject;
 
 #define MAX_PHYSICALS 1024
-#define MAX_STATIC_PHYSICALS 128
-#define MAX_COLLIDER_DATA 128
-#define MAX_PREFABS 100
+#define MAX_STATIC_PHYSICALS 256
+#define MAX_COLLIDER_DATA 256
+#define MAX_PREFABS 128
 
 class PhysicsManager: public IComponentManager {
 	static Pool<PhysicsComponent> dynamicComponents;

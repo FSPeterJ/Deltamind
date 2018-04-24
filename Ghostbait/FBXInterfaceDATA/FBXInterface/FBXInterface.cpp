@@ -453,13 +453,13 @@ std::vector<output_joint> convertFbxJointsToOutput(std::vector<fbx_joint>& joint
 		//temp.global_xform[0] *= -1.0f;
 		//temp.global_xform[1] *= -1.0f;
 
+		temp.global_xform.m12 *= -1.0f;
 		temp.global_xform.m13 *= -1.0f;
-		temp.global_xform.m23 *= -1.0f;
 
 		//temp.global_xform[4] *= -1.0f;
 		//temp.global_xform[5] *= -1.0f;
+		temp.global_xform.m21 *= -1.0f;
 		temp.global_xform.m31 *= -1.0f;
-		temp.global_xform.m32 *= -1.0f;
 		//temp.global_xform[10] *= -1.0f;
 		temp.global_xform.m43 *= -1.0f;
 		temp.parent_index = joints[i].parent_index;

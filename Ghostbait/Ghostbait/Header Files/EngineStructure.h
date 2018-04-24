@@ -13,6 +13,7 @@ class EngineStructure {
 	friend class Game;
 	friend class Animator;
 	friend class GhostTime;
+	friend class Emitter;
 	friend class AntColony;
 
 	static Delegate<> Awake;
@@ -29,7 +30,6 @@ class EngineStructure {
 
 	static Delegate<> Update;
 	static Delegate<> AnimationUpdate;
-
 	static Delegate<> LateUpdate;
 
 	static Delegate<> OnWillRenderObject;
@@ -71,6 +71,7 @@ public:
 
 		Update();// .RunAsync();
 	}
+
 
 	void ExecuteLateUpdate() {
 		//Write("Update delegate contains ");

@@ -242,21 +242,21 @@ void Game::ChangeScene(const char* sceneName, std::string levelName) {
 					gameData.SetStateHard(GAMESTATE_BetweenWaves);
 					gameData.SetPrevStateHard(GAMESTATE_BetweenWaves);
 				}
-				else if (!strcmp("MenuScene", xmlReader->getNodeName())) {
+				else if(!strcmp("MenuScene", xmlReader->getNodeName())) {
 					gameData.ssManager.SetSceneTimeLimit(xmlReader->getAttributeValueAsFloat("sceneTimeLimit"));
 					gameData.ssManager.SetNextScene(xmlReader->getAttributeValue("nextScene"));
 					gameData.SetStateHard(GAMESTATE_SplashScreen);
 					gameData.SetPrevStateHard(GAMESTATE_SplashScreen);
 				}
-				else if (!strcmp("Wave", xmlReader->getNodeName())) {
-					if (newWave) {
+				else if(!strcmp("Wave", xmlReader->getNodeName())) {
+					if(newWave) {
 						gameData.waveManager.AddWave(*newWave);
 						delete newWave;
 					}
 					newWave = new WaveManager::Wave();
 					(*newWave).reward = xmlReader->getAttributeValueAsInt("reward");
 				}
-				else if (!strcmp("Spawner", xmlReader->getNodeName())) {
+				else if(!strcmp("Spawner", xmlReader->getNodeName())) {
 					WaveManager::Wave::SpawnerData newSpawner;
 					newSpawner.spawnerID = xmlReader->getAttributeValueAsInt("spawnerID");
 					newSpawner.enemyName = xmlReader->getAttributeValueSafe("enemyName");
@@ -266,7 +266,7 @@ void Game::ChangeScene(const char* sceneName, std::string levelName) {
 					(*newWave).spawns.push_back(newSpawner);
 					(*newWave).enemyCount += newSpawner.spawnCount;
 				}
-				else if (!strcmp("Logo", xmlReader->getNodeName())) {
+				else if(!strcmp("Logo", xmlReader->getNodeName())) {
 					SplashScreenManager::LogoData logo;
 					logo.fileName = xmlReader->getAttributeValue("ghostFile");
 					logo.spawnTime = xmlReader->getAttributeValueAsFloat("duration");
@@ -274,7 +274,7 @@ void Game::ChangeScene(const char* sceneName, std::string levelName) {
 				}
 			}
 		}
-		if (newWave) {
+		if(newWave) {
 			gameData.waveManager.AddWave(*newWave);
 			delete newWave;
 		}

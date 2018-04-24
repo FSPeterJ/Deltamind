@@ -224,6 +224,7 @@
     <ClInclude Include="Header Files\DebugRenderer.h" />
     <ClInclude Include="Header Files\Delegate.h" />
     <ClInclude Include="Header Files\DisplayBoard.h" />
+    <ClInclude Include="Header Files\DMLogo.h" />
     <ClInclude Include="Header Files\Door.h" />
     <ClInclude Include="Header Files\DStar.h" />
     <ClInclude Include="Header Files\DStarEnemy.h" />
@@ -337,6 +338,7 @@
     <ClCompile Include="Source Files\Core.cpp" />
     <ClCompile Include="Source Files\CoreShield.cpp" />
     <ClCompile Include="Source Files\DebugRenderer.cpp" />
+    <ClCompile Include="Source Files\DMLogo.cpp" />
     <ClCompile Include="Source Files\Emitter.cpp" />
     <ClCompile Include="Source Files\DisplayBoard.cpp" />
     <ClCompile Include="Source Files\Door.cpp" />

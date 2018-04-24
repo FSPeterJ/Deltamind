@@ -7,5 +7,7 @@
   <Logo ghostFile="Assets/GP_Logo.ghost" duration="5"/>
   <Logo ghostFile="" duration="1"/>
   <Logo ghostFile="Assets/SandwichQuad.ghost" duration="5"/>
+  <Logo ghostFile="" duration="1"/>
+  <Logo ghostFile="Assets/DM_Logo.ghost" duration="5"/>
 
 </splashScreen>

@@ -372,6 +372,12 @@ void Game::MainMenuLoaded() {
 	mainMenu.SetSpawnPos(menuPos);
 	gameData.SetStateHard(GAMESTATE_MainMenu);
 	mainMenu.Show(false);
+
+	//Create Logo
+	GameObject* logo;
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/DM_Logo.ghost")), { 0, 3, 20 }, &logo));
+	logo->Enable();
+
 	//Set Controllers
 	player->leftController->ClearInventory();
 	player->rightController->ClearInventory();
@@ -659,6 +665,7 @@ void Game::Update() {
 						int id = ObjectFactory::CreatePrefab(&gameData.ssManager.GetCurrentLogoData().fileName);
 						GameObject* newLogo;
 						MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(id, { 0, 1.5f, 20 }, &newLogo));
+						newLogo->Enable();
 						gameData.ssManager.SetCurrentLogoObject(newLogo);
 					}
 				}
@@ -679,6 +686,7 @@ void Game::Update() {
 							int id = ObjectFactory::CreatePrefab(&gameData.ssManager.GetCurrentLogoData().fileName);
 							GameObject* newLogo;
 							MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(id, { 0, 1.5f, 20 }, &newLogo));
+							newLogo->Enable();
 							gameData.ssManager.SetCurrentLogoObject(newLogo);
 						}
 					}

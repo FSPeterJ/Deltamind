@@ -524,14 +524,15 @@ void ParticleManager::InitEmitters() {
 	emitter->mainData.VelocityMagnatude = 1;
 	emitter->mainData.Position = emitter->transform.GetPosition();
 	//emitter->mainData.TextureIndex = AddMaterial(emitter->materials[0]);
-	emitter->mainData.emissionIntervalSec = 0.001f;
+	emitter->mainData.emissionIntervalSec = 1.0f;
 	emitter->mainData.StartColor = DirectX::XMFLOAT4(1.0f, 0.6f, 0.0f, 1.0f);
 	emitter->mainData.EndColor = DirectX::XMFLOAT4(1.0f, 0.6f, 0.0f, 0.0f);
 	emitter->lifespan = 4;
 	emitter->mainData.xAngleVariance = 0.5f;
 	emitter->mainData.yAngleVariance = 2;
 	emitter->mainData.mass = 0.2f;
-	emitter->mainData.perInterval = 50;
+	emitter->mainData.perInterval = 20;
 	emitter->mainData.properties = HASGRAVITY;
-	emitter->mainData.Gravity = DirectX::XMFLOAT3(0.0f, -9.81f, 0.0f);;
+	emitter->mainData.Gravity = DirectX::XMFLOAT3(0.0f, -9.81f, 0.0f);
+	emitter->lifespan = 1.0f;
 }

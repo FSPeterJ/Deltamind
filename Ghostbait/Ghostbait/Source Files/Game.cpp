@@ -367,6 +367,10 @@ void Game::ExitToMainMenu() {
 //Main Scene Functions
 void Game::MainMenuLoaded() {
 	worldLight.RemoveLightFromManager();
+	for (int i = 0; i < 9; ++i)
+	{
+		tutorialSpots[i].RemoveLightFromManager();
+	}
 	//Create Menu
 	DirectX::XMFLOAT4X4 menuPos = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1.7f, 2, 1);
 	mainMenu.SetSpawnPos(menuPos);
@@ -396,8 +400,19 @@ void Game::MainMenuLoaded() {
 	}
 }
 void Game::TutorialLoaded() {
-	worldLight.SetAsDirectional({ 0.25f, 0.25f, 0.25f }, { 0, -0.5f, 0.5f });
-	tutorialSpots[0].SetAsSpot({ 0.5f, 0.5f, 0.5f }, { 14.0f, 5.0f, 10.0f }, { 0.5f, -0.5f, 0.0f }, 0.5f, 0.4f);
+	worldLight.SetAsDirectional({ 0.5f, 0.5f, 0.5f }, { 0, -0.5f, 0.5f });
+	tutorialSpots[0].SetAsSpot({ 0.75f, 0.75f, 0.75f }, { 14.0f, 5.0f, -10.0f }, { 0.0f, -1.0f, 0.0f }, 0.9f, 0.8f);
+	tutorialSpots[1].SetAsSpot({ 0.75f, 0.75f, 0.75f }, { 3.0f, 5.0f, -10.0f }, { 0.0f, -1.0f, 0.0f }, 0.9f, 0.8f);
+	tutorialSpots[2].SetAsSpot({ 0.75f, 0.75f, 0.75f }, { 25.0f, 5.0f, -10.0f }, { 0.0f, -1.0f, 0.0f }, 0.9f, 0.8f);
+								 
+	tutorialSpots[3].SetAsSpot({ 0.75f, 0.75f, 0.75f }, { 14.0f, 5.0f, -20.0f }, { 0.0f, -1.0f, 0.0f }, 0.9f, 0.8f);
+	tutorialSpots[4].SetAsSpot({ 0.75f, 0.75f, 0.75f }, { 3.0f, 5.0f, -20.0f }, { 0.0f, -1.0f, 0.0f }, 0.9f, 0.8f);
+	tutorialSpots[5].SetAsSpot({ 0.75f, 0.75f, 0.75f }, { 25.0f, 5.0f, -20.0f }, { 0.0f, -1.0f, 0.0f }, 0.9f, 0.8f);
+								 
+	tutorialSpots[6].SetAsSpot({ 0.75f, 0.75f, 0.75f }, { 14.0f, 5.0f, -30.0f }, { 0.0f, -1.0f, 0.0f }, 0.9f, 0.8f);
+	tutorialSpots[7].SetAsSpot({ 0.75f, 0.75f, 0.75f }, { 3.0f, 5.0f, -30.0f }, { 0.0f, -1.0f, 0.0f }, 0.9f, 0.8f);
+	tutorialSpots[8].SetAsSpot({ 0.75f, 0.75f, 0.75f }, { 25.0f, 5.0f, -30.0f }, { 0.0f, -1.0f, 0.0f }, 0.9f, 0.8f);
+
 	gameData.AddGears(1000);
 	//Update Controllers
 	{

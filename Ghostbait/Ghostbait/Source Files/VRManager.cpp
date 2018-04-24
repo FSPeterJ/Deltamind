@@ -129,7 +129,7 @@ void VRManager::Shutdown() {
 		vr::VR_Shutdown();
 	}
 }
-void VRManager::GetVRMatrices(DirectX::XMFLOAT4X4* _leftProj, DirectX::XMFLOAT4X4* _rightProj, DirectX::XMFLOAT4X4* _leftView, DirectX::XMFLOAT4X4* _rightView) {
+void VRManager::GetVRMatrices(DirectX::XMFLOAT4X4* _leftProj, DirectX::XMFLOAT4X4* _rightProj, DirectX::XMFLOAT4X4* _leftView, DirectX::XMFLOAT4X4* _rightView, DirectX::XMMATRIX* _mHMDWorldPos) {
 	UpdateVRPoses();
 
 	DirectX::XMMATRIX mHMDWorldPos = DirectX::XMLoadFloat4x4(&GetPlayerPosition());
@@ -138,6 +138,7 @@ void VRManager::GetVRMatrices(DirectX::XMFLOAT4X4* _leftProj, DirectX::XMFLOAT4X
 
 	*_leftProj = leftProj;
 	*_rightProj = rightProj;
+	*_mHMDWorldPos = mHMDWorldPos;
 	DirectX::XMStoreFloat4x4(_leftView, leftView);
 	DirectX::XMStoreFloat4x4(_rightView, rightView);
 }

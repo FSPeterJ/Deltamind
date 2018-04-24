@@ -3,6 +3,7 @@
 #include "MessageEvents.h"
 #include "PhysicsComponent.h"
 #include "Wwise_IDs.h"
+#include "Emitter.h"
 
 Projectile::Projectile() {
 	SetTag("Bullet");
@@ -38,7 +39,12 @@ void Projectile::OnCollision(GameObject* object) {
 		return;
 	}
 	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_BULLETHIT));
+
 	MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
+	Emitter* emitter = nullptr;
+	MessageEvents::SendMessage(EVENT_NewEmitter, NewEmitterMessage(&transform.GetPosition(), 0, (ComponentBase**)&emitter));
+	emitter->parentObject = this;
+	emitter->Enable();
 	isDestroying = true;
 	gameObjMutex.unlock();
 }

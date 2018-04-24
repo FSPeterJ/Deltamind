@@ -12,7 +12,7 @@
 #include "DebugRenderer.h"
 #include "GameData.h"
 #include "Wwise_IDs.h"
-
+#include "HexTileVector.h"
 std::vector<GameObject*> BuildTool::builtItems = std::vector<GameObject*>();
 
 BuildTool::BuildTool() { 
@@ -158,13 +158,22 @@ bool BuildTool::CanBuildHere(DirectX::XMFLOAT2& spawnPos) {
 	bool hasEnoughMoney = true;
 	if (turret) hasEnoughMoney = gameData->GetGears() >= turret->GetBuildCost();
 	bool maxTurretsSpawned = (gameData->GetMaxTurrets() - gameData->GetTurretsSpawned()) <= 0;
+	HexTile* curTile = grid->PointToTile(spawnPos);
 	bool isBlocked = grid->IsBlocked(spawnPos);
-	bool isValidTile = grid->PointToTile(spawnPos) != nullptr;
+	bool isValidTile = curTile != nullptr;
+	bool hasEmptyNeighbors = true;
+
 	if (isValidTile) {
 		isValidTile = !isBlocked;
+		std::vector<HexTile> neighbors = curTile->Neighbors();
+		for (int i = 0; i < (int)neighbors.size(); ++i) {
+			if (grid->IsValidTile(neighbors[i]) && grid->IsBlocked(neighbors[i].Center(HexagonalGridLayout::FlatLayout))) {
+				hasEmptyNeighbors = false;
+				break;
+			}
+		}
 	}
-
-	if (isValidTile && hasEnoughMoney && !maxTurretsSpawned)
+	if (isValidTile && hasEnoughMoney && !maxTurretsSpawned && hasEmptyNeighbors)
 		return true;
 	else
 		return false;
@@ -204,11 +213,8 @@ void BuildTool::Spawn() {
 	//Only spawn if grid position is empty
 	if(Raycast(&transform, transform.GetZAxis(), nullptr, nullptr, nullptr, 6, "Ground")) {
 		Turret* turret = dynamic_cast<Turret*>(prefabs[currentPrefabIndex].object);
-		bool hasEnoughMoney = true;
-		if (turret) hasEnoughMoney = gameData->GetGears() >= turret->GetBuildCost();
-		bool maxTurretsSpawned = (gameData->GetMaxTurrets() - gameData->GetTurretsSpawned()) <= 0;
 		DirectX::XMFLOAT2 pos = DirectX::XMFLOAT2(spawnPos.x, spawnPos.z);
-		if (Snap(&pos) && hasEnoughMoney && !maxTurretsSpawned) {
+		if (Snap(&pos) && CanBuildHere(pos)) {
 			if (SetObstacle(pos, true)) {
 				gameData->AddGears((int)(-(int)turret->GetBuildCost()));
 				spawnPos.x = pos.x;

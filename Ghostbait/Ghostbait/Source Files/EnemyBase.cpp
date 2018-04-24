@@ -56,18 +56,17 @@ void EnemyBase::Awake(Object* obj) {
 
 void EnemyBase::Start() {
 
-	if (!genetics) {
-		throw std::runtime_error("enemy has no genetics");
+	if (!genetics || abs(genetics->traits.Sum() - 1.0f) > FLT_EPSILON) {
+		//throw std::runtime_error("enemy has no genetics");
+		ChangeState(PATROL);
 		return;
 	}
-	genetics->performance.Reset();
-	if (abs(genetics->traits.Sum() - 1.0f) > FLT_EPSILON) {
-		throw std::runtime_error("enemy has no genetics");
-	}
 
-	if ( std::isnan(genetics->traits[Trait::ACCURACY])) {
-		throw std::runtime_error("enemy has bad genes");
-	}
+	genetics->performance.Reset();
+
+	//if ( std::isnan(genetics->traits[Trait::ACCURACY])) {
+	//	throw std::runtime_error("enemy has bad genes");
+	//}
 
 #undef max
 	float domTraits[] = { genetics->traits[STRENGTH] + genetics->traits[POWER] + genetics->traits[ACCURACY] + genetics->traits[LUCK],
@@ -80,32 +79,34 @@ void EnemyBase::Start() {
 	if(domTrait == domTraits[0]) {
 		SwapComponentVarient<Mesh>("medium");
 		SwapComponentVarient<Material>("mediumMat");
-		animator->setState("Walk_Medium");
+		//animator->setState("Walk_Medium");
 		enemyType = Medium;
 	} else if(domTrait == domTraits[1]) {
 		SwapComponentVarient<Material>("blue");
-		animator->setState("Walk");
+		//animator->setState("Walk");
 		enemyType = Default;
 	} else if(domTrait == domTraits[2]) {
 		SwapComponentVarient<Mesh>("heavy");
 		SwapComponentVarient<Material>("heavyMat");
-		animator->setState("Walk_Heavy");
+		//animator->setState("Walk_Heavy");
 		enemyType = Heavy;
 	} else if(domTrait == domTraits[3]) {
 		SwapComponentVarient<Mesh>("light");
 		SwapComponentVarient<Material>("lightMat");
-		animator->setState("Walk_Light");
+		//animator->setState("Walk_Light");
 		enemyType = Light;
 	}
 
 	SetStats();
 	spawnTime = GhostTime::Now();
+	ChangeState(PATROL);
 }
 
 void EnemyBase::Subscribe() {
 	if(!eventLose) eventLose = MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) { MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); }); });
 	if (!smite) smite = MessageEvents::Subscribe(EVENT_Smite, [=](EventMessageBase* e) { this->AdjustHealth(-1000); });
 	if(!eventObstacleRemove) eventObstacleRemove = MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {ValidateTarget(e); });
+	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
 }
 
 void EnemyBase::UnSubscribe() {
@@ -121,12 +122,14 @@ void EnemyBase::UnSubscribe() {
 		MessageEvents::UnSubscribe(EVENT_RemoveObstacle, eventObstacleRemove);
 		eventObstacleRemove = 0;
 	}
+	MessageEvents::SendMessage(EVENT_UnregisterNoisemaker, NewObjectMessage(this));
+
 }
 
 void EnemyBase::Enable() {
 	EnemyBase::Subscribe();
 	GameObject::Enable();
-	ChangeState(PATROL);
+	//ChangeState(PATROL);
 }
 
 void EnemyBase::Disable() {
@@ -185,7 +188,7 @@ void EnemyBase::ValidateTarget(EventMessageBase* e) {
 }
 
 bool EnemyBase::ChangeState(State _s) {
-	if (currState == _s || isDying) return false;
+	if (currState == _s || currState == DEATH || isDying) return false;
 
 	switch (_s)
 	{
@@ -197,10 +200,10 @@ bool EnemyBase::ChangeState(State _s) {
 		if (animator) {
 			if (genetics) {
 				switch (enemyType) {
-					case Default: animator->setState("Walk"); break;
-					case Light: animator->setState("Walk_Light"); break;
-					case Medium: animator->setState("Walk_Medium"); break;
-					case Heavy: animator->setState("Walk_Heavy"); break;
+					case Default: animator->setState("Walk", maxSpeed * DEFAULT_WALK_RATIO); break;
+					case Light: animator->setState("Walk_Light", maxSpeed * LIGHT_WALK_RATIO); break;
+					case Medium: animator->setState("Walk_Medium", maxSpeed * MEDIUM_WALK_RATIO); break;
+					case Heavy: animator->setState("Walk_Heavy", maxSpeed * HEAVY_WALK_RATIO); break;
 				}
 			}
 			else 
@@ -261,6 +264,7 @@ bool EnemyBase::ChangeState(State _s) {
 			else
 				animator->setState("Death");
 		}
+		MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_ROBOTDEATH));
 		rb->Stop();
 		pc->isActive = false;
 		break;
@@ -370,6 +374,7 @@ void EnemyBase::Attack() {
 	float timeToAttack = 1 / attackSpeed;
 	if (timeSinceLastAttack >= timeToAttack) {
 		targetObj->AdjustHealth(-attackDamage);
+		MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_TURRETDAMAGE));
 		RecordAttack();
 		Console::WriteLine << (dynamic_cast<GameObject*>(targetObj))->GetTag().c_str() << ": " << targetObj->PercentHealth();
 

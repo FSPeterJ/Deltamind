@@ -23,6 +23,8 @@ void AStarEnemy::Awake(Object* obj) {
 	next = 0;
 	curTile = 0;
 
+	isPathing = false;
+	pathIsBlocked = false;
 	start = false;
 	eventAdd = 0;
 	eventRemove = 0;
@@ -49,14 +51,15 @@ void AStarEnemy::Enable() {
 	next = curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.GetMatrix()._41, transform.GetMatrix()._43));
 	rb->SetTerminalSpeed(maxSpeed);
 
+	Repath();
 	//if (isPathing) {
 	//	pathing.get();
 	//	isPathing = false;
 	//}
 
-	if(!isPathing && (!goal || path.size() < 1)) {
+	/*if(!isPathing && (!goal || path.size() < 1)) {
 		ReTarget();
-	}
+	}*/
 
 	//if (!path.size()) throw std::runtime_error("Enemy could not find path.");
 }
@@ -159,21 +162,31 @@ void AStarEnemy::Destroy() {
 void AStarEnemy::Patrol() {
 
 	//Update Path
-	curTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
+	HexTile* tempTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
 
-	if (!curTile) {
+	if (!tempTile) {
 		if (isOutofBounds) return;
 		
 		Console::ErrorLine << "Out of BOUNDS!!";
 		isOutofBounds = true;
 		rb->SetVelocity(DirectX::XMVectorScale(rb->GetVelocity(), -1.0f));
+		EnemyBase::Patrol();
 		return;
 	}
 
 	if (pathing.valid() && (isPathing && pathing.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready)) return;
-	
+
+	curTile = tempTile;
+
 	if (isOutofBounds) {
-		Repath();
+		if (pathIsBlocked) {
+			next = curTile;
+			isPathing = true;
+			pathing = ThreadPool::MakeJob(false, [&]() { LastResort(); });
+		}
+		else
+			Repath();
+		isRedirecting = false;
 		isOutofBounds = false;
 		return;
 	}
@@ -186,8 +199,15 @@ void AStarEnemy::Patrol() {
 	}
 
 	if (curTile == goal) {
+		isRedirecting = false;
 		Console::WriteLine << "We made it to our goal.";
 		rb->Stop();
+		if (pathIsBlocked) {
+			next = curTile;
+			isPathing = true;
+			pathing = ThreadPool::MakeJob(false, [&]() { LastResort(); });
+			return;
+		}
 		//isChasing = false;
 
 		ChangeState(ATTACK);
@@ -237,9 +257,10 @@ void AStarEnemy::Patrol() {
 void AStarEnemy::Repath() {
 	if (isPathing) return;
 	isPathing = true;
-	Console::consoleMutex.lock();
-	Console::ErrorLine << "isDying address Before Thread: " << &isDying;
-	Console::consoleMutex.unlock();
+	//Console::consoleMutex.lock();
+	//Console::ErrorLine << "isDying address Before Thread: " << &isDying;
+	//Console::WriteLine << "Path size: " << path.size() << "Path Address: " << &path;
+	//Console::consoleMutex.unlock();
 	pathing = Threadding::ThreadPool::MakeJob(false, [&]() {NewAroundPath(); });
 }
 void AStarEnemy::SetGrid(HexGrid* _grid) {
@@ -265,7 +286,7 @@ bool AStarEnemy::ReTarget(GameObject* _obj) {
 
 //Other
 void AStarEnemy::SetGoal(HexTile* _goal) {
-	if (!grid->IsValidTile(*_goal)) throw std::runtime_error("Goal is Shit!");
+	if (!grid->IsValidTile(*_goal)) throw std::runtime_error("Goal is INVALID!");
 	goal = _goal;
 }
 bool AStarEnemy::NewPath() {
@@ -276,6 +297,7 @@ bool AStarEnemy::NewPath() {
 	return path.size();
 }
 bool AStarEnemy::NewAroundPath() {
+	pathIsBlocked = false;
 	HexTile* tempGoal = grid->PointToTile({ targetPos[0], targetPos[2] });
 	HexTile* tile = nullptr;
 	HexRegion ring;
@@ -285,11 +307,13 @@ bool AStarEnemy::NewAroundPath() {
 
 	HexPath spire;// = grid->Spiral(goal, 5, false);
 
-	Console::consoleMutex.lock();
-	Console::ErrorLine << "isDying address in Thread: " << &isDying;
-	Console::consoleMutex.unlock();
+	//Console::consoleMutex.lock();
+	//Console::ErrorLine << "isDying address in Thread: " << &isDying;
+	//Console::WriteLine << "Path size: " << path.size() << "Path Address: " << &path;
+	//Console::consoleMutex.unlock();
 
-	for (int i = 1; i < 10; ++i) {
+	int r = dynamic_cast<GridBasedObject*>(targetObj)->gridRadius + 1;
+	for (int i = r; i < r + 5 ; ++i) {
 		ring = grid->Ring(tempGoal, i);
 		ring.Filter(*grid);
 		spire = ring.ToGrid(grid);
@@ -299,15 +323,18 @@ bool AStarEnemy::NewAroundPath() {
 		
 		do {
 			if (isDying) {
-				Console::consoleMutex.lock();
-				Console::ErrorLine << &isDying << "isDying is TRUE in Thread!";
-				Console::consoleMutex.unlock();
+				//Console::consoleMutex.lock();
+				//Console::ErrorLine << &isDying << "isDying is TRUE in Thread!";
+				//Console::consoleMutex.unlock();
 				return false;
 			}
 			tile = spire[curInd];
 			if (!grid->IsBlocked(tile)) {
 				CalcPath(tile);
-				if (!path.size()) continue;
+				if (!path.size()) {
+					if (++curInd >= endInd) curInd = 0;
+					continue;
+				}
 				SetGoal(path.goal());
 				//Console::WarningLine << &goal <<" Goal: " << goal->q << ", " << goal->r;
 				pathFound = true;
@@ -316,7 +343,9 @@ bool AStarEnemy::NewAroundPath() {
 			if (++curInd >= endInd) curInd = 0;
 		} while (curInd != startInd);
 
-		if (pathFound) break;
+		if (pathFound) {
+			break;
+		}
 	}
 	//goal = grid->GetRandomTile();
 	//CalcPath(goal);
@@ -324,9 +353,17 @@ bool AStarEnemy::NewAroundPath() {
 	//if(!path.size()) {
 	//	NewRandPath();
 	//}
-	isPathing = false;
-	if(pathFound)
+	if (pathFound)
 		AntColony::LeavePheromone(&path, lingerTime, scentStrength);
+	else {
+		pathIsBlocked = true;
+		this->LastResort();
+	}
+
+	//Console::consoleMutex.lock();
+	//Console::WriteLine << "Path size: " << path.size() << "Path Address: " << &path;
+	//Console::consoleMutex.unlock();
+	isPathing = false;
 
 	return pathFound;
 }
@@ -349,4 +386,27 @@ bool AStarEnemy::ValidateAttackTarget() {
 	DirectX::XMFLOAT3 newPoint = { targetPos[0], transform.GetPosition().y, targetPos[2] };
 	transform.TurnTowards(newPoint, 1);
 	return true;
+}
+
+void AStarEnemy::LastResort() {
+
+	isRedirecting = false;
+	HexTile* goalTile = grid->PointToTile({ targetPos[0], targetPos[2] });
+	HexPath spiral = grid->Spiral(curTile, perceptionRange + 2, false, perceptionRange).ToGrid(grid);
+	std::sort(spiral.begin(), spiral.end(), [=](HexTile* a, HexTile* b) {return a->DistanceFrom(goalTile) < b->DistanceFrom(goalTile); });
+	
+	for (int i = 0; i < spiral.size(); ++i) {
+		if (grid->IsBlocked(spiral[i])) continue;
+		//if (spiral[i] == curTile) {
+		//	SetGoal(curTile);
+		//	break;
+		//}
+		CalcPath(spiral[i]);
+		if (path.size() > 0) {
+			SetGoal(path.goal());
+			break;
+		}
+	}
+	isPathing = false;
+	//Console::WriteLine << "Path size: " << path.size() << "Path Address: " << &path;
 }

@@ -14,11 +14,9 @@ class MTDSLEnemy : public EnemyBase, public AntProperties {
 protected:
 	HexPath path;
 	HexGrid* grid = 0;
-	//RigidBody* rb = 0;
 	HexTile* goal = 0;
 	HexTile* next = 0;
 	HexTile* curTile = 0;
-	HexTile* lastTile = nullptr;
 
 	bool isPathing = false;
 	bool pathIsBlocked = false;
@@ -37,7 +35,7 @@ public:
 
 	//bool ReTarget(GameObject* _obj = nullptr) override;
 	bool ValidateAttackTarget() override;
-	void Repath() override {};
+	void Repath() override;
 
 	void Enable() override;
 	void Disable() override;
@@ -46,5 +44,8 @@ public:
 	void Destroy() override;
 	void Awake(Object* obj) override;
 
+	bool ReTarget(GameObject* _obj = nullptr) override;
 	void Patrol() override;
+	bool NewAroundPath();
+	void SetGoaltoRandAround();
 };

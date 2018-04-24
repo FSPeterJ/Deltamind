@@ -179,6 +179,7 @@ void Turret::DeathEvent() {
 	gameObjMutex.lock();
 	if (!isDestroyed) {
 		isDestroyed = true;
+		MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_TURRETDESTROYED));
 		Destroy();
 	}
 	gameObjMutex.unlock();
@@ -263,7 +264,7 @@ void Turret_Long::Shoot() {
 }
 void Turret_Medium::Awake(Object* obj) {
 	Turret::Awake(obj);
-	firerate = 3;
+	firerate = 2.0f;
 	damage = 10;
 	buildCost = 400;
 }

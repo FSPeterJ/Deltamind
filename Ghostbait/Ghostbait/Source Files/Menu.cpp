@@ -380,17 +380,17 @@ void BackButton::Select() {
 void EasyButton::Select() {
 	MenuOption::Select();
 	menu->Hide();
-	MessageEvents::SendMessage(EVENT_Start, StartEventMessage("Level Files//level0_easy.xml"));
+	MessageEvents::SendMessage(EVENT_Start, StartEventMessage("Level Files/level0_easy.xml"));
 }
 void MediumButton::Select() {
 	MenuOption::Select();
 	menu->Hide();
-	MessageEvents::SendMessage(EVENT_Start, StartEventMessage("Level Files//level0.xml"));
+	MessageEvents::SendMessage(EVENT_Start, StartEventMessage("Level Files/level0.xml"));
 }
 void HardButton::Select() {
 	MenuOption::Select();
 	menu->Hide();
-	MessageEvents::SendMessage(EVENT_Start, StartEventMessage("Level Files//level0_hard.xml"));
+	MessageEvents::SendMessage(EVENT_Start, StartEventMessage("Level Files/level0_hard.xml"));
 }
 void MasterUpButton::Select() {
 	float tempVolume = OptionsManager::GetInstance().GetMasterVolume();

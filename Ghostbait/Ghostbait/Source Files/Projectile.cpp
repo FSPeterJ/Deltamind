@@ -2,6 +2,7 @@
 #include "GhostTime.h"
 #include "MessageEvents.h"
 #include "PhysicsComponent.h"
+#include "Wwise_IDs.h"
 
 Projectile::Projectile() {
 	SetTag("Bullet");
@@ -14,6 +15,7 @@ void Projectile::Awake(Object* obj) {
 	isDestroying = false;
 	GameObject::Awake(obj);
 	pc = GetComponent<PhysicsComponent>();
+	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
 }
 
 void Projectile::Update() {
@@ -35,7 +37,7 @@ void Projectile::OnCollision(GameObject* object) {
 		gameObjMutex.unlock();
 		return;
 	}
-	
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_BULLETHIT));
 	MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 	isDestroying = true;
 	gameObjMutex.unlock();
@@ -47,5 +49,6 @@ void Projectile::SetDamage(float _damage) {
 
 void Projectile::Destroy() {
 	++destroyedCount;
+	MessageEvents::SendMessage(EVENT_UnregisterNoisemaker, NewObjectMessage(this));
 	GameObject::Destroy();
 }

@@ -5,6 +5,12 @@
 #include "GhostTime.h"
 #include <mutex>
 
+#define DEFAULT_WALK_RATIO 1.0f / 2.2f
+#define LIGHT_WALK_RATIO 1.0f / 2.9f
+#define MEDIUM_WALK_RATIO 1.0f / 2.0f
+#define HEAVY_WALK_RATIO 1.0f / 2.0f
+
+
 namespace Omiracon {
 	namespace Genetics {
 		struct Evolvable;

@@ -54,5 +54,6 @@ public:
 	void Disable() override;
 	void Destroy() override;
 	//void Update() override;
-	void Awake(Object* obj);
+	void Awake(Object* obj) override;
+	void LastResort();
 };

@@ -323,9 +323,9 @@ bool AStarEnemy::NewAroundPath() {
 		
 		do {
 			if (isDying) {
-				Console::consoleMutex.lock();
-				Console::ErrorLine << &isDying << "isDying is TRUE in Thread!";
-				Console::consoleMutex.unlock();
+				//Console::consoleMutex.lock();
+				//Console::ErrorLine << &isDying << "isDying is TRUE in Thread!";
+				//Console::consoleMutex.unlock();
 				return false;
 			}
 			tile = spire[curInd];

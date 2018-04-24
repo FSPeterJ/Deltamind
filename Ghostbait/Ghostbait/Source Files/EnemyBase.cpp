@@ -78,7 +78,7 @@ void EnemyBase::Start() {
 
 	if(domTrait == domTraits[0]) {
 		SwapComponentVarient<Mesh>("medium");
-		//SwapComponentVarient<Material>("pink");
+		SwapComponentVarient<Material>("mediumMat");
 		//animator->setState("Walk_Medium");
 		enemyType = Medium;
 	} else if(domTrait == domTraits[1]) {
@@ -87,12 +87,12 @@ void EnemyBase::Start() {
 		enemyType = Default;
 	} else if(domTrait == domTraits[2]) {
 		SwapComponentVarient<Mesh>("heavy");
-		//SwapComponentVarient<Material>("green");
+		SwapComponentVarient<Material>("heavyMat");
 		//animator->setState("Walk_Heavy");
 		enemyType = Heavy;
 	} else if(domTrait == domTraits[3]) {
 		SwapComponentVarient<Mesh>("light");
-		//SwapComponentVarient<Material>("yellow");
+		SwapComponentVarient<Material>("lightMat");
 		//animator->setState("Walk_Light");
 		enemyType = Light;
 	}

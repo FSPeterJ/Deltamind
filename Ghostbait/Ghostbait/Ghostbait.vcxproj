@@ -224,6 +224,7 @@
     <ClInclude Include="Header Files\DebugRenderer.h" />
     <ClInclude Include="Header Files\Delegate.h" />
     <ClInclude Include="Header Files\DisplayBoard.h" />
+    <ClInclude Include="Header Files\Door.h" />
     <ClInclude Include="Header Files\DStar.h" />
     <ClInclude Include="Header Files\DStarEnemy.h" />
     <ClInclude Include="Header Files\Emitter.h" />
@@ -338,6 +339,7 @@
     <ClCompile Include="Source Files\DebugRenderer.cpp" />
     <ClCompile Include="Source Files\Emitter.cpp" />
     <ClCompile Include="Source Files\DisplayBoard.cpp" />
+    <ClCompile Include="Source Files\Door.cpp" />
     <ClCompile Include="Source Files\DStar.cpp" />
     <ClCompile Include="Source Files\EnemyBase.cpp" />
     <ClCompile Include="Source Files\EngineStructure.cpp" />

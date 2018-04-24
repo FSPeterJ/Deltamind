@@ -43,10 +43,7 @@ struct GSInput
 //This is to determine the end of the texture UV in relation to the texturearray size
 float2 calculateUVOffset(uint texturedata)
 {
-    float2 temp = float2((float) (texturedata >> 20), (float) ((texturedata & (0xFFF << 8)) >> 8));
-    temp.x /= (float)maxU;
-    temp.y /= (float)maxV;
-    return temp;
+    return float2((float) (texturedata >> 20) / (float) maxU, (float) ((texturedata & (0xFFF << 8)) >> 8) / (float) maxV);
 }
 
 
@@ -61,6 +58,9 @@ void main(point GSInput input[1], inout TriangleStream<GSOutput> output)
 
     planeNormal = normalize(planeNormal);
 
+    // TODO: To prevent pinwheeling when at Y min or max relative to the player possibly use Up as purely relative to the player's viewspace up
+    // Everspace suffers from this graphical error on it's nebula cloud billboards and Reveation Online on it's tree leaves which may look very bizzare
+    // For now, up is relative to world up
     float3 upVector = float3(0.0f, 1.0f, 0.0f);
     float4 rightVector = float4(normalize(cross(upVector, planeNormal)), 0.0f);
     upVector = normalize(cross(planeNormal, (float3) rightVector));
@@ -72,34 +72,32 @@ void main(point GSInput input[1], inout TriangleStream<GSOutput> output)
     
     element.pos = input[0].pos - rightVector - float4(upVector, 0);
     element.pos = mul(element.pos, view);
-    element.pos = mul(element.pos, projection);
+    element.pos = mul(projection, element.pos );
     element.uvw = float3(0.0f, 0.0f, w);
     element.color = input[0].color;
     output.Append(element);
     
     element.pos = input[0].pos + rightVector - float4(upVector, 0);
     element.pos = mul(element.pos, view);
-    element.pos = mul(element.pos, projection);
+    element.pos = mul(projection, element.pos );
     element.uvw = float3(OffsetUV.x, 0.0f, w);
     element.color = input[0].color;
     output.Append(element);
     
     element.pos = input[0].pos - rightVector + float4(upVector, 0);
     element.pos = mul(element.pos, view);
-    element.pos = mul(element.pos, projection);
+    element.pos = mul(projection, element.pos);
     element.uvw = float3(0.0f, OffsetUV.y, w);
     element.color = input[0].color;
     output.Append(element);
     
     element.pos = input[0].pos + rightVector + float4(upVector, 0);
     element.pos = mul(element.pos, view);
-    element.pos = mul(element.pos, projection);
+    element.pos = mul(projection, element.pos );
     element.uvw = float3(OffsetUV.x, OffsetUV.y, w);
     element.color = input[0].color;
     output.Append(element);
 
-    //Will probably need later for draw instanced indexed?
-    //output.RestartStrip(); //
 
 }
 

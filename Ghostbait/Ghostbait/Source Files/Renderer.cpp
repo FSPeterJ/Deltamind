@@ -788,8 +788,8 @@ void Renderer::Destroy() {
 
 	releaseDeferredTarget(&deferredTextures);
 #if _DEBUG
-	//DebugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
 	SAFE_RELEASE(graphicsAnalysis);
+	//DebugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
 	SAFE_RELEASE(DebugDevice);
 #endif
 }

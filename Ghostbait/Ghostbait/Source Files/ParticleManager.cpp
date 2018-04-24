@@ -331,6 +331,13 @@ ParticleManager::~ParticleManager() {
 	SAFE_RELEASE(IndirectSortArgsBufferUAV);
 	SAFE_RELEASE(SortParametersConstantBuffer);
 
+
+
+	SAFE_RELEASE(ParticleIndirectArgsInitShader);
+	SAFE_RELEASE(ParticleSortFinalShader);
+	SAFE_RELEASE(ParticleSortStepShader);
+	SAFE_RELEASE(ParticleSortInitialShader);
+
 	//==========================================
 }
 

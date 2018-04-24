@@ -40,7 +40,7 @@ void main(uint3 DThreadID : SV_DispatchThreadID)
             //Possible variable rotation speed, acceleration
             particle.rotation += 0.24 * FrameTime;
             float3 NewPosition = particle.position;
-            particle.velocity += Gravity * FrameTime * particle.mass;
+            particle.velocity += particle.Gravity * FrameTime * particle.mass;
 
             NewPosition += particle.velocity * FrameTime;
             particle.position = NewPosition;

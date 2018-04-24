@@ -795,7 +795,7 @@ void Renderer::Destroy() {
 }
 
 void Renderer::registerObject(EventMessageBase* e) {
-	NewObjectMessage* instantiate = (NewObjectMessage*)e;
+	ObjectMessage* instantiate = (ObjectMessage*)e;
 	if(instantiate->obj->GetComponent<Mesh>()) {
 		renderedObjects.push_back(instantiate->RetrieveObject());
 	}
@@ -826,7 +826,7 @@ void Renderer::unregisterObject(EventMessageBase* e) {
 }
 
 void Renderer::moveToFront(EventMessageBase * e) {
-	NewObjectMessage* move = (NewObjectMessage*)e;
+	ObjectMessage* move = (ObjectMessage*)e;
 	if(!move->RetrieveObject()->GetComponent<Mesh>())
 		return;
 	auto iter = renderedObjects.begin();
@@ -842,7 +842,7 @@ void Renderer::moveToFront(EventMessageBase * e) {
 }
 
 void Renderer::moveToTransparent(EventMessageBase * e) {
-	NewObjectMessage* move = (NewObjectMessage*)e;
+	ObjectMessage* move = (ObjectMessage*)e;
 	auto iter = renderedObjects.begin();
 	if(!move->RetrieveObject()->GetComponent<Mesh>())
 		return;

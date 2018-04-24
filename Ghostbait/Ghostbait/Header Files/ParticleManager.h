@@ -173,5 +173,6 @@ public:
 	void ActivateComponent(ComponentBase* component)override;
 	void DeactivateComponent(ComponentBase* component) override;
 	unsigned AddMaterial(Material* mat);
+	void RemoveEmitter(EventMessageBase* _eventMessageBase);
 };
 

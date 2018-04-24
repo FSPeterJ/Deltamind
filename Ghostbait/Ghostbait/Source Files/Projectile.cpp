@@ -16,7 +16,7 @@ void Projectile::Awake(Object* obj) {
 	isDestroying = false;
 	GameObject::Awake(obj);
 	pc = GetComponent<PhysicsComponent>();
-	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
+	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, ObjectMessage(this));
 }
 
 void Projectile::Update() {
@@ -55,6 +55,6 @@ void Projectile::SetDamage(float _damage) {
 
 void Projectile::Destroy() {
 	++destroyedCount;
-	MessageEvents::SendMessage(EVENT_UnregisterNoisemaker, NewObjectMessage(this));
+	MessageEvents::SendMessage(EVENT_UnregisterNoisemaker, ObjectMessage(this));
 	GameObject::Destroy();
 }

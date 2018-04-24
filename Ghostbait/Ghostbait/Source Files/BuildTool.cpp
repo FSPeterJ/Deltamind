@@ -498,7 +498,7 @@ void BuildTool::Awake(Object* obj) {
 	ray.SetFile("Assets/Ray.ghost");
 	light.Enable();
 	light.SetAsPoint({ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, 4.5f);
-	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
+	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, ObjectMessage(this));
 	GameObject::Awake(obj);
 }
 void BuildTool::Destroy() {

@@ -359,7 +359,7 @@ void Game::Quit() {
 	run = false;
 }
 void Game::ExitToMainMenu() {
-	//MessageEvents::SendMessage(EVENT_StopAllSounds, EventMessageBase());
+	MessageEvents::SendMessage(EVENT_StopAllSounds, EventMessageBase());
 	ChangeState(GAMESTATE_MainMenu);
 	ChangeScene("mainMenu");
 }

@@ -119,7 +119,7 @@ void AudioManager::LoadBanks()
 
 void AudioManager::registerObject(EventMessageBase * e)
 {
-	NewObjectMessage* obj = (NewObjectMessage*)e;
+	ObjectMessage* obj = (ObjectMessage*)e;
 	objects.push_back(obj->RetrieveObject());
 	AK::SoundEngine::RegisterGameObj((AkGameObjectID)obj->RetrieveObject());
 }

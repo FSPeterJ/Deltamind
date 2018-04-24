@@ -26,7 +26,7 @@ void SendMessge(void) {
 #pragma region Object Instantiation
 
 void CreateObject(void) {
-	MessageEvents::SendMessage(EVENT_InstantiateRequest, NewObjectMessage(0));
+	MessageEvents::SendMessage(EVENT_InstantiateRequest, ObjectMessage(0));
 }
 
 #pragma endregion

@@ -106,6 +106,7 @@ void EnemyBase::Subscribe() {
 	if(!eventLose) eventLose = MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) { MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); }); });
 	if (!smite) smite = MessageEvents::Subscribe(EVENT_Smite, [=](EventMessageBase* e) { this->AdjustHealth(-1000); });
 	if(!eventObstacleRemove) eventObstacleRemove = MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {ValidateTarget(e); });
+	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
 }
 
 void EnemyBase::UnSubscribe() {
@@ -121,6 +122,8 @@ void EnemyBase::UnSubscribe() {
 		MessageEvents::UnSubscribe(EVENT_RemoveObstacle, eventObstacleRemove);
 		eventObstacleRemove = 0;
 	}
+	MessageEvents::SendMessage(EVENT_UnregisterNoisemaker, NewObjectMessage(this));
+
 }
 
 void EnemyBase::Enable() {
@@ -261,6 +264,7 @@ bool EnemyBase::ChangeState(State _s) {
 			else
 				animator->setState("Death");
 		}
+		MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_ROBOTDEATH));
 		rb->Stop();
 		pc->isActive = false;
 		break;
@@ -370,6 +374,7 @@ void EnemyBase::Attack() {
 	float timeToAttack = 1 / attackSpeed;
 	if (timeSinceLastAttack >= timeToAttack) {
 		targetObj->AdjustHealth(-attackDamage);
+		MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_TURRETDAMAGE));
 		RecordAttack();
 		Console::WriteLine << (dynamic_cast<GameObject*>(targetObj))->GetTag().c_str() << ": " << targetObj->PercentHealth();
 

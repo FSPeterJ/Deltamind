@@ -28,7 +28,6 @@ void Core::Awake(Object* obj) {
 	light.SetAsPoint(NORMALCOLOR, transform.GetPosition(), 1000);
 	light.Enable();
 	SetToFullHealth();
-	panicking = false;
 	//Test(PercentHealth());
 }
 void Test(float s) {
@@ -44,7 +43,7 @@ void Core::Update() {
 		if (panicTimer >= panicDuration) {
 			panicTimer = -1;
 			light.SetColor(NORMALCOLOR);
-			panicking = false;
+			MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::STOP_SFX_COREALARM));
 			MessageEvents::SendMessage(EVENT_CoreStopDamaged, EventMessageBase());
 		}
 		else {
@@ -56,10 +55,8 @@ void Core::HealedEvent() {
 }
 void Core::HurtEvent() {
 	panicTimer = 0;
-	if (!panicking)
-		MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_COREALARM));
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_COREALARM));
 	light.SetColor(PANICCOLOR);
-	panicking = true;
 
 	std::string message = "\n      Core Health ";
 	message.append(std::to_string((int)(PercentHealth() * 100)) + "%      \n");
@@ -89,11 +86,13 @@ void Core::DeathEvent() {
 	*/
 	panicTimer = -1;
 	light.SetColor(NORMALCOLOR);
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::STOP_SFX_COREALARM));
 	MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 	MessageEvents::SendMessage(EVENT_GameLose, EventMessageBase());
 }
 void Core::Destroy() {
 	light.SetColor({ 0, 0, 0 });
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::STOP_SFX_COREALARM));
 	light.RemoveLightFromManager();
 	if (coreRing) coreRing->Destroy();
 	MessageEvents::SendMessage(EVENT_UnregisterNoisemaker, NewObjectMessage(this));

@@ -179,6 +179,7 @@ void Turret::DeathEvent() {
 	gameObjMutex.lock();
 	if (!isDestroyed) {
 		isDestroyed = true;
+		MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_TURRETDESTROYED));
 		Destroy();
 	}
 	gameObjMutex.unlock();

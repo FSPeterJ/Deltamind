@@ -339,7 +339,7 @@ void PlayButton::Select() {
 void TutorialButton::Select() {
 	MenuOption::Select();
 	menu->Hide();
-	MessageEvents::SendMessage(EVENT_ChangeScene, ChangeSceneMessage("Tutorial2"));
+	MessageEvents::SendMessage(EVENT_ChangeScene, ChangeSceneMessage("Tutorial"));
 }
 void OptionsButton::Select() {
 	MenuOption::Select();

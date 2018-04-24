@@ -56,7 +56,7 @@ class HexGrid {
 	/// <returns>HexRegion.</returns>
 	HexRegion GetRegion(int xmin, int xmax, int ymin, int ymax, int zmin, int zmax);
 
-	HexRegion DoRing(bool spiral, HexTile *const center, std::size_t radius, bool includeCenter = true);
+	HexRegion DoRing(bool spiral, HexTile *const center, std::size_t radius, bool includeCenter = true, std::size_t startingRadius = 1);
 
 	static const float Blocked;
 public:
@@ -141,8 +141,9 @@ public:
 	/// <param name="center">The center.</param>
 	/// <param name="radius">The radius.</param>
 	/// <param name="includeCenter">Flag to include center.</param>
+	/// <param name="startingRadius">Starting from ring, default at 1.</param>
 	/// <returns>HexRegion.</returns>
-	HexRegion Spiral(HexTile *const center, std::size_t radius, bool includeCenter = true);
+	HexRegion Spiral(HexTile *const center, std::size_t radius, bool includeCenter = true, std::size_t startingRadius = 1);
 
 	/// <summary>
 	/// Sets the weight of the tile at tilePosition. If the tile does not map to a tile on the grid, nothing happens.

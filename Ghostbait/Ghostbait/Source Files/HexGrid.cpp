@@ -77,8 +77,8 @@ bool HexGrid::SetWeight(const DirectX::XMFLOAT2& tilePosition, float weight) {
 bool HexGrid::SetWeight(HexTile *const tile, float weight) {
 	if(tile) {
 		//cost_delta[tile] = tile->weight;
-		//Threadding::ThreadPool::MakeJob(PathPlanner::CostChangeNotice, tile);
-		PathPlanner::CostChangeNotice(tile);
+		//Threadding::ThreadPool::MakeJob(true, PathPlanner::CostChangeNotice, tile);
+		//PathPlanner::CostChangeNotice(tile);
 		tile->weight = weight;
 		return true;
 	}
@@ -458,12 +458,12 @@ void HexGrid::Color(HexPath& p, DirectX::XMFLOAT3 color, int fill) {
 	p.Color(&layout, color, 0, (ColorType) fill);
 }
 
-HexRegion HexGrid::DoRing(bool spiral, HexTile *const center, std::size_t radius, bool includeCenter) {
+HexRegion HexGrid::DoRing(bool spiral, HexTile *const center, std::size_t radius, bool includeCenter, std::size_t startingRadius) {
 	HexRegion ring;
 	if(radius == 0) { return ring; }
 
 	if(includeCenter) { ring.push_back(*center); }
-	for(std::size_t k = spiral ? 1 : radius; k <= radius; ++k) {
+	for(std::size_t k = spiral ? startingRadius : radius; k <= radius; ++k) {
 		HexTile H = *center + (center->Direction(NEIGHBOR_DIRECTION::BottomLeft) * (int) k);
 		for(std::size_t i = 0; i < Hexagon::NUMBER_OF_SIDES; ++i) {
 			for(std::size_t j = 0; j < k; ++j) {
@@ -475,8 +475,8 @@ HexRegion HexGrid::DoRing(bool spiral, HexTile *const center, std::size_t radius
 	return ring;
 }
 
-HexRegion HexGrid::Spiral(HexTile *const center, std::size_t radius, bool includeCenter) {
-	return DoRing(true, center, radius, includeCenter);
+HexRegion HexGrid::Spiral(HexTile *const center, std::size_t radius, bool includeCenter, std::size_t startingRadius) {
+	return DoRing(true, center, radius, includeCenter, startingRadius);
 }
 
 HexRegion HexGrid::Ring(HexTile *const center, std::size_t radius) {

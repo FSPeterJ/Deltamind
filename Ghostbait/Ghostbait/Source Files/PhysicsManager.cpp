@@ -355,6 +355,7 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 	XMVECTOR closestCollision = vecOrigin + (vecDirection * maxCastDistance);
 	XMVECTOR tempCollidePt;
 	GameObject* tempCollideObj = nullptr;
+	GameObject* compParent = nullptr;
 	XMFLOAT3 nextSegment;
 	const std::vector<PhysicsComponent*>* compToTest;
 	std::vector<XMVECTOR> collisionPoints;
@@ -376,7 +377,9 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 
 		for (size_t compIndex = 0; compIndex < compToTest->size(); ++compIndex) {
 			if (!(*compToTest)[compIndex]->isActive) continue;
-			if (tag && strcmp(dynamic_cast<GameObject*>((*compToTest)[compIndex]->parentObject)->GetTag().c_str(), tag)) continue;
+			compParent = dynamic_cast<GameObject*>((*compToTest)[compIndex]->parentObject);
+			if (!compParent) continue;
+			if (tag && strcmp(compParent->GetTag().c_str(), tag)) continue;
 			if (RaycastCollisionCheck(vecOrigin, vecDirection, (*compToTest)[compIndex], &tempCollidePt, &tempCollideObj, maxCastDistance)) {
 				collisionPoints.push_back(tempCollidePt);
 				collidedObjects.push_back(tempCollideObj);
@@ -391,7 +394,9 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 	std::vector<PhysicsComponent*>* staticComps = staticComponents.GetActiveList();
 	for (size_t i = 0; i < staticComps->size(); ++i) {
 		if (!(*staticComps)[i]->isActive) continue;
-		if (tag && strcmp(dynamic_cast<GameObject*>((*staticComps)[i]->parentObject)->GetTag().c_str(), tag)) continue;
+		compParent = dynamic_cast<GameObject*>((*staticComps)[i]->parentObject);
+		if (!compParent) continue;
+		if (tag && strcmp(compParent->GetTag().c_str(), tag)) continue;
 		if (RaycastCollisionCheck(vecOrigin, vecDirection, (*staticComps)[i], &tempCollidePt, &tempCollideObj, maxCastDistance)) {
 			collisionPoints.push_back(tempCollidePt);
 			collidedObjects.push_back(tempCollideObj);
@@ -1111,6 +1116,10 @@ XMVECTOR PhysicsManager::FindClosestPointOnLine(XMVECTOR& _lineSegStart, XMVECTO
 }
 
 bool PhysicsManager::RaycastCollisionCheck(XMVECTOR& origin, XMVECTOR& direction, PhysicsComponent* collidingComp, XMVECTOR* colPoint, GameObject** colObject, float maxCastDistance) {
+	if (!collidingComp->parentObject) {
+		Console::ErrorLine << "Physics Component has no PARENT!!";
+		return false;
+	}
 	bool collided = false;
 	bool hasCollidingComp = false;
 	XMVECTOR closestCollision = origin + (direction * maxCastDistance);

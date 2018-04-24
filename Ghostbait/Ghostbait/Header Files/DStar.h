@@ -108,6 +108,9 @@ struct DStarCommon {
 	HexPath *path = nullptr;
 	PriorityQueueMap<HexTile*, FloatPair> open;
 
+	HexTile *oldStart, *oldGoal, *momentStart, *momentGoal;
+	HexPath momentPath;
+
 	//CostMap cumulativeCost; //g-value
 	//CostMap rhs; //min of next cost
 	//CostMap costChange; //pending cost changes
@@ -153,6 +156,8 @@ struct DStarCommon {
 	void UpdateOpenList(HexTile*const tile);
 
 	void ChangeCostIncoming(HexTile* tile);
+
+	void PollPath();
 
 	//HexTile* GetNextTileInPath();
 
@@ -209,7 +214,6 @@ class MTDStarLite : public DStarCommon {
 	//HexPath* path;
 	std::vector<HexTile*> deleted;
 	VisitedMap parent;
-	HexTile *oldStart, *oldGoal;
 
 	void ForEachInSearchTreeButNotSubtreeRootedAt(HexTile*const tile, NeighborFunction exec);
 	void BasicDeletion(HexTile*const oldStart);
@@ -220,7 +224,7 @@ class MTDStarLite : public DStarCommon {
 public:
 	MTDStarLite() = default;
 	MTDStarLite(HexGrid *const _grid, HexTile **const _start, HexTile **const _goal, HexTile **const _next, HexPath *const _path, std::size_t _perception);
-	MTDStarLite & operator=(MTDStarLite& other);
+	MTDStarLite &operator=(MTDStarLite& other);
 	void Update();
 	//void UpdateGoalReference(DirectX::XMFLOAT4X4* _goalRef);
 };

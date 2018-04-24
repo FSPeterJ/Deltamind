@@ -72,7 +72,12 @@ void Core::HurtEvent() {
 	std::string message = "\n      Core Health ";
 	message.append(std::to_string((int)(PercentHealth() * 100)) + "%      \n");
 	TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", message, coreRingMat, foreground, background);
-
+	if (PercentHealth() <= 0.66f) {
+		if (PercentHealth() <= 0.33f)
+			SwapComponentVarient<Material>("low");
+		else 
+			SwapComponentVarient<Material>("med");
+	}
 	Core const* core = this;
 	MessageEvents::SendMessage(EVENT_CoreDamaged, CoreMessage(&core));
 	/*

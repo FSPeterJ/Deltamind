@@ -11,13 +11,15 @@ Projectile::~Projectile() {}
 
 void Projectile::Awake(Object* obj) {
 	++instantiatedCount;
+	isDestroying = false;
 	GameObject::Awake(obj);
+	pc = GetComponent<PhysicsComponent>();
 }
 
 void Projectile::Update() {
 	timeSinceShot += (float)GhostTime::DeltaTime();
 	
-	if (DirectX::XMVectorGetX(DirectX::XMVector3Length(GetComponent<PhysicsComponent>()->rigidBody.GetVelocity())) <= 5) {
+	if (DirectX::XMVectorGetX(DirectX::XMVector3Length(pc->rigidBody.GetVelocity())) <= 5) {
 		int i = 0;
 	}
 
@@ -28,11 +30,15 @@ void Projectile::Update() {
 }
 
 void Projectile::OnCollision(GameObject* object) {
-
-	if (object->GetTag() != std::string("Turret"))
-	{
-		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
+	gameObjMutex.lock();
+	if (isDestroying || strcmp(object->GetTag().c_str(), "Turret") == 0 || strcmp(object->GetTag().c_str(), "Bullet") == 0) {
+		gameObjMutex.unlock();
+		return;
 	}
+	
+	MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
+	isDestroying = true;
+	gameObjMutex.unlock();
 }
 
 void Projectile::SetDamage(float _damage) {

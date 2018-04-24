@@ -25,6 +25,7 @@ class MaterialManager;
 class AnimationManager;
 class EventMessageBase;
 class LightManager;
+class HUD;
 struct Mesh;
 
 enum renderState {
@@ -100,14 +101,35 @@ private:
 		ID3D11Texture2D* box;
 		ID3D11ShaderResourceView* srv;
 	};
+
+	struct blurData
+	{
+		DirectX::XMFLOAT2 dir;
+		float width;
+		float height;
+	};
+
+	struct uvOffsetData
+	{
+		DirectX::XMFLOAT2 offsets = DirectX::XMFLOAT2(0.0f, 0.0f);
+		DirectX::XMFLOAT2 padding;
+	};
+
+	struct gammaData
+	{
+		float gamma;
+		DirectX::XMFLOAT3 padding; //I hate this
+	};
 #pragma endregion
 
-	ID3D11SamplerState* OnlySamplerState; //DirectX is a hoot
+	ID3D11SamplerState* LinearSamplerState;
+	ID3D11SamplerState* PointSamplerState; //DirectX is not a hoot
 
 	ID3D11Device* device;
 	ID3D11DeviceContext* context;
 	IDXGISwapChain* swapchain;
 	ID3D11Texture2D* backBuffer;
+	ID3D11ShaderResourceView* rightSRV = nullptr; //Used to avoid a third render pass for the monitor in VR
 	DeferredRTVs deferredTextures;
 
 	ID3D11VertexShader* PassThroughPositionColorVS;
@@ -122,7 +144,9 @@ private:
 	ID3D11GeometryShader* NDCQuadGS;
 	ID3D11VertexShader* TextVertexShader;
 	ID3D11PixelShader* PositionTexturePixelShader;
-
+	ID3D11PixelShader* BlurPixelShader;
+	ID3D11PixelShader* TexToQuadPS;
+	ID3D11PixelShader* BrightnessPixelShader;
 
 	ID3D11InputLayout* ILPositionColor;
 	ID3D11InputLayout* ILPositionTexture;
@@ -136,11 +160,18 @@ private:
 	ID3D11Buffer* lightBuffer;
 	ID3D11Buffer* perFrameConstantBuffer;
 	ID3D11Buffer* animDataBuffer;
+	ID3D11Buffer* blurDataBuffer;
+	ID3D11Buffer* uvDataBuffer;
+	ID3D11Buffer* gammaBuffer;
+
 	pipeline_state_t defaultPipeline;
+	ID3D11BlendState* additiveBlendState;
 	Transform* cameraPos;
 	viewProjectionConstantBuffer defaultCamera;
 	animDataBufferStruct cpuAnimationData;
+	uvOffsetData uvData;
 	Mesh* skyball;
+	HUD* defaultHUD = nullptr;
 
 	ID3D11Buffer* emptyFloat3Buffer; //Needed to upload to the shaders that don't need specific vertex values (may replace with techniques later)
 	Skybox* currSkybox = nullptr;
@@ -176,18 +207,20 @@ private:
 	void clearPipelineMemory(pipeline_state_t* pipeline);
 	void clearTextureMemory(renderTargetInfo* info);
 	void setupVRTargets();
+	void renderRightEyeToMonitor();
 	void releaseDeferredTarget(DeferredRTVs* in);
 	void combineDeferredTargets(DeferredRTVs* in, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT& viewport);
 	bool compareDistToCam(const DirectX::XMFLOAT3& t1, const DirectX::XMFLOAT3& t2, const DirectX::XMFLOAT3& camPos);
 	float manhat(const DirectX::XMFLOAT3& center1, const DirectX::XMFLOAT3& center2);
 
+	void blurTexture(D3D11_VIEWPORT& viewport, ID3D11Texture2D* tex, ID3D11ShaderResourceView* srv, unsigned int passes, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsvIn);
 	void sortTransparentObjects(DirectX::XMFLOAT3 &camPos);
-	void renderObjectDefaultState(Object* obj);
+	void renderObjectDefaultState(const GameObject* obj);
 	void renderToEye(eye* eyeTo);
 	void drawSkyboxTo(ID3D11RenderTargetView** rtv, ID3D11DepthStencilView* dsv, D3D11_VIEWPORT& viewport, DirectX::XMFLOAT3& pos);
 	void loadPipelineState(pipeline_state_t* pipeline);
 	void createDeferredRTVs(DeferredRTVs* toWrite, ID3D11Texture2D* refTex);
-	void createRTVandSRV(ID3D11Texture2D** texture, ID3D11ShaderResourceView** srv, ID3D11RenderTargetView** rtv, ID3D11Texture2D* refTex);
+	void createRTVandSRV(ID3D11Texture2D** texture, ID3D11ShaderResourceView** srv, ID3D11RenderTargetView** rtv, ID3D11Texture2D* refTex, DXGI_FORMAT format);
 
 	DirectX::XMFLOAT4X4 lookAt(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 up);
 
@@ -251,6 +284,14 @@ public:
 	ParticleManager* GetParticleManager();
 	Transform* GetCamera();
 	void FillRandomTexture();
+	void setGamma(float value);
+
+	HUD* getHud() { return defaultHUD; }
+
+	MeshManager* getMeshManager();
+	MaterialManager* getMaterialManager();
+	AnimationManager* getAnimationManager();
+	Transform* getCamera();
 	void Render();
 };
 //D3D11 ERROR : ID3D11Device::CreateShaderResourceView : 

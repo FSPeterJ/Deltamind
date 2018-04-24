@@ -13,12 +13,19 @@
 Player::Player() {
 	Enable();
 	PersistOnReset();
-	teleportArc.SetFile("Assets/Arc2.ghost");
+	teleportArc.SetFile("Assets/Arc3.ghost");
 	VRManager::GetInstance().Init(&transform);
 	transform.SetPosition(0, 1.7f, 0);
 	transform.LookAt({ 0, 1.7f, 1 });
+	MessageEvents::Subscribe(EVENT_God, [=](EventMessageBase* e) {this->GodDetected(); });
+	MessageEvents::Subscribe(EVENT_GetPlayer, [=](EventMessageBase* e) {this->GiveTransform(e); });
 }
 
+void Player::GiveTransform(EventMessageBase* e) {
+	GetPlayerMessage* message = (GetPlayerMessage*)e;
+	Player const** data = message->RetrieveData();
+	(*data) = this;
+}
 void Player::ChangeStance(Stance newStance) {
 	if (stance == newStance) return;
 	stance = newStance;
@@ -43,37 +50,40 @@ void Player::ChangeStance(Stance newStance) {
 	}
 }
 
+void Player::GodDetected() {
+	if (IsGod()) {
+		ChangeStance(STANCE_Stand);
+		//MessageEvents::SendQueueMessage(EVENT_Late, [=]() {if (this->editItem) editItem->Destroy(); });
+	}
+	else{
+		ChangeStance(STANCE_God);
+		MessageEvents::SendMessage(EVENT_BecameGod, EventMessageBase());
+		//MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/Monitor.ghost")), { 0, 0, 0 }, &editItem));
+	}
+}
+
 void Player::Update() {
 	float dt = (float)GhostTime::DeltaTime();
 
 	if (IsVR()) {
 		transform.SetMatrix(VRManager::GetInstance().GetPlayerPosition());
-
-		if (KeyIsDown(Control::GodMode)) {
-			ResetKey(Control::GodMode);
-			if (IsGod())
-				ChangeStance(STANCE_Stand);
-			else 
-				ChangeStance(STANCE_God);
-		}
-
-		if (KeyIsDown(Control::rightCyclePrefab) && IsGod()) {
-			DirectX::XMFLOAT4X4 playerMat = VRManager::GetInstance().GetPlayerPosition();
-			DirectX::XMFLOAT4X4 controllerMat = rightController->transform.GetMatrix();
-			playerMat._41 += controllerMat._31;
-			playerMat._42 += controllerMat._32;
-			playerMat._43 += controllerMat._33;
-			VRManager::GetInstance().MovePlayer({ playerMat._41, playerMat._42, playerMat._43 }, false);
+		
+		if (IsGod()) {
+			//Fly
+			if (KeyIsDown(Control::teleportDown)) {
+				DirectX::XMFLOAT4X4 playerMat = VRManager::GetInstance().GetPlayerPosition();
+				DirectX::XMFLOAT4X4 controllerMat = rightController->transform.GetMatrix();
+				playerMat._41 += controllerMat._31;
+				playerMat._42 += controllerMat._32;
+				playerMat._43 += controllerMat._33;
+				VRManager::GetInstance().MovePlayer({ playerMat._41, playerMat._42, playerMat._43 }, false);
+			}
 		}
 	}
 	else {
-		DirectX::XMFLOAT3 prevPos = transform.GetPosition();
 		
-		if (KeyIsDown(Control::GodMode)) {
-			ResetKey(Control::GodMode);
-			if (IsGod()) ChangeStance(STANCE_Stand);
-			else ChangeStance(STANCE_God);
-		}
+		DirectX::XMFLOAT3 prevPos = transform.GetPosition();
+
 		if (KeyIsDown(Control::Crouch)) {
 			ResetKey(Control::Crouch);
 			if (stance == STANCE_Stand) ChangeStance(STANCE_Crouch);
@@ -105,15 +115,13 @@ void Player::Update() {
 		if (KeyIsDown(Control::CameraLeftRight)) {
 			//position._41 -= 50.0f * dt;
 			float prevY = rotationY;
-			rotationY += Amount(CameraLeftRight) * 0.01f;
+			rotationY += Amount(CameraLeftRight) * sensitivity;
 			ResetKey(Control::CameraLeftRight);
-			//ResetKey(Control::left);
 		}
 		if (KeyIsDown(Control::CameraUpDown)) {
 			//position._41 += 50.0f * dt;
-			rotationX += Amount(CameraUpDown) * 0.01f;
+			rotationX += Amount(CameraUpDown) * sensitivity;
 			ResetKey(Control::CameraUpDown);
-			//ResetKey(Control::right);
 		}
 		if (KeyIsDown(Control::forward)) {
 			if (stance != STANCE_God) {
@@ -182,7 +190,7 @@ void Player::Update() {
 			DirectX::XMFLOAT3 direction = { 0, -1, 0 };
 			DirectX::XMFLOAT3 end;
 			HexTile* tile = grid->PointToTile(DirectX::XMFLOAT2(transform.GetPosition().x, transform.GetPosition().z));
-			if (Raycast(&start, direction, &end, nullptr, nullptr, 100) && tile && !grid->IsBlocked(tile)) {
+			if (Raycast(&start, direction, &end, nullptr, nullptr, 100, "Ground") && tile && !grid->IsBlocked(tile)) {
 				DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
 				newPos._42 = end.y + playerHeight;
 				transform.SetMatrix(newPos);
@@ -200,13 +208,13 @@ void Player::PausedUpdate() {
 
 		if (KeyIsDown(Control::CameraLeftRight)) {
 			//position._41 -= 50.0f * dt;
-			rotationY += Amount(CameraLeftRight) * dt;
+			rotationY += Amount(CameraLeftRight) * sensitivity;
 			ResetKey(Control::CameraLeftRight);
 			//ResetKey(Control::left);
 		}
 		if (KeyIsDown(Control::CameraUpDown)) {
 			//position._41 += 50.0f * dt;
-			rotationX += Amount(CameraUpDown) * dt;
+			rotationX += Amount(CameraUpDown) * sensitivity;
 			ResetKey(Control::CameraUpDown);
 			//ResetKey(Control::right);
 		}
@@ -224,29 +232,23 @@ void Player::PausedUpdate() {
 	}
 }
 
-void Player::Teleport(DirectX::XMFLOAT3* pos) {
+void Player::Teleport(DirectX::XMFLOAT3 pos) {
 	if (IsVR()) {
-		if(pos)
-			VRManager::GetInstance().MovePlayer(*pos);
-		else
-			VRManager::GetInstance().Teleport();
+		VRManager::GetInstance().MovePlayer(pos);
 	}
 }
-void Player::LoadControllers(VRControllerTypes type) {
-	//Read in from save file and assign the correct items
+void Player::Teleport() {
+	if (IsVR())
+		VRManager::GetInstance().Teleport();
+}
 
+void Player::InitControllers(VRControllerTypes type) {
 	//Left
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 0,0,0 }, &leftController));
 	leftController->Init(this, ControllerHand::HAND_Left);
-	leftController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
-	leftController->SetGunData(2, Gun::FireType::AUTO, 8, 20);
-	leftController->SetBuildItems({ /*TODO: FIX THIS LATER*/ ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost"))});
 	//Right
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<ControllerObject>({ 1,0,1 }, &rightController));
 	rightController->Init(this, ControllerHand::HAND_Right);
-	rightController->SetGunData(1, Gun::FireType::SEMI, 60, 50);
-	rightController->SetGunData(2, Gun::FireType::AUTO,  8, 20);
-	rightController->SetBuildItems({ /*TODO: FIX THIS LATER*/ ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost"))});
 
 
 	if (IsVR()) {
@@ -254,19 +256,17 @@ void Player::LoadControllers(VRControllerTypes type) {
 	}
 }
 
-void Player::SetBuildToolData(HexGrid* _grid, unsigned* _gears, unsigned* _turretsSpawned, unsigned* _maxTurrets) {
+void Player::SetBuildToolData(HexGrid* _grid, GameData* _gameData) {
 	grid = _grid;
 	BuildTool* buildTool = leftController->GetBuildTool();
 	if (buildTool) {
 		buildTool->SetGrid(_grid);
-		buildTool->SetGears(_gears);
-		buildTool->SetTurretCap(_turretsSpawned, _maxTurrets);
+		buildTool->SetGameData(_gameData);
 	}
 	buildTool = rightController->GetBuildTool();
 	if (buildTool) {
 		buildTool->SetGrid(_grid);
-		buildTool->SetGears(_gears);
-		buildTool->SetTurretCap(_turretsSpawned, _maxTurrets);
+		buildTool->SetGameData(_gameData);
 	}
 }
 

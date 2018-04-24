@@ -8,11 +8,14 @@ class MenuControllerItem : public Item {
 	MenuOption* currentMenuItem = nullptr;
 	CastObject ray;
 public:
+	Transform* source = &transform;
 	MenuControllerItem();
 
 	void UpdateRay();
 	void Activate();
 
-	void Render(bool render = true) override;
+	void Render() override;
+	void UnRender() override;
+
 	void Awake(Object* obj) override;
 };

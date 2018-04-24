@@ -37,8 +37,10 @@ void MessageEvents::SendQueueMessage(const EVENT_TYPES eventtype, std::function<
 
 void MessageEvents::ProcessEvents() {
 	while(!queuedEvents.empty()) {
-		queuedEvents.front()();
+		auto f = queuedEvents.front();
 		queuedEvents.pop();
+		if (!f)continue;
+		f();
 	}
 }
 

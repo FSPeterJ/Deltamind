@@ -4,6 +4,7 @@
 #include <queue>
 
 #undef SendMessage
+#undef SendMessageW
 
 enum EVENT_TYPES {
 	EVENT_Input,
@@ -22,6 +23,13 @@ enum EVENT_TYPES {
 	EVENT_NewEmitter,
 	EVENT_RequestSound,
 	EVENT_UnregisterNoisemaker,
+	EVENT_GetPlayer,
+
+
+	//Cheats
+	EVENT_God,
+	EVENT_FreeMoney,
+	EVENT_Smite,
 	
 	//Game Events
 	EVENT_SpawnerCreated,
@@ -35,9 +43,26 @@ enum EVENT_TYPES {
 	EVENT_DeleteAllGameObjects,
 	EVENT_GameQuit,
 	EVENT_GameExit,
+	EVENT_BecameGod,
 	EVENT_AddObstacle,
 	EVENT_RemoveObstacle,
 	EVENT_PauseInputDetected,
+	EVENT_ChangeScene,
+	EVENT_ReadyToStart,
+	EVENT_NextLogo,
+	EVENT_SettingsChanged,
+
+	//Other Feedback
+	EVENT_GameDataRequest,
+	EVENT_GearChange,
+	EVENT_WaveChange,
+	EVENT_WaveComplete,
+	EVENT_CoreSpawned,
+	EVENT_CoreDamaged,
+	EVENT_CoreStopDamaged,
+	EVENT_CoreDestroyed,
+	EVENT_ToggleAudio,
+	EVENT_StopAllSounds,
 };
 
 class EventMessageBase;
@@ -72,6 +97,8 @@ public:
 	/// </summary>
 	/// <param name="eventtype">The eventtype.</param>
 	/// <param name="message">The message.</param>
+#undef SendMessage
+#undef SendMessageW
 	static void SendMessage(const EVENT_TYPES eventtype, EventMessageBase& message);
 
 	static void ProcessEvents();

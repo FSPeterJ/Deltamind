@@ -52,8 +52,8 @@ void ObjectFactory::InstantiateByType(EventMessageBase *e) {
 	GameObject* newobject;
 	if(instantiate->pid) {
 		if(prefabs[instantiate->pid].objectTypeID != instantiate->tid) {
-			Console::ErrorOutLine << "ObjectFactory: Type Mismatch!  Instantiate Request of " << prefabNamesReverse[instantiate->pid].c_str()  << " has a requesting typeID of " << TypeMap::GetObjectNameFromID(instantiate->tid) << " Which does not match the prefab typeID of " << TypeMap::GetObjectNameFromID(prefabs[instantiate->pid].objectTypeID);
-			Console::WarningLine << "ObjectFactory: Type Mismatch!  Instantiate Request of " << prefabNamesReverse[instantiate->pid].c_str() << " has a requesting typeID of " << TypeMap::GetObjectNameFromID(instantiate->tid) << " Which does not match the prefab typeID of " << TypeMap::GetObjectNameFromID(prefabs[instantiate->pid].objectTypeID);
+			//Console::ErrorOutLine << "ObjectFactory: Type Mismatch!  Instantiate Request of " << prefabNamesReverse[instantiate->pid].c_str()  << " has a requesting typeID of " << TypeMap::GetObjectNameFromID(instantiate->tid) << " Which does not match the prefab typeID of " << TypeMap::GetObjectNameFromID(prefabs[instantiate->pid].objectTypeID);
+			//Console::WarningLine << "ObjectFactory: Type Mismatch!  Instantiate Request of " << prefabNamesReverse[instantiate->pid].c_str() << " has a requesting typeID of " << TypeMap::GetObjectNameFromID(instantiate->tid) << " Which does not match the prefab typeID of " << TypeMap::GetObjectNameFromID(prefabs[instantiate->pid].objectTypeID);
 		}
 		newobject = ActivateObject(instantiate->pid);
 
@@ -111,6 +111,10 @@ GameObject* ObjectFactory::ActivateObject(PrefabId pid) {
 
 unsigned ObjectFactory::CreatePrefab(const std::string* _filename, const char* DEBUG_STRING_NAME, bool objectPrefabOverride) {
 	int prefabID = prefabNames[*_filename];
+
+	if (_filename->c_str() == "Assets/ViveControllerMesh.ghost") {
+		int i = 9;
+	}
 	if(prefabID) {
 		//This Prefab already exists.
 		if(objectPrefabOverride) {

@@ -14,6 +14,7 @@ Delegate<> EngineStructure::OnCollisionExit;
 
 Delegate<> EngineStructure::Update;
 Delegate<> EngineStructure::AnimationUpdate;
+
 Delegate<> EngineStructure::LateUpdate;
 
 Delegate<> EngineStructure::OnWillRenderObject;

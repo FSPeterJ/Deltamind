@@ -25,7 +25,7 @@ void XTime::Restart() {
 	QueryPerformanceCounter(&localStack.start);
 	localStack.signals[localStack.signalCount++] = localStack.start;
 }
-double XTime::TotalTime() {
+inline double XTime::TotalTime() {
 	return localStack.totalTime;
 }
 double XTime::TotalTimeExact() {

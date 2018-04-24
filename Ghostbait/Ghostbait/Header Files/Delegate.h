@@ -3,6 +3,8 @@
 #include <functional>
 #include <algorithm>
 #include <cassert>
+#include "ThreadPool.h"
+using namespace Threadding;
 
 template <typename ...T>
 class Delegate: std::function<void(T...)> {
@@ -29,27 +31,55 @@ public:
 	void operator()(const T&... e) {
 		size_t delsize = delegates.size();
 		//Iterators were not cutting the cake for us.  Accessing by index is ok, and we prevet iterator invalidation by pushback mid iteration
-		for(delegate_iteration = 0; delegate_iteration < delsize; delegate_iteration++) {
-			delegates[delegate_iteration].function(e...);
+		for(delegate_iteration = 0; delegate_iteration < delsize; ++delegate_iteration) {
+			auto f = delegates[delegate_iteration].function;
+			if(f) f(e...);
 		}
 		//Process the delegate further if more things were added to the current delegate by previous delegate calls in this update
 		if(delsize < delegates.size()) {
 			for(delegate_iteration = delsize; delegate_iteration < delegates.size(); ++delegate_iteration) {
-				delegates[delegate_iteration].function(e...);
+				auto f = delegates[delegate_iteration].function;
+				if (f) f(e...);
 			}
 		}
 		delegate_iteration = 0;
 	}
+
+	void RunAsync(const T&... e) {
+		size_t delsize = delegates.size();
+		//Iterators were not cutting the cake for us.  Accessing by index is ok, and we prevet iterator invalidation by pushback mid iteration
+		//ThreadPool::MakeJob([&] {
+			for(delegate_iteration = 0; delegate_iteration < delegates.size(); ++delegate_iteration) {
+				auto fuc = std::bind(delegates[delegate_iteration].function, e...);
+				std::async(std::launch::async, fuc);
+			}
+	//	});
+		//Process the delegate further if more things were added to the current delegate by previous delegate calls in this update
+		if(delsize < delegates.size()) {
+			for(delegate_iteration = delsize; delegate_iteration < delegates.size(); ++delegate_iteration) {
+				auto fuc = std::bind(delegates[delegate_iteration].function, e...);
+				std::async(std::launch::async, fuc);
+			}
+		}
+		delegate_iteration = 0;
+	}
+
 	//Possibly want to phase this out.  Unsure what problems we will run into with legacy support and 0 being an ID for permament registration
 	//ONLY use this if you NEVER want to remove your delegated function post-registration
 	void operator+=(const std::function<void(T...)> execute) {
+		if (!execute) return;
 		Delegate_Entry data = {0, execute};
 		delegates.push_back(data);
+		assert(delegates.size() < 10000);
+
 	}
 
 	unsigned Add(const std::function<void(T...)> execute) {
+		if (!execute) std::runtime_error("Tried to add empty function.");
 		Delegate_Entry data = {++lastID, execute};
 		delegates.push_back(data);
+		assert(delegates.size() < 10000);
+
 		return data.id;
 	}
 
@@ -70,13 +100,16 @@ public:
 
 		Delegate_Entry data = {id, nullptr};
 		std::vector<Delegate_Entry>::iterator it = find(delegates.begin(), delegates.end(), data);
-		*it = std::move(delegates.back());
-		delegates.pop_back();
+		if (it != delegates.end()) {
+			*it = std::move(delegates.back());
+			delegates.pop_back();
+		}
 	}
 
 	const inline size_t subscriber_count() const { return delegates.size(); }
 
-	inline void insert(const std::function<void(T...)> execute, size_t index) { delegates.insert(delegates.begin() + index, execute); }
+	
+	inline void insert(const std::function<void(T...)> execute, size_t index) { if (execute) delegates.insert(delegates.begin() + index, execute); }
 
 	Delegate(void) {};
 	~Delegate(void) {};

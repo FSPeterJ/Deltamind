@@ -1,6 +1,7 @@
 #pragma once
 #include "Delegate.h"
 #include "Console.h"
+using namespace Common;
 
 class EngineStructure {
 	friend class GameObjectComponent;
@@ -13,6 +14,7 @@ class EngineStructure {
 	friend class Animator;
 	friend class GhostTime;
 	friend class Emitter;
+	friend class AntColony;
 
 	static Delegate<> Awake;
 	static Delegate<> OnEnable;
@@ -53,12 +55,21 @@ public:
 		Awake();
 	}
 
+
+	void ExecuteAnimationUpdate() {
+		//Write("Update delegate contains ");
+		//Write((int) Update.subscriber_count());
+		//WriteLine(" subscribers.");
+
+		AnimationUpdate();
+	}
+
 	void ExecuteUpdate() {
 		//Write("Update delegate contains ");
 		//Write((int) Update.subscriber_count());
 		//WriteLine(" subscribers.");
 
-		Update();
+		Update();// .RunAsync();
 	}
 
 	void ExecuteAnimationUpdate() {

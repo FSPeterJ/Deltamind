@@ -323,3 +323,4 @@ ASALocalRun/
 *.binlog
 
 *.cso
+/Ghostbait/Ghostbait/Log.txt

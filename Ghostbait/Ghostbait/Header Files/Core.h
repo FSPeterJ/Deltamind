@@ -3,15 +3,19 @@
 #include "Health.h"
 #include "Light.h"
 
-class Core : public GameObject,  public Health {
-	Light light;
-	float panicTimer = -1;
-	float panicDuration = 4;
-	DirectX::XMFLOAT3 panicColor = { 1, 0, 0 };
-	DirectX::XMFLOAT3 normalColor = { 1, 1, 1 };
+struct Material;
 
-	int cubeCount = 10;
-	GameObject* healthCubes[10];
+class Core : public GameObject,  public Health, public GridBasedObject {
+	GameObject* coreRing = nullptr;
+	Material* coreRingMat = nullptr;
+	//DirectX::XMFLOAT4 foreground = { 1, 36.0f / 255.0f, 14.0f / 255.0f, 226.0f / 255.0f };
+	DirectX::XMFLOAT4 foreground = { 1, 1, 1, 1 };
+	DirectX::XMFLOAT4 background = { 1, 132.0f / 255.0f, 10.0f / 255.0f, 105.0f / 255.0f };
+
+	Light light;
+	float panicTimer;
+	float panicDuration;
+	bool panicking;
 public:
 	Core() { SetTag("Core"); };
 	void Awake(Object* obj) override;

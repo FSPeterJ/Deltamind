@@ -284,6 +284,7 @@ namespace GhostbaitModelCreator
         private ColliderGroup colliders;
         private AnimationGroup animations;
 
+
         private List<BaseComponentGroup<BaseComponent>> BaseComponentContainers = new List<BaseComponentGroup<BaseComponent>>();
 
         public ModelCreatorForm()
@@ -352,6 +353,9 @@ namespace GhostbaitModelCreator
 
         private void ResetAll()
         {
+            ScrollingUVs.Checked = false;
+            VelocityU.Value = 0;
+            VelocityV.Value = 0;
             meshes.Reset();
             materials.Reset();
             bindPose.Reset();
@@ -494,6 +498,7 @@ namespace GhostbaitModelCreator
             };
             if (open.ShowDialog() == DialogResult.OK)
             {
+
                 Settings.Default.ghost_path = Path.GetDirectoryName(open.FileName);
                 Settings.Default.Save();
                 ResetAll();
@@ -503,6 +508,17 @@ namespace GhostbaitModelCreator
 
                 //Class
                 className.Text = new string(reader.ReadChars(reader.ReadInt32()));
+                //ScrollingUVs.Checked = reader.ReadBoolean();
+                //if (ScrollingUVs.Checked)
+                //{
+                //    VelocityU.Value = (decimal)reader.ReadSingle();
+                //    VelocityV.Value = (decimal)reader.ReadSingle();
+                //}
+                //else
+                //{
+                //    VelocityU.Value = 0;
+                //    VelocityV.Value = 0;
+                //}
 
                 while (reader.BaseStream.Position != reader.BaseStream.Length)
                 {
@@ -555,7 +571,15 @@ namespace GhostbaitModelCreator
                     {
                         string componentName = new string(reader.ReadChars(-tagsize));
                         componentName = componentName.Trim('\0');
-                        if (componentName == "Physical")
+                        if(componentName == "Scroll")
+                        {
+                            reader.ReadInt32();
+                            reader.ReadInt32();
+                            ScrollingUVs.Checked = true;
+                            VelocityU.Value = (decimal)reader.ReadSingle();
+                            VelocityV.Value = (decimal)reader.ReadSingle();
+                        }
+                        else if (componentName == "Physical")
                         {
                             int tagleng = reader.ReadInt32();
                             string tagstringg = null;
@@ -695,6 +719,11 @@ namespace GhostbaitModelCreator
                     string outstr = className.Text + '\0';
                     writer.Write(outstr.Length);
                     writer.Write(outstr.ToCharArray());
+                    //writer.Write(ScrollingUVs.Checked);
+                    //if (ScrollingUVs.Checked) {
+                    //    writer.Write((float)VelocityU.Value);
+                    //    writer.Write((float)VelocityV.Value);
+                    //}
 
                     // Outputing simple components (Mesh, Material, etc)
                     foreach (var componentContainer in BaseComponentContainers)
@@ -726,6 +755,17 @@ namespace GhostbaitModelCreator
                     //    writer.Write(outstr.Length);
                     //    writer.Write(outstr.ToCharArray());
                     //}
+                    //ScollingUVs
+                    if (ScrollingUVs.Checked)
+                    {
+                        outstr = "Scroll\0";
+                        writer.Write(-outstr.Length);
+                        writer.Write(outstr.ToCharArray());
+                        writer.Write(0);
+                        writer.Write(8);
+                        writer.Write((float)VelocityU.Value);
+                        writer.Write((float)VelocityV.Value);
+                    }
                     //Colliders
                     if (colliders.Count > 0)
                     {
@@ -838,5 +878,9 @@ namespace GhostbaitModelCreator
             }
         }
 
+        private void ScrollingUVs_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

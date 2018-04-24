@@ -13,8 +13,8 @@
 
 #include "MessageEvents.h"
 
-#define INIT_BANK "Assets/Soundbanks/Init.bnk"
-#define DEFAULT_BANK "Assets/Soundbanks/TestBank.bnk"
+#define INIT_BANK "Assets/Soundbanks/Init2.bnk"//"Assets/Soundbanks/Init.bnk"
+#define DEFAULT_BANK "Assets/Soundbanks/New_SoundBank.bnk"//"Assets/Soundbanks/TestBank.bnk"
 
 #define LISTENER_ID 9999999
 
@@ -81,14 +81,12 @@ AudioManager::AudioManager() //Thank the lord for SDK documentation
 	AK::MusicEngine::GetDefaultInitSettings(musicSettings);
 	AK::MusicEngine::Init(&musicSettings);
 
-	AkBankID wiseIsGood;
-	result = AK::SoundEngine::LoadBank(INIT_BANK, AK_DEFAULT_POOL_ID, wiseIsGood);
-
-	result = AK::SoundEngine::LoadBank(DEFAULT_BANK, AK_DEFAULT_POOL_ID, wiseIsGood);
 
 	MessageEvents::Subscribe(EVENT_RegisterNoisemaker, [this](EventMessageBase * _e) {this->registerObject(_e); });
 	MessageEvents::Subscribe(EVENT_RequestSound, [this](EventMessageBase * _e) {this->playSound(_e); });
 	MessageEvents::Subscribe(EVENT_UnregisterNoisemaker, [this](EventMessageBase * _e) {this->unRegisterObject(_e); });
+	MessageEvents::Subscribe(EVENT_ToggleAudio, [this](EventMessageBase* _e) {this->toggleAudio(_e); });
+	MessageEvents::Subscribe(EVENT_StopAllSounds, [this](EventMessageBase* _e) {this->stopAllSounds(_e); });
 }
 
 
@@ -107,6 +105,16 @@ void AudioManager::setCamera(const DirectX::XMFLOAT4X4 * _camera)
 	AkGameObjectID camId = LISTENER_ID;
 	AK::SoundEngine::RegisterGameObj(LISTENER_ID);
 	AK::SoundEngine::SetDefaultListeners(&camId, 1);
+}
+
+void AudioManager::LoadBanks()
+{
+	AkBankID wiseIsGood;
+	AKRESULT result = AK::SoundEngine::LoadBank(INIT_BANK, AK_DEFAULT_POOL_ID, wiseIsGood);
+
+	result = AK::SoundEngine::LoadBank(DEFAULT_BANK, AK_DEFAULT_POOL_ID, wiseIsGood);
+	AK::SoundEngine::RegisterGameObj(1);
+	playing = true;
 }
 
 void AudioManager::registerObject(EventMessageBase * e)
@@ -134,7 +142,40 @@ void AudioManager::unRegisterObject(EventMessageBase * e)
 void AudioManager::playSound(EventMessageBase * e)
 {
 	SoundRequestMessage* mess = (SoundRequestMessage*)e;
-	AK::SoundEngine::PostEvent(mess->RetrieveSound(), (AkGameObjectID)mess->RetrieveObject());
+	if (mess->RetrieveObject())
+		AK::SoundEngine::PostEvent(mess->RetrieveSound(), (AkGameObjectID)mess->RetrieveObject());
+	else
+		AK::SoundEngine::PostEvent(mess->RetrieveSound(), 1);
+}
+
+void AudioManager::setSFXVolume(float value)
+{
+	AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::RTPC_SFXVOLUME, (AkRtpcValue)value);
+}
+
+void AudioManager::setMusicVolume(float value)
+{
+	AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::RTPC_MUSICVOLUME, (AkRtpcValue)value);
+}
+
+void AudioManager::setMasterVolume(float value)
+{
+	AK::SoundEngine::SetOutputVolume(0, (AkReal32)value);
+}
+
+void AudioManager::toggleAudio(EventMessageBase * e)
+{
+	if (playing)
+		AK::SoundEngine::Suspend();
+	else
+		AK::SoundEngine::WakeupFromSuspend();
+
+	playing = !playing;
+}
+
+void AudioManager::stopAllSounds(EventMessageBase * e)
+{
+	AK::SoundEngine::StopAll();
 }
 
 void AudioManager::Update()

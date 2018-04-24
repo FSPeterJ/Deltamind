@@ -6,31 +6,22 @@ Item::Item() {
 	SetTag("Item");
 };
 
-void Item::Render(bool render) {
-	if (render == isRendered) return;
-
-	if (render) {
-		MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(this));
-		isRendered = true;
-	}
-	else {
-		MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(this));
-		isRendered = false;
-	}
+void Item::Awake(Object* obj) {
+	GameObject::Awake(obj);
+	pc = GetComponent<PhysicsComponent>();
 }
 
 void Item::SetPhysicsComponent(bool active) {
 	if (active == physicsIsOn) return;
-	PhysicsComponent* pc = GetComponent<PhysicsComponent>();
 	if (pc) pc->isActive = active;
 	physicsIsOn = active;
 }
 
 void Item::Selected() {
-	Render(true);
+	Render();
 	SetPhysicsComponent(true);
 }
 void Item::DeSelected() {
-	Render(false);
+	UnRender();
 	SetPhysicsComponent(false);
 }

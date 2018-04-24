@@ -22,8 +22,9 @@ const bool CheatCode::CheckNewInput(const Control input) {
 	
 	if (code[position + 1] == input) {
 		position += 1;
-		if (position >= code.size() - 1) {
+		if (position >= (int)code.size() - 1) {
 			position = -1;
+			active = !active;
 			complete();
 		}
 		return true;
@@ -33,7 +34,7 @@ const bool CheatCode::CheckNewInput(const Control input) {
 }
 void CheatCode::SetCode(std::vector<Control>& _code) {
 	code.clear();
-	for (int i = 0; i < _code.size(); ++i) {
+	for (size_t i = 0; i < _code.size(); ++i) {
 		code.push_back(_code[i]);
 	}
 }

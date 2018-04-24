@@ -1,5 +1,6 @@
 #pragma once
 #include <unordered_set>
+#include <unordered_map>
 #include "Delegate.h"
 #include "Controlable.h"
 #include "HexagonalGridLayout.h"
@@ -19,6 +20,9 @@ class HexPath;
 
 class HexGrid {
 	using GridContainer = std::unordered_set<HexTile*, std::hash<HexTile*>, EqualComparator>;
+
+	//using CostDelta = std::unordered_map<HexTile*, float, std::hash<HexTile*>, EqualComparator>;
+	//CostDelta cost_delta;
 
 	float map_radius = 0;
 
@@ -51,9 +55,25 @@ class HexGrid {
 	/// <param name="zmax">The zmax.</param>
 	/// <returns>HexRegion.</returns>
 	HexRegion GetRegion(int xmin, int xmax, int ymin, int ymax, int zmin, int zmax);
-	
+
+	HexRegion DoRing(bool spiral, HexTile *const center, std::size_t radius, bool includeCenter = true);
+
 	static const float Blocked;
 public:
+
+	/// <summary>
+	/// Iterates each tile in the grid and executes the passed function.
+	/// </summary>
+	/// <param name="f">The function to execute on each tile.</param>
+	void ForEach(std::function<void(HexTile*const)> f);
+
+	//CostDelta& GetCostDelta(void) { return cost_delta; }
+
+	/// <summary>
+	/// Gets the block weight of a blocked tile.
+	/// </summary>
+	/// <returns>float.</returns>
+	float BlockWeight() const { return Blocked; }
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="HexGrid"/> class with the desired radius layout.
@@ -70,6 +90,13 @@ public:
 	/// <param name="p">The world point to convert.</param>
 	/// <returns>The hex tile where the world coordinate maps to. Returns null if no tile maps.</returns>
 	HexTile* PointToTile(const DirectX::XMFLOAT2& p);
+
+	/// <summary>
+	/// Converts a world coordinate into a grid coordinate.
+	/// </summary>
+	/// <param name="p">The world point to convert.</param>
+	/// <returns>The hex tile where the world coordinate maps to.</returns>
+	HexTile PointToTileOffGrid(const DirectX::XMFLOAT2& p);
 
 	/// <summary>
 	/// Converts a HexTile into a world coordinate.
@@ -93,12 +120,29 @@ public:
 	bool Snap(const DirectX::XMFLOAT2& p, OUT DirectX::XMFLOAT2& snapPoint);
 
 	/// <summary>
-	/// Gets a region of tiles n steps away from the specified tile.
+	/// Gets a region of all tiles reachable within n steps from the specified tile.
 	/// </summary>
 	/// <param name="tile">The tile.</param>
 	/// <param name="n">The radius of steps.</param>
 	/// <returns>HexRegion.</returns>
 	HexRegion GetTilesNStepsAway(HexTile *const tile, int n);
+
+	/// <summary>
+	/// Returns the tiles at a certain radius from the center.
+	/// </summary>
+	/// <param name="center">The center.</param>
+	/// <param name="radius">The radius.</param>
+	/// <returns>HexRegion.</returns>
+	HexRegion Ring(HexTile *const center, std::size_t radius);
+
+	/// <summary>
+	/// Returns a counter clockwise spiral starting center going to the bottom left outward.
+	/// </summary>
+	/// <param name="center">The center.</param>
+	/// <param name="radius">The radius.</param>
+	/// <param name="includeCenter">Flag to include center.</param>
+	/// <returns>HexRegion.</returns>
+	HexRegion Spiral(HexTile *const center, std::size_t radius, bool includeCenter = true);
 
 	/// <summary>
 	/// Sets the weight of the tile at tilePosition. If the tile does not map to a tile on the grid, nothing happens.
@@ -124,11 +168,25 @@ public:
 	bool AddObstacle(const DirectX::XMFLOAT2& obstaclePosition);
 
 	/// <summary>
-	/// Removes the tile at tilePosition as an obstacle. If the tile does not map to a tile on the grid, nothing happens.
+	/// Sets the obstacle tile as an obstacle. If the tile does not map to a tile on the grid, nothing happens.
+	/// </summary>
+	/// <param name="obstacle">The obstacle tile.</param>
+	/// <returns>true if the weight of the tile was set, otherwise false.</returns>
+	bool AddObstacle(HexTile*const obstacle);
+
+	/// <summary>
+	/// Removes the tile at obstaclePosition. If the tile does not map to a tile on the grid, nothing happens.
 	/// </summary>
 	/// <param name="obstaclePosition">The obstacle position.</param>
 	/// <returns>true if the weight of the tile was set, otherwise false.</returns>
 	bool RemoveObstacle(const DirectX::XMFLOAT2& obstaclePosition);
+
+	/// <summary>
+	/// Removes the obstacle tile at obstaclePosition. If the tile does not map to a tile on the grid, nothing happens.
+	/// </summary>
+	/// <param name="obstacle">The obstacle tile.</param>
+	/// <returns>bool.</returns>
+	bool RemoveObstacle(HexTile*const obstacle);
 
 	/// <summary>
 	/// Given two tiles and their radii, finds the tiles which intersect.
@@ -177,10 +235,8 @@ public:
 	/// <returns>HexTile * if valid, otherwise null.</returns>
 	HexTile* GetTileExact(HexTile& t) const;
 
-	/// <summary>
-	/// Populates this instance.
-	/// </summary>
-	void Fill(bool withRandomObstacles);
+
+	//void Fill(bool withRandomObstacles);
 
 	/// <summary>
 	/// Displays this instance in debug. It will only draw tiles within a radius of 3 from the specified position.
@@ -188,6 +244,19 @@ public:
 	/// <param name="player">The player.</param>
 	void Display(DirectX::XMFLOAT2& player);
 
-	HexGrid(const char* _filename, float _radius = 1.0f, HexagonalGridLayout _layout = HexagonalGridLayout::FlatLayout);
+	/// <summary>
+	/// Adds given value to specified tile.
+	/// </summary>
+	/// <param name="tile">The tile.</param>
+	/// <param name="value">The value to add.</param>
+	/// <returns>False if tile is invalid, blocked or at max weight.</returns>
+	bool AddWeight(HexTile*const tile, float value);
 
+	bool IsValidTile(HexTile& _tile);
+
+	HexGrid(const char* _filename, HexagonalGridLayout _layout = HexagonalGridLayout::FlatLayout);
+
+	void Color(HexRegion& r, DirectX::XMFLOAT3 color, int fill);
+
+	void Color(HexPath& p, DirectX::XMFLOAT3 color, int fill);
 };

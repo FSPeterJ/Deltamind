@@ -300,6 +300,8 @@
     <ClInclude Include="Header Files\WICTextureLoader.h">
       <Filter>Header Files\Render</Filter>
     </ClInclude>
+    <ClInclude Include="Header Files\HexTileVector.h">
+      <Filter>Header Files</Filter>
     <ClInclude Include="Header Files\Wwise_IDs.h">
       <Filter>Header Files\Audio</Filter>
     </ClInclude>
@@ -315,15 +317,31 @@
     <ClInclude Include="Header Files\VRStructs.h">
       <Filter>Header Files\System</Filter>
     </ClInclude>
+    <ClInclude Include="Header Files\DStarEnemy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\AnimatorStructs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Player.h">
     <ClInclude Include="Header Files\Window.h">
-      <Filter>Header Files\System</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\XTime.h">
       <Filter>Header Files\System</Filter>
+    <ClInclude Include="Header Files\Transform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\VRStructs.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\SceneManager.h">
       <Filter>Header Files\System</Filter>
+    <ClInclude Include="Header Files\MTDSLEnemy.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Header Files\DStar.h">
+      <Filter>Header Files</Filter>
     <ClInclude Include="Header Files\PathPlanner.h">
       <Filter>Header Files\System</Filter>
     </ClInclude>
@@ -346,6 +364,48 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\CheatCode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Ground.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\NeuralEnemy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Monitor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\GameData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\ScrollingUVManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\AntColony.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\DisplayBoard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\ControllerPillar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\HUD.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\PDA.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\OptionsManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\ForceField.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\TargetEnemy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\CoreShield.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PixelShaderUtilities.hlsl">
@@ -378,9 +438,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\MeshManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source Files\ThreadPool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\EngineStructure.cpp">
@@ -453,9 +510,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\PhysicsComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source Files\Console.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\AABB.cpp">
@@ -539,6 +593,9 @@
     <ClCompile Include="Source Files\HexTileEqualityCheck.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Header Files\DStarEnemy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Source Files\Player.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -558,6 +615,48 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\CheatCode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\MTDSLEnemy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\DStar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\Monitor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\GameData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\ScrollingUVManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\AntColony.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\DisplayBoard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\ControllerPillar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\HUD.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\PDA.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\OptionsManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\ForceField.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\TargetEnemy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\CoreShield.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\Renderer.cpp">
@@ -673,6 +772,15 @@
     </FxCompile>
     <FxCompile Include="Shaders\ParticleSortInitArgs_ComputeShader.hlsl">
       <Filter>Shaders\Compute Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="BlurPixelShader.hlsl">
+      <Filter>Shaders\Pixel Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="TexToQuadPS.hlsl">
+      <Filter>Shaders\Pixel Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="BrightnessPixelShader.hlsl">
+      <Filter>Shaders\Pixel Shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

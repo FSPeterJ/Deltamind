@@ -31,6 +31,17 @@ Animation * AnimationManager::LoadAnimation(const char * _animationFilePath, con
 					//LONGER LOAD TIMES
 
 				}
+				joint.transform._31 *= -1.0f;
+				joint.transform._32 *= -1.0f;
+				joint.transform._13 *= -1.0f;
+				joint.transform._23 *= -1.0f;
+
+				joint.transform._12 *= -1.0f;
+				joint.transform._13 *= -1.0f;
+				joint.transform._21 *= -1.0f;
+				joint.transform._31 *= -1.0f;
+
+
 				//TEMPORARY CODE - REMOVE LATER
 
 				if(joint.parent_index > -1) {

@@ -18,7 +18,8 @@ void Emitter::Update() {
 	float dt = (float)GhostTime::DeltaTime();
 	age += dt;
 	if(age > lifespan) {
-		Destroy();
+		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
+
 
 	}
 	if(parentObject) {
@@ -32,7 +33,6 @@ void Emitter::Update() {
 	else {
 		previousOverflow = fmodf((mainData.emissionOverflow + dt), mainData.emissionIntervalSec);
 	}
-	MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 
 }
 
@@ -56,5 +56,6 @@ void Emitter::Disable() {
 }
 
 void Emitter::Destroy() {
+	Disable();
 	MessageEvents::SendMessage(EVENT_DeleteEmitter, DeleteEmitterMessage(this));
 }

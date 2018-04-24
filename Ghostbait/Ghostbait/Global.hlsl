@@ -10,6 +10,7 @@ cbuffer PerFrameConstantBuffer : register(b0)
 
     float3 CameraCenterpoint;
     float PerFrameConstantBufferpadding2;
+
 };
 
 SamplerState SamplerWrapLinear : register(s0);

@@ -203,7 +203,8 @@ void Renderer::combineDeferredTargets(DeferredRTVs * in, ID3D11RenderTargetView 
 	context->PSSetShader(StandardPixelShader, NULL, NULL);
 	context->PSSetShaderResources(0, 6, in->SRVs);
 	context->PSSetConstantBuffers(2, 1, &cameraBuffer);
-	context->GSSetConstantBuffers(0, 1, &cameraBuffer);
+	context->GSSetConstantBuffers(2, 1, &cameraBuffer);
+	context->CSSetConstantBuffers(0, 1, &perFrameConstantBuffer);
 	context->IASetVertexBuffers(0, 1, &emptyFloat3Buffer, &stride, &offset);
 	context->IASetInputLayout(ILPosition);
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
@@ -648,9 +649,9 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 	context->VSSetConstantBuffers(1, 1, &modelBuffer);
 	context->VSSetConstantBuffers(2, 1, &animDataBuffer);
 	context->PSSetConstantBuffers(0, 1, &lightBuffer);
-	context->GSSetConstantBuffers(2, 2, &lightBuffer);
 	context->PSSetConstantBuffers(1, 1, &factorBuffer);
 	context->CSSetConstantBuffers(0, 1, &perFrameConstantBuffer);
+	context->GSSetConstantBuffers(0, 1, &perFrameConstantBuffer);
 	//Particles
 	//==========================
 	FillRandomTexture();
@@ -673,6 +674,7 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 	sampleDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 	device->CreateSamplerState(&sampleDesc, &PointSamplerState);
 	context->PSSetSamplers(0, 1, &LinearSamplerState);
+	context->CSSetSamplers(0, 1, &LinearSamplerState);
 #pragma endregion
 
 	cameraPos->LookAt(DirectX::XMFLOAT3(0.0f, 0.0f, 5.0f));
@@ -734,10 +736,7 @@ void Renderer::Destroy() {
 	StandardVertexShader->Release();
 	StandardPixelShader->Release();
 	BrightnessPixelShader->Release();
-	ParticleVS->Release();
-	ParticleGS->Release();
 	NDCQuadGS->Release();
-	ParticlePS->Release();
 	TexToQuadPS->Release();
 	SkyboxVS->Release();
 	SkyboxPS->Release();
@@ -879,7 +878,7 @@ XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 }
 
 void Renderer::Render() {
-	if(graphicsAnalysis && countCapture < MAX_CAPTURES)
+	if(graphicsAnalysis && countCapture == 0)
 		graphicsAnalysis->BeginCapture();
 
 	perFrameDataConstantBuffer.FrameTime = (float)GhostTime::DeltaTime();
@@ -968,6 +967,9 @@ void Renderer::Render() {
 			renderObjectDefaultState(transparentObjects[i]);
 		}
 		particleManager->RenderParticles();
+
+		context->VSSetShader(StandardVertexShader, NULL, NULL);
+
 		context->ClearDepthStencilView(deferredTextures.DSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 		for (size_t i = 0; i < frontRenderedObjects.size(); ++i)
 		{
@@ -992,8 +994,13 @@ void Renderer::Render() {
 			defaultHUD->Draw(context, defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view);
 		}
 	}
-	
 	swapchain->Present(0, 0);
+	countCapture++;
+	if(graphicsAnalysis && countCapture > MAX_CAPTURES) {
+		
+		graphicsAnalysis->EndCapture();
+		SAFE_RELEASE(graphicsAnalysis);
+	}
 
 }
 

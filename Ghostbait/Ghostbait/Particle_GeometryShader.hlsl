@@ -1,4 +1,6 @@
-cbuffer ModelViewProjectionConstantBuffer : register(b0)
+#include "Global.hlsl"
+
+cbuffer ModelViewProjectionConstantBuffer : register(b2)
 {
     matrix view;
     matrix projection;
@@ -21,14 +23,6 @@ struct genericLight
     float outerRadius;
 };
 
-cbuffer lightBuffer : register(b2)
-{
-    genericLight lights[83];
-    float3 ambientColor;
-    float ambientIntensity;
-    float3 cameraPos;
-    uint paddinglights[1];
-};
 
 struct GSOutput
 {
@@ -63,7 +57,7 @@ void main(point GSInput input[1], inout TriangleStream<GSOutput> output)
     float2 OffsetUV = calculateUVOffset(input[0].texturedata);
     float w = input[0].texturedata & 0xFF;
 
-    float3 planeNormal = cameraPos - (float3)input[0].pos;
+    float3 planeNormal = CameraCenterpoint - (float3) input[0].pos;
 
     planeNormal = normalize(planeNormal);
 

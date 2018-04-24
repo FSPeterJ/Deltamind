@@ -72,9 +72,6 @@ public:
 		Update();// .RunAsync();
 	}
 
-	void ExecuteAnimationUpdate() {
-		AnimationUpdate();
-	}
 
 	void ExecuteLateUpdate() {
 		//Write("Update delegate contains ");

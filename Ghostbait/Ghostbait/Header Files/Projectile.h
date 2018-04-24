@@ -4,11 +4,16 @@
 static int instantiatedCount = 0;
 static int destroyedCount = 0;
 
+struct PhysicsComponent;
+
 class Projectile: public GameObject {
 public:
+	bool isDestroying = false;
 	float timeSinceShot = 0;
 	float maxProjectileTime = 4.0f;
 	float damage = 1;
+
+	PhysicsComponent* pc = nullptr;
 
 	Projectile();
 	~Projectile();

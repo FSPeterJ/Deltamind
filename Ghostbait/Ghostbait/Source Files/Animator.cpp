@@ -208,16 +208,20 @@ void Animator::Destroy() {
 	EngineStructure::AnimationUpdate.Remove(updateID);
 }
 
-void Animator::Initialize(AnimationManager* animManIn) {
-	animMan = animManIn;
+void Animator::Enable() {
 	updateID = EngineStructure::AnimationUpdate.Add([=]() {
 		this->Update();
 	});
 }
 
+void Animator::Initialize(AnimationManager* animManIn) {
+	animMan = animManIn;
+	currScale = 1.0f;
+}
+
 void Animator::Update() {
 
-	timePos += GhostTime::DeltaTime();
+	timePos += (GhostTime::DeltaTime()*currScale);
 	bool loopState = false;
 	if(timePos < 0.0) {
 		timePos = currAnim->keyframes[currAnim->keyframes.size() - 1].endTime;
@@ -266,10 +270,33 @@ void Animator::Update() {
 		tweens[i].transform._32 = interpolatedMat._32;
 		tweens[i].transform._33 = interpolatedMat._33;
 		for(int x = 0; x < tweens[i].child_count; ++x) {
-
+			//DebugRenderer::DrawAxes(tweens[i].transform, 0.5f);
 			//DebugRenderer::AddLine((XMFLOAT3)tweens[tweens[i].child_index[x]].transform.m[3], (XMFLOAT3)tweens[i].transform.m[3], { 0.1f, 1, 0 });
 		}
+		/*
+		animJoint& endJoint = endFrame.joints[i];
+		animJoint& beginJoint = beginFrame.joints[i];
+		animJoint& tweenJoint = tweens[i];
+		DirectX::XMFLOAT3X3 endJointMat = pullRotation(endJoint.transform);
+		DirectX::XMFLOAT3X3 beginJointMat = pullRotation(beginJoint.transform);
+		DirectX::XMFLOAT3X3 interpolatedMat = lerpRotation(beginJointMat, endJointMat, ratio);
+		tweenJoint.transform._41 = beginJoint.transform._41 + ((endJoint.transform._41 - beginJoint.transform._41)*ratio);
+		tweenJoint.transform._42 = beginJoint.transform._42 + ((endJoint.transform._42 - beginJoint.transform._42)*ratio);
+		tweenJoint.transform._43 = beginJoint.transform._43 + ((endJoint.transform._43 - beginJoint.transform._43)*ratio);
+		tweenJoint.transform._11 = interpolatedMat._11;
+		tweenJoint.transform._12 = interpolatedMat._12;
+		tweenJoint.transform._13 = interpolatedMat._13;
+		tweenJoint.transform._21 = interpolatedMat._21;
+		tweenJoint.transform._22 = interpolatedMat._22;
+		tweenJoint.transform._23 = interpolatedMat._23;
+		tweenJoint.transform._31 = interpolatedMat._31;
+		tweenJoint.transform._32 = interpolatedMat._32;
+		tweenJoint.transform._33 = interpolatedMat._33;
+		//for(int x = 0; x < tweens[i].child_count; ++x) {
 
+		//DebugRenderer::AddLine((XMFLOAT3)tweens[tweens[i].child_index[x]].transform.m[3], (XMFLOAT3)tweens[i].transform.m[3], { 0.1f, 1, 0 });
+		//}
+		*/
 	}
 }
 
@@ -337,10 +364,11 @@ void Animator::addAnim(const char * animFilePath, const char * bindposeFilePath,
 	}
 }
 
-bool Animator::setState(const char * animName) {
+bool Animator::setState(const char * animName, float speed) {
 	Animation* toSet = animations[std::string(animName)];
 	if(toSet) {
 		currAnim = toSet;
+		currScale = speed;
 		return true;
 	}
 	return false;

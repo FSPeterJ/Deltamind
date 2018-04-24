@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GhostbaitModelCreator", "Gh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GhostbaitSceneCreator", "GhostbaitSceneCreator\GhostbaitSceneCreator.csproj", "{035B078F-99C7-497E-B825-BA5BA99BB4C9}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Omiracon", "Omiracon\Omiracon.vcxproj", "{5D60A83F-BAF7-47E7-BF18-BE05750EEB8D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GhostbaitCommon", "GhostbaitCommon\GhostbaitCommon.vcxproj", "{7DC2F324-6D8F-4B01-8687-80D74649226C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,12 +57,44 @@ Global
 		{035B078F-99C7-497E-B825-BA5BA99BB4C9}.Release|x64.Build.0 = Release|Any CPU
 		{035B078F-99C7-497E-B825-BA5BA99BB4C9}.Release|x86.ActiveCfg = Release|Any CPU
 		{035B078F-99C7-497E-B825-BA5BA99BB4C9}.Release|x86.Build.0 = Release|Any CPU
+		{5D60A83F-BAF7-47E7-BF18-BE05750EEB8D}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{5D60A83F-BAF7-47E7-BF18-BE05750EEB8D}.Debug|x64.ActiveCfg = Debug|x64
+		{5D60A83F-BAF7-47E7-BF18-BE05750EEB8D}.Debug|x64.Build.0 = Debug|x64
+		{5D60A83F-BAF7-47E7-BF18-BE05750EEB8D}.Debug|x86.ActiveCfg = Debug|Win32
+		{5D60A83F-BAF7-47E7-BF18-BE05750EEB8D}.Debug|x86.Build.0 = Debug|Win32
+		{5D60A83F-BAF7-47E7-BF18-BE05750EEB8D}.Release|Any CPU.ActiveCfg = Release|Win32
+		{5D60A83F-BAF7-47E7-BF18-BE05750EEB8D}.Release|x64.ActiveCfg = Release|x64
+		{5D60A83F-BAF7-47E7-BF18-BE05750EEB8D}.Release|x64.Build.0 = Release|x64
+		{5D60A83F-BAF7-47E7-BF18-BE05750EEB8D}.Release|x86.ActiveCfg = Release|Win32
+		{5D60A83F-BAF7-47E7-BF18-BE05750EEB8D}.Release|x86.Build.0 = Release|Win32
+		{7DC2F324-6D8F-4B01-8687-80D74649226C}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{7DC2F324-6D8F-4B01-8687-80D74649226C}.Debug|x64.ActiveCfg = Debug|x64
+		{7DC2F324-6D8F-4B01-8687-80D74649226C}.Debug|x64.Build.0 = Debug|x64
+		{7DC2F324-6D8F-4B01-8687-80D74649226C}.Debug|x86.ActiveCfg = Debug|Win32
+		{7DC2F324-6D8F-4B01-8687-80D74649226C}.Debug|x86.Build.0 = Debug|Win32
+		{7DC2F324-6D8F-4B01-8687-80D74649226C}.Release|Any CPU.ActiveCfg = Release|Win32
+		{7DC2F324-6D8F-4B01-8687-80D74649226C}.Release|x64.ActiveCfg = Release|x64
+		{7DC2F324-6D8F-4B01-8687-80D74649226C}.Release|x64.Build.0 = Release|x64
+		{7DC2F324-6D8F-4B01-8687-80D74649226C}.Release|x86.ActiveCfg = Release|Win32
+		{7DC2F324-6D8F-4B01-8687-80D74649226C}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FA4E7E1E-2612-4CCB-A674-26EC6B286F68}
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true

@@ -23,6 +23,8 @@ class CheatCode {
 	std::function<void(void)> complete;
 	unsigned minimumLength = 4;
 
+	bool active = false;
+
 	const bool IsValidInput(const Control input);
 
 public:
@@ -39,6 +41,8 @@ public:
 	const bool CheckNewInput(const Control input);
 	void SetCode(std::vector<Control>& _code);
 	void SetCode(CodePreset preset);
+
+	inline const bool IsActive() const { return active; }
 
 	inline void SetCompletionFunction(std::function<void(void)> func) { complete = func; }
 };

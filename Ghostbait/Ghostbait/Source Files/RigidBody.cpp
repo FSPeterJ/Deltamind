@@ -22,10 +22,20 @@ RigidBody::RigidBody(bool _hasGravity, float _mass, float veloX, float veloY, fl
 	actingForces.push_back(AppliedForce(9.8f, 0.0f, -1.0f, 0.0f, 1.0f, true));
 }
 void RigidBody::SetVelocity(float x, float y, float z) {
-	velocity = XMFLOAT3(x, y, z);
+	SetVelocity(XMVectorSet(x, y, z, 1.0f));
 }
 void RigidBody::SetVelocity(XMVECTOR _velocity) {
+	if (XMVectorGetX(XMVector3LengthSq(XMLoadFloat3(&velocity))) > terminalSpeed * terminalSpeed) {
+		_velocity = XMVectorScale(XMVector3Normalize(_velocity), terminalSpeed);
+	}
 	XMStoreFloat3(&velocity, _velocity);
+}
+void RigidBody::SetVelocity(XMFLOAT3& _velocity) {
+	XMVECTOR newVelo = XMLoadFloat3(&_velocity);
+	if (XMVectorGetX(XMVector3LengthSq(XMLoadFloat3(&velocity))) > terminalSpeed * terminalSpeed) {
+		newVelo = XMVectorScale(XMVector3Normalize(newVelo), terminalSpeed);
+	}
+	XMStoreFloat3(&velocity, newVelo);
 }
 void RigidBody::SetMass(float _mass) {
 	mass = _mass;
@@ -62,7 +72,7 @@ bool RigidBody::AddForce(float _magnitude, float x, float y, float z, float _tim
 void RigidBody::AdjustGravityMagnitude(float magnitude) {
 	actingForces[0].magnitude = magnitude;
 }
-void RigidBody::Update() {
+void RigidBody::Update(XMMATRIX* _orientation) {
 	float delta = (float) GhostTime::DeltaTime();
 	unsigned int i = 0;
 	while(i < actingForces.size()) {
@@ -78,13 +88,25 @@ void RigidBody::Update() {
 	}
 	CalculateNetAccelaration();
 	XMVECTOR newVelo = XMLoadFloat3(&velocity) + (XMLoadFloat3(&netAcceleration) * delta);
-	if (XMVectorGetX(XMVector3LengthSq(newVelo)) > terminalSpeed * terminalSpeed)
-		newVelo = XMVectorScale(XMVector3Normalize(newVelo), terminalSpeed);
+	XMVECTOR normVelo = XMVector3Normalize(newVelo);
+	float newVelLengSq = XMVectorGetX(XMVector3LengthSq(newVelo));
+	//if (newVelLengSq > FLT_EPSILON) {
+	//	_orientation->r[1] = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+	//	_orientation->r[0] = XMVector3Normalize(XMVector3Cross(_orientation->r[1], normVelo));
+	//	_orientation->r[2] = normVelo;
+	//}
+
+	if (newVelLengSq > terminalSpeed * terminalSpeed)
+		newVelo = XMVectorScale(normVelo, terminalSpeed);
 
 	XMStoreFloat3(&velocity, newVelo);
 }
 XMVECTOR RigidBody::GetVelocity() {
 	return XMLoadFloat3(&velocity);
+}
+
+XMFLOAT3 RigidBody::GetVelocityFloat3() {
+	return velocity;
 }
 
 float RigidBody::GetSpeedSq() {

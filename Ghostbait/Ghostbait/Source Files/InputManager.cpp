@@ -4,6 +4,8 @@
 #include "MessageEvents.h"
 #include "Console.h"
 #include "WindowsX.h"
+#include "Wwise_IDs.h"
+using namespace Common;
 
 #define RAD_PI 3.14159265359
 
@@ -83,83 +85,83 @@ void InputManager::VRInput::CheckForInput() {
 	float amount = 0;
 	vr::VRControllerState_t state;
 	vr::VREvent_t event;
+	if (!godMode.IsActive()) {
+		if (leftTouchpadTouched) {
+			VRManager::GetInstance().pVRHMD->GetControllerState(VRManager::GetInstance().leftController.index, &state, sizeof(state));
+			leftTPX = state.rAxis[0].x;
+			leftTPY = state.rAxis[0].y;
 
+			float rads;
 
-	if(leftTouchpadTouched) {
-		VRManager::GetInstance().pVRHMD->GetControllerState(VRManager::GetInstance().leftController.index, &state, sizeof(state));
-		leftTPX = state.rAxis[0].x;
-		leftTPY = state.rAxis[0].y;
+			rads = atan2(leftTPX, leftTPY);
+			if (rads < 0) rads += (float)(2 * RAD_PI);
+			if (rads >= RAD_PI_4 && rads < RAD_3PI_4) {
+				inputPoll.push(InputPackage(leftItem0, 0));
+				inputPoll.push(InputPackage(leftItem1, 0));
+				inputPoll.push(InputPackage(leftItem3, 0));
 
-		float rads;
+				inputPoll.push(InputPackage(leftItem2, 0.5f));
+			}
+			else if (rads >= RAD_3PI_4 && rads < RAD_5PI_4) {
+				inputPoll.push(InputPackage(leftItem0, 0));
+				inputPoll.push(InputPackage(leftItem1, 0));
+				inputPoll.push(InputPackage(leftItem2, 0));
 
-		rads = atan2(leftTPX, leftTPY);
-		if (rads < 0) rads += (float)(2 * RAD_PI);
-		if (rads >= RAD_PI_4 && rads < RAD_3PI_4) {
-			inputPoll.push(InputPackage(leftItem0, 0));
-			inputPoll.push(InputPackage(leftItem1, 0));
-			inputPoll.push(InputPackage(leftItem3, 0));
+				inputPoll.push(InputPackage(leftItem3, 0.5f));
+			}
+			else if (rads >= RAD_5PI_4 && rads < RAD_7PI_4) {
+				inputPoll.push(InputPackage(leftItem0, 0));
+				inputPoll.push(InputPackage(leftItem2, 0));
+				inputPoll.push(InputPackage(leftItem3, 0));
 
-			inputPoll.push(InputPackage(leftItem2, 0.5f));
+				inputPoll.push(InputPackage(leftItem1, 0.5f));
+			}
+			else {
+				inputPoll.push(InputPackage(leftItem1, 0));
+				inputPoll.push(InputPackage(leftItem2, 0));
+				inputPoll.push(InputPackage(leftItem3, 0));
+
+				inputPoll.push(InputPackage(leftItem0, 0.5f));
+			}
+
 		}
-		else if (rads >= RAD_3PI_4 && rads < RAD_5PI_4) {
-			inputPoll.push(InputPackage(leftItem0, 0));
-			inputPoll.push(InputPackage(leftItem1, 0));
-			inputPoll.push(InputPackage(leftItem2, 0));
+		if (rightTouchpadTouched) {
+			VRManager::GetInstance().pVRHMD->GetControllerState(VRManager::GetInstance().rightController.index, &state, sizeof(state));
+			rightTPX = state.rAxis[0].x;
+			rightTPY = state.rAxis[0].y;
 
-			inputPoll.push(InputPackage(leftItem3, 0.5f));
-		}
-		else if (rads >= RAD_5PI_4 && rads < RAD_7PI_4) {
-			inputPoll.push(InputPackage(leftItem0, 0));
-			inputPoll.push(InputPackage(leftItem2, 0));
-			inputPoll.push(InputPackage(leftItem3, 0));
+			float rads;
 
-			inputPoll.push(InputPackage(leftItem1, 0.5f));
-		}
-		else {
-			inputPoll.push(InputPackage(leftItem1, 0));
-			inputPoll.push(InputPackage(leftItem2, 0));
-			inputPoll.push(InputPackage(leftItem3, 0));
+			rads = atan2(rightTPX, rightTPY);
+			if (rads < 0) rads += (float)(2 * RAD_PI);
+			if (rads >= RAD_PI_4 && rads < RAD_3PI_4) {
+				inputPoll.push(InputPackage(rightItem0, 0));
+				inputPoll.push(InputPackage(rightItem1, 0));
+				inputPoll.push(InputPackage(rightItem3, 0));
 
-			inputPoll.push(InputPackage(leftItem0, 0.5f));
-		}
+				inputPoll.push(InputPackage(rightItem2, 0.5f));
+			}
+			else if (rads >= RAD_3PI_4 && rads < RAD_5PI_4) {
+				inputPoll.push(InputPackage(rightItem0, 0));
+				inputPoll.push(InputPackage(rightItem1, 0));
+				inputPoll.push(InputPackage(rightItem2, 0));
 
-	}
-	if(rightTouchpadTouched) {
-		VRManager::GetInstance().pVRHMD->GetControllerState(VRManager::GetInstance().rightController.index, &state, sizeof(state));
-		rightTPX = state.rAxis[0].x;
-		rightTPY = state.rAxis[0].y;
+				inputPoll.push(InputPackage(rightItem3, 0.5f));
+			}
+			else if (rads >= RAD_5PI_4 && rads < RAD_7PI_4) {
+				inputPoll.push(InputPackage(rightItem0, 0));
+				inputPoll.push(InputPackage(rightItem2, 0));
+				inputPoll.push(InputPackage(rightItem3, 0));
 
-		float rads;
+				inputPoll.push(InputPackage(rightItem1, 0.5f));
+			}
+			else {
+				inputPoll.push(InputPackage(rightItem1, 0));
+				inputPoll.push(InputPackage(rightItem2, 0));
+				inputPoll.push(InputPackage(rightItem3, 0));
 
-		rads = atan2(rightTPX, rightTPY);
-		if (rads < 0) rads += (float)(2 * RAD_PI);
-		if (rads >= RAD_PI_4 && rads < RAD_3PI_4) {
-			inputPoll.push(InputPackage(rightItem0, 0));
-			inputPoll.push(InputPackage(rightItem1, 0));
-			inputPoll.push(InputPackage(rightItem3, 0));
-
-			inputPoll.push(InputPackage(rightItem2, 0.5f));
-		}
-		else if (rads >= RAD_3PI_4 && rads < RAD_5PI_4) {
-			inputPoll.push(InputPackage(rightItem0, 0));
-			inputPoll.push(InputPackage(rightItem1, 0));
-			inputPoll.push(InputPackage(rightItem2, 0));
-
-			inputPoll.push(InputPackage(rightItem3, 0.5f));
-		}
-		else if (rads >= RAD_5PI_4 && rads < RAD_7PI_4) {
-			inputPoll.push(InputPackage(rightItem0, 0));
-			inputPoll.push(InputPackage(rightItem2, 0));
-			inputPoll.push(InputPackage(rightItem3, 0));
-
-			inputPoll.push(InputPackage(rightItem1, 0.5f));
-		}
-		else {
-			inputPoll.push(InputPackage(rightItem1, 0));
-			inputPoll.push(InputPackage(rightItem2, 0));
-			inputPoll.push(InputPackage(rightItem3, 0));
-
-			inputPoll.push(InputPackage(rightItem0, 0.5f));
+				inputPoll.push(InputPackage(rightItem0, 0.5f));
+			}
 		}
 	}
 
@@ -208,8 +210,7 @@ void InputManager::VRInput::CheckForInput() {
 				switch(event.data.controller.button) {
 					case vr::k_EButton_ApplicationMenu:
 						if(event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
-							//TODO::Move this to controller logic
-							MessageEvents::SendMessage(EVENT_PauseInputDetected, EventMessageBase());
+							//MessageEvents::SendMessage(EVENT_PauseInputDetected, EventMessageBase());
 						}
 						else {
 							input = teleportDown;
@@ -280,7 +281,8 @@ void InputManager::VRInput::CheckForInput() {
 			{
 				switch(event.data.controller.button) {
 					case vr::k_EButton_ApplicationMenu:
-						if(event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
+						if (event.trackedDeviceIndex == VRManager::GetInstance().leftController.index) {
+							MessageEvents::SendMessage(EVENT_PauseInputDetected, EventMessageBase());
 						}
 						else {
 							input = teleportDown;
@@ -347,7 +349,11 @@ void InputManager::VRInput::CheckForInput() {
 
 		if(keyStates[input] != amount > 0.0f ? 1 : 0) {
 			keyStates[input] = amount > 0.0f ? 1 : 0;
-			if(keyStates[input] == 1) godMode.CheckNewInput(input);
+			if (keyStates[input] == 1) {
+				godMode.CheckNewInput(input);
+				freeMoney.CheckNewInput(input);
+				smite.CheckNewInput(input);
+			}
 			inputPoll.push(InputPackage(input, amount));
 		}
 	}
@@ -369,22 +375,22 @@ InputManager::KeyboardInput::KeyboardInput() {
 	MapKey(leftItem0, '1');
 	MapKey(leftItem1, '2');
 	MapKey(leftItem2, '3');
-	MapKey(leftItem3, '4');
-	MapKey(rightItem0, '5');
-	MapKey(rightItem1, '6');
-	MapKey(rightItem2, '7');
-	MapKey(rightItem3, '8');
+	MapKey(rightItem0, '4');
+	MapKey(rightItem1, '5');
+	MapKey(rightItem2, '6');
+	MapKey(rightItem3, '7');
 
 	MapKey(TestInputX, 'X');
 	MapKey(TestInputU, 'U');
 	MapKey(TestInputI, 'I');
+	MapKey(TestInputR, 'R');
 	MapKey(TestInputO, 'O');
 	MapKey(TestInputJ, 'J');
 	MapKey(TestInputK, 'K');
 	MapKey(Crouch, 'C');
 	MapKey(TestInputL, 'L');
-	MapKey(releaseKey, VK_MENU); // Alt Key
-	MapKey(Sprint, VK_SHIFT); // Alt Key
+	//MapKey(releaseKey, VK_MENU); // Alt Key
+	MapKey(Sprint, VK_SHIFT);
 
 	GetWindowRect(GetActiveWindow(), &winRect);
 	cursorX = ((winRect.right - winRect.left) * 0.5f);
@@ -455,11 +461,11 @@ void InputManager::KeyboardInput::CheckForInput() {
 				break;
 			case KeyboardDown:
 				switch(input) {
-					case pause:
-					{
-						MessageEvents::SendMessage(EVENT_PauseInputDetected, EventMessageBase());
-						break;
-					}
+					//case pause:
+					//{
+					//	MessageEvents::SendMessage(EVENT_PauseInputDetected, EventMessageBase());
+					//	break;
+					//}
 					case releaseKey:
 					{
 
@@ -486,6 +492,13 @@ void InputManager::KeyboardInput::CheckForInput() {
 				amount = 1.0f;
 				break;
 			case KeyboardUp:
+				switch (input) {
+					case pause:
+						{
+							MessageEvents::SendMessage(EVENT_PauseInputDetected, EventMessageBase());
+							break;
+						}
+				}
 				/*switch(input) {
 					case releaseKey:
 					{
@@ -505,11 +518,16 @@ void InputManager::KeyboardInput::CheckForInput() {
 
 		if(keyStates[input] != (amount > 0.0f ? 1 : 0)) {
 			keyStates[input] = amount > 0.0f ? 1 : 0;
-			if (keyStates[input] == 1) godMode.CheckNewInput(input);
+			if (keyStates[input] == 1) {
+				godMode.CheckNewInput(input);
+				freeMoney.CheckNewInput(input);
+				smite.CheckNewInput(input);
+			}
 			inputPoll.push(InputPackage(input, amount));
 		}
 		inputQueue.pop();
 	}
+	//Console::WriteLine << smite.GetPosition();
 }
 bool InputManager::KeyboardInput::MapKey(Control control, uint64_t key) {
 	if(keyBind.find(key) == keyBind.end()) {
@@ -569,4 +587,6 @@ void InputManager::SetInputType(InputType type) {
 
 
 //Cheats
-CheatCode InputManager::godMode(CheatCode::CodePreset::Konami, [=]() {MessageEvents::SendMessage(EVENT_Input, InputMessage(Control::GodMode, 1)); });
+CheatCode InputManager::godMode(CheatCode::CodePreset::Konami, [=]() {MessageEvents::SendMessage(EVENT_God, EventMessageBase()); MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::PLAY_SFX_GUN_COOLDOWN_FUNNY)); });
+CheatCode InputManager::freeMoney(std::vector<Control>({ Control::rightItem1, Control::rightItem0, Control::rightItem2, Control::rightItem0, Control::rightItem1 }), [=]() {MessageEvents::SendMessage(EVENT_FreeMoney, EventMessageBase()); MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::PLAY_SFX_GUN_COOLDOWN_FUNNY)); });
+CheatCode InputManager::smite(std::vector<Control>({ Control::rightItem0, Control::rightItem0, Control::rightItem0, Control::rightItem3, Control::rightItem3 }), [=]() {MessageEvents::SendMessage(EVENT_Smite, EventMessageBase()); });

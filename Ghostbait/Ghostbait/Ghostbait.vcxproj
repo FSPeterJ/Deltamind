@@ -97,7 +97,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>openvr\headers;Shaders;Resource Files;Source Files;Header Files;;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\Visual Leak Detector\include;openvr\headers;Shaders;Resource Files;Source Files;Header Files;;Dependencies\Wwise\include;Dependencies\Wwise\SoundEngine\Win32</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\GhostMind;C:\Program Files %28x86%29\Visual Leak Detector\include;openvr\headers;Shaders;Resource Files;Source Files;Header Files;;Dependencies\Wwise\include;Dependencies\Wwise\SoundEngine\Win32;..\Ghostbait\GhostMind;..\..\GhostMind</AdditionalIncludeDirectories>
       <AdditionalUsingDirectories>d3dcompiler.h;directxmath.h;d3d11_1.h;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
       <EnablePREfast>false</EnablePREfast>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -105,7 +105,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;openvr_api.lib;CommunicationCentral.lib;AkFlangerFX.lib;AkTremoloFX.lib;AkMemoryMgr.lib;AkSineSource.lib;AkSynthOneSource.lib;AkStereoDelayFX.lib;AkGuitarDistortionFX.lib;AkMeterFX.lib;AkSoundEngine.lib;AkSilenceSource.lib;AkSoundSeedImpactFX.lib;AkRoomVerbFX.lib;AkSoundSeedWooshSource.lib;AkSpatialAudio.lib;AkSoundSeedWindSource.lib;AkDelayFX.lib;AkCompressorFX.lib;AkMotionGeneratorSource.lib;AkMusicEngine.lib;AkTimeStretchFX.lib;AkPitchShifterFX.lib;AkToneSource.lib;AkGainFX.lib;AkVorbisDecoder.lib;AkPeakLimiterFX.lib;AkParametricEQFX.lib;AkRecorderFX.lib;AkMatrixReverbFX.lib;AkMotionSink.lib;AkStreamMgr.lib;AkHarmonizerFX.lib;AkAudioInputSource.lib;AkExpanderFX.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;openvr_api.lib;CommunicationCentral.lib;AkFlangerFX.lib;AkTremoloFX.lib;AkMemoryMgr.lib;AkSineSource.lib;AkSynthOneSource.lib;AkStereoDelayFX.lib;AkGuitarDistortionFX.lib;AkMeterFX.lib;AkSoundEngine.lib;AkSilenceSource.lib;AkSoundSeedImpactFX.lib;AkRoomVerbFX.lib;AkSoundSeedWooshSource.lib;AkSpatialAudio.lib;AkSoundSeedWindSource.lib;AkDelayFX.lib;AkCompressorFX.lib;AkMotionGeneratorSource.lib;AkMusicEngine.lib;AkTimeStretchFX.lib;AkPitchShifterFX.lib;AkToneSource.lib;AkGainFX.lib;AkVorbisDecoder.lib;AkPeakLimiterFX.lib;AkParametricEQFX.lib;AkRecorderFX.lib;AkMatrixReverbFX.lib;AkMotionSink.lib;AkStreamMgr.lib;AkHarmonizerFX.lib;AkAudioInputSource.lib;AkExpanderFX.lib;%(AdditionalDependencies);..\Omiracron\x64\Debug\Omiracron.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\Ghostbait\Dependencies\Wwise\LibDebugx86\lib;..\Ghostbait\openvr\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
@@ -120,20 +120,23 @@
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>openvr\headers;Shaders;Resource Files;Source Files;Header Files;E:\Program Files (x86)\Visual Leak Detector\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories>Dependencies\Wwise\Samples\SoundEngine\Win32;Dependencies\Wwise\Samples\SoundEngine\Common;C:\Program Files %28x86%29\Visual Leak Detector\include;openvr\headers;Shaders;Resource Files;Source Files;Header Files;E:\Program Files (x86)\Visual Leak Detector\include;E:\Program Files (x86)\Visual Leak Detector\bin\Win64;C:\Program Files %28x86%29\Visual Leak Detector\bin\Win64;Dependencies\Wwise\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\GhostbaitCommon;Dependencies\Wwise\Samples\SoundEngine\Win32;Dependencies\Wwise\Samples\SoundEngine\Common;C:\Program Files %28x86%29\Visual Leak Detector\include;openvr\headers;Shaders;Resource Files;Source Files;Header Files;E:\Program Files (x86)\Visual Leak Detector\include;E:\Program Files (x86)\Visual Leak Detector\bin\Win64;C:\Program Files %28x86%29\Visual Leak Detector\bin\Win64;Dependencies\Wwise\include;;..\Omiracon\Header Files\;..\Omiracon\Source Files\;..\Omiracon\Neural\;..\Omiracon\Genetics\</AdditionalIncludeDirectories>
       <AdditionalUsingDirectories>d3dcompiler.h;directxmath.h;d3d11_1.h;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
       <EnablePREfast>false</EnablePREfast>
       <TreatWarningAsError>true</TreatWarningAsError>
       <BrowseInformation>false</BrowseInformation>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <UndefinePreprocessorDefinitions>SendMessage</UndefinePreprocessorDefinitions>
+      <UndefineAllPreprocessorDefinitions>false</UndefineAllPreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;openvr_api.lib;CommunicationCentral.lib;AkFlangerFX.lib;AkTremoloFX.lib;AkMemoryMgr.lib;AkSineSource.lib;AkSynthOneSource.lib;AkStereoDelayFX.lib;AkGuitarDistortionFX.lib;AkMeterFX.lib;AkSoundEngine.lib;AkSilenceSource.lib;AkSoundSeedImpactFX.lib;AkRoomVerbFX.lib;AkSoundSeedWooshSource.lib;AkSpatialAudio.lib;AkSoundSeedWindSource.lib;AkDelayFX.lib;AkCompressorFX.lib;AkMotionGeneratorSource.lib;AkMusicEngine.lib;AkTimeStretchFX.lib;AkPitchShifterFX.lib;AkToneSource.lib;AkGainFX.lib;AkVorbisDecoder.lib;AkPeakLimiterFX.lib;AkParametricEQFX.lib;AkRecorderFX.lib;AkMatrixReverbFX.lib;AkMotionSink.lib;AkStreamMgr.lib;AkHarmonizerFX.lib;AkAudioInputSource.lib;AkExpanderFX.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;openvr_api.lib;CommunicationCentral.lib;AkFlangerFX.lib;AkTremoloFX.lib;AkMemoryMgr.lib;AkSineSource.lib;AkSynthOneSource.lib;AkStereoDelayFX.lib;AkGuitarDistortionFX.lib;AkMeterFX.lib;AkSoundEngine.lib;AkSilenceSource.lib;AkSoundSeedImpactFX.lib;AkRoomVerbFX.lib;AkSoundSeedWooshSource.lib;AkSpatialAudio.lib;AkSoundSeedWindSource.lib;AkDelayFX.lib;AkCompressorFX.lib;AkMotionGeneratorSource.lib;AkMusicEngine.lib;AkTimeStretchFX.lib;AkPitchShifterFX.lib;AkToneSource.lib;AkGainFX.lib;AkVorbisDecoder.lib;AkPeakLimiterFX.lib;AkParametricEQFX.lib;AkRecorderFX.lib;AkMatrixReverbFX.lib;AkMotionSink.lib;AkStreamMgr.lib;AkHarmonizerFX.lib;AkAudioInputSource.lib;AkExpanderFX.lib;python35.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\Ghostbait\Dependencies\Wwise\LibDebug\lib;..\Ghostbait\openvr\lib\win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
-      <PreserveSbr>true</PreserveSbr>
+      <PreserveSbr>false</PreserveSbr>
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -146,7 +149,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>openvr\headers;Shaders;Resource Files;Source Files;Header Files;;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\Visual Leak Detector\include;openvr\headers;Shaders;Resource Files;Source Files;Header Files;;Dependencies\Wwise\include;Dependencies\Wwise\SoundEngine\Win32</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\GhostMind;C:\Program Files %28x86%29\Visual Leak Detector\include;openvr\headers;Shaders;Resource Files;Source Files;Header Files;;Dependencies\Wwise\include;Dependencies\Wwise\SoundEngine\Win32;..\Ghostbait\GhostMind;..\..\GhostMind</AdditionalIncludeDirectories>
       <AdditionalUsingDirectories>d3dcompiler.h;directxmath.h;d3d11_1.h;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
       <EnablePREfast>false</EnablePREfast>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -156,7 +159,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;openvr_api.lib;AkFlangerFX.lib;AkTremoloFX.lib;AkMemoryMgr.lib;AkSineSource.lib;AkSynthOneSource.lib;AkStereoDelayFX.lib;AkGuitarDistortionFX.lib;AkMeterFX.lib;AkSoundEngine.lib;AkSilenceSource.lib;AkSoundSeedImpactFX.lib;AkRoomVerbFX.lib;AkSoundSeedWooshSource.lib;AkSpatialAudio.lib;AkSoundSeedWindSource.lib;AkDelayFX.lib;AkCompressorFX.lib;AkMotionGeneratorSource.lib;AkMusicEngine.lib;AkTimeStretchFX.lib;AkPitchShifterFX.lib;AkToneSource.lib;AkGainFX.lib;AkVorbisDecoder.lib;AkPeakLimiterFX.lib;AkParametricEQFX.lib;AkRecorderFX.lib;AkMatrixReverbFX.lib;AkMotionSink.lib;AkStreamMgr.lib;AkHarmonizerFX.lib;AkAudioInputSource.lib;AkExpanderFX.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;openvr_api.lib;AkFlangerFX.lib;AkTremoloFX.lib;AkMemoryMgr.lib;AkSineSource.lib;AkSynthOneSource.lib;AkStereoDelayFX.lib;AkGuitarDistortionFX.lib;AkMeterFX.lib;AkSoundEngine.lib;AkSilenceSource.lib;AkSoundSeedImpactFX.lib;AkRoomVerbFX.lib;AkSoundSeedWooshSource.lib;AkSpatialAudio.lib;AkSoundSeedWindSource.lib;AkDelayFX.lib;AkCompressorFX.lib;AkMotionGeneratorSource.lib;AkMusicEngine.lib;AkTimeStretchFX.lib;AkPitchShifterFX.lib;AkToneSource.lib;AkGainFX.lib;AkVorbisDecoder.lib;AkPeakLimiterFX.lib;AkParametricEQFX.lib;AkRecorderFX.lib;AkMatrixReverbFX.lib;AkMotionSink.lib;AkStreamMgr.lib;AkHarmonizerFX.lib;AkAudioInputSource.lib;AkExpanderFX.lib;dxguid.lib;%(AdditionalDependencies);..\Omiracron\x64\Debug\Omiracron.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\Ghostbait\Dependencies\Wwise\LibReleasex86\lib;..\Ghostbait\openvr\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
@@ -173,10 +176,15 @@
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>openvr\headers;Shaders;Resource Files;Source Files;Header Files;;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories>Dependencies\Wwise\Samples\SoundEngine\Win32;Dependencies\Wwise\Samples\SoundEngine\Common;C:\Program Files %28x86%29\Visual Leak Detector\include;openvr\headers;Shaders;Resource Files;Source Files;Header Files;E:\Program Files (x86)\Visual Leak Detector\include;E:\Program Files (x86)\Visual Leak Detector\bin\Win64;C:\Program Files %28x86%29\Visual Leak Detector\bin\Win64;Dependencies\Wwise\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\GhostbaitCommon;Dependencies\Wwise\Samples\SoundEngine\Win32;Dependencies\Wwise\Samples\SoundEngine\Common;C:\Program Files %28x86%29\Visual Leak Detector\include;openvr\headers;Shaders;Resource Files;Source Files;Header Files;E:\Program Files (x86)\Visual Leak Detector\include;E:\Program Files (x86)\Visual Leak Detector\bin\Win64;C:\Program Files %28x86%29\Visual Leak Detector\bin\Win64;Dependencies\Wwise\include;..\Omiracon\Header Files\;..\Omiracon\Source Files\;..\Omiracon\Neural\;..\Omiracon\Genetics\;..\Omiracon\Header Files\;..\Omiracon\Source Files\;..\Omiracon\Neural\;..\Omiracon\Genetics\</AdditionalIncludeDirectories>
       <AdditionalUsingDirectories>d3dcompiler.h;directxmath.h;d3d11_1.h;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
       <EnablePREfast>false</EnablePREfast>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <MinimalRebuild>true</MinimalRebuild>
+      <UndefinePreprocessorDefinitions>SendMessage</UndefinePreprocessorDefinitions>
+      <UndefineAllPreprocessorDefinitions>false</UndefineAllPreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -187,7 +195,7 @@
       <AdditionalLibraryDirectories>..\Ghostbait\Dependencies\Wwise\LibRelease\lib;..\Ghostbait\openvr\lib\win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
-      <PreserveSbr>true</PreserveSbr>
+      <PreserveSbr>false</PreserveSbr>
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -201,27 +209,33 @@
     <ClInclude Include="Header Files\Animator.h" />
     <ClInclude Include="Header Files\AnimatorManager.h" />
     <ClInclude Include="Header Files\AnimatorStructs.h" />
+    <ClInclude Include="Header Files\AntColony.h" />
     <ClInclude Include="Header Files\AStarEnemy.h" />
     <ClInclude Include="Header Files\AudioManager.h" />
-    <ClInclude Include="Header Files\BinaryFileIO.h" />
     <ClInclude Include="Header Files\BuildTool.h" />
     <ClInclude Include="Header Files\Camera.h" />
     <ClInclude Include="Header Files\CheatCode.h" />
     <ClInclude Include="Header Files\ComponentBase.h" />
-    <ClInclude Include="Header Files\Console.h" />
     <ClInclude Include="Header Files\Controlable.h" />
     <ClInclude Include="Header Files\ControllerObject.h" />
+    <ClInclude Include="Header Files\ControllerPillar.h" />
     <ClInclude Include="Header Files\Core.h" />
+    <ClInclude Include="Header Files\CoreShield.h" />
     <ClInclude Include="Header Files\DebugRenderer.h" />
     <ClInclude Include="Header Files\Delegate.h" />
+    <ClInclude Include="Header Files\DisplayBoard.h" />
+    <ClInclude Include="Header Files\DStar.h" />
+    <ClInclude Include="Header Files\DStarEnemy.h" />
     <ClInclude Include="Header Files\EnemyBase.h" />
     <ClInclude Include="Header Files\EngineStructure.h" />
     <ClInclude Include="Header Files\Examples.h" />
     <ClInclude Include="Header Files\Font.h" />
     <ClInclude Include="Header Files\Game.h" />
+    <ClInclude Include="Header Files\GameData.h" />
     <ClInclude Include="Header Files\GameObject.h" />
     <ClInclude Include="Header Files\GameObjectComponent.h" />
     <ClInclude Include="Header Files\GhostTime.h" />
+    <ClInclude Include="Header Files\Ground.h" />
     <ClInclude Include="Header Files\Gun.h" />
     <ClInclude Include="Header Files\Health.h" />
     <ClInclude Include="Header Files\Heuristics.h" />
@@ -231,6 +245,7 @@
     <ClInclude Include="Header Files\HexGrid.h" />
     <ClInclude Include="Header Files\HexTileEqualityCheck.h" />
     <ClInclude Include="Header Files\HexTileVector.h" />
+    <ClInclude Include="Header Files\HUD.h" />
     <ClInclude Include="Header Files\InputManager.h" />
     <ClInclude Include="Header Files\IComponentManager.h" />
     <ClInclude Include="Header Files\Item.h" />
@@ -245,12 +260,17 @@
     <ClInclude Include="Header Files\MeshManager.h" />
     <ClInclude Include="Header Files\Messagebox.h" />
     <ClInclude Include="Header Files\MessageStructs.h" />
+    <ClInclude Include="Header Files\MTDSLEnemy.h" />
+    <ClInclude Include="Header Files\NeuralEnemy.h" />
+    <ClInclude Include="Header Files\Monitor.h" />
     <ClInclude Include="Header Files\Object.h" />
     <ClInclude Include="Header Files\ObjectFactory.h" />
     <ClInclude Include="Header Files\ObjectManager.h" />
+    <ClInclude Include="Header Files\OptionsManager.h" />
     <ClInclude Include="Header Files\ParticleManager.h" />
     <ClInclude Include="Header Files\ParticleTextureManager.h" />
     <ClInclude Include="Header Files\PathPlanner.h" />
+    <ClInclude Include="Header Files\PDA.h" />
     <ClInclude Include="Header Files\PhysicsComponent.h" />
     <ClInclude Include="Header Files\PhysicsExtension.h" />
     <ClInclude Include="Header Files\PhysicsManager.h" />
@@ -263,13 +283,15 @@
     <ClInclude Include="Header Files\Renderer.h" />
     <ClInclude Include="Header Files\RigidBody.h" />
     <ClInclude Include="Header Files\SceneManager.h" />
+    <ClInclude Include="Header Files\ScrollingUVManager.h" />
+    <ClInclude Include="Header Files\ForceField.h" />
     <ClInclude Include="Header Files\SpatialPartition.h" />
     <ClInclude Include="Header Files\Spawner.h" />
     <ClInclude Include="Header Files\StdHeader.h" />
+    <ClInclude Include="Header Files\TargetEnemy.h" />
     <ClInclude Include="Header Files\targetver.h" />
     <ClInclude Include="Header Files\TestObject.h" />
     <ClInclude Include="Header Files\TextManager.h" />
-    <ClInclude Include="Header Files\ThreadPool.h" />
     <ClInclude Include="Header Files\Transform.h" />
     <ClInclude Include="Header Files\TraversalResult.h" />
     <ClInclude Include="Header Files\Turret.h" />
@@ -292,27 +314,35 @@
     <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Common\AkFilePackageLUT.cpp" />
     <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Win32\AkDefaultIOHookBlocking.cpp" />
     <ClCompile Include="Dependencies\XML_Library\irrXML.cpp" />
+    <ClCompile Include="Header Files\DStarEnemy.cpp" />
     <ClCompile Include="Source Files\AABB.cpp" />
     <ClCompile Include="Source Files\AnimationManager.cpp" />
     <ClCompile Include="Source Files\Animator.cpp" />
     <ClCompile Include="Source Files\AnimatorManager.cpp" />
+    <ClCompile Include="Source Files\AntColony.cpp" />
     <ClCompile Include="Source Files\AStarEnemy.cpp" />
     <ClCompile Include="Source Files\AudioManager.cpp" />
     <ClCompile Include="Source Files\BuildTool.cpp" />
     <ClCompile Include="Source Files\Camera.cpp" />
     <ClCompile Include="Source Files\CheatCode.cpp" />
-    <ClCompile Include="Source Files\Console.cpp" />
     <ClCompile Include="Source Files\Controlable.cpp" />
     <ClCompile Include="Source Files\ControllerObject.cpp" />
+    <ClCompile Include="Source Files\ControllerPillar.cpp" />
     <ClCompile Include="Source Files\Core.cpp" />
+    <ClCompile Include="Source Files\CoreShield.cpp" />
     <ClCompile Include="Source Files\DebugRenderer.cpp" />
+    <ClCompile Include="Source Files\DisplayBoard.cpp" />
+    <ClCompile Include="Source Files\DStar.cpp" />
     <ClCompile Include="Source Files\EnemyBase.cpp" />
     <ClCompile Include="Source Files\EngineStructure.cpp" />
     <ClCompile Include="Source Files\Font.cpp" />
     <ClCompile Include="Source Files\Game.cpp" />
+    <ClCompile Include="Source Files\GameData.cpp" />
     <ClCompile Include="Source Files\GameObject.cpp" />
     <ClCompile Include="Source Files\GhostTime.cpp" />
-    <ClCompile Include="Source Files\Gun.cpp" />
+    <ClCompile Include="Source Files\Gun.cpp">
+      <ShowIncludes Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ShowIncludes>
+    </ClCompile>
     <ClCompile Include="Source Files\Health.cpp" />
     <ClCompile Include="Source Files\Heuristics.cpp" />
     <ClCompile Include="Source Files\HexagonalGridLayout.cpp" />
@@ -321,6 +351,7 @@
     <ClCompile Include="Source Files\HexGrid.cpp" />
     <ClCompile Include="Source Files\HexTileEqualityCheck.cpp" />
     <ClCompile Include="Source Files\HexTileVector.cpp" />
+    <ClCompile Include="Source Files\HUD.cpp" />
     <ClCompile Include="Source Files\InputManager.cpp" />
     <ClCompile Include="Source Files\Item.cpp" />
     <ClCompile Include="Source Files\Light.cpp" />
@@ -334,12 +365,16 @@
     <ClCompile Include="Source Files\MenuControllerItem.cpp" />
     <ClCompile Include="Source Files\MeshManager.cpp" />
     <ClCompile Include="Source Files\MessageEvents.cpp" />
+    <ClCompile Include="Source Files\MTDSLEnemy.cpp" />
+    <ClCompile Include="Source Files\Monitor.cpp" />
     <ClCompile Include="Source Files\Object.cpp" />
     <ClCompile Include="Source Files\ObjectFactory.cpp" />
     <ClCompile Include="Source Files\ObjectManager.cpp" />
+    <ClCompile Include="Source Files\OptionsManager.cpp" />
     <ClCompile Include="Source Files\ParticleManager.cpp" />
     <ClCompile Include="Source Files\ParticleTextureManager.cpp" />
     <ClCompile Include="Source Files\PathPlanner.cpp" />
+    <ClCompile Include="Source Files\PDA.cpp" />
     <ClCompile Include="Source Files\PhysicsComponent.cpp" />
     <ClCompile Include="Source Files\PhysicsExtension.cpp" />
     <ClCompile Include="Source Files\PhysicsManager.cpp" />
@@ -352,10 +387,12 @@
     <ClCompile Include="Source Files\Renderer.cpp" />
     <ClCompile Include="Source Files\RigidBody.cpp" />
     <ClCompile Include="Source Files\SceneManager.cpp" />
+    <ClCompile Include="Source Files\ScrollingUVManager.cpp" />
+    <ClCompile Include="Source Files\ForceField.cpp" />
     <ClCompile Include="Source Files\SpatialPartition.cpp" />
     <ClCompile Include="Source Files\Spawner.cpp" />
+    <ClCompile Include="Source Files\TargetEnemy.cpp" />
     <ClCompile Include="Source Files\TextManager.cpp" />
-    <ClCompile Include="Source Files\ThreadPool.cpp" />
     <ClCompile Include="Source Files\Transform.cpp" />
     <ClCompile Include="Source Files\Turret.cpp" />
     <ClCompile Include="Source Files\TypeMapping.cpp" />
@@ -373,6 +410,30 @@
     <ResourceCompile Include="Resource Files\Ghostbait.rc" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="BlurPixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).cso</ObjectFileOutput>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="BrightnessPixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
     <FxCompile Include="DeferredTargetPixelShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
@@ -545,6 +606,16 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
     </FxCompile>
+    <FxCompile Include="TexToQuadPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
     <FxCompile Include="TextVertexShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
@@ -555,6 +626,14 @@
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).cso</ObjectFileOutput>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GhostbaitCommon\GhostbaitCommon.vcxproj">
+      <Project>{7dc2f324-6d8f-4b01-8687-80d74649226c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Omiracon\Omiracon.vcxproj">
+      <Project>{5d60a83f-baf7-47e7-bf18-be05750eeb8d}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

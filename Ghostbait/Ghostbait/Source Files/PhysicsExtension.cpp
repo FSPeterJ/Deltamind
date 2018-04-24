@@ -8,20 +8,26 @@
 #include "MessageStructs.h"
 #include "ObjectFactory.h"
 #include "Animator.h"
+#include "Material.h"
+using namespace Common;
 
 #define ArcPoints 20
 
-void CastObject::Create(bool renderToFront) {
+void CastObject::Create(bool renderToFront, const char* varientColor) {
 	if (!object) {
 		MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<GameObject>(ObjectFactory::CreatePrefab(&std::string(fileName)), { 0, 0, 0 }, &object));
 		object->PersistOnReset();
+		object->ToggleFlag(GAMEOBJECT_PUBLIC_FLAGS::UNLIT);
+		mat = object->GetComponent<Material>();
+		anim = object->GetComponent<Animator>();
 		backup = object;
 		if (renderToFront) {
-			MessageEvents::SendMessage(EVENT_Rendertofront, StandardObjectMessage(object)); 
+			object->UnRender();
+			object->RenderToFront();
 		}
-		if (object->GetComponent<Animator>()) {
+		if (anim) {
 			for (int i = 0; i < ArcPoints; ++i) {
-				DirectX::XMFLOAT4X4 temp = object->GetComponent<Animator>()->GetJointMatrix(i);
+				DirectX::XMFLOAT4X4 temp = anim->GetJointMatrix(i);
 				temp._11 *= -1;
 				temp._12 *= -1;
 				temp._13 *= -1;
@@ -29,15 +35,20 @@ void CastObject::Create(bool renderToFront) {
 				temp._31 *= -1;
 				temp._32 *= -1;
 				temp._33 *= -1;
-				object->GetComponent<Animator>()->SetJointMatrix(i, temp);
+				anim->SetJointMatrix(i, temp);
 			}
 		}
+	}
+	if (varientColor != "?") {
+		object->SwapComponentVarient<Material>(varientColor);
 	}
 }
 void CastObject::Destroy() {
 	if (object) {
-		//MessageEvents::SendQueueMessage(EVENT_Late, [=] { 
-			backup->Destroy(); backup = nullptr;// });
+		backup->Destroy(); 
+		backup = nullptr;
+		mat = nullptr;
+		anim = nullptr;
 		object = nullptr;
 	}
 }
@@ -95,8 +106,7 @@ namespace {
 				endMat._42 -= 1;
 				tran.LookAt(DirectX::XMFLOAT3(endMat.m[3]));
 			}
-			arc->Get()->GetComponent<Animator>()->SetJointMatrix(i, tran.GetMatrix());
-			DebugRenderer::DrawAxes(arc->Get()->GetComponent<Animator>()->GetJointMatrix(i), 0.25f);
+			arc->GetAnimator()->SetJointMatrix(i, tran.GetMatrix());
 		}
 	}
 	void DrawRay(Transform* transform, const DirectX::XMFLOAT3& end, CastObject* ray) {
@@ -151,7 +161,7 @@ bool Raycast(Transform* transform, DirectX::XMFLOAT3& direction, DirectX::XMFLOA
 	return success;
 }
 
-bool ArcCast(Transform* transform, DirectX::XMFLOAT3* outPos, CastObject* arc, float maxDistance, float minAngle, float maxAngle, float castHeight, const char* tag) {
+bool ArcCast(Transform* transform, DirectX::XMFLOAT3* outPos, GameObject** colObject, CastObject* arc, float maxDistance, float minAngle, float maxAngle, float castHeight, const char* tag) {
 	DirectX::XMMATRIX controllerMat = DirectX::XMLoadFloat4x4(&transform->GetMatrix());
 	DirectX::XMVECTOR planeNormalVec = DirectX::XMVectorSet(0, 1, 0, 0);
 	DirectX::XMVECTOR forwardVec = DirectX::XMVector3Normalize(controllerMat.r[2]);
@@ -197,7 +207,7 @@ bool ArcCast(Transform* transform, DirectX::XMFLOAT3* outPos, CastObject* arc, f
 		DirectX::XMStoreFloat3(&rayDirection, castDirection);
 		Transform tran;
 		tran.SetPosition(rayStart);
-		if (Raycast(&tran, rayDirection, outPos, nullptr, nullptr, 100, tag)) {
+		if (Raycast(&tran, rayDirection, outPos, colObject, nullptr, 100, tag)) {
 			if (arc && arc->Get()) DrawArc(transform, *outPos, arc);
 			return true;
 		}

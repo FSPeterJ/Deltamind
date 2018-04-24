@@ -10,7 +10,7 @@ MenuControllerItem::MenuControllerItem() {
 
 void MenuControllerItem::UpdateRay() {
 	GameObject* temp = nullptr;
-	if (Raycast(&transform, DirectX::XMFLOAT3(transform.GetMatrix()._31, transform.GetMatrix()._32, transform.GetMatrix()._33), nullptr, (&temp), &ray, 4)) {
+	if (Raycast(source, DirectX::XMFLOAT3(source->GetMatrix()._31, source->GetMatrix()._32, source->GetMatrix()._33), nullptr, (&temp), &ray, 10)) {
 		MenuOption* newMenuItem = dynamic_cast<MenuOption*>(temp);
 		//Did we collide with an option?
 		if (newMenuItem) {
@@ -33,21 +33,14 @@ void MenuControllerItem::Activate() {
 	}
 }
 
-void MenuControllerItem::Render(bool render) {
-	if (render == isRendered) return;
-	
-	if (render) {
-		MessageEvents::SendMessage(EVENT_Addrender, StandardObjectMessage(this));
-		MessageEvents::SendMessage(EVENT_Rendertofront, StandardObjectMessage(this));
-		isRendered = true;
-		ray.Create(true);
-	}
-	else {
-		MessageEvents::SendMessage(EVENT_Unrender, StandardObjectMessage(this));
-		isRendered = false;
-		ray.Destroy();
-	}
-	Item::Render(render);
+void MenuControllerItem::Render() {
+	GameObject::RenderToFront();
+	ray.Create(true);
+}
+
+void MenuControllerItem::UnRender() {
+	GameObject::UnRender();
+	ray.Destroy();
 }
 
 

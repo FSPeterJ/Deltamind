@@ -30,23 +30,32 @@ private:
 	DirectX::XMFLOAT4X4 leftEyeToHead;
 	DirectX::XMFLOAT4X4 rightEyeToHead;
 
+	DirectX::XMFLOAT4X4 cRotation;
+	DirectX::XMFLOAT4 wColumn = DirectX::XMFLOAT4(0, 0, 0, 1);
+
 	DirectX::XMFLOAT4X4 VRProjectionToDirectXMatrix(vr::EVREye eye, float nearPlane, float farPlane);
-	DirectX::XMFLOAT4X4 VRMatrix34ToDirectXMatrix44(vr::HmdMatrix34_t m);
-	DirectX::XMFLOAT4X4 VRMatrix44ToDirectXMatrix44(vr::HmdMatrix44_t m);
+	DirectX::XMFLOAT4X4 VRMatrix34ToXMFLOAT4X4(vr::HmdMatrix34_t& m);
+	DirectX::XMFLOAT4X4 VRMatrix44ToXMFLOAT4X4(vr::HmdMatrix44_t& m);
+	DirectX::XMMATRIX VRMatrix34ToXMMATRIX(vr::HmdMatrix34_t& m);
+	DirectX::XMMATRIX VRMatrix44ToXMMATRIX(vr::HmdMatrix44_t& m);
 
 	vr::IVRRenderModels* pVRRenderModel;
 	vr::IVRCompositor* pVRCompositor;
+	vr::IVRSystem* pVRSystem;
 
 	void WriteMatrix(DirectX::XMFLOAT4X4 m, int frame);
 
 	void UpdateVRPoses();
 	void Shutdown();
 
+	vr::TrackedDevicePose_t trackedDevicePos[vr::k_unMaxTrackedDeviceCount];
+
 	DirectX::XMFLOAT4X4 roomPos = FLOAT4X4Identity;
-	DirectX::XMFLOAT4X4 hmdPos = FLOAT4X4Identity;
 	DirectX::XMFLOAT4X4 playerPos = FLOAT4X4Identity;
 public:
 	static VRManager& GetInstance();
+	
+	long long duration = 0;
 
 	struct VRController {
 		int index;
@@ -67,14 +76,13 @@ public:
 
 	void Vibrate(ControllerHand ctrl, unsigned short durationMs);
 	void SetControllers(ControllerObject* left, ControllerObject* right);
-	void SetBuildItems(std::vector<unsigned> prefabIDs);
 
 	void Teleport();
 	
 	void GetVRMatrices(DirectX::XMFLOAT4X4* leftProj, DirectX::XMFLOAT4X4* rightProj, DirectX::XMFLOAT4X4* leftView, DirectX::XMFLOAT4X4* rightView);
 	void SendToHMD(void* leftTexture, void* rightTexture);
 	DirectX::XMFLOAT4X4& GetPlayerPosition();
-	DirectX::XMFLOAT4X4 GetRoomPosition();
+	DirectX::XMFLOAT4X4& GetRoomPosition();
 
 	void MovePlayer(DirectX::XMFLOAT3 newPos, bool floorClamp = true);
 };

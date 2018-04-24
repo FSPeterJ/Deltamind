@@ -1,6 +1,8 @@
 #include "SpatialPartition.h"
 #include "PhysicsComponent.h"
 #include "Console.h"
+#include <thread>
+using namespace Common;
 
 SpatialPartition::Unit::Unit() {
 }
@@ -49,17 +51,19 @@ bool SpatialPartition::Unit::RemoveComponent(PhysicsComponent* comp) {
 SpatialPartition::SpatialPartition() {
 	bucketCount = 1024;
 	unitSize = PARTITION_UNIT_SIZE;
+	toTest.reserve(1024);
 }
 SpatialPartition::SpatialPartition(uint32_t _bucketCount, float _unitSize) : bucketCount(_bucketCount), unitSize(_unitSize) {
+	toTest.reserve(1024);
 }
 
 uint32_t SpatialPartition::Hash(const float x, const float y, const float z) {
 	const int h1 = 0x8da6b343;	// Arbitrary, large primes.
 	const int h2 = 0xd8163841;	// Primes are popular for hash functions
 	const int h3 = 0xcb1ab31f;	// for reducing the chance of hash collision.
-	int cellX = (int)(x / unitSize);
-	int cellY = (int)(y / unitSize);
-	int cellZ = (int)(z / unitSize);
+	int cellX = (int)(x * UNIT_SIZE_DIV);
+	int cellY = (int)(y * UNIT_SIZE_DIV);
+	int cellZ = (int)(z * UNIT_SIZE_DIV);
 	uint32_t n = (uint32_t)(h1*cellX + h2*cellY + h3*cellZ);
 	n = n % bucketCount;	// Wrap indices to stay in bucket range
 	//Console::WriteLine << cellX << ", " << cellY << ", " << cellZ << "  bucket: " << n;
@@ -69,10 +73,11 @@ uint32_t SpatialPartition::Hash(const float x, const float y, const float z) {
 uint32_t SpatialPartition::Hash(DirectX::XMFLOAT3 point) {
 	return Hash(point.x, point.y, point.z);
 }
-std::vector<uint32_t> SpatialPartition::Hash(const AABB aabb) {
+std::unordered_set<uint32_t> SpatialPartition::Hash(const AABB aabb) {
 	using namespace DirectX;
 
-	std::vector<uint32_t> indicies;
+	//std::vector<uint32_t> indicies;
+	std::unordered_set<uint32_t> indicies;
 	std::vector<XMFLOAT3> points;
 
 	if (aabb.isLarge) {
@@ -158,52 +163,68 @@ std::vector<uint32_t> SpatialPartition::Hash(const AABB aabb) {
 	int index;
 	for(size_t point = 0; point < points.size(); ++point) {
 		index = Hash(points[point]);
-		bool found = false;
+		//bool found = false;
 		//for (unsigned int exist = 0; exist < indicies.size(); ++exist) {
 		//	if (index == indicies[exist]) {
 		//		found = true;
 		//		break;
 		//	}
 		//}
-		if(std::find(indicies.begin(), indicies.end(), index) == indicies.end()) indicies.push_back(index);
+		indicies.insert(index);
 	}
 	return indicies;
 }
 
 bool SpatialPartition::AddComponent(PhysicsComponent* component) {
+	spatialMutex.lock();
 	bool anythingAdded = false;
-	std::vector<uint32_t> indicies = Hash(component->currentAABB);
+	std::unordered_set<uint32_t> indicies = Hash(component->currentAABB);
+	std::vector<std::thread> threadPool;
+	//threadPool.resize(indicies.size());
 	//Console::WriteLine << component->parentObject << " occupies " << indicies.size() << " buckets";
-	for (unsigned int i = 0; i < indicies.size(); ++i) {
-		if (table.find(indicies[i]) != table.end()) {
-			if (table[indicies[i]].AddComponent(component)) {
+	int i = 0;
+	for (auto &index : indicies) {
+		//threadPool[i++] = std::thread([=, &anythingAdded]() {
+			if (table.find(index) != table.end()) {
+				if (table[index].AddComponent(component)) {
+					anythingAdded = true;
+				}
+			}
+			else {
+				table[index] = Unit(component);
 				anythingAdded = true;
 			}
-		} else {
-			table[indicies[i]] = Unit(component);
-			anythingAdded = true;
-		}
+		//});
 	}
+
+	//for (size_t ind = 0; ind < threadPool.size(); ++ind) {
+	//	threadPool[ind].join();
+	//}
+	spatialMutex.unlock();
 	return anythingAdded;
 }
 bool SpatialPartition::RemoveComponent(PhysicsComponent* component, PositionOption option) {
 	bool foundAndRemoved = false;
-	std::vector<uint32_t> indicies;
+	std::unordered_set<uint32_t> indicies;
 	if (option != Both) {
 		if (option == Current) indicies = Hash(component->currentAABB);
 		else if (option == Previous) indicies = Hash(component->previousAABB);
-		for (unsigned int i = 0; i < indicies.size(); ++i) {
-			if (table.find(indicies[i]) != table.end()) {
-				if (table[indicies[i]].RemoveComponent(component)) {
+		spatialMutex.lock();
+		for (auto &index: indicies) {
+			if (table.find(index) != table.end()) {
+				if (table[index].RemoveComponent(component)) {
 					foundAndRemoved = true;
-					if (table[indicies[i]].components.size() <= 0)
-						table.erase(indicies[i]);
+					if (table[index].components.size() <= 0)
+						table.erase(index);
 				}
 			}
 		}
-	} else if(RemoveComponent(component, Previous) || RemoveComponent(component, Current)) {
+		spatialMutex.unlock();
+
+	} else if (RemoveComponent(component, Previous) || RemoveComponent(component, Current)) {
 		foundAndRemoved = true;
 	}
+
 	return foundAndRemoved;
 }
 void SpatialPartition::UpdateComponent(PhysicsComponent* component) {
@@ -218,7 +239,7 @@ void SpatialPartition::UpdateComponent(PhysicsComponent* component) {
 	}
 }
 
-const std::vector<PhysicsComponent*> SpatialPartition::GetComponentsToTest() {
+const std::vector<PhysicsComponent*>* SpatialPartition::GetComponentsToTest() {
 	//std::vector<PhysicsComponent*> testComps;
 	//std::vector<uint32_t> indicies = Hash(component->currentAABB);
 	////Console::WriteLine << (int)indicies.size();
@@ -242,28 +263,30 @@ const std::vector<PhysicsComponent*> SpatialPartition::GetComponentsToTest() {
 	//}
 	//return testComps;
 
-	std::vector<PhysicsComponent*> testComps;
-
-	for each (auto bucket in table)
+	//std::vector<PhysicsComponent*> testComps;
+	toTest.clear();
+	spatialMutex.lock();
+	for each (const auto &bucket in table)
 	{
 		
 		if (bucket.second.components.size() > 1) {
 			for (unsigned int i = 0; i < bucket.second.components.size(); ++i) {
 				assert(bucket.second.components[i]  != nullptr);
-				testComps.push_back(bucket.second.components[i]);
+				toTest.push_back(bucket.second.components[i]);
 				//Console::WriteLine << "Bucket: " << bucket.first << "  Size: " << bucket.second.components.size();
 			}
-			testComps.push_back(nullptr);
+			toTest.push_back(nullptr);
 		}
 	}
-	return testComps;
+	spatialMutex.unlock();
+	return &toTest;
 }
 
-const std::vector<PhysicsComponent*> SpatialPartition::GetComponentsToTest(uint32_t hashIndex) {
-	std::vector<PhysicsComponent*> toReturn; 
+const std::vector<PhysicsComponent*>* SpatialPartition::GetComponentsToTest(uint32_t hashIndex) {
+	//std::vector<PhysicsComponent*> toReturn; 
 	if(table.find(hashIndex) != table.end())
-		return table[hashIndex].components;
-	return toReturn;
+		return &table[hashIndex].components;
+	return nullptr;
 }
 
 const uint32_t SpatialPartition::GetHashedIndex(DirectX::XMFLOAT3 position) {

@@ -28,7 +28,7 @@ PixelShaderInput main(VertexShaderInput input) {
 	// Transform the vertex position into projected space.
 	pos = mul(pos, model);
 	pos = mul(pos, view);
-	pos = mul(pos, projection);
+	pos = mul(projection, pos);
 	output.pos = pos;
 
 	// Pass the color through without modification.

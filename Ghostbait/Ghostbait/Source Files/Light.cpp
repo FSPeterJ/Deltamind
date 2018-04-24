@@ -1,5 +1,7 @@
 #include "Light.h"
 #include "LightManager.h"
+#include "GhostTime.h"
+#include "MessageEvents.h"
 
 void Light::RemoveLightFromManager() {
 	if (LightManager::getLight(lightID)) {
@@ -45,6 +47,12 @@ void Light::SetOuterRadius(const float outerRadius) {
 	if (data && type == LIGHT_Spot) data->outerRadius = outerRadius;
 }
 
+void Light::SetTimed(double duration)
+{
+	timed = true;
+	timeLeft = duration;
+}
+
 genericLight* Light::GetData() const {
 	return LightManager::getLight(lightID);
 }
@@ -52,6 +60,17 @@ genericLight* Light::GetData() const {
 void Light::Update() {
 	if (LightManager::getLight(lightID)) {
 		LightManager::getLight(lightID)->pos = transform.GetPosition();
+		if (timed)
+		{
+			timeLeft -= GhostTime::DeltaTime();
+			if (timeLeft <= 0.0)
+			{
+				RemoveLightFromManager();
+				timed = false;
+				GameObject::Disable();
+				return;
+			}
+		}
 	}
 	GameObject::Update();
 }

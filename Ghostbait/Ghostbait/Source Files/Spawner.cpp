@@ -13,18 +13,17 @@ void SpawnerObject::Awake(Object* obj) {
 }
 SpawnerObject::SpawnerObject() {
 }
-void SpawnerObject::SpawnObject(const char* prefabName, HexGrid* grid, Core* _core) {
-	grid->RemoveObstacle({ _core->transform.GetPosition().x, _core->transform.GetPosition().z });
-	grid->RemoveObstacle({ transform.GetMatrix()._41,transform.GetMatrix()._43});
-
+EnemyBase* SpawnerObject::SpawnObject(const char* prefabName, HexGrid* grid, Core* _core) {
 	EnemyBase* obj;
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<EnemyBase>(ObjectFactory::CreatePrefab(&std::string(prefabName)), {0, 0, 0}, &obj));
 	obj->transform.SetMatrix(transform.GetMatrix());
 	obj->SetGrid(grid);
 	obj->SetCore(_core);
-	obj->Repath();
 	obj->Enable();
+	//obj->Repath();
 	//obj->GetComponent<PhysicsComponent>()->rigidBody.AddForce(100);
+
+	return obj;
 }
 
 void SpawnerObject::Destroy() {

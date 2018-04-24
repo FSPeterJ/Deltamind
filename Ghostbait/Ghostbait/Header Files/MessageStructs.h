@@ -5,6 +5,9 @@
 #undef GetObject
 
 class ObjectFactory;
+class GameData;
+class Core;
+class Player;
 //Please do this next time
 typedef unsigned long		AkUInt32;
 typedef AkUInt32			AkUniqueID;
@@ -46,8 +49,8 @@ enum Control {
 	TestInputK,
 	TestInputL,
 	TestInputX,
-	
-	GodMode,
+	TestInputR,
+
 	Sprint,
 	Crouch,
 
@@ -192,6 +195,34 @@ public:
 	SnapMessage(DirectX::XMFLOAT2* _position) : position(_position){}
 };
 
+class GameDataMessage : public EventMessageBase {
+	GameData const** data = nullptr;
+public:
+	GameDataMessage(GameData const** _gameData) :data(_gameData) {}
+	GameData const** RetrieveData() const { return data; }
+};
+
+class GetPlayerMessage : public EventMessageBase {
+	Player const** data = nullptr;
+public:
+	GetPlayerMessage(Player const** _playerPos) :data(_playerPos) {}
+	Player const** RetrieveData() const { return data; }
+};
+
+class CoreMessage : public EventMessageBase {
+	Core const** data = nullptr;
+public:
+	CoreMessage(Core const** _data) : data(_data) {}
+	Core const** RetrieveData() const { return data; }
+};
+
+class ChangeSceneMessage : public EventMessageBase {
+	const char* sceneName = nullptr;
+public:
+	ChangeSceneMessage(const char* _sceneName) : sceneName(_sceneName) {}
+	const char* RetrieveData() const { return sceneName; }
+};
+
 //Duplicate is unnessessary
 class NewObjectMessage: public EventMessageBase {
 public:
@@ -213,4 +244,11 @@ public:
 	SoundRequestMessage(GameObject* _obj, AkUniqueID _sound): obj(_obj), sound(_sound) {}
 	GameObject* RetrieveObject() const { return obj; }
 	AkUniqueID RetrieveSound() const { return sound; }
+};
+
+class StartEventMessage : public EventMessageBase {
+	std::string levelName = "";
+public:
+	StartEventMessage(std::string _levelName) : levelName(_levelName) {}
+	std::string RetrieveLevelName() const { return levelName; }
 };

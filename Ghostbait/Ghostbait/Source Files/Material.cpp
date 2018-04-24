@@ -1,7 +1,7 @@
 #include "Material.h"
 
 #include <d3d11.h>
-void Material::bindToShader(ID3D11DeviceContext* context, ID3D11Buffer* factorBuffer) {
+void Material::bindToShader(ID3D11DeviceContext* context, ID3D11Buffer* factorBuffer, bool unlit) {
 	context->PSSetShaderResources(0, 1, &diffuse.texView);
 	context->PSSetShaderResources(1, 1, &specular.texView);
 	context->PSSetShaderResources(2, 1, &emissive.texView);
@@ -17,6 +17,7 @@ void Material::bindToShader(ID3D11DeviceContext* context, ID3D11Buffer* factorBu
 	toShader.diffuseFactor = diffuse.texture ? diffuse.factor : 0.0f;
 	toShader.specularFactor = specular.texture ? specular.factor : 0.0f;
 	toShader.emissiveFactor = emissive.texture ? emissive.factor : 0.0f;
+	toShader.unlit = unlit ? 1.0f : 0.0f;
 
 	context->UpdateSubresource(factorBuffer, NULL, NULL, &toShader, NULL, NULL);
 }

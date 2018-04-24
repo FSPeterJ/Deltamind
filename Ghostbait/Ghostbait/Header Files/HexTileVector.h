@@ -40,6 +40,8 @@ public:
 		return *this;
 	}
 
+	HexPath ToGrid(  HexGrid*const grid);
+
 	/// <summary>
 	/// Determines whether this region contains the specified HexTile.
 	/// </summary>
@@ -85,6 +87,8 @@ public:
 	void Color(HexagonalGridLayout *const layout, DirectX::XMFLOAT3 color, float offset, ColorType c);
 
 	void Filter(HexGrid& grid);
+
+	void reverse() { std::reverse(data.begin(), data.end()); }
 };
 
 class HexPath {
@@ -99,6 +103,10 @@ public:
 	HexPath() {}
 
 	HexPath(std::vector<HexTilePtr>& that);
+
+
+	std::vector<HexTilePtr>::iterator begin() { return data.begin(); }
+	std::vector<HexTilePtr>::iterator end() { return data.end(); }
 
 	HexPath& operator=(std::vector<HexTilePtr>& that) {
 		data.swap(that);
@@ -131,6 +139,10 @@ public:
 	void BuildPathReverse(HexTilePtr const start, HexTilePtr const goal, VisitedMap& came_from);
 
 	void Color(HexagonalGridLayout *const layout, DirectX::XMFLOAT3 color, float offset, ColorType c);
+
+	HexTilePtr Next(HexTilePtr const current) const;
+
+	bool find(HexTilePtr const v) const;
 };
 
 bool operator<(const HexPath&p, const HexPath&p2);

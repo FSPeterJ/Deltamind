@@ -4,14 +4,19 @@
 #include "Console.h"
 #include <DirectXMath.h>
 #include "GhostTime.h"
+#include <future>
+using namespace DirectX;
 
+#define DRAWSTATICOBJECTS false
+
+std::mutex PhysicsManager::physicsMutex;
+std::mutex PhysicsManager::physCompPoolMutex;
 Collider PhysicsManager::defaultColider;
 ColliderData PhysicsManager::defaultSphereColider;
 SpatialPartition PhysicsManager::partitionSpace;
 Pool<PhysicsComponent> PhysicsManager::dynamicComponents = Pool<PhysicsComponent>(MAX_PHYSICALS, true);
 Pool<PhysicsComponent> PhysicsManager::staticComponents = Pool<PhysicsComponent>(MAX_STATIC_PHYSICALS, true);
 
-using namespace DirectX;
 
 #pragma region Public Functions
 
@@ -32,10 +37,14 @@ PhysicsManager::PhysicsManager() {
 	dynamicComponents.RequestMemoryFromMemManager(MAX_PHYSICALS);
 	staticComponents.RequestMemoryFromMemManager(MAX_STATIC_PHYSICALS);
 }
+
 PhysicsManager::~PhysicsManager() {}
 
 void PhysicsManager::AddComponent(GameObject* obj, float veloX, float veloY, float veloZ) {
+	physCompPoolMutex.lock();
 	PhysicsComponent* physComponent = dynamicComponents.ActivateMemory();
+	physCompPoolMutex.unlock();
+
 	physComponent->colliders.push_back(defaultColider);
 	physComponent->parentObject = obj;
 	physComponent->rigidBody = RigidBody();
@@ -45,11 +54,13 @@ void PhysicsManager::AddComponent(GameObject* obj, float veloX, float veloY, flo
 PhysicsComponent* PhysicsManager::CloneComponent(ComponentBase* reference) {
 	PhysicsComponent* physComponent;
 
+	physCompPoolMutex.lock();
 	if(((PhysicsComponent*)reference)->isStatic)
 		physComponent = staticComponents.ActivateMemory();
 	else
-		 physComponent = dynamicComponents.ActivateMemory();
-	
+		physComponent = dynamicComponents.ActivateMemory();
+	physCompPoolMutex.unlock();
+
 	// SHALLOW COPY - this only copies the std::vector head.
 	physComponent->colliders = ((PhysicsComponent*)reference)->colliders;	
 	physComponent->currentAABB = ((PhysicsComponent*)reference)->currentAABB;
@@ -63,6 +74,7 @@ PhysicsComponent* PhysicsManager::CloneComponent(ComponentBase* reference) {
 	partitionSpace.AddComponent(physComponent);
 	return physComponent;
 }
+
 PhysicsComponent* PhysicsManager::GetReferenceComponent(const char * _FilePath, const char * _dataBlock) {
 	PhysicsComponent compHolder;
 	XMFLOAT3 offsetHolder;
@@ -151,13 +163,17 @@ PhysicsComponent* PhysicsManager::GetReferenceComponent(const char * _FilePath, 
 
 void PhysicsManager::ResetComponent(ComponentBase * reset) {
 	((PhysicsComponent*)reset)->rigidBody.Reset();
+
+	physCompPoolMutex.lock();
 	if (((PhysicsComponent*)reset)->isStatic) {
 		staticComponents.DeactivateMemory(reset);
+		physCompPoolMutex.unlock();
 		return;
 	}
 
 	dynamicComponents.DeactivateMemory(reset);
 	partitionSpace.RemoveComponent((PhysicsComponent*)reset);
+	physCompPoolMutex.unlock();
 }
 
 void PhysicsManager::ActivateComponent(ComponentBase* component)
@@ -171,27 +187,33 @@ void PhysicsManager::DeactivateComponent(ComponentBase* component)
 }
 
 void PhysicsManager::PausedUpdate() {
+	physCompPoolMutex.lock();
+
 	const int activeCount = (int)dynamicComponents.GetActiveCount();
 	for (int i = 0; i < activeCount; ++i) {
 		if (!dynamicComponents[i].isActive) continue;
 		UpdateAABB(dynamicComponents[i]);
 		partitionSpace.UpdateComponent(&dynamicComponents[i]);
 	}
+	physCompPoolMutex.unlock();
 }
 
 void PhysicsManager::Update() {
 
+	float delta = (float)GhostTime::DeltaTime();
+	
+	physCompPoolMutex.lock();
+	
 	const int activeCount = (int)dynamicComponents.GetActiveCount();
 	for(int i = 0; i < activeCount; ++i) {
-		float delta = (float)GhostTime::DeltaTime();
 
 		//This seems absurd, are we sure we can't use XMVECTOR and XMMATRIX in a more manageable manner?
 		if (!dynamicComponents[i].isActive) continue;
-		XMFLOAT4* objectPosition = (XMFLOAT4*) &dynamicComponents[i].parentObject->transform.GetMatrix().m[3];
-		XMVECTOR newposition = XMLoadFloat4(objectPosition);
-		dynamicComponents[i].rigidBody.Update();
-		newposition += dynamicComponents[i].rigidBody.GetVelocity() * delta;
-		XMStoreFloat4(objectPosition, newposition);
+		XMFLOAT4X4* objectPosition = &(dynamicComponents[i].parentObject->transform.matrix);
+		XMMATRIX newposition = XMLoadFloat4x4(objectPosition);
+		dynamicComponents[i].rigidBody.Update(&newposition);
+		newposition.r[3] += dynamicComponents[i].rigidBody.GetVelocity() * delta;
+		XMStoreFloat4x4(objectPosition, newposition);
 		UpdateAABB(dynamicComponents[i]);
 		partitionSpace.UpdateComponent(&dynamicComponents[i]);
 		//components[i].parentObject->position.r[3] += components[i].rigidBody.GetVelocity() * dt;
@@ -200,7 +222,7 @@ void PhysicsManager::Update() {
 		for(unsigned int colInd = 0; colInd < dynamicComponents[i].colliders.size(); ++colInd) {
 			XMVECTOR offset = XMLoadFloat3(&(dynamicComponents[i].colliders[colInd].centerOffset));
 			XMFLOAT3 colPos;
-			XMStoreFloat3(&colPos, newposition + offset);
+			XMStoreFloat3(&colPos, newposition.r[3] + offset);
 
 			switch(dynamicComponents[i].colliders[colInd].colliderData->colliderType) {
 			case SPHERE:
@@ -255,9 +277,72 @@ void PhysicsManager::Update() {
 
 #endif
 	}
-	//components[0].srcObj->position.r[3] -= XMVectorSet(0, dt, 0, 0);
+#if _DEBUG && DRAWSTATICOBJECTS
+		const int inActiveCount = (int)staticComponents.GetActiveCount();
+		for (int i = 0; i < inActiveCount; ++i) {
+			if (!staticComponents[i].isActive) continue;
+			for (unsigned int colInd = 0; colInd < staticComponents[i].colliders.size(); ++colInd) {
+				XMVECTOR offset = XMLoadFloat3(&(staticComponents[i].colliders[colInd].centerOffset));
+				XMFLOAT3 colPos;
+				XMStoreFloat3(&colPos, offset);
 
+				switch (staticComponents[i].colliders[colInd].colliderData->colliderType) {
+					case SPHERE:
+						DebugRenderer::AddSphere(colPos, staticComponents[i].colliders[colInd].colliderData->colliderInfo.sphereCollider.radius, XMFLOAT3(1.0f, 0.0f, 0.0f));
+						break;
+					case CAPSULE:
+						{
+							float _height = staticComponents[i].colliders[colInd].colliderData->colliderInfo.capsuleCollider.height;
+							XMVECTOR cap1A = offset + XMVectorSet(0, _height * 0.5f, 0, 0);
+							XMVECTOR cap1B = offset - XMVectorSet(0, _height * 0.5f, 0, 0);
+							cap1A = XMVector3TransformCoord(cap1A, XMLoadFloat4x4(&(staticComponents[i].parentObject->transform.GetMatrix())));
+							cap1B = XMVector3TransformCoord(cap1B, XMLoadFloat4x4(&(staticComponents[i].parentObject->transform.GetMatrix())));
+							XMFLOAT3 capStart, capEnd;
+							XMStoreFloat3(&capStart, cap1A);
+							XMStoreFloat3(&capEnd, cap1B);
+							DebugRenderer::AddSphere(capStart, staticComponents[i].colliders[colInd].colliderData->colliderInfo.capsuleCollider.radius, XMFLOAT3(1.0f, 0.0f, 0.0f));
+							DebugRenderer::AddSphere(capEnd, staticComponents[i].colliders[colInd].colliderData->colliderInfo.capsuleCollider.radius, XMFLOAT3(1.0f, 0.0f, 0.0f));
+							DebugRenderer::AddLine(capStart, capEnd, XMFLOAT3(1.0f, 0.0f, 0.0f));
+						} break;
+					case BOX:
+						{
+							std::vector<XMVECTOR> corners = GetBoxCorners(staticComponents[i].colliders[colInd], XMLoadFloat4x4(&(staticComponents[i].parentObject->transform.GetMatrix())));
+							std::vector<XMFLOAT3> cornersStored;
+							XMFLOAT3 temp;
+							for (unsigned int i = 0; i < corners.size(); ++i) {
+								XMStoreFloat3(&temp, corners[i]);
+								cornersStored.push_back(temp);
+							}
+
+							DebugRenderer::AddLine(cornersStored[0], cornersStored[1], XMFLOAT3(1.0f, 0.0f, 0.0f));
+							DebugRenderer::AddLine(cornersStored[1], cornersStored[3], XMFLOAT3(1.0f, 0.0f, 0.0f));
+							DebugRenderer::AddLine(cornersStored[3], cornersStored[2], XMFLOAT3(1.0f, 0.0f, 0.0f));
+							DebugRenderer::AddLine(cornersStored[2], cornersStored[0], XMFLOAT3(1.0f, 0.0f, 0.0f));
+
+							DebugRenderer::AddLine(cornersStored[4], cornersStored[5], XMFLOAT3(1.0f, 0.0f, 0.0f));
+							DebugRenderer::AddLine(cornersStored[5], cornersStored[7], XMFLOAT3(1.0f, 0.0f, 0.0f));
+							DebugRenderer::AddLine(cornersStored[7], cornersStored[6], XMFLOAT3(1.0f, 0.0f, 0.0f));
+							DebugRenderer::AddLine(cornersStored[6], cornersStored[4], XMFLOAT3(1.0f, 0.0f, 0.0f));
+
+							DebugRenderer::AddLine(cornersStored[4], cornersStored[0], XMFLOAT3(1.0f, 0.0f, 0.0f));
+							DebugRenderer::AddLine(cornersStored[5], cornersStored[1], XMFLOAT3(1.0f, 0.0f, 0.0f));
+							DebugRenderer::AddLine(cornersStored[6], cornersStored[2], XMFLOAT3(1.0f, 0.0f, 0.0f));
+							DebugRenderer::AddLine(cornersStored[7], cornersStored[3], XMFLOAT3(1.0f, 0.0f, 0.0f));
+
+						} break;
+					default:
+						break;
+				}
+			}
+
+			DebugRenderer::AddBox(staticComponents[i].currentAABB.min, staticComponents[i].currentAABB.max, XMFLOAT3(0.0f, 1.0f, 0.0f));
+
+		}
+#endif
+	//components[0].srcObj->position.r[3] -= XMVectorSet(0, dt, 0, 0);
 	TestAllComponentsCollision();
+
+	physCompPoolMutex.unlock();
 }
 
 bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* colPoint, GameObject** colObject, float maxCastDistance, const char* tag) {
@@ -270,12 +355,15 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 	XMVECTOR closestCollision = vecOrigin + (vecDirection * maxCastDistance);
 	XMVECTOR tempCollidePt;
 	GameObject* tempCollideObj = nullptr;
+	GameObject* compParent = nullptr;
 	XMFLOAT3 nextSegment;
-	std::vector<PhysicsComponent*> compToTest;
+	const std::vector<PhysicsComponent*>* compToTest;
 	std::vector<XMVECTOR> collisionPoints;
 	std::vector<GameObject*> collidedObjects;
 	if(colObject)
 		*colObject = nullptr;
+
+	physCompPoolMutex.lock();
 
 	for (int iteration = 0; iteration < (int)(maxCastDistance * 100); ++iteration) {
 		XMStoreFloat3(&nextSegment, vecNextSeg);
@@ -285,11 +373,14 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 			continue;
 		currBucketIndex = nextIndex;
 		compToTest = partitionSpace.GetComponentsToTest(currBucketIndex);
-		
-		for (size_t compIndex = 0; compIndex < compToTest.size(); ++compIndex) {
-			if (!compToTest[compIndex]->isActive) continue;
-			if (tag && strcmp(dynamic_cast<GameObject*>(compToTest[compIndex]->parentObject)->GetTag().c_str(), tag)) continue;
-			if (RaycastCollisionCheck(vecOrigin, vecDirection, compToTest[compIndex], &tempCollidePt, &tempCollideObj, maxCastDistance)) {
+		if (!compToTest) continue;
+
+		for (size_t compIndex = 0; compIndex < compToTest->size(); ++compIndex) {
+			if (!(*compToTest)[compIndex]->isActive) continue;
+			compParent = dynamic_cast<GameObject*>((*compToTest)[compIndex]->parentObject);
+			if (!compParent) continue;
+			if (tag && strcmp(compParent->GetTag().c_str(), tag)) continue;
+			if (RaycastCollisionCheck(vecOrigin, vecDirection, (*compToTest)[compIndex], &tempCollidePt, &tempCollideObj, maxCastDistance)) {
 				collisionPoints.push_back(tempCollidePt);
 				collidedObjects.push_back(tempCollideObj);
 				collided = true;
@@ -303,7 +394,9 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 	std::vector<PhysicsComponent*>* staticComps = staticComponents.GetActiveList();
 	for (size_t i = 0; i < staticComps->size(); ++i) {
 		if (!(*staticComps)[i]->isActive) continue;
-		if (tag && strcmp(dynamic_cast<GameObject*>((*staticComps)[i]->parentObject)->GetTag().c_str(), tag)) continue;
+		compParent = dynamic_cast<GameObject*>((*staticComps)[i]->parentObject);
+		if (!compParent) continue;
+		if (tag && strcmp(compParent->GetTag().c_str(), tag)) continue;
 		if (RaycastCollisionCheck(vecOrigin, vecDirection, (*staticComps)[i], &tempCollidePt, &tempCollideObj, maxCastDistance)) {
 			collisionPoints.push_back(tempCollidePt);
 			collidedObjects.push_back(tempCollideObj);
@@ -311,15 +404,19 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 		}
 	}
 
+	physCompPoolMutex.unlock();
+
 	if (collided) {
+		collided = false;
 		float lastClosestDist = XMVectorGetX(XMVector3LengthSq(closestCollision - vecOrigin));
 		float nextDist;
-		for (int i = 0; i < (int)collisionPoints.size(); ++i) {
-			nextDist = XMVectorGetX(XMVector3LengthSq(collisionPoints[i] - vecOrigin));
+		for (size_t j = 0; j < collisionPoints.size(); ++j) {
+			nextDist = XMVectorGetX(XMVector3LengthSq(collisionPoints[j] - vecOrigin));
 			if (lastClosestDist > nextDist) {
-				closestCollision = collisionPoints[i];
+				collided = true;
+				closestCollision = collisionPoints[j];
 				if (colObject)
-					*colObject = collidedObjects[i];
+					*colObject = collidedObjects[j];
 				lastClosestDist = nextDist;
 				//Console::WriteLine << "RAY HIT";
 			}
@@ -349,8 +446,10 @@ ColliderData* PhysicsManager::AddColliderData(float _radius) {
 		colliderDataList.push_back(temp);
 		return &colliderDataList.back();
 	}
+	Console::WarningLine << "Maximum number of Colliders reached!!!";
 	return nullptr;
 }
+
 ColliderData* PhysicsManager::AddColliderData(float _radius, float _height) {
 	if(colliderDataList.size() < MAX_COLLIDER_DATA) {
 		ColliderData temp;
@@ -361,8 +460,10 @@ ColliderData* PhysicsManager::AddColliderData(float _radius, float _height) {
 		colliderDataList.push_back(temp);
 		return &colliderDataList.back();
 	}
+	Console::WarningLine << "Maximum number of Colliders reached!!!";
 	return nullptr;
 }
+
 ColliderData* PhysicsManager::AddColliderData(float trfX, float trfY, float trfZ, float blbX, float blbY, float blbZ) {
 	if(colliderDataList.size() < MAX_COLLIDER_DATA) {
 		ColliderData temp;
@@ -373,8 +474,12 @@ ColliderData* PhysicsManager::AddColliderData(float trfX, float trfY, float trfZ
 		colliderDataList.push_back(temp);
 		return &colliderDataList.back();
 	}
+	else {
+		Console::ErrorLine << "Maximum colliders already exist! Another collider won't be created. THIS IS A SERIOUS ISSUE!";
+	}
 	return nullptr;
 }
+
 void PhysicsManager::UpdateAABB(PhysicsComponent& component) {
 	//DOES NOT ACCOUNT FOR ROTATION!
 	std::vector<XMVECTOR> corners = GetBoxCorners(component.baseAABB, XMLoadFloat4x4(&component.parentObject->transform.GetMatrix()));
@@ -394,34 +499,35 @@ void PhysicsManager::UpdateAABB(PhysicsComponent& component) {
 		if (temp.z < newMin->z) newMin->z = temp.z;
 	}
 }
-void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponent component2) {
+
+void PhysicsManager::CollisionCheck(PhysicsComponent* component1, PhysicsComponent* component2) {
 	bool collisionResult = false, isCol1Trigger = false, isCol2Trigger = false;
 	ColliderType colliderType1, colliderType2;
 
-	XMMATRIX matrixComA = XMLoadFloat4x4(&component1.parentObject->transform.GetMatrix());
-	XMMATRIX matrixComB = XMLoadFloat4x4(&component2.parentObject->transform.GetMatrix());
+	XMMATRIX matrixComA = XMLoadFloat4x4(&(component1->parentObject->transform.GetMatrix()));
+	XMMATRIX matrixComB = XMLoadFloat4x4(&(component2->parentObject->transform.GetMatrix()));
 
-	for(unsigned int com1 = 0; com1 < component1.colliders.size(); ++com1) {
-		colliderType1 = component1.colliders[com1].colliderData->colliderType;
-		isCol1Trigger = component1.colliders[com1].isTrigger;
-		for (unsigned int com2 = 0; com2 < component2.colliders.size(); ++com2) {
-			isCol2Trigger = component2.colliders[com2].isTrigger;
+	for(unsigned int com1 = 0; com1 < component1->colliders.size(); ++com1) {
+		colliderType1 = component1->colliders[com1].colliderData->colliderType;
+		isCol1Trigger = component1->colliders[com1].isTrigger;
+		for (unsigned int com2 = 0; com2 < component2->colliders.size(); ++com2) {
+			isCol2Trigger = component2->colliders[com2].isTrigger;
 			if (isCol1Trigger && isCol2Trigger) continue;
 			collisionResult = false;
-			colliderType2 = component2.colliders[com2].colliderData->colliderType;
+			colliderType2 = component2->colliders[com2].colliderData->colliderType;
 
 			switch (colliderType1) {
 			case SPHERE:
 			{
 				switch (colliderType2) {
 				case SPHERE:
-					collisionResult = SphereToSphereCollision(component1.colliders[com1], matrixComA.r[3], component2.colliders[com2], matrixComB.r[3]);
+					collisionResult = SphereToSphereCollision(component1->colliders[com1], matrixComA.r[3], component2->colliders[com2], matrixComB.r[3]);
 					break;
 				case CAPSULE:
-					collisionResult = CapsuleToSphereCollision(component2.colliders[com2], matrixComB, component1.colliders[com1], matrixComA);
+					collisionResult = CapsuleToSphereCollision(component2->colliders[com2], matrixComB, component1->colliders[com1], matrixComA);
 					break;
 				case BOX:
-					collisionResult = BoxToSphereCollision(component2.colliders[com2], matrixComB, component1.colliders[com1], matrixComA);
+					collisionResult = BoxToSphereCollision(component2->colliders[com2], matrixComB, component1->colliders[com1], matrixComA);
 					break;
 				default:
 					break;
@@ -432,13 +538,13 @@ void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponen
 			{
 				switch (colliderType2) {
 				case SPHERE:
-					collisionResult = CapsuleToSphereCollision(component1.colliders[com1], matrixComA, component2.colliders[com2], matrixComB);
+					collisionResult = CapsuleToSphereCollision(component1->colliders[com1], matrixComA, component2->colliders[com2], matrixComB);
 					break;
 				case CAPSULE:
-					collisionResult = CapsuleToCapsuleCollision(component1.colliders[com1], matrixComA, component2.colliders[com2], matrixComB);
+					collisionResult = CapsuleToCapsuleCollision(component1->colliders[com1], matrixComA, component2->colliders[com2], matrixComB);
 					break;
 				case BOX:
-					collisionResult = BoxToCapsuleCollision(component2.colliders[com2], matrixComB, component1.colliders[com1], matrixComA);
+					collisionResult = BoxToCapsuleCollision(component2->colliders[com2], matrixComB, component1->colliders[com1], matrixComA);
 					break;
 				default:
 					break;
@@ -449,13 +555,13 @@ void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponen
 			{
 				switch (colliderType2) {
 				case SPHERE:
-					collisionResult = BoxToSphereCollision(component1.colliders[com1], matrixComA, component2.colliders[com2], matrixComB);
+					collisionResult = BoxToSphereCollision(component1->colliders[com1], matrixComA, component2->colliders[com2], matrixComB);
 					break;
 				case CAPSULE:
-					collisionResult = BoxToCapsuleCollision(component1.colliders[com1], matrixComA, component2.colliders[com2], matrixComB);
+					collisionResult = BoxToCapsuleCollision(component1->colliders[com1], matrixComA, component2->colliders[com2], matrixComB);
 					break;
 				case BOX:
-					collisionResult = BoxToBoxCollision(component1.colliders[com1], matrixComA, component2.colliders[com2], matrixComB);
+					collisionResult = BoxToBoxCollision(component1->colliders[com1], matrixComA, component2->colliders[com2], matrixComB);
 					break;
 				default:
 					break;
@@ -465,20 +571,22 @@ void PhysicsManager::CollisionCheck(PhysicsComponent component1, PhysicsComponen
 
 			if (collisionResult) {
 				if (isCol1Trigger)
-					SendTrigger((GameObject*)component1.parentObject, (GameObject*)component2.parentObject);
+					SendTrigger((GameObject*)component1->parentObject, (GameObject*)component2->parentObject);
 				else if (isCol2Trigger)
-					SendTrigger((GameObject*)component2.parentObject, (GameObject*)component1.parentObject);
+					SendTrigger((GameObject*)component2->parentObject, (GameObject*)component1->parentObject);
 				else
-					SendCollision((GameObject*)component1.parentObject, (GameObject*)component2.parentObject);
+					SendCollision((GameObject*)component1->parentObject, (GameObject*)component2->parentObject);
 			}
 		}
 	}
 }
+
 bool PhysicsManager::IsVectorZero(XMVECTOR& _toTest) {
 	if (fabsf(XMVectorGetX(_toTest)) < FLT_EPSILON && fabsf(XMVectorGetY(_toTest)) < FLT_EPSILON && fabsf(XMVectorGetZ(_toTest)) < FLT_EPSILON)
 		return true;
 	return false;
 }
+
 bool PhysicsManager::SphereToSphereCollision(Collider& col1, XMVECTOR& pos1, Collider& col2, XMVECTOR& pos2) {
 	XMVECTOR offset1 = XMLoadFloat3(&col1.centerOffset);
 	XMVECTOR offset2 = XMLoadFloat3(&col2.centerOffset);
@@ -491,6 +599,7 @@ bool PhysicsManager::SphereToSphereCollision(Collider& col1, XMVECTOR& pos1, Col
 	if(sqrDist < (combinedRad*combinedRad)) return true;
 	return false;
 }
+
 bool PhysicsManager::CapsuleToCapsuleCollision(Collider& col1, XMMATRIX& pos1, Collider& col2, XMMATRIX& pos2) {
 	
 	float combineRadiusSq = col1.colliderData->colliderInfo.capsuleCollider.radius + col2.colliderData->colliderInfo.capsuleCollider.radius;
@@ -860,11 +969,11 @@ bool PhysicsManager::BoxToSphereCollision(Collider& boxCol, XMMATRIX& boxPos, Co
 	float ra, rb;
 	rb = sphCol.colliderData->colliderInfo.sphereCollider.radius;
 
-#ifdef _DEBUG
-	XMFLOAT3 temp;
-	XMStoreFloat3(&temp, sphPos.r[3] + XMLoadFloat3(&sphCol.centerOffset));
-	DebugRenderer::AddSphere(temp, rb, XMFLOAT3(1.0f, 1.0f, 0.0f));
-#endif // DEBUG
+//#ifdef _DEBUG
+//	XMFLOAT3 temp;
+//	XMStoreFloat3(&temp, sphPos.r[3] + XMLoadFloat3(&sphCol.centerOffset));
+//	DebugRenderer::AddSphere(temp, rb, XMFLOAT3(1.0f, 1.0f, 0.0f));
+//#endif // DEBUG
 
 	for (int i = 0; i < 3; i++) {
 		ra = ext1[i];
@@ -1006,52 +1115,11 @@ XMVECTOR PhysicsManager::FindClosestPointOnLine(XMVECTOR& _lineSegStart, XMVECTO
 		return closest;
 }
 
-void PhysicsManager::SendCollision(GameObject* obj1, GameObject* obj2) {
-	//TODO: Fix this frown
-	(obj1)->OnCollision(obj2);
-	(obj2)->OnCollision(obj1);
-
-	//Console::WriteLine << obj1->GetTag().c_str() << " collided with " << obj2->GetTag().c_str();
-}
-void PhysicsManager::SendTrigger(GameObject* obj1, GameObject* obj2) {
-	obj1->OnTrigger(obj2);
-}
-
-void PhysicsManager::TestAllComponentsCollision() {
-	//Console::WriteLine((int)components.GetActiveCount());
-	/*static int counter;
-	counter = 0;
-	std::vector<PhysicsComponent*> collidingList;
-	int range = (int)components.GetActiveCount();
-	for(int comp1 = 0; comp1 < range; ++comp1) {
-		collidingList = partitionSpace.GetComponentsToTest(&components[comp1]);
-		for(int comp2 = 0; comp2 < collidingList.size(); ++comp2) {
-			CollisionCheck(components[comp1], *(collidingList[comp2]));
-			counter++;
-		}
-	}
-	Console::WriteLine << counter;*/
-
-	std::vector<PhysicsComponent*>* dynamicComp = dynamicComponents.GetActiveList();
-	std::vector<PhysicsComponent*>* staticComp = staticComponents.GetActiveList();
-	std::vector<PhysicsComponent*> collidingList = partitionSpace.GetComponentsToTest();
-
-	for (unsigned int comp1Index = 0; comp1Index < collidingList.size(); ++comp1Index) {
-		if (!collidingList[comp1Index])
-			continue;
-		for (unsigned int comp2Index = comp1Index + 1; collidingList[comp2Index]; ++comp2Index) {
-			CollisionCheck(*(collidingList[comp1Index]), *(collidingList[comp2Index]));
-		}
-	}
-
-	for (unsigned int staticIndex = 0; staticIndex < staticComp->size(); ++staticIndex) {
-		for (unsigned int dynamicIndex = 0; dynamicIndex < dynamicComp->size(); ++dynamicIndex) {
-			CollisionCheck(*(*staticComp)[staticIndex], *(*dynamicComp)[dynamicIndex]);
-		}
-	}
-}
-
 bool PhysicsManager::RaycastCollisionCheck(XMVECTOR& origin, XMVECTOR& direction, PhysicsComponent* collidingComp, XMVECTOR* colPoint, GameObject** colObject, float maxCastDistance) {
+	if (!collidingComp->parentObject) {
+		Console::ErrorLine << "Physics Component has no PARENT!!";
+		return false;
+	}
 	bool collided = false;
 	bool hasCollidingComp = false;
 	XMVECTOR closestCollision = origin + (direction * maxCastDistance);
@@ -1082,16 +1150,17 @@ bool PhysicsManager::RaycastCollisionCheck(XMVECTOR& origin, XMVECTOR& direction
 			collisionPoints.push_back(tempColPoint);
 			if (colObject)
 				*colObject = dynamic_cast<GameObject*>(collidingComp->parentObject);
-			collided = true;
+			//collided = true;
 		}
 	}
 
-	if (collided) {
+	if (hasCollidingComp) {
 		float lastClosestDist = XMVectorGetX(XMVector3LengthSq(closestCollision - origin));
 		float nextDist;
 		for (int i = 0; i < (int)collisionPoints.size(); ++i) {
 			nextDist = XMVectorGetX(XMVector3LengthSq(collisionPoints[i] - origin));
 			if (lastClosestDist > nextDist) {
+				collided = true;
 				closestCollision = collisionPoints[i];
 				lastClosestDist = nextDist;
 			}
@@ -1141,6 +1210,7 @@ bool PhysicsManager::RayToSphere(XMVECTOR& origin, XMVECTOR& direction, Collider
 		*isInside = true;
 	return false;
 }
+
 bool PhysicsManager::RayToCapsule(XMVECTOR& origin, XMVECTOR& direction, Collider& collidingComp, XMMATRIX& objectPos, XMVECTOR* colPoint) {
 	std::vector<XMVECTOR> contactPoints;
 	XMVECTOR capStart = XMVectorSet(0, collidingComp.colliderData->colliderInfo.capsuleCollider.height * 0.5f, 0, 0);
@@ -1183,6 +1253,7 @@ bool PhysicsManager::RayToCapsule(XMVECTOR& origin, XMVECTOR& direction, Collide
 	}
 	return true;
 }
+
 bool PhysicsManager::RayToBox(XMVECTOR& origin, XMVECTOR& direction, Collider& collidingComp, XMMATRIX& objectPos, XMVECTOR* colPoint) {
 	//Point p, Vector d, AABB a, float& tmin, Point& q
 	float tmin = 0.0f;	//set to -FLT_MAX to get first hit on line
@@ -1271,5 +1342,97 @@ bool PhysicsManager::IsRayInCollider(XMVECTOR& origin, Collider& collidingComp, 
 	return isInside;
 }
 
+void PhysicsManager::TestAllComponentsCollision() {
+	//Console::WriteLine((int)components.GetActiveCount());
+	/*static int counter;
+	counter = 0;
+	std::vector<PhysicsComponent*> collidingList;
+	int range = (int)components.GetActiveCount();
+	for(int comp1 = 0; comp1 < range; ++comp1) {
+		collidingList = partitionSpace.GetComponentsToTest(&components[comp1]);
+		for(int comp2 = 0; comp2 < collidingList.size(); ++comp2) {
+			CollisionCheck(components[comp1], *(collidingList[comp2]));
+			counter++;
+		}
+	}
+	Console::WriteLine << counter;*/
+
+	const std::vector<PhysicsComponent*>* dynamicComp = dynamicComponents.GetActiveList();
+	const std::vector<PhysicsComponent*>* staticComp = staticComponents.GetActiveList();
+	const std::vector<PhysicsComponent*>* collidingList = partitionSpace.GetComponentsToTest();
+	PhysicsComponent *comp1, *comp2;
+	static std::vector<std::future<void>> collisions;
+	//collisions.reserve(1024);
+	collisions.clear();
+
+	for (size_t comp1Index = 0; comp1Index < collidingList->size(); ++comp1Index) {
+		comp1 = (*collidingList)[comp1Index];
+		if (!comp1 || (!comp1->isActive))
+			continue;
+		
+		for (size_t comp2Index = comp1Index + 1; (*collidingList)[comp2Index]; ++comp2Index) {
+			comp2 = (*collidingList)[comp2Index];
+			if (!(comp2->isActive)) continue;
+			//CollisionCheck(*((*collidingList)[comp1Index]), *((*collidingList)[comp2Index]));
+
+			//collisions.push_back(std::thread([=](){ CollisionCheck(*((*collidingList)[comp1Index]), *((*collidingList)[comp2Index])); }));
+
+			//collisions.push_back(
+			//	Threadding::ThreadPool::CreateAsyncJob( 
+			//		[=](){ 
+			//	CollisionCheck(*((*collidingList)[comp1Index]), *((*collidingList)[comp2Index]));  
+			//}
+			//)
+			//);
+
+			collisions.push_back( Threadding::ThreadPool::MakeJob(true, [=]() {
+				CollisionCheck(comp1, comp2);
+			}) );
+		}
+	}
+
+	for (size_t staticIndex = 0; staticIndex < staticComp->size(); ++staticIndex) {
+		for (size_t dynamicIndex = 0; dynamicIndex < dynamicComp->size(); ++dynamicIndex) {
+
+			comp1 = (*staticComp)[staticIndex];
+			comp2 = (*dynamicComp)[dynamicIndex];
+			if (!comp1->isActive || !comp2->isActive) continue;
+			//CollisionCheck(*(*staticComp)[staticIndex], *(*dynamicComp)[dynamicIndex]);
+
+			//collisions.push_back(std::thread([=]() {CollisionCheck(*(*staticComp)[staticIndex], *(*dynamicComp)[dynamicIndex]); }));
+
+			//collisions.push_back(
+			//	Threadding::ThreadPool::CreateAsyncJob(
+			//		[=]() {
+			//	CollisionCheck(*(*staticComp)[staticIndex], *(*dynamicComp)[dynamicIndex]);
+			//}
+			//	)
+			//);
+
+			collisions.push_back(Threadding::ThreadPool::MakeJob(true, [=]() {
+				CollisionCheck(comp1, comp2);
+			}));
+		}
+	}
+
+	for (size_t i = 0; i < collisions.size(); ++i) {
+		collisions[i].get();
+	}
+}
+
+void PhysicsManager::SendCollision(GameObject* obj1, GameObject* obj2) {
+	//TODO: Fix this frown
+	physicsMutex.lock();
+	(obj1)->OnCollision(obj2);
+	(obj2)->OnCollision(obj1);
+	physicsMutex.unlock();
+	//Console::WriteLine << obj1->GetTag().c_str() << " collided with " << obj2->GetTag().c_str();
+}
+
+void PhysicsManager::SendTrigger(GameObject* obj1, GameObject* obj2) {
+	physicsMutex.lock();
+	obj1->OnTrigger(obj2);
+	physicsMutex.unlock();
+}
 
 #pragma endregion

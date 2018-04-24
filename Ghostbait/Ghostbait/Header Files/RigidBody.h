@@ -28,6 +28,7 @@ public:
 	RigidBody(bool _hasGravity, float _mass, float veloX, float veloY, float veloZ, float maxSpeed = 100.0f);
 	void SetVelocity(float x, float y, float z);
 	void SetVelocity(DirectX::XMVECTOR _velocity);
+	void SetVelocity(DirectX::XMFLOAT3& _velocity);
 	void SetMass(float _mass);
 	void SetTerminalSpeed(float _speed);
 	void GravityOn(bool _hasGravity);
@@ -70,6 +71,7 @@ public:
 	/// Sets velocity to zero and clear all forces except gravity </summary>
 	void Stop();
 
-	void Update();
+	void Update(DirectX::XMMATRIX* _orietation = nullptr);
 	DirectX::XMVECTOR GetVelocity();
+	DirectX::XMFLOAT3 GetVelocityFloat3();
 };

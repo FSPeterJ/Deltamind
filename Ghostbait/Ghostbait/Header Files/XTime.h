@@ -26,7 +26,7 @@ public:
 	// Restarts the timer on the current thread (will clear all stored signals and total time)
 	void Restart();
 	// How Much time since the timer was restarted and the last call to signal?(fast)
-	double TotalTime(); // will be the same per frame
+	inline double TotalTime(); // will be the same per frame
 	// How Much time has passed exactly since the timer was restarted?(slower)
 	double TotalTimeExact(); // will be different between calls
 	// This marks the cycling time period, typically called only once per frame per thread.

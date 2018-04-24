@@ -1,9 +1,12 @@
 #pragma once
 #include "Item.h"
+#include "Light.h"
 
 #include "PhysicsExtension.h"
 
 class HexGrid;
+class GameData;
+struct Material;
 
 class BuildTool : public Item {
 	struct BuildItem {
@@ -11,46 +14,57 @@ class BuildTool : public Item {
 		int ID;
 	};
 	enum Mode {
-		SPAWN,
+		BUILD,
 		REMOVE,
+		REPAIR,
 	};
+
+	GameObject* gearDisplay = nullptr;
+	GameObject* gearAdjustmentDisplay = nullptr;
+	Material* gearMat = nullptr;
+	Material* gearAdjustmentMat = nullptr;
 
 	int currentPrefabIndex = 0;
 	std::vector<BuildItem> prefabs;
-	std::vector<GameObject*> builtItems;
-	Mode currentMode = SPAWN;
+	static std::vector<GameObject*> builtItems;
+	Mode currentMode = BUILD;
 	DirectX::XMFLOAT3 spawnPos;
 	int currentlySelectedItemIndex = -1;
 	GameObject* currentlySelectedItem = nullptr;
-	bool prevLocationValid = true;
+	GameObject* toDestroy = nullptr;
+	int toDestroyIndex = -1;
+	Light light;
 
 	//Game values
 	HexGrid* grid = nullptr;
-	unsigned* gears = nullptr; 
-	unsigned* turretsSpawned = nullptr;
-	unsigned* maxTurrets = nullptr;
+	GameData* gameData = nullptr;
 
-	void SpawnProjection();
 	void Spawn();
-	void RemoveProjection();
 	void Remove();
+	void Repair();
+	void SpawnProjection();
+	void RemoveProjection();
+	void RepairProjection();
 
 	bool Snap(GameObject** obj);
 	bool Snap(DirectX::XMFLOAT2* pos);
 	bool SetObstacle(DirectX::XMFLOAT2 pos, bool active);
+	bool CanBuildHere(DirectX::XMFLOAT2& spawnPos);
+
+	void SetColor(const char* colorVarient);
 public:
-	CastObject buildArc;
-	CastObject deleteRay;
+	CastObject ray;
+	//CastObject buildRay;
+	//CastObject deleteRay;
+	//CastObject repairRay;
 
 	BuildTool();
 
 	inline void SetGrid(HexGrid* _grid) { grid = _grid; };
-	inline void SetGears(unsigned* _gears) { gears = _gears; };
-	inline void SetTurretCap(unsigned* _turretsSpawned, unsigned* _maxTurrets) { turretsSpawned = _turretsSpawned; maxTurrets = _maxTurrets; };
+	inline void SetGameData(GameData* _gameData) { gameData = _gameData; }
 	void SetPrefabs(std::vector<unsigned> prefabIDs);
 	void Enable();
 	void Disable();
-	void Update();
 
 	void Projection();
 	void Activate();
@@ -65,4 +79,5 @@ public:
 	void Selected() override;
 
 	void Awake(Object* obj) override;
+	void Destroy() override;
 };

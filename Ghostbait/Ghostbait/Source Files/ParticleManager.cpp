@@ -292,6 +292,11 @@ unsigned ParticleManager::AddMaterial(Material* mat) {
 
 }
 
+void ParticleManager::RemoveEmitter(EventMessageBase* _eventMessageBase) {
+	DeleteEmitterMessage* msg = (DeleteEmitterMessage*)_eventMessageBase;
+	emitterPool.DeactivateMemory(msg->emit);
+}
+
 ParticleManager::~ParticleManager() {
 	delete texMan;
 
@@ -512,6 +517,9 @@ void ParticleManager::InitEmitters() {
 	MessageEvents::Subscribe(EVENT_NewEmitter, [this](EventMessageBase * _e) {
 		this->NewEmitter(_e);
 	});
+	MessageEvents::Subscribe(EVENT_DeleteEmitter, [this](EventMessageBase * _e) {
+		this->RemoveEmitter(_e);
+	});
 
 	Emitter* emitter = referenceEmitterPool.ActivateMemory();
 
@@ -519,7 +527,7 @@ void ParticleManager::InitEmitters() {
 	emitter->mainData.StartSize = 0;
 	emitter->mainData.EndSize = 0.06f;
 	//emitter->materials[0] = matman->GetReferenceComponent("Assets/exitOption.mat", nullptr);
-	emitter->mainData.ParticleLifeSpan = 1.0f;
+	emitter->mainData.ParticleLifeSpan = 3.0f;
 	//emitter->mainData.Velocity = DirectX::XMFLOAT3(0, 0, 10.0f);
 	emitter->mainData.VelocityMagnatude = 1;
 	emitter->mainData.Position = emitter->transform.GetPosition();
@@ -533,6 +541,7 @@ void ParticleManager::InitEmitters() {
 	emitter->mainData.mass = 0.2f;
 	emitter->mainData.perInterval = 20;
 	emitter->mainData.properties = HASGRAVITY;
-	emitter->mainData.Gravity = DirectX::XMFLOAT3(0.0f, -9.81f, 0.0f);
+	emitter->mainData.Gravity = DirectX::XMFLOAT3(0.0f, 0, 0.0f);
 	emitter->lifespan = 1.0f;
+	emitter->previousOverflow = emitter->mainData.emissionIntervalSec;
 }

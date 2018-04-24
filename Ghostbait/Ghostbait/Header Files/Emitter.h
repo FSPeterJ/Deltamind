@@ -57,9 +57,9 @@ class Emitter: public InstantiatedCompBase {
 	unsigned updateID = 0;
 	float carryoverTick = 0;
 	float previousDT = 0;
-	float previousOverflow = 0;
 	float age = 0;
 public:
+	float previousOverflow = 0;
 	float lifespan = 4;
 	bool enabled = false;
 	Material* materials[4] = { 0 };
@@ -70,6 +70,7 @@ public:
 	void Update();
 	void Enable();
 	void Disable();
+	void Destroy();
 };
 
 

@@ -51,7 +51,7 @@ void EnemyBase::Awake(Object* obj) {
 	SetToFullHealth();
 
 	GameObject::Awake(obj);
-	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
+	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, ObjectMessage(this));
 }
 
 void EnemyBase::Start() {
@@ -106,7 +106,7 @@ void EnemyBase::Subscribe() {
 	if(!eventLose) eventLose = MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) { MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); }); });
 	if (!smite) smite = MessageEvents::Subscribe(EVENT_Smite, [=](EventMessageBase* e) { this->AdjustHealth(-1000); });
 	if(!eventObstacleRemove) eventObstacleRemove = MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {ValidateTarget(e); });
-	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
+	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, ObjectMessage(this));
 }
 
 void EnemyBase::UnSubscribe() {
@@ -122,7 +122,7 @@ void EnemyBase::UnSubscribe() {
 		MessageEvents::UnSubscribe(EVENT_RemoveObstacle, eventObstacleRemove);
 		eventObstacleRemove = 0;
 	}
-	MessageEvents::SendMessage(EVENT_UnregisterNoisemaker, NewObjectMessage(this));
+	MessageEvents::SendMessage(EVENT_UnregisterNoisemaker, ObjectMessage(this));
 
 }
 

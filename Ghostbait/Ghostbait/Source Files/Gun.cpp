@@ -97,7 +97,7 @@ void Gun::Awake(Object* obj) {
 	fireRate = gun->fireRate;
 	damage = gun->damage;
 	type = gun->type;
-	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
+	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, ObjectMessage(this));
 	GameObject::Awake(obj);
 }
 void Gun::ActiveUpdate() {

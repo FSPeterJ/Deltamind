@@ -79,7 +79,7 @@ void main(uint3 DThreadID : SV_DispatchThreadID)
         float randomAnglesy = RandomNumbers.SampleLevel(SamplerWrapLinear, uv, 0).y;
 
 
-                static const float PI = 3.14159265f;
+        static const float PI = 3.14159265f;
 
        
         float z = randomAnglesx * 2 + randomAnglesx;
@@ -89,13 +89,13 @@ void main(uint3 DThreadID : SV_DispatchThreadID)
         float3 randomDirection = float3(x, y, z);
         
 
-        //particle.velocity = float3(0, 0, 0);
+        particle.velocity = float3(0, 0, 1);
         //particle.position = randomDirection * VelocityMagnatude + float3(0, 1, 1);
 
  
-        particle.velocity = VelocityMagnatude * randomDirection;
-        particle.position = Position + particle.velocity * (emissionRateMS * threadBatch + emissionOverflow);
-        particle.age = ParticleLifeSpan - emissionRateMS * threadBatch + emissionOverflow;
+        //particle.velocity = VelocityMagnatude * randomDirection;
+        particle.position = Position + particle.velocity * (emissionRateMS * threadBatch);
+        particle.age = ParticleLifeSpan - emissionRateMS * threadBatch;
 
 
         particle.lifespan = ParticleLifeSpan;

@@ -25,6 +25,7 @@ void Core::Awake(Object* obj) {
 	panicTimer = -1;
 	panicDuration = 4;
 	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_COREHUM));
 	light.SetAsPoint(NORMALCOLOR, transform.GetPosition(), 1000);
 	light.Enable();
 	SetToFullHealth();
@@ -87,12 +88,14 @@ void Core::DeathEvent() {
 	panicTimer = -1;
 	light.SetColor(NORMALCOLOR);
 	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::STOP_SFX_COREALARM));
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::STOP_SFX_COREHUM));
 	MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 	MessageEvents::SendMessage(EVENT_GameLose, EventMessageBase());
 }
 void Core::Destroy() {
 	light.SetColor({ 0, 0, 0 });
 	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::STOP_SFX_COREALARM));
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::STOP_SFX_COREHUM));
 	light.RemoveLightFromManager();
 	if (coreRing) coreRing->Destroy();
 	MessageEvents::SendMessage(EVENT_UnregisterNoisemaker, NewObjectMessage(this));

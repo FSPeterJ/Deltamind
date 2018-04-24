@@ -7,6 +7,8 @@ public:
 	void OnCollision(GameObject* other);
 
 	void Enable() override {
+		UnRender();
+		RenderTransparent();
 		GameObject::Enable();
 	}
 

@@ -263,8 +263,8 @@ void Turret_Long::Shoot() {
 }
 void Turret_Medium::Awake(Object* obj) {
 	Turret::Awake(obj);
-	firerate = 3;
-	damage = 10;
+	firerate = 0.003f;
+	damage = 0;
 	buildCost = 400;
 }
 void Turret_Medium::Shoot() {

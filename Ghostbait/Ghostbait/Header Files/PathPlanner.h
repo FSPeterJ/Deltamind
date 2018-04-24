@@ -126,6 +126,8 @@ public:
 
 
 	static void CostChangeNotice(HexTile* const tile);
+	static void CostChangeNotice(DirectX::XMFLOAT2& _pos);
+	static void MTDStarPollPath(std::size_t mtdstarId);
 
 	template <PathingAlgorithm a>
 	typename std::enable_if<a == PathingAlgorithm::BreadthFirst || a == PathingAlgorithm::Dijkstra, TraversalResult>::type

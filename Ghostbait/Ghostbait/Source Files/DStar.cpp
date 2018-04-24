@@ -86,7 +86,7 @@ HexTile* DStarCommon::GetMinimumTileFrom(const SearchType neighbors, HexTile*con
 }
 
 FloatPair DStarCommon::CalculateKey(HexTile *const tile) {
-	return { PathPlanner::ClampInfinity(min(GetGVal(tile), GetRHS(tile)) + PathPlanner::heuristicFunction(tile, *goal) + km), min(GetGVal(tile), GetRHS(tile)) };
+	return { PathPlanner::ClampInfinity(min(GetGVal(tile), GetRHS(tile)) + PathPlanner::heuristicFunction(tile, momentGoal) + km), min(GetGVal(tile), GetRHS(tile)) };
 }
 
 float DStarCommon::GetGVal(HexTile* tile) {
@@ -173,6 +173,12 @@ void DStarCommon::UpdateOpenList(HexTile *const tile) {
 void DStarCommon::ChangeCostIncoming(HexTile* tile) {
 	std::lock_guard<std::mutex> lock(dstarMutex);
 	changedTiles.insert(tile);
+}
+
+void DStarCommon::PollPath() {
+	dstarMutex.lock();
+	*path = momentPath;
+	dstarMutex.unlock();
 }
 
 //HexTile* DStarCommon::GetNextTileInPath() {
@@ -357,13 +363,13 @@ void MTDStarLite::BasicDeletion(HexTile*const oldStart) {
 
 void MTDStarLite::ComputeCostMinimalPath() {
 	//Console::WriteLine << "Computing Cost Minimal Path";
-	HexTile* cachedStart = *start;
-	HexTile* cachedGoal = *goal;
+	//momentStart = *start;
+	//momentGoal = *goal;
 
 	//int iterations = 0;
 	//int maxIter = (int)PathPlanner::heuristicFunction(cachedStart, cachedGoal) * 15 + 30;
 	//bool hasPath = true;
-	while (!open.empty() && (open.front().second < CalculateKey(cachedGoal) || GetRHS(cachedGoal) > GetGVal(cachedGoal))) {
+	while (!open.empty() && (open.front().second < CalculateKey(momentGoal) || GetRHS(momentGoal) > GetGVal(momentGoal))) {
 		//if (iterations++ > maxIter) {
 		//	Console::WriteLine << "Max iterations reached, NOT SEARCHING ANY FURTHER";
 		//	hasPath = false;
@@ -386,7 +392,7 @@ void MTDStarLite::ComputeCostMinimalPath() {
 			//Console::WriteLine << " Updating susccessor neighbors...";
 
 			ForEachSuccessor(u, [=](HexTile*const neighbor) {
-				if (neighbor != cachedStart && (GetRHS(neighbor) > GetGVal(u) + GetCost(neighbor))) {
+				if (neighbor != momentStart && (GetRHS(neighbor) > GetGVal(u) + GetCost(neighbor))) {
 					parent[neighbor] = u;
 					//Console::WriteLine << PrintParentConnnection(neighbor, u);
 					knownTiles[neighbor].rhs = PathPlanner::ClampInfinity(GetGVal(u) + GetCost(neighbor));
@@ -401,7 +407,7 @@ void MTDStarLite::ComputeCostMinimalPath() {
 			//Console::WriteLine << "Tile was Under-consistent";
 			//Console::WriteLine << " Checking susccessor neighbors...";
 			ForEachSuccessor(u, [=](HexTile*const neighbor) {
-				if (neighbor != cachedStart && parent[neighbor] == u) {
+				if (neighbor != momentStart && parent[neighbor] == u) {
 					knownTiles[neighbor].rhs = GetMinimumFrom(PredessorsOf, neighbor, [=](HexTile*const prime) {return GetGVal(prime) + GetCost(neighbor); });
 
 					if (PathPlanner::EpsilonIsEqual(GetRHS(neighbor), grid->BlockWeight())) {
@@ -423,10 +429,10 @@ void MTDStarLite::ComputeCostMinimalPath() {
 	//Console::WriteLine << "End Calculation";
 
 	//if (hasPath) {
-		path->clear();
+		momentPath.clear();
 		//Console::WriteLine << "Begin building path";
-		path->BuildPath(cachedStart, cachedGoal, parent); //might need to BuildPathReverse?
-		*next = path->Next(cachedStart);
+		momentPath.BuildPath(momentStart, momentGoal, parent); //might need to BuildPathReverse?
+		//*next = path->Next(cachedStart);
 		//Console::WriteLine << "Path built";
 		//for (int i = 0; i < path.size(); ++i) {
 		//	HexTile* pathNode = path[i];
@@ -462,13 +468,14 @@ void MTDStarLite::ComputeCostMinimalPath() {
 
 void MTDStarLite::ComputeInitialPath() {
 	//Console::WriteLine << "Computing Cost Minimal Path";
-	HexTile* cachedStart = *start;
-	HexTile* cachedGoal = *goal;
+	dstarMutex.lock();
+	//momentStart = *start;
+	//momentGoal = *goal;
 
 	//int iterations = 0;
 	//int maxIter = (int)PathPlanner::heuristicFunction(cachedStart, cachedGoal) * 15 + 30;
 	//bool hasPath = true;
-	while (!open.empty() && (open.front().second < CalculateKey(cachedGoal) || GetRHSInit(cachedGoal) > GetGValInit(cachedGoal))) {
+	while (!open.empty() && (open.front().second < CalculateKey(momentGoal) || GetRHSInit(momentGoal) > GetGValInit(momentGoal))) {
 		//if (iterations++ > maxIter) {
 		//	Console::WriteLine << "Max iterations reached, NOT SEARCHING ANY FURTHER";
 		//	hasPath = false;
@@ -491,7 +498,7 @@ void MTDStarLite::ComputeInitialPath() {
 			//Console::WriteLine << " Updating susccessor neighbors...";
 
 			ForEachSuccessor(u, [=](HexTile*const neighbor) {
-				if (neighbor != cachedStart && (GetRHSInit(neighbor) > GetGValInit(u) + GetCostInit(neighbor))) {
+				if (neighbor != momentStart && (GetRHSInit(neighbor) > GetGValInit(u) + GetCostInit(neighbor))) {
 					parent[neighbor] = u;
 					//Console::WriteLine << PrintParentConnnection(neighbor, u);
 					knownTiles[neighbor].rhs = PathPlanner::ClampInfinity(GetGValInit(u) + GetCostInit(neighbor));
@@ -506,7 +513,7 @@ void MTDStarLite::ComputeInitialPath() {
 			//Console::WriteLine << "Tile was Under-consistent";
 			//Console::WriteLine << " Checking susccessor neighbors...";
 			ForEachSuccessor(u, [=](HexTile*const neighbor) {
-				if (neighbor != cachedStart && parent[neighbor] == u) {
+				if (neighbor != momentStart && parent[neighbor] == u) {
 					knownTiles[neighbor].rhs = GetMinimumFrom(PredessorsOf, neighbor, [=](HexTile*const prime) {return GetGValInit(prime) + GetCostInit(neighbor); });
 
 					if (PathPlanner::EpsilonIsEqual(GetRHSInit(neighbor), grid->BlockWeight())) {
@@ -528,10 +535,10 @@ void MTDStarLite::ComputeInitialPath() {
 	//Console::WriteLine << "End Calculation";
 
 	//if (hasPath) {
-		path->clear();
+		momentPath.clear();
 		//Console::WriteLine << "Begin building path";
-		path->BuildPath(cachedStart, cachedGoal, parent); //might need to BuildPathReverse?
-		*next = path->Next(cachedStart);
+		momentPath.BuildPath(momentStart, momentGoal, parent); //might need to BuildPathReverse?
+		//*next = path->Next(cachedStart);
 		//Console::WriteLine << "Path built";
 		//for (int i = 0; i < path.size(); ++i) {
 		//	HexTile* pathNode = path[i];
@@ -563,6 +570,8 @@ void MTDStarLite::ComputeInitialPath() {
 	//Console::Write << "Next Tile: ";
 	//if (parent[next]) Console::WriteLine << PrintTileInfo(next, GetGVal(next), GetRHS(next), parent[next]);
 	//else Console::WriteLine << PrintTileInfoNull(next, GetGVal(next), GetRHS(next));
+
+		dstarMutex.unlock();
 }
 
 void MTDStarLite::OptimizedDelete() {
@@ -612,14 +621,13 @@ MTDStarLite::MTDStarLite(HexGrid *const _grid, HexTile **const _start, HexTile *
 	//this may not be neccessary
 	//grid->ForEach([=](HexTile*const tile) {GetRHS(tile] = GetGVal(tile] = grid->BlockWeight(); /*parent[tile] = nullptr; */});
 
-	HexTile* cachedStart = *_start;
+	oldStart = momentStart = *_start;
+	oldGoal = momentGoal = *_goal;
 	Console::WriteLine << "Initialize";
-	parent[cachedStart] = nullptr;
+	parent[momentStart] = nullptr;
 	//Console::WriteLine << PrintParentConnnectionNull(start);
-	SetRHS(cachedStart, 0);
-	open.insert(cachedStart, CalculateKey(cachedStart));
-	oldStart = *_start;
-	oldGoal = *_goal;
+	SetRHS(momentStart, 0);
+	open.insert(momentStart, CalculateKey(momentStart));
 	ComputeInitialPath();
 }
 
@@ -639,7 +647,8 @@ void MTDStarLite::Update() {
 	//dstarLock.lock(); //lock the mutex
 	//std::lock_guard<std::mutex> lock(dstarMutex);
 	
-	if (!dstarMutex.try_lock()) return;
+	//if (!dstarMutex.try_lock()) return;
+	dstarMutex.lock();
 
 	//Console::WriteLine << "Updating";
 	//while(start != goal)
@@ -652,23 +661,27 @@ void MTDStarLite::Update() {
 	//return;
 	//}
 	//if (!(*start)) *start = oldStart;
-	HexTile* cachedStart = *start;
-	HexTile* cachedGoal = *goal;
+	momentStart = *start;
+	momentGoal = *goal;
 
 	//for all directed edges with cost change
 	bool costChanged = false, goalOffPath = false;
 	//Console::WriteLine << "StartTile (" << start->q << ", " << start->r << ")  GoalTile (" << goal->q << ", " << goal->r << ")";
-	if (!path->find(cachedGoal)) {
-		km += PathPlanner::heuristicFunction(oldGoal, cachedGoal);
+	if (!momentPath.find(momentGoal)) {
+		km += PathPlanner::heuristicFunction(oldGoal, momentGoal);
 		goalOffPath = true;
 	}
-	if (changedTiles.size()) {
-		HexTile* u = cachedStart; //Detection start point
 
-		for (HexTile& n : grid->Spiral(u, perceptionRange)) {
-			HexTile* neighbor = grid->GetTileExact(n);
+	//dstarMutex.lock();
+	if (changedTiles.size()) {
+		//HexTile* u = momentStart; //Detection start point
+		//HexPath spire = grid->Spiral(u, perceptionRange).ToGrid(grid);
+
+		//for (HexTile*& neighbor : spire) {
+		for (HexTile* neighbor : changedTiles) {
+
 			//with changed edge costs
-			if (!neighbor || !changedTiles.count(neighbor)) { continue; }
+			//if (!neighbor || !changedTiles.count(neighbor)) { continue; }
 
 			costChanged = true;
 
@@ -687,7 +700,7 @@ void MTDStarLite::Update() {
 				//if (parent.find(pred) != parent.end() && parent[pred]) Console::WriteLine << PrintTileInfo(pred, GetGVal(pred), GetRHS(pred), parent[pred]);
 				//else Console::WriteLine << PrintTileInfoNull(pred, GetGVal(pred), GetRHS(pred));
 
-				if (neighbor != cachedStart) {
+				if (neighbor != momentStart) {
 					if (c_old > GetCost(neighbor)) {
 						if (GetRHS(neighbor) > GetGVal(pred) + GetCost(neighbor)) { //clamp infinity?
 							//Console::WriteLine << "Edge Cost lowered";
@@ -719,17 +732,21 @@ void MTDStarLite::Update() {
 			});
 		}
 	}
-	if (costChanged || (goalOffPath && oldStart != cachedStart)) {
+	//dstarMutex.unlock();
+
+	if (costChanged || (goalOffPath && oldStart != momentStart)) {
 		//shift map
 		OptimizedDelete();
 		//BasicDeletion(oldStart);
-		oldStart = cachedStart;
+		oldStart = momentStart;
 	}
 	ComputeCostMinimalPath();
 
-	if (PathPlanner::EpsilonIsEqual(GetRHS(cachedGoal), grid->BlockWeight())) {
+	oldGoal = momentGoal;
+	if (PathPlanner::EpsilonIsEqual(GetRHS(momentGoal), grid->BlockWeight())) {
 		//no path exists
 		Console::WriteLine << "There's no PATH for MEE!!!!!";
+
 		dstarMutex.unlock(); // unlock mutex
 		return;
 	}
@@ -737,7 +754,6 @@ void MTDStarLite::Update() {
 	//}
 	//Console::WriteLine << "End Update";
 
-	oldGoal = cachedGoal;
 
 	dstarMutex.unlock(); // unlock mutex
 }

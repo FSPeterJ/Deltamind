@@ -10,7 +10,7 @@
 #include "MessageStructs.h"
 
 //#define MAX_PARTICLES 524288 // 2^19
-#define MAX_PARTICLES 2000 // 2^4
+#define MAX_PARTICLES 20000 // 2^4
 #define MAX_REFERENCE_PARTICLES 100
 class ParticleManager: public IComponentManager {
 

@@ -878,9 +878,10 @@ XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 }
 
 void Renderer::Render() {
+#if _DEBUG
 	if(graphicsAnalysis && countCapture == 0)
 		graphicsAnalysis->BeginCapture();
-
+#endif
 	perFrameDataConstantBuffer.FrameTime = (float)GhostTime::DeltaTime();
 	perFrameDataConstantBuffer.lastElapsed = perFrameDataConstantBuffer.ElapsedTime;
 	perFrameDataConstantBuffer.ElapsedTime += perFrameDataConstantBuffer.FrameTime;
@@ -995,12 +996,15 @@ void Renderer::Render() {
 		}
 	}
 	swapchain->Present(0, 0);
+#if _DEBUG
+
 	countCapture++;
 	if(graphicsAnalysis && countCapture > MAX_CAPTURES) {
 		
 		graphicsAnalysis->EndCapture();
 		SAFE_RELEASE(graphicsAnalysis);
 	}
+#endif
 
 }
 

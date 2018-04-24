@@ -397,7 +397,7 @@ void Game::MainMenuLoaded() {
 }
 void Game::TutorialLoaded() {
 	worldLight.SetAsDirectional({ 0.25f, 0.25f, 0.25f }, { 0, -0.5f, 0.5f });
-
+	tutorialSpots[0].SetAsSpot({ 0.5f, 0.5f, 0.5f }, { 14.0f, 5.0f, 10.0f }, { 0.5f, -0.5f, 0.0f }, 0.5f, 0.4f);
 	gameData.AddGears(1000);
 	//Update Controllers
 	{

@@ -25,6 +25,6 @@ __int64 GhostTime::Duration(Moment start, Moment end) {
 
 void GhostTime::ToggleTimeScale() {
 	if (timeScale == 1)
-		timeScale = 0.5;
+		timeScale = 0.25;
 	else timeScale = 1;
 }

@@ -7,7 +7,7 @@
 #include <future>
 using namespace DirectX;
 
-#define DRAWSTATICOBJECTS false
+#define DRAWSTATICOBJECTS true
 
 std::mutex PhysicsManager::physicsMutex;
 std::mutex PhysicsManager::physCompPoolMutex;
@@ -210,7 +210,6 @@ void PhysicsManager::Update() {
 	
 	const int activeCount = (int)dynamicComponents.GetActiveCount();
 	for(int i = 0; i < activeCount; ++i) {
-
 		//This seems absurd, are we sure we can't use XMVECTOR and XMMATRIX in a more manageable manner?
 		if (!dynamicComponents[i].isActive) continue;
 		XMFLOAT4X4* objectPosition = &(dynamicComponents[i].parentObject->transform.matrix);

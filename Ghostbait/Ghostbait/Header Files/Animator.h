@@ -26,10 +26,11 @@ public:
 	~Animator();
 
 	void Destroy();
+	void Disable();
 	void Enable();
 	void Initialize(AnimationManager* animManIn);
 	void Update();
-	void SetTime(float _timePos);
+	void SetTime(double _timePos);
 	void addAnim(const char* animFilePath, const char* bindposeFilePath, const char* animName);
 	bool setState(const char* animName, float speed = 1.0f);
 
@@ -37,6 +38,7 @@ public:
 	double getTimePos() { return timePos; }
 	std::unordered_map<std::string, Animation*>* getAnimations() { return &animations; }
 	const std::vector<animJoint>* getTweens();
+	const double GetDuration();
 	void SetJointMatrix(const int jointIndex, const DirectX::XMFLOAT4X4& mat);
 	const DirectX::XMFLOAT4X4& GetJointMatrix(const int jointIndex) const;
 

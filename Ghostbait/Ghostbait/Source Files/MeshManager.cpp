@@ -168,7 +168,7 @@ Mesh*  MeshManager::GetElement(const unsigned int _id) {
 	return nullptr;
 }
 
-Mesh* MeshManager::CloneComponent(ComponentBase* meshReference) {
+Mesh* MeshManager::CloneComponent(ComponentBase* meshReference, Object* obj) {
 	//If you are here there is probably something wrong
 	return nullptr;
 }

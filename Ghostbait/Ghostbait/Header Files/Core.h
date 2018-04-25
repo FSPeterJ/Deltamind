@@ -13,6 +13,7 @@ class Core : public GameObject,  public Health, public GridBasedObject {
 	DirectX::XMFLOAT4 background = { 1, 132.0f / 255.0f, 10.0f / 255.0f, 105.0f / 255.0f };
 
 	Light light;
+	Light spots[6];
 	float panicTimer;
 	float panicDuration;
 public:

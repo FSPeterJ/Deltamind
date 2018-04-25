@@ -236,6 +236,8 @@ void Turret_Long::Awake(Object* obj) {
 	firerate = 0.5f;
 	damage = 100;
 	buildCost = 500;
+	SetMaxHealth(45);
+	SetToFullHealth();
 }
 void Turret_Long::Shoot() {
 	//Fire
@@ -267,6 +269,8 @@ void Turret_Medium::Awake(Object* obj) {
 	firerate = 2.0f;
 	damage = 10;
 	buildCost = 400;
+	SetMaxHealth(35);
+	SetToFullHealth();
 }
 void Turret_Medium::Shoot() {
 	//Fire
@@ -298,6 +302,8 @@ void Turret_Short::Awake(Object* obj) {
 	firerate = 3.25F;
 	damage = 3;
 	buildCost = 350;
+	SetMaxHealth(25);
+	SetToFullHealth();
 }
 void Turret_Short::Shoot() {
 	//Fire

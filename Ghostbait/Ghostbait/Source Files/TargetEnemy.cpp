@@ -26,6 +26,7 @@ void TargetEnemy::Awake(Object* obj) {
 	EnemyBase::Awake(obj);
 	toEnd = true;
 	speed = 1;
+	ChangeState(PATROL);
 }
 void TargetEnemy::SetRange(const DirectX::XMFLOAT3& start, const DirectX::XMFLOAT3& end) {
 	startPos = start;

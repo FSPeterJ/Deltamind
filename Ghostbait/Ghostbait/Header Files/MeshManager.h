@@ -32,7 +32,7 @@ public:
 	int AddElement(const char* _meshFilePath);
 	Mesh* GetElement(const unsigned _id);
 	Mesh* GetReferenceComponent(const char * _FilePath, const char * _data) override;
-	Mesh* CloneComponent(ComponentBase* meshReference) override;
+	Mesh* CloneComponent(ComponentBase* meshReference, Object* obj = nullptr) override;
 	void ResetComponent(ComponentBase * reset) override;
 	void ActivateComponent(ComponentBase* component) override;
 	void DeactivateComponent(ComponentBase* component) override;

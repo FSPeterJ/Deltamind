@@ -22,6 +22,8 @@ class PhysicsManager: public IComponentManager {
 	static Pool<PhysicsComponent> dynamicComponents;
 	static Pool<PhysicsComponent> staticComponents;
 	static SpatialPartition partitionSpace;
+	//static SpatialPartition staticPartitionSpace;
+
 	static std::mutex physicsMutex;
 	static std::mutex physCompPoolMutex;
 	std::vector<ColliderData> colliderDataList;
@@ -32,7 +34,7 @@ class PhysicsManager: public IComponentManager {
 	ColliderData* AddColliderData(float x1, float y1, float z1, float x2, float y2, float z2);
 
 	void CollisionCheck(PhysicsComponent* component1, PhysicsComponent* component2);
-	void UpdateAABB(PhysicsComponent& component);
+	void UpdateAABB(PhysicsComponent& component, Object* objPtr = nullptr);
 	void TestAllComponentsCollision();
 	bool IsVectorZero(DirectX::XMVECTOR& _toTest);
 	bool SphereToSphereCollision(Collider& col1, DirectX::XMVECTOR& pos1, Collider& col2, DirectX::XMVECTOR& pos2);
@@ -71,7 +73,7 @@ public:
 	//bool CreateBoxCollider(XMFLOAT3 p1, XMFLOAT3 p2);
 
 	void AddComponent(GameObject* obj, float veloX = 0.0f, float veloY = 0.0f, float veloZ = 0.0f);
-	PhysicsComponent* CloneComponent(ComponentBase * reference) override;
+	PhysicsComponent* CloneComponent(ComponentBase * reference, Object* objPtr) override;
 	PhysicsComponent* GetReferenceComponent(const char * _FilePath, const char* _data) override;
 	void PausedUpdate();
 	void ResetComponent(ComponentBase * reset) override;

@@ -37,13 +37,13 @@ void ObjectFactory::Initialize(ObjectManager* _objMan, const char* object) {
 
 void ObjectFactory::Instantiate(EventMessageBase *e) {
 	InstantiateMessage* instantiate = (InstantiateMessage*)e;
-	GameObject* newobject = ActivateObject(instantiate->pid);
+	GameObject* newobject = ActivateObject(instantiate->pid, instantiate->position);
 	if(instantiate->obj != nullptr) {
 		*instantiate->obj = newobject;
 	}
-	DirectX::XMFLOAT4X4 newPos;
-	memcpy(&newPos, &instantiate->position, sizeof(DirectX::XMFLOAT4X4));
-	newobject->transform.SetMatrix(newPos);
+	//DirectX::XMFLOAT4X4 newPos;
+	//memcpy(&newPos, &instantiate->position, sizeof(DirectX::XMFLOAT4X4));
+	//newobject->transform.SetMatrix(newPos);
 	MessageEvents::SendMessage(EVENT_Instantiated, ObjectMessage(newobject));
 }
 
@@ -55,18 +55,18 @@ void ObjectFactory::InstantiateByType(EventMessageBase *e) {
 			//Console::ErrorOutLine << "ObjectFactory: Type Mismatch!  Instantiate Request of " << prefabNamesReverse[instantiate->pid].c_str()  << " has a requesting typeID of " << TypeMap::GetObjectNameFromID(instantiate->tid) << " Which does not match the prefab typeID of " << TypeMap::GetObjectNameFromID(prefabs[instantiate->pid].objectTypeID);
 			//Console::WarningLine << "ObjectFactory: Type Mismatch!  Instantiate Request of " << prefabNamesReverse[instantiate->pid].c_str() << " has a requesting typeID of " << TypeMap::GetObjectNameFromID(instantiate->tid) << " Which does not match the prefab typeID of " << TypeMap::GetObjectNameFromID(prefabs[instantiate->pid].objectTypeID);
 		}
-		newobject = ActivateObject(instantiate->pid);
+		newobject = ActivateObject(instantiate->pid, instantiate->position);
 
 	}
 	else {
-		newobject = ActivateObject(Object2Prefab[instantiate->tid]);
+		newobject = ActivateObject(Object2Prefab[instantiate->tid], instantiate->position);
 	}
 	if(instantiate->obj != nullptr) {
 		*instantiate->obj = newobject;
 	}		
-	DirectX::XMFLOAT4X4 newPos;
-	memcpy(&newPos, &instantiate->GetPosition(), sizeof(DirectX::XMFLOAT4X4));
-	newobject->transform.SetMatrix(newPos);
+	//DirectX::XMFLOAT4X4 newPos;
+	//memcpy(&newPos, &instantiate->GetPosition(), sizeof(DirectX::XMFLOAT4X4));
+	//newobject->transform.SetMatrix(newPos);
 	MessageEvents::SendMessage(EVENT_Instantiated, ObjectMessage(newobject));
 }
 
@@ -78,18 +78,19 @@ void ObjectFactory::InstantiateByName(EventMessageBase *e) {
 		Console::WarningLine << "ObjectFactory: Type Mismatch!  Instantiate Request of " << prefabNamesReverse[selectedPrefab].c_str() << " has a requesting typeID of " << TypeMap::GetObjectNameFromID(instantiate->tid)<< " Which does not match the prefab typeID of " << TypeMap::GetObjectNameFromID(prefabs[selectedPrefab].objectTypeID);
 	}
 
-	GameObject* newobject = ActivateObject(prefabNames[std::string(instantiate->debug_name)]);
+	GameObject* newobject = ActivateObject(prefabNames[std::string(instantiate->debug_name)], instantiate->position);
 	if(instantiate->obj != nullptr) {
 		*instantiate->obj = newobject;
 	}
-	DirectX::XMFLOAT4X4 newPos;
-	memcpy(&newPos, &instantiate->position, sizeof(DirectX::XMFLOAT4X4));
-	newobject->transform.SetMatrix(newPos);
+	//DirectX::XMFLOAT4X4 newPos;
+	//memcpy(&newPos, &instantiate->position, sizeof(DirectX::XMFLOAT4X4));
+	//newobject->transform.SetMatrix(newPos);
 	MessageEvents::SendMessage(EVENT_Instantiated, ObjectMessage(newobject));
 }
 
-GameObject* ObjectFactory::ActivateObject(PrefabId pid) {
+GameObject* ObjectFactory::ActivateObject(PrefabId pid, DirectX::XMFLOAT4X4& matrix) {
 	GameObject* newobject = objMan->Instantiate(prefabs[pid].objectTypeID);
+	newobject->transform.SetMatrix(matrix);
 	auto TypeGathered = registeredCasters[prefabs[pid].objectTypeID](newobject);
 	newobject->DestroyComponents.Clear();
 	for(int i = 0; i < 64; i++) {
@@ -97,7 +98,7 @@ GameObject* ObjectFactory::ActivateObject(PrefabId pid) {
 			newobject->SetComponent(prefabs[pid].instantiatedComponents[i], i);
 		}
 		else if(prefabs[pid].instantiatedComponents[i] != nullptr) {
-			InstantiatedCompBase* comptemp = (InstantiatedCompBase *)managers[i]->CloneComponent(prefabs[pid].instantiatedComponents[i]);
+			InstantiatedCompBase* comptemp = (InstantiatedCompBase *)managers[i]->CloneComponent(prefabs[pid].instantiatedComponents[i], newobject);
 			comptemp->parentObject = newobject; // This will crash if this is not an InstantiatedCompBase
 			newobject->SetComponent(comptemp, i);
 			newobject->DestroyComponents.Add([=]() {

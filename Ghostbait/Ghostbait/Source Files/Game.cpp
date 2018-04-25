@@ -311,7 +311,7 @@ void Game::RestartLevel() {
 	GameData const* gd = &gameData;
 	MessageEvents::SendMessage(EVENT_StopAllSounds, EventMessageBase());
 	MessageEvents::SendMessage(EVENT_ReadyToStart, GameDataMessage(&gd));
-
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::PLAY_AMB_02));
 	MessageEvents::SendQueueMessage(EVENT_Late, [=]() { 
 		//ThreadPool::ClearQueues(); 
 		ThreadPool::AcceptNonCriticalJobs(true);
@@ -359,19 +359,32 @@ void Game::Quit() {
 	run = false;
 }
 void Game::ExitToMainMenu() {
-	//MessageEvents::SendMessage(EVENT_StopAllSounds, EventMessageBase());
+	MessageEvents::SendMessage(EVENT_StopAllSounds, EventMessageBase());
 	ChangeState(GAMESTATE_MainMenu);
 	ChangeScene("mainMenu");
 }
 
 //Main Scene Functions
 void Game::MainMenuLoaded() {
-	worldLight.RemoveLightFromManager();
+	worldLight.SetAsDirectional({ 0.5f, 0.5f, 0.5f }, { 0, 0, 1 });
+	for (int i = 0; i < 9; ++i)
+	{
+		tutorialSpots[i].RemoveLightFromManager();
+	}
 	//Create Menu
 	DirectX::XMFLOAT4X4 menuPos = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1.7f, 2, 1);
 	mainMenu.SetSpawnPos(menuPos);
 	gameData.SetStateHard(GAMESTATE_MainMenu);
+	//mainMenu.SetGapHeight(0.005f);
 	mainMenu.Show(false);
+
+	//Create Logo
+	MessageEvents::SendQueueMessage(EVENT_Late, [=] {
+		GameObject* logo;
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/DM_Logo.ghost")), { 0, 21, 20 }, &logo));
+		logo->Enable();
+	});
+
 	//Set Controllers
 	player->leftController->ClearInventory();
 	player->rightController->ClearInventory();
@@ -396,7 +409,18 @@ void Game::MainMenuLoaded() {
 	}
 }
 void Game::TutorialLoaded() {
-	worldLight.SetAsDirectional({ 0.25f, 0.25f, 0.25f }, { 0, -0.5f, 0.5f });
+	worldLight.SetAsDirectional({ 0.5f, 0.5f, 0.5f }, { 0, -0.5f, 0.5f });
+	tutorialSpots[0].SetAsSpot({ 0.75f, 0.75f, 0.75f }, { 14.0f, 5.0f, -10.0f }, { 0.0f, -1.0f, 0.0f }, 0.9f, 0.8f);
+	tutorialSpots[1].SetAsSpot({ 0.75f, 0.75f, 0.75f }, { 3.0f, 5.0f, -10.0f }, { 0.0f, -1.0f, 0.0f }, 0.9f, 0.8f);
+	tutorialSpots[2].SetAsSpot({ 0.75f, 0.75f, 0.75f }, { 25.0f, 5.0f, -10.0f }, { 0.0f, -1.0f, 0.0f }, 0.9f, 0.8f);
+								 
+	tutorialSpots[3].SetAsSpot({ 0.75f, 0.75f, 0.75f }, { 14.0f, 5.0f, -20.0f }, { 0.0f, -1.0f, 0.0f }, 0.9f, 0.8f);
+	tutorialSpots[4].SetAsSpot({ 0.75f, 0.75f, 0.75f }, { 3.0f, 5.0f, -20.0f }, { 0.0f, -1.0f, 0.0f }, 0.9f, 0.8f);
+	tutorialSpots[5].SetAsSpot({ 0.75f, 0.75f, 0.75f }, { 25.0f, 5.0f, -20.0f }, { 0.0f, -1.0f, 0.0f }, 0.9f, 0.8f);
+								 
+	tutorialSpots[6].SetAsSpot({ 0.75f, 0.75f, 0.75f }, { 14.0f, 5.0f, -30.0f }, { 0.0f, -1.0f, 0.0f }, 0.9f, 0.8f);
+	tutorialSpots[7].SetAsSpot({ 0.75f, 0.75f, 0.75f }, { 3.0f, 5.0f, -30.0f }, { 0.0f, -1.0f, 0.0f }, 0.9f, 0.8f);
+	tutorialSpots[8].SetAsSpot({ 0.75f, 0.75f, 0.75f }, { 25.0f, 5.0f, -30.0f }, { 0.0f, -1.0f, 0.0f }, 0.9f, 0.8f);
 
 	gameData.AddGears(1000);
 	//Update Controllers
@@ -659,6 +683,7 @@ void Game::Update() {
 						int id = ObjectFactory::CreatePrefab(&gameData.ssManager.GetCurrentLogoData().fileName);
 						GameObject* newLogo;
 						MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(id, { 0, 1.5f, 20 }, &newLogo));
+						newLogo->Enable();
 						gameData.ssManager.SetCurrentLogoObject(newLogo);
 					}
 				}
@@ -672,6 +697,9 @@ void Game::Update() {
 					if(gameData.ssManager.NextLogoExists()) {
 						//Update your index to it, and update the duration to be a new timer if not special
 						gameData.ssManager.MoveToNextLogo();
+						if (gameData.ssManager.GetCurrentLogoIndex() == gameData.ssManager.GetLogoCount() - 1) {
+							splashScreenMenu.Hide();
+						}
 						if(gameData.ssManager.GetCurrentLogoData().spawnTime != -1) {
 							gameData.ssManager.UpdateCurrentLogoSpawnTime();
 						}
@@ -679,6 +707,7 @@ void Game::Update() {
 							int id = ObjectFactory::CreatePrefab(&gameData.ssManager.GetCurrentLogoData().fileName);
 							GameObject* newLogo;
 							MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(id, { 0, 1.5f, 20 }, &newLogo));
+							newLogo->Enable();
 							gameData.ssManager.SetCurrentLogoObject(newLogo);
 						}
 					}

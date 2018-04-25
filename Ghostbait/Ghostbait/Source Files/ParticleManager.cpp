@@ -267,7 +267,7 @@ ComponentBase* ParticleManager::GetReferenceComponent(const char* _FilePath, con
 	return newEmitter;
 }
 
-ComponentBase* ParticleManager::CloneComponent(ComponentBase* reference) {
+ComponentBase* ParticleManager::CloneComponent(ComponentBase* reference, Object* objPtr) {
 	ComponentBase* newEmitter = emitterPool.ActivateMemory();
 	//EmitterComponent* data = (EmitterComponent*)reference;
 	memcpy(newEmitter, reference, sizeof(Emitter));

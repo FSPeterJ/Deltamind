@@ -50,7 +50,7 @@ Animator* AnimatorManager::GetReferenceComponent(const char * _FilePath, const c
 	return toReturn;
 }
 
-Animator * AnimatorManager::CloneComponent(ComponentBase * reference) {
+Animator * AnimatorManager::CloneComponent(ComponentBase * reference, Object* obj) {
 	Animator* toReturn = animators.ActivateMemory();
 	toReturn->Copy(((Animator*)reference));
 	toReturn->Initialize(animMan);

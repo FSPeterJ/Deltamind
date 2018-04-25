@@ -21,6 +21,7 @@ cbuffer lightInfoBuffer : register(b0)
     float3 ambientColor;
     float ambientIntensity;
     float3 cameraPos;
+    float padding;
 };
 
 cbuffer viewProjBuffer : register(b2)

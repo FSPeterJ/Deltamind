@@ -44,7 +44,7 @@ void ObjectFactory::Instantiate(EventMessageBase *e) {
 	//DirectX::XMFLOAT4X4 newPos;
 	//memcpy(&newPos, &instantiate->position, sizeof(DirectX::XMFLOAT4X4));
 	//newobject->transform.SetMatrix(newPos);
-	MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
+	MessageEvents::SendMessage(EVENT_Instantiated, ObjectMessage(newobject));
 }
 
 void ObjectFactory::InstantiateByType(EventMessageBase *e) {
@@ -67,7 +67,7 @@ void ObjectFactory::InstantiateByType(EventMessageBase *e) {
 	//DirectX::XMFLOAT4X4 newPos;
 	//memcpy(&newPos, &instantiate->GetPosition(), sizeof(DirectX::XMFLOAT4X4));
 	//newobject->transform.SetMatrix(newPos);
-	MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
+	MessageEvents::SendMessage(EVENT_Instantiated, ObjectMessage(newobject));
 }
 
 void ObjectFactory::InstantiateByName(EventMessageBase *e) {
@@ -85,7 +85,7 @@ void ObjectFactory::InstantiateByName(EventMessageBase *e) {
 	//DirectX::XMFLOAT4X4 newPos;
 	//memcpy(&newPos, &instantiate->position, sizeof(DirectX::XMFLOAT4X4));
 	//newobject->transform.SetMatrix(newPos);
-	MessageEvents::SendMessage(EVENT_Instantiated, NewObjectMessage(newobject));
+	MessageEvents::SendMessage(EVENT_Instantiated, ObjectMessage(newobject));
 }
 
 GameObject* ObjectFactory::ActivateObject(PrefabId pid, DirectX::XMFLOAT4X4& matrix) {

@@ -3,6 +3,18 @@
 #include <d3d11.h>
 #include "Window.h"
 #include <vector>
+#include "ParticleManager.h"
+
+#if _DEBUG
+
+#define MAX_CAPTURES 3
+#include <DXGItype.h>  
+#include <dxgi1_2.h>  
+#include <dxgi1_3.h>  
+#include <DXProgrammableCapture.h>  
+#endif
+
+
 
 class Transform;
 class GameObject;
@@ -38,6 +50,18 @@ private:
 		D3D11_VIEWPORT viewport;
 	};
 
+
+	struct PerFrameConstantBuffer {
+		float FrameTime;
+		float ElapsedTime;
+		float lastElapsed;
+		float padding;
+		DirectX::XMFLOAT3 cameraCenterpoint;
+		float padding2;
+	} perFrameDataConstantBuffer;
+
+	int countCapture;
+
 	struct viewProjectionConstantBuffer {
 		DirectX::XMFLOAT4X4 view;
 		DirectX::XMFLOAT4X4 projection;
@@ -51,8 +75,7 @@ private:
 		D3D11_VIEWPORT viewport;
 	};
 
-	struct DeferredRTVs
-	{
+	struct DeferredRTVs {
 		ID3D11Texture2D* textures[6];
 		ID3D11Texture2D* depthBuffer;
 		ID3D11RenderTargetView* RTVs[6];
@@ -73,8 +96,7 @@ private:
 		DirectX::XMFLOAT3 filler;
 	};
 
-	struct Skybox
-	{
+	struct Skybox {
 		ID3D11Texture2D* faces[6];
 		ID3D11Texture2D* box;
 		ID3D11ShaderResourceView* srv;
@@ -114,9 +136,7 @@ private:
 	ID3D11PixelShader* PassThroughPS;
 	ID3D11VertexShader* StandardVertexShader;
 	ID3D11PixelShader* StandardPixelShader;
-	ID3D11VertexShader* ParticleVS;
-	ID3D11GeometryShader* ParticleGS;
-	ID3D11PixelShader* ParticlePS;
+
 	ID3D11VertexShader* SkyboxVS;
 	ID3D11PixelShader* SkyboxPS;
 	ID3D11PixelShader* DeferredTargetPS;
@@ -138,6 +158,7 @@ private:
 	ID3D11Buffer* modelBuffer;
 	ID3D11Buffer* factorBuffer;
 	ID3D11Buffer* lightBuffer;
+	ID3D11Buffer* perFrameConstantBuffer;
 	ID3D11Buffer* animDataBuffer;
 	ID3D11Buffer* blurDataBuffer;
 	ID3D11Buffer* uvDataBuffer;
@@ -162,6 +183,18 @@ private:
 	MeshManager* meshManagement = nullptr;
 	MaterialManager* materialManagement = nullptr;
 	AnimationManager* animationManagement = nullptr;
+	ParticleManager* particleManager = nullptr;
+
+	//Contains randomized numbers since GPU's don't have a RdRand instruction
+	ID3D11Texture2D* randomTexture;
+	ID3D11ShaderResourceView* randomTextureSRV;
+
+	ID3D11Debug* DebugDevice = nullptr;
+#if _DEBUG
+	IDXGraphicsAnalysis* graphicsAnalysis = nullptr;
+#endif
+
+
 
 	void initDepthStencilBuffer(pipeline_state_t* pipelineTo);
 	void initDepthStencilState(pipeline_state_t* pipelineTo);
@@ -173,7 +206,6 @@ private:
 	void createDeviceContextAndSwapchain(Window window);
 	void clearPipelineMemory(pipeline_state_t* pipeline);
 	void clearTextureMemory(renderTargetInfo* info);
-	bool LoadShaderFromCSO(char ** szByteCode, size_t& szByteCodeSize, const char* szFileName);
 	void setupVRTargets();
 	void renderRightEyeToMonitor();
 	void releaseDeferredTarget(DeferredRTVs* in);
@@ -198,6 +230,8 @@ public:
 	//test
 	eye leftEye;
 	eye rightEye;
+	DirectX::XMMATRIX mHMDWorldPos;
+
 
 	Renderer();
 	~Renderer();
@@ -244,6 +278,12 @@ public:
 
 	void setSkybox(const char* directoryName, const char* filePrefix);
 
+	MeshManager* GetMeshManager();
+	MaterialManager* GetMaterialManager();
+	AnimationManager* GetAnimationManager();
+	ParticleManager* GetParticleManager();
+	Transform* GetCamera();
+	void FillRandomTexture();
 	void setGamma(float value);
 
 	HUD* getHud() { return defaultHUD; }
@@ -254,3 +294,17 @@ public:
 	Transform* getCamera();
 	void Render();
 };
+//D3D11 ERROR : ID3D11Device::CreateShaderResourceView : 
+//
+//The Dimensions of the View are invalid due to at least one of the following conditions.
+//MostDetailedMip(value = 0) must be between 0 and MipLevels-1 of the Texture Resource, 9, inclusively.
+//With 
+//the current MostDetailedMip, MipLevels(value = 0) must be between 1 and 10, inclusively, 
+//or 
+//-1 to default to all mips from MostDetailedMip, in order that the View fit on the Texture.
+//FirstArraySlice(value = 0) must be between 0 and ArraySize-1 of the Texture Resource, 31, inclusively.
+//With 
+//the current FirstArraySlice, ArraySize(value = 32) must be between 1 and 32, inclusively, 
+//or 
+//-1 to default to all slices from FirstArraySlice, in order that the View fit on the Texture.
+//[STATE_CREATION ERROR #128: CREATESHADERRESOURCEVIEW_INVALIDDIMENSIONS]

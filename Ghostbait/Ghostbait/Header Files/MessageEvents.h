@@ -20,6 +20,8 @@ enum EVENT_TYPES {
 	EVENT_Late,
 	EVENT_LENGTH,
 	EVENT_RegisterNoisemaker,
+	EVENT_NewEmitter,
+	EVENT_DeleteEmitter,
 	EVENT_RequestSound,
 	EVENT_UnregisterNoisemaker,
 	EVENT_GetPlayer,

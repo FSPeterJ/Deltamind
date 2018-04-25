@@ -1,9 +1,7 @@
 Texture2D diffuse : register(t0);
 Texture2D specular : register(t1);
 Texture2D emissive : register(t2);
-
 SamplerState sample : register(s0);
-
 
 // Per-pixel color data passed through the pixel shader.
 struct PixelShaderInput

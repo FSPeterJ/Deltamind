@@ -15,7 +15,7 @@ void Gun::Overheat::CreateBar(Gun* _parent) {
 	bar->PersistOnReset();
 }
 bool Gun::Overheat::CanShoot(float fireRate) {
-	return timeSinceLastShot > (1 / fireRate) && !energyOverheatDelayTimeLeft;
+	return timeSinceLastShot > (1.0f / fireRate) && !energyOverheatDelayTimeLeft;
 }
 bool Gun::Overheat::AddEnergy(float energy) {
 	currentEnergy += energy;
@@ -97,7 +97,7 @@ void Gun::Awake(Object* obj) {
 	fireRate = gun->fireRate;
 	damage = gun->damage;
 	type = gun->type;
-	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
+	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, ObjectMessage(this));
 	GameObject::Awake(obj);
 }
 void Gun::ActiveUpdate() {

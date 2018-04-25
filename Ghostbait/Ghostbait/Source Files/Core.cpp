@@ -24,9 +24,17 @@ void Core::Awake(Object* obj) {
 	gridRadius = 2;
 	panicTimer = -1;
 	panicDuration = 4;
-	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
+	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, ObjectMessage(this));
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_COREHUM));
 	light.SetAsPoint(NORMALCOLOR, transform.GetPosition(), 1000);
 	light.Enable();
+	spots[0].SetAsSpot(NORMALCOLOR, { 20.0f, 10.0f, 0.0f }, { 0.45f, -0.55f, 0.0f }, 0.9f, 0.8f);
+	spots[1].SetAsSpot(NORMALCOLOR, { -20.0f, 10.0f, 0.0f }, { -0.45f, -0.55f, 0.0f }, 0.9f, 0.8f);
+	spots[2].SetAsSpot(NORMALCOLOR, { 27.0f, 10.0f, -51.0f }, { 0.45f, -0.55f, 0.0f }, 0.9f, 0.8f);
+	spots[3].SetAsSpot(NORMALCOLOR, { -27.0f, 10.0f, 52.0f }, { -0.45f, -0.55f, 0.0f }, 0.9f, 0.8f);
+	spots[4].SetAsSpot(NORMALCOLOR, { -26.0f, 10.0f, -51.0f }, { -0.45f, -0.55f, 0.0f }, 0.9f, 0.8f);
+	spots[5].SetAsSpot(NORMALCOLOR, { 26.0f, 10.0f, 52.0f }, { 0.45f, -0.55f, 0.0f }, 0.9f, 0.8f);
+
 	SetToFullHealth();
 	//Test(PercentHealth());
 }
@@ -43,6 +51,8 @@ void Core::Update() {
 		if (panicTimer >= panicDuration) {
 			panicTimer = -1;
 			light.SetColor(NORMALCOLOR);
+			for (int i = 0; i < 6; ++i)
+				spots[i].SetColor(NORMALCOLOR);
 			MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::STOP_SFX_COREALARM));
 			MessageEvents::SendMessage(EVENT_CoreStopDamaged, EventMessageBase());
 		}
@@ -57,11 +67,17 @@ void Core::HurtEvent() {
 	panicTimer = 0;
 	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_COREALARM));
 	light.SetColor(PANICCOLOR);
-
+	for (int i = 0; i < 6; ++i)
+		spots[i].SetColor(PANICCOLOR);
 	std::string message = "\n      Core Health ";
 	message.append(std::to_string((int)(PercentHealth() * 100)) + "%      \n");
 	TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", message, coreRingMat, foreground, background);
-
+	if (PercentHealth() <= 0.66f) {
+		if (PercentHealth() <= 0.33f)
+			SwapComponentVarient<Material>("low");
+		else 
+			SwapComponentVarient<Material>("med");
+	}
 	Core const* core = this;
 	MessageEvents::SendMessage(EVENT_CoreDamaged, CoreMessage(&core));
 	/*
@@ -86,16 +102,22 @@ void Core::DeathEvent() {
 	*/
 	panicTimer = -1;
 	light.SetColor(NORMALCOLOR);
+	for (int i = 0; i < 6; ++i)
+		spots[i].SetColor(NORMALCOLOR);
 	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::STOP_SFX_COREALARM));
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::STOP_SFX_COREHUM));
 	MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 	MessageEvents::SendMessage(EVENT_GameLose, EventMessageBase());
 }
 void Core::Destroy() {
 	light.SetColor({ 0, 0, 0 });
 	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::STOP_SFX_COREALARM));
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::STOP_SFX_COREHUM));
 	light.RemoveLightFromManager();
+	for (int i = 0; i < 6; ++i)
+		spots[i].RemoveLightFromManager();
 	if (coreRing) coreRing->Destroy();
-	MessageEvents::SendMessage(EVENT_UnregisterNoisemaker, NewObjectMessage(this));
+	MessageEvents::SendMessage(EVENT_UnregisterNoisemaker, ObjectMessage(this));
 	Core const* co = this;
 	MessageEvents::SendMessage(EVENT_CoreDestroyed, CoreMessage(&co));
 	GameObject::Destroy();

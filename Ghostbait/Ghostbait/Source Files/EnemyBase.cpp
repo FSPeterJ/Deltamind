@@ -51,7 +51,7 @@ void EnemyBase::Awake(Object* obj) {
 	SetToFullHealth();
 
 	GameObject::Awake(obj);
-	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
+	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, ObjectMessage(this));
 }
 
 void EnemyBase::Start() {
@@ -78,7 +78,7 @@ void EnemyBase::Start() {
 
 	if(domTrait == domTraits[0]) {
 		SwapComponentVarient<Mesh>("medium");
-		//SwapComponentVarient<Material>("pink");
+		SwapComponentVarient<Material>("mediumMat");
 		//animator->setState("Walk_Medium");
 		enemyType = Medium;
 	} else if(domTrait == domTraits[1]) {
@@ -87,12 +87,12 @@ void EnemyBase::Start() {
 		enemyType = Default;
 	} else if(domTrait == domTraits[2]) {
 		SwapComponentVarient<Mesh>("heavy");
-		//SwapComponentVarient<Material>("green");
+		SwapComponentVarient<Material>("heavyMat");
 		//animator->setState("Walk_Heavy");
 		enemyType = Heavy;
 	} else if(domTrait == domTraits[3]) {
 		SwapComponentVarient<Mesh>("light");
-		//SwapComponentVarient<Material>("yellow");
+		SwapComponentVarient<Material>("lightMat");
 		//animator->setState("Walk_Light");
 		enemyType = Light;
 	}
@@ -106,7 +106,7 @@ void EnemyBase::Subscribe() {
 	if(!eventLose) eventLose = MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) { MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); }); });
 	if (!smite) smite = MessageEvents::Subscribe(EVENT_Smite, [=](EventMessageBase* e) { this->AdjustHealth(-1000); });
 	if(!eventObstacleRemove) eventObstacleRemove = MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {ValidateTarget(e); });
-	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
+	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, ObjectMessage(this));
 }
 
 void EnemyBase::UnSubscribe() {
@@ -122,7 +122,7 @@ void EnemyBase::UnSubscribe() {
 		MessageEvents::UnSubscribe(EVENT_RemoveObstacle, eventObstacleRemove);
 		eventObstacleRemove = 0;
 	}
-	MessageEvents::SendMessage(EVENT_UnregisterNoisemaker, NewObjectMessage(this));
+	MessageEvents::SendMessage(EVENT_UnregisterNoisemaker, ObjectMessage(this));
 
 }
 

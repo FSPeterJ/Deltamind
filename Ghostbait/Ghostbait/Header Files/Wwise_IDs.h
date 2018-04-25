@@ -63,6 +63,7 @@ namespace AK
         static const AkUniqueID STOP_AMB_01 = 683783238U;
         static const AkUniqueID STOP_AMB_02 = 683783237U;
         static const AkUniqueID STOP_MUSIC_ROBOT_THEME_REVISED = 2775313471U;
+        static const AkUniqueID STOP_MUSIC_ROBOT_THEME_REVISED_NOFADE = 3702157025U;
         static const AkUniqueID STOP_MUSIC_ROBOT_TITLE_INTRO = 2243167392U;
         static const AkUniqueID STOP_SFX_COREALARM = 346920228U;
         static const AkUniqueID STOP_SFX_COREHUM = 1366110293U;

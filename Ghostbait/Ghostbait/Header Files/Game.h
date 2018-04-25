@@ -38,6 +38,7 @@ class Game {
 	Menu splashScreenMenu;
 
 	Light worldLight;
+	Light tutorialSpots[6];
 
 	bool paused = false;
 	float delayBetweenWaveReady = 3;

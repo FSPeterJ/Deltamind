@@ -7,7 +7,7 @@ namespace Omiracon {
 
 		void Evolvable::HandleMutationIteration(const MutationType& mutation, const size_t& curGen) {
 			traits.Mutate(mutation);
-			generation = curGen;
+			generation = (int)curGen;
 			performance.Reset();
 		}
 	}

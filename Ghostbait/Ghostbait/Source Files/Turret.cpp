@@ -43,7 +43,7 @@ void Turret::Awake(Object* obj) {
 	targetDistance = 9999999;
 	target = nullptr;
 	firerate = turret->firerate;
-	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
+	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, ObjectMessage(this));
 	anim = GetComponent<Animator>();
 	turretPitch = anim->getJointByName("Pitch");
 	turretYaw = anim->getJointByName("Yaw");

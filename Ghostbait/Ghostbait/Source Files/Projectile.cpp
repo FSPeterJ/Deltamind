@@ -3,6 +3,7 @@
 #include "MessageEvents.h"
 #include "PhysicsComponent.h"
 #include "Wwise_IDs.h"
+#include "Emitter.h"
 
 Projectile::Projectile() {
 	SetTag("Bullet");
@@ -15,7 +16,7 @@ void Projectile::Awake(Object* obj) {
 	isDestroying = false;
 	GameObject::Awake(obj);
 	pc = GetComponent<PhysicsComponent>();
-	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
+	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, ObjectMessage(this));
 }
 
 void Projectile::Update() {
@@ -38,7 +39,12 @@ void Projectile::OnCollision(GameObject* object) {
 		return;
 	}
 	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_BULLETHIT));
+
 	MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
+	Emitter* emitter = nullptr;
+	MessageEvents::SendMessage(EVENT_NewEmitter, NewEmitterMessage(&transform.GetPosition(), 0, (ComponentBase**)&emitter));
+	emitter->parentObject = this;
+	emitter->Enable();
 	isDestroying = true;
 	gameObjMutex.unlock();
 }
@@ -49,6 +55,6 @@ void Projectile::SetDamage(float _damage) {
 
 void Projectile::Destroy() {
 	++destroyedCount;
-	MessageEvents::SendMessage(EVENT_UnregisterNoisemaker, NewObjectMessage(this));
+	MessageEvents::SendMessage(EVENT_UnregisterNoisemaker, ObjectMessage(this));
 	GameObject::Destroy();
 }

@@ -261,10 +261,10 @@ bool EnemyBase::ChangeState(State _s) {
 		if (animator) {
 			if (genetics) {
 				switch (enemyType) {
-					case Default: animator->setState("Death"); break;
-					case Light: animator->setState("Death_Light"); break;
-					case Medium: animator->setState("Death_Medium"); break;
-					case Heavy: animator->setState("Death_Heavy"); break;
+				case Default: animator->setState("Death"); SwapComponentVarient<Material>("mediumMat"); break;
+					case Light: animator->setState("Death_Light"); SwapComponentVarient<Material>("lightMat"); break;
+					case Medium: animator->setState("Death_Medium"); SwapComponentVarient<Material>("mediumMat"); break;
+					case Heavy: animator->setState("Death_Heavy"); SwapComponentVarient<Material>("heavyMat"); break;
 				}
 			}
 			else {

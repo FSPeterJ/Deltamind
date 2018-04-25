@@ -212,7 +212,7 @@ void Animator::ManipulateChildrendJoints(animJoint* animationJoint, const Direct
 void Animator::Destroy() {
 	MessageEvents::SendQueueMessage(EVENT_Late, [=] {
 		if (updateID != 0) {
-			EngineStructure::Update.Remove(updateID);
+			EngineStructure::AnimationUpdate.Remove(updateID);
 			updateID = 0;
 		}
 	});
@@ -222,7 +222,7 @@ void Animator::Disable() {
 	assert(updateID != 0);
 	MessageEvents::SendQueueMessage(EVENT_Late, [=] {
 		if (updateID != 0) {
-			EngineStructure::Update.Remove(updateID);
+			EngineStructure::AnimationUpdate.Remove(updateID);
 			updateID = 0;
 		}
 	}); 
@@ -231,12 +231,13 @@ void Animator::Disable() {
 
 void Animator::Enable() {
 	if (!updateID) {
-		updateID = EngineStructure::Update.Add([=]() { Update(); });
+		updateID = EngineStructure::AnimationUpdate.Add([=]() { Update(); });
 	}
 	assert(updateID);
 }
 
 void Animator::Initialize(AnimationManager* animManIn) {
+	updateID = 0;
 	animMan = animManIn;
 	currScale = 1.0f;
 }
@@ -363,7 +364,7 @@ void Animator::addAnim(const char * animFilePath, const char * bindposeFilePath,
 	}
 }
 
-bool Animator::setState(const char * animName, float speed) {
+bool Animator::setState(const char * animName, double speed) {
 	Animation* toSet = animations[std::string(animName)];
 	if(toSet) {
 		timePos = 0;

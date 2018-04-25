@@ -1,4 +1,4 @@
-<Level startGears="0">
+<Level startGears="0" multiplier="1.5">
   <!-- Wave0    Assets/AStarEnemyEdit.ghost -->
   <Wave reward="50">
     <Spawner spawnerID="-1" enemyName="Assets/AStarEnemyEditEdit.ghost" spawnCount="3" initialDelay="4" runDelay="2"/>
@@ -41,13 +41,13 @@
 
 
   </Wave>
-  <!-- Wave3 -->
+  <!-- Wave4 -->
   <Wave reward="250">
     <Spawner spawnerID="-1" enemyName="Assets/AStarEnemyEditEdit.ghost" spawnCount="15" initialDelay="0" runDelay="1"/>
-    <Spawner spawnerID="-1" enemyName="Assets/AStarEnemyEditEdit.ghost" spawnCount="15" initialDelay="0" runDelay="2"/>
-    <Spawner spawnerID="-1" enemyName="Assets/AStarEnemyEditEdit.ghost" spawnCount="15" initialDelay="0" runDelay="3"/>
-    <Spawner spawnerID="-1" enemyName="Assets/AStarEnemyEditEdit.ghost" spawnCount="15" initialDelay="0" runDelay="1"/>
-    <Spawner spawnerID="-1" enemyName="Assets/AStarEnemyEditEdit.ghost" spawnCount="15" initialDelay="0" runDelay="2"/>
-    <Spawner spawnerID="-1" enemyName="Assets/AStarEnemyEditEdit.ghost" spawnCount="15" initialDelay="0" runDelay="3"/>
+    <Spawner spawnerID="-1" enemyName="Assets/AStarEnemyEditEdit.ghost" spawnCount="15" initialDelay="1" runDelay="2"/>
+    <Spawner spawnerID="-1" enemyName="Assets/AStarEnemyEditEdit.ghost" spawnCount="15" initialDelay="2" runDelay="1"/>
+    <Spawner spawnerID="-1" enemyName="Assets/AStarEnemyEditEdit.ghost" spawnCount="15" initialDelay="10" runDelay="1"/>
+    <Spawner spawnerID="-1" enemyName="Assets/AStarEnemyEditEdit.ghost" spawnCount="15" initialDelay="11" runDelay="2"/>
+    <Spawner spawnerID="-1" enemyName="Assets/AStarEnemyEditEdit.ghost" spawnCount="15" initialDelay="12" runDelay="1"/>
   </Wave>
 </Level>

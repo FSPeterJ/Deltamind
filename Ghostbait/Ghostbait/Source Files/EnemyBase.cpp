@@ -8,6 +8,7 @@
 #include "Animator.h"
 #include "Wwise_IDs.h"
 #include "Evolvable.h"
+#include "GameData.h"
 #include <cmath>
 
 void EnemyBase::Awake(Object* obj) {
@@ -468,11 +469,13 @@ void EnemyBase::SetStats() {
 	gameObjMutex.lock();
 
 	//Play around with the trait effects here
+	const GameData* gd = nullptr;
+	MessageEvents::SendMessage(EVENT_GameDataRequest, GameDataMessage(&gd));
 	const float *traitFactors = genetics->traits.GetTraitArray();
-	maxSpeed = 3.0f + 6.0f * traitFactors[SPEED] + 4.0f * traitFactors[ENERGY] + 2.0f * traitFactors[COORDINATION] + 1.0f * traitFactors[BALANCE];
-	attackDamage = 3.0f + 10.0f * traitFactors[STRENGTH] + 7.0f * traitFactors[POWER] + 4.0f * traitFactors[ACCURACY] + 1.0f * traitFactors[LUCK];
-	attackSpeed = 2.0f * traitFactors[INTELLIGENCE] + 1.5f * traitFactors[WISDOM] + 1.0f * traitFactors[EVASION] + 0.5f * traitFactors[DEXTERITY];
-	SetMaxHealth(90.0f + 200.0f * traitFactors[DEFENSE] + 150.0f * traitFactors[ENDURANCE] + 100.0f * traitFactors[STAMINA] + 50.0f * traitFactors[RESISTANCE]);
+	maxSpeed = (3.0f + 6.0f * traitFactors[SPEED] + 4.0f * traitFactors[ENERGY] + 2.0f * traitFactors[COORDINATION] + 1.0f * traitFactors[BALANCE]);
+	attackDamage = (3.0f + 10.0f * traitFactors[STRENGTH] + 7.0f * traitFactors[POWER] + 4.0f * traitFactors[ACCURACY] + 1.0f * traitFactors[LUCK]) * gd->waveManager.GetDifficultyMultiplier();
+	attackSpeed = (2.0f * traitFactors[INTELLIGENCE] + 1.5f * traitFactors[WISDOM] + 1.0f * traitFactors[EVASION] + 0.5f * traitFactors[DEXTERITY]) * gd->waveManager.GetDifficultyMultiplier();
+	SetMaxHealth((90.0f + 200.0f * traitFactors[DEFENSE] + 150.0f * traitFactors[ENDURANCE] + 100.0f * traitFactors[STAMINA] + 50.0f * traitFactors[RESISTANCE]) * gd->waveManager.GetDifficultyMultiplier());
 	SetToFullHealth();
 	rb->SetTerminalSpeed(maxSpeed);
 

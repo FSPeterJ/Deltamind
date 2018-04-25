@@ -4,6 +4,9 @@
 #include "PhysicsComponent.h"
 #include "Wwise_IDs.h"
 #include "Emitter.h"
+#include "DirectXMath.h"
+
+using namespace DirectX;
 
 Projectile::Projectile() {
 	SetTag("Bullet");
@@ -41,10 +44,21 @@ void Projectile::OnCollision(GameObject* object) {
 	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_BULLETHIT));
 
 	MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
+
 	Emitter* emitter = nullptr;
-	MessageEvents::SendMessage(EVENT_NewEmitter, NewEmitterMessage(&transform.GetPosition(), 0, (ComponentBase**)&emitter));
+
+	DirectX::XMFLOAT3 force;
+	DirectX::XMVECTOR forceV = GetComponent<PhysicsComponent>()->rigidBody.GetVelocity();
+	forceV = forceV  * 0.1f;
+	forceV = DirectX::XMVectorNegate(forceV);
+	forceV = XMVectorClamp(forceV, { -2,-2,-2 }, {2,2,2});
+
+	DirectX::XMStoreFloat3(&force, forceV);
+	MessageEvents::SendMessage(EVENT_NewEmitter, NewEmitterMessage(&transform.GetPosition(), 0, force, (ComponentBase**)&emitter));
 	emitter->parentObject = this;
 	emitter->Enable();
+
+
 	isDestroying = true;
 	gameObjMutex.unlock();
 }

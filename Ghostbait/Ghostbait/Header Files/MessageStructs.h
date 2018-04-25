@@ -249,11 +249,12 @@ public:
 	ComponentBase** emit = nullptr;
 	unsigned EmitterID;
 	const DirectX::XMFLOAT3* position;
+	DirectX::XMFLOAT3 force;
 	/// <summary>
 	/// Initializes a new instance of the <see cref="ObjectMessage"/> class.
 	/// </summary>
 	/// <param name="_obj">The object.</param>
-	NewEmitterMessage(const DirectX::XMFLOAT3* _position, unsigned _emitterID,  ComponentBase** _obj = nullptr): emit(_obj), EmitterID(_emitterID), position(_position){}
+	NewEmitterMessage(const DirectX::XMFLOAT3* _position, unsigned _emitterID, const DirectX::XMFLOAT3 _force = DirectX::XMFLOAT3(0,0,0),  ComponentBase** _obj = nullptr): emit(_obj), EmitterID(_emitterID), force(_force), position(_position){}
 
 };
 

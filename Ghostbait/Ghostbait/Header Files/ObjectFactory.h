@@ -87,7 +87,6 @@ public:
 	template <typename ObjectType>
 	static void RegisterPrefabBase(unsigned size) {
 		const int tid = TypeMap::GetObjectTypeID<ObjectType>();
-
 		registeredConstructors[tid] = &ConstructorFunction<ObjectType>;
 		registeredCasters[tid] = &CastorFunction<ObjectType>;
 		objMan->CreatePool<ObjectType>(size);

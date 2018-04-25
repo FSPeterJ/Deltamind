@@ -95,6 +95,8 @@ class ParticleManager: public IComponentManager {
 		float Unused;
 	};
 
+
+
 	struct SortParameters {
 		int distance;
 		int jump;

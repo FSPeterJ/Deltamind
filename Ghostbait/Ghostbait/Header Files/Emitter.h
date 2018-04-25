@@ -42,7 +42,7 @@ struct EmitterData {
 	float mass = 1;
 	unsigned perInterval = 10;
 
-	DirectX::XMFLOAT3 acceleration;
+	DirectX::XMFLOAT3 force;
 	float velocityLossFactor;
 
 	DirectX::XMFLOAT3 Gravity;

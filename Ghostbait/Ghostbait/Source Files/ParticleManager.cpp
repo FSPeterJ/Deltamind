@@ -93,27 +93,27 @@ ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _
 	uavDesc.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_COUNTER;
 
 	//TESTING CODE
-	GPUParticle* testParticle = new GPUParticle[MAX_PARTICLES];
-	testParticle->position = DirectX::XMFLOAT3(1, 2.0f, 1.5f);
-	testParticle->endSize = 0.5f;
-	testParticle->velocity = DirectX::XMFLOAT3(0, 0, 0.5f);
-	testParticle->startSize = 1.5f;
-	testParticle->age = 9.5f;
-	testParticle->lifespan = 9.5f;
-	testParticle->StartColor = DirectX::XMFLOAT4(0, 1, 0, 0.9f);;
-	testParticle->EndColor = DirectX::XMFLOAT4(1, 0, 0, 0);;
-	testParticle->properties = 512u << 20| 512u << 8 | 0u;
-	resData.pSysMem = testParticle;
-	//END TEST
+	//GPUParticle* testParticle = new GPUParticle[MAX_PARTICLES];
+	//testParticle->position = DirectX::XMFLOAT3(1, 2.0f, 1.5f);
+	//testParticle->endSize = 0.5f;
+	//testParticle->velocity = DirectX::XMFLOAT3(0, 0, 0.5f);
+	//testParticle->startSize = 1.5f;
+	//testParticle->age = 9.5f;
+	//testParticle->lifespan = 9.5f;
+	//testParticle->StartColor = DirectX::XMFLOAT4(0, 1, 0, 0.9f);;
+	//testParticle->EndColor = DirectX::XMFLOAT4(1, 0, 0, 0);;
+	//testParticle->properties = 512u << 20| 512u << 8 | 0u;
+	//resData.pSysMem = testParticle;
+	////END TEST
 
-	//device->CreateBuffer(&bufferDesc, nullptr, &ParticleBuffer);
+	////device->CreateBuffer(&bufferDesc, nullptr, &ParticleBuffer);
 
-	assert(&bufferDesc != nullptr);
-	assert(&resData != nullptr);
-	auto temp = device->CreateBuffer(&bufferDesc, &resData, &ParticleBuffer);
+	//assert(&bufferDesc != nullptr);
+	//assert(&resData != nullptr);
+	auto temp = device->CreateBuffer(&bufferDesc, nullptr, &ParticleBuffer);
 	assert(ParticleBuffer);
 
-	delete[] testParticle;
+	//delete[] testParticle;
 	device->CreateShaderResourceView(ParticleBuffer, &srvDesc, &ParticleSRV);
 	device->CreateUnorderedAccessView(ParticleBuffer, &uavDesc, &ParticleUAV);
 
@@ -350,15 +350,37 @@ void ParticleManager::Update() {
 
 	//Map emitters and fire off Emit shader
 	ID3D11UnorderedAccessView* uavs[] = { ParticleUAV, ActiveParticleIndexUAV, InactiveParticleIndexUAV, IndirectDrawArgsUAV, SortParticleIndexUAV, IndirectSortArgsBufferUAV };
-	int counters[] = { -1, -1, -1, -1, 0 }; //Reset the sorted particle Index Append/Consume
+	UINT counters[] = { (UINT)-1, (UINT)-1, (UINT)-1, (UINT)-1, 0, (UINT)-1 }; //Reset the sorted particle Index Append/Consume
 
-	context->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavs), uavs, (UINT*)&counters);
+	context->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavs), uavs, counters);
 
 
-	context->CSSetShader(ParticleEmitShader, nullptr, 0);
+
+
+
+	//Process Update of particles
+
+	//We copy the amount of active particles post-emission into the args buffer
 	context->CopyStructureCount(ActiveParticleConstantBuffer, 0, ActiveParticleIndexUAV);
 	context->CopyStructureCount(InactiveParticleConstantBuffer, 0, InactiveParticleIndexUAV);
+	context->CopyStructureCount(DispatchIndirectArgsBuffer, 0, ActiveParticleIndexUAV);
+	context->CSSetShader(ParticleIndirectArgsInitShader, nullptr, 0);
+	//The shader is run to convert number of active particles to number of necessary thread groups to run
+	context->Dispatch(1, 1, 1);
+
+	// With the correct threadgroup count in the buffer, we now process the particle updates without using unecessary thread groups.
+	// Note: It is unknown if it is faster to simply process all particles (even if only 10% may be in use) and not assign a thread group count dynamically or if 
+	// it is faster to use the copy count -> process into threadgroup and dispatch indirect.
+	// This should be profiled to see.
+	context->CSSetShader(ParticleUpdateShader, nullptr, 0);
+	context->DispatchIndirect(DispatchIndirectArgsBuffer, 0);
+
 	int numThreadGroups = 1;
+
+	context->CSSetShader(ParticleEmitShader, nullptr, 0);
+
+	context->CopyStructureCount(ActiveParticleConstantBuffer, 0, ActiveParticleIndexUAV);
+	context->CopyStructureCount(InactiveParticleConstantBuffer, 0, InactiveParticleIndexUAV);
 
 	// I do not like that the pool gives access to the vector because that makes it modifiable.  
 	// It should give access to the vector array and you should then ask for the active count.
@@ -374,35 +396,18 @@ void ParticleManager::Update() {
 		for(unsigned i = 0; i < activeCount; ++i) {
 			Emitter* activeEmit = &activeEmitters[i];
 			if(activeEmit->enabled) {
+				
 				memcpy(&emitterConstant, &activeEmit->mainData, sizeof(EmitterConstant));
 				context->UpdateSubresource(EmitterConstantBuffer, NULL, NULL, &emitterConstant, NULL, NULL);
 				context->Dispatch(numThreadGroups, 1, 1);
 				//We copy the active count into a const buffer
-
 				context->CopyStructureCount(ActiveParticleConstantBuffer, 0, ActiveParticleIndexUAV);
 				context->CopyStructureCount(InactiveParticleConstantBuffer, 0, InactiveParticleIndexUAV);
+				
 			}
 		}
 
 	}
-	else {
-		context->CopyStructureCount(ActiveParticleConstantBuffer, 0, ActiveParticleIndexUAV);
-		context->CopyStructureCount(InactiveParticleConstantBuffer, 0, InactiveParticleIndexUAV);
-	}
-	//Process Update of particles
-
-	//We copy the amount of active particles post-emission into the args buffer
-	context->CopyStructureCount(DispatchIndirectArgsBuffer, 0, ActiveParticleIndexUAV);
-	context->CSSetShader(ParticleIndirectArgsInitShader, nullptr, 0);
-	//The shader is run to convert number of active particles to number of necessary thread groups to run
-	context->Dispatch(1, 1, 1);
-
-	// With the correct threadgroup count in the buffer, we now process the particle updates without using unecessary thread groups.
-	// Note: It is unknown if it is faster to simply process all particles (even if only 10% may be in use) and not assign a thread group count dynamically or if 
-	// it is faster to use the copy count -> process into threadgroup and dispatch indirect.
-	// This should be profiled to see.
-	context->CSSetShader(ParticleUpdateShader, nullptr, 0);
-	context->DispatchIndirect(DispatchIndirectArgsBuffer, 0);
 
 	ZeroMemory(uavs, sizeof(uavs));
 
@@ -510,6 +515,7 @@ void ParticleManager::NewEmitter(EventMessageBase* _e) {
 	*msg->emit = emitterPool.ActivateMemory();
 	memcpy(*msg->emit, &referenceEmitterPool.GetItems()[msg->EmitterID], sizeof(Emitter));
 	memcpy(&((Emitter*)*msg->emit)->transform.matrix._41, &msg->position, sizeof(float)*3);
+	memcpy(&((Emitter*)*msg->emit)->mainData.force, &msg->force, sizeof(float)*3);
 }
 
 void ParticleManager::InitEmitters() {
@@ -525,23 +531,23 @@ void ParticleManager::InitEmitters() {
 
 	ZeroMemory(emitter, sizeof(Emitter));
 	emitter->mainData.StartSize = 0;
-	emitter->mainData.EndSize = 0.06f;
+	emitter->mainData.EndSize = 0.05f;
 	//emitter->materials[0] = matman->GetReferenceComponent("Assets/exitOption.mat", nullptr);
-	emitter->mainData.ParticleLifeSpan = 3.0f;
+	emitter->mainData.ParticleLifeSpan = 2.0f;
 	//emitter->mainData.Velocity = DirectX::XMFLOAT3(0, 0, 10.0f);
 	emitter->mainData.VelocityMagnatude = 1;
 	emitter->mainData.Position = emitter->transform.GetPosition();
 	//emitter->mainData.TextureIndex = AddMaterial(emitter->materials[0]);
 	emitter->mainData.emissionIntervalSec = 1.0f;
-	emitter->mainData.StartColor = DirectX::XMFLOAT4(1.0f, 0.6f, 0.0f, 1.0f);
-	emitter->mainData.EndColor = DirectX::XMFLOAT4(1.0f, 0.6f, 0.0f, 0.0f);
+	emitter->mainData.StartColor = DirectX::XMFLOAT4(1.0f, 0.6f, 0.2f, 1.0f);
+	emitter->mainData.EndColor = DirectX::XMFLOAT4(1.0f, 0.6f, 0.2f, 1.0f);
 	emitter->lifespan = 4;
 	emitter->mainData.xAngleVariance = 0.5f;
 	emitter->mainData.yAngleVariance = 2;
-	emitter->mainData.mass = 0.2f;
-	emitter->mainData.perInterval = 20;
+	emitter->mainData.mass = 0.5f;
+	emitter->mainData.perInterval = 100;
 	emitter->mainData.properties = HASGRAVITY;
-	emitter->mainData.Gravity = DirectX::XMFLOAT3(0.0f, 0, 0.0f);
+	emitter->mainData.Gravity = DirectX::XMFLOAT3(0.0f, -9.81f, 0.0f);
 	emitter->lifespan = 1.0f;
 	emitter->previousOverflow = emitter->mainData.emissionIntervalSec;
 }

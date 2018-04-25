@@ -31,6 +31,7 @@ enum EVENT_TYPES {
 	EVENT_God,
 	EVENT_FreeMoney,
 	EVENT_Smite,
+	EVENT_TimeScale,
 	
 	//Game Events
 	EVENT_SpawnerCreated,

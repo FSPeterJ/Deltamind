@@ -53,6 +53,7 @@ private:
 	static CheatCode godMode;
 	static CheatCode freeMoney;
 	static CheatCode smite;
+	static CheatCode timeScale;
 
 public:
 

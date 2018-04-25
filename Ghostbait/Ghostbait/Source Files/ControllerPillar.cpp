@@ -10,7 +10,7 @@ void ControllerPillar::Awake(Object* obj) {
 	GameObject::Awake(obj);
 	MessageEvents::SendMessage(EVENT_GetPlayer, GetPlayerMessage(&player));
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/Display_Lifter.ghost")), { 0, 0, 0 }, &lifter));
-	isVR = VRManager::GetInstance().IsEnabled();
+	isVR = !VRManager::GetInstance().IsEnabled();
 }
 void ControllerPillar::Update() {
 	GameObject::Update();

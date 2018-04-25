@@ -369,8 +369,11 @@ void HexGrid::ForEach(std::function<void(HexTile*const)> f) {
 
 HexGrid::~HexGrid() {
 	for(HexTile* t : map) {
-		delete t;
-		t = nullptr;
+		if (t)
+		{
+			delete t;
+			t = nullptr;
+		}
 	}
 	map.clear();
 }

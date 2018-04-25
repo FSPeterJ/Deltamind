@@ -906,6 +906,7 @@ void Renderer::Render() {
 
 		//Right Here we need a position from the center of the headset
 		XMStoreFloat3(&perFrameDataConstantBuffer.cameraCenterpoint, mHMDWorldPos.r[3]);
+		context->UpdateSubresource(perFrameConstantBuffer, NULL, NULL, &perFrameDataConstantBuffer, 0, 0);
 
 		LightManager::getLightBuffer()->cameraPos = leftEye.camPos;
 		context->UpdateSubresource(lightBuffer, NULL, NULL, LightManager::getLightBuffer(), 0, 0);

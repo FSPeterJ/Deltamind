@@ -109,7 +109,7 @@ ComponentBase* PhysicsRegistry::GetReferenceComponent(const char* _FilePath, con
 	}
 }
 
-ComponentBase* PhysicsRegistry::CloneComponent(ComponentBase* reference) {
+ComponentBase* PhysicsRegistry::CloneComponent(ComponentBase* reference, Object* obj) {
 	PhysicsComponent* physComponent = components.ActivateMemory();
 	// SHALLOW COPY - this only copies the std::vector head.
 	physComponent->colliders = ((PhysicsComponent*)reference)->colliders;	physComponent->currentAABB = ((PhysicsComponent*)reference)->currentAABB;

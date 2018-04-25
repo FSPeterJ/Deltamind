@@ -314,7 +314,6 @@
     <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Common\AkFilePackageLUT.cpp" />
     <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Win32\AkDefaultIOHookBlocking.cpp" />
     <ClCompile Include="Dependencies\XML_Library\irrXML.cpp" />
-    <ClCompile Include="Header Files\DStarEnemy.cpp" />
     <ClCompile Include="Source Files\AABB.cpp" />
     <ClCompile Include="Source Files\AnimationManager.cpp" />
     <ClCompile Include="Source Files\Animator.cpp" />
@@ -333,6 +332,7 @@
     <ClCompile Include="Source Files\DebugRenderer.cpp" />
     <ClCompile Include="Source Files\DisplayBoard.cpp" />
     <ClCompile Include="Source Files\DStar.cpp" />
+    <ClCompile Include="Source Files\DStarEnemy.cpp" />
     <ClCompile Include="Source Files\EnemyBase.cpp" />
     <ClCompile Include="Source Files\EngineStructure.cpp" />
     <ClCompile Include="Source Files\Font.cpp" />

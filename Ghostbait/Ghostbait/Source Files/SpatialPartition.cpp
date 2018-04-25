@@ -179,7 +179,7 @@ bool SpatialPartition::AddComponent(PhysicsComponent* component) {
 	spatialMutex.lock();
 	bool anythingAdded = false;
 	std::unordered_set<uint32_t> indicies = Hash(component->currentAABB);
-	std::vector<std::thread> threadPool;
+	//std::vector<std::thread> threadPool;
 	//threadPool.resize(indicies.size());
 	//Console::WriteLine << component->parentObject << " occupies " << indicies.size() << " buckets";
 	int i = 0;
@@ -266,13 +266,17 @@ const std::vector<PhysicsComponent*>* SpatialPartition::GetComponentsToTest() {
 	//std::vector<PhysicsComponent*> testComps;
 	toTest.clear();
 	spatialMutex.lock();
+	const std::vector<PhysicsComponent*>* componentsHolder = nullptr;
+	PhysicsComponent* compPtr = nullptr;
+
 	for each (const auto &bucket in table)
 	{
-		
+		componentsHolder = &bucket.second.components;
 		if (bucket.second.components.size() > 1) {
 			for (unsigned int i = 0; i < bucket.second.components.size(); ++i) {
-				assert(bucket.second.components[i]  != nullptr);
-				toTest.push_back(bucket.second.components[i]);
+				compPtr = (*componentsHolder)[i];
+				assert(compPtr  != nullptr);
+				toTest.push_back(compPtr);
 				//Console::WriteLine << "Bucket: " << bucket.first << "  Size: " << bucket.second.components.size();
 			}
 			toTest.push_back(nullptr);

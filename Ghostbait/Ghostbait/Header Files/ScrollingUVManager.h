@@ -24,7 +24,7 @@ public:
 	void Update();
 
 	ScrollingUV* GetReferenceComponent(const char* _FilePath, const char* _data) override;
-	ScrollingUV* CloneComponent(ComponentBase* reference) override;
+	ScrollingUV* CloneComponent(ComponentBase* reference, Object* obj = nullptr) override;
 	void ResetComponent(ComponentBase* reset) override;
 	void ActivateComponent(ComponentBase* component) override {}
 	void DeactivateComponent(ComponentBase* component) override {}

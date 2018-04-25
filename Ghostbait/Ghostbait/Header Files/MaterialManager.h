@@ -26,7 +26,7 @@ public:
 	unsigned int AddElement(const char* _materialFilePath);
 
 	Material* GetElement(const unsigned int _id);
-	Material* CloneComponent(ComponentBase* reference) override;
+	Material* CloneComponent(ComponentBase* reference, Object* obj = nullptr) override;
 	Material* GetReferenceComponent(const char * _FilePath, const char * _data) override;
 	void ResetComponent(ComponentBase * reset) override;
 	Material* GetNullMaterial() { return nullMaterial; }

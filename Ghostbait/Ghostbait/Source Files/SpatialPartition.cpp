@@ -49,12 +49,12 @@ bool SpatialPartition::Unit::RemoveComponent(PhysicsComponent* comp) {
 }
 
 SpatialPartition::SpatialPartition() {
-	bucketCount = 1024;
+	bucketCount = 4096;
 	unitSize = PARTITION_UNIT_SIZE;
-	toTest.reserve(1024);
+	toTest.reserve(4096);
 }
 SpatialPartition::SpatialPartition(uint32_t _bucketCount, float _unitSize) : bucketCount(_bucketCount), unitSize(_unitSize) {
-	toTest.reserve(1024);
+	toTest.reserve(4096);
 }
 
 uint32_t SpatialPartition::Hash(const float x, const float y, const float z) {
@@ -221,8 +221,11 @@ bool SpatialPartition::RemoveComponent(PhysicsComponent* component, PositionOpti
 		}
 		spatialMutex.unlock();
 
-	} else if (RemoveComponent(component, Previous) || RemoveComponent(component, Current)) {
-		foundAndRemoved = true;
+	}
+	else {
+		bool prev = RemoveComponent(component, Previous);
+		bool cur = RemoveComponent(component, Current);
+		foundAndRemoved = prev || cur;
 	}
 
 	return foundAndRemoved;

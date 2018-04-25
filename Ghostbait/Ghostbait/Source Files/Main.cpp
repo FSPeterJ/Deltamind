@@ -47,7 +47,7 @@
 
 using namespace Threadding;
 
-const bool FULLSCREEN = false;
+const bool FULLSCREEN = true;
 
 //#include "..\Omiracron\Omiracron\Omiracron.h"
 //using namespace Omiracron;

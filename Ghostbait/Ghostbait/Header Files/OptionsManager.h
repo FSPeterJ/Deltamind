@@ -23,7 +23,8 @@ private:
 	
 	OptionsCluster prevOptions;
 	OptionsCluster currOptions;
-	std::string Filepath;
+	std::wstring Filepath;
+	std::wstring Folderpath;
 
 	void ApplyAllOptions(OptionsCluster& _in);
 public:

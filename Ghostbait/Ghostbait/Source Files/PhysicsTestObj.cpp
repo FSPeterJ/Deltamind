@@ -77,7 +77,7 @@ void PhysicsTestObj::AnExtremelyBadTemporaryFunction(ParticleManager* partman, M
 
 	Emitter* emitter = nullptr;
 
-	MessageEvents::SendMessage(EVENT_NewEmitter, NewEmitterMessage(&transform.GetPosition(), 0, DirectX::XMFLOAT3(0, 15, 0), (ComponentBase**)&emitter));
+	MessageEvents::SendMessage(EVENT_NewEmitter, NewEmitterMessage(&transform.GetPosition(), 0, DirectX::XMFLOAT3(0, 0, 0), (ComponentBase**)&emitter));
 	emitter->parentObject = this;
 	emitter->Enable();
 	//emitter->transform = transform;

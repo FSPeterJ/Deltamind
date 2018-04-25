@@ -291,7 +291,7 @@ bool EnemyBase::ChangeState(State _s) {
 }
 
 void EnemyBase::Update() {
-	if (hitCounter > 80 || timeSinceLastStateChange > failSafeDestructionTime) {
+	if (!sentDeathMessage && (hitCounter > 80 || timeSinceLastStateChange > failSafeDestructionTime)) {
 		sentDeathMessage = true;
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 	}

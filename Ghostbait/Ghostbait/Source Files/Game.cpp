@@ -239,6 +239,7 @@ void Game::ChangeScene(const char* sceneName, std::string levelName) {
 			if (xmlReader->getNodeType() == irr::io::EXN_ELEMENT) {
 				if (!strcmp("Level", xmlReader->getNodeName())) {
 					gameData.AddGears(xmlReader->getAttributeValueAsInt("startGears"));
+					gameData.waveManager.SetDifficultyMultiplier(xmlReader->getAttributeValueAsFloat("multiplier"));
 					gameData.SetStateHard(GAMESTATE_BetweenWaves);
 					gameData.SetPrevStateHard(GAMESTATE_BetweenWaves);
 				}

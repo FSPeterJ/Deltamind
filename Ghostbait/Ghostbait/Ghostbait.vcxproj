@@ -321,8 +321,6 @@
     <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Common\AkFilePackageLUT.cpp" />
     <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Win32\AkDefaultIOHookBlocking.cpp" />
     <ClCompile Include="Dependencies\XML_Library\irrXML.cpp" />
-    <ClCompile Include="Header Files\ParticlesGPU.cpp" />
-    <ClCompile Include="Header Files\DStarEnemy.cpp" />
     <ClCompile Include="Source Files\AABB.cpp" />
     <ClCompile Include="Source Files\AnimationManager.cpp" />
     <ClCompile Include="Source Files\Animator.cpp" />
@@ -340,11 +338,11 @@
     <ClCompile Include="Source Files\CoreShield.cpp" />
     <ClCompile Include="Source Files\DebugRenderer.cpp" />
     <ClCompile Include="Source Files\DMLogo.cpp" />
+    <ClCompile Include="Source Files\DStarEnemy.cpp" />
     <ClCompile Include="Source Files\Emitter.cpp" />
     <ClCompile Include="Source Files\DisplayBoard.cpp" />
     <ClCompile Include="Source Files\Door.cpp" />
     <ClCompile Include="Source Files\DStar.cpp" />
-    <ClCompile Include="Source Files\DStarEnemy.cpp" />
     <ClCompile Include="Source Files\EnemyBase.cpp" />
     <ClCompile Include="Source Files\EngineStructure.cpp" />
     <ClCompile Include="Source Files\Font.cpp" />
@@ -384,6 +382,7 @@
     <ClCompile Include="Source Files\ObjectManager.cpp" />
     <ClCompile Include="Source Files\OptionsManager.cpp" />
     <ClCompile Include="Source Files\ParticleManager.cpp" />
+    <ClCompile Include="Source Files\ParticlesGPU.cpp" />
     <ClCompile Include="Source Files\ParticleTextureManager.cpp" />
     <ClCompile Include="Source Files\PathPlanner.cpp" />
     <ClCompile Include="Source Files\PDA.cpp" />

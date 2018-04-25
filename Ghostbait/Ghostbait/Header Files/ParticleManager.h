@@ -168,7 +168,7 @@ public:
 	ParticleManager(ID3D11Device* _device, ID3D11DeviceContext* _context, ID3D11Buffer* _perFrame, ID3D11ShaderResourceView* randomTexture);
 	void RenderParticles();
 	ComponentBase* GetReferenceComponent(const char * _FilePath, const char * _data) override;
-	ComponentBase* CloneComponent(ComponentBase* reference) override;
+	ComponentBase* CloneComponent(ComponentBase* reference, Object* objPtr = nullptr) override;
 	void ResetComponent(ComponentBase* reset) override;
 	void ActivateComponent(ComponentBase* component)override;
 	void DeactivateComponent(ComponentBase* component) override;

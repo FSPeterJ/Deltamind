@@ -64,6 +64,9 @@
     <Filter Include="Source Files\System">
       <UniqueIdentifier>{1cab5abf-e76f-43e8-a05e-28a905ecbb21}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\AI">
+      <UniqueIdentifier>{2f6fc914-ccfd-4d15-9f88-4546a117eb84}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\targetver.h">
@@ -213,12 +216,6 @@
     <ClInclude Include="Header Files\EngineStructure.h">
       <Filter>Header Files\System</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\EnemyBase.h">
-      <Filter>Header Files\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\AStarEnemy.h">
-      <Filter>Header Files\Objects</Filter>
-    </ClInclude>
     <ClInclude Include="Header Files\Controlable.h">
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
@@ -321,9 +318,6 @@
     <ClInclude Include="Header Files\VRStructs.h">
       <Filter>Header Files\System</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\DStarEnemy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Header Files\AnimatorStructs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -344,12 +338,6 @@
     </ClInclude>
     <ClInclude Include="Header Files\SceneManager.h">
       <Filter>Header Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\MTDSLEnemy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\DStar.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\PathPlanner.h">
       <Filter>Header Files\System</Filter>
@@ -378,9 +366,6 @@
     <ClInclude Include="Header Files\Ground.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\NeuralEnemy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Header Files\Monitor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -388,9 +373,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\ScrollingUVManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\AntColony.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\DisplayBoard.h">
@@ -438,6 +420,27 @@
     <ClInclude Include="Header Files\SSLogo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Header Files\AntColony.h">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\DStar.h">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\DStarEnemy.h">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\MTDSLEnemy.h">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\NeuralEnemy.h">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\AStarEnemy.h">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\EnemyBase.h">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source Files\Window.cpp">
@@ -464,16 +467,10 @@
     <ClCompile Include="Source Files\ObjectManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\PhysicsManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source Files\WICTextureLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\TypeMapping.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source Files\RigidBody.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\MemoryManager.cpp">
@@ -500,12 +497,6 @@
     <ClCompile Include="Source Files\Spawner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\SpatialPartition.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source Files\PhysicsComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source Files\Material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -516,9 +507,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\ProgressBar.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source Files\PhysicsExtension.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\LightManager.cpp">
@@ -533,13 +521,7 @@
     <ClCompile Include="Source Files\MenuControllerItem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\PhysicsRegistry.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source Files\Turret.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source Files\PathPlanner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\Player.cpp">
@@ -555,9 +537,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\Light.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source Files\MTDSLEnemy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\Monitor.cpp">
@@ -600,9 +579,6 @@
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\AnimatorManager.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="Header Files\ParticlesGPU.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\Emitter.cpp">
@@ -657,9 +633,6 @@
       <Filter>Source Files\Items</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\DStar.cpp">
-      <Filter>Source Files\AI</Filter>
-    </ClCompile>
-    <ClCompile Include="Header Files\DStarEnemy.cpp">
       <Filter>Source Files\AI</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\EnemyBase.cpp">
@@ -726,7 +699,34 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\DStarEnemy.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\AI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\MTDSLEnemy.cpp">
+      <Filter>Source Files\AI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\PhysicsComponent.cpp">
+      <Filter>Source Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\PhysicsExtension.cpp">
+      <Filter>Source Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\PhysicsManager.cpp">
+      <Filter>Source Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\PhysicsRegistry.cpp">
+      <Filter>Source Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\RigidBody.cpp">
+      <Filter>Source Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\SpatialPartition.cpp">
+      <Filter>Source Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\PathPlanner.cpp">
+      <Filter>Source Files\AI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\ParticlesGPU.cpp">
+      <Filter>Source Files\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

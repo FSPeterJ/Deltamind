@@ -375,12 +375,13 @@ void Game::MainMenuLoaded() {
 	DirectX::XMFLOAT4X4 menuPos = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1.7f, 2, 1);
 	mainMenu.SetSpawnPos(menuPos);
 	gameData.SetStateHard(GAMESTATE_MainMenu);
+	//mainMenu.SetGapHeight(0.005f);
 	mainMenu.Show(false);
 
 	//Create Logo
 	MessageEvents::SendQueueMessage(EVENT_Late, [=] {
 		GameObject* logo;
-		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/DM_Logo.ghost")), { 0, 3, 20 }, &logo));
+		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/DM_Logo.ghost")), { 0, 21, 20 }, &logo));
 		logo->Enable();
 	});
 
@@ -696,6 +697,9 @@ void Game::Update() {
 					if(gameData.ssManager.NextLogoExists()) {
 						//Update your index to it, and update the duration to be a new timer if not special
 						gameData.ssManager.MoveToNextLogo();
+						if (gameData.ssManager.GetCurrentLogoIndex() == gameData.ssManager.GetLogoCount() - 1) {
+							splashScreenMenu.Hide();
+						}
 						if(gameData.ssManager.GetCurrentLogoData().spawnTime != -1) {
 							gameData.ssManager.UpdateCurrentLogoSpawnTime();
 						}

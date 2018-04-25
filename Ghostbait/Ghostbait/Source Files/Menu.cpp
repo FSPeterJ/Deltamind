@@ -129,6 +129,7 @@ float Menu::FindDistanceFromCenter(int optionNumber, int optionCount, float opti
 	return (optionNumber < center ? distanceFromCenter : -distanceFromCenter);
 }
 void Menu::Create(Template t, std::vector<Button> _buttons, ColumnType _columnType) {
+	gapHeight = 0.005f;
 	menu_template = t;
 	switch (t) {
 		case MENU_Main:
@@ -226,7 +227,7 @@ void Menu::Show(bool useCamera) {
 				if (buttons[i] == BUTTON_Blank) continue;
 				MenuOption* newOption;
 				DirectX::XMFLOAT4X4 newObjPos;
-				float distFromCenter = FindDistanceFromCenter((int)i, (int)options.size(), 0.25f, 0.05f);
+				float distFromCenter = FindDistanceFromCenter((int)i, (int)options.size(), 0.25f, gapHeight);
 				DirectX::XMStoreFloat4x4(&newObjPos, center_M * DirectX::XMMatrixTranslation(0, distFromCenter, 0));
 				MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuOption>(buttonPrefabMap[buttons[i]], newObjPos, &newOption));
 				newOption->ToggleFlag(GAMEOBJECT_PUBLIC_FLAGS::UNLIT);
@@ -255,7 +256,7 @@ void Menu::Show(bool useCamera) {
 				else {
 					buttonID = (int)((float)i / 2.0f);
 				}
-				float distFromCenter = FindDistanceFromCenter((int)buttonID, (int)(options.size() / 2), 0.25f, 0.05f);
+				float distFromCenter = FindDistanceFromCenter((int)buttonID, (int)(options.size() / 2), 0.25f, gapHeight);
 				DirectX::XMStoreFloat4x4(&newObjPos, center_M * DirectX::XMMatrixTranslation(shift, distFromCenter, 0));
 				MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuOption>(buttonPrefabMap[buttons[i]], newObjPos, &newOption));
 				newOption->ToggleFlag(GAMEOBJECT_PUBLIC_FLAGS::UNLIT);
@@ -284,7 +285,7 @@ void Menu::Show(bool useCamera) {
 					case 1: offset = -offset; break;
 					case 3: offset = 3 * offset; break;
 				}
-				float distFromCenter = FindDistanceFromCenter(row, (int)(options.size() / 4), 0.25f, 0.05f);
+				float distFromCenter = FindDistanceFromCenter(row, (int)(options.size() / 4), 0.25f, gapHeight);
 				DirectX::XMStoreFloat4x4(&newObjPos, center_M * DirectX::XMMatrixTranslation(offset, distFromCenter, 0));
 				MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuOption>(buttonPrefabMap[buttons[i]], newObjPos, &newOption));
 				newOption->ToggleFlag(GAMEOBJECT_PUBLIC_FLAGS::UNLIT);

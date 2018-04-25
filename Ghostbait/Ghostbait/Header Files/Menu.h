@@ -98,6 +98,7 @@ private:
 	DirectX::XMFLOAT4X4 spawnPos = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 	Menu* parent = nullptr;
 	Menu* child = nullptr;
+	float gapHeight;
 
 	ColumnType columnType = OneColumn;
 
@@ -115,6 +116,7 @@ public:
 	inline void SetChild(Menu* _child) { child = _child; };
 	inline void SetSpawnPos(DirectX::XMFLOAT4X4& pos) { spawnPos = pos; }
 	void CreateAndLoadChild(Template t, std::vector<Button> buttons = std::vector<Button>(), ColumnType _columnType = OneColumn);
+	inline void SetGapHeight(const float _gapHeight) { gapHeight = _gapHeight; }
 	void LoadParent();
 	void Show(bool useCamera = true);
 	void Hide();

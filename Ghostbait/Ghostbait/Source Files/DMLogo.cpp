@@ -5,7 +5,7 @@
 
 void DMLogo::Awake(Object* obj) {
 	GameObject::Awake(obj);
-	speed = 3;
+	speed = 0.8f;
 	rot = 0.0f;
 	MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/DM_LogoText.ghost")), {0, 0, 0}, &text));
 }

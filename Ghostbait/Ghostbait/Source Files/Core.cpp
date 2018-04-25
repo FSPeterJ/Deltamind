@@ -8,6 +8,7 @@
 #include "MeshManager.h"
 #define NORMALCOLOR {0.5f, 0.5f, 0.5f}
 #define PANICCOLOR {1.0f, 0.0f, 0.0f}
+#define EMPTYCOLOR {0.0f, 0.0f, 0.0f}
 
 void Core::Awake(Object* obj) {
 	GameObject::Awake(obj);
@@ -107,9 +108,9 @@ void Core::DeathEvent() {
 	});
 	*/
 	panicTimer = -1;
-	light.SetColor(NORMALCOLOR);
+	light.SetColor(EMPTYCOLOR);
 	for (int i = 0; i < 6; ++i)
-		spots[i].SetColor(NORMALCOLOR);
+		spots[i].SetColor(EMPTYCOLOR);
 	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::STOP_SFX_COREALARM));
 	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::STOP_SFX_COREHUM));
 	SwapComponentVarient<Mesh>("noHealth");

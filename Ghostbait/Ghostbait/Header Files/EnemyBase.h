@@ -67,6 +67,7 @@ protected:
 	float timeSinceLastAttack = -1;
 	int perceptionRange = 3;
 	int attackRange = 1;
+	int hitCounter = 0;
 
 	DirectX::XMFLOAT3 prevVelocity = {0.0f, 0.0f, 0.0f};
 	double hurtTimer = 0;
@@ -74,6 +75,8 @@ protected:
 	double deathTimer = 0;
 	double deathDuration = 1.23;
 	double deathDuration2 = 2.46;
+	double timeSinceLastStateChange = 0.0;
+	double failSafeDestructionTime = 120.0;
 	unsigned eventLose = 0;
 	unsigned smite = 0;
 	unsigned eventObstacleRemove = 0;

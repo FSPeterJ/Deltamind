@@ -15,7 +15,7 @@ class GameObject;
 
 #define MAX_PHYSICALS 1024
 #define MAX_COLLIDER_DATA 256
-#define MAX_PREFABS 128
+#define MAX_PREFABS 256
 
 class PhysicsRegistry:
 	public IComponentManager {

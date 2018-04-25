@@ -7,7 +7,7 @@
 #include <future>
 using namespace DirectX;
 
-#define DRAWSTATICOBJECTS false
+#define DRAWSTATICOBJECTS true
 
 std::mutex PhysicsManager::physicsMutex;
 std::mutex PhysicsManager::physCompPoolMutex;

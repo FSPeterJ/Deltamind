@@ -356,7 +356,7 @@ bool AStarEnemy::NewAroundPath() {
 	if (pathFound)
 		AntColony::LeavePheromone(&path, lingerTime, scentStrength);
 	else {
-		pathIsBlocked = true;
+		//pathIsBlocked = true;
 		this->LastResort();
 	}
 

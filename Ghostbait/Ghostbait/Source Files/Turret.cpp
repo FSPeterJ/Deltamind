@@ -149,7 +149,7 @@ void Turret::Update() {
 		if(CanShoot(firerate)) {
 			Shoot();
 		}
-		if(targetDistance > 5) {
+		if(targetDistance > 5 || !((Health*)target)->IsAlive()) {
 			target = nullptr;
 			targetDistance = 99999;
 		}

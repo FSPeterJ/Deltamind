@@ -47,7 +47,7 @@
 
 using namespace Threadding;
 
-const bool FULLSCREEN = true;
+const bool FULLSCREEN = false;
 
 //#include "..\Omiracron\Omiracron\Omiracron.h"
 //using namespace Omiracron;
@@ -191,9 +191,6 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<SFXValue>(1);
 	ObjectFactory::RegisterPrefabBase<BrightnessValue>(1);
 	ObjectFactory::RegisterPrefabBase<MouseSensitivityValue>(1);
-
-
-
 	ObjectFactory::RegisterPrefabBase<ForceField>(6);
 	ObjectFactory::RegisterPrefabBase<DMLogo>(1);
 	ObjectFactory::RegisterPrefabBase<SSLogo>(1);

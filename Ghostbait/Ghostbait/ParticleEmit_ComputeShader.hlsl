@@ -89,13 +89,14 @@ void main(uint3 DThreadID : SV_DispatchThreadID)
         float3 randomDirection = float3(x, y, z);
         
 
-        particle.velocity = float3(0, 0, 1);
+        //particle.velocity = float3(0, 0, 1);
         //particle.position = randomDirection * VelocityMagnatude + float3(0, 1, 1);
 
  
-        //particle.velocity = VelocityMagnatude * randomDirection;
-        particle.position = Position + particle.velocity * (emissionRateMS * threadBatch);
-        particle.age = ParticleLifeSpan - emissionRateMS * threadBatch;
+        particle.velocity = VelocityMagnatude * randomDirection;
+        particle.position = Position + particle.velocity * (emissionRateMS * threadBatch - emissionRateMS);
+        particle.age = ParticleLifeSpan;
+        //-(emissionRateMS * threadBatch + emissionRateMS);
 
 
         particle.lifespan = ParticleLifeSpan;
@@ -109,6 +110,7 @@ void main(uint3 DThreadID : SV_DispatchThreadID)
 
         particle.Gravity = Gravity;
         particle.velocityLossFactor = velocityLossFactor;
+        particle.acceleration = acceleration;
 
 
 

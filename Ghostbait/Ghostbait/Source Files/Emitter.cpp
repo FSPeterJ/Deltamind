@@ -17,9 +17,8 @@ void Emitter::AddMaterial(Material * mat) {
 void Emitter::Update() {
 	float dt = (float)GhostTime::DeltaTime();
 	age += dt;
-	if(age > lifespan) {
+	if(lifespan && age > lifespan) {
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
-
 
 	}
 	if(parentObject) {
@@ -27,7 +26,7 @@ void Emitter::Update() {
 	}
 	mainData.Position = transform.GetPosition();
 	mainData.emissionOverflow = previousOverflow;
-	if(mainData.emissionIntervalSec > mainData.emissionOverflow + dt) {
+	if(mainData.emissionIntervalSec >= mainData.emissionOverflow + dt) {
 		previousOverflow += dt;
 	}
 	else {

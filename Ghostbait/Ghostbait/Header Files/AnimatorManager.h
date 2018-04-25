@@ -3,7 +3,7 @@
 #include "Pool.h"
 #include "IComponentManager.h"
 
-#define MAX_ANIMATORS 700 //half the max objects as of writing this, I wasn't feeling reserving an absurd amount of memory for something that really doesn't need it
+#define MAX_ANIMATORS 8192 //half the max objects as of writing this, I wasn't feeling reserving an absurd amount of memory for something that really doesn't need it
 class AnimatorManager: public IComponentManager {
 	AnimationManager* animMan;
 	Pool<Animator> animators = Pool<Animator>(MAX_ANIMATORS);

@@ -16,4 +16,5 @@ public:
 	void SetRange(const DirectX::XMFLOAT3& start, const DirectX::XMFLOAT3& end);
 	void SetRange(const DirectX::XMFLOAT3& delta);
 	void Patrol() override;
+	void OnCollision(GameObject* _other) override;
 };

@@ -1,6 +1,7 @@
 #include "TargetEnemy.h"
 #include "PhysicsComponent.h"
 #include "RandomEngine.h"
+#include "MeshManager.h"
 
 void TargetEnemy::SwitchTarget() {
 	toEnd = !toEnd;
@@ -26,6 +27,34 @@ void TargetEnemy::Awake(Object* obj) {
 	EnemyBase::Awake(obj);
 	toEnd = true;
 	speed = 1;
+
+	switch (Omiracon::Random::RandomNumber(0, 3)) {
+	case 0:
+		SwapComponentVarient<Mesh>("medium");
+		SwapComponentVarient<Material>("mediumMat");
+		//animator->setState("Walk_Medium");
+		enemyType = Medium;
+		break;
+	case 1:
+		SwapComponentVarient<Mesh>("heavy");
+		SwapComponentVarient<Material>("heavyMat");
+		//animator->setState("Walk_Heavy");
+		enemyType = Heavy;
+		break;
+	case 2:
+		SwapComponentVarient<Mesh>("light");
+		SwapComponentVarient<Material>("lightMat");
+		//animator->setState("Walk_Light");
+		enemyType = Light;
+		break;
+	default:
+		SwapComponentVarient<Mesh>("light");
+		SwapComponentVarient<Material>("lightMat");
+		//animator->setState("Walk_Light");
+		enemyType = Light;
+		break;
+	}
+
 	ChangeState(PATROL);
 }
 void TargetEnemy::SetRange(const DirectX::XMFLOAT3& start, const DirectX::XMFLOAT3& end) {
@@ -52,6 +81,17 @@ void TargetEnemy::SetRange(const DirectX::XMFLOAT3& delta) {
 void TargetEnemy::Patrol() {
 	if (IsPastTarget()) {
 		SwitchTarget();
+		timeSinceLastStateChange = 0.0;
 	}
 	EnemyBase::Patrol();
+}
+
+void TargetEnemy::OnCollision(GameObject* _other) {
+	gameObjMutex.lock();
+	if (_other->GetTag() == "Bullet") {
+		ChangeState(INJURED);
+	}
+
+	GameObject::OnCollision(_other);
+	gameObjMutex.unlock();
 }

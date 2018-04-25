@@ -28,7 +28,7 @@ void Monitor::Awake(Object* obj) {
 		WriteToScreen("\n  TOTAL SYSTEM FAILURE  \n     Restart to try again     ");
 	});
 	eventWin = MessageEvents::Subscribe(EVENT_GameWin, [=](EventMessageBase* e) {
-		WriteToScreen("\n	All Threats Purged!	\n        Congradulations        ");
+		WriteToScreen("\n	All Threats Purged!	\n        Congratulations        ");
 	});
 }
 void Monitor::Update() {

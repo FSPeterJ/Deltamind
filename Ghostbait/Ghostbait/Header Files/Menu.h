@@ -15,6 +15,7 @@ protected:
 	float popDistance = 0.15f;
 	PhysicsComponent* pc = nullptr;
 public:
+	MenuOption() { SetTag("Button"); };
 	void Awake(Object* obj) override;
 	inline void SetMenu(Menu* _menu) { menu = _menu; }
 	inline void SetOldPos(DirectX::XMFLOAT4X4 mat) { oldPos = mat; }

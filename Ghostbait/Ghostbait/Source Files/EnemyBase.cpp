@@ -37,10 +37,12 @@ void EnemyBase::Awake(Object* obj) {
 	prevVelocity = { 0.0f, 0.0f, 0.0f };
 	enemyType = Default;
 
+	hitCounter = 0;
 	hurtTimer = 0;
 	hurtDuration = 0.25;
 	deathTimer = 0;
 	deathDuration = 1.23;
+	timeSinceLastStateChange = 0;
 	eventLose = 0;
 	smite = 0;
 	eventObstacleRemove = 0;

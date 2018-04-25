@@ -183,7 +183,7 @@ bool SpatialPartition::AddComponent(PhysicsComponent* component) {
 	//threadPool.resize(indicies.size());
 	//Console::WriteLine << component->parentObject << " occupies " << indicies.size() << " buckets";
 	int i = 0;
-	for (auto &index : indicies) {
+	for (auto const &index : indicies) {
 		//threadPool[i++] = std::thread([=, &anythingAdded]() {
 			if (table.find(index) != table.end()) {
 				if (table[index].AddComponent(component)) {
@@ -210,7 +210,7 @@ bool SpatialPartition::RemoveComponent(PhysicsComponent* component, PositionOpti
 		if (option == Current) indicies = Hash(component->currentAABB);
 		else if (option == Previous) indicies = Hash(component->previousAABB);
 		spatialMutex.lock();
-		for (auto &index: indicies) {
+		for (auto const &index: indicies) {
 			if (table.find(index) != table.end()) {
 				if (table[index].RemoveComponent(component)) {
 					foundAndRemoved = true;

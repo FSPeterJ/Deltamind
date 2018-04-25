@@ -25,10 +25,10 @@ void Monitor::Awake(Object* obj) {
 		WriteToScreen("\n Shoot the core's\n shield to start wave " + std::to_string(gameData->waveManager.GetCurrentWaveNumber() + 1) + "\n");
 	});
 	eventLose = MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) {
-		WriteToScreen("\nYOU LOSE!\n");
+		WriteToScreen("\n  TOTAL SYSTEM FAILURE  \n     Restart to try again     ");
 	});
 	eventWin = MessageEvents::Subscribe(EVENT_GameWin, [=](EventMessageBase* e) {
-		WriteToScreen("\nYOU WIN!\n");
+		WriteToScreen("\n	All Threats Purged!	\n        Congradulations        ");
 	});
 }
 void Monitor::Update() {

@@ -179,12 +179,12 @@ void AStarEnemy::Patrol() {
 	curTile = tempTile;
 
 	if (isOutofBounds) {
-		if (pathIsBlocked) {
-			next = curTile;
-			isPathing = true;
-			pathing = ThreadPool::MakeJob(false, [&]() { LastResort(); });
-		}
-		else
+		//if (pathIsBlocked) {
+		//	next = curTile;
+		//	isPathing = true;
+		//	pathing = ThreadPool::MakeJob(false, [&]() { LastResort(); });
+		//}
+		//else
 			Repath();
 		isRedirecting = false;
 		isOutofBounds = false;
@@ -202,12 +202,12 @@ void AStarEnemy::Patrol() {
 		isRedirecting = false;
 		Console::WriteLine << "We made it to our goal.";
 		rb->Stop();
-		if (pathIsBlocked) {
-			next = curTile;
-			isPathing = true;
-			pathing = ThreadPool::MakeJob(false, [&]() { LastResort(); });
-			return;
-		}
+		//if (pathIsBlocked) {
+		//	next = curTile;
+		//	isPathing = true;
+		//	pathing = ThreadPool::MakeJob(false, [&]() { LastResort(); });
+		//	return;
+		//}
 		//isChasing = false;
 
 		ChangeState(ATTACK);
@@ -297,7 +297,7 @@ bool AStarEnemy::NewPath() {
 	return path.size();
 }
 bool AStarEnemy::NewAroundPath() {
-	pathIsBlocked = false;
+	//pathIsBlocked = false;
 	HexTile* tempGoal = grid->PointToTile({ targetPos[0], targetPos[2] });
 	HexTile* tile = nullptr;
 	HexRegion ring;
@@ -332,7 +332,8 @@ bool AStarEnemy::NewAroundPath() {
 			if (!grid->IsBlocked(tile)) {
 				CalcPath(tile);
 				if (!path.size()) {
-					if (++curInd >= endInd) curInd = 0;
+					if (++curInd >= endInd) 
+						curInd = 0;
 					continue;
 				}
 				SetGoal(path.goal());
@@ -355,10 +356,10 @@ bool AStarEnemy::NewAroundPath() {
 	//}
 	if (pathFound)
 		AntColony::LeavePheromone(&path, lingerTime, scentStrength);
-	else {
-		pathIsBlocked = true;
-		this->LastResort();
-	}
+	//else {
+	//	//pathIsBlocked = true;
+	//	this->LastResort();
+	//}
 
 	//Console::consoleMutex.lock();
 	//Console::WriteLine << "Path size: " << path.size() << "Path Address: " << &path;

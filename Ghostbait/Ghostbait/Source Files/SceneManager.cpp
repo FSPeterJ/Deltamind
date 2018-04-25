@@ -296,8 +296,8 @@ void SceneManager::LoadScene(const char* sceneName, Core** _core) {
 					DirectX::XMFLOAT4X4 mat = Reader::ReadMatrix();
 					MessageEvents::SendQueueMessage(EVENT_Late, [=] {  
 						GameObject* newObj;
-						MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0, 0, 0 }, &newObj));
-						newObj->transform.SetMatrix(mat);
+						MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, mat, &newObj));
+						//newObj->transform.SetMatrix(mat);
 
 						if (_core && !strcmp(newObj->GetTag().c_str(), "Core")) {
 							*_core = (Core*)newObj;

@@ -27,7 +27,7 @@ class SpatialPartition {
 		Previous,
 	};
 
-	uint32_t bucketCount = 1024;
+	uint32_t bucketCount = 4096;
 	float unitSize = 3.0;
 	std::unordered_map<uint32_t, Unit> table;
 	std::vector<PhysicsComponent*> toTest;

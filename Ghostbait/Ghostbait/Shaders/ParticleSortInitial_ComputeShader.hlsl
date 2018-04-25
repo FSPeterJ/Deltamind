@@ -44,7 +44,7 @@ void main(uint3 Gid : SV_GroupID,
     int GlobalBaseIndex = (Gid.x * SORT_SIZE) + GTid.x;
     int LocalBaseIndex = GI;
     ActiveParticleIndex[GI] = asuint(SortingData[GI].y);
-    int numElementsInThreadGroup = min(SORT_SIZE, ActiveParticleCount - (Gid.x * SORT_SIZE));
+    uint numElementsInThreadGroup = min(SORT_SIZE, ActiveParticleCount - (Gid.x * SORT_SIZE));
 	
     // Load shared data
     int i;

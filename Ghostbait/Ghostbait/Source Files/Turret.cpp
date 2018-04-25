@@ -149,7 +149,7 @@ void Turret::Update() {
 		if(CanShoot(firerate)) {
 			Shoot();
 		}
-		if(targetDistance > 5) {
+		if(targetDistance > 5 || !((Health*)target)->IsAlive()) {
 			target = nullptr;
 			targetDistance = 99999;
 		}
@@ -233,9 +233,9 @@ void Turret::GivePID(unsigned pid, const char* tag) {
 
 void Turret_Long::Awake(Object* obj) {
 	Turret::Awake(obj);
-	firerate = 0.5f;
+	firerate = 0.4f;
 	damage = 100;
-	buildCost = 500;
+	buildCost = 750;
 	SetMaxHealth(45);
 	SetToFullHealth();
 }
@@ -266,9 +266,9 @@ void Turret_Long::Shoot() {
 }
 void Turret_Medium::Awake(Object* obj) {
 	Turret::Awake(obj);
-	firerate = 2.0f;
+	firerate = 1.75f;
 	damage = 10;
-	buildCost = 400;
+	buildCost = 500;
 	SetMaxHealth(35);
 	SetToFullHealth();
 }
@@ -299,9 +299,9 @@ void Turret_Medium::Shoot() {
 }
 void Turret_Short::Awake(Object* obj) {
 	Turret::Awake(obj);
-	firerate = 3.25F;
-	damage = 3;
-	buildCost = 350;
+	firerate = 3;
+	damage = 2;
+	buildCost = 400;
 	SetMaxHealth(25);
 	SetToFullHealth();
 }

@@ -5,6 +5,7 @@
 #include "Wwise_IDs.h"
 #include "TextManager.h"
 #include "Material.h"
+#include "MeshManager.h"
 #define NORMALCOLOR {0.5f, 0.5f, 0.5f}
 #define PANICCOLOR {1.0f, 0.0f, 0.0f}
 
@@ -35,11 +36,12 @@ void Core::Awake(Object* obj) {
 	spots[4].SetAsSpot(NORMALCOLOR, { -26.0f, 10.0f, -51.0f }, { -0.45f, -0.55f, 0.0f }, 0.9f, 0.8f);
 	spots[5].SetAsSpot(NORMALCOLOR, { 26.0f, 10.0f, 52.0f }, { 0.45f, -0.55f, 0.0f }, 0.9f, 0.8f);
 
+	eventWin = MessageEvents::Subscribe(EVENT_GameWin, [=](EventMessageBase* e) {
+		std::string message = "\n      All Threats Purged!      \n ";
+		TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", message, coreRingMat, foreground, background);
+	});
+
 	SetToFullHealth();
-	//Test(PercentHealth());
-}
-void Test(float s) {
-	int i = 0;
 }
 void Core::Update() {
 	float dt = (float)GhostTime::DeltaTime();
@@ -73,10 +75,14 @@ void Core::HurtEvent() {
 	message.append(std::to_string((int)(PercentHealth() * 100)) + "%      \n");
 	TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", message, coreRingMat, foreground, background);
 	if (PercentHealth() <= 0.66f) {
-		if (PercentHealth() <= 0.33f)
+		if (PercentHealth() <= 0.33f) {
 			SwapComponentVarient<Material>("low");
-		else 
+			SwapComponentVarient<Mesh>("lowHealth");
+		}
+		else {
 			SwapComponentVarient<Material>("med");
+			SwapComponentVarient<Mesh>("medHealth");
+		}
 	}
 	Core const* core = this;
 	MessageEvents::SendMessage(EVENT_CoreDamaged, CoreMessage(&core));
@@ -106,7 +112,9 @@ void Core::DeathEvent() {
 		spots[i].SetColor(NORMALCOLOR);
 	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::STOP_SFX_COREALARM));
 	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::STOP_SFX_COREHUM));
-	MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
+	SwapComponentVarient<Mesh>("noHealth");
+	std::string message = "\n    TOTAL SYSTEM FAILURE    \n";
+	TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", message, coreRingMat, foreground, background);
 	MessageEvents::SendMessage(EVENT_GameLose, EventMessageBase());
 }
 void Core::Destroy() {
@@ -120,5 +128,6 @@ void Core::Destroy() {
 	MessageEvents::SendMessage(EVENT_UnregisterNoisemaker, ObjectMessage(this));
 	Core const* co = this;
 	MessageEvents::SendMessage(EVENT_CoreDestroyed, CoreMessage(&co));
+	if (eventWin) MessageEvents::UnSubscribe(EVENT_GameWin, eventWin);
 	GameObject::Destroy();
 }

@@ -45,6 +45,7 @@ void WaveManager::Reset() {
 		waves.erase(waves.begin()); //can we not use .clear?
 	}
 	currentWave = -1;
+	difficultyMultiplier = 1;
 }
 void SplashScreenManager::Reset() {
 	nextScene = "";

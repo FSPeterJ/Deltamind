@@ -262,8 +262,12 @@ bool EnemyBase::ChangeState(State _s) {
 					case Heavy: animator->setState("Death_Heavy"); break;
 				}
 			}
-			else
+			else {
+
 				animator->setState("Death");
+			}
+			deathDuration = (float)animator->GetDuration();
+			deathDuration2 = deathDuration*2;
 		}
 		MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_ROBOTDEATH));
 		rb->Stop();
@@ -412,6 +416,11 @@ void EnemyBase::Death() {
 	if (sentDeathMessage) return;
 	deathTimer += GhostTime::DeltaTime();
 	if (deathTimer >= deathDuration) {
+		animator->SetTime(deathDuration);
+		deathDuration = 99999999;
+		animator->Disable();
+	}
+	if (deathTimer >= deathDuration2) {
 		sentDeathMessage = true;
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 	}

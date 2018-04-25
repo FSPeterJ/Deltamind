@@ -3,6 +3,7 @@
 #include "DebugRenderer.h"
 #include "EngineStructure.h"
 #include "AnimatorStructs.h"
+#include "MessageEvents.h"
 
 using namespace DirectX;
 
@@ -54,6 +55,10 @@ void Animator::Copy(const Animator * that) {
 
 const std::vector<animJoint>* Animator::getTweens() {
 	return &tweens;
+}
+
+const double Animator::GetDuration() {
+	return currAnim->keyframes[currAnim->keyframes.size() - 1].endTime;
 }
 
 void Animator::SetJointMatrix(const int jointIndex, const DirectX::XMFLOAT4X4& mat) {
@@ -205,13 +210,30 @@ void Animator::ManipulateChildrendJoints(animJoint* animationJoint, const Direct
 }
 
 void Animator::Destroy() {
-	EngineStructure::AnimationUpdate.Remove(updateID);
+	MessageEvents::SendQueueMessage(EVENT_Late, [=] {
+		if (updateID != 0) {
+			EngineStructure::Update.Remove(updateID);
+			updateID = 0;
+		}
+	});
+}
+
+void Animator::Disable() {
+	assert(updateID != 0);
+	MessageEvents::SendQueueMessage(EVENT_Late, [=] {
+		if (updateID != 0) {
+			EngineStructure::Update.Remove(updateID);
+			updateID = 0;
+		}
+	}); 
+
 }
 
 void Animator::Enable() {
-	updateID = EngineStructure::AnimationUpdate.Add([=]() {
-		this->Update();
-	});
+	if (!updateID) {
+		updateID = EngineStructure::Update.Add([=]() { Update(); });
+	}
+	assert(updateID);
 }
 
 void Animator::Initialize(AnimationManager* animManIn) {
@@ -278,7 +300,7 @@ void Animator::Update() {
 }
 
 
-void Animator::SetTime(float _timePos) {
+void Animator::SetTime(double _timePos) {
 	timePos = _timePos;
 	bool loopState = false;
 	if(timePos < 0.0) {
@@ -344,6 +366,7 @@ void Animator::addAnim(const char * animFilePath, const char * bindposeFilePath,
 bool Animator::setState(const char * animName, float speed) {
 	Animation* toSet = animations[std::string(animName)];
 	if(toSet) {
+		timePos = 0;
 		currAnim = toSet;
 		currScale = speed;
 		return true;

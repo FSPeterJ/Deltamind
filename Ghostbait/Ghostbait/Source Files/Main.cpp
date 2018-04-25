@@ -321,38 +321,38 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 
 	ObjectFactory::CreatePrefab(&std::string("Assets/DevController.ghost"), "DevController", true);
-	ObjectFactory::CreatePrefab(&std::string("Assets/basicSphere.ghost"), "BasicSphere");
-	ObjectFactory::CreatePrefab(&std::string("Assets/ScifiRoom.ghost"), "MainRoom");
+	//ObjectFactory::CreatePrefab(&std::string("Assets/basicSphere.ghost"), "BasicSphere");
+	//ObjectFactory::CreatePrefab(&std::string("Assets/ScifiRoom.ghost"), "MainRoom");
 	//ObjectFactory::CreatePrefab(&std::string("Assets/Laser.ghost"), "Projectile");
-	ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost"), "Spawner");
-	ObjectFactory::CreatePrefab(&std::string("Assets/EnemyRobot.ghost"), "TestEnemy");
+	//ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost"), "Spawner");
+	//ObjectFactory::CreatePrefab(&std::string("Assets/EnemyRobot.ghost"), "TestEnemy");
 //	ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"), "startCube");
-	ObjectFactory::CreatePrefab(&std::string("Assets/Core.ghost"), "Core");
-	ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"), "WinCube");
-	ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"), "LoseCube");
-	ObjectFactory::CreatePrefab(&std::string("Assets/EarthMage.ghost"), "EarthMage");
-	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest1.ghost"), "PhyTest1");
-	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest2.ghost"), "PhyTest2");
-	ObjectFactory::CreatePrefab(&std::string("Assets/PlaneMap1.ghost"), "Ground");
-	ObjectFactory::CreatePrefab(&std::string("Assets/OverheatBar.ghost"), "GUIOverheatTest");
-	ObjectFactory::CreatePrefab(&std::string("Assets/OverheatBar.ghost"), "ProgressBar");
-	ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost"), "BuildTool");
-	ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest3.ghost"), "PhyTest3");
+	//ObjectFactory::CreatePrefab(&std::string("Assets/Core.ghost"), "Core");
+	//ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"), "WinCube");
+	//ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"), "LoseCube");
+	//ObjectFactory::CreatePrefab(&std::string("Assets/EarthMage.ghost"), "EarthMage");
+	//ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest1.ghost"), "PhyTest1");
+	//ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest2.ghost"), "PhyTest2");
+	//ObjectFactory::CreatePrefab(&std::string("Assets/PlaneMap1.ghost"), "Ground");
+	//ObjectFactory::CreatePrefab(&std::string("Assets/OverheatBar.ghost"), "GUIOverheatTest");
+	//ObjectFactory::CreatePrefab(&std::string("Assets/OverheatBar.ghost"), "ProgressBar");
+	//ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost"), "BuildTool");
+	//ObjectFactory::CreatePrefab(&std::string("Assets/PhysicsTest3.ghost"), "PhyTest3");
 	ObjectFactory::CreatePrefab(&std::string("Assets/MenuControllerItem.ghost"), "MenuController", true);
-	unsigned Gun1 = ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost"), "Pistol", true);
-	unsigned Gun2 = ObjectFactory::CreatePrefab(&std::string("Assets/smg.ghost"), "smg");
+	//unsigned Gun1 = ObjectFactory::CreatePrefab(&std::string("Assets/Pistol.ghost"), "Pistol", true);
+	//unsigned Gun2 = ObjectFactory::CreatePrefab(&std::string("Assets/smg.ghost"), "smg");
 	//ObjectFactory::CreatePrefab(&std::string("Assets/Gun.ghost"), "GunTest", true);
-	ObjectFactory::CreatePrefab(&std::string("Assets/TestProjectile.ghost"), "TestProjectile");
-	ObjectFactory::CreatePrefab(&std::string("Assets/AStarEnemyEdit.ghost"), "AStarEnemy");
+	//ObjectFactory::CreatePrefab(&std::string("Assets/TestProjectile.ghost"), "TestProjectile");
+	//ObjectFactory::CreatePrefab(&std::string("Assets/AStarEnemyEdit.ghost"), "AStarEnemy");
 	ObjectFactory::CreatePrefab(&std::string("Assets/AStarEnemyEditEdit.ghost"), "AStarEnemy");
-	ObjectFactory::CreatePrefab(&std::string("Assets/DStarEnemyEdit.ghost"), "DStarEnemy");
-	ObjectFactory::CreatePrefab(&std::string("Assets/ResumeButton.ghost"), "ResumeButton");
+	//ObjectFactory::CreatePrefab(&std::string("Assets/DStarEnemyEdit.ghost"), "DStarEnemy");
+	//ObjectFactory::CreatePrefab(&std::string("Assets/ResumeButton.ghost"), "ResumeButton");
 	//unsigned basicTurret = ObjectFactory::CreatePrefab(&std::string("Assets/TestTurret.ghost"), "TestTurret", true);
-	ObjectFactory::CreatePrefab(&std::string("Assets/RestartButton.ghost"), "RestartButton");
-	ObjectFactory::CreatePrefab(&std::string("Assets/QuitButton.ghost"), "QuitButton");
-	ObjectFactory::CreatePrefab(&std::string("Assets/MTDSLEnemy.ghost"), "MTDSLEnemy");
+	//ObjectFactory::CreatePrefab(&std::string("Assets/RestartButton.ghost"), "RestartButton");
+	//ObjectFactory::CreatePrefab(&std::string("Assets/QuitButton.ghost"), "QuitButton");
+	//ObjectFactory::CreatePrefab(&std::string("Assets/MTDSLEnemy.ghost"), "MTDSLEnemy");
 
-	ObjectFactory::CreatePrefab(&std::string("Assets/TransparencyTest.ghost"), "Ttest");
+	//ObjectFactory::CreatePrefab(&std::string("Assets/TransparencyTest.ghost"), "Ttest");
 	
 	Console::WriteLine << "Prefabs created......";
 	//=============================

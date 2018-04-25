@@ -738,8 +738,7 @@ void Game::Update() {
 						//Spawn start cube
 						CoreShield* coreShield;
 						unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/CoreShield.ghost"));
-						MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<CoreShield>(ID, { 0, 0, 0 }, &coreShield));
-						coreShield->transform.SetMatrix(core->transform.GetMatrix());
+						MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<CoreShield>(ID, core->transform.GetMatrix(), &coreShield));
 						coreShield->Enable();
 					}
 				}

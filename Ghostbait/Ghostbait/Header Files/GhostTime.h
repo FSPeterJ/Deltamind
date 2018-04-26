@@ -4,10 +4,24 @@
 #undef SendMessage
 
 class GhostTime {
+	enum State {
+		Normal,
+		SloMo,
+		LerpIn,
+		LerpOut,
+	};
 	static XTime timer;
 	static void Tick();
 	friend void Loop();
 	static double timeScale;
+	static double sloMoSpeed;
+	static double timeScaleDuration;
+	static double lerpDuration;
+	static double currentTimeScaleTime;
+	static State state;
+
+	static void SetState(State _state);
+
 public:
 	struct Moment {
 		std::chrono::system_clock::time_point moment;
@@ -22,6 +36,6 @@ public:
 	static double DeltaTime() { return timer.Delta() * timeScale; }
 	static double SmoothDeltaTime() { return timer.SmoothDelta() * timeScale; }
 	static double FrameRate() { return timer.SamplesPerSecond(); }
-	static void ToggleTimeScale();
+	static void ToggleSloMo(double _timeScaleDuration = 10, double _lerpDuration = 2);
 
 };

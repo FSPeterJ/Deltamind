@@ -4,15 +4,61 @@
 
 XTime GhostTime::timer;
 double GhostTime::timeScale = 1;
+double GhostTime::sloMoSpeed = 0.25;
+double GhostTime::timeScaleDuration;
+double GhostTime::lerpDuration;
+double GhostTime::currentTimeScaleTime = 0;
+GhostTime::State GhostTime::state = Normal;
 
 void GhostTime::Initalize() {
 	timer.Restart();
 	timeScale = 1;
+	SetState(Normal);
 	//EngineStructure::Update += [=]() { Tick(); };
+}
+
+void GhostTime::SetState(State _state) {
+	state = _state;
+	switch (state) {
+		case Normal:
+			break;
+		case SloMo:
+			currentTimeScaleTime = timeScaleDuration;
+			break;
+		case LerpIn:
+		case LerpOut:
+			currentTimeScaleTime = lerpDuration;
+			break;
+	}
 }
 
 void GhostTime::Tick() { 
 	timer.Signal(); 
+	switch (state) {
+		case Normal:
+			break;
+		case SloMo:
+			{
+				if (timeScaleDuration == -1) return;
+				currentTimeScaleTime -= timer.Delta();
+				if (currentTimeScaleTime <= 0) SetState(LerpOut);
+			}
+			break;
+		case LerpIn:
+			{
+				currentTimeScaleTime -= timer.Delta();
+				if (currentTimeScaleTime <= 0) SetState(SloMo);
+				else timeScale = sloMoSpeed + (currentTimeScaleTime / lerpDuration) * (1 - sloMoSpeed);
+			}
+			break;
+		case LerpOut:
+			{
+				currentTimeScaleTime -= timer.Delta();
+				if (currentTimeScaleTime <= 0) SetState(Normal);
+				else timeScale = 1 + (currentTimeScaleTime / lerpDuration) * (sloMoSpeed - 1);
+			}
+			break;
+	}
 }
 
 GhostTime::Moment GhostTime::Now() {
@@ -23,8 +69,11 @@ __int64 GhostTime::Duration(Moment start, Moment end) {
 	return std::chrono::duration_cast<std::chrono::milliseconds>(end.moment - start.moment).count();
 }
 
-void GhostTime::ToggleTimeScale() {
-	if (timeScale == 1)
-		timeScale = 0.25;
-	else timeScale = 1;
+void GhostTime::ToggleSloMo(double _timeScaleDuration, double _lerpDuration) {
+	timeScaleDuration = _timeScaleDuration;
+	lerpDuration = _lerpDuration;
+	if (state == Normal || state == LerpOut)
+		SetState(LerpIn);
+	else
+		SetState(LerpOut);
 }

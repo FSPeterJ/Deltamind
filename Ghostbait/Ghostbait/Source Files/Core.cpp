@@ -77,12 +77,12 @@ void Core::HurtEvent() {
 	TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", message, coreRingMat, foreground, background);
 	if (PercentHealth() <= 0.66f) {
 		if (PercentHealth() <= 0.33f) {
-			SwapComponentVarient<Material>("low");
-			SwapComponentVarient<Mesh>("lowHealth");
+			SwapComponentVariant<Material>("low");
+			SwapComponentVariant<Mesh>("lowHealth");
 		}
 		else {
-			SwapComponentVarient<Material>("med");
-			SwapComponentVarient<Mesh>("medHealth");
+			SwapComponentVariant<Material>("med");
+			SwapComponentVariant<Mesh>("medHealth");
 		}
 	}
 	Core const* core = this;
@@ -113,7 +113,7 @@ void Core::DeathEvent() {
 		spots[i].SetColor(EMPTYCOLOR);
 	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::STOP_SFX_COREALARM));
 	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::STOP_SFX_COREHUM));
-	SwapComponentVarient<Mesh>("noHealth");
+	SwapComponentVariant<Mesh>("noHealth");
 	std::string message = "\n    TOTAL SYSTEM FAILURE    \n";
 	TextManager::DrawTextExistingMat("Assets/Fonts/defaultFont.png", message, coreRingMat, foreground, background);
 	MessageEvents::SendMessage(EVENT_GameLose, EventMessageBase());

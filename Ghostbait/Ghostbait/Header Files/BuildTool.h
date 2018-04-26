@@ -51,7 +51,7 @@ class BuildTool : public Item {
 	bool SetObstacle(DirectX::XMFLOAT2 pos, bool active);
 	bool CanBuildHere(DirectX::XMFLOAT2& spawnPos);
 
-	void SetColor(const char* colorVarient);
+	void SetColor(const char* colorVariant);
 public:
 	CastObject ray;
 	//CastObject buildRay;

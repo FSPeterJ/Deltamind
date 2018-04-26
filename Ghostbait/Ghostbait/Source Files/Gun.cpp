@@ -71,12 +71,12 @@ void Gun::Overheat::Update(bool active) {
 void Gun::Overheat::Overheated() {
 	overheated = true;
 	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(parent, AK::EVENTS::PLAY_SFX_GUNOVERHEAT));
-	parent->SwapComponentVarient<Material>("Red");
+	parent->SwapComponentVariant<Material>("Red");
 }
 void Gun::Overheat::CooledDown() {
 	overheated = false;
 	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(parent, AK::EVENTS::PLAY_SFX_GUNCOOLDOWN_FINISHED));
-	parent->SwapComponentVarient<Material>("default");
+	parent->SwapComponentVariant<Material>("default");
 }
 void Gun::Overheat::Reset() {
 	currentEnergy = 0;

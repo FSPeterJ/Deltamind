@@ -253,7 +253,7 @@ void Turret_Long::Shoot() {
 	newPos._42 += transform.matrix._42 + (newPos._22 * dy) + (newPos._32 * dz);
 	newPos._43 += transform.matrix._43 + (newPos._23 * dy) + (newPos._33 * dz);
 	obj->transform.SetMatrix(newPos);
-	obj->SwapComponentVarient<Material>("Red");
+	obj->SwapComponentVariant<Material>("Red");
 	PhysicsComponent* pc = obj->GetComponent<PhysicsComponent>();
 	pc->rigidBody.AdjustGravityMagnitude(0);
 
@@ -286,7 +286,7 @@ void Turret_Medium::Shoot() {
 	newPos._42 += transform.matrix._42 + (newPos._22 * dy) + (newPos._32 * dz);
 	newPos._43 += transform.matrix._43 + (newPos._23 * dy) + (newPos._33 * dz);
 	obj->transform.SetMatrix(newPos);
-	obj->SwapComponentVarient<Material>("Green");
+	obj->SwapComponentVariant<Material>("Green");
 	PhysicsComponent* pc = obj->GetComponent<PhysicsComponent>();
 	pc->rigidBody.AdjustGravityMagnitude(0);
 
@@ -322,7 +322,7 @@ void Turret_Short::Shoot() {
 		currentIndex = 0;
 	}
 	obj->transform.SetMatrix(newPos);
-	obj->SwapComponentVarient<Material>("Blue");
+	obj->SwapComponentVariant<Material>("Blue");
 	PhysicsComponent* pc = obj->GetComponent<PhysicsComponent>();
 	pc->rigidBody.AdjustGravityMagnitude(0);
 

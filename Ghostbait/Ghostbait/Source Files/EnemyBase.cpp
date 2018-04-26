@@ -61,8 +61,8 @@ void EnemyBase::Start() {
 
 	if (!genetics || abs(genetics->traits.Sum() - 1.0f) > FLT_EPSILON) {
 		//throw std::runtime_error("enemy has no genetics");
-		SwapComponentVarient<Mesh>("heavy");
-		SwapComponentVarient<Material>("heavyMat");
+		SwapComponentVariant<Mesh>("heavy");
+		SwapComponentVariant<Material>("heavyMat");
 		//animator->setState("Walk_Heavy");
 		enemyType = Heavy;
 		ChangeState(PATROL);
@@ -84,23 +84,23 @@ void EnemyBase::Start() {
 	auto domTrait = std::max({domTraits[0], domTraits[1], domTraits[2], domTraits[3]});
 
 	if(domTrait == domTraits[0]) {
-		SwapComponentVarient<Mesh>("medium");
-		SwapComponentVarient<Material>("mediumMat");
+		SwapComponentVariant<Mesh>("medium");
+		SwapComponentVariant<Material>("mediumMat");
 		//animator->setState("Walk_Medium");
 		enemyType = Medium;
 	} else if(domTrait == domTraits[1]) {
-		SwapComponentVarient<Mesh>("medium");
-		SwapComponentVarient<Material>("mediumMat");
+		SwapComponentVariant<Mesh>("medium");
+		SwapComponentVariant<Material>("mediumMat");
 		//animator->setState("Walk");
 		enemyType = Medium;
 	} else if(domTrait == domTraits[2]) {
-		SwapComponentVarient<Mesh>("heavy");
-		SwapComponentVarient<Material>("heavyMat");
+		SwapComponentVariant<Mesh>("heavy");
+		SwapComponentVariant<Material>("heavyMat");
 		//animator->setState("Walk_Heavy");
 		enemyType = Heavy;
 	} else if(domTrait == domTraits[3]) {
-		SwapComponentVarient<Mesh>("light");
-		SwapComponentVarient<Material>("lightMat");
+		SwapComponentVariant<Mesh>("light");
+		SwapComponentVariant<Material>("lightMat");
 		//animator->setState("Walk_Light");
 		enemyType = Light;
 	}
@@ -263,10 +263,10 @@ bool EnemyBase::ChangeState(State _s) {
 		if (animator) {
 			if (genetics) {
 				switch (enemyType) {
-				case Default: animator->setState("Death"); SwapComponentVarient<Material>("mediumMat"); break;
-					case Light: animator->setState("Death_Light"); SwapComponentVarient<Material>("lightMat"); break;
-					case Medium: animator->setState("Death_Medium"); SwapComponentVarient<Material>("mediumMat"); break;
-					case Heavy: animator->setState("Death_Heavy"); SwapComponentVarient<Material>("heavyMat"); break;
+				case Default: animator->setState("Death"); SwapComponentVariant<Material>("mediumMat"); break;
+					case Light: animator->setState("Death_Light"); SwapComponentVariant<Material>("lightMat"); break;
+					case Medium: animator->setState("Death_Medium"); SwapComponentVariant<Material>("mediumMat"); break;
+					case Heavy: animator->setState("Death_Heavy"); SwapComponentVariant<Material>("heavyMat"); break;
 				}
 			}
 			else {
@@ -406,10 +406,10 @@ void EnemyBase::Attack() {
 
 void EnemyBase::Injured() {
 	if (!isHurting) {
-		if (componentVarients.find("Hurt") != componentVarients.end()) {
+		if (componentVariants.find("Hurt") != componentVariants.end()) {
 			int id = TypeMap::GetComponentTypeID<Material>();
 			defaultMat = GetComponent<Material>(); //FIXME
-			SetComponent(componentVarients["Hurt"], id);
+			SetComponent(componentVariants["Hurt"], id);
 		}
 		prevVelocity = rb->GetVelocityFloat3();
 		rb->Stop();

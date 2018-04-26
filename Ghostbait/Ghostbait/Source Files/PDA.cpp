@@ -65,7 +65,7 @@ void PDA::SetPurpose(Purpose _purpose) {
 	ScrollingUV* comp = nullptr;
 	switch (purpose) {
 		case Purpose::InventoryItem:
-			SwapComponentVarient<Mesh>("inHand");
+			SwapComponentVariant<Mesh>("inHand");
 			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/PDAScreen.ghost")), { 0, 0, 0 }, &display));
 			displayMat = TextManager::DrawTextTo("Assets/Fonts/defaultFont.png", " Wave: 0 \n EnemiesRemaining: 0 ", foreground, background).mat;
 			display->SetComponent<Material>(displayMat);
@@ -88,10 +88,10 @@ void PDA::SetPurpose(Purpose _purpose) {
 		case Purpose::DisplayItem:
 			break;
 		case Purpose::Credits:
-			SwapComponentVarient<Mesh>("large");
+			SwapComponentVariant<Mesh>("large");
 			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/PDAScreen.ghost")), { 0, 0, 0 }, &display));
-			display->SwapComponentVarient<Mesh>("large");
-			display->SwapComponentVarient<Material>("Large");
+			display->SwapComponentVariant<Mesh>("large");
+			display->SwapComponentVariant<Material>("Large");
 			display->PersistOnReset();
 			display->ToggleFlag(UNLIT);
 			display->transform.SetMatrix(transform.GetMatrix());

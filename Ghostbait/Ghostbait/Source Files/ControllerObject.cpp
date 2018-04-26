@@ -379,11 +379,11 @@ void ControllerObject::Update() {
 								player->teleportArc.Create();
 								player->teleportArc.GetMaterial()->flags |= Material::MaterialFlags::POINT;
 								if (!(player->GetBuildGrid()->IsBlocked(DirectX::XMFLOAT2(endPos.x, endPos.z))) && colObject->GetTag() == "Ground") {
-									player->teleportArc.Get()->SwapComponentVarient<Material>("valid");
+									player->teleportArc.Get()->SwapComponentVariant<Material>("valid");
 									teleportQueued = true;
 								}
 								else {
-									player->teleportArc.Get()->SwapComponentVarient<Material>("invalid");
+									player->teleportArc.Get()->SwapComponentVariant<Material>("invalid");
 									teleportQueued = false;
 								}
 							}

@@ -30,26 +30,26 @@ void TargetEnemy::Awake(Object* obj) {
 
 	switch (Omiracon::Random::RandomNumber(0, 3)) {
 	case 0:
-		SwapComponentVarient<Mesh>("medium");
-		SwapComponentVarient<Material>("mediumMat");
+		SwapComponentVariant<Mesh>("medium");
+		SwapComponentVariant<Material>("mediumMat");
 		//animator->setState("Walk_Medium");
 		enemyType = Medium;
 		break;
 	case 1:
-		SwapComponentVarient<Mesh>("heavy");
-		SwapComponentVarient<Material>("heavyMat");
+		SwapComponentVariant<Mesh>("heavy");
+		SwapComponentVariant<Material>("heavyMat");
 		//animator->setState("Walk_Heavy");
 		enemyType = Heavy;
 		break;
 	case 2:
-		SwapComponentVarient<Mesh>("light");
-		SwapComponentVarient<Material>("lightMat");
+		SwapComponentVariant<Mesh>("light");
+		SwapComponentVariant<Material>("lightMat");
 		//animator->setState("Walk_Light");
 		enemyType = Light;
 		break;
 	default:
-		SwapComponentVarient<Mesh>("light");
-		SwapComponentVarient<Material>("lightMat");
+		SwapComponentVariant<Mesh>("light");
+		SwapComponentVariant<Material>("lightMat");
 		//animator->setState("Walk_Light");
 		enemyType = Light;
 		break;

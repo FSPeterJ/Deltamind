@@ -24,7 +24,7 @@ public:
 	ComponentTypeContainer<ComponentBase*> Components;
 	//Endnote
 	ComponentBase* defaultMat = nullptr;
-	std::unordered_map<std::string, ComponentBase*> componentVarients;
+	std::unordered_map<std::string, ComponentBase*> componentVariants;
 	Object();
 
 	virtual ~Object();
@@ -60,10 +60,10 @@ public:
 	//};
 
 	template<typename ComponentType>
-	bool SwapComponentVarient(const char* varientName) {
-		if (componentVarients.find(varientName) != componentVarients.end()) {
+	bool SwapComponentVariant(const char* variantName) {
+		if (componentVariants.find(variantName) != componentVariants.end()) {
 			int id = TypeMap::GetComponentTypeID<ComponentType>();
-			SetComponent(componentVarients[varientName], id);
+			SetComponent(componentVariants[variantName], id);
 			return true;
 		}
 		return false;

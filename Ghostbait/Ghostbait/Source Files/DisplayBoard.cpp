@@ -10,39 +10,39 @@ void DisplayBoard::SetType(Type _type) {
 			break;
 		case Type::Move:
 			if (isVR)
-				screen->SwapComponentVarient<Material>("move_VR");
+				screen->SwapComponentVariant<Material>("move_VR");
 			else
-				screen->SwapComponentVarient<Material>("move_NVR");
+				screen->SwapComponentVariant<Material>("move_NVR");
 			break;
 		case Type::Pause:
 			if (isVR)
-				screen->SwapComponentVarient<Material>("pause_VR");
+				screen->SwapComponentVariant<Material>("pause_VR");
 			else
-				screen->SwapComponentVarient<Material>("pause_NVR");
+				screen->SwapComponentVariant<Material>("pause_NVR");
 			break;
 		case Type::Inventory:
 			if (isVR)
-				screen->SwapComponentVarient<Material>("inventory_VR");
+				screen->SwapComponentVariant<Material>("inventory_VR");
 			else
-				screen->SwapComponentVarient<Material>("inventory_NVR");
+				screen->SwapComponentVariant<Material>("inventory_NVR");
 			break;
 		case Type::Items:
 			if (isVR)
-				screen->SwapComponentVarient<Material>("items_VR");
+				screen->SwapComponentVariant<Material>("items_VR");
 			else
-				screen->SwapComponentVarient<Material>("items_NVR");
+				screen->SwapComponentVariant<Material>("items_NVR");
 			break;
 		case Type::Build:
 			if (isVR)
-				screen->SwapComponentVarient<Material>("build_VR");
+				screen->SwapComponentVariant<Material>("build_VR");
 			else
-				screen->SwapComponentVarient<Material>("build_NVR");
+				screen->SwapComponentVariant<Material>("build_NVR");
 			break;
 		case Type::Shoot:
 			if (isVR)
-				screen->SwapComponentVarient<Material>("shoot_VR");
+				screen->SwapComponentVariant<Material>("shoot_VR");
 			else
-				screen->SwapComponentVarient<Material>("shoot_NVR");
+				screen->SwapComponentVariant<Material>("shoot_NVR");
 			break;
 	}
 }

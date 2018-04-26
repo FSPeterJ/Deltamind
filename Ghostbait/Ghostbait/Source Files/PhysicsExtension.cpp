@@ -13,7 +13,7 @@ using namespace Common;
 
 #define ArcPoints 20
 
-void CastObject::Create(bool renderToFront, const char* varientColor) {
+void CastObject::Create(bool renderToFront, const char* variantColor) {
 	if (!object) {
 		MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<GameObject>(ObjectFactory::CreatePrefab(&std::string(fileName)), { 0, 0, 0 }, &object));
 		object->PersistOnReset();
@@ -39,8 +39,8 @@ void CastObject::Create(bool renderToFront, const char* varientColor) {
 			}
 		}
 	}
-	if (varientColor != "?") {
-		object->SwapComponentVarient<Material>(varientColor);
+	if (variantColor != "?") {
+		object->SwapComponentVariant<Material>(variantColor);
 	}
 }
 void CastObject::Destroy() {

@@ -17,7 +17,7 @@ class CastObject {
 	char* fileName;
 public:
 	inline void SetFile(char* _fileName) {fileName = _fileName;}
-	void Create(bool renderToFront = false, const char* varientColor = "?");
+	void Create(bool renderToFront = false, const char* variantColor = "?");
 	inline GameObject* Get() const { return object; };
 	inline Material* GetMaterial() const { return mat; };
 	inline Animator* GetAnimator() const { return anim; };

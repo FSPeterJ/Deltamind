@@ -122,7 +122,7 @@ void GameObject::Destroy() {
 void GameObject::OnCollision(GameObject* obj) {}
 void GameObject::OnTrigger(GameObject* obj) {}
 void GameObject::Awake(Object* obj) {
-	componentVarients = obj->componentVarients;
+	componentVariants = obj->componentVariants;
 	typeID = 0;
 	updateID = 0;
 	eventDeleteAllGameObjects = 0;

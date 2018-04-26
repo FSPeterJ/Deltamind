@@ -82,8 +82,8 @@ void ControllerPillar_Move::Awake(Object* obj) {
 	if (isVR) {
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")), { 0, 0, 0 }, &leftDisplay));
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")), { 0, 0, 0 }, &rightDisplay));
-		leftDisplay->SwapComponentVarient<Material>("default");
-		rightDisplay->SwapComponentVarient<Material>("menu");
+		leftDisplay->SwapComponentVariant<Material>("default");
+		rightDisplay->SwapComponentVariant<Material>("menu");
 		leftDisplay->ToggleFlag(UNLIT);
 		rightDisplay->ToggleFlag(UNLIT);
 	}
@@ -96,8 +96,8 @@ void ControllerPillar_Pause::Awake(Object* obj) {
 	if (isVR) {
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")), { 0, 0, 0 }, &leftDisplay));
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")), { 0, 0, 0 }, &rightDisplay));
-		leftDisplay->SwapComponentVarient<Material>("menu");
-		rightDisplay->SwapComponentVarient<Material>("default");
+		leftDisplay->SwapComponentVariant<Material>("menu");
+		rightDisplay->SwapComponentVariant<Material>("default");
 		leftDisplay->ToggleFlag(UNLIT);
 		rightDisplay->ToggleFlag(UNLIT);
 	}
@@ -110,8 +110,8 @@ void ControllerPillar_Switch::Awake(Object* obj) {
 	if (isVR) {
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")), { 0, 0, 0 }, &leftDisplay));
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")), { 0, 0, 0 }, &rightDisplay));
-		leftDisplay->SwapComponentVarient<Material>("touchpad");
-		rightDisplay->SwapComponentVarient<Material>("touchpad");
+		leftDisplay->SwapComponentVariant<Material>("touchpad");
+		rightDisplay->SwapComponentVariant<Material>("touchpad");
 		leftDisplay->ToggleFlag(UNLIT);
 		rightDisplay->ToggleFlag(UNLIT);
 	}
@@ -125,8 +125,8 @@ void ControllerPillar_Build::Awake(Object* obj) {
 	if (isVR) {
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")), { 0, 0, 0 }, &leftDisplay));
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")), { 0, 0, 0 }, &rightDisplay));
-		leftDisplay->SwapComponentVarient<Material>("grip");
-		rightDisplay->SwapComponentVarient<Material>("grip");
+		leftDisplay->SwapComponentVariant<Material>("grip");
+		rightDisplay->SwapComponentVariant<Material>("grip");
 		leftDisplay->ToggleFlag(UNLIT);
 		rightDisplay->ToggleFlag(UNLIT);
 	}
@@ -140,8 +140,8 @@ void ControllerPillar_Shoot::Awake(Object* obj) {
 	if (isVR) {
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")), { 0, 0, 0 }, &leftDisplay));
 		MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/ViveControllerMesh.ghost")), { 0, 0, 0 }, &rightDisplay));
-		leftDisplay->SwapComponentVarient<Material>("trigger");
-		rightDisplay->SwapComponentVarient<Material>("trigger");
+		leftDisplay->SwapComponentVariant<Material>("trigger");
+		rightDisplay->SwapComponentVariant<Material>("trigger");
 		leftDisplay->ToggleFlag(UNLIT);
 		rightDisplay->ToggleFlag(UNLIT);
 	}

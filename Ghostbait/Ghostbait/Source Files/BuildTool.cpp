@@ -289,12 +289,12 @@ void BuildTool::SpawnProjection(){
 			light.transform.SetMatrix(newPos1);
 			//Asses if valid location
 			if (CanBuildHere(newPos)) {
-				prefabs[currentPrefabIndex].object->SwapComponentVarient<Material>("green");
+				prefabs[currentPrefabIndex].object->SwapComponentVariant<Material>("green");
 				light.SetColor({ 0.0f, 5.0f, 0.0f, 1.0f });
 				//gearAdjustmentDisplay->RenderTransparent();
 			}
 			else {
-				prefabs[currentPrefabIndex].object->SwapComponentVarient<Material>("red");
+				prefabs[currentPrefabIndex].object->SwapComponentVariant<Material>("red");
 				light.SetColor({ 5.0f, 0.0f, 0.0f, 1.0f });
 			}
 		}
@@ -311,7 +311,7 @@ void BuildTool::RemoveProjection() {
 	if(!Raycast(&transform, DirectX::XMFLOAT3(transform.GetMatrix()._31, transform.GetMatrix()._32, transform.GetMatrix()._33), &endPos, &colObject, &ray, 4, "Turret")) {
 		if (gearAdjustmentDisplay) gearAdjustmentDisplay->UnRender();
 		if (currentlySelectedItem) {
-			currentlySelectedItem->SwapComponentVarient<Material>("default");
+			currentlySelectedItem->SwapComponentVariant<Material>("default");
 			currentlySelectedItemIndex = -1;
 			currentlySelectedItem = nullptr;
 		}
@@ -325,14 +325,14 @@ void BuildTool::RemoveProjection() {
 	if (gearAdjustmentDisplay) gearAdjustmentDisplay->RenderTransparent();
 	//Am I colliding with a different object than my currently selected object?
 	if (colObject != currentlySelectedItem) {
-		if(currentlySelectedItem) currentlySelectedItem->SwapComponentVarient<Material>("default");
+		if(currentlySelectedItem) currentlySelectedItem->SwapComponentVariant<Material>("default");
 	}
 	for (size_t i = 0; i < builtItems.size(); ++i) {
 		if (colObject == builtItems[i]) {
 			currentlySelectedItemIndex = (int)i;
 			currentlySelectedItem = colObject;
 			//TODO: Temp...Dont't call this every frame.
-			currentlySelectedItem->SwapComponentVarient<Material>("red");
+			currentlySelectedItem->SwapComponentVariant<Material>("red");
 			light.SetColor({ 5.0f, 0.0f, 0.0f, 1.0f });
 			
 			break;
@@ -345,7 +345,7 @@ void BuildTool::RepairProjection() {
 	if (!Raycast(&transform, DirectX::XMFLOAT3(transform.GetMatrix()._31, transform.GetMatrix()._32, transform.GetMatrix()._33), &endPos, &colObject, &ray, 4, "Turret")) {
 		if (gearAdjustmentDisplay) gearAdjustmentDisplay->UnRender();
 		if (currentlySelectedItem) {
-			currentlySelectedItem->SwapComponentVarient<Material>("default");
+			currentlySelectedItem->SwapComponentVariant<Material>("default");
 			currentlySelectedItemIndex = -1;
 			currentlySelectedItem = nullptr;
 		}
@@ -359,14 +359,14 @@ void BuildTool::RepairProjection() {
 	if (gearAdjustmentDisplay) gearAdjustmentDisplay->RenderTransparent();
 	//Am I colliding with a different object than my currently selected object?
 	if (colObject != currentlySelectedItem) {
-		if (currentlySelectedItem) currentlySelectedItem->SwapComponentVarient<Material>("default");
+		if (currentlySelectedItem) currentlySelectedItem->SwapComponentVariant<Material>("default");
 	}
 	for (size_t i = 0; i < builtItems.size(); ++i) {
 		if (colObject == builtItems[i]) {
 			currentlySelectedItemIndex = (int)i;
 			currentlySelectedItem = colObject;
 			//TODO: Temp...Dont't call this every frame.
-			currentlySelectedItem->SwapComponentVarient<Material>("yellow");
+			currentlySelectedItem->SwapComponentVariant<Material>("yellow");
 			light.SetColor({ 5.0f, 5.0f, 0.0f, 1.0f });
 
 			break;
@@ -398,7 +398,7 @@ void BuildTool::CycleForward() {
 		else {
 			currentMode = Mode::BUILD;
 			if (currentlySelectedItem) {
-				currentlySelectedItem->SwapComponentVarient<Material>("default");
+				currentlySelectedItem->SwapComponentVariant<Material>("default");
 				currentlySelectedItem = nullptr;
 			}
 			if (gearAdjustmentDisplay) gearAdjustmentDisplay->RenderTransparent();
@@ -435,7 +435,7 @@ void BuildTool::CycleBackward() {
 		else {
 			currentMode = Mode::BUILD;
 			if (currentlySelectedItem) {
-				currentlySelectedItem->SwapComponentVarient<Material>("default");
+				currentlySelectedItem->SwapComponentVariant<Material>("default");
 				currentlySelectedItem = nullptr;
 			}
 			if (gearAdjustmentDisplay) gearAdjustmentDisplay->RenderTransparent();
@@ -481,7 +481,7 @@ void BuildTool::DeSelected() {
 			prefabs[currentPrefabIndex].object->UnRender();
 	}
 	if (currentlySelectedItem) {
-		currentlySelectedItem->SwapComponentVarient<Material>("default");
+		currentlySelectedItem->SwapComponentVariant<Material>("default");
 		currentlySelectedItem = nullptr;
 	}
 	light.SetColor({ 0.0f, 0.0f, 0.0f, 1.0f });
@@ -489,9 +489,9 @@ void BuildTool::DeSelected() {
 	Item::DeSelected();
 }
 
-void BuildTool::SetColor(const char* colorVarient) {
-	ray.Create(false, colorVarient);
-	SwapComponentVarient<Material>(colorVarient);
+void BuildTool::SetColor(const char* colorVariant) {
+	ray.Create(false, colorVariant);
+	SwapComponentVariant<Material>(colorVariant);
 }
 
 void BuildTool::Awake(Object* obj) {

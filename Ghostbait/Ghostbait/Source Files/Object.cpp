@@ -21,7 +21,7 @@ int Object::SetComponent(ComponentBase* _component, const int _id) {
 	return Components.AddComponent(_component, _id);
 }
 void Object::GiveComponent(ComponentBase* _component, const char* tag) {
-	componentVarients[tag] = _component;
+	componentVariants[tag] = _component;
 }
 void Object::GivePID(unsigned pid, const char* tag)
 {

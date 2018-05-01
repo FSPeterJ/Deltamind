@@ -15,8 +15,13 @@ class Animator: public InstantiatedCompBase {
 	AnimationManager* animMan;
 	std::unordered_map<std::string, Animation*> animations;
 	std::unordered_map<std::string, int> jointPointers; //Used for quick searches for named joints
+	Animation* prevAnim = nullptr;
 	Animation* currAnim = nullptr;
+	double transitionTime = 0;
+	double transitionTimeMax = 0;
 	double timePos = 0.0;
+	double prevTimePos = 0.0;
+	double prevScale = 1.0;
 	double currScale = 1.0;
 	std::vector<animJoint> tweens = std::vector<animJoint>();
 	DirectX::XMFLOAT3X3 pullRotation(DirectX::XMFLOAT4X4 pullFrom);
@@ -32,7 +37,7 @@ public:
 	void Update();
 	void SetTime(double _timePos);
 	void addAnim(const char* animFilePath, const char* bindposeFilePath, const char* animName);
-	bool setState(const char* animName, double speed = 1.0);
+	bool setState(const char* animName, double speed = 1.0, double transition = -1);
 
 	void Copy(const Animator* that);
 	double getTimePos() { return timePos; }

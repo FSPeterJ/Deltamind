@@ -23,5 +23,6 @@ public:
 	static double SmoothDeltaTime() { return timer.SmoothDelta() * timeScale; }
 	static double FrameRate() { return timer.SamplesPerSecond(); }
 	static void ToggleTimeScale();
+	static double DeltaTimeDebug() { return 0.5; };
 
 };

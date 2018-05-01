@@ -47,7 +47,7 @@
 
 using namespace Threadding;
 
-const bool FULLSCREEN = true;
+const bool FULLSCREEN = false;
 
 //#include "..\Omiracron\Omiracron\Omiracron.h"
 //using namespace Omiracron;
@@ -365,26 +365,26 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//teddy->GetComponent<Animator>()->setState("Walk");
 
 	//********************* PHYSICS TEST CODE **********************************
-	//PhysicsTestObj *test1, *test2;
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { -1.0f, 2.0f, 1.0f }, &test1));
+	PhysicsTestObj *test1;
+	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { -1.0f, 2.0f, 1.0f }, &test1));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { 3.0f, 2.0f, 1.0f }, &test2));
-	////DirectX::XMStoreFloat4x4(&test1->position, DirectX::XMLoadFloat4x4(&test1->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
-	////MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest3", { 0.0f, 1.0f, 0.0f }, &test2));
-	////DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
-	////MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest2", { 2.0f, 2.0f, 0.0f }, &test2));
-	////DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
-	////MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { -2.0f, 2.0f, 0.0f }, nullptr));
-	//
-	//((PhysicsTestObj*)test1)->isControllable = true;
-	//((PhysicsTestObj*)test1)->isRayCasting = true;
-	//test1->PersistOnReset();
-	//test1->AnExtremelyBadTemporaryFunction(rendInter->GetParticleManager(), rendInter->GetMaterialManager());
-	//test1->Enable();
-	//((PhysicsTestObj*)test2)->isControllable = true;
-	//((PhysicsTestObj*)test2)->isRayCasting = true;
-	//test2->PersistOnReset();
-	//test2->AnExtremelyBadTemporaryFunction(rendInter->GetParticleManager(), rendInter->GetMaterialManager());
-	//test2->Enable();
+	//DirectX::XMStoreFloat4x4(&test1->position, DirectX::XMLoadFloat4x4(&test1->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest3", { 0.0f, 1.0f, 0.0f }, &test2));
+	//DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest2", { 2.0f, 2.0f, 0.0f }, &test2));
+	//DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { -2.0f, 2.0f, 0.0f }, nullptr));
+	
+	((PhysicsTestObj*)test1)->isControllable = true;
+	((PhysicsTestObj*)test1)->isRayCasting = true;
+	test1->PersistOnReset();
+	test1->AnExtremelyBadTemporaryFunction(rendInter->GetParticleManager(), rendInter->GetMaterialManager());
+	test1->Enable();
+	/*((PhysicsTestObj*)test2)->isControllable = true;
+	((PhysicsTestObj*)test2)->isRayCasting = true;
+	test2->PersistOnReset();
+	test2->AnExtremelyBadTemporaryFunction(rendInter->GetParticleManager(), rendInter->GetMaterialManager());
+	test2->Enable();*/
 
 
 
@@ -396,6 +396,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	Console::WriteLine << "Starting Game Loop......";
 	game = new Game();
 	game->Start(player, &engine, rendInter->getHud());
+	player->transform.SetPosition(2, 1, -3.0f);
+	MessageEvents::SendMessage(EVENT_God, EventMessageBase());
 	//game->Start(player, &engine, "level0", "Level Files//level0_hard.xml");
 }
 

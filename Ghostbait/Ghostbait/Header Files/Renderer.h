@@ -56,6 +56,7 @@ private:
 		float ElapsedTime;
 		float lastElapsed;
 		float padding;
+
 		DirectX::XMFLOAT3 cameraCenterpoint;
 		float padding2;
 	} perFrameDataConstantBuffer;
@@ -294,17 +295,3 @@ public:
 	Transform* getCamera();
 	void Render();
 };
-//D3D11 ERROR : ID3D11Device::CreateShaderResourceView : 
-//
-//The Dimensions of the View are invalid due to at least one of the following conditions.
-//MostDetailedMip(value = 0) must be between 0 and MipLevels-1 of the Texture Resource, 9, inclusively.
-//With 
-//the current MostDetailedMip, MipLevels(value = 0) must be between 1 and 10, inclusively, 
-//or 
-//-1 to default to all mips from MostDetailedMip, in order that the View fit on the Texture.
-//FirstArraySlice(value = 0) must be between 0 and ArraySize-1 of the Texture Resource, 31, inclusively.
-//With 
-//the current FirstArraySlice, ArraySize(value = 32) must be between 1 and 32, inclusively, 
-//or 
-//-1 to default to all slices from FirstArraySlice, in order that the View fit on the Texture.
-//[STATE_CREATION ERROR #128: CREATESHADERRESOURCEVIEW_INVALIDDIMENSIONS]

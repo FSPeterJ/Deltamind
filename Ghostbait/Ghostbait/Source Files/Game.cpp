@@ -594,7 +594,26 @@ void Game::Start(Player* _player, EngineStructure* _engine, HUD* _hud, char* sta
 	//hexGrid.Fill(false);
 	player->SetBuildToolData(&hexGrid, &gameData);
 
-	ChangeScene(startScene, xml);
+	MessageEvents::Subscribe(EVENT_Input, [=](EventMessageBase* e) {
+		InputMessage* msg = (InputMessage*)e;
+
+		switch(msg->GetControl()) {
+			case (TestInputV):
+			{
+				if(msg->GetAmount()> 0)
+					engine->DebugUpdate();
+			}
+			default:
+			{
+
+			}
+		}
+	});
+
+
+
+
+	//ChangeScene(startScene, xml);
 	ThreadPool::AcceptNonCriticalJobs(true);
 	//MessageEvents::SendMessage(EVENT_StartWave, EventMessageBase());
 	//DStarEnemy* newFred;
@@ -617,7 +636,8 @@ void Game::Start(Player* _player, EngineStructure* _engine, HUD* _hud, char* sta
 void Game::Update() {
 	auto playerPos = player->transform.GetMatrix();
 	//hexGrid.Display(DirectX::XMFLOAT2(playerPos._41, playerPos._43));
-	float dt = (float)GhostTime::DeltaTime();
+	//float dt = (float)GhostTime::DeltaTime();
+	float dt = 0;
 
 	if(paused) return;
 

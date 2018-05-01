@@ -206,14 +206,14 @@ bool EnemyBase::ChangeState(State _s) {
 		if (animator) {
 			if (genetics) {
 				switch (enemyType) {
-					case Default: animator->setState("Walk", maxSpeed * DEFAULT_WALK_RATIO); break;
-					case Light: animator->setState("Walk_Light", maxSpeed * LIGHT_WALK_RATIO); break;
-					case Medium: animator->setState("Walk_Medium", maxSpeed * MEDIUM_WALK_RATIO); break;
-					case Heavy: animator->setState("Walk_Heavy", maxSpeed * HEAVY_WALK_RATIO); break;
+					case Default: animator->setState("Walk", maxSpeed * DEFAULT_WALK_RATIO, 0.5f); break;
+					case Light: animator->setState("Walk_Light", maxSpeed * LIGHT_WALK_RATIO, 0.5f); break;
+					case Medium: animator->setState("Walk_Medium", maxSpeed * MEDIUM_WALK_RATIO, 0.5f); break;
+					case Heavy: animator->setState("Walk_Heavy", maxSpeed * HEAVY_WALK_RATIO, 0.5f); break;
 				}
 			}
 			else 
-				animator->setState("Walk");
+				animator->setState("Walk", 1, 0.5f);
 		}
 		break;
 	case EnemyBase::ATTACK:
@@ -229,14 +229,14 @@ bool EnemyBase::ChangeState(State _s) {
 			if (animator) {
 				if (genetics) {
 					switch (enemyType) {
-						case Default: animator->setState("Attack"); break;
-						case Light: animator->setState("Attack_Light"); break;
-						case Medium: animator->setState("Attack_Medium"); break;
-						case Heavy: animator->setState("Attack_Heavy"); break;
+						case Default: animator->setState("Attack", 1, 1.0f); break;
+						case Light: animator->setState("Attack_Light", 1, 1.0f); break;
+						case Medium: animator->setState("Attack_Medium", 1, 1.0f); break;
+						case Heavy: animator->setState("Attack_Heavy", 1, 1.0f); break;
 					}
 				}
 				else
-					animator->setState("Attack");
+					animator->setState("Attack", 1, 1.0f);
 			}
 		}
 		break;
@@ -245,14 +245,14 @@ bool EnemyBase::ChangeState(State _s) {
 		if (animator) {
 			if (genetics) {
 				switch (enemyType) {
-					case Default: animator->setState("Injured"); break;
-					case Light: animator->setState("Injured_Light"); break;
-					case Medium: animator->setState("Injured_Medium"); break;
-					case Heavy: animator->setState("Injured_Heavy"); break;
+					case Default: animator->setState("Injured", 1, 0.5f); break;
+					case Light: animator->setState("Injured_Light", 1, 0.5f); break;
+					case Medium: animator->setState("Injured_Medium", 1, 0.5f); break;
+					case Heavy: animator->setState("Injured_Heavy", 1, 0.5f); break;
 				}
 			}
 			else
-				animator->setState("Injured");
+				animator->setState("Injured", 1, 0.5f);
 		}
 		break;
 	case EnemyBase::DEATH:
@@ -261,15 +261,15 @@ bool EnemyBase::ChangeState(State _s) {
 		if (animator) {
 			if (genetics) {
 				switch (enemyType) {
-					case Default: animator->setState("Death"); break;
-					case Light: animator->setState("Death_Light"); break;
-					case Medium: animator->setState("Death_Medium"); break;
-					case Heavy: animator->setState("Death_Heavy"); break;
+					case Default: animator->setState("Death", 1, 1.0f); break;
+					case Light: animator->setState("Death_Light", 1, 1.0f); break;
+					case Medium: animator->setState("Death_Medium", 1, 1.0f); break;
+					case Heavy: animator->setState("Death_Heavy", 1, 1.0f); break;
 				}
 			}
 			else {
 
-				animator->setState("Death");
+				animator->setState("Death", 1, 1.0f);
 			}
 			deathDuration = (float)animator->GetDuration();
 			deathDuration2 = deathDuration*2;

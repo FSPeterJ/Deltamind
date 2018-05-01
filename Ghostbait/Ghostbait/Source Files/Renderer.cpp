@@ -121,8 +121,7 @@ void Renderer::setupVRTargets() {
 		device->CreateRenderTargetView(leftEye.renderInfo.texture, nullptr, &leftEye.renderInfo.rtv);
 
 	device->CreateTexture2D(&texDesc, nullptr, &rightEye.renderInfo.texture);
-	if (rightEye.renderInfo.texture)
-	{
+	if(rightEye.renderInfo.texture) {
 		device->CreateRenderTargetView(rightEye.renderInfo.texture, nullptr, &rightEye.renderInfo.rtv);
 		device->CreateShaderResourceView(rightEye.renderInfo.texture, &srvDesc, &rightSRV);
 	}
@@ -149,15 +148,14 @@ void Renderer::setupVRTargets() {
 	createDeferredRTVs(&rightEye.targets, rightEye.renderInfo.texture);
 }
 
-void Renderer::renderRightEyeToMonitor()
-{
+void Renderer::renderRightEyeToMonitor() {
 	UINT stride = sizeof(XMFLOAT4);
 	UINT offset = 0;
 	float color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	context->ClearRenderTargetView(defaultPipeline.render_target_view, color);
 	context->ClearDepthStencilView(defaultPipeline.depth_stencil_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	context->OMSetRenderTargets(1, &defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view);
-	
+
 	context->RSSetViewports(1, &defaultPipeline.viewport);
 	context->VSSetShader(PassThroughPositionVS, NULL, NULL);
 	context->IASetInputLayout(ILPosition);
@@ -173,10 +171,8 @@ void Renderer::renderRightEyeToMonitor()
 
 }
 
-void Renderer::releaseDeferredTarget(DeferredRTVs * in)
-{
-	for (int i = 0; i < 6; ++i)
-	{
+void Renderer::releaseDeferredTarget(DeferredRTVs * in) {
+	for(int i = 0; i < 6; ++i) {
 		in->RTVs[i]->Release();
 		in->SRVs[i]->Release();
 		in->textures[i]->Release();
@@ -185,8 +181,7 @@ void Renderer::releaseDeferredTarget(DeferredRTVs * in)
 	in->depthBuffer->Release();
 }
 
-void Renderer::combineDeferredTargets(DeferredRTVs * in, ID3D11RenderTargetView * rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport)
-{
+void Renderer::combineDeferredTargets(DeferredRTVs * in, ID3D11RenderTargetView * rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport) {
 	context->PSSetSamplers(0, 1, &LinearSamplerState);
 	blurTexture(viewport, in->textures[1], in->SRVs[1], 6, in->RTVs[1], in->DSV);
 	context->PSSetSamplers(0, 1, &PointSamplerState);
@@ -239,9 +234,8 @@ float Renderer::manhat(const XMFLOAT3 & center1, const XMFLOAT3 &center2) {
 	return distX + distY + distZ;
 }
 
-void Renderer::blurTexture(D3D11_VIEWPORT & viewport, ID3D11Texture2D * tex, ID3D11ShaderResourceView * srv, unsigned int passes, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsvIn)
-{
-	if (!tex || !srv || !passes)
+void Renderer::blurTexture(D3D11_VIEWPORT & viewport, ID3D11Texture2D * tex, ID3D11ShaderResourceView * srv, unsigned int passes, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsvIn) {
+	if(!tex || !srv || !passes)
 		return;
 	ID3D11Texture2D* tempTex;
 	ID3D11Texture2D* swapTex;
@@ -316,17 +310,15 @@ void Renderer::blurTexture(D3D11_VIEWPORT & viewport, ID3D11Texture2D * tex, ID3
 	context->UpdateSubresource(blurDataBuffer, NULL, NULL, &toShader, NULL, NULL);
 	context->PSSetShaderResources(0, 1, &tempSrv);
 	context->Draw(1, 0);
-	
-	for (unsigned int i = 0; i < passes - 1; ++i)
-	{
+
+	for(unsigned int i = 0; i < passes - 1; ++i) {
 		context->PSSetShaderResources(0, 1, &clearsrv);
 		context->OMSetRenderTargets(1, &tempRtv, dsv);
 		toShader.dir = { 1.0f, 0.0f };
 		context->UpdateSubresource(blurDataBuffer, NULL, NULL, &toShader, NULL, NULL);
 		context->PSSetShaderResources(0, 1, &swapSrv);
 		context->Draw(1, 0);
-		if (i == passes - 2)
-		{
+		if(i == passes - 2) {
 			context->OMSetRenderTargets(1, &clearrtv, nullptr);
 			context->PSSetShaderResources(0, 1, &clearsrv);
 			toShader.dir = { 0.0f, 1.0f };
@@ -336,8 +328,7 @@ void Renderer::blurTexture(D3D11_VIEWPORT & viewport, ID3D11Texture2D * tex, ID3
 			context->PSSetShaderResources(0, 1, &tempSrv);
 			context->Draw(1, 0);
 		}
-		else
-		{
+		else {
 			context->PSSetShaderResources(0, 1, &clearsrv);
 			toShader.dir = { 0.0f, 1.0f };
 			context->OMSetRenderTargets(1, &swapRtv, dsv);
@@ -358,18 +349,14 @@ void Renderer::blurTexture(D3D11_VIEWPORT & viewport, ID3D11Texture2D * tex, ID3
 	depthBuffer->Release();
 }
 
-void Renderer::sortTransparentObjects(DirectX::XMFLOAT3 &camPos)
-{
-	if (transparentObjects.size() <= 1)
+void Renderer::sortTransparentObjects(DirectX::XMFLOAT3 &camPos) {
+	if(transparentObjects.size() <= 1)
 		return;
 	//Insertion sort simply because I don't anticipate the size of this pool getting too large
-	for (size_t outer = 0; outer < transparentObjects.size() - 1; outer++)
-	{
+	for(size_t outer = 0; outer < transparentObjects.size() - 1; outer++) {
 		int counter = (int)outer + 1;
-		while (counter>0)
-		{
-			if (compareDistToCam(transparentObjects[counter]->transform.GetPosition(), transparentObjects[counter-1]->transform.GetPosition(), camPos))
-			{
+		while(counter>0) {
+			if(compareDistToCam(transparentObjects[counter]->transform.GetPosition(), transparentObjects[counter-1]->transform.GetPosition(), camPos)) {
 				const GameObject* temp = transparentObjects[counter];
 				transparentObjects[counter] = transparentObjects[counter - 1];
 				transparentObjects[counter - 1] = temp;
@@ -393,20 +380,18 @@ void Renderer::renderObjectDefaultState(const GameObject * obj) {
 	context->IASetIndexBuffer(y->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	context->UpdateSubresource(modelBuffer, 0, NULL, &obj->transform.GetMatrix(), 0, 0);
 	Material* mat = obj->GetComponent<Material>();
-	if (mat)
-	{
+	if(mat) {
 		mat->bindToShader(context, factorBuffer, obj->GetFlags() & GAMEOBJECT_PUBLIC_FLAGS::UNLIT);
-		if (mat->flags & Material::MaterialFlags::POINT)
+		if(mat->flags & Material::MaterialFlags::POINT)
 			context->PSSetSamplers(0, 1, &PointSamplerState);
 		else
 			context->PSSetSamplers(0, 1, &LinearSamplerState);
 	}
-	else
-	{
+	else {
 		context->PSSetSamplers(0, 1, &PointSamplerState);
 		materialManagement->GetNullMaterial()->bindToShader(context, factorBuffer, true);
 	}
-	
+
 	Animator* anim = obj->GetComponent<Animator>();
 	if(anim) {
 		const std::vector<animJoint>* joints = anim->getTweens();
@@ -421,7 +406,7 @@ void Renderer::renderObjectDefaultState(const GameObject * obj) {
 		cpuAnimationData.willAnimate = false;
 	context->UpdateSubresource(animDataBuffer, 0, NULL, &cpuAnimationData, 0, 0);
 	ScrollingUV* scroll = obj->GetComponent<ScrollingUV>();
-	if (scroll)
+	if(scroll)
 		uvData.offsets = scroll->offset;
 	else
 		uvData.offsets = { 0.0f, 0.0f };
@@ -435,8 +420,7 @@ void Renderer::renderToEye(eye * eyeTo) {
 	context->PSSetSamplers(0, 1, &LinearSamplerState);
 
 	float color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	for (int i = 0; i < 6; ++i)
-	{
+	for(int i = 0; i < 6; ++i) {
 		context->ClearRenderTargetView(eyeTo->targets.RTVs[i], color);
 	}
 	context->ClearDepthStencilView(eyeTo->targets.DSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -457,8 +441,7 @@ void Renderer::renderToEye(eye * eyeTo) {
 	context->OMSetRenderTargets(6, eyeTo->targets.RTVs, eyeTo->targets.DSV);
 	context->IASetInputLayout(ILStandard);
 #endif
-	for (size_t i = 0; i < transparentObjects.size(); ++i)
-	{
+	for(size_t i = 0; i < transparentObjects.size(); ++i) {
 		renderObjectDefaultState(transparentObjects[i]);
 	}
 	particleManager->RenderParticles();
@@ -467,13 +450,11 @@ void Renderer::renderToEye(eye * eyeTo) {
 	context->GSSetShader(nullptr, NULL, NULL);
 
 	context->ClearDepthStencilView(eyeTo->targets.DSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	for (size_t i = 0; i < frontRenderedObjects.size(); ++i)
-	{
+	for(size_t i = 0; i < frontRenderedObjects.size(); ++i) {
 		renderObjectDefaultState(frontRenderedObjects[i]);
 	}
 
 
-	//ParticleManager::RenderParticlesTo(eyeTo->renderInfo.rtv, eyeTo->renderInfo.dsv, eyeTo->renderInfo.viewport, eyeTo->camera.view, eyeTo->camera.projection);
 	//context->VSSetConstantBuffers(0, 1, &cameraBuffer);
 	//context->VSSetShader(StandardVertexShader, NULL, NULL);
 	//context->PSSetShader(StandardPixelShader, NULL, NULL);
@@ -520,15 +501,14 @@ void Renderer::loadPipelineState(pipeline_state_t * pipeline) {
 	context->PSSetShader(pipeline->pixel_shader, NULL, NULL);
 }
 
-void Renderer::createDeferredRTVs(DeferredRTVs* toWrite, ID3D11Texture2D* refTex)
-{
+void Renderer::createDeferredRTVs(DeferredRTVs* toWrite, ID3D11Texture2D* refTex) {
 	createRTVandSRV(&toWrite->textures[0], &toWrite->SRVs[0], &toWrite->RTVs[0], refTex, DXGI_FORMAT_R16G16B16A16_FLOAT);
 	createRTVandSRV(&toWrite->textures[1], &toWrite->SRVs[1], &toWrite->RTVs[1], refTex, DXGI_FORMAT_R16G16B16A16_FLOAT);
 	createRTVandSRV(&toWrite->textures[2], &toWrite->SRVs[2], &toWrite->RTVs[2], refTex, DXGI_FORMAT_R16G16B16A16_FLOAT);
 	createRTVandSRV(&toWrite->textures[3], &toWrite->SRVs[3], &toWrite->RTVs[3], refTex, DXGI_FORMAT_R16_FLOAT);
 	createRTVandSRV(&toWrite->textures[4], &toWrite->SRVs[4], &toWrite->RTVs[4], refTex, DXGI_FORMAT_R16G16_FLOAT);
 	createRTVandSRV(&toWrite->textures[5], &toWrite->SRVs[5], &toWrite->RTVs[5], refTex, DXGI_FORMAT_R16_FLOAT);
-									   
+
 	D3D11_TEXTURE2D_DESC texDesc;
 	toWrite->textures[0]->GetDesc(&texDesc);
 
@@ -546,8 +526,7 @@ void Renderer::createDeferredRTVs(DeferredRTVs* toWrite, ID3D11Texture2D* refTex
 	device->CreateDepthStencilView(toWrite->depthBuffer, &depthStencilDesc, &toWrite->DSV);
 }
 
-void Renderer::createRTVandSRV(ID3D11Texture2D ** texture, ID3D11ShaderResourceView ** srv, ID3D11RenderTargetView ** rtv, ID3D11Texture2D* refTex, DXGI_FORMAT format)
-{
+void Renderer::createRTVandSRV(ID3D11Texture2D ** texture, ID3D11ShaderResourceView ** srv, ID3D11RenderTargetView ** rtv, ID3D11Texture2D* refTex, DXGI_FORMAT format) {
 	DXGI_SAMPLE_DESC sampleDesc;
 	sampleDesc.Count = 1;
 	sampleDesc.Quality = 0;
@@ -706,6 +685,29 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 	MessageEvents::Subscribe(EVENT_Addrender, [this](EventMessageBase * _e) {this->registerObject(_e); });
 	MessageEvents::Subscribe(EVENT_Rendertofront, [this](EventMessageBase * _e) {this->moveToFront(_e); });
 	MessageEvents::Subscribe(EVENT_Rendertransparent, [this](EventMessageBase * _e) {this->moveToTransparent(_e); });
+	MessageEvents::Subscribe(EVENT_CaptureFrame, [=](EventMessageBase* e) {
+#if _DEBUG
+		if(graphicsAnalysis)
+			graphicsAnalysis->BeginCapture();
+#endif
+
+	});
+
+	MessageEvents::Subscribe(EVENT_Input, [&](EventMessageBase* e) {
+		InputMessage* msg = (InputMessage*)e;
+
+		switch(msg->GetControl()) {
+			case (TestInputV):
+			{
+				if(msg->GetAmount()> 0)
+					particleManager->UpdateParticles();
+			}
+			default:
+			{
+
+			}
+		}
+	});
 }
 
 void Renderer::Destroy() {
@@ -878,11 +880,11 @@ XMFLOAT4X4 FloatArrayToFloat4x4(float* arr) {
 }
 
 void Renderer::Render() {
-#if _DEBUG
-	if(graphicsAnalysis && countCapture == 0)
-		graphicsAnalysis->BeginCapture();
-#endif
-	perFrameDataConstantBuffer.FrameTime = (float)GhostTime::DeltaTime();
+	//#if _DEBUG
+	//	//if(graphicsAnalysis && countCapture == 0)
+	//		graphicsAnalysis->BeginCapture();
+	//#endif
+	perFrameDataConstantBuffer.FrameTime = (float)GhostTime::DeltaTimeDebug();
 	perFrameDataConstantBuffer.lastElapsed = perFrameDataConstantBuffer.ElapsedTime;
 	perFrameDataConstantBuffer.ElapsedTime += perFrameDataConstantBuffer.FrameTime;
 
@@ -890,119 +892,83 @@ void Renderer::Render() {
 	XMMATRIX cameraObj = XMMatrixTranspose(XMLoadFloat4x4(&cameraPos->GetMatrix()));
 	XMStoreFloat4x4(&defaultCamera.view, XMMatrixInverse(&XMMatrixDeterminant(cameraObj), cameraObj));
 	LightManager::bindToShader(context);
-	if(VRManager::GetInstance().IsEnabled()) {
-		VRManager::GetInstance().GetVRMatrices(&leftEye.camera.projection, &rightEye.camera.projection, &leftEye.camera.view, &rightEye.camera.view, &mHMDWorldPos);
 
-		//XMStoreFloat4x4(&leftEye.camera.projection, (XMLoadFloat4x4(&defaultCamera.projection)));
-		//XMStoreFloat4x4(&rightEye.camera.projection, (XMLoadFloat4x4(&defaultCamera.projection)));
+	context->UpdateSubresource(cameraBuffer, 0, NULL, &defaultCamera, 0, 0);
+	DirectX::XMFLOAT3 tempPos = cameraPos->GetPosition();
+	sortTransparentObjects(tempPos);
+	context->PSSetSamplers(0, 1, &LinearSamplerState);
 
-		//XMStoreFloat4x4(&leftEye.camera.projection, XMMatrixTranspose(XMLoadFloat4x4(&leftEye.camera.projection)));
-		//XMStoreFloat4x4(&rightEye.camera.projection, XMMatrixTranspose(XMLoadFloat4x4(&rightEye.camera.projection)));
-		leftEye.camPos = DirectX::XMFLOAT3(leftEye.camera.view._41, leftEye.camera.view._42, leftEye.camera.view._43);
-		sortTransparentObjects(leftEye.camPos);
-		rightEye.camPos = DirectX::XMFLOAT3(rightEye.camera.view._41, rightEye.camera.view._42, rightEye.camera.view._43);
-		XMStoreFloat4x4(&leftEye.camera.view, XMMatrixTranspose(XMMatrixInverse(nullptr, XMLoadFloat4x4(&leftEye.camera.view))));
-		XMStoreFloat4x4(&rightEye.camera.view, XMMatrixTranspose(XMMatrixInverse(nullptr, XMLoadFloat4x4(&rightEye.camera.view))));
-
-		//Right Here we need a position from the center of the headset
-		XMStoreFloat3(&perFrameDataConstantBuffer.cameraCenterpoint, mHMDWorldPos.r[3]);
-
-		LightManager::getLightBuffer()->cameraPos = leftEye.camPos;
-		context->UpdateSubresource(lightBuffer, NULL, NULL, LightManager::getLightBuffer(), 0, 0);
-		renderToEye(&leftEye);
-		LightManager::getLightBuffer()->cameraPos = rightEye.camPos;
-		context->UpdateSubresource(lightBuffer, NULL, NULL, LightManager::getLightBuffer(), 0, 0);
-		renderToEye(&rightEye);
-		VRManager::GetInstance().SendToHMD((void*) leftEye.renderInfo.texture, (void*) rightEye.renderInfo.texture);
-#if _DEBUG
-		DebugRenderer::clear();
-#endif
-		renderRightEyeToMonitor();
+	float color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	context->ClearRenderTargetView(defaultPipeline.render_target_view, color);
+	context->ClearDepthStencilView(defaultPipeline.depth_stencil_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	for(int i = 0; i < 6; ++i) {
+		context->ClearRenderTargetView(deferredTextures.RTVs[i], color);
 	}
-	else {
-		context->UpdateSubresource(cameraBuffer, 0, NULL, &defaultCamera, 0, 0);
-		DirectX::XMFLOAT3 tempPos = cameraPos->GetPosition();
-		sortTransparentObjects(tempPos);
-		context->PSSetSamplers(0, 1, &LinearSamplerState);
-
-		float color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-		context->ClearRenderTargetView(defaultPipeline.render_target_view, color);
-		context->ClearDepthStencilView(defaultPipeline.depth_stencil_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-		for (int i = 0; i < 6; ++i)
-		{
-			context->ClearRenderTargetView(deferredTextures.RTVs[i], color);
-		}
-		context->ClearDepthStencilView(deferredTextures.DSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	context->ClearDepthStencilView(deferredTextures.DSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 
-		DirectX::XMFLOAT3 camPos;
-		if (VRManager::GetInstance().IsEnabled())
-			camPos = leftEye.camPos;
-		else
-			camPos = DirectX::XMFLOAT3(cameraPos->GetMatrix()._41, cameraPos->GetMatrix()._42, cameraPos->GetMatrix()._43);
-		LightManager::getLightBuffer()->cameraPos = camPos;
-		context->UpdateSubresource(lightBuffer, NULL, NULL, LightManager::getLightBuffer(), 0, 0);
-		drawSkyboxTo(deferredTextures.RTVs, deferredTextures.DSV, defaultPipeline.viewport, camPos);
+	DirectX::XMFLOAT3 camPos;
+	if(VRManager::GetInstance().IsEnabled())
+		camPos = leftEye.camPos;
+	else
+		camPos = DirectX::XMFLOAT3(cameraPos->GetMatrix()._41, cameraPos->GetMatrix()._42, cameraPos->GetMatrix()._43);
+	LightManager::getLightBuffer()->cameraPos = camPos;
+	context->UpdateSubresource(lightBuffer, NULL, NULL, LightManager::getLightBuffer(), 0, 0);
+	drawSkyboxTo(deferredTextures.RTVs, deferredTextures.DSV, defaultPipeline.viewport, camPos);
 
-		context->RSSetViewports(1, &defaultPipeline.viewport);
+	context->RSSetViewports(1, &defaultPipeline.viewport);
 
 	perFrameDataConstantBuffer.cameraCenterpoint = camPos;
 
 	context->UpdateSubresource(perFrameConstantBuffer, NULL, NULL, &perFrameDataConstantBuffer, 0, 0);
 
 #if _DEBUG
-		DebugRenderer::flushTo(deferredTextures.RTVs, deferredTextures.DSV, defaultPipeline.viewport);
-		context->VSSetShader(StandardVertexShader, NULL, NULL);
-		context->PSSetShader(DeferredTargetPS, NULL, NULL);
-		context->OMSetRenderTargets(6, deferredTextures.RTVs, deferredTextures.DSV);
-		context->IASetInputLayout(ILStandard);
+	DebugRenderer::flushTo(deferredTextures.RTVs, deferredTextures.DSV, defaultPipeline.viewport);
+	context->VSSetShader(StandardVertexShader, NULL, NULL);
+	context->PSSetShader(DeferredTargetPS, NULL, NULL);
+	context->OMSetRenderTargets(6, deferredTextures.RTVs, deferredTextures.DSV);
+	context->IASetInputLayout(ILStandard);
 #endif
-		context->PSSetConstantBuffers(2, 1, &uvDataBuffer);
+	context->PSSetConstantBuffers(2, 1, &uvDataBuffer);
 
-		for (size_t i = 0; i < renderedObjects.size(); ++i) {
-			renderObjectDefaultState(renderedObjects[i]);
-		}
+	//for(size_t i = 0; i < renderedObjects.size(); ++i) {
+	//	renderObjectDefaultState(renderedObjects[i]);
+	//}
 
-		for (size_t i = 0; i < transparentObjects.size(); ++i)
-		{
-			renderObjectDefaultState(transparentObjects[i]);
-		}
-		particleManager->RenderParticles();
+	//for(size_t i = 0; i < transparentObjects.size(); ++i) {
+	//	renderObjectDefaultState(transparentObjects[i]);
+	//}
+	////particleManager->RenderParticles();
+	particleManager->RenderParticles();
 
-		context->VSSetShader(StandardVertexShader, NULL, NULL);
+	//context->VSSetShader(StandardVertexShader, NULL, NULL);
 
-		context->ClearDepthStencilView(deferredTextures.DSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-		for (size_t i = 0; i < frontRenderedObjects.size(); ++i)
-		{
-			renderObjectDefaultState(frontRenderedObjects[i]);
-		}
+	//context->ClearDepthStencilView(deferredTextures.DSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	//for(size_t i = 0; i < frontRenderedObjects.size(); ++i) {
+	//	renderObjectDefaultState(frontRenderedObjects[i]);
+	//}
 
-		viewProjectionConstantBuffer buff;
-		if (VRManager::GetInstance().IsEnabled())
-		{
-			XMStoreFloat4x4(&buff.view, XMMatrixInverse(nullptr, XMLoadFloat4x4(&leftEye.camera.view)));
-			XMStoreFloat4x4(&buff.projection, XMMatrixInverse(nullptr, XMLoadFloat4x4(&leftEye.camera.projection)));
-		}
-		else
-		{
-			XMStoreFloat4x4(&buff.view, XMMatrixInverse(nullptr, XMLoadFloat4x4(&defaultCamera.view)));
-			XMStoreFloat4x4(&buff.projection, XMMatrixInverse(nullptr, XMLoadFloat4x4(&defaultCamera.projection)));
-		}
-		context->UpdateSubresource(cameraBuffer, NULL, NULL, &buff, NULL, NULL);
-		combineDeferredTargets(&deferredTextures, defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport);
-		if (!VRManager::GetInstance().IsEnabled())
-		{
-			defaultHUD->Draw(context, defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view);
-		}
+	viewProjectionConstantBuffer buff;
+	/*	if(VRManager::GetInstance().IsEnabled()) {
+		XMStoreFloat4x4(&buff.view, XMMatrixInverse(nullptr, XMLoadFloat4x4(&leftEye.camera.view)));
+		XMStoreFloat4x4(&buff.projection, XMMatrixInverse(nullptr, XMLoadFloat4x4(&leftEye.camera.projection)));
 	}
+	else*/ {
+		XMStoreFloat4x4(&buff.view, XMMatrixInverse(nullptr, XMLoadFloat4x4(&defaultCamera.view)));
+		XMStoreFloat4x4(&buff.projection, XMMatrixInverse(nullptr, XMLoadFloat4x4(&defaultCamera.projection)));
+	}
+	context->UpdateSubresource(cameraBuffer, NULL, NULL, &buff, NULL, NULL);
+	combineDeferredTargets(&deferredTextures, defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport);
+	//if(!VRManager::GetInstance().IsEnabled()) {
+	//	defaultHUD->Draw(context, defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view);
+	//}
+
 	swapchain->Present(0, 0);
 #if _DEBUG
 
 	countCapture++;
-	if(graphicsAnalysis && countCapture > MAX_CAPTURES) {
-		
+	if(graphicsAnalysis) {
 		graphicsAnalysis->EndCapture();
-		SAFE_RELEASE(graphicsAnalysis);
 	}
 #endif
 
@@ -1050,7 +1016,7 @@ void Renderer::initBlendState(pipeline_state_t * pipelineTo) {
 	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
 	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	
+
 	device->CreateBlendState(&blendDesc, &pipelineTo->blend_state);
 	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
 	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
@@ -1327,8 +1293,7 @@ void Renderer::FillRandomTexture() {
 	device->CreateShaderResourceView(randomTexture, &srv, &randomTextureSRV);
 }
 
-void Renderer::setGamma(float value)
-{
+void Renderer::setGamma(float value) {
 	gammaData toSend;
 	toSend.gamma = value;
 	context->UpdateSubresource(gammaBuffer, NULL, NULL, &toSend, NULL, NULL);

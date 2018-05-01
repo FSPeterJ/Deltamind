@@ -74,8 +74,8 @@ ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _
 
 	context->CSSetShaderResources(0, 1, &randomTexture);
 
-	InitShaders();	
-	
+	InitShaders();
+
 
 
 	texMan = new ParticleTextureManager(device, context);
@@ -131,7 +131,7 @@ ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _
 	for(unsigned i = 0; i < MAX_PARTICLES; ++i) {
 		float indexcolorer = ((float)(MAX_PARTICLES -i -1) / (float)MAX_PARTICLES);
 		testParticle[MAX_PARTICLES - i - 1].size = 0.1f;
-		testParticle[MAX_PARTICLES - i - 1].position = DirectX::XMFLOAT3((float)i*0.5f, 1.5f-(float)i*0.1f,3);
+		testParticle[MAX_PARTICLES - i - 1].position = DirectX::XMFLOAT3((float)i*0.5f, 1.5f-(float)i*0.1f, 3);
 		testParticle[MAX_PARTICLES - i - 1].endSize = 0.1f;
 		testParticle[MAX_PARTICLES - i - 1].velocity = DirectX::XMFLOAT3(0, 0, 0);
 		testParticle[MAX_PARTICLES - i - 1].startSize = 0.1f;
@@ -163,7 +163,7 @@ ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _
 
 	//TESTING CODE
 	ZeroMemory(&resData, sizeof(resData));
-	UINT* indexData = new UINT[MAX_PARTICLES]();
+	UINT* indexData = new UINT[MAX_PARTICLES];
 	resData.pSysMem = indexData;
 
 	//END TEST
@@ -266,12 +266,12 @@ ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _
 	ID3D11UnorderedAccessView* uavs[] = { InactiveParticleIndexUAV, ActiveParticleIndexUAV, SortParticleIndexUAV, IndirectSortArgsBufferUAV };
 	UINT counts[] = { (MAX_PARTICLES), 0, 0, 0 };
 	context->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavs), uavs, counts);
-	ZeroMemory(uavs, sizeof(uavs)); 
+	ZeroMemory(uavs, sizeof(uavs));
 	context->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavs), uavs, counts);
 
 	ID3D11Buffer* buffers[] = { perFrame, ActiveParticleConstantBuffer, InactiveParticleConstantBuffer, EmitterConstantBuffer, SortParametersConstantBuffer };
 	context->CSSetConstantBuffers(0, ARRAYSIZE(buffers), buffers);
-		
+
 	ZeroMemory(&bufferDesc, sizeof(bufferDesc));
 
 	bufferDesc.Usage = D3D11_USAGE_STAGING;
@@ -315,20 +315,25 @@ ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _
 
 
 void ParticleManager::UpdateParticles() {
-	
-	DebugCounters();
+	ID3D11UnorderedAccessView* uavs[] = { ParticleUAV, ActiveParticleIndexUAV, InactiveParticleIndexUAV, IndirectDrawArgsUAV, SortParticleIndexUAV, IndirectSortArgsBufferUAV };
+	UINT counters[] = { (UINT)-1, (UINT)-1, (UINT)-1, (UINT)-1, 0, (UINT)-1 }; //Reset the sorted particle Index Append/Consume
+
+	context->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavs), uavs, counters);
+	//DebugCounters();
 
 	Update();
 	Sort();
-	DebugCounters();
+	//DebugCounters();
+	ZeroMemory(uavs, sizeof(uavs));
 
+	context->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavs), uavs, nullptr);
 }
 
 void ParticleManager::RenderParticles() {
 
 	texMan->BindToShader();
 
- 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 	context->VSSetShader(VertexShader, NULL, NULL);
 	context->GSSetShader(GeometryShader, NULL, NULL);
 	context->PSSetShader(PixelShader, NULL, NULL);
@@ -492,12 +497,9 @@ void ParticleManager::Update() {
 
 	float dt = (float)GhostTime::DeltaTimeDebug();
 	//float dt = 0.1f;
-	
-	//Map emitters and fire off Emit shader
-	ID3D11UnorderedAccessView* uavs[] = { ParticleUAV, ActiveParticleIndexUAV, InactiveParticleIndexUAV, IndirectDrawArgsUAV, SortParticleIndexUAV, IndirectSortArgsBufferUAV };
-	UINT counters[] = { (UINT)-1, (UINT)-1, (UINT)-1, (UINT)-1, 0, (UINT)-1 }; //Reset the sorted particle Index Append/Consume
 
-	context->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavs), uavs, counters);
+	//Map emitters and fire off Emit shader
+
 
 
 	context->CSSetShader(ParticleEmitShader, nullptr, 0);
@@ -526,7 +528,7 @@ void ParticleManager::Update() {
 					MessageEvents::SendMessage(EVENT_CaptureFrame, EventMessageBase());
 
 					uint emissions = (uint)(processTime / activeEmit->mainData.EmissionRateInterval) * activeEmit->mainData.EmissionsPerInterval;
-					context->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavs), uavs, counters);
+					//context->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavs), uavs, counters);
 
 
 					D3D11_MAPPED_SUBRESOURCE MappedResource = { 0 };
@@ -591,9 +593,7 @@ void ParticleManager::Update() {
 
 
 
-	ZeroMemory(uavs, sizeof(uavs));
 
-	context->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavs), uavs, nullptr);
 
 }
 

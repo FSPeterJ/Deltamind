@@ -685,10 +685,13 @@ void Renderer::Initialize(Window window, Transform* _cameraPos) {
 	MessageEvents::Subscribe(EVENT_Addrender, [this](EventMessageBase * _e) {this->registerObject(_e); });
 	MessageEvents::Subscribe(EVENT_Rendertofront, [this](EventMessageBase * _e) {this->moveToFront(_e); });
 	MessageEvents::Subscribe(EVENT_Rendertransparent, [this](EventMessageBase * _e) {this->moveToTransparent(_e); });
-	MessageEvents::Subscribe(EVENT_CaptureFrame, [=](EventMessageBase* e) {
+	MessageEvents::Subscribe(EVENT_CaptureFrame, [&](EventMessageBase* e) {
 #if _DEBUG
-		if(graphicsAnalysis)
+		if(graphicsAnalysis) {
+
 			graphicsAnalysis->BeginCapture();
+			++countCapture;
+		}
 #endif
 
 	});
@@ -953,7 +956,8 @@ void Renderer::Render() {
 		XMStoreFloat4x4(&buff.view, XMMatrixInverse(nullptr, XMLoadFloat4x4(&leftEye.camera.view)));
 		XMStoreFloat4x4(&buff.projection, XMMatrixInverse(nullptr, XMLoadFloat4x4(&leftEye.camera.projection)));
 	}
-	else*/ {
+	else*/
+	{
 		XMStoreFloat4x4(&buff.view, XMMatrixInverse(nullptr, XMLoadFloat4x4(&defaultCamera.view)));
 		XMStoreFloat4x4(&buff.projection, XMMatrixInverse(nullptr, XMLoadFloat4x4(&defaultCamera.projection)));
 	}
@@ -966,9 +970,9 @@ void Renderer::Render() {
 	swapchain->Present(0, 0);
 #if _DEBUG
 
-	countCapture++;
-	if(graphicsAnalysis) {
+	if(graphicsAnalysis && countCapture) {
 		graphicsAnalysis->EndCapture();
+		--countCapture;
 	}
 #endif
 

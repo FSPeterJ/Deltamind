@@ -61,7 +61,7 @@ private:
 		float padding2;
 	} perFrameDataConstantBuffer;
 
-	int countCapture;
+	int countCapture = 0;
 
 	struct viewProjectionConstantBuffer {
 		DirectX::XMFLOAT4X4 view;

@@ -13,7 +13,7 @@ enum ParticleProps {
 struct EmitterData {
 	//16
 	DirectX::XMFLOAT3 Position = DirectX::XMFLOAT3(0, 1, 0);
-	float emissionIntervalSec = 0.1f;
+	float EmissionRateInterval = 0.1f;
 
 	//16
 	DirectX::XMFLOAT3 Velocity = DirectX::XMFLOAT3(0, 0, 5);
@@ -37,12 +37,12 @@ struct EmitterData {
 	float xAngleVariance = 1;
 	float yAngleVariance = 1;
 	//16
-	float emissionOverflow = 0;
-	float EmissionCount = 10;
+	float EmissionOverflow = 0;
+	unsigned EmissionsPerInterval = 10;
 	float mass = 1;
 	unsigned perInterval = 10;
 
-	DirectX::XMFLOAT3 acceleration;
+	DirectX::XMFLOAT3 force;
 	float velocityLossFactor;
 
 	DirectX::XMFLOAT3 Gravity;
@@ -57,9 +57,9 @@ class Emitter: public InstantiatedCompBase {
 	unsigned updateID = 0;
 	float carryoverTick = 0;
 	float previousDT = 0;
-	float previousOverflow = 0;
 	float age = 0;
 public:
+	float previousOverflow = 0;
 	float lifespan = 4;
 	bool enabled = false;
 	Material* materials[4] = { 0 };
@@ -70,6 +70,7 @@ public:
 	void Update();
 	void Enable();
 	void Disable();
+	void Destroy();
 };
 
 

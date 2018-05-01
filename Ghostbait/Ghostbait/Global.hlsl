@@ -13,4 +13,6 @@ cbuffer PerFrameConstantBuffer : register(b0)
 
 };
 
+
+
 SamplerState SamplerWrapLinear : register(s0);

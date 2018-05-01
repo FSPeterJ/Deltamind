@@ -13,6 +13,8 @@ namespace AK
 {
     namespace EVENTS
     {
+        static const AkUniqueID PLAY_AMB_01 = 931811240U;
+        static const AkUniqueID PLAY_AMB_02 = 931811243U;
         static const AkUniqueID PLAY_MUSIC_ROBOT_THEME_REVISED = 2269453173U;
         static const AkUniqueID PLAY_MUSIC_ROBOT_TITLE_INTRO = 3488562270U;
         static const AkUniqueID PLAY_SFX_ANALOG_MENU_CLICK = 3789059161U;
@@ -21,6 +23,7 @@ namespace AK
         static const AkUniqueID PLAY_SFX_AUTODOOR_OPEN_AIRLOCK = 73258978U;
         static const AkUniqueID PLAY_SFX_AUTODOOR_SIFI_CLOSE = 30245792U;
         static const AkUniqueID PLAY_SFX_AUTODOOR_SIFI_OPEN = 3033182036U;
+        static const AkUniqueID PLAY_SFX_BULLETHIT = 3182823573U;
         static const AkUniqueID PLAY_SFX_CORE_ORGINAL = 3877985530U;
         static const AkUniqueID PLAY_SFX_COREALARM = 2301795774U;
         static const AkUniqueID PLAY_SFX_COREALARM_BITCRUSHED = 3230249424U;
@@ -45,6 +48,7 @@ namespace AK
         static const AkUniqueID PLAY_SFX_PURCHASETRIGGER = 2996118053U;
         static const AkUniqueID PLAY_SFX_ROBOT_EXPLOSION = 2406597686U;
         static const AkUniqueID PLAY_SFX_ROBOT_FOOTSTEPS = 2415774898U;
+        static const AkUniqueID PLAY_SFX_ROBOTDEATH = 1637769708U;
         static const AkUniqueID PLAY_SFX_ROBOTSHORTCIRCUIT = 591570145U;
         static const AkUniqueID PLAY_SFX_TURRET_CONSTRUCTION_SOUND = 3212519212U;
         static const AkUniqueID PLAY_SFX_TURRET_EXPLOSION = 1980140924U;
@@ -56,8 +60,13 @@ namespace AK
         static const AkUniqueID PLAY_SFX_TURRETDESTROYED = 3150944997U;
         static const AkUniqueID PLAY_SFX_TURRETROTATE = 463299465U;
         static const AkUniqueID PLAY_SFX_TURRETSHOT = 148971956U;
+        static const AkUniqueID STOP_AMB_01 = 683783238U;
+        static const AkUniqueID STOP_AMB_02 = 683783237U;
         static const AkUniqueID STOP_MUSIC_ROBOT_THEME_REVISED = 2775313471U;
+        static const AkUniqueID STOP_MUSIC_ROBOT_THEME_REVISED_NOFADE = 3702157025U;
         static const AkUniqueID STOP_MUSIC_ROBOT_TITLE_INTRO = 2243167392U;
+        static const AkUniqueID STOP_SFX_COREALARM = 346920228U;
+        static const AkUniqueID STOP_SFX_COREHUM = 1366110293U;
     } // namespace EVENTS
 
     namespace GAME_PARAMETERS

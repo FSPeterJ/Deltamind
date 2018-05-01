@@ -30,7 +30,7 @@ ScrollingUV* ScrollingUVManager::GetReferenceComponent(const char* _FilePath, co
 	return prefab;
 }
 
-ScrollingUV* ScrollingUVManager::CloneComponent(ComponentBase* referece) {
+ScrollingUV* ScrollingUVManager::CloneComponent(ComponentBase* referece, Object* obj) {
 	ScrollingUV* clone = pooledUVs.ActivateMemory();
 	ScrollingUV* source = (ScrollingUV*)referece;
 

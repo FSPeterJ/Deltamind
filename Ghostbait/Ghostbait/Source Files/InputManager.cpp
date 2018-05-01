@@ -5,6 +5,8 @@
 #include "Console.h"
 #include "WindowsX.h"
 #include "Wwise_IDs.h"
+#include "GhostTime.h"
+
 using namespace Common;
 
 #define RAD_PI 3.14159265359
@@ -353,6 +355,7 @@ void InputManager::VRInput::CheckForInput() {
 				godMode.CheckNewInput(input);
 				freeMoney.CheckNewInput(input);
 				smite.CheckNewInput(input);
+				timeScale.CheckNewInput(input);
 			}
 			inputPoll.push(InputPackage(input, amount));
 		}
@@ -384,6 +387,7 @@ InputManager::KeyboardInput::KeyboardInput() {
 	MapKey(TestInputU, 'U');
 	MapKey(TestInputI, 'I');
 	MapKey(TestInputR, 'R');
+	MapKey(TestInputV, VK_RIGHT);
 	MapKey(TestInputO, 'O');
 	MapKey(TestInputJ, 'J');
 	MapKey(TestInputK, 'K');
@@ -522,6 +526,7 @@ void InputManager::KeyboardInput::CheckForInput() {
 				godMode.CheckNewInput(input);
 				freeMoney.CheckNewInput(input);
 				smite.CheckNewInput(input);
+				timeScale.CheckNewInput(input);
 			}
 			inputPoll.push(InputPackage(input, amount));
 		}
@@ -588,5 +593,6 @@ void InputManager::SetInputType(InputType type) {
 
 //Cheats
 CheatCode InputManager::godMode(CheatCode::CodePreset::Konami, [=]() {MessageEvents::SendMessage(EVENT_God, EventMessageBase()); MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::PLAY_SFX_GUN_COOLDOWN_FUNNY)); });
-CheatCode InputManager::freeMoney(std::vector<Control>({ Control::rightItem1, Control::rightItem0, Control::rightItem2, Control::rightItem0, Control::rightItem1 }), [=]() {MessageEvents::SendMessage(EVENT_FreeMoney, EventMessageBase()); MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::PLAY_SFX_GUN_COOLDOWN_FUNNY)); });
-CheatCode InputManager::smite(std::vector<Control>({ Control::rightItem0, Control::rightItem0, Control::rightItem0, Control::rightItem3, Control::rightItem3 }), [=]() {MessageEvents::SendMessage(EVENT_Smite, EventMessageBase()); });
+CheatCode InputManager::freeMoney(std::vector<Control>({ Control::rightItem1, Control::rightItem0, Control::rightItem2, Control::rightItem0, Control::rightItem1, Control::rightCyclePrefab, Control::rightAttack }), [=]() {MessageEvents::SendMessage(EVENT_FreeMoney, EventMessageBase()); MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::PLAY_SFX_GUN_COOLDOWN_FUNNY)); });
+CheatCode InputManager::smite(std::vector<Control>({ Control::rightItem0, Control::rightItem0, Control::rightItem0, Control::rightItem3, Control::rightItem3, Control::rightCyclePrefab, Control::rightAttack }), [=]() {MessageEvents::SendMessage(EVENT_Smite, EventMessageBase()); });
+CheatCode InputManager::timeScale(std::vector<Control>({ Control::rightItem0, Control::rightItem3, Control::rightItem1, Control::rightItem1, Control::rightItem2, Control::rightCyclePrefab, Control::rightAttack }), [=]() {GhostTime::ToggleTimeScale();});

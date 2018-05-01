@@ -87,7 +87,6 @@ public:
 	template <typename ObjectType>
 	static void RegisterPrefabBase(unsigned size) {
 		const int tid = TypeMap::GetObjectTypeID<ObjectType>();
-
 		registeredConstructors[tid] = &ConstructorFunction<ObjectType>;
 		registeredCasters[tid] = &CastorFunction<ObjectType>;
 		objMan->CreatePool<ObjectType>(size);
@@ -133,7 +132,7 @@ public:
 
 	static void InstantiateByName(EventMessageBase *e);
 
-	static GameObject* ActivateObject(PrefabId pid);
+	static GameObject* ActivateObject(PrefabId pid, DirectX::XMFLOAT4X4& matrix);
 
 	/// <summary>
 	/// gives an immutable pointer to the requested Prefab

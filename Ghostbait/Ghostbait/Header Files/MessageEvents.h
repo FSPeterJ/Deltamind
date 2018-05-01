@@ -21,15 +21,20 @@ enum EVENT_TYPES {
 	EVENT_LENGTH,
 	EVENT_RegisterNoisemaker,
 	EVENT_NewEmitter,
+	EVENT_DeleteEmitter,
 	EVENT_RequestSound,
 	EVENT_UnregisterNoisemaker,
 	EVENT_GetPlayer,
 
 
+	//DEBUG
+	EVENT_CaptureFrame,
+
 	//Cheats
 	EVENT_God,
 	EVENT_FreeMoney,
 	EVENT_Smite,
+	EVENT_TimeScale,
 	
 	//Game Events
 	EVENT_SpawnerCreated,

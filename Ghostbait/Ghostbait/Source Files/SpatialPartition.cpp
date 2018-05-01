@@ -49,12 +49,12 @@ bool SpatialPartition::Unit::RemoveComponent(PhysicsComponent* comp) {
 }
 
 SpatialPartition::SpatialPartition() {
-	bucketCount = 1024;
+	bucketCount = 4096;
 	unitSize = PARTITION_UNIT_SIZE;
-	toTest.reserve(1024);
+	toTest.reserve(4096);
 }
 SpatialPartition::SpatialPartition(uint32_t _bucketCount, float _unitSize) : bucketCount(_bucketCount), unitSize(_unitSize) {
-	toTest.reserve(1024);
+	toTest.reserve(4096);
 }
 
 uint32_t SpatialPartition::Hash(const float x, const float y, const float z) {
@@ -179,11 +179,11 @@ bool SpatialPartition::AddComponent(PhysicsComponent* component) {
 	spatialMutex.lock();
 	bool anythingAdded = false;
 	std::unordered_set<uint32_t> indicies = Hash(component->currentAABB);
-	std::vector<std::thread> threadPool;
+	//std::vector<std::thread> threadPool;
 	//threadPool.resize(indicies.size());
 	//Console::WriteLine << component->parentObject << " occupies " << indicies.size() << " buckets";
 	int i = 0;
-	for (auto &index : indicies) {
+	for (auto const &index : indicies) {
 		//threadPool[i++] = std::thread([=, &anythingAdded]() {
 			if (table.find(index) != table.end()) {
 				if (table[index].AddComponent(component)) {
@@ -210,7 +210,7 @@ bool SpatialPartition::RemoveComponent(PhysicsComponent* component, PositionOpti
 		if (option == Current) indicies = Hash(component->currentAABB);
 		else if (option == Previous) indicies = Hash(component->previousAABB);
 		spatialMutex.lock();
-		for (auto &index: indicies) {
+		for (auto const &index: indicies) {
 			if (table.find(index) != table.end()) {
 				if (table[index].RemoveComponent(component)) {
 					foundAndRemoved = true;
@@ -221,8 +221,11 @@ bool SpatialPartition::RemoveComponent(PhysicsComponent* component, PositionOpti
 		}
 		spatialMutex.unlock();
 
-	} else if (RemoveComponent(component, Previous) || RemoveComponent(component, Current)) {
-		foundAndRemoved = true;
+	}
+	else {
+		bool prev = RemoveComponent(component, Previous);
+		bool cur = RemoveComponent(component, Current);
+		foundAndRemoved = prev || cur;
 	}
 
 	return foundAndRemoved;
@@ -266,13 +269,17 @@ const std::vector<PhysicsComponent*>* SpatialPartition::GetComponentsToTest() {
 	//std::vector<PhysicsComponent*> testComps;
 	toTest.clear();
 	spatialMutex.lock();
+	const std::vector<PhysicsComponent*>* componentsHolder = nullptr;
+	PhysicsComponent* compPtr = nullptr;
+
 	for each (const auto &bucket in table)
 	{
-		
+		componentsHolder = &bucket.second.components;
 		if (bucket.second.components.size() > 1) {
 			for (unsigned int i = 0; i < bucket.second.components.size(); ++i) {
-				assert(bucket.second.components[i]  != nullptr);
-				toTest.push_back(bucket.second.components[i]);
+				compPtr = (*componentsHolder)[i];
+				assert(compPtr  != nullptr);
+				toTest.push_back(compPtr);
 				//Console::WriteLine << "Bucket: " << bucket.first << "  Size: " << bucket.second.components.size();
 			}
 			toTest.push_back(nullptr);

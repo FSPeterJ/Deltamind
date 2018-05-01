@@ -51,13 +51,13 @@ public:
 	//}
 
 	/// <summary>
-	/// Adds acceleration in the current forward Z diretion </summary>
+	/// Adds force in the current forward Z diretion </summary>
 	/// <returns>Returns FALSE if force cannot be added on this rigid body</returns>
 	bool AddForce(float _magnitude);
 
 	/// <summary>
-	/// Adds acceleration in the direction of (x,y,z)
-	/// with _time being the length at which acceleration is applied to the rigid body
+	/// Adds force in the direction of (x,y,z)
+	/// with _time being the length at which force is applied to the rigid body
 	/// If accerleration is constant, set time to 1.0f
 	/// </summary>
 	/// <returns>Returns FALSE if force cannot be added on this rigid body</returns>

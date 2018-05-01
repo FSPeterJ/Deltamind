@@ -54,6 +54,7 @@ private:
 	int enemiesLeftAlive = 0;
 	Evolver* evolver = nullptr;
 	static bool firstWave;
+	float difficultyMultiplier;
 public:
 	WaveManager() {}
 	WaveManager(Evolver* _evolver) : evolver(_evolver) { }
@@ -84,6 +85,8 @@ public:
 	inline const int GetSpawnCount() const { return (int)waves[currentWave].spawns.size(); }
 	inline WaveManager::Wave::SpawnerData* GetSpawnerData(const int& index) { return &waves[currentWave].spawns[index]; }
 	void SpawnEnemy(WaveManager::Wave::SpawnerData* spawnerData, const int& spawnerObjectIndex, HexGrid* grid, Core* _core);
+	inline void SetDifficultyMultiplier(const float multiplier) { difficultyMultiplier = multiplier; }
+	inline const float GetDifficultyMultiplier() const { return difficultyMultiplier; }
 
 	void Reset();
 };

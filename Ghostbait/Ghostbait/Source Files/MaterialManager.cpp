@@ -114,6 +114,6 @@ void MaterialManager::DeactivateComponent(ComponentBase* component)
 {
 }
 
-Material* MaterialManager::CloneComponent(ComponentBase* reference) {
+Material* MaterialManager::CloneComponent(ComponentBase* reference, Object* obj) {
 	return nullptr;
 }

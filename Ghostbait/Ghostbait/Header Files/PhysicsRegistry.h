@@ -14,8 +14,8 @@ namespace DirectX {
 class GameObject;
 
 #define MAX_PHYSICALS 1024
-#define MAX_COLLIDER_DATA 128
-#define MAX_PREFABS 100
+#define MAX_COLLIDER_DATA 256
+#define MAX_PREFABS 256
 
 class PhysicsRegistry:
 	public IComponentManager {
@@ -30,7 +30,7 @@ public:
 	PhysicsRegistry();
 	~PhysicsRegistry();
 	ComponentBase* GetReferenceComponent(const char * _FilePath, const char * _data) override;
-	ComponentBase* CloneComponent(ComponentBase* reference) override;
+	ComponentBase* CloneComponent(ComponentBase* reference, Object* obj = nullptr) override;
 	void ResetComponent(ComponentBase* reset) override;
 	void ActivateComponent(ComponentBase* component) override;
 	void DeactivateComponent(ComponentBase* component) override;

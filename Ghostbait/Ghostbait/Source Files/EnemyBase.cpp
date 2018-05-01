@@ -8,6 +8,7 @@
 #include "Animator.h"
 #include "Wwise_IDs.h"
 #include "Evolvable.h"
+#include "GameData.h"
 #include <cmath>
 
 void EnemyBase::Awake(Object* obj) {
@@ -51,23 +52,26 @@ void EnemyBase::Awake(Object* obj) {
 	SetToFullHealth();
 
 	GameObject::Awake(obj);
-	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, NewObjectMessage(this));
+	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, ObjectMessage(this));
 }
 
 void EnemyBase::Start() {
 
-	if (!genetics) {
-		throw std::runtime_error("enemy has no genetics");
+	if (!genetics || abs(genetics->traits.Sum() - 1.0f) > FLT_EPSILON) {
+		//throw std::runtime_error("enemy has no genetics");
+		SwapComponentVarient<Mesh>("heavy");
+		SwapComponentVarient<Material>("heavyMat");
+		//animator->setState("Walk_Heavy");
+		enemyType = Heavy;
+		ChangeState(PATROL);
 		return;
 	}
-	genetics->performance.Reset();
-	if (abs(genetics->traits.Sum() - 1.0f) > FLT_EPSILON) {
-		throw std::runtime_error("enemy has no genetics");
-	}
 
-	if ( std::isnan(genetics->traits[Trait::ACCURACY])) {
-		throw std::runtime_error("enemy has bad genes");
-	}
+	genetics->performance.Reset();
+
+	//if ( std::isnan(genetics->traits[Trait::ACCURACY])) {
+	//	throw std::runtime_error("enemy has bad genes");
+	//}
 
 #undef max
 	float domTraits[] = { genetics->traits[STRENGTH] + genetics->traits[POWER] + genetics->traits[ACCURACY] + genetics->traits[LUCK],
@@ -79,33 +83,36 @@ void EnemyBase::Start() {
 
 	if(domTrait == domTraits[0]) {
 		SwapComponentVarient<Mesh>("medium");
-		SwapComponentVarient<Material>("pink");
-		animator->setState("Walk_Medium");
+		SwapComponentVarient<Material>("mediumMat");
+		//animator->setState("Walk_Medium");
 		enemyType = Medium;
 	} else if(domTrait == domTraits[1]) {
-		SwapComponentVarient<Material>("blue");
-		animator->setState("Walk");
-		enemyType = Default;
+		SwapComponentVarient<Mesh>("medium");
+		SwapComponentVarient<Material>("mediumMat");
+		//animator->setState("Walk");
+		enemyType = Medium;
 	} else if(domTrait == domTraits[2]) {
 		SwapComponentVarient<Mesh>("heavy");
-		SwapComponentVarient<Material>("green");
-		animator->setState("Walk_Heavy");
+		SwapComponentVarient<Material>("heavyMat");
+		//animator->setState("Walk_Heavy");
 		enemyType = Heavy;
 	} else if(domTrait == domTraits[3]) {
 		SwapComponentVarient<Mesh>("light");
-		SwapComponentVarient<Material>("yellow");
-		animator->setState("Walk_Light");
+		SwapComponentVarient<Material>("lightMat");
+		//animator->setState("Walk_Light");
 		enemyType = Light;
 	}
 
 	SetStats();
 	spawnTime = GhostTime::Now();
+	ChangeState(PATROL);
 }
 
 void EnemyBase::Subscribe() {
 	if(!eventLose) eventLose = MessageEvents::Subscribe(EVENT_GameLose, [=](EventMessageBase* e) { MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); }); });
 	if (!smite) smite = MessageEvents::Subscribe(EVENT_Smite, [=](EventMessageBase* e) { this->AdjustHealth(-1000); });
 	if(!eventObstacleRemove) eventObstacleRemove = MessageEvents::Subscribe(EVENT_RemoveObstacle, [=](EventMessageBase* e) {ValidateTarget(e); });
+	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, ObjectMessage(this));
 }
 
 void EnemyBase::UnSubscribe() {
@@ -121,12 +128,14 @@ void EnemyBase::UnSubscribe() {
 		MessageEvents::UnSubscribe(EVENT_RemoveObstacle, eventObstacleRemove);
 		eventObstacleRemove = 0;
 	}
+	MessageEvents::SendMessage(EVENT_UnregisterNoisemaker, ObjectMessage(this));
+
 }
 
 void EnemyBase::Enable() {
 	EnemyBase::Subscribe();
 	GameObject::Enable();
-	ChangeState(PATROL);
+	//ChangeState(PATROL);
 }
 
 void EnemyBase::Disable() {
@@ -185,7 +194,7 @@ void EnemyBase::ValidateTarget(EventMessageBase* e) {
 }
 
 bool EnemyBase::ChangeState(State _s) {
-	if (currState == _s || isDying) return false;
+	if (currState == _s || currState == DEATH || isDying) return false;
 
 	switch (_s)
 	{
@@ -197,14 +206,14 @@ bool EnemyBase::ChangeState(State _s) {
 		if (animator) {
 			if (genetics) {
 				switch (enemyType) {
-					case Default: animator->setState("Walk"); break;
-					case Light: animator->setState("Walk_Light"); break;
-					case Medium: animator->setState("Walk_Medium"); break;
-					case Heavy: animator->setState("Walk_Heavy"); break;
+					case Default: animator->setState("Walk", maxSpeed * DEFAULT_WALK_RATIO, 0.5f); break;
+					case Light: animator->setState("Walk_Light", maxSpeed * LIGHT_WALK_RATIO, 0.5f); break;
+					case Medium: animator->setState("Walk_Medium", maxSpeed * MEDIUM_WALK_RATIO, 0.5f); break;
+					case Heavy: animator->setState("Walk_Heavy", maxSpeed * HEAVY_WALK_RATIO, 0.5f); break;
 				}
 			}
 			else 
-				animator->setState("Walk");
+				animator->setState("Walk", 1, 0.5f);
 		}
 		break;
 	case EnemyBase::ATTACK:
@@ -220,14 +229,14 @@ bool EnemyBase::ChangeState(State _s) {
 			if (animator) {
 				if (genetics) {
 					switch (enemyType) {
-						case Default: animator->setState("Attack"); break;
-						case Light: animator->setState("Attack_Light"); break;
-						case Medium: animator->setState("Attack_Medium"); break;
-						case Heavy: animator->setState("Attack_Heavy"); break;
+						case Default: animator->setState("Attack", 1, 1.0f); break;
+						case Light: animator->setState("Attack_Light", 1, 1.0f); break;
+						case Medium: animator->setState("Attack_Medium", 1, 1.0f); break;
+						case Heavy: animator->setState("Attack_Heavy", 1, 1.0f); break;
 					}
 				}
 				else
-					animator->setState("Attack");
+					animator->setState("Attack", 1, 1.0f);
 			}
 		}
 		break;
@@ -236,14 +245,14 @@ bool EnemyBase::ChangeState(State _s) {
 		if (animator) {
 			if (genetics) {
 				switch (enemyType) {
-					case Default: animator->setState("Injured"); break;
-					case Light: animator->setState("Injured_Light"); break;
-					case Medium: animator->setState("Injured_Medium"); break;
-					case Heavy: animator->setState("Injured_Heavy"); break;
+					case Default: animator->setState("Injured", 1, 0.5f); break;
+					case Light: animator->setState("Injured_Light", 1, 0.5f); break;
+					case Medium: animator->setState("Injured_Medium", 1, 0.5f); break;
+					case Heavy: animator->setState("Injured_Heavy", 1, 0.5f); break;
 				}
 			}
 			else
-				animator->setState("Injured");
+				animator->setState("Injured", 1, 0.5f);
 		}
 		break;
 	case EnemyBase::DEATH:
@@ -252,15 +261,20 @@ bool EnemyBase::ChangeState(State _s) {
 		if (animator) {
 			if (genetics) {
 				switch (enemyType) {
-					case Default: animator->setState("Death"); break;
-					case Light: animator->setState("Death_Light"); break;
-					case Medium: animator->setState("Death_Medium"); break;
-					case Heavy: animator->setState("Death_Heavy"); break;
+					case Default: animator->setState("Death", 1, 1.0f); break;
+					case Light: animator->setState("Death_Light", 1, 1.0f); break;
+					case Medium: animator->setState("Death_Medium", 1, 1.0f); break;
+					case Heavy: animator->setState("Death_Heavy", 1, 1.0f); break;
 				}
 			}
-			else
-				animator->setState("Death");
+			else {
+
+				animator->setState("Death", 1, 1.0f);
+			}
+			deathDuration = (float)animator->GetDuration();
+			deathDuration2 = deathDuration*2;
 		}
+		MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_ROBOTDEATH));
 		rb->Stop();
 		pc->isActive = false;
 		break;
@@ -270,10 +284,16 @@ bool EnemyBase::ChangeState(State _s) {
 
 	prevState = currState;
 	currState = _s;
+	timeSinceLastStateChange = 0.0f;
 	return true;
 }
 
 void EnemyBase::Update() {
+	if (hitCounter > 80 || timeSinceLastStateChange > failSafeDestructionTime) {
+		sentDeathMessage = true;
+		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
+	}
+
 	GameObject::Update();
 	gameObjMutex.lock();
 	//if(hurt) {
@@ -294,18 +314,22 @@ void EnemyBase::Update() {
 	{
 	case EnemyBase::IDLE:
 		Idle();
+		timeSinceLastStateChange += GhostTime::DeltaTime();
 		break;
 	case EnemyBase::PATROL:
 		Patrol();
+		timeSinceLastStateChange += GhostTime::DeltaTime();
 		break;
 	case EnemyBase::ATTACK:
 		Attack();
 		break;
 	case EnemyBase::INJURED:
 		Injured();
+		timeSinceLastStateChange += GhostTime::DeltaTime();
 		break;
 	case EnemyBase::DEATH:
 		Death();
+		timeSinceLastStateChange += GhostTime::DeltaTime();
 		break;
 	default:
 		break;
@@ -370,6 +394,7 @@ void EnemyBase::Attack() {
 	float timeToAttack = 1 / attackSpeed;
 	if (timeSinceLastAttack >= timeToAttack) {
 		targetObj->AdjustHealth(-attackDamage);
+		MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_TURRETDAMAGE));
 		RecordAttack();
 		Console::WriteLine << (dynamic_cast<GameObject*>(targetObj))->GetTag().c_str() << ": " << targetObj->PercentHealth();
 
@@ -406,6 +431,11 @@ void EnemyBase::Death() {
 	if (sentDeathMessage) return;
 	deathTimer += GhostTime::DeltaTime();
 	if (deathTimer >= deathDuration) {
+		animator->SetTime(deathDuration);
+		deathDuration = 99999999;
+		animator->Disable();
+	}
+	if (deathTimer >= deathDuration2) {
 		sentDeathMessage = true;
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
 	}
@@ -453,11 +483,13 @@ void EnemyBase::SetStats() {
 	gameObjMutex.lock();
 
 	//Play around with the trait effects here
+	const GameData* gd = nullptr;
+	MessageEvents::SendMessage(EVENT_GameDataRequest, GameDataMessage(&gd));
 	const float *traitFactors = genetics->traits.GetTraitArray();
-	maxSpeed = 3.0f + 6.0f * traitFactors[SPEED] + 4.0f * traitFactors[ENERGY] + 2.0f * traitFactors[COORDINATION] + 1.0f * traitFactors[BALANCE];
-	attackDamage = 3.0f + 10.0f * traitFactors[STRENGTH] + 7.0f * traitFactors[POWER] + 4.0f * traitFactors[ACCURACY] + 1.0f * traitFactors[LUCK];
-	attackSpeed = 2.0f * traitFactors[INTELLIGENCE] + 1.5f * traitFactors[WISDOM] + 1.0f * traitFactors[EVASION] + 0.5f * traitFactors[DEXTERITY];
-	SetMaxHealth(90.0f + 200.0f * traitFactors[DEFENSE] + 150.0f * traitFactors[ENDURANCE] + 100.0f * traitFactors[STAMINA] + 50.0f * traitFactors[RESISTANCE]);
+	maxSpeed = (3.0f + 6.0f * traitFactors[SPEED] + 4.0f * traitFactors[ENERGY] + 2.0f * traitFactors[COORDINATION] + 1.0f * traitFactors[BALANCE]);
+	attackDamage = (3.0f + 10.0f * traitFactors[STRENGTH] + 7.0f * traitFactors[POWER] + 4.0f * traitFactors[ACCURACY] + 1.0f * traitFactors[LUCK]) * gd->waveManager.GetDifficultyMultiplier();
+	attackSpeed = (2.0f * traitFactors[INTELLIGENCE] + 1.5f * traitFactors[WISDOM] + 1.0f * traitFactors[EVASION] + 0.5f * traitFactors[DEXTERITY]) * gd->waveManager.GetDifficultyMultiplier();
+	SetMaxHealth((90.0f + 200.0f * traitFactors[DEFENSE] + 150.0f * traitFactors[ENDURANCE] + 100.0f * traitFactors[STAMINA] + 50.0f * traitFactors[RESISTANCE]) * gd->waveManager.GetDifficultyMultiplier());
 	SetToFullHealth();
 	rb->SetTerminalSpeed(maxSpeed);
 
@@ -467,12 +499,12 @@ void EnemyBase::SetStats() {
 #pragma endregion
 
 //overriding Health::DeathEvent()
-static int deatheventCount = 0;
+//static int deatheventCount = 0;
 void EnemyBase::DeathEvent() {
 	//gameObjMutex.lock();
 	if (genetics) genetics->performance.died = true;
 	ChangeState(DEATH);
-	deatheventCount++;
+	//deatheventCount++;
 	//gameObjMutex.unlock();
 }
 
@@ -493,6 +525,7 @@ void EnemyBase::OnCollision(GameObject* _other) {
 		}
 
 		TakeDamage(-(((Projectile*) _other)->damage));
+		++hitCounter;
 		ChangeState(INJURED);
 
 		//if(componentVarients.find("Hurt") != componentVarients.end()) {
@@ -524,10 +557,12 @@ void EnemyBase::OnCollision(GameObject* _other) {
 
 void EnemyBase::OnTrigger(GameObject* _other) {
 	if (isChasing || currState == ATTACK) return;
+	gameObjMutex.lock();
 	if (strcmp(_other->GetTag().c_str(), "Turret") == 0 ) {//|| strcmp(_other->GetTag().c_str(), "Core") == 0) {
 		isChasing = ReTarget(_other);
 		//ChangeState(ATTACK);
 	}
+	gameObjMutex.unlock();
 }
 
 void EnemyBase::RandomizeStats() {

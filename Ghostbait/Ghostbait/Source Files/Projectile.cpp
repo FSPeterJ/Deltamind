@@ -2,6 +2,11 @@
 #include "GhostTime.h"
 #include "MessageEvents.h"
 #include "PhysicsComponent.h"
+#include "Wwise_IDs.h"
+#include "Emitter.h"
+#include "DirectXMath.h"
+
+using namespace DirectX;
 
 Projectile::Projectile() {
 	SetTag("Bullet");
@@ -14,6 +19,7 @@ void Projectile::Awake(Object* obj) {
 	isDestroying = false;
 	GameObject::Awake(obj);
 	pc = GetComponent<PhysicsComponent>();
+	MessageEvents::SendMessage(EVENT_RegisterNoisemaker, ObjectMessage(this));
 }
 
 void Projectile::Update() {
@@ -35,8 +41,24 @@ void Projectile::OnCollision(GameObject* object) {
 		gameObjMutex.unlock();
 		return;
 	}
-	
+	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(this, AK::EVENTS::PLAY_SFX_BULLETHIT));
+
 	MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
+
+	Emitter* emitter = nullptr;
+
+	DirectX::XMFLOAT3 force;
+	DirectX::XMVECTOR forceV = GetComponent<PhysicsComponent>()->rigidBody.GetVelocity();
+	forceV = forceV  * 0.1f;
+	forceV = DirectX::XMVectorNegate(forceV);
+	forceV = XMVectorClamp(forceV, { -2,-2,-2 }, {2,2,2});
+
+	DirectX::XMStoreFloat3(&force, forceV);
+	MessageEvents::SendMessage(EVENT_NewEmitter, NewEmitterMessage(&transform.GetPosition(), 0, force, (ComponentBase**)&emitter));
+	emitter->parentObject = this;
+	emitter->Enable();
+
+
 	isDestroying = true;
 	gameObjMutex.unlock();
 }
@@ -47,5 +69,6 @@ void Projectile::SetDamage(float _damage) {
 
 void Projectile::Destroy() {
 	++destroyedCount;
+	MessageEvents::SendMessage(EVENT_UnregisterNoisemaker, ObjectMessage(this));
 	GameObject::Destroy();
 }

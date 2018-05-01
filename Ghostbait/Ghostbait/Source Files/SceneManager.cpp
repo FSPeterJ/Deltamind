@@ -63,6 +63,7 @@ void SceneManager::CreateSceneFile(SceneManager::TestSceneData& data) {
 void SceneManager::Initialize() {
 	DirectX::XMFLOAT4X4 identity = DirectX::XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
+	/*
 	TestSceneData level0Data;
 	{
 		level0Data.fileName = "Scene Files//level0.scene";
@@ -152,7 +153,6 @@ void SceneManager::Initialize() {
 		}
 	}
 	CreateSceneFile(level0Data);
-	/*
 	TestSceneData splashScreenData;
 	{
 		splashScreenData.fileName = "Scene Files//splashScreen.scene";
@@ -296,8 +296,8 @@ void SceneManager::LoadScene(const char* sceneName, Core** _core) {
 					DirectX::XMFLOAT4X4 mat = Reader::ReadMatrix();
 					MessageEvents::SendQueueMessage(EVENT_Late, [=] {  
 						GameObject* newObj;
-						MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, { 0, 0, 0 }, &newObj));
-						newObj->transform.SetMatrix(mat);
+						MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(prefabID, mat, &newObj));
+						//newObj->transform.SetMatrix(mat);
 
 						if (_core && !strcmp(newObj->GetTag().c_str(), "Core")) {
 							*_core = (Core*)newObj;

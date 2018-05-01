@@ -224,6 +224,8 @@
     <ClInclude Include="Header Files\DebugRenderer.h" />
     <ClInclude Include="Header Files\Delegate.h" />
     <ClInclude Include="Header Files\DisplayBoard.h" />
+    <ClInclude Include="Header Files\DMLogo.h" />
+    <ClInclude Include="Header Files\Door.h" />
     <ClInclude Include="Header Files\DStar.h" />
     <ClInclude Include="Header Files\DStarEnemy.h" />
     <ClInclude Include="Header Files\Emitter.h" />
@@ -291,6 +293,7 @@
     <ClInclude Include="Header Files\ForceField.h" />
     <ClInclude Include="Header Files\SpatialPartition.h" />
     <ClInclude Include="Header Files\Spawner.h" />
+    <ClInclude Include="Header Files\SSLogo.h" />
     <ClInclude Include="Header Files\StdHeader.h" />
     <ClInclude Include="Header Files\TargetEnemy.h" />
     <ClInclude Include="Header Files\targetver.h" />
@@ -318,8 +321,6 @@
     <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Common\AkFilePackageLUT.cpp" />
     <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Win32\AkDefaultIOHookBlocking.cpp" />
     <ClCompile Include="Dependencies\XML_Library\irrXML.cpp" />
-    <ClCompile Include="Header Files\ParticlesGPU.cpp" />
-    <ClCompile Include="Header Files\DStarEnemy.cpp" />
     <ClCompile Include="Source Files\AABB.cpp" />
     <ClCompile Include="Source Files\AnimationManager.cpp" />
     <ClCompile Include="Source Files\Animator.cpp" />
@@ -336,8 +337,11 @@
     <ClCompile Include="Source Files\Core.cpp" />
     <ClCompile Include="Source Files\CoreShield.cpp" />
     <ClCompile Include="Source Files\DebugRenderer.cpp" />
+    <ClCompile Include="Source Files\DMLogo.cpp" />
+    <ClCompile Include="Source Files\DStarEnemy.cpp" />
     <ClCompile Include="Source Files\Emitter.cpp" />
     <ClCompile Include="Source Files\DisplayBoard.cpp" />
+    <ClCompile Include="Source Files\Door.cpp" />
     <ClCompile Include="Source Files\DStar.cpp" />
     <ClCompile Include="Source Files\EnemyBase.cpp" />
     <ClCompile Include="Source Files\EngineStructure.cpp" />
@@ -378,6 +382,7 @@
     <ClCompile Include="Source Files\ObjectManager.cpp" />
     <ClCompile Include="Source Files\OptionsManager.cpp" />
     <ClCompile Include="Source Files\ParticleManager.cpp" />
+    <ClCompile Include="Source Files\ParticlesGPU.cpp" />
     <ClCompile Include="Source Files\ParticleTextureManager.cpp" />
     <ClCompile Include="Source Files\PathPlanner.cpp" />
     <ClCompile Include="Source Files\PDA.cpp" />
@@ -397,6 +402,7 @@
     <ClCompile Include="Source Files\ForceField.cpp" />
     <ClCompile Include="Source Files\SpatialPartition.cpp" />
     <ClCompile Include="Source Files\Spawner.cpp" />
+    <ClCompile Include="Source Files\SSLogo.cpp" />
     <ClCompile Include="Source Files\TargetEnemy.cpp" />
     <ClCompile Include="Source Files\TextManager.cpp" />
     <ClCompile Include="Source Files\Transform.cpp" />
@@ -646,6 +652,26 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile Include="Shaders\Particle_VertexShader_DEBUG.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile Include="Shaders\Particle_VertexShader_DEBUG1.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).cso</ObjectFileOutput>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Shaders\Particle_VertexShader_DEBUG2.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile Include="Shaders\Particle_VertexShader_DEBUG3.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).cso</ObjectFileOutput>
     </FxCompile>
     <FxCompile Include="SkyboxPixelShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>

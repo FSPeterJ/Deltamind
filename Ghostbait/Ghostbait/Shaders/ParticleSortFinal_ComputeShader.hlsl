@@ -10,20 +10,10 @@
 #define NUM_THREADS		(SORT_SIZE/2)
 #define INVERSION		(16*2 + 8*3)
 
-//--------------------------------------------------------------------------------------
-// Constant Buffers
-//--------------------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------------------
-// Structured Buffers
-//--------------------------------------------------------------------------------------
 RWStructuredBuffer<uint> ActiveParticleIndex : register(u1);
 RWStructuredBuffer<float2> SortingData : register(u4);
 
-
-//--------------------------------------------------------------------------------------
-// Bitonic Sort Compute Shader
-//--------------------------------------------------------------------------------------
 groupshared float2 g_LDS[SORT_SIZE];
 
 
@@ -36,7 +26,6 @@ void main(  uint3 Gid : SV_GroupID,
     int4 tgp;
 
     tgp.x = Gid.x * 256;
-    tgp.z = ActiveParticleCount;
     tgp.w = min(512, max(0, ActiveParticleCount - Gid.x * 512));
 
     int GlobalBaseIndex = tgp.x * 2 + GTid.x;

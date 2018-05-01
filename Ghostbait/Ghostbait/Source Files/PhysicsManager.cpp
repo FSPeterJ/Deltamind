@@ -14,6 +14,7 @@ std::mutex PhysicsManager::physCompPoolMutex;
 Collider PhysicsManager::defaultColider;
 ColliderData PhysicsManager::defaultSphereColider;
 SpatialPartition PhysicsManager::partitionSpace;
+//SpatialPartition PhysicsManager::staticPartitionSpace;
 Pool<PhysicsComponent> PhysicsManager::dynamicComponents = Pool<PhysicsComponent>(MAX_PHYSICALS, true);
 Pool<PhysicsComponent> PhysicsManager::staticComponents = Pool<PhysicsComponent>(MAX_STATIC_PHYSICALS, true);
 
@@ -51,7 +52,7 @@ void PhysicsManager::AddComponent(GameObject* obj, float veloX, float veloY, flo
 	physComponent->rigidBody.SetVelocity(veloX, veloY, veloZ);
 }
 
-PhysicsComponent* PhysicsManager::CloneComponent(ComponentBase* reference) {
+PhysicsComponent* PhysicsManager::CloneComponent(ComponentBase* reference, Object* objPtr) {
 	PhysicsComponent* physComponent;
 
 	physCompPoolMutex.lock();
@@ -68,10 +69,13 @@ PhysicsComponent* PhysicsManager::CloneComponent(ComponentBase* reference) {
 	physComponent->baseAABB = ((PhysicsComponent*)reference)->baseAABB;
 	physComponent->isStatic = ((PhysicsComponent*)reference)->isStatic;
 	physComponent->isActive = ((PhysicsComponent*)reference)->isActive;
+	UpdateAABB(*physComponent, objPtr);
 
-	if (((PhysicsComponent*)reference)->isStatic) return physComponent;
-		
-	partitionSpace.AddComponent(physComponent);
+	//if (((PhysicsComponent*)reference)->isStatic)
+	//	staticPartitionSpace.AddComponent(physComponent);
+	//else
+		partitionSpace.AddComponent(physComponent);
+
 	return physComponent;
 }
 
@@ -167,11 +171,11 @@ void PhysicsManager::ResetComponent(ComponentBase * reset) {
 	physCompPoolMutex.lock();
 	if (((PhysicsComponent*)reset)->isStatic) {
 		staticComponents.DeactivateMemory(reset);
-		physCompPoolMutex.unlock();
-		return;
+		//staticPartitionSpace.RemoveComponent((PhysicsComponent*)reset);
 	}
-
-	dynamicComponents.DeactivateMemory(reset);
+	else {
+		dynamicComponents.DeactivateMemory(reset);
+	}
 	partitionSpace.RemoveComponent((PhysicsComponent*)reset);
 	physCompPoolMutex.unlock();
 }
@@ -206,7 +210,6 @@ void PhysicsManager::Update() {
 	
 	const int activeCount = (int)dynamicComponents.GetActiveCount();
 	for(int i = 0; i < activeCount; ++i) {
-
 		//This seems absurd, are we sure we can't use XMVECTOR and XMMATRIX in a more manageable manner?
 		if (!dynamicComponents[i].isActive) continue;
 		XMFLOAT4X4* objectPosition = &(dynamicComponents[i].parentObject->transform.matrix);
@@ -355,8 +358,11 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 	XMVECTOR closestCollision = vecOrigin + (vecDirection * maxCastDistance);
 	XMVECTOR tempCollidePt;
 	GameObject* tempCollideObj = nullptr;
+	GameObject* compParent = nullptr;
 	XMFLOAT3 nextSegment;
 	const std::vector<PhysicsComponent*>* compToTest;
+	//const std::vector<PhysicsComponent*>* staticCompToTest;
+
 	std::vector<XMVECTOR> collisionPoints;
 	std::vector<GameObject*> collidedObjects;
 	if(colObject)
@@ -372,32 +378,53 @@ bool PhysicsManager::Raycast(XMFLOAT3& origin, XMFLOAT3& direction, XMFLOAT3* co
 			continue;
 		currBucketIndex = nextIndex;
 		compToTest = partitionSpace.GetComponentsToTest(currBucketIndex);
+		//staticCompToTest = staticPartitionSpace.GetComponentsToTest(currBucketIndex);
+		
 		if (!compToTest) continue;
 
 		for (size_t compIndex = 0; compIndex < compToTest->size(); ++compIndex) {
 			if (!(*compToTest)[compIndex]->isActive) continue;
-			if (tag && strcmp(dynamic_cast<GameObject*>((*compToTest)[compIndex]->parentObject)->GetTag().c_str(), tag)) continue;
+			compParent = dynamic_cast<GameObject*>((*compToTest)[compIndex]->parentObject);
+			if (!compParent) continue;
+			if (tag && strcmp(compParent->GetTag().c_str(), tag)) continue;
 			if (RaycastCollisionCheck(vecOrigin, vecDirection, (*compToTest)[compIndex], &tempCollidePt, &tempCollideObj, maxCastDistance)) {
 				collisionPoints.push_back(tempCollidePt);
 				collidedObjects.push_back(tempCollideObj);
 				collided = true;
 			}
 		}
+		//
+		//if (staticCompToTest) {
+		//	for (size_t staticCompIndex = 0; staticCompIndex < staticCompToTest->size(); ++staticCompIndex) {
+		//		if (!(*staticCompToTest)[staticCompIndex]->isActive) continue;
+		//		compParent = dynamic_cast<GameObject*>((*staticCompToTest)[staticCompIndex]->parentObject);
+		//		if (!compParent) continue;
+		//		if (tag && strcmp(compParent->GetTag().c_str(), tag)) continue;
+		//		if (RaycastCollisionCheck(vecOrigin, vecDirection, (*staticCompToTest)[staticCompIndex], &tempCollidePt, &tempCollideObj, maxCastDistance)) {
+		//			collisionPoints.push_back(tempCollidePt);
+		//			collidedObjects.push_back(tempCollideObj);
+		//			collided = true;
+		//		}
+		//	}
+		//}
+
 
 		if (collided)
 			break;
 	}
 
-	std::vector<PhysicsComponent*>* staticComps = staticComponents.GetActiveList();
-	for (size_t i = 0; i < staticComps->size(); ++i) {
-		if (!(*staticComps)[i]->isActive) continue;
-		if (tag && strcmp(dynamic_cast<GameObject*>((*staticComps)[i]->parentObject)->GetTag().c_str(), tag)) continue;
-		if (RaycastCollisionCheck(vecOrigin, vecDirection, (*staticComps)[i], &tempCollidePt, &tempCollideObj, maxCastDistance)) {
-			collisionPoints.push_back(tempCollidePt);
-			collidedObjects.push_back(tempCollideObj);
-			collided = true;
-		}
-	}
+	//std::vector<PhysicsComponent*>* staticComps = staticComponents.GetActiveList();
+	//for (size_t i = 0; i < staticComps->size(); ++i) {
+	//	if (!(*staticComps)[i]->isActive) continue;
+	//	compParent = dynamic_cast<GameObject*>((*staticComps)[i]->parentObject);
+	//	if (!compParent) continue;
+	//	if (tag && strcmp(compParent->GetTag().c_str(), tag)) continue;
+	//	if (RaycastCollisionCheck(vecOrigin, vecDirection, (*staticComps)[i], &tempCollidePt, &tempCollideObj, maxCastDistance)) {
+	//		collisionPoints.push_back(tempCollidePt);
+	//		collidedObjects.push_back(tempCollideObj);
+	//		collided = true;
+	//	}
+	//}
 
 	physCompPoolMutex.unlock();
 
@@ -475,9 +502,9 @@ ColliderData* PhysicsManager::AddColliderData(float trfX, float trfY, float trfZ
 	return nullptr;
 }
 
-void PhysicsManager::UpdateAABB(PhysicsComponent& component) {
-	//DOES NOT ACCOUNT FOR ROTATION!
-	std::vector<XMVECTOR> corners = GetBoxCorners(component.baseAABB, XMLoadFloat4x4(&component.parentObject->transform.GetMatrix()));
+void PhysicsManager::UpdateAABB(PhysicsComponent& component, Object* objPtr) {
+	XMFLOAT4X4* parentTrans = objPtr ? &(objPtr->transform.matrix) : &(component.parentObject->transform.matrix);
+	std::vector<XMVECTOR> corners = GetBoxCorners(component.baseAABB, XMLoadFloat4x4(parentTrans));
 	XMFLOAT3* newMax = &component.currentAABB.max;
 	XMFLOAT3* newMin = &component.currentAABB.min;
 	*newMax = { -FLT_MAX, -FLT_MAX , -FLT_MAX };
@@ -1111,6 +1138,10 @@ XMVECTOR PhysicsManager::FindClosestPointOnLine(XMVECTOR& _lineSegStart, XMVECTO
 }
 
 bool PhysicsManager::RaycastCollisionCheck(XMVECTOR& origin, XMVECTOR& direction, PhysicsComponent* collidingComp, XMVECTOR* colPoint, GameObject** colObject, float maxCastDistance) {
+	if (!collidingComp->parentObject) {
+		Console::ErrorLine << "Physics Component has no PARENT!!";
+		return false;
+	}
 	bool collided = false;
 	bool hasCollidingComp = false;
 	XMVECTOR closestCollision = origin + (direction * maxCastDistance);
@@ -1348,8 +1379,8 @@ void PhysicsManager::TestAllComponentsCollision() {
 	}
 	Console::WriteLine << counter;*/
 
-	const std::vector<PhysicsComponent*>* dynamicComp = dynamicComponents.GetActiveList();
-	const std::vector<PhysicsComponent*>* staticComp = staticComponents.GetActiveList();
+	//const std::vector<PhysicsComponent*>* dynamicComp = dynamicComponents.GetActiveList();
+	//const std::vector<PhysicsComponent*>* staticComp = staticComponents.GetActiveList();
 	const std::vector<PhysicsComponent*>* collidingList = partitionSpace.GetComponentsToTest();
 	PhysicsComponent *comp1, *comp2;
 	static std::vector<std::future<void>> collisions;
@@ -1363,18 +1394,7 @@ void PhysicsManager::TestAllComponentsCollision() {
 		
 		for (size_t comp2Index = comp1Index + 1; (*collidingList)[comp2Index]; ++comp2Index) {
 			comp2 = (*collidingList)[comp2Index];
-			if (!(comp2->isActive)) continue;
-			//CollisionCheck(*((*collidingList)[comp1Index]), *((*collidingList)[comp2Index]));
-
-			//collisions.push_back(std::thread([=](){ CollisionCheck(*((*collidingList)[comp1Index]), *((*collidingList)[comp2Index])); }));
-
-			//collisions.push_back(
-			//	Threadding::ThreadPool::CreateAsyncJob( 
-			//		[=](){ 
-			//	CollisionCheck(*((*collidingList)[comp1Index]), *((*collidingList)[comp2Index]));  
-			//}
-			//)
-			//);
+			if (!(comp2->isActive) || (comp1->isStatic && comp2->isStatic)) continue;
 
 			collisions.push_back( Threadding::ThreadPool::MakeJob(true, [=]() {
 				CollisionCheck(comp1, comp2);
@@ -1382,29 +1402,29 @@ void PhysicsManager::TestAllComponentsCollision() {
 		}
 	}
 
-	for (size_t staticIndex = 0; staticIndex < staticComp->size(); ++staticIndex) {
-		for (size_t dynamicIndex = 0; dynamicIndex < dynamicComp->size(); ++dynamicIndex) {
+	//for (size_t dynamicIndex = 0; dynamicIndex < dynamicComp->size(); ++dynamicIndex) {
+	//	
+	//	comp1 = (*dynamicComp)[dynamicIndex];
+	//	if (!comp1->isActive) continue;
 
-			comp1 = (*staticComp)[staticIndex];
-			comp2 = (*dynamicComp)[dynamicIndex];
-			if (!comp1->isActive || !comp2->isActive) continue;
-			//CollisionCheck(*(*staticComp)[staticIndex], *(*dynamicComp)[dynamicIndex]);
 
-			//collisions.push_back(std::thread([=]() {CollisionCheck(*(*staticComp)[staticIndex], *(*dynamicComp)[dynamicIndex]); }));
+	//	//CollisionCheck(*(*staticComp)[staticIndex], *(*dynamicComp)[dynamicIndex]);
+	//
+	//	//collisions.push_back(std::thread([=]() {CollisionCheck(*(*staticComp)[staticIndex], *(*dynamicComp)[dynamicIndex]); }));
+	//
+	//	//collisions.push_back(
+	//	//	Threadding::ThreadPool::CreateAsyncJob(
+	//	//		[=]() {
+	//	//	CollisionCheck(*(*staticComp)[staticIndex], *(*dynamicComp)[dynamicIndex]);
+	//	//}
+	//	//	)
+	//	//);
 
-			//collisions.push_back(
-			//	Threadding::ThreadPool::CreateAsyncJob(
-			//		[=]() {
-			//	CollisionCheck(*(*staticComp)[staticIndex], *(*dynamicComp)[dynamicIndex]);
-			//}
-			//	)
-			//);
-
-			collisions.push_back(Threadding::ThreadPool::MakeJob(true, [=]() {
-				CollisionCheck(comp1, comp2);
-			}));
-		}
-	}
+	//	collisions.push_back(Threadding::ThreadPool::MakeJob(true, [=]() {
+	//		CollisionCheck(comp1, comp2);
+	//	}));
+	//}
+	
 
 	for (size_t i = 0; i < collisions.size(); ++i) {
 		collisions[i].get();

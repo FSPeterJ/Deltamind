@@ -13,6 +13,7 @@ Delegate<> EngineStructure::OnCollisionStay;
 Delegate<> EngineStructure::OnCollisionExit;
 
 Delegate<> EngineStructure::Update;
+Delegate<> EngineStructure::DebugUpdate;
 Delegate<> EngineStructure::AnimationUpdate;
 
 Delegate<> EngineStructure::LateUpdate;

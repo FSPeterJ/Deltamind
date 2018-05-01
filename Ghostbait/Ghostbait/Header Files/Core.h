@@ -11,11 +11,11 @@ class Core : public GameObject,  public Health, public GridBasedObject {
 	//DirectX::XMFLOAT4 foreground = { 1, 36.0f / 255.0f, 14.0f / 255.0f, 226.0f / 255.0f };
 	DirectX::XMFLOAT4 foreground = { 1, 1, 1, 1 };
 	DirectX::XMFLOAT4 background = { 1, 132.0f / 255.0f, 10.0f / 255.0f, 105.0f / 255.0f };
-
+	unsigned eventWin;
 	Light light;
+	Light spots[6];
 	float panicTimer;
 	float panicDuration;
-	bool panicking;
 public:
 	Core() { SetTag("Core"); };
 	void Awake(Object* obj) override;

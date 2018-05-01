@@ -77,7 +77,7 @@ void PhysicsTestObj::AnExtremelyBadTemporaryFunction(ParticleManager* partman, M
 
 	Emitter* emitter = nullptr;
 
-	MessageEvents::SendMessage(EVENT_NewEmitter, NewEmitterMessage(&transform.GetPosition(), 0, (ComponentBase**)&emitter));
+	MessageEvents::SendMessage(EVENT_NewEmitter, NewEmitterMessage(&transform.GetPosition(), 0, DirectX::XMFLOAT3(0, 0, 0), (ComponentBase**)&emitter));
 	emitter->parentObject = this;
 	emitter->Enable();
 	//emitter->transform = transform;
@@ -89,7 +89,7 @@ void PhysicsTestObj::AnExtremelyBadTemporaryFunction(ParticleManager* partman, M
 	//emitter->mainData.VelocityMagnatude = 2;
 	//emitter->mainData.Position = emitter->transform.GetPosition();
 	//emitter->mainData.TextureIndex = partman->AddMaterial(emitter->materials[0]);
-	//emitter->mainData.emissionIntervalSec = 0.01f;
+	//emitter->mainData.EmissionRateInterval = 0.01f;
 	//emitter->mainData.StartColor = DirectX::XMFLOAT4(1.0f, 0.6f, 0.0f, 1.0f);
 	//emitter->mainData.EndColor = DirectX::XMFLOAT4(1.0f, 0.6f, 0.0f, 0.0f);
 	//emitter->lifespan = 4;

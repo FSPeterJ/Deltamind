@@ -52,6 +52,9 @@ enum Control {
 	TestInputL,
 	TestInputX,
 	TestInputR,
+	TestInputV,
+	TestInputB,
+	TestInputN,
 
 
 	GodMode,
@@ -231,36 +234,43 @@ public:
 	const char* RetrieveData() const { return sceneName; }
 };
 
-//Duplicate is unnessessary
-class NewObjectMessage: public EventMessageBase {
+class ObjectMessage: public EventMessageBase {
 public:
 	GameObject* obj = nullptr;
 
 	/// <summary>
-	/// Initializes a new instance of the <see cref="NewObjectMessage"/> class.
+	/// Initializes a new instance of the <see cref="ObjectMessage"/> class.
 	/// </summary>
 	/// <param name="_obj">The object.</param>
-	NewObjectMessage(GameObject* _obj): obj(_obj) {}
+	ObjectMessage(GameObject* _obj): obj(_obj) {}
 
 	GameObject* RetrieveObject() const { return obj; }
 };
 
-//Duplicate is unnessessary
 class NewEmitterMessage: public EventMessageBase {
 public:
 	ComponentBase** emit = nullptr;
 	unsigned EmitterID;
 	const DirectX::XMFLOAT3* position;
+	DirectX::XMFLOAT3 force;
 	/// <summary>
-	/// Initializes a new instance of the <see cref="NewObjectMessage"/> class.
+	/// Initializes a new instance of the <see cref="ObjectMessage"/> class.
 	/// </summary>
 	/// <param name="_obj">The object.</param>
-	NewEmitterMessage(const DirectX::XMFLOAT3* _position, unsigned _emitterID,  ComponentBase** _obj = nullptr): emit(_obj), EmitterID(_emitterID), position(_position){}
+	NewEmitterMessage(const DirectX::XMFLOAT3* _position, unsigned _emitterID, const DirectX::XMFLOAT3 _force = DirectX::XMFLOAT3(0,0,0),  ComponentBase** _obj = nullptr): emit(_obj), EmitterID(_emitterID), force(_force), position(_position){}
 
-	ComponentBase** RetrieveObject() const { return emit; }
 };
 
+class DeleteEmitterMessage: public EventMessageBase {
+public:
+	ComponentBase* emit = nullptr;
+	/// <summary>
+	/// Initializes a new instance of the <see cref="ObjectMessage"/> class.
+	/// </summary>
+	/// <param name="_obj">The object.</param>
+	DeleteEmitterMessage(ComponentBase* _obj = nullptr): emit(_obj) {}
 
+};
 
 
 class SoundRequestMessage: public EventMessageBase {

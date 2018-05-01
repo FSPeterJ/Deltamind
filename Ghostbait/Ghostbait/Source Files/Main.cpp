@@ -41,6 +41,9 @@
 #include "TargetEnemy.h"
 #include "CoreShield.h"
 #include "Emitter.h"
+#include "Door.h"
+#include "DMLogo.h"
+#include "SSLogo.h"
 
 using namespace Threadding;
 
@@ -188,10 +191,10 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<SFXValue>(1);
 	ObjectFactory::RegisterPrefabBase<BrightnessValue>(1);
 	ObjectFactory::RegisterPrefabBase<MouseSensitivityValue>(1);
-
-
-
 	ObjectFactory::RegisterPrefabBase<ForceField>(6);
+	ObjectFactory::RegisterPrefabBase<DMLogo>(1);
+	ObjectFactory::RegisterPrefabBase<SSLogo>(1);
+	ObjectFactory::RegisterPrefabBase<Door>(2);
 	ObjectFactory::RegisterPrefabBase<Ground>(4);
 	ObjectFactory::RegisterPrefabBase<Monitor>(2);
 	ObjectFactory::RegisterPrefabBase<DisplayBoard>(1);
@@ -242,6 +245,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<PhysicsTestObj>("PhysicsTestObj");
 	TypeMap::RegisterObjectAlias<BuildTool>("BuildTool");
 	TypeMap::RegisterObjectAlias<Label>("Label");
+	TypeMap::RegisterObjectAlias<DMLogo>("DMLogo");
+	TypeMap::RegisterObjectAlias<SSLogo>("SSLogo");
 
 	TypeMap::RegisterObjectAlias<ResumeButton>("ResumeButton");
 	TypeMap::RegisterObjectAlias<RestartButton>("RestartButton");
@@ -284,6 +289,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<Ground>("Ground");
 	TypeMap::RegisterObjectAlias<PDA>("PDA");
 	TypeMap::RegisterObjectAlias<Monitor>("Monitor");
+	TypeMap::RegisterObjectAlias<Door>("Door");
 
 	TypeMap::RegisterObjectAlias<DisplayBoard>("DisplayBoard");
 	TypeMap::RegisterObjectAlias<DisplayBoard_Move>("DisplayBoard_Move");
@@ -359,26 +365,26 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//teddy->GetComponent<Animator>()->setState("Walk");
 
 	//********************* PHYSICS TEST CODE **********************************
-	PhysicsTestObj *test1, *test2;
+	PhysicsTestObj *test1;
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { -1.0f, 2.0f, 1.0f }, &test1));
-	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { 3.0f, 2.0f, 1.0f }, &test2));
+	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { 3.0f, 2.0f, 1.0f }, &test2));
 	//DirectX::XMStoreFloat4x4(&test1->position, DirectX::XMLoadFloat4x4(&test1->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest3", { 0.0f, 1.0f, 0.0f }, &test2));
 	//DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest2", { 2.0f, 2.0f, 0.0f }, &test2));
 	//DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
 	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { -2.0f, 2.0f, 0.0f }, nullptr));
-
+	
 	((PhysicsTestObj*)test1)->isControllable = true;
 	((PhysicsTestObj*)test1)->isRayCasting = true;
 	test1->PersistOnReset();
 	test1->AnExtremelyBadTemporaryFunction(rendInter->GetParticleManager(), rendInter->GetMaterialManager());
 	test1->Enable();
-	//((PhysicsTestObj*)test2)->isControllable = true;
-	//((PhysicsTestObj*)test2)->isRayCasting = true;
-	//test2->PersistOnReset();
-	//test2->AnExtremelyBadTemporaryFunction(rendInter->GetParticleManager(), rendInter->GetMaterialManager());
-	//test2->Enable();
+	/*((PhysicsTestObj*)test2)->isControllable = true;
+	((PhysicsTestObj*)test2)->isRayCasting = true;
+	test2->PersistOnReset();
+	test2->AnExtremelyBadTemporaryFunction(rendInter->GetParticleManager(), rendInter->GetMaterialManager());
+	test2->Enable();*/
 
 
 
@@ -390,6 +396,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	Console::WriteLine << "Starting Game Loop......";
 	game = new Game();
 	game->Start(player, &engine, rendInter->getHud());
+	player->transform.SetPosition(2, 1, -3.0f);
+	MessageEvents::SendMessage(EVENT_God, EventMessageBase());
 	//game->Start(player, &engine, "level0", "Level Files//level0_hard.xml");
 }
 

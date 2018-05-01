@@ -19,8 +19,8 @@ EnemyBase* SpawnerObject::SpawnObject(const char* prefabName, HexGrid* grid, Cor
 	obj->transform.SetMatrix(transform.GetMatrix());
 	obj->SetGrid(grid);
 	obj->SetCore(_core);
-	obj->Repath();
 	obj->Enable();
+	//obj->Repath();
 	//obj->GetComponent<PhysicsComponent>()->rigidBody.AddForce(100);
 
 	return obj;

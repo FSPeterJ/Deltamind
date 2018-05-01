@@ -26,7 +26,7 @@ void main(uint3 Gid : SV_GroupID,
     uint index_high = 2 * (localID - index_low);
 
     uint index = index_high + index_low;
-    uint nSwapElem =  index_high + job_params.y + job_params.z * index_low;
+    uint nSwapElem = index_high + job_params.y + job_params.z * index_low;
 
     if (nSwapElem < ActiveParticleCount)
     {
@@ -38,8 +38,8 @@ void main(uint3 Gid : SV_GroupID,
             SortingData[index] = b;
             SortingData[nSwapElem] = a;
             
-            ActiveParticleIndex[index] = asuint(b.y);
-            ActiveParticleIndex[nSwapElem] = asuint(a.y);
         }
+        ActiveParticleIndex[index] = asuint(SortingData[index].y);
+        ActiveParticleIndex[nSwapElem] = asuint(SortingData[nSwapElem].y);
     }
 }

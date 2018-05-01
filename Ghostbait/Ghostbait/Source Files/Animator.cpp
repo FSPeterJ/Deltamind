@@ -3,6 +3,7 @@
 #include "DebugRenderer.h"
 #include "EngineStructure.h"
 #include "AnimatorStructs.h"
+#include "MessageEvents.h"
 
 using namespace DirectX;
 
@@ -54,6 +55,10 @@ void Animator::Copy(const Animator * that) {
 
 const std::vector<animJoint>* Animator::getTweens() {
 	return &tweens;
+}
+
+const double Animator::GetDuration() {
+	return currAnim->keyframes[currAnim->keyframes.size() - 1].endTime;
 }
 
 void Animator::SetJointMatrix(const int jointIndex, const DirectX::XMFLOAT4X4& mat) {
@@ -205,16 +210,34 @@ void Animator::ManipulateChildrendJoints(animJoint* animationJoint, const Direct
 }
 
 void Animator::Destroy() {
-	EngineStructure::AnimationUpdate.Remove(updateID);
-}
-
-void Animator::Enable() {
-	updateID = EngineStructure::AnimationUpdate.Add([=]() {
-		this->Update();
+	MessageEvents::SendQueueMessage(EVENT_Late, [=] {
+		if(updateID != 0) {
+			EngineStructure::AnimationUpdate.Remove(updateID);
+			updateID = 0;
+		}
 	});
 }
 
+void Animator::Disable() {
+	assert(updateID != 0);
+	MessageEvents::SendQueueMessage(EVENT_Late, [=] {
+		if(updateID != 0) {
+			EngineStructure::AnimationUpdate.Remove(updateID);
+			updateID = 0;
+		}
+	});
+
+}
+
+void Animator::Enable() {
+	if(!updateID) {
+		updateID = EngineStructure::AnimationUpdate.Add([=]() { Update(); });
+	}
+	assert(updateID);
+}
+
 void Animator::Initialize(AnimationManager* animManIn) {
+	updateID = 0;
 	animMan = animManIn;
 	currScale = 1.0f;
 }
@@ -269,16 +292,83 @@ void Animator::Update() {
 		tweens[i].transform._31 = interpolatedMat._31;
 		tweens[i].transform._32 = interpolatedMat._32;
 		tweens[i].transform._33 = interpolatedMat._33;
-		for(int x = 0; x < tweens[i].child_count; ++x) {
+		//for(int x = 0; x < tweens[i].child_count; ++x) {
 
-			//DebugRenderer::AddLine((XMFLOAT3)tweens[tweens[i].child_index[x]].transform.m[3], (XMFLOAT3)tweens[i].transform.m[3], { 0.1f, 1, 0 });
-		}
+		//	//DebugRenderer::AddLine((XMFLOAT3)tweens[tweens[i].child_index[x]].transform.m[3], (XMFLOAT3)tweens[i].transform.m[3], { 0.1f, 1, 0 });
+		//}
 
 	}
+
+	/*if(prevAnim) {
+		float transition = 1.0f - (float)(transitionTime / transitionTimeMax);
+		if(transition >= 0) {
+
+			prevTimePos += (GhostTime::DeltaTime()*prevScale);
+			transitionTime -= (GhostTime::DeltaTime());
+			bool prevloopState = false;
+			if(prevTimePos < 0.0) {
+				prevTimePos = prevAnim->keyframes[prevAnim->keyframes.size() - 1].endTime;
+			}
+			if(prevTimePos > prevAnim->keyframes[prevAnim->keyframes.size() - 1].endTime) {
+				prevTimePos = 0.0;
+			}
+			keyframe prevbeginFrame;
+			keyframe prevendFrame;
+
+
+			if(prevTimePos < prevAnim->keyframes[0].endTime) {
+				prevbeginFrame = prevAnim->keyframes[prevAnim->keyframes.size() - 1];
+				prevendFrame = prevAnim->keyframes[0];
+				prevloopState = true;
+			}
+			else {
+				for(size_t i = 0; i < prevAnim->keyframes.size() - 1; ++i) {
+					if(prevTimePos > prevAnim->keyframes[i].endTime && prevTimePos <= prevAnim->keyframes[i + 1].endTime) {
+						prevbeginFrame = prevAnim->keyframes[i];
+						prevendFrame = prevAnim->keyframes[i + 1];
+					}
+				}
+			}
+
+			float prevratio;
+			if(!prevloopState)
+				prevratio = (float)((prevTimePos - prevbeginFrame.endTime) / (prevendFrame.endTime - prevbeginFrame.endTime));
+			else
+				prevratio = (float)(prevTimePos / prevendFrame.endTime);
+
+			for(size_t i = 0; i < tweens.size(); ++i) {
+
+				DirectX::XMFLOAT3X3 prevendJointMat = pullRotation(prevendFrame.joints[i].transform);
+				DirectX::XMFLOAT3X3 prevbeginJointMat = pullRotation(prevbeginFrame.joints[i].transform);
+				DirectX::XMFLOAT3X3 interpolatedMat = lerpRotation(lerpRotation(prevbeginJointMat, prevendJointMat, prevratio), prevbeginJointMat, transition);
+				DirectX::XMFLOAT3 temporaryLocation;
+				temporaryLocation.x = prevbeginFrame.joints[i].transform._41 + ((prevendFrame.joints[i].transform._41 - prevbeginFrame.joints[i].transform._41)*prevratio);
+				temporaryLocation.y = prevbeginFrame.joints[i].transform._42 + ((prevendFrame.joints[i].transform._42 - prevbeginFrame.joints[i].transform._42)*prevratio);
+				temporaryLocation.z = prevbeginFrame.joints[i].transform._43 + ((prevendFrame.joints[i].transform._43 - prevbeginFrame.joints[i].transform._43)*prevratio);
+
+				tweens[i].transform._41 = tweens[i].transform._41 + ((temporaryLocation.x - tweens[i].transform._41)*transition);
+				tweens[i].transform._42 = tweens[i].transform._42 + ((temporaryLocation.y - tweens[i].transform._42)*transition);
+				tweens[i].transform._43 = tweens[i].transform._43 + ((temporaryLocation.z - tweens[i].transform._43)*transition);
+				tweens[i].transform._11 = interpolatedMat._11;
+				tweens[i].transform._12 = interpolatedMat._12;
+				tweens[i].transform._13 = interpolatedMat._13;
+				tweens[i].transform._21 = interpolatedMat._21;
+				tweens[i].transform._22 = interpolatedMat._22;
+				tweens[i].transform._23 = interpolatedMat._23;
+				tweens[i].transform._31 = interpolatedMat._31;
+				tweens[i].transform._32 = interpolatedMat._32;
+				tweens[i].transform._33 = interpolatedMat._33;
+
+
+			}
+		}
+		else {
+			prevAnim = nullptr;
+		}
+	}*/
 }
 
-
-void Animator::SetTime(float _timePos) {
+void Animator::SetTime(double _timePos) {
 	timePos = _timePos;
 	bool loopState = false;
 	if(timePos < 0.0) {
@@ -341,10 +431,16 @@ void Animator::addAnim(const char * animFilePath, const char * bindposeFilePath,
 	}
 }
 
-bool Animator::setState(const char * animName, float speed) {
+bool Animator::setState(const char * animName, double speed, double _transition) {
 	Animation* toSet = animations[std::string(animName)];
 	if(toSet) {
+		prevTimePos = timePos;
+		timePos = 0;
+		transitionTime = _transition;
+		transitionTimeMax = _transition;
+		prevAnim = currAnim;
 		currAnim = toSet;
+		prevScale = currScale;
 		currScale = speed;
 		return true;
 	}

@@ -233,14 +233,14 @@ HexPath PathPlanner::AStarSearch(HexTile *const start, HexTile *const goal, Heur
 	VisitedMap visited;
 	CostMap cumulativeCost;
 
-	//size_t limit = 0;
+	size_t limit = 0;
 
 	Q.push(start, 0);
 	visited[start] = start;
 	cumulativeCost[start] = 0;
 
-	while (!Q.empty()) {// && limit < 10000) {
-						//++limit;
+	while (!Q.empty() && limit < 10000) {
+		++limit;
 		HexTile* current = Q.pop_back();
 
 		if (current == goal) { break; }
@@ -396,28 +396,19 @@ std::size_t PathPlanner::mtdstarIndices = 0;
 //std::size_t PathPlanner::mtdstars = 0;
 
 std::size_t PathPlanner::MTDStarLiteSearch(HexTile **const _start, HexTile **const _goal, HexTile **const _next, HexPath*const _path, std::size_t _perception, HeuristicFunction Heuristic) {
+	plannerMutex.lock();
 	PathPlanner::SetHeuristic(Heuristic);
-
 	//auto ds = MTDStarLite(grid, startRef, goalRef);
 	mtdstarList[mtdstarIndices] = MTDStarLite(grid, _start, _goal, _next, _path, _perception);
-
+	plannerMutex.unlock();
 	return mtdstarIndices++;
 }
 
 void PathPlanner::UpdateMTDStar(std::size_t mtdstarId) {
-	//mtdstarList[mtdstarId].Update();
-	//void(MTDStarLite::*updateFunc)() = &std::bind([&]() {})();
 
-
-	//auto t = std::thread(&MTDStarLite::Update, &mtdstarList[mtdstarId]);
-	//t.detach();
-
-	Threadding::ThreadPool::CreateMemberJob<void>(&mtdstarList[mtdstarId], &MTDStarLite::Update);
-	//&MTDStarLite::Update, &mtdstarList[mtdstarId]);
-
-	//ThreadPool::MakeJob(RunMTMTDSL, std::move(mtdstarId));
-
-	//ThreadPool::MakeJob(updateFunc);
+	//Threadding::ThreadPool::CreateMemberJob<void>(&mtdstarList[mtdstarId], &MTDStarLite::Update);
+	//Might need to add mutex locks
+	mtdstarList[mtdstarId].Update();
 }
 
 //HexTile* PathPlanner::GetDStarNextTile(std::size_t dstarId) {
@@ -434,10 +425,13 @@ void PathPlanner::UpdateMTDStar(std::size_t mtdstarId) {
 //}
 
 bool PathPlanner::RemoveMTDStar(std::size_t mtdstarId) {
+	plannerMutex.lock();
 	if (dstarList.count(mtdstarId)) {
 		dstarList.erase(mtdstarId);
+		plannerMutex.unlock();
 		return true;
 	}
+	plannerMutex.unlock();
 	return false;
 }
 
@@ -476,14 +470,20 @@ void PathPlanner::CostChangeNotice(HexTile* tile) {
 	//	//ThreadPool::MakeJob(&mtdstarCostChangeThreadEntry, &(mtds.second), tile);
 	//}
 
+	plannerMutex.lock();
 	for (auto &ds : dstarList) {
 		//std::lock_guard<std::mutex> lock(ds.second.dstarMutex);
+		ds.second.dstarMutex.lock();
 		ds.second.changedTiles.insert(tile);
+		ds.second.dstarMutex.unlock();
 	}
 	for (auto &mtds : mtdstarList) {
 		//std::lock_guard<std::mutex> lock(mtds.second.dstarMutex);
+		mtds.second.dstarMutex.lock();
 		mtds.second.changedTiles.insert(tile);
+		mtds.second.dstarMutex.unlock();
 	}
+	plannerMutex.unlock();
 
 	//for (int i = 0; i < dstarList.size(); ++i) {
 	//	dstarList[i].changedTiles.insert(tile);
@@ -494,3 +494,27 @@ void PathPlanner::CostChangeNotice(HexTile* tile) {
 
 }
 
+void PathPlanner::CostChangeNotice(DirectX::XMFLOAT2& _pos) {
+	HexTile* tile = grid->PointToTile(_pos);
+	plannerMutex.lock();
+	for (auto &ds : dstarList) {
+		//std::lock_guard<std::mutex> lock(ds.second.dstarMutex);
+		ds.second.dstarMutex.lock();
+		ds.second.changedTiles.insert(tile);
+		ds.second.dstarMutex.unlock();
+	}
+	for (auto &mtds : mtdstarList) {
+		//std::lock_guard<std::mutex> lock(mtds.second.dstarMutex);
+		mtds.second.dstarMutex.lock();
+		mtds.second.changedTiles.insert(tile);
+		mtds.second.dstarMutex.unlock();
+	}
+	plannerMutex.unlock();
+}
+
+void PathPlanner::MTDStarPollPath(std::size_t mtdstarId) {
+	plannerMutex.lock();
+	if(mtdstarList.count(mtdstarId))
+		mtdstarList[mtdstarId].PollPath();
+	plannerMutex.unlock();
+}

@@ -52,13 +52,13 @@ PixelShaderOutput main(PixelShaderInput input)
     //output.diffuse = float4(diffuseFloat.xyz * 1.0f, diffuseFloat.w);
     //output.diffuse = float4(0.5f, 0.5f, 0.5f, 1.0f);
     output.diffuse = input.color;
-    //output.emissive = input.color;
+    output.emissive = input.color;
     //output.diffuse = diffuseFloat;
     //output.emissive = diffuseFloat;
     output.normal = float4(0.5f, 0.5f, 0.5f, 1.0f);
     output.specular = float4(0.0f, 0.0f, 0.0f, 1.0f);
     output.depth = float4(input.pos.z, input.pos.w, input.pos.z, 1.0f);
-    output.unlit = float4(1.0f, 0.0f, 0.0f, 0.0f);
+    output.unlit = input.color;
     return output;
 }
 

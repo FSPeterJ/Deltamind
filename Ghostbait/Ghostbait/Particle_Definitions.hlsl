@@ -1,10 +1,10 @@
 //Note: This file is configured to act as a header file, but named as hlsl for extension support.
 
-
+#define DEBUG_MAX_PARTICLES 8
 //To optimize this further, split the calculation data from the render data into seperate buffers
 // It is important that 16 byte alignment is maintained.
 //https://developer.nvidia.com/content/understanding-structured-buffer-performance
-struct Particle // (112 bytes) 500,000  = 53 + 20 = 73MB of VRAM for all particle data and index list (not including textures)
+struct Particle 
 {
              //Dynamic data  (16 bytes)
     float3  position;
@@ -46,12 +46,13 @@ struct Particle // (112 bytes) 500,000  = 53 + 20 = 73MB of VRAM for all particl
 
 // The number of alive particles this frame
 
-//In reality, it would be best to just use 1 cbuff and map set unmap
+//In reality, it would be best to just use 1 cbuff
 cbuffer ActiveParticles : register(b1)
 {
     uint ActiveParticleCount;
     uint MaxParticles;
-    uint APCpad[2];
+    uint ToEmit;
+    uint APCpad[1];
 };
 
 cbuffer InactiveParticles : register(b2)

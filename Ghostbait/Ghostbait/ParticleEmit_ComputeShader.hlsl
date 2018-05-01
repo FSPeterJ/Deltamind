@@ -42,7 +42,7 @@ cbuffer EmitterConstantBuffer : register(b3)
     float yAngleVariance;
 
     float emissionOverflow;
-    float EmissionCount;
+    uint EmissionCount;
     float Mass;
     uint PerEmission;
 
@@ -57,7 +57,8 @@ cbuffer EmitterConstantBuffer : register(b3)
 
 
 [numthreads(1024, 1, 1)]
-void main(uint3 DThreadID : SV_DispatchThreadID)
+void main(  uint3 DThreadID : SV_DispatchThreadID,
+            uint GroupIndex : SV_GroupIndex)
 {
 
     //0.001
@@ -68,6 +69,7 @@ void main(uint3 DThreadID : SV_DispatchThreadID)
     float totalTime = FrameTime + emissionOverflow;
     //Stop other threads from attempting to process particle emissions if there are none left to process
     if (DThreadID.x < InactiveParticleCount && emTimestamp < totalTime )
+    //if (DThreadID.x < InactiveParticleCount && ToEmit < GroupIndex)
     {
         Particle particle = (Particle) 0;
         float3 randomPosition;
@@ -79,7 +81,7 @@ void main(uint3 DThreadID : SV_DispatchThreadID)
         float randomAnglesy = RandomNumbers.SampleLevel(SamplerWrapLinear, uv, 0).y;
 
 
-                static const float PI = 3.14159265f;
+        static const float PI = 3.14159265f;
 
        
         float z = randomAnglesx * 2 + randomAnglesx;
@@ -89,13 +91,14 @@ void main(uint3 DThreadID : SV_DispatchThreadID)
         float3 randomDirection = float3(x, y, z);
         
 
-        //particle.velocity = float3(0, 0, 0);
+        //particle.velocity = float3(0, 0, 1);
         //particle.position = randomDirection * VelocityMagnatude + float3(0, 1, 1);
 
  
         particle.velocity = VelocityMagnatude * randomDirection;
-        particle.position = Position + particle.velocity * (emissionRateMS * threadBatch + emissionOverflow);
-        particle.age = ParticleLifeSpan - emissionRateMS * threadBatch + emissionOverflow;
+        particle.position = Position + particle.velocity * (emissionRateMS * threadBatch - emissionRateMS);
+        particle.age = ParticleLifeSpan;
+        //-(emissionRateMS * threadBatch + emissionRateMS);
 
 
         particle.lifespan = ParticleLifeSpan;
@@ -109,11 +112,9 @@ void main(uint3 DThreadID : SV_DispatchThreadID)
 
         particle.Gravity = Gravity;
         particle.velocityLossFactor = velocityLossFactor;
+        particle.acceleration = acceleration;
 
 
-
-
-        
         uint index = InactiveParticleIndex.DecrementCounter(); //Decrement returns POST-decrement value 
         uint particleindex = InactiveParticleIndex[index];
 

@@ -129,6 +129,7 @@ float Menu::FindDistanceFromCenter(int optionNumber, int optionCount, float opti
 	return (optionNumber < center ? distanceFromCenter : -distanceFromCenter);
 }
 void Menu::Create(Template t, std::vector<Button> _buttons, ColumnType _columnType) {
+	gapHeight = 0.005f;
 	menu_template = t;
 	switch (t) {
 		case MENU_Main:
@@ -155,24 +156,24 @@ void Menu::Create(Template t, std::vector<Button> _buttons, ColumnType _columnTy
 			buttons.empty();
 			buttons.resize(24);
 			buttons[0] = LABEL_Master;
-			buttons[1] = BUTTON_MasterUp;
-			buttons[2] = BUTTON_MasterDown;
+			buttons[1] = BUTTON_MasterDown;
+			buttons[2] = BUTTON_MasterUp;
 			buttons[3] = LABEL_MasterVal;
 			buttons[4] = LABEL_Music;
-			buttons[5] = BUTTON_MusicUp;
-			buttons[6] = BUTTON_MusicDown;
+			buttons[5] = BUTTON_MusicDown;
+			buttons[6] = BUTTON_MusicUp;
 			buttons[7] = LABEL_MusicVal;
 			buttons[8] = LABEL_SFX;
-			buttons[9] = BUTTON_SFXUp;
-			buttons[10] = BUTTON_SFXDown;
+			buttons[9] = BUTTON_SFXDown;
+			buttons[10] = BUTTON_SFXUp;
 			buttons[11] = LABEL_SFXVal;
 			buttons[12] = LABEL_Brightness;
-			buttons[13] = BUTTON_BrightnessUp;
-			buttons[14] = BUTTON_BrightnessDown;
+			buttons[13] = BUTTON_BrightnessDown;
+			buttons[14] = BUTTON_BrightnessUp;
 			buttons[15] = LABEL_BrightnessVal;
 			buttons[16] = LABEL_MouseSensitivity;
-			buttons[17] = BUTTON_MouseSensitivityUp;
-			buttons[18] = BUTTON_MouseSensitivityDown;
+			buttons[17] = BUTTON_MouseSensitivityDown;
+			buttons[18] = BUTTON_MouseSensitivityUp;
 			buttons[19] = LABEL_MouseSensitivityVal;
 			buttons[20] = BUTTON_Revert;
 			buttons[21] = BUTTON_CancelOptions;
@@ -226,7 +227,7 @@ void Menu::Show(bool useCamera) {
 				if (buttons[i] == BUTTON_Blank) continue;
 				MenuOption* newOption;
 				DirectX::XMFLOAT4X4 newObjPos;
-				float distFromCenter = FindDistanceFromCenter((int)i, (int)options.size(), 0.25f, 0.05f);
+				float distFromCenter = FindDistanceFromCenter((int)i, (int)options.size(), 0.25f, gapHeight);
 				DirectX::XMStoreFloat4x4(&newObjPos, center_M * DirectX::XMMatrixTranslation(0, distFromCenter, 0));
 				MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuOption>(buttonPrefabMap[buttons[i]], newObjPos, &newOption));
 				newOption->ToggleFlag(GAMEOBJECT_PUBLIC_FLAGS::UNLIT);
@@ -255,7 +256,7 @@ void Menu::Show(bool useCamera) {
 				else {
 					buttonID = (int)((float)i / 2.0f);
 				}
-				float distFromCenter = FindDistanceFromCenter((int)buttonID, (int)(options.size() / 2), 0.25f, 0.05f);
+				float distFromCenter = FindDistanceFromCenter((int)buttonID, (int)(options.size() / 2), 0.25f, gapHeight);
 				DirectX::XMStoreFloat4x4(&newObjPos, center_M * DirectX::XMMatrixTranslation(shift, distFromCenter, 0));
 				MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuOption>(buttonPrefabMap[buttons[i]], newObjPos, &newOption));
 				newOption->ToggleFlag(GAMEOBJECT_PUBLIC_FLAGS::UNLIT);
@@ -284,7 +285,7 @@ void Menu::Show(bool useCamera) {
 					case 1: offset = -offset; break;
 					case 3: offset = 3 * offset; break;
 				}
-				float distFromCenter = FindDistanceFromCenter(row, (int)(options.size() / 4), 0.25f, 0.05f);
+				float distFromCenter = FindDistanceFromCenter(row, (int)(options.size() / 4), 0.25f, gapHeight);
 				DirectX::XMStoreFloat4x4(&newObjPos, center_M * DirectX::XMMatrixTranslation(offset, distFromCenter, 0));
 				MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<MenuOption>(buttonPrefabMap[buttons[i]], newObjPos, &newOption));
 				newOption->ToggleFlag(GAMEOBJECT_PUBLIC_FLAGS::UNLIT);
@@ -380,17 +381,17 @@ void BackButton::Select() {
 void EasyButton::Select() {
 	MenuOption::Select();
 	menu->Hide();
-	MessageEvents::SendMessage(EVENT_Start, StartEventMessage("Level Files//level0_easy.xml"));
+	MessageEvents::SendMessage(EVENT_Start, StartEventMessage("Level Files/level0_easy.xml"));
 }
 void MediumButton::Select() {
 	MenuOption::Select();
 	menu->Hide();
-	MessageEvents::SendMessage(EVENT_Start, StartEventMessage("Level Files//level0.xml"));
+	MessageEvents::SendMessage(EVENT_Start, StartEventMessage("Level Files/level0.xml"));
 }
 void HardButton::Select() {
 	MenuOption::Select();
 	menu->Hide();
-	MessageEvents::SendMessage(EVENT_Start, StartEventMessage("Level Files//level0_hard.xml"));
+	MessageEvents::SendMessage(EVENT_Start, StartEventMessage("Level Files/level0_hard.xml"));
 }
 void MasterUpButton::Select() {
 	float tempVolume = OptionsManager::GetInstance().GetMasterVolume();

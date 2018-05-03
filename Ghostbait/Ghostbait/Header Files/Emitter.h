@@ -13,7 +13,7 @@ enum ParticleProps {
 struct EmitterData {
 	//16
 	DirectX::XMFLOAT3 Position = DirectX::XMFLOAT3(0, 1, 0);
-	float emissionIntervalSec = 0.1f;
+	float EmissionRateInterval = 0.1f;
 
 	//16
 	DirectX::XMFLOAT3 Velocity = DirectX::XMFLOAT3(0, 0, 5);
@@ -28,17 +28,19 @@ struct EmitterData {
 	float ParticleLifeSpan = 3;
 	unsigned TextureIndex;
 	//16
-	DirectX::XMFLOAT4 StartColor = DirectX::XMFLOAT4(0, 0, 1, 0.8f);
+	DirectX::XMFLOAT4 StartColorA = DirectX::XMFLOAT4(0, 0, 1, 0.8f);
+	DirectX::XMFLOAT4 StartColorB = DirectX::XMFLOAT4(0, 0, 1, 0.8f);
 	//16
-	DirectX::XMFLOAT4 EndColor = DirectX::XMFLOAT4(1, 0, 0, 1);
+	DirectX::XMFLOAT4 EndColorA = DirectX::XMFLOAT4(1, 0, 0, 1);
+	DirectX::XMFLOAT4 EndColorB = DirectX::XMFLOAT4(1, 0, 0, 1);
 	//16
 	float rotationVarience;
 	unsigned properties = 0;
 	float xAngleVariance = 1;
 	float yAngleVariance = 1;
 	//16
-	float emissionOverflow = 0;
-	float EmissionCount = 10;
+	float EmissionOverflow = 0;
+	unsigned EmissionsPerInterval = 10;
 	float mass = 1;
 	unsigned perInterval = 10;
 

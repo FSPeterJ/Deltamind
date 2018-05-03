@@ -1,6 +1,9 @@
 #include "CoreShield.h"
 #include "MessageEvents.h"
 
+CoreShield::CoreShield() {
+	SetTag("Wall");
+}
 
 void CoreShield::Update() {
 	GameObject::Update();

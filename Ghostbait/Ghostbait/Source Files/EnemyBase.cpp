@@ -10,6 +10,8 @@
 #include "Evolvable.h"
 #include "GameData.h"
 #include <cmath>
+#include "RandomEngine.h"
+#include "ObjectFactory.h"
 
 void EnemyBase::Awake(Object* obj) {
 	currState = IDLE;
@@ -46,6 +48,8 @@ void EnemyBase::Awake(Object* obj) {
 	eventLose = 0;
 	smite = 0;
 	eventObstacleRemove = 0;
+
+	chanceOfDrop = 0.05f;
 	
 	animator = GetComponent<Animator>();
 	pc = GetComponent<PhysicsComponent>();
@@ -153,6 +157,7 @@ void EnemyBase::Destroy() {
 	gameObjMutex.lock();
 	isDying = true;
 	CalculateResult();
+
 	MessageEvents::SendMessage(EVENT_EnemyDied, EventMessageBase());
 	GameObject::Destroy();
 	gameObjMutex.unlock();
@@ -505,6 +510,11 @@ void EnemyBase::SetStats() {
 void EnemyBase::DeathEvent() {
 	//gameObjMutex.lock();
 	if (genetics) genetics->performance.died = true;
+	std::thread thread = std::thread([=] {
+		if(Omiracon::Random::RandomNumber(0.0f, 1.0f) <= chanceOfDrop)
+			MessageEvents::SendMessage(EVENT_InstantiateRequest, InstantiateMessage(ObjectFactory::CreatePrefab(&std::string("Assets/TimeScalePowerup.ghost")), transform.GetPosition())); 
+	});
+	thread.detach();
 	ChangeState(DEATH);
 	//deatheventCount++;
 	//gameObjMutex.unlock();
@@ -516,7 +526,6 @@ void EnemyBase::OnCollision(GameObject* _other) {
 	//DirectX::XMVECTOR incomingDirection = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(DirectX::XMLoadFloat4x4(&transform.GetMatrix()).r[3], DirectX::XMLoadFloat4x4(&(_other->transform.GetMatrix())).r[3]));
 	if(_other->GetTag() == "Bullet") {
 		//pc->rigidBody.AddForce(1.0f, DirectX::XMVectorGetX(incomingDirection), 0.0f, DirectX::XMVectorGetZ(incomingDirection));
-
 		//auto& dam = (((Projectile*) _other)->damage);
 		//AdjustHealth(-dam);
 		//genetics->performance.results.damageReceived += dam;

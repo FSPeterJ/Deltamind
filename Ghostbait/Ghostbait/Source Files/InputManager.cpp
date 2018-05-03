@@ -387,6 +387,7 @@ InputManager::KeyboardInput::KeyboardInput() {
 	MapKey(TestInputU, 'U');
 	MapKey(TestInputI, 'I');
 	MapKey(TestInputR, 'R');
+	MapKey(TestInputV, VK_RIGHT);
 	MapKey(TestInputO, 'O');
 	MapKey(TestInputJ, 'J');
 	MapKey(TestInputK, 'K');
@@ -594,4 +595,4 @@ void InputManager::SetInputType(InputType type) {
 CheatCode InputManager::godMode(CheatCode::CodePreset::Konami, [=]() {MessageEvents::SendMessage(EVENT_God, EventMessageBase()); MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::PLAY_SFX_GUN_COOLDOWN_FUNNY)); });
 CheatCode InputManager::freeMoney(std::vector<Control>({ Control::rightItem1, Control::rightItem0, Control::rightItem2, Control::rightItem0, Control::rightItem1, Control::rightCyclePrefab, Control::rightAttack }), [=]() {MessageEvents::SendMessage(EVENT_FreeMoney, EventMessageBase()); MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::PLAY_SFX_GUN_COOLDOWN_FUNNY)); });
 CheatCode InputManager::smite(std::vector<Control>({ Control::rightItem0, Control::rightItem0, Control::rightItem0, Control::rightItem3, Control::rightItem3, Control::rightCyclePrefab, Control::rightAttack }), [=]() {MessageEvents::SendMessage(EVENT_Smite, EventMessageBase()); });
-CheatCode InputManager::timeScale(std::vector<Control>({ Control::rightItem0, Control::rightItem3, Control::rightItem1, Control::rightItem1, Control::rightItem2, Control::rightCyclePrefab, Control::rightAttack }), [=]() {GhostTime::ToggleSloMo(-1, 2);});
+CheatCode InputManager::timeScale(std::vector<Control>({ Control::rightItem0, Control::rightItem3, Control::rightItem1, Control::rightItem1, Control::rightItem2, Control::rightCyclePrefab, Control::rightAttack }), [=]() {GhostTime::ToggleSloMo(-1);});

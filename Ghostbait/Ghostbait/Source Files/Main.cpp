@@ -44,13 +44,12 @@
 #include "Door.h"
 #include "DMLogo.h"
 #include "SSLogo.h"
+#include "Wall.h"
+#include "Powerup.h"
 
 using namespace Threadding;
 
-const bool FULLSCREEN = true;
-
-//#include "..\Omiracron\Omiracron\Omiracron.h"
-//using namespace Omiracron;
+const bool FULLSCREEN = 0;
 
 Renderer* rendInter;
 Game* game;
@@ -70,13 +69,13 @@ void ExecuteAsync() {
 	Console::WriteLine << "I am executed asyncly!";
 	throw std::invalid_argument("ERROR: This is a test showing we can know if a thread throws an exception on its work.\n");
 }
-
+Window wnd(1200,900);
 void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//throw std::runtime_error("Nothing");
 
 	ThreadPool::Start();
 	Console::Allocate();
-	Window wnd(1200, 900);
+	//wnd =Window(1200, 900);
 	if(!wnd.Initialize(hInstance, FULLSCREEN ? SW_MAXIMIZE : nCmdShow)) { Messagebox::ShowError("Error!!", "Main window is not initialized!"); }
 	wnd.UpdateTitle(L"Ghostbait");
 
@@ -214,6 +213,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::RegisterPrefabBase<DStarEnemy>(10);
 	ObjectFactory::RegisterPrefabBase<MTDSLEnemy>(300);
 	ObjectFactory::RegisterPrefabBase<TargetEnemy>(6);
+	ObjectFactory::RegisterPrefabBase<Wall>(100);
+	ObjectFactory::RegisterPrefabBase<Powerup>(10 /*TODO: Make this bigger or have hard set cap?*/);
 	Console::WriteLine << "Prefab base registered......";
 
 	ObjectFactory::RegisterManager<Mesh, MeshManager>(rendInter->GetMeshManager());
@@ -290,6 +291,8 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	TypeMap::RegisterObjectAlias<PDA>("PDA");
 	TypeMap::RegisterObjectAlias<Monitor>("Monitor");
 	TypeMap::RegisterObjectAlias<Door>("Door");
+	TypeMap::RegisterObjectAlias<Wall>("Wall");
+	TypeMap::RegisterObjectAlias<Powerup>("Powerup");
 
 	TypeMap::RegisterObjectAlias<DisplayBoard>("DisplayBoard");
 	TypeMap::RegisterObjectAlias<DisplayBoard_Move>("DisplayBoard_Move");
@@ -462,7 +465,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	UNREFERENCED_PARAMETER(hPrevInstance); UNREFERENCED_PARAMETER(lpCmdLine);
 
 	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_GHOSTBAIT));
-
+	
 	Setup(hInstance, nCmdShow);
 
 	MSG msg;
@@ -471,9 +474,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			if(msg.message == WM_QUIT) { break; }
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-		}
-		else {
+		} else {
 			Loop();
+			wnd.UpdateTitle(std::to_wstring(GhostTime::FrameRate()));
 		}
 	}
 

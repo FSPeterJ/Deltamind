@@ -57,7 +57,7 @@ class Player : public GameObject, public Controlable {
 
 	void ChangeStance(Stance newStance);
 	void GodDetected();
-	void GiveTransform(EventMessageBase* e);
+	void GivePlayer(EventMessageBase* e);
 public:
 	CastObject teleportArc;
 	ControllerObject *leftController = 0, *rightController = 0;

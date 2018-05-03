@@ -15,22 +15,22 @@ void Emitter::AddMaterial(Material * mat) {
 
 
 void Emitter::Update() {
+	//float dt = (float)GhostTime::DeltaTime();
 	float dt = (float)GhostTime::DeltaTime();
 	age += dt;
 	if(lifespan && age > lifespan) {
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
-
 	}
 	if(parentObject) {
 		transform.matrix = parentObject->transform.matrix;
 	}
 	mainData.Position = transform.GetPosition();
-	mainData.emissionOverflow = previousOverflow;
-	if(mainData.emissionIntervalSec >= mainData.emissionOverflow + dt) {
+	mainData.EmissionOverflow = previousOverflow;
+	if(mainData.EmissionRateInterval >= mainData.EmissionOverflow + dt) {
 		previousOverflow += dt;
 	}
 	else {
-		previousOverflow = fmodf((mainData.emissionOverflow + dt), mainData.emissionIntervalSec);
+		previousOverflow = fmodf((mainData.EmissionOverflow + dt), mainData.EmissionRateInterval);
 	}
 
 }

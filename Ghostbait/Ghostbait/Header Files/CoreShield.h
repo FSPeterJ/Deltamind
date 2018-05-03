@@ -4,6 +4,7 @@
 class CoreShield : public GameObject {
 	void Update();
 public:
+	CoreShield();
 	void OnCollision(GameObject* other);
 
 	void Enable() override {

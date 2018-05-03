@@ -1,9 +1,11 @@
-#include "Particle_Definitions.hlsl"
+#include "../Particle_Definitions.hlsl"
 
 //The draw call to this shader should have no input layout elements as the data is in GPU buffers
 
 StructuredBuffer<Particle> ParticleBuffer : register(t10);
 StructuredBuffer<float2> SortedParticleIndex : register(t11);
+StructuredBuffer<uint> ActiveIndexBuffer : register(t12);
+StructuredBuffer<uint> InactiveIndexBuffer : register(t13);
 
 
 cbuffer ModelViewProjectionConstantBuffer : register(b0)
@@ -25,16 +27,19 @@ VSOutput main(uint particleIndex : SV_VertexID)
 {
 
     VSOutput output = (VSOutput) 0;
-    uint sortedIndex = asuint(SortedParticleIndex[particleIndex].y); // Adjust this later when sorting is added
+    uint sortedIndex = ActiveIndexBuffer[particleIndex]; // Adjust this later when sorting is added
     Particle BParticle = ParticleBuffer[sortedIndex];
 
     //This can be optimized by computing the view space data beforehand in a compute shader
     //output.pos = mul(float4(BParticle.position, 1.0f), view);
     output.pos = float4(BParticle.position, 1.0f);
+    output.pos.y = 3;
+    output.pos.z = 1;
+
+    output.pos.x = particleIndex * 0.5; /*(DEBUG_MAX_PARTICLES - 1 - particleIndex) * 0.5f;*/
     output.size = BParticle.size; // Temporary, change later
     output.texturedata = BParticle.texturedata;
     output.rotation = BParticle.rotation;
-    //output.rotation = 1.0f;
     output.color = BParticle.color;
     return output;
 }

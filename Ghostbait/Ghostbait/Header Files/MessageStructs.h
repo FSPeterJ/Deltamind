@@ -52,6 +52,9 @@ enum Control {
 	TestInputL,
 	TestInputX,
 	TestInputR,
+	TestInputV,
+	TestInputB,
+	TestInputN,
 
 
 	GodMode,

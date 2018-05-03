@@ -8,7 +8,7 @@
 #include "HexGrid.h"
 #include "BuildTool.h"
 #include "DebugRenderer.h"
-
+#include "Console.h"
 
 Player::Player() {
 	Enable();
@@ -17,11 +17,12 @@ Player::Player() {
 	VRManager::GetInstance().Init(&transform);
 	transform.SetPosition(0, 1.7f, 0);
 	transform.LookAt({ 0, 1.7f, 1 });
+	//gestureManager = GestureManager(10, 10);
 	MessageEvents::Subscribe(EVENT_God, [=](EventMessageBase* e) {this->GodDetected(); });
-	MessageEvents::Subscribe(EVENT_GetPlayer, [=](EventMessageBase* e) {this->GiveTransform(e); });
+	MessageEvents::Subscribe(EVENT_GetPlayer, [=](EventMessageBase* e) {this->GivePlayer(e); });
 }
 
-void Player::GiveTransform(EventMessageBase* e) {
+void Player::GivePlayer(EventMessageBase* e) {
 	GetPlayerMessage* message = (GetPlayerMessage*)e;
 	Player const** data = message->RetrieveData();
 	(*data) = this;
@@ -67,7 +68,23 @@ void Player::Update() {
 
 	if (IsVR()) {
 		transform.SetMatrix(VRManager::GetInstance().GetPlayerPosition());
-		
+		//if (KeyIsDown(leftCyclePrefab) && KeyIsDown(rightCyclePrefab)) {
+		//	gestureManager.StartRecording();
+		//	ResetKey(leftCyclePrefab);
+		//	ResetKey(rightCyclePrefab);
+		//}
+		//gestureManager.Record();
+		//if (gestureManager.FinishedRecording()) {
+		//	switch (gestureManager.GetLastGesture()) {
+		//		case Gesture::GESTURE_ArmCross:
+		//			Common::Console::WriteLine << "Gesture recognized as arm cross.";
+		//			break;
+		//		case Gesture::GESTURE_None:
+		//			Common::Console::WriteLine << "Gesture recognized as nothing.";
+		//			break;
+		//	}
+		//}
+
 		if (IsGod()) {
 			//Fly
 			if (KeyIsDown(Control::teleportDown)) {
@@ -190,7 +207,7 @@ void Player::Update() {
 			DirectX::XMFLOAT3 direction = { 0, -1, 0 };
 			DirectX::XMFLOAT3 end;
 			HexTile* tile = grid->PointToTile(DirectX::XMFLOAT2(transform.GetPosition().x, transform.GetPosition().z));
-			if (Raycast(&start, direction, &end, nullptr, nullptr, 100, "Ground") && tile && !grid->IsBlocked(tile)) {
+			if (Raycast(&start, direction, &end, nullptr, nullptr, 10, "Ground") && tile && !grid->IsBlocked(tile)) {
 				DirectX::XMFLOAT4X4 newPos = transform.GetMatrix();
 				newPos._42 = end.y + playerHeight;
 				transform.SetMatrix(newPos);

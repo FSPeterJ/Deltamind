@@ -1,4 +1,4 @@
-#include "Particle_Definitions.hlsl"
+#include "../Particle_Definitions.hlsl"
 
 //The draw call to this shader should have no input layout elements as the data is in GPU buffers
 
@@ -31,10 +31,13 @@ VSOutput main(uint particleIndex : SV_VertexID)
     //This can be optimized by computing the view space data beforehand in a compute shader
     //output.pos = mul(float4(BParticle.position, 1.0f), view);
     output.pos = float4(BParticle.position, 1.0f);
+    output.pos.y = 2.0f;
+    output.pos.x = particleIndex * 0.5; /*(DEBUG_MAX_PARTICLES - 1 - particleIndex) * 0.5f;*/
+    output.pos.z = 1;
+
     output.size = BParticle.size; // Temporary, change later
     output.texturedata = BParticle.texturedata;
     output.rotation = BParticle.rotation;
-    //output.rotation = 1.0f;
     output.color = BParticle.color;
     return output;
 }

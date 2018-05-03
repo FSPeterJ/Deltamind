@@ -37,7 +37,7 @@ void Projectile::Update() {
 
 void Projectile::OnCollision(GameObject* object) {
 	gameObjMutex.lock();
-	if (isDestroying || strcmp(object->GetTag().c_str(), "Turret") == 0 || strcmp(object->GetTag().c_str(), "Bullet") == 0) {
+	if (isDestroying || strcmp(object->GetTag().c_str(), "Turret") == 0 || strcmp(object->GetTag().c_str(), "Bullet") == 0 || strcmp(object->GetTag().c_str(), "Controller") == 0) {
 		gameObjMutex.unlock();
 		return;
 	}

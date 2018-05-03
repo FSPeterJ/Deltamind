@@ -33,8 +33,10 @@ cbuffer EmitterConstantBuffer : register(b3)
     float ParticleLifeSpan;
     uint TextureIndex;
 
-    float4 startColor;
-    float4 endColor;
+    float4 startColorA;
+    float4 startColorB;
+    float4 endColorA;
+    float4 endColorB;
 
     float rotationVarience;
     uint properties;
@@ -42,7 +44,7 @@ cbuffer EmitterConstantBuffer : register(b3)
     float yAngleVariance;
 
     float emissionOverflow;
-    float EmissionCount;
+    uint EmissionCount;
     float Mass;
     uint PerEmission;
 
@@ -57,7 +59,8 @@ cbuffer EmitterConstantBuffer : register(b3)
 
 
 [numthreads(1024, 1, 1)]
-void main(uint3 DThreadID : SV_DispatchThreadID)
+void main(  uint3 DThreadID : SV_DispatchThreadID,
+            uint GroupIndex : SV_GroupIndex)
 {
 
     //0.001
@@ -68,13 +71,14 @@ void main(uint3 DThreadID : SV_DispatchThreadID)
     float totalTime = FrameTime + emissionOverflow;
     //Stop other threads from attempting to process particle emissions if there are none left to process
     if (DThreadID.x < InactiveParticleCount && emTimestamp < totalTime )
+    //if (DThreadID.x < InactiveParticleCount && ToEmit < GroupIndex)
     {
         Particle particle = (Particle) 0;
         float3 randomPosition;
 
         particle.mass = Mass;
 
-        float2 uv = float2(DThreadID.x / 1024.0f, ElapsedTime);
+        float2 uv = float2(DThreadID.x / 1024.0f - ElapsedTime, ElapsedTime);
         float randomAnglesx = RandomNumbers.SampleLevel(SamplerWrapLinear, uv, 0).x;
         float randomAnglesy = RandomNumbers.SampleLevel(SamplerWrapLinear, uv, 0).y;
 
@@ -96,6 +100,7 @@ void main(uint3 DThreadID : SV_DispatchThreadID)
         particle.velocity = VelocityMagnatude * randomDirection;
         particle.position = Position + particle.velocity * (emissionRateMS * threadBatch - emissionRateMS);
         particle.age = ParticleLifeSpan;
+        particle.rotation = randomAnglesx + randomAnglesy;
         //-(emissionRateMS * threadBatch + emissionRateMS);
 
 
@@ -104,8 +109,8 @@ void main(uint3 DThreadID : SV_DispatchThreadID)
         particle.endSize = EndSize;
         particle.texturedata = TextureIndex;
 
-        particle.startColor = startColor;
-        particle.endColor = endColor;
+        particle.startColor = lerp(startColorA, startColorB, randomAnglesy);
+        particle.endColor = lerp(endColorA, endColorB, randomAnglesx);
 
 
         particle.Gravity = Gravity;
@@ -113,9 +118,6 @@ void main(uint3 DThreadID : SV_DispatchThreadID)
         particle.acceleration = acceleration;
 
 
-
-
-        
         uint index = InactiveParticleIndex.DecrementCounter(); //Decrement returns POST-decrement value 
         uint particleindex = InactiveParticleIndex[index];
 

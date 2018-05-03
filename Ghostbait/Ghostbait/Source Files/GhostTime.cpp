@@ -8,6 +8,7 @@ double GhostTime::sloMoSpeed = 0.25;
 double GhostTime::timeScaleDuration;
 double GhostTime::lerpDuration;
 double GhostTime::currentTimeScaleTime = 0;
+bool GhostTime::paused = false;
 GhostTime::State GhostTime::state = Normal;
 
 void GhostTime::Initalize() {
@@ -21,8 +22,10 @@ void GhostTime::SetState(State _state) {
 	state = _state;
 	switch (state) {
 		case Normal:
+			timeScale = 1;
 			break;
 		case SloMo:
+			timeScale = sloMoSpeed;
 			currentTimeScaleTime = timeScaleDuration;
 			break;
 		case LerpIn:
@@ -34,6 +37,7 @@ void GhostTime::SetState(State _state) {
 
 void GhostTime::Tick() { 
 	timer.Signal(); 
+	if (paused) return;
 	switch (state) {
 		case Normal:
 			break;
@@ -72,8 +76,20 @@ __int64 GhostTime::Duration(Moment start, Moment end) {
 void GhostTime::ToggleSloMo(double _timeScaleDuration, double _lerpDuration) {
 	timeScaleDuration = _timeScaleDuration;
 	lerpDuration = _lerpDuration;
-	if (state == Normal || state == LerpOut)
-		SetState(LerpIn);
-	else
-		SetState(LerpOut);
+	if (state == Normal || state == LerpOut) SetState(LerpIn);
+	else SetState(LerpOut);
+}
+void GhostTime::TurnOnSloMo(double _timeScaleDuration, double _lerpDuration) {
+	timeScaleDuration = _timeScaleDuration;
+	lerpDuration = _lerpDuration;
+	if (state == LerpIn) return;
+	else if (state == Normal || state == LerpOut) SetState(LerpIn);
+	else SetState(SloMo);
+}
+void GhostTime::TurnOffSloMo(double _timeScaleDuration, double _lerpDuration) {
+	timeScaleDuration = _timeScaleDuration;
+	lerpDuration = _lerpDuration;
+	if (state == LerpOut) return;
+	else if (state == SloMo || state == LerpIn) SetState(LerpIn);
+	else SetState(Normal);
 }

@@ -344,16 +344,15 @@ void ParticleManager::RenderParticles() {
 	context->VSSetShaderResources(10, 4, SRV);
 
 	context->CopyStructureCount(IndirectDrawArgsBuffer, 0, ActiveParticleIndexUAV);
-	//context->DrawInstancedIndirect(IndirectDrawArgsBuffer, 0);
-	context->Draw(MAX_PARTICLES, 0);
-	context->VSSetShader(VertexShader_DEBUG, NULL, NULL);
-	context->Draw(MAX_PARTICLES, 0);
-	context->VSSetShader(VertexShader_DEBUG1, NULL, NULL);
-	context->Draw(MAX_PARTICLES, 0);
-	context->VSSetShader(VertexShader_DEBUG2, NULL, NULL);
-	context->Draw(MAX_PARTICLES, 0);
-	context->VSSetShader(VertexShader_DEBUG3, NULL, NULL);
-	context->Draw(MAX_PARTICLES, 0);
+	context->DrawInstancedIndirect(IndirectDrawArgsBuffer, 0);
+	//context->VSSetShader(VertexShader_DEBUG, NULL, NULL);
+	//context->Draw(MAX_PARTICLES, 0);
+	//context->VSSetShader(VertexShader_DEBUG1, NULL, NULL);
+	//context->Draw(MAX_PARTICLES, 0);
+	//context->VSSetShader(VertexShader_DEBUG2, NULL, NULL);
+	//context->Draw(MAX_PARTICLES, 0);
+	//context->VSSetShader(VertexShader_DEBUG3, NULL, NULL);
+	//context->Draw(MAX_PARTICLES, 0);
 	context->GSSetShader(nullptr, NULL, NULL);
 
 	//context->VSSetShaderResources(10, 2, SRV);
@@ -495,7 +494,7 @@ ParticleManager::~ParticleManager() {
 
 void ParticleManager::Update() {
 
-	float dt = (float)GhostTime::DeltaTimeDebug();
+	float dt = (float)GhostTime::DeltaTime();
 	//float dt = 0.1f;
 
 	//Map emitters and fire off Emit shader
@@ -588,9 +587,9 @@ void ParticleManager::Update() {
 	// it is faster to use the copy count -> process into threadgroup and dispatch indirect.
 	// This should be profiled to see.
 	context->CSSetShader(ParticleUpdateShader, nullptr, 0);
-	//context->DispatchIndirect(DispatchIndirectArgsBuffer, 0);
-	context->Dispatch(1, 1, 1);
-
+	context->DispatchIndirect(DispatchIndirectArgsBuffer, 0);
+	//context->Dispatch(1, 1, 1);
+	context->CopyStructureCount(DispatchIndirectArgsBuffer, 0, ActiveParticleIndexUAV);
 
 
 
@@ -610,17 +609,8 @@ void ParticleManager::Sort() const {
 	context->Dispatch(1, 1, 1);
 
 	context->CSSetShader(ParticleSortInitialShader, nullptr, 0);
-	context->Dispatch(1, 1, 1);
-	//context->DispatchIndirect(DispatchIndirectArgsBuffer, 0);
+	context->DispatchIndirect(DispatchIndirectArgsBuffer, 0);
 
-	//This looks terrible
-	//bool bDone = sortInitial();
-
-	//int presorted = 512;
-	//while(!bDone) {
-	//	bDone = sortIncremental(presorted);
-	//	presorted *= 2;
-	//}
 
 
 }
@@ -715,9 +705,9 @@ void ParticleManager::InitEmitters() {
 
 	ZeroMemory(emitter, sizeof(Emitter));
 	emitter->mainData.StartSize = 0;
-	emitter->mainData.EndSize = 0.05f;
+	emitter->mainData.EndSize = 0.02f;
 	//emitter->materials[0] = matman->GetReferenceComponent("Assets/exitOption.mat", nullptr);
-	emitter->mainData.ParticleLifeSpan = 3.0f;
+	emitter->mainData.ParticleLifeSpan = 1.5f;
 	//emitter->mainData.Velocity = DirectX::XMFLOAT3(0, 0, 10.0f);
 	emitter->mainData.VelocityMagnatude = 1;
 	emitter->mainData.Position = emitter->transform.GetPosition();
@@ -725,15 +715,16 @@ void ParticleManager::InitEmitters() {
 	emitter->mainData.EmissionRateInterval = 1.0f;
 	emitter->mainData.EmissionsPerInterval = 1;
 	emitter->mainData.StartColor = DirectX::XMFLOAT4(1.0f, 0.6f, 0.2f, 1.0f);
-	emitter->mainData.EndColor = DirectX::XMFLOAT4(1.0f, 0.6f, 0.2f, 1.0f);
+	emitter->mainData.EndColor = DirectX::XMFLOAT4(1.0f, 0.6f, 0.2f, 0.0f);
 	emitter->lifespan = 4;
-	emitter->mainData.xAngleVariance = 0.5f;
-	emitter->mainData.yAngleVariance = 2;
+	emitter->mainData.xAngleVariance = 0.0f;
+	emitter->mainData.yAngleVariance = 0.0;
 	emitter->mainData.mass = 0.5f;
-	emitter->mainData.perInterval = 1;
+	emitter->mainData.perInterval = 10;
 	emitter->mainData.properties = HASGRAVITY;
 	emitter->mainData.Gravity = DirectX::XMFLOAT3(0.0f, -9.81f, 0.0f);
-	emitter->lifespan = 0.0f;
+	//emitter->mainData.Gravity = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	emitter->lifespan = 0.5f;
 	emitter->previousOverflow = emitter->mainData.EmissionRateInterval;
 }
 

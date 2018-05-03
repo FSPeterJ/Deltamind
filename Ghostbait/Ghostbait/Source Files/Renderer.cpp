@@ -182,6 +182,7 @@ void Renderer::releaseDeferredTarget(DeferredRTVs * in) {
 }
 
 void Renderer::combineDeferredTargets(DeferredRTVs * in, ID3D11RenderTargetView * rtv, ID3D11DepthStencilView * dsv, D3D11_VIEWPORT & viewport) {
+
 	context->PSSetSamplers(0, 1, &LinearSamplerState);
 	blurTexture(viewport, in->textures[1], in->SRVs[1], 6, in->RTVs[1], in->DSV);
 	context->PSSetSamplers(0, 1, &PointSamplerState);
@@ -887,7 +888,7 @@ void Renderer::Render() {
 	//	//if(graphicsAnalysis && countCapture == 0)
 	//		graphicsAnalysis->BeginCapture();
 	//#endif
-	perFrameDataConstantBuffer.FrameTime = (float)GhostTime::DeltaTimeDebug();
+	perFrameDataConstantBuffer.FrameTime = (float)GhostTime::DeltaTime();
 	perFrameDataConstantBuffer.lastElapsed = perFrameDataConstantBuffer.ElapsedTime;
 	perFrameDataConstantBuffer.ElapsedTime += perFrameDataConstantBuffer.FrameTime;
 
@@ -934,38 +935,42 @@ void Renderer::Render() {
 #endif
 	context->PSSetConstantBuffers(2, 1, &uvDataBuffer);
 
-	//for(size_t i = 0; i < renderedObjects.size(); ++i) {
-	//	renderObjectDefaultState(renderedObjects[i]);
-	//}
+	for(size_t i = 0; i < renderedObjects.size(); ++i) {
+		renderObjectDefaultState(renderedObjects[i]);
+	}
 
-	//for(size_t i = 0; i < transparentObjects.size(); ++i) {
-	//	renderObjectDefaultState(transparentObjects[i]);
-	//}
-	////particleManager->RenderParticles();
+	for(size_t i = 0; i < transparentObjects.size(); ++i) {
+		renderObjectDefaultState(transparentObjects[i]);
+	}
+	particleManager->UpdateParticles();
+	context->OMSetBlendState(particleBlendState, 0, 0xffffffff);
+
 	particleManager->RenderParticles();
 
-	//context->VSSetShader(StandardVertexShader, NULL, NULL);
+	context->OMSetBlendState(defaultPipeline.blend_state, 0, 0xffffffff);
 
-	//context->ClearDepthStencilView(deferredTextures.DSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	//for(size_t i = 0; i < frontRenderedObjects.size(); ++i) {
-	//	renderObjectDefaultState(frontRenderedObjects[i]);
-	//}
+
+	context->VSSetShader(StandardVertexShader, NULL, NULL);
+
+	context->ClearDepthStencilView(deferredTextures.DSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	for(size_t i = 0; i < frontRenderedObjects.size(); ++i) {
+		renderObjectDefaultState(frontRenderedObjects[i]);
+	}
 
 	viewProjectionConstantBuffer buff;
-	/*	if(VRManager::GetInstance().IsEnabled()) {
+	if(VRManager::GetInstance().IsEnabled()) {
 		XMStoreFloat4x4(&buff.view, XMMatrixInverse(nullptr, XMLoadFloat4x4(&leftEye.camera.view)));
 		XMStoreFloat4x4(&buff.projection, XMMatrixInverse(nullptr, XMLoadFloat4x4(&leftEye.camera.projection)));
 	}
-	else*/
-	{
+	else {
 		XMStoreFloat4x4(&buff.view, XMMatrixInverse(nullptr, XMLoadFloat4x4(&defaultCamera.view)));
 		XMStoreFloat4x4(&buff.projection, XMMatrixInverse(nullptr, XMLoadFloat4x4(&defaultCamera.projection)));
 	}
 	context->UpdateSubresource(cameraBuffer, NULL, NULL, &buff, NULL, NULL);
 	combineDeferredTargets(&deferredTextures, defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view, defaultPipeline.viewport);
-	//if(!VRManager::GetInstance().IsEnabled()) {
-	//	defaultHUD->Draw(context, defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view);
-	//}
+	if(!VRManager::GetInstance().IsEnabled()) {
+		defaultHUD->Draw(context, defaultPipeline.render_target_view, defaultPipeline.depth_stencil_view);
+	}
 
 	swapchain->Present(0, 0);
 #if _DEBUG
@@ -1025,6 +1030,18 @@ void Renderer::initBlendState(pipeline_state_t * pipelineTo) {
 	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
 	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
 	device->CreateBlendState(&blendDesc, &additiveBlendState);
+
+
+	//blendDesc.RenderTarget[0].BlendEnable = TRUE;
+	//blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	//blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	//blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	//blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	//blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	//blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	//blendDesc.RenderTarget[0].RenderTargetWriteMask = 0x0f;
+	//device->CreateBlendState(&blendDesc, &particleBlendState);
+
 }
 
 void Renderer::initRasterState(pipeline_state_t * pipelineTo, bool wireFrame) {

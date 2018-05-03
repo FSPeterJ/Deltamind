@@ -1,6 +1,6 @@
 //Note: This file is configured to act as a header file, but named as hlsl for extension support.
 
-#define DEBUG_MAX_PARTICLES 8
+#define DEBUG_MAX_PARTICLES 512
 //To optimize this further, split the calculation data from the render data into seperate buffers
 // It is important that 16 byte alignment is maintained.
 //https://developer.nvidia.com/content/understanding-structured-buffer-performance

@@ -16,7 +16,7 @@ void Emitter::AddMaterial(Material * mat) {
 
 void Emitter::Update() {
 	//float dt = (float)GhostTime::DeltaTime();
-	float dt = (float)GhostTime::DeltaTimeDebug();
+	float dt = (float)GhostTime::DeltaTime();
 	age += dt;
 	if(lifespan && age > lifespan) {
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {Destroy(); });
@@ -39,7 +39,7 @@ void Emitter::Update() {
 void Emitter::Enable() {
 	enabled = true;
 	if(!updateID) {
-		updateID = EngineStructure::DebugUpdate.Add([=]() { Update(); });
+		updateID = EngineStructure::Update.Add([=]() { Update(); });
 	}
 }
 // Will disable the object after Update main loop is complete
@@ -48,7 +48,7 @@ void Emitter::Disable() {
 	assert(updateID != 0);
 	MessageEvents::SendQueueMessage(EVENT_Late, [=] {
 		if(updateID != 0) {
-			EngineStructure::DebugUpdate.Remove(updateID);
+			EngineStructure::Update.Remove(updateID);
 			updateID = 0;
 		}
 	});

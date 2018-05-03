@@ -82,7 +82,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	_Pool_Base::RegisterMemory(&MemMan);
 	Console::WriteLine << "App has been initalized!";
-	
+
 	//=============================
 	//Multithreading Test
 	//=============================
@@ -104,7 +104,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	rendInter = new Renderer();
 	audioMan = new AudioManager();
-	
+
 	player = new Player();
 	if(player->IsVR()) {
 		rendInter->Initialize(wnd, &player->transform);
@@ -125,7 +125,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	Console::WriteLine << "Nothing's wrong here......";
 
 	scrollMan = new ScrollingUVManager();
-	if (scrollMan) Console::WriteLine << "Scrolling UV Manager initialized......";
+	if(scrollMan) Console::WriteLine << "Scrolling UV Manager initialized......";
 	animMan = new AnimatorManager(rendInter->getAnimationManager());
 	if(animMan) Console::WriteLine << "Animation Manager initialized......";
 	phyMan = new PhysicsManager();
@@ -326,7 +326,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//ObjectFactory::CreatePrefab(&std::string("Assets/Laser.ghost"), "Projectile");
 	ObjectFactory::CreatePrefab(&std::string("Assets/Spawner.ghost"), "Spawner");
 	ObjectFactory::CreatePrefab(&std::string("Assets/EnemyRobot.ghost"), "TestEnemy");
-//	ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"), "startCube");
+	//	ObjectFactory::CreatePrefab(&std::string("Assets/StartCube.ghost"), "startCube");
 	ObjectFactory::CreatePrefab(&std::string("Assets/Core.ghost"), "Core");
 	ObjectFactory::CreatePrefab(&std::string("Assets/WinCube.ghost"), "WinCube");
 	ObjectFactory::CreatePrefab(&std::string("Assets/LoseCube.ghost"), "LoseCube");
@@ -353,38 +353,25 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	ObjectFactory::CreatePrefab(&std::string("Assets/MTDSLEnemy.ghost"), "MTDSLEnemy");
 
 	ObjectFactory::CreatePrefab(&std::string("Assets/TransparencyTest.ghost"), "Ttest");
-	
+
 	Console::WriteLine << "Prefabs created......";
 	//=============================
 
 	player->InitControllers();
 
 
-	//GameObject* teddy;
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage(11, {0, 0, 0}, &teddy));
-	//teddy->GetComponent<Animator>()->setState("Walk");
+
 
 	//********************* PHYSICS TEST CODE **********************************
 	PhysicsTestObj *test1;
 	MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { -1.0f, 2.0f, 1.0f }, &test1));
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { 3.0f, 2.0f, 1.0f }, &test2));
-	//DirectX::XMStoreFloat4x4(&test1->position, DirectX::XMLoadFloat4x4(&test1->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest3", { 0.0f, 1.0f, 0.0f }, &test2));
-	//DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest2", { 2.0f, 2.0f, 0.0f }, &test2));
-	//DirectX::XMStoreFloat4x4(&test2->position, DirectX::XMLoadFloat4x4(&test2->position) * DirectX::XMMatrixRotationRollPitchYaw(0.5f, 0.5f, 0.5f));
-	//MessageEvents::SendMessage(EVENT_InstantiateRequestByName_DEBUG_ONLY, InstantiateNameMessage<PhysicsTestObj>("PhyTest1", { -2.0f, 2.0f, 0.0f }, nullptr));
-	
+
+
 	((PhysicsTestObj*)test1)->isControllable = true;
 	((PhysicsTestObj*)test1)->isRayCasting = true;
 	test1->PersistOnReset();
 	test1->AnExtremelyBadTemporaryFunction(rendInter->GetParticleManager(), rendInter->GetMaterialManager());
 	test1->Enable();
-	/*((PhysicsTestObj*)test2)->isControllable = true;
-	((PhysicsTestObj*)test2)->isRayCasting = true;
-	test2->PersistOnReset();
-	test2->AnExtremelyBadTemporaryFunction(rendInter->GetParticleManager(), rendInter->GetMaterialManager());
-	test2->Enable();*/
 
 
 
@@ -398,7 +385,6 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	game->Start(player, &engine, rendInter->getHud());
 	player->transform.SetPosition(2, 1, -3.0f);
 	MessageEvents::SendMessage(EVENT_God, EventMessageBase());
-	//game->Start(player, &engine, "level0", "Level Files//level0_hard.xml");
 }
 
 void Loop() {
@@ -419,7 +405,7 @@ void Loop() {
 	//ThreadPool::CreateMemberJob<void>(scrollMan, &ScrollingUVManager::Update);
 	//ThreadPool::CreateMemberJob<void>(rendInter, &Renderer::Render);
 
-	if (!game->IsPaused()) {
+	if(!game->IsPaused()) {
 		phyMan->Update();
 		audioMan->Update();
 

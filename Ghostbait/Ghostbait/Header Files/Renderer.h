@@ -103,21 +103,18 @@ private:
 		ID3D11ShaderResourceView* srv;
 	};
 
-	struct blurData
-	{
+	struct blurData {
 		DirectX::XMFLOAT2 dir;
 		float width;
 		float height;
 	};
 
-	struct uvOffsetData
-	{
+	struct uvOffsetData {
 		DirectX::XMFLOAT2 offsets = DirectX::XMFLOAT2(0.0f, 0.0f);
 		DirectX::XMFLOAT2 padding;
 	};
 
-	struct gammaData
-	{
+	struct gammaData {
 		float gamma;
 		DirectX::XMFLOAT3 padding; //I hate this
 	};
@@ -167,6 +164,7 @@ private:
 
 	pipeline_state_t defaultPipeline;
 	ID3D11BlendState* additiveBlendState;
+	ID3D11BlendState* particleBlendState;
 	Transform* cameraPos;
 	viewProjectionConstantBuffer defaultCamera;
 	animDataBufferStruct cpuAnimationData;

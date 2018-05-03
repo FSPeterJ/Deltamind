@@ -26,7 +26,7 @@ groupshared float2 g_LDS[SORT_SIZE];
 
 
 //[numthreads(NUM_THREADS, 1, 1)]
-[numthreads(16, 1, 1)]
+[numthreads(512, 1, 1)]
 void main(uint3 Gid : SV_GroupID,
 					 uint3 DTid : SV_DispatchThreadID,
 					 uint3 GTid : SV_GroupThreadID,

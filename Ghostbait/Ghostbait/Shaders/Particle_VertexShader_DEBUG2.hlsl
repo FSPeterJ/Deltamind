@@ -33,7 +33,9 @@ VSOutput main(uint particleIndex : SV_VertexID)
     //This can be optimized by computing the view space data beforehand in a compute shader
     //output.pos = mul(float4(BParticle.position, 1.0f), view);
     output.pos = float4(BParticle.position, 1.0f);
-    output.pos.y += 3;
+    output.pos.y = 3;
+    output.pos.z = 1;
+
     output.pos.x = particleIndex * 0.5; /*(DEBUG_MAX_PARTICLES - 1 - particleIndex) * 0.5f;*/
     output.size = BParticle.size; // Temporary, change later
     output.texturedata = BParticle.texturedata;

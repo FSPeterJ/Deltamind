@@ -9,8 +9,10 @@
 #include "Emitter.h"
 #include "MessageStructs.h"
 
-#define MAX_PARTICLES 8 
-#define MAX_REFERENCE_PARTICLES 100
+#define MAX_REFERENCE_EMITTERS 10
+
+#define MAX_PARTICLES 512 
+
 class ParticleManager: public IComponentManager {
 
 	struct EmitterConstant {
@@ -115,7 +117,7 @@ class ParticleManager: public IComponentManager {
 	};
 
 	Pool<Emitter> emitterPool = Pool<Emitter>(MAX_PARTICLES);
-	Pool<Emitter> referenceEmitterPool = Pool<Emitter>(MAX_REFERENCE_PARTICLES);
+	Pool<Emitter> referenceEmitterPool = Pool<Emitter>(MAX_REFERENCE_EMITTERS);
 
 	ID3D11Device* device = nullptr;
 	ID3D11DeviceContext* context = nullptr;

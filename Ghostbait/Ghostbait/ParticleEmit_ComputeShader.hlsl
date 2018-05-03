@@ -76,7 +76,7 @@ void main(  uint3 DThreadID : SV_DispatchThreadID,
 
         particle.mass = Mass;
 
-        float2 uv = float2(DThreadID.x / 1024.0f, ElapsedTime);
+        float2 uv = float2(DThreadID.x / 1024.0f - ElapsedTime, ElapsedTime);
         float randomAnglesx = RandomNumbers.SampleLevel(SamplerWrapLinear, uv, 0).x;
         float randomAnglesy = RandomNumbers.SampleLevel(SamplerWrapLinear, uv, 0).y;
 
@@ -98,6 +98,7 @@ void main(  uint3 DThreadID : SV_DispatchThreadID,
         particle.velocity = VelocityMagnatude * randomDirection;
         particle.position = Position + particle.velocity * (emissionRateMS * threadBatch - emissionRateMS);
         particle.age = ParticleLifeSpan;
+        particle.rotation = randomAnglesx + randomAnglesy;
         //-(emissionRateMS * threadBatch + emissionRateMS);
 
 

@@ -87,7 +87,7 @@ void Game::EnemyDiedEvent() {
 	}
 }
 void Game::NextLogoEvent() {
-	if (gameData.ssManager.NextLogoExists())
+	if(gameData.ssManager.NextLogoExists())
 		gameData.ssManager.MoveToNextLogo();
 	else
 		StartEvent();
@@ -100,7 +100,7 @@ void Game::StartEvent(EventMessageBase* e) {
 		{
 			splashScreenMenu.Hide();
 			std::string levelName = "";
-			if (starter)
+			if(starter)
 				levelName = starter->RetrieveLevelName();
 			char* sceneName = new char[gameData.ssManager.GetNextScene().length() + 1];
 			memcpy(sceneName, gameData.ssManager.GetNextScene().c_str(), gameData.ssManager.GetNextScene().length() + 1);
@@ -114,7 +114,7 @@ void Game::StartEvent(EventMessageBase* e) {
 		case GAMESTATE_MainMenu:
 		{
 			std::string levelName = "";
-			if (starter)
+			if(starter)
 				levelName = starter->RetrieveLevelName();
 			ChangeState(GAMESTATE_BetweenWaves);
 			ChangeScene("level0", levelName);
@@ -126,9 +126,9 @@ void Game::StartEvent(EventMessageBase* e) {
 }
 void Game::CoreSetup(EventMessageBase* e) {
 	const Core* core = *(((CoreMessage*)e)->RetrieveData());
-	
+
 	HexPath spire = hexGrid.Spiral(hexGrid.PointToTile({ core->transform.matrix._41, core->transform.matrix._43 }), core->gridRadius).ToGrid(&hexGrid);
-	for (std::size_t i = 0; i < spire.size(); ++i) {
+	for(std::size_t i = 0; i < spire.size(); ++i) {
 		hexGrid.AddObstacle(spire[i]);
 	}
 }
@@ -136,7 +136,7 @@ void Game::CoreRemoval(EventMessageBase* e) {
 	const Core* core = *(((CoreMessage*)e)->RetrieveData());
 
 	HexPath spire = hexGrid.Spiral(hexGrid.PointToTile({ core->transform.matrix._41, core->transform.matrix._43 }), core->gridRadius).ToGrid(&hexGrid);
-	for (std::size_t i = 0; i < spire.size(); ++i) {
+	for(std::size_t i = 0; i < spire.size(); ++i) {
 		hexGrid.RemoveObstacle(spire[i]);
 	}
 }
@@ -203,41 +203,39 @@ void Game::ChangeScene(const char* sceneName, std::string levelName) {
 	sceneManager->LoadScene(sceneName, &core);
 
 	//TODO: TEMPORARY main menu code--------
-	if (!strcmp(sceneName, "splashScreen"))
+	if(!strcmp(sceneName, "splashScreen"))
 		SplashScreenLoaded();
 	if(!strcmp(sceneName, "mainMenu"))
 		MainMenuLoaded();
-	if (!strcmp(sceneName, "Tutorial"))
+	if(!strcmp(sceneName, "Tutorial"))
 		TutorialLoaded();
-	if (!strcmp(sceneName, "level0"))
+	if(!strcmp(sceneName, "level0"))
 		Level0Loaded();
-	if (!strcmp(sceneName, "Credits"))
+	if(!strcmp(sceneName, "Credits"))
 		CreditsLoaded();
 
 	//--------------------------------------
 
 	//If it has level/wave data, load it
-	if (sceneManager->GetCurrentScene().levelFiles.size() > 0) {
+	if(sceneManager->GetCurrentScene().levelFiles.size() > 0) {
 		std::string levelFile = std::string("");
-		if (levelName == levelFile)
+		if(levelName == levelFile)
 			levelFile = sceneManager->GetCurrentScene().levelFiles[0];
-		else
-		{
-			for (size_t i = 0; i < sceneManager->GetCurrentScene().levelFiles.size(); ++i)
-			{
-				if (levelName == sceneManager->GetCurrentScene().levelFiles[i])
+		else {
+			for(size_t i = 0; i < sceneManager->GetCurrentScene().levelFiles.size(); ++i) {
+				if(levelName == sceneManager->GetCurrentScene().levelFiles[i])
 					levelFile = sceneManager->GetCurrentScene().levelFiles[i];
 			}
-			if (levelFile.c_str() == "")
+			if(levelFile.c_str() == "")
 				levelFile = sceneManager->GetCurrentScene().levelFiles[0];
 		}
 		irr::io::IrrXMLReader *xmlReader = irr::io::createIrrXMLReader(levelFile.c_str());
 		currLevelName = levelFile;
 
 		WaveManager::Wave* newWave = nullptr;
-		while (xmlReader->read()) {
-			if (xmlReader->getNodeType() == irr::io::EXN_ELEMENT) {
-				if (!strcmp("Level", xmlReader->getNodeName())) {
+		while(xmlReader->read()) {
+			if(xmlReader->getNodeType() == irr::io::EXN_ELEMENT) {
+				if(!strcmp("Level", xmlReader->getNodeName())) {
 					gameData.AddGears(xmlReader->getAttributeValueAsInt("startGears"));
 					gameData.waveManager.SetDifficultyMultiplier(xmlReader->getAttributeValueAsFloat("multiplier"));
 					gameData.SetStateHard(GAMESTATE_BetweenWaves);
@@ -313,7 +311,7 @@ void Game::RestartLevel() {
 	MessageEvents::SendMessage(EVENT_StopAllSounds, EventMessageBase());
 	MessageEvents::SendMessage(EVENT_ReadyToStart, GameDataMessage(&gd));
 	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::PLAY_AMB_02));
-	MessageEvents::SendQueueMessage(EVENT_Late, [=]() { 
+	MessageEvents::SendQueueMessage(EVENT_Late, [=]() {
 		//ThreadPool::ClearQueues(); 
 		ThreadPool::AcceptNonCriticalJobs(true);
 	});
@@ -368,8 +366,7 @@ void Game::ExitToMainMenu() {
 //Main Scene Functions
 void Game::MainMenuLoaded() {
 	worldLight.SetAsDirectional({ 0.5f, 0.5f, 0.5f }, { 0, 0, 1 });
-	for (int i = 0; i < 9; ++i)
-	{
+	for(int i = 0; i < 9; ++i) {
 		tutorialSpots[i].RemoveLightFromManager();
 	}
 	//Create Menu
@@ -403,8 +400,7 @@ void Game::MainMenuLoaded() {
 	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::STOP_AMB_01));
 	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::PLAY_MUSIC_ROBOT_TITLE_INTRO));
 	//Update HUD
-	if (currHUD)
-	{
+	if(currHUD) {
 		currHUD->HideInventory();
 		currHUD->HideWaveInfo();
 	}
@@ -414,11 +410,11 @@ void Game::TutorialLoaded() {
 	tutorialSpots[0].SetAsSpot({ 0.75f, 0.75f, 0.75f }, { 14.0f, 5.0f, -10.0f }, { 0.0f, -1.0f, 0.0f }, 0.9f, 0.8f);
 	tutorialSpots[1].SetAsSpot({ 0.75f, 0.75f, 0.75f }, { 3.0f, 5.0f, -10.0f }, { 0.0f, -1.0f, 0.0f }, 0.9f, 0.8f);
 	tutorialSpots[2].SetAsSpot({ 0.75f, 0.75f, 0.75f }, { 25.0f, 5.0f, -10.0f }, { 0.0f, -1.0f, 0.0f }, 0.9f, 0.8f);
-								 
+
 	tutorialSpots[3].SetAsSpot({ 0.75f, 0.75f, 0.75f }, { 14.0f, 5.0f, -20.0f }, { 0.0f, -1.0f, 0.0f }, 0.9f, 0.8f);
 	tutorialSpots[4].SetAsSpot({ 0.75f, 0.75f, 0.75f }, { 3.0f, 5.0f, -20.0f }, { 0.0f, -1.0f, 0.0f }, 0.9f, 0.8f);
 	tutorialSpots[5].SetAsSpot({ 0.75f, 0.75f, 0.75f }, { 25.0f, 5.0f, -20.0f }, { 0.0f, -1.0f, 0.0f }, 0.9f, 0.8f);
-								 
+
 	tutorialSpots[6].SetAsSpot({ 0.75f, 0.75f, 0.75f }, { 14.0f, 5.0f, -30.0f }, { 0.0f, -1.0f, 0.0f }, 0.9f, 0.8f);
 	tutorialSpots[7].SetAsSpot({ 0.75f, 0.75f, 0.75f }, { 3.0f, 5.0f, -30.0f }, { 0.0f, -1.0f, 0.0f }, 0.9f, 0.8f);
 	tutorialSpots[8].SetAsSpot({ 0.75f, 0.75f, 0.75f }, { 25.0f, 5.0f, -30.0f }, { 0.0f, -1.0f, 0.0f }, 0.9f, 0.8f);
@@ -432,7 +428,7 @@ void Game::TutorialLoaded() {
 		player->leftController->ClearInventory();
 		player->rightController->ClearInventory();
 		//PDA
-		if (player->IsVR()) {
+		if(player->IsVR()) {
 			player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/PDA.ghost")));
 			player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/PDA.ghost")));
 			((PDA*)player->leftController->GetItem(index))->SetHand(HAND_Left);
@@ -465,11 +461,10 @@ void Game::TutorialLoaded() {
 	}
 
 	//Update HUD
-	if (currHUD)
-	{
+	if(currHUD) {
 		currHUD->ShowInventory();
 	}
-	
+
 	//Spawn Target
 	{
 		MessageEvents::SendQueueMessage(EVENT_Late, [=] {
@@ -496,7 +491,7 @@ void Game::TutorialLoaded() {
 	}
 
 	//Light
-	
+
 }
 void Game::Level0Loaded() {
 	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::STOP_MUSIC_ROBOT_TITLE_INTRO));
@@ -508,7 +503,7 @@ void Game::Level0Loaded() {
 	player->leftController->ClearInventory();
 	player->rightController->ClearInventory();
 	//PDA
-	if (player->IsVR()) {
+	if(player->IsVR()) {
 		player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/PDA.ghost")));
 		player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/PDA.ghost")));
 		((PDA*)player->leftController->GetItem(index))->SetHand(HAND_Left);
@@ -526,21 +521,20 @@ void Game::Level0Loaded() {
 	//BuildTool
 	player->leftController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost")));
 	player->rightController->AddItem(index, ObjectFactory::CreatePrefab(&std::string("Assets/BuildTool.ghost")));
-	player->leftController->SetBuildItems({ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Short.ghost")),
+	player->leftController->SetBuildItems({ ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Short.ghost")),
 											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Medium.ghost")),
 											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Long.ghost")), });
-	player->rightController->SetBuildItems({ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Short.ghost")), 
-											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Medium.ghost")), 
+	player->rightController->SetBuildItems({ ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Short.ghost")),
+											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Medium.ghost")),
 											ObjectFactory::CreatePrefab(&std::string("Assets/Turret_Long.ghost")) });
 
 	player->leftController->SwapItem(index - 2);
 	player->rightController->SwapItem(index - 2);
-	
+
 	player->SetBuildToolData(&hexGrid, &gameData);
 
 	//Update HUD
-	if (currHUD)
-	{
+	if(currHUD) {
 		currHUD->ShowInventory();
 		currHUD->ShowWaveInfo();
 	}
@@ -613,7 +607,7 @@ void Game::Start(Player* _player, EngineStructure* _engine, HUD* _hud, char* sta
 
 
 
-	//ChangeScene(startScene, xml);
+	ChangeScene(startScene, xml);
 	ThreadPool::AcceptNonCriticalJobs(true);
 	//MessageEvents::SendMessage(EVENT_StartWave, EventMessageBase());
 	//DStarEnemy* newFred;
@@ -643,7 +637,7 @@ void Game::Update() {
 
 	switch(gameData.GetState()) {
 		case GAMESTATE_InWave:
-			{
+		{
 			//--------Spawn Enemies if it's their time
 			{
 				std::vector<std::future<bool>> enemiesReady;
@@ -673,7 +667,7 @@ void Game::Update() {
 				//	enemiesReady[j].get();
 				//}
 			}
-			
+
 			//--------Update Engine Structure
 			{
 				engine->ExecuteAnimationUpdate();
@@ -681,9 +675,9 @@ void Game::Update() {
 				engine->ExecuteLateUpdate();
 			}
 		}
-			break;
+		break;
 		case GAMESTATE_SplashScreen:
-			{
+		{
 			//update time
 			gameData.ssManager.UpdateTimeInScene(dt);
 
@@ -718,7 +712,7 @@ void Game::Update() {
 					if(gameData.ssManager.NextLogoExists()) {
 						//Update your index to it, and update the duration to be a new timer if not special
 						gameData.ssManager.MoveToNextLogo();
-						if (gameData.ssManager.GetCurrentLogoIndex() == gameData.ssManager.GetLogoCount() - 1) {
+						if(gameData.ssManager.GetCurrentLogoIndex() == gameData.ssManager.GetLogoCount() - 1) {
 							splashScreenMenu.Hide();
 						}
 						if(gameData.ssManager.GetCurrentLogoData().spawnTime != -1) {
@@ -748,31 +742,31 @@ void Game::Update() {
 			engine->ExecuteUpdate();
 			engine->ExecuteLateUpdate();
 		}
-			break;
+		break;
 		case GAMESTATE_BetweenWaves:
-			{
-				if (currentTimeBetweenWaveReady > 0) {
-					currentTimeBetweenWaveReady -= dt;
-					if (currentTimeBetweenWaveReady <= 0) {
-						currentTimeBetweenWaveReady = -1;
-						//Replace start cube eventually
-						//Spawn start cube
-						CoreShield* coreShield;
-						unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/CoreShield.ghost"));
-						MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<CoreShield>(ID, core->transform.GetMatrix(), &coreShield));
-						coreShield->Enable();
-					}
+		{
+			if(currentTimeBetweenWaveReady > 0) {
+				currentTimeBetweenWaveReady -= dt;
+				if(currentTimeBetweenWaveReady <= 0) {
+					currentTimeBetweenWaveReady = -1;
+					//Replace start cube eventually
+					//Spawn start cube
+					CoreShield* coreShield;
+					unsigned ID = ObjectFactory::CreatePrefab(&std::string("Assets/CoreShield.ghost"));
+					MessageEvents::SendMessage(EVENT_InstantiateRequestByType, InstantiateTypeMessage<CoreShield>(ID, core->transform.GetMatrix(), &coreShield));
+					coreShield->Enable();
 				}
 			}
+		}
 		case GAMESTATE_GameOver:
 		case GAMESTATE_MainMenu:
 		case GAMESTATE_Credits:
-			{
-				engine->ExecuteAnimationUpdate();
-				engine->ExecuteUpdate();
-				engine->ExecuteLateUpdate();
-			}
-			break;
+		{
+			engine->ExecuteAnimationUpdate();
+			engine->ExecuteUpdate();
+			engine->ExecuteLateUpdate();
+		}
+		break;
 		default:
 			Console::ErrorLine << "Invalid Game State Reached!";
 			break;

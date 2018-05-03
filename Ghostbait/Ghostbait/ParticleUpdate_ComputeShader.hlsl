@@ -40,22 +40,20 @@ void main(  uint3 DThreadID : SV_DispatchThreadID,
 
 
             float scaledLife = saturate(1.0 - saturate(particle.age / particle.lifespan));
-            //particle.color = lerp(particle.startColor, particle.endColor, scaledLife);
-            //particle.size = lerp(particle.startSize, particle.endSize, scaledLife);
-            particle.size = 0.1f + scaledLife * 0.1f;
+            particle.color = lerp(particle.startColor, particle.endColor, scaledLife);
+            particle.size = lerp(particle.startSize, particle.endSize, scaledLife);
+            //particle.size = 0.1f + scaledLife * 0.1f;
             ////Possible variable rotation speed, acceleration
             particle.rotation += 0.24 * FrameTime;
-            //float3 NewPosition = particle.position;
-            //particle.velocity += particle.Gravity * FrameTime * particle.mass;
+            particle.velocity += particle.Gravity * FrameTime * particle.mass;
 
-            //NewPosition += particle.velocity * FrameTime + particle.acceleration * FrameTime;
-            //particle.position = NewPosition;
-            //particle.distanceToCamera = length(NewPosition - CameraCenterpoint.xyz);
+            particle.position = particle.position + particle.velocity * FrameTime + particle.acceleration * FrameTime;
+            particle.distanceToCamera = length(particle.position - CameraCenterpoint.xyz);
             //
-            particle.position = float3(GroupIndex * 0.5f, 1.5f - GroupIndex * 0.1f, 3);
-            float indexcolorer = ((float) particleBufferIndex / (float) MaxParticles);
+            //particle.position = float3(GroupIndex * 0.5f, 1.5f - GroupIndex * 0.1f, 3);
+            //float indexcolorer = ((float) particleBufferIndex / (float) MaxParticles);
 
-            particle.color = float4(1.0f * indexcolorer, 0, 1.0f * (1.0f - indexcolorer), 1.0f);
+            //particle.color = float4(1.0f * indexcolorer, 0, 1.0f * (1.0f - indexcolorer), 1.0f);
 
 
 

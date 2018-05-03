@@ -34,6 +34,7 @@ VSOutput main(uint particleIndex : SV_VertexID)
     output.size = BParticle.size; // Temporary, change later
     output.texturedata = BParticle.texturedata;
     output.rotation = BParticle.rotation;
+    //output.rotation = 1.0f;
     output.color = BParticle.color;
     return output;
 }

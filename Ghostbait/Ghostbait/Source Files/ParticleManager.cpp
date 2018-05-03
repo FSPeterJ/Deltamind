@@ -715,7 +715,7 @@ void ParticleManager::InitEmitters() {
 	emitter->mainData.EmissionRateInterval = 1.0f;
 	emitter->mainData.EmissionsPerInterval = 1;
 	emitter->mainData.StartColor = DirectX::XMFLOAT4(1.0f, 0.6f, 0.2f, 1.0f);
-	emitter->mainData.EndColor = DirectX::XMFLOAT4(1.0f, 0.6f, 0.2f, 0.0f);
+	emitter->mainData.EndColor = DirectX::XMFLOAT4(1.0f, 0.6f, 0.2f, 1.0f);
 	emitter->lifespan = 4;
 	emitter->mainData.xAngleVariance = 0.0f;
 	emitter->mainData.yAngleVariance = 0.0;

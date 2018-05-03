@@ -3,7 +3,7 @@
 #include "ObjectFactory.h"
 
 ForceField::ForceField() {
-	SetTag("ForceField");
+	SetTag("Wall");
 }
 
 void ForceField::Awake(Object* obj) {

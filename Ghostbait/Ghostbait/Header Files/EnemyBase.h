@@ -51,6 +51,8 @@ protected:
 	Health* targetObj = nullptr;
 	float* targetPos = nullptr;
 
+	float chanceOfDrop;
+
 	//float speed = 100.0f;
 	//float denfense = 5;
 	bool reachedCore = false;

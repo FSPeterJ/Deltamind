@@ -16,6 +16,7 @@
 #include "ObjectFactory.h"
 
 ControllerObject::ControllerObject() {
+	SetTag("Controller");
 }
 
 void ControllerObject::Init(Player* _player, ControllerHand _hand) {
@@ -577,8 +578,10 @@ void ControllerObject::PositionNonVRController() {
 	DirectX::XMFLOAT3 direction = { player->transform.GetMatrix()._31, player->transform.GetMatrix()._32, player->transform.GetMatrix()._33 };
 	DirectX::XMFLOAT3 colPoint;
 	GameObject* colObject = nullptr;
-	if (!Raycast(&player->transform, direction, &colPoint, &colObject, nullptr, maxDist)) {
-		colPoint = { player->transform.GetPosition().x + (direction.x * maxDist), player->transform.GetPosition().y + (direction.y * maxDist), player->transform.GetPosition().z + (direction.z * maxDist) };
+	if (!Raycast(&player->transform, direction, &colPoint, &colObject, nullptr, maxDist, "Wall")) {
+		if (!Raycast(&player->transform, direction, &colPoint, &colObject, nullptr, maxDist, "Ground")) {
+			colPoint = { player->transform.GetPosition().x + (direction.x * maxDist), player->transform.GetPosition().y + (direction.y * maxDist), player->transform.GetPosition().z + (direction.z * maxDist) };
+		}
 	}
 	else if (colObject && colObject->GetTag() == "Bullet") {
 		colPoint = { player->transform.GetPosition().x + (direction.x * maxDist), player->transform.GetPosition().y + (direction.y * maxDist), player->transform.GetPosition().z + (direction.z * maxDist) };

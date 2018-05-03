@@ -441,6 +441,12 @@
     <ClInclude Include="Header Files\EnemyBase.h">
       <Filter>Header Files\AI</Filter>
     </ClInclude>
+    <ClInclude Include="Header Files\Powerup.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Wall.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source Files\Window.cpp">
@@ -727,6 +733,9 @@
     </ClCompile>
     <ClCompile Include="Source Files\Turret.cpp">
       <Filter>Source Files\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\Powerup.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

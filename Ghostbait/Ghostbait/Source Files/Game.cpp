@@ -23,6 +23,7 @@
 #include "CoreShield.h"
 #include "Wwise_IDs.h"
 using namespace Omiracon::Genetics;
+//using namespace Omiracon::Neural;
 
 Game::Game() {
 	MessageEvents::Subscribe(EVENT_SpawnerCreated, [=](EventMessageBase* e) {this->SpawnerCreatedEvent(e); });
@@ -47,6 +48,8 @@ Game::Game() {
 	PathPlanner::SetGrid(&hexGrid);
 	AntColony::SetGrid(&hexGrid);
 	//gameData = GameData(&evolver);
+	//TheDeltaMind::Initalize();
+
 }
 
 //Catch Events
@@ -300,6 +303,7 @@ void Game::StartNextWave() {
 
 //Handle primary function event logic
 void Game::RestartLevel() {
+	GhostTime::TurnOffSloMo(0, 0);
 	MessageEvents::SendMessage(EVENT_RequestSound, SoundRequestMessage(nullptr, AK::EVENTS::STOP_MUSIC_ROBOT_THEME_REVISED));
 	player->transform.SetPosition({ 0.0f, player->PlayerHeight() , 0.0f });
 	ThreadPool::AcceptNonCriticalJobs(false);
@@ -322,6 +326,7 @@ void Game::RestartLevel() {
 void Game::ResumeGame() {
 	//Logic to run when game first gets unPaused
 	if(!paused) return;
+	GhostTime::paused = false;
 	paused = false;
 	player->leftController->SetControllerStateToPrevious();
 	player->rightController->SetControllerStateToPrevious();
@@ -330,6 +335,7 @@ void Game::ResumeGame() {
 void Game::PauseGame() {
 	//Logic to run when game first gets paused
 	if(paused) return;
+	GhostTime::paused = true;
 	paused = true;
 	player->leftController->SetControllerState(CSTATE_MenuController);
 	player->rightController->SetControllerState(player->IsVR() ? CSTATE_MenuController : CSTATE_ModelOnly);
@@ -759,5 +765,6 @@ void Game::Update() {
 	}
 }
 void Game::Clean() {
+	//TheDeltaMind::CleanUp();
 	delete sceneManager;
 }

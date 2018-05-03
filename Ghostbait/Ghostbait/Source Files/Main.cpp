@@ -49,7 +49,7 @@
 
 using namespace Threadding;
 
-const bool FULLSCREEN = 0;
+const bool FULLSCREEN = 1;
 
 Renderer* rendInter;
 Game* game;

@@ -636,8 +636,8 @@ void Game::Start(Player* _player, EngineStructure* _engine, HUD* _hud, char* sta
 void Game::Update() {
 	auto playerPos = player->transform.GetMatrix();
 	//hexGrid.Display(DirectX::XMFLOAT2(playerPos._41, playerPos._43));
-	//float dt = (float)GhostTime::DeltaTime();
-	float dt = 0;
+	float dt = (float)GhostTime::DeltaTime();
+	//float dt = 0;
 
 	if(paused) return;
 
@@ -646,8 +646,8 @@ void Game::Update() {
 		{
 			//--------Spawn Enemies if it's their time
 			{
-				std::vector<std::future<bool>> enemiesReady;
-				enemiesReady.reserve(64);
+				//std::vector<std::future<bool>> enemiesReady;
+				//enemiesReady.reserve(64);
 				//For each spawn entry in the level file
 				for(int i = 0; i < gameData.waveManager.GetSpawnCount(); ++i) {
 					//Update this entry's timers

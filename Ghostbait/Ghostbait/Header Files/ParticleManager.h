@@ -9,9 +9,10 @@
 #include "Emitter.h"
 #include "MessageStructs.h"
 
-//#define MAX_PARTICLES 524288 // 2^19
-#define MAX_PARTICLES 20000 // 2^4
-#define MAX_REFERENCE_PARTICLES 100
+#define MAX_REFERENCE_EMITTERS 10
+
+#define MAX_PARTICLES 512 
+
 class ParticleManager: public IComponentManager {
 
 	struct EmitterConstant {
@@ -55,6 +56,12 @@ class ParticleManager: public IComponentManager {
 
 	} emitterConstant;
 
+	ID3D11Buffer* debugBuffer;
+	ID3D11VertexShader* VertexShader_DEBUG;
+	ID3D11VertexShader* VertexShader_DEBUG1;
+	ID3D11VertexShader* VertexShader_DEBUG2;
+	ID3D11VertexShader* VertexShader_DEBUG3;
+	ID3D11VertexShader* VertexShader_DEBUG4;
 
 
 	//float3 float float3 float float float float uint float4 float4
@@ -74,8 +81,8 @@ class ParticleManager: public IComponentManager {
 		unsigned properties; // 12 bits - U Axis UV end | 12 bits - V Axis UV end | 8 bits - texture W index
 
 		float size;
-		float size1;
-		float size2;
+		float distanceToCamera;
+		float mass;
 		float size3;
 
 		//Constant data (16 bytes)
@@ -110,7 +117,7 @@ class ParticleManager: public IComponentManager {
 	};
 
 	Pool<Emitter> emitterPool = Pool<Emitter>(MAX_PARTICLES);
-	Pool<Emitter> referenceEmitterPool = Pool<Emitter>(MAX_REFERENCE_PARTICLES);
+	Pool<Emitter> referenceEmitterPool = Pool<Emitter>(MAX_REFERENCE_EMITTERS);
 
 	ID3D11Device* device = nullptr;
 	ID3D11DeviceContext* context = nullptr;
@@ -168,7 +175,9 @@ public:
 	void InitEmitters();
 	void InitShaders();
 	ParticleManager(ID3D11Device* _device, ID3D11DeviceContext* _context, ID3D11Buffer* _perFrame, ID3D11ShaderResourceView* randomTexture);
+	void UpdateParticles();
 	void RenderParticles();
+	void DebugCounters();
 	ComponentBase* GetReferenceComponent(const char * _FilePath, const char * _data) override;
 	ComponentBase* CloneComponent(ComponentBase* reference, Object* objPtr = nullptr) override;
 	void ResetComponent(ComponentBase* reset) override;

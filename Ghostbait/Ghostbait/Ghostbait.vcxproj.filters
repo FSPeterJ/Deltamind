@@ -67,6 +67,12 @@
     <Filter Include="Header Files\AI">
       <UniqueIdentifier>{2f6fc914-ccfd-4d15-9f88-4546a117eb84}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Renderer\Particles">
+      <UniqueIdentifier>{6c82e338-fae0-467d-9814-ba023ec4c929}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer\Animations">
+      <UniqueIdentifier>{ef29d734-9493-48cf-b0c1-6cd99e3f9033}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\targetver.h">
@@ -455,9 +461,6 @@
     <ClCompile Include="Source Files\MessageEvents.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\InputManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source Files\VRManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -482,9 +485,6 @@
     <ClCompile Include="Source Files\MemoryManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\Pool.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source Files\Object.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -501,9 +501,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\Spawner.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source Files\Material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\SceneManager.cpp">
@@ -574,24 +571,6 @@
     </ClCompile>
     <ClCompile Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Common\AkFilePackageLUT.cpp">
       <Filter>Source Files\Audio</Filter>
-    </ClCompile>
-    <ClCompile Include="Source Files\AnimationManager.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="Source Files\Animator.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="Source Files\AnimatorManager.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="Source Files\Emitter.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="Source Files\ParticleManager.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="Source Files\ParticleTextureManager.cpp">
-      <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\AABB.cpp">
       <Filter>Source Files\Physics</Filter>
@@ -692,9 +671,6 @@
     <ClCompile Include="Source Files\MeshManager.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\Door.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source Files\DMLogo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -728,11 +704,41 @@
     <ClCompile Include="Source Files\PathPlanner.cpp">
       <Filter>Source Files\AI</Filter>
     </ClCompile>
-    <ClCompile Include="Source Files\ParticlesGPU.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="Source Files\Turret.cpp">
       <Filter>Source Files\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\Door.cpp">
+      <Filter>Source Files\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\Pool.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\Material.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\ParticleTextureManager.cpp">
+      <Filter>Source Files\Renderer\Particles</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\ParticlesGPU.cpp">
+      <Filter>Source Files\Renderer\Particles</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\ParticleManager.cpp">
+      <Filter>Source Files\Renderer\Particles</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\AnimationManager.cpp">
+      <Filter>Source Files\Renderer\Animations</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\Animator.cpp">
+      <Filter>Source Files\Renderer\Animations</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\AnimatorManager.cpp">
+      <Filter>Source Files\Renderer\Animations</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\Emitter.cpp">
+      <Filter>Source Files\Renderer\Particles</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\InputManager.cpp">
+      <Filter>Source Files\System</Filter>
     </ClCompile>
     <ClCompile Include="Source Files\Powerup.cpp">
       <Filter>Source Files</Filter>
@@ -820,6 +826,18 @@
     </FxCompile>
     <FxCompile Include="BrightnessPixelShader.hlsl">
       <Filter>Shaders\Pixel Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\Particle_VertexShader_DEBUG.hlsl">
+      <Filter>Shaders\Vertex Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\Particle_VertexShader_DEBUG1.hlsl">
+      <Filter>Shaders\Vertex Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\Particle_VertexShader_DEBUG3.hlsl">
+      <Filter>Shaders\Vertex Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\Particle_VertexShader_DEBUG2.hlsl">
+      <Filter>Shaders\Vertex Shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

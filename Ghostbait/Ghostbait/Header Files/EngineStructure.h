@@ -29,6 +29,7 @@ class EngineStructure {
 	static Delegate<> OnCollisionExit;
 
 	static Delegate<> Update;
+	static Delegate<> DebugUpdate;
 	static Delegate<> AnimationUpdate;
 	static Delegate<> LateUpdate;
 

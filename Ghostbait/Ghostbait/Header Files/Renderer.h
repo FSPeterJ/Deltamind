@@ -56,11 +56,12 @@ private:
 		float ElapsedTime;
 		float lastElapsed;
 		float padding;
+
 		DirectX::XMFLOAT3 cameraCenterpoint;
 		float padding2;
 	} perFrameDataConstantBuffer;
 
-	int countCapture;
+	int countCapture = 0;
 
 	struct viewProjectionConstantBuffer {
 		DirectX::XMFLOAT4X4 view;
@@ -102,21 +103,18 @@ private:
 		ID3D11ShaderResourceView* srv;
 	};
 
-	struct blurData
-	{
+	struct blurData {
 		DirectX::XMFLOAT2 dir;
 		float width;
 		float height;
 	};
 
-	struct uvOffsetData
-	{
+	struct uvOffsetData {
 		DirectX::XMFLOAT2 offsets = DirectX::XMFLOAT2(0.0f, 0.0f);
 		DirectX::XMFLOAT2 padding;
 	};
 
-	struct gammaData
-	{
+	struct gammaData {
 		float gamma;
 		DirectX::XMFLOAT3 padding; //I hate this
 	};
@@ -166,6 +164,7 @@ private:
 
 	pipeline_state_t defaultPipeline;
 	ID3D11BlendState* additiveBlendState;
+	ID3D11BlendState* particleBlendState;
 	Transform* cameraPos;
 	viewProjectionConstantBuffer defaultCamera;
 	animDataBufferStruct cpuAnimationData;
@@ -294,17 +293,3 @@ public:
 	Transform* getCamera();
 	void Render();
 };
-//D3D11 ERROR : ID3D11Device::CreateShaderResourceView : 
-//
-//The Dimensions of the View are invalid due to at least one of the following conditions.
-//MostDetailedMip(value = 0) must be between 0 and MipLevels-1 of the Texture Resource, 9, inclusively.
-//With 
-//the current MostDetailedMip, MipLevels(value = 0) must be between 1 and 10, inclusively, 
-//or 
-//-1 to default to all mips from MostDetailedMip, in order that the View fit on the Texture.
-//FirstArraySlice(value = 0) must be between 0 and ArraySize-1 of the Texture Resource, 31, inclusively.
-//With 
-//the current FirstArraySlice, ArraySize(value = 32) must be between 1 and 32, inclusively, 
-//or 
-//-1 to default to all slices from FirstArraySlice, in order that the View fit on the Texture.
-//[STATE_CREATION ERROR #128: CREATESHADERRESOURCEVIEW_INVALIDDIMENSIONS]

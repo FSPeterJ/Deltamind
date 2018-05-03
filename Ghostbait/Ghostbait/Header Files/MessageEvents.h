@@ -27,6 +27,9 @@ enum EVENT_TYPES {
 	EVENT_GetPlayer,
 
 
+	//DEBUG
+	EVENT_CaptureFrame,
+
 	//Cheats
 	EVENT_God,
 	EVENT_FreeMoney,

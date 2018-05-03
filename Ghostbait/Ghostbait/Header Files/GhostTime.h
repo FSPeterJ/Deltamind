@@ -44,4 +44,8 @@ public:
 	static void ToggleSloMo(double _timeScaleDuration = DEFAULT_DURATION, double _lerpDuration = DEFAULT_LERPDURATION);
 	static void TurnOnSloMo(double _timeScaleDuration = DEFAULT_DURATION, double _lerpDuration = DEFAULT_LERPDURATION);
 	static void TurnOffSloMo(double _timeScaleDuration = DEFAULT_DURATION, double _lerpDuration = DEFAULT_LERPDURATION);
+#ifdef _DEBUG
+	static double DeltaTimeDebug() { return 0.5; };
+#endif // _DEBUG
+
 };

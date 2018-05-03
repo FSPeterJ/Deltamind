@@ -11,7 +11,7 @@
 
 #define MAX_REFERENCE_EMITTERS 10
 
-#define MAX_PARTICLES 512 
+#define MAX_PARTICLES 10000 
 
 class ParticleManager: public IComponentManager {
 

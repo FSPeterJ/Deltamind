@@ -24,8 +24,8 @@ class AStarEnemy: public EnemyBase, public AntProperties {
 	unsigned eventAdd = 0;
 	unsigned eventRemove = 0;
 
-	void CalcPath(DirectX::XMFLOAT2& where);
-	void CalcPath(HexTile* where);
+	void CalcPath(DirectX::XMFLOAT2& where, bool _oneTileForward = false);
+	void CalcPath(HexTile* where, bool _oneTileForward = false);
 
 	/// <summary>
 	/// Generates a new path.
@@ -33,7 +33,7 @@ class AStarEnemy: public EnemyBase, public AntProperties {
 	/// <returns>True if a path was found, otherwise false.</returns>
 	bool NewPath();
 
-	bool NewAroundPath();
+	bool NewAroundPath(bool _oneTileForward = false);
 
 public:
 	AStarEnemy();

@@ -164,12 +164,21 @@ void AStarEnemy::Patrol() {
 	//Update Path
 	HexTile* tempTile = grid->PointToTile(DirectX::XMFLOAT2(transform.matrix._41, transform.matrix._43));
 
-	if (!tempTile) {
+	if (!tempTile || grid->IsBlocked(tempTile)) {
 		if (isOutofBounds) return;
 		
 		Console::ErrorLine << "Out of BOUNDS!!";
 		isOutofBounds = true;
-		rb->SetVelocity(DirectX::XMVectorScale(rb->GetVelocity(), -1.0f));
+		if (next) {
+			
+			auto nextPathPoint = grid->TileToPoint(next);
+			DirectX::XMVECTOR nextDirection = DirectX::XMVectorSet(nextPathPoint.x - transform.GetMatrix()._41, 0.0f, nextPathPoint.y - transform.GetMatrix()._43, 1.0f);
+			DirectX::XMVECTOR velocity = rb->GetVelocity();
+			rb->AddForce(3.0f * (DirectX::XMVectorGetX(DirectX::XMVector3Dot(nextDirection, velocity)) + 1.0f), nextPathPoint.x - transform.GetMatrix()._41, 0.0f, nextPathPoint.y - transform.GetMatrix()._43, 0.5f);
+		}
+		else {
+			rb->SetVelocity(DirectX::XMVectorScale(rb->GetVelocity(), -1.0f));
+		}
 		EnemyBase::Patrol();
 		return;
 	}
@@ -185,7 +194,8 @@ void AStarEnemy::Patrol() {
 		//	pathing = ThreadPool::MakeJob(false, [&]() { LastResort(); });
 		//}
 		//else
-			Repath();
+		isPathing = true;
+		pathing = Threadding::ThreadPool::MakeJob(false, [&]() {NewAroundPath(true); });
 		isRedirecting = false;
 		isOutofBounds = false;
 		return;
@@ -231,7 +241,7 @@ void AStarEnemy::Patrol() {
 		return;
 	}
 
-	if (path.Next(curTile) != next) {
+	if (!path.find(curTile)) {
 		if (isRedirecting) return;
 		Console::ErrorLine << "Strayed off path!!";
 		rb->Stop();
@@ -296,7 +306,7 @@ bool AStarEnemy::NewPath() {
 
 	return path.size();
 }
-bool AStarEnemy::NewAroundPath() {
+bool AStarEnemy::NewAroundPath(bool _oneTileForward) {
 	//pathIsBlocked = false;
 	HexTile* tempGoal = grid->PointToTile({ targetPos[0], targetPos[2] });
 	HexTile* tile = nullptr;
@@ -330,7 +340,7 @@ bool AStarEnemy::NewAroundPath() {
 			}
 			tile = spire[curInd];
 			if (!grid->IsBlocked(tile)) {
-				CalcPath(tile);
+				CalcPath(tile, _oneTileForward);
 				if (!path.size()) {
 					if (++curInd >= endInd) 
 						curInd = 0;
@@ -368,15 +378,16 @@ bool AStarEnemy::NewAroundPath() {
 
 	return pathFound;
 }
-void AStarEnemy::CalcPath(DirectX::XMFLOAT2& where) {
+void AStarEnemy::CalcPath(DirectX::XMFLOAT2& where, bool _oneTileForward) {
 	HexTile* whereTile = grid->PointToTile(where);
-	CalcPath(whereTile);
+	CalcPath(whereTile, _oneTileForward);
 }
-void AStarEnemy::CalcPath(HexTile* where) {
+void AStarEnemy::CalcPath(HexTile* where, bool _oneTileForward) {
 	HexTile* tempTile = grid->PointToTile({ transform.matrix._41, transform.matrix._43 });
 
-	if (!tempTile || !where) return;
-	path = PathPlanner::FindPath(tempTile, where, TileType::Static, TileType::Static);
+	if ((!_oneTileForward && !tempTile) || !where) return;
+
+	path = _oneTileForward ? PathPlanner::FindPath(next, where, TileType::Static, TileType::Static) : PathPlanner::FindPath(tempTile, where, TileType::Static, TileType::Static);
 }
 
 bool AStarEnemy::ValidateAttackTarget() {

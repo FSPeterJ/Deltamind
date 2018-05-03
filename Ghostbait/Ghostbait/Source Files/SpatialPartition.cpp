@@ -176,9 +176,9 @@ std::unordered_set<uint32_t> SpatialPartition::Hash(const AABB aabb) {
 }
 
 bool SpatialPartition::AddComponent(PhysicsComponent* component) {
-	spatialMutex.lock();
 	bool anythingAdded = false;
 	std::unordered_set<uint32_t> indicies = Hash(component->currentAABB);
+	spatialMutex.lock();
 	//std::vector<std::thread> threadPool;
 	//threadPool.resize(indicies.size());
 	//Console::WriteLine << component->parentObject << " occupies " << indicies.size() << " buckets";

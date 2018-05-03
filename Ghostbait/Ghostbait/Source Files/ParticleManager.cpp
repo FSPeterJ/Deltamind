@@ -124,8 +124,8 @@ ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _
 	//testParticle->startSize = 0.1f;
 	//testParticle->age = 3.0f;
 	//testParticle->lifespan = 3.0f;
-	//testParticle->StartColor = DirectX::XMFLOAT4(0, 1, 0, 0.9f);;
-	//testParticle->EndColor = DirectX::XMFLOAT4(1, 0, 0, 0);;
+	//testParticle->StartColorA = DirectX::XMFLOAT4(0, 1, 0, 0.9f);;
+	//testParticle->EndColorA = DirectX::XMFLOAT4(1, 0, 0, 0);;
 	//testParticle->properties = 512u << 20| 512u << 8 | 0u;
 
 	for(unsigned i = 0; i < MAX_PARTICLES; ++i) {
@@ -714,8 +714,10 @@ void ParticleManager::InitEmitters() {
 	//emitter->mainData.TextureIndex = AddMaterial(emitter->materials[0]);
 	emitter->mainData.EmissionRateInterval = 1.0f;
 	emitter->mainData.EmissionsPerInterval = 1;
-	emitter->mainData.StartColor = DirectX::XMFLOAT4(1.0f, 0.6f, 0.2f, 1.0f);
-	emitter->mainData.EndColor = DirectX::XMFLOAT4(1.0f, 0.6f, 0.2f, 1.0f);
+	emitter->mainData.StartColorA = DirectX::XMFLOAT4(1.0f, 0.7f, 0.3f, 1.0f);
+	emitter->mainData.StartColorB = DirectX::XMFLOAT4(1.0f, 0.0f, 0.1f, 1.0f);
+	emitter->mainData.EndColorA = DirectX::XMFLOAT4(1.0f, 0.7f, 0.3f, 1.0f);
+	emitter->mainData.EndColorB = DirectX::XMFLOAT4(1.0f, 0.0f, 0.1f, 1.0f);
 	emitter->lifespan = 4;
 	emitter->mainData.xAngleVariance = 0.0f;
 	emitter->mainData.yAngleVariance = 0.0;

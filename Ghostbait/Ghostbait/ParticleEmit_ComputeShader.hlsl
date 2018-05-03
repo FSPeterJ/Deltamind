@@ -33,8 +33,10 @@ cbuffer EmitterConstantBuffer : register(b3)
     float ParticleLifeSpan;
     uint TextureIndex;
 
-    float4 startColor;
-    float4 endColor;
+    float4 startColorA;
+    float4 startColorB;
+    float4 endColorA;
+    float4 endColorB;
 
     float rotationVarience;
     uint properties;
@@ -107,8 +109,8 @@ void main(  uint3 DThreadID : SV_DispatchThreadID,
         particle.endSize = EndSize;
         particle.texturedata = TextureIndex;
 
-        particle.startColor = startColor;
-        particle.endColor = endColor;
+        particle.startColor = lerp(startColorA, startColorB, randomAnglesy);
+        particle.endColor = lerp(endColorA, endColorB, randomAnglesx);
 
 
         particle.Gravity = Gravity;

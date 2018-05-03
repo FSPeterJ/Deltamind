@@ -90,8 +90,8 @@ void PhysicsTestObj::AnExtremelyBadTemporaryFunction(ParticleManager* partman, M
 	//emitter->mainData.Position = emitter->transform.GetPosition();
 	//emitter->mainData.TextureIndex = partman->AddMaterial(emitter->materials[0]);
 	//emitter->mainData.EmissionRateInterval = 0.01f;
-	//emitter->mainData.StartColor = DirectX::XMFLOAT4(1.0f, 0.6f, 0.0f, 1.0f);
-	//emitter->mainData.EndColor = DirectX::XMFLOAT4(1.0f, 0.6f, 0.0f, 0.0f);
+	//emitter->mainData.StartColorA = DirectX::XMFLOAT4(1.0f, 0.6f, 0.0f, 1.0f);
+	//emitter->mainData.EndColorA = DirectX::XMFLOAT4(1.0f, 0.6f, 0.0f, 0.0f);
 	//emitter->lifespan = 4;
 	//emitter->mainData.xAngleVariance = 0.5f;
 	//emitter->mainData.yAngleVariance = 2;

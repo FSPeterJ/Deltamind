@@ -33,9 +33,11 @@ class ParticleManager: public IComponentManager {
 		float ParticleLifeSpan = 3;
 		unsigned TextureIndex;
 		//16
-		DirectX::XMFLOAT4 StartColor = DirectX::XMFLOAT4(0, 0, 1, 0.8f);
+		DirectX::XMFLOAT4 StartColorA = DirectX::XMFLOAT4(0, 0, 1, 0.8f);
+		DirectX::XMFLOAT4 StartColorB = DirectX::XMFLOAT4(0, 0, 1, 0.8f);
 		//16
-		DirectX::XMFLOAT4 EndColor = DirectX::XMFLOAT4(1, 0, 0, 1);
+		DirectX::XMFLOAT4 EndColorA = DirectX::XMFLOAT4(1, 0, 0, 1);
+		DirectX::XMFLOAT4 EndColorB = DirectX::XMFLOAT4(1, 0, 0, 1);
 		//16
 		float rotationVarience;
 		unsigned properties;

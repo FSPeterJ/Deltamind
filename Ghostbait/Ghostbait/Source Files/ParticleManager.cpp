@@ -117,39 +117,39 @@ ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _
 	uavDesc.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_COUNTER;
 
 	//TESTING CODE
-	GPUParticle* testParticle = new GPUParticle[MAX_PARTICLES];
-	//testParticle->position = DirectX::XMFLOAT3(1, 2.0f, 1.5f);
-	//testParticle->endSize = 0.1f;
-	//testParticle->velocity = DirectX::XMFLOAT3(0, 0, 0.5f);
-	//testParticle->startSize = 0.1f;
-	//testParticle->age = 3.0f;
-	//testParticle->lifespan = 3.0f;
-	//testParticle->StartColorA = DirectX::XMFLOAT4(0, 1, 0, 0.9f);;
-	//testParticle->EndColorA = DirectX::XMFLOAT4(1, 0, 0, 0);;
-	//testParticle->properties = 512u << 20| 512u << 8 | 0u;
+	//GPUParticle* testParticle = new GPUParticle[MAX_PARTICLES];
+	////testParticle->position = DirectX::XMFLOAT3(1, 2.0f, 1.5f);
+	////testParticle->endSize = 0.1f;
+	////testParticle->velocity = DirectX::XMFLOAT3(0, 0, 0.5f);
+	////testParticle->startSize = 0.1f;
+	////testParticle->age = 3.0f;
+	////testParticle->lifespan = 3.0f;
+	////testParticle->StartColorA = DirectX::XMFLOAT4(0, 1, 0, 0.9f);;
+	////testParticle->EndColorA = DirectX::XMFLOAT4(1, 0, 0, 0);;
+	////testParticle->properties = 512u << 20| 512u << 8 | 0u;
 
-	for(unsigned i = 0; i < MAX_PARTICLES; ++i) {
-		float indexcolorer = ((float)(MAX_PARTICLES -i -1) / (float)MAX_PARTICLES);
-		testParticle[MAX_PARTICLES - i - 1].size = 0.1f;
-		testParticle[MAX_PARTICLES - i - 1].position = DirectX::XMFLOAT3((float)i*0.5f, 1.5f-(float)i*0.1f, 3);
-		testParticle[MAX_PARTICLES - i - 1].endSize = 0.1f;
-		testParticle[MAX_PARTICLES - i - 1].velocity = DirectX::XMFLOAT3(0, 0, 0);
-		testParticle[MAX_PARTICLES - i - 1].startSize = 0.1f;
-		testParticle[MAX_PARTICLES - i - 1].age = 3.0f;
-		testParticle[MAX_PARTICLES - i - 1].lifespan = 3.0f;
-		testParticle[MAX_PARTICLES - i - 1].Color = DirectX::XMFLOAT4(1.0f * indexcolorer, 0, 1.0f * (1.0f - indexcolorer), 1.0f);
-		testParticle[MAX_PARTICLES - i - 1].StartColor = DirectX::XMFLOAT4(1.0f * indexcolorer, 0, 1.0f * (1.0f - indexcolorer), 1.0f);
-		testParticle[MAX_PARTICLES - i - 1].EndColor = DirectX::XMFLOAT4(1.0f * indexcolorer, 0, 1.0f * (1.0f - indexcolorer), 1.0f);
-		//testParticle[i].properties = 512u << 20| 512u << 8 | 0u;
-	}
-	resData.pSysMem = testParticle;
+	//for(unsigned i = 0; i < MAX_PARTICLES; ++i) {
+	//	float indexcolorer = ((float)(MAX_PARTICLES -i -1) / (float)MAX_PARTICLES);
+	//	testParticle[MAX_PARTICLES - i - 1].size = 0.1f;
+	//	testParticle[MAX_PARTICLES - i - 1].position = DirectX::XMFLOAT3((float)i*0.5f, 1.5f-(float)i*0.1f, 3);
+	//	testParticle[MAX_PARTICLES - i - 1].endSize = 0.1f;
+	//	testParticle[MAX_PARTICLES - i - 1].velocity = DirectX::XMFLOAT3(0, 0, 0);
+	//	testParticle[MAX_PARTICLES - i - 1].startSize = 0.1f;
+	//	testParticle[MAX_PARTICLES - i - 1].age = 3.0f;
+	//	testParticle[MAX_PARTICLES - i - 1].lifespan = 3.0f;
+	//	testParticle[MAX_PARTICLES - i - 1].Color = DirectX::XMFLOAT4(1.0f * indexcolorer, 0, 1.0f * (1.0f - indexcolorer), 1.0f);
+	//	testParticle[MAX_PARTICLES - i - 1].StartColor = DirectX::XMFLOAT4(1.0f * indexcolorer, 0, 1.0f * (1.0f - indexcolorer), 1.0f);
+	//	testParticle[MAX_PARTICLES - i - 1].EndColor = DirectX::XMFLOAT4(1.0f * indexcolorer, 0, 1.0f * (1.0f - indexcolorer), 1.0f);
+	//	//testParticle[i].properties = 512u << 20| 512u << 8 | 0u;
+	//}
+	//resData.pSysMem = testParticle;
 	//END TEST
 
 	//device->CreateBuffer(&bufferDesc, nullptr, &ParticleBuffer);
 
 	assert(&bufferDesc != nullptr);
 	assert(&resData != nullptr);
-	auto temp = device->CreateBuffer(&bufferDesc, &resData, &ParticleBuffer);
+	auto temp = device->CreateBuffer(&bufferDesc, nullptr, &ParticleBuffer);
 	assert(ParticleBuffer);
 
 	//delete[] testParticle;
@@ -235,12 +235,12 @@ ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _
 
 
 	ZeroMemory(&resData, sizeof(resData));
-	UINT* argData = new UINT[4];
+	UINT argData[4];
 	argData[0] = 1u;
 	argData[1] = 1u;
 	argData[2] = 0;
 	argData[3] = 0;
-	resData.pSysMem = argData;
+	resData.pSysMem = &argData;
 
 	ZeroMemory(&bufferDesc, sizeof(bufferDesc));
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT;

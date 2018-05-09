@@ -9,7 +9,7 @@ Team Members:
 - Carter Ceely		carterceely@gmail.com
 - Marshall Yeung	yeungszechit@gmail.com
 - Kody Stuiber		kstuiber@isp.com
-- Perter Jefferys	peter.b.jefferys@gmail.com
+- Peter Jefferys	peter.b.jefferys@gmail.com
 
 
 

@@ -73,21 +73,54 @@
     <Filter Include="Source Files\Renderer\Animations">
       <UniqueIdentifier>{ef29d734-9493-48cf-b0c1-6cd99e3f9033}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Render\Particles">
+      <UniqueIdentifier>{67580122-cc78-4d9c-a69f-30511cee620d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Render\Animations">
+      <UniqueIdentifier>{0f3640bd-2439-42ca-99b8-1f516e80dae3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Render\VR">
+      <UniqueIdentifier>{cd0cb55c-3724-45e1-a041-59054055ac00}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Render\External">
+      <UniqueIdentifier>{ed4d3ede-1ada-45ad-b103-8d4c7927fdbb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Render\Lights">
+      <UniqueIdentifier>{ce34c7bb-1d8c-4651-8573-47c6a6f92f6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Render\UI">
+      <UniqueIdentifier>{c87d6e33-42b0-4b6a-983c-7a8ccce6d1b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Render\Debug">
+      <UniqueIdentifier>{951caf48-b456-46e9-8116-68dea83ae927}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Render\General">
+      <UniqueIdentifier>{1f2a5a22-0981-42ff-b908-a78891be465d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\System\Messaging">
+      <UniqueIdentifier>{4e048f83-6813-45ce-85ca-15e30619208c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\System\Objects">
+      <UniqueIdentifier>{097fd815-71a5-4261-b1df-c09e0d0ee12d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\System\Debugging">
+      <UniqueIdentifier>{374d387e-3818-4def-9402-96af34081983}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\System\Execution">
+      <UniqueIdentifier>{6e3ea3fd-24d4-4b2c-998d-41a2d11ca5bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\System\Memory">
+      <UniqueIdentifier>{4f57ade6-0f69-41f3-a8c1-cead50be93b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Game">
+      <UniqueIdentifier>{ebcb9197-edd9-4a6b-b0ec-805dcd188d91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\System\External">
+      <UniqueIdentifier>{a0a94bc9-0b26-4b5c-8954-e3a66e061595}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header Files\targetver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\StdHeader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Resource Files\Resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\Examples.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\XML_Library\irrXML.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\BuildTool.h">
@@ -111,41 +144,20 @@
     <ClInclude Include="Utility.hlsl">
       <Filter>Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\AnimatorStructs.h">
-      <Filter>Header Files\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\AnimationManager.h">
-      <Filter>Header Files\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\Animator.h">
-      <Filter>Header Files\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\AnimatorManager.h">
-      <Filter>Header Files\Render</Filter>
-    </ClInclude>
     <ClInclude Include="Header Files\Renderer.h">
       <Filter>Header Files\Render</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\RenderUtil.h">
       <Filter>Header Files\Render</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\Logger.h">
-      <Filter>Header Files\System</Filter>
-    </ClInclude>
     <ClInclude Include="Header Files\ComponentBase.h">
       <Filter>Header Files\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\DebugRenderer.h">
-      <Filter>Header Files\Render</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\ControllerObject.h">
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\Core.h">
       <Filter>Header Files\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\Heuristics.h">
-      <Filter>Header Files\System</Filter>
     </ClInclude>
     <ClInclude Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Win32\AkDefaultIOHookBlocking.h">
       <Filter>Header Files\Audio</Filter>
@@ -158,15 +170,6 @@
     </ClInclude>
     <ClInclude Include="Dependencies\Wwise\include\AK\Samples\SoundEngine\Common\AkFilePackageLUT.h">
       <Filter>Header Files\Audio</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\LightManager.h">
-      <Filter>Header Files\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\MeshManager.h">
-      <Filter>Header Files\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\MaterialManager.h">
-      <Filter>Header Files\Render</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\Camera.h">
       <Filter>Header Files\Render</Filter>
@@ -198,26 +201,8 @@
     <ClInclude Include="Header Files\PhysicsRegistry.h">
       <Filter>Header Files\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\MemoryManager.h">
-      <Filter>Header Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\Material.h">
-      <Filter>Header Files\Render</Filter>
-    </ClInclude>
     <ClInclude Include="Header Files\Object.h">
       <Filter>Header Files\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\ObjectFactory.h">
-      <Filter>Header Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\Pool.h">
-      <Filter>Header Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\Game.h">
-      <Filter>Header Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\Font.h">
-      <Filter>Header Files\Render</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\EngineStructure.h">
       <Filter>Header Files\System</Filter>
@@ -227,9 +212,6 @@
     </ClInclude>
     <ClInclude Include="Header Files\InputManager.h">
       <Filter>Header Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\Player.h">
-      <Filter>Header Files\Objects</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\ProgressBar.h">
       <Filter>Header Files\Objects</Filter>
@@ -249,47 +231,11 @@
     <ClInclude Include="Header Files\Menu.h">
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\ObjectManager.h">
-      <Filter>Header Files\System</Filter>
-    </ClInclude>
     <ClInclude Include="Header Files\GhostTime.h">
       <Filter>Header Files\System</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\Health.h">
       <Filter>Header Files\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\HexTileVector.h">
-      <Filter>Header Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\HexagonalGridLayout.h">
-      <Filter>Header Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\HexagonTile.h">
-      <Filter>Header Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\HexagonTileSpecializer.h">
-      <Filter>Header Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\HexGrid.h">
-      <Filter>Header Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\HexTileEqualityCheck.h">
-      <Filter>Header Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\Messagebox.h">
-      <Filter>Header Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\MessageEvents.h">
-      <Filter>Header Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\MessageStructs.h">
-      <Filter>Header Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\ParticleManager.h">
-      <Filter>Header Files\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\ParticleTextureManager.h">
-      <Filter>Header Files\Render</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\IComponentManager.h">
       <Filter>Header Files\Objects</Filter>
@@ -303,9 +249,6 @@
     <ClInclude Include="Header Files\Turret.h">
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\WICTextureLoader.h">
-      <Filter>Header Files\Render</Filter>
-    </ClInclude>
     <ClInclude Include="Header Files\HexTileVector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -318,19 +261,10 @@
     <ClInclude Include="Header Files\ViveController.h">
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\VRManager.h">
-      <Filter>Header Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\VRStructs.h">
-      <Filter>Header Files\System</Filter>
-    </ClInclude>
     <ClInclude Include="Header Files\AnimatorStructs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\Player.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\XTime.h">
@@ -345,38 +279,14 @@
     <ClInclude Include="Header Files\SceneManager.h">
       <Filter>Header Files\System</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\PathPlanner.h">
-      <Filter>Header Files\System</Filter>
-    </ClInclude>
     <ClInclude Include="Header Files\Spawner.h">
       <Filter>Header Files\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\VertexTypes.h">
-      <Filter>Header Files\Render</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\Transform.h">
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\TextManager.h">
-      <Filter>Header Files\Render</Filter>
-    </ClInclude>
     <ClInclude Include="Header Files\SpatialPartition.h">
       <Filter>Header Files\Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\Light.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\CheatCode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\Ground.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\Monitor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\GameData.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\ScrollingUVManager.h">
       <Filter>Header Files</Filter>
@@ -384,41 +294,11 @@
     <ClInclude Include="Header Files\DisplayBoard.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\ControllerPillar.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\HUD.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Header Files\PDA.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\OptionsManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\ForceField.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\TargetEnemy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\CoreShield.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PixelShaderUtilities.hlsl">
       <Filter>Shaders\Pixel Shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\ParticlesGPU.h">
-      <Filter>Header Files\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\Emitter.h">
-      <Filter>Header Files\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\ParticleLists.h">
-      <Filter>Header Files\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="Header Files\Door.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Header Files\DMLogo.h">
       <Filter>Header Files</Filter>
@@ -447,11 +327,170 @@
     <ClInclude Include="Header Files\EnemyBase.h">
       <Filter>Header Files\AI</Filter>
     </ClInclude>
-    <ClInclude Include="Header Files\Powerup.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Header Files\Wall.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Window.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Player.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Powerup.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\CoreShield.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\CheatCode.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\HexTileVector.h">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\ForceField.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Examples.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Door.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Ground.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\TargetEnemy.h">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource Files\Resource.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\ControllerPillar.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\StdHeader.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\ParticleManager.h">
+      <Filter>Header Files\Render\Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\ParticleTextureManager.h">
+      <Filter>Header Files\Render\Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\VRStructs.h">
+      <Filter>Header Files\Render\VR</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\WICTextureLoader.h">
+      <Filter>Header Files\Render\External</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Light.h">
+      <Filter>Header Files\Render\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\LightManager.h">
+      <Filter>Header Files\Render\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Emitter.h">
+      <Filter>Header Files\Render\Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\HUD.h">
+      <Filter>Header Files\Render\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Font.h">
+      <Filter>Header Files\Render\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\DebugRenderer.h">
+      <Filter>Header Files\Render\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\AnimationManager.h">
+      <Filter>Header Files\Render\Animations</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Animator.h">
+      <Filter>Header Files\Render\Animations</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\AnimatorManager.h">
+      <Filter>Header Files\Render\Animations</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\AnimatorStructs.h">
+      <Filter>Header Files\Render\Animations</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\MeshManager.h">
+      <Filter>Header Files\Render\General</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Material.h">
+      <Filter>Header Files\Render\General</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\MaterialManager.h">
+      <Filter>Header Files\Render\General</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\TextManager.h">
+      <Filter>Header Files\Render\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\VertexTypes.h">
+      <Filter>Header Files\Render\General</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Logger.h">
+      <Filter>Header Files\System\Debugging</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\HexagonalGridLayout.h">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\HexagonTile.h">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\HexagonTileSpecializer.h">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\HexGrid.h">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\HexTileEqualityCheck.h">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\MessageEvents.h">
+      <Filter>Header Files\System\Messaging</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\MessageStructs.h">
+      <Filter>Header Files\System\Messaging</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Game.h">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\GameData.h">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Heuristics.h">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Pool.h">
+      <Filter>Header Files\System\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\MemoryManager.h">
+      <Filter>Header Files\System\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\ObjectFactory.h">
+      <Filter>Header Files\System\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\ObjectManager.h">
+      <Filter>Header Files\System\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\VRManager.h">
+      <Filter>Header Files\Render\VR</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Messagebox.h">
+      <Filter>Header Files\System\Debugging</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\OptionsManager.h">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Monitor.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\PathPlanner.h">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\XML_Library\irrXML.h">
+      <Filter>Header Files\System\External</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

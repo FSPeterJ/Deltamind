@@ -13,7 +13,7 @@ public:
 	ComponentType* GetComponent(const std::string &componentname) {
 		baseIt loc = typeMapID.find(componentname);
 		if(typeMapID.end() != loc) {
-			return (ComponentType*) loc->second;
+			return (ComponentType*)loc->second;
 		}
 		return nullptr;
 	}
@@ -22,7 +22,7 @@ public:
 	ComponentType* GetComponent() {
 		baseIt loc = typeMapID.find(GetTypeId<ComponentType>());
 		if(typeMapID.end() != loc) {
-			return (ComponentType*) loc->second;
+			return (ComponentType*)loc->second;
 		}
 		return nullptr;
 	}
@@ -31,7 +31,7 @@ public:
 	ComponentType* GetComponent() const {
 		constIt loc = typeMapID.find(GetTypeId<ComponentType>());
 		if(typeMapID.end() != loc) {
-			return (ComponentType*) loc->second;
+			return (ComponentType*)loc->second;
 		}
 		return nullptr;
 	}
@@ -40,12 +40,11 @@ public:
 	ComponentType* GetComponent(const std::string &componentname) const {
 		constIt loc = typeMapID.find(componentname);
 		if(typeMapID.end() != loc) {
-			return (ComponentType*) loc->second;
+			return (ComponentType*)loc->second;
 		}
 		return nullptr;
 	}
 
-	//operator +=
 	template <class ComponentType>
 	unsigned AddComponent(ValueType value) {
 		//m_mapname[std::string(typeid(ComponentType).name())] = value;
@@ -76,7 +75,7 @@ public:
 	ComponentType* GetComponent(const std::string &componentname) {
 		baseIt loc = typeMapID.find(componentname);
 		if(typeMapID.end() != loc) {
-			return (ComponentType*) loc->second;
+			return (ComponentType*)loc->second;
 		}
 		return nullptr;
 	}
@@ -85,7 +84,7 @@ public:
 	ComponentType* GetComponent() {
 		baseIt loc = typeMapID.find(GetComponentTypeID<ComponentType>());
 		if(typeMapID.end() != loc) {
-			return (ComponentType*) loc->second;
+			return (ComponentType*)loc->second;
 		}
 		return nullptr;
 	}
@@ -94,7 +93,7 @@ public:
 	ComponentType* GetComponent() const {
 		constIt loc = typeMapID.find(GetComponentTypeID<ComponentType>());
 		if(typeMapID.end() != loc) {
-			return (ComponentType*) loc->second;
+			return (ComponentType*)loc->second;
 		}
 		return nullptr;
 	}
@@ -103,7 +102,7 @@ public:
 	ComponentType* GetComponent(const std::string &componentname) const {
 		constIt loc = typeMapID.find(componentname);
 		if(typeMapID.end() != loc) {
-			return (ComponentType*) loc->second;
+			return (ComponentType*)loc->second;
 		}
 		return nullptr;
 	}

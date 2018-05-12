@@ -5,9 +5,9 @@
 //TODO: FIX THIS LATER
 
 class TypeMap {
-	static std::atomic_uint lastTypeID; // the fact that this is static means it needs to be seperate.
-	static std::atomic_uint lastObjectTypeID; // the fact that this is static means it needs to be seperate.
-	static std::atomic_uint lastComponentTypeID; // the fact that this is static means it needs to be seperate.
+	static std::atomic_uint lastTypeID;
+	static std::atomic_uint lastObjectTypeID;
+	static std::atomic_uint lastComponentTypeID;
 protected:
 	static std::unordered_map<std::string, unsigned> mapname;
 	static std::unordered_map<std::string, unsigned> mapnameObject;
@@ -15,17 +15,17 @@ protected:
 	static std::unordered_map<std::string, unsigned> mapnameComponent;
 public:
 	template <class Type>
-	static unsigned GetTypeId() {
+	constexpr static unsigned GetTypeId() {
 		static const unsigned id = lastTypeID++;
 		return id;
 	}
 	template <class ObjectType>
-	static unsigned GetObjectTypeID() {
+	constexpr static unsigned GetObjectTypeID() {
 		static const unsigned id = lastObjectTypeID++;
 		return id;
 	}
 	template <class ComponentType>
-	static unsigned GetComponentTypeID() {
+	constexpr static unsigned GetComponentTypeID() {
 		static const unsigned id = lastComponentTypeID++;
 		return id;
 	}

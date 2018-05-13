@@ -157,7 +157,7 @@ class ParticleManager: public IComponentManager {
 	ID3D11ComputeShader* ParticleIndirectArgsInitShader = nullptr;
 
 
-	ID3D11Buffer* SortParametersConstantBuffer = nullptr;
+	ID3D11Buffer* IndirectSortParametersConstantBuffer = nullptr;
 	ID3D11Buffer* DispatchIndirectArgsBuffer = nullptr;
 	ID3D11UnorderedAccessView* IndirectSortArgsBufferUAV = nullptr;
 

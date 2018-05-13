@@ -63,13 +63,12 @@ AudioManager* audioMan;
 ScrollingUVManager* scrollMan;
 Player* player;
 
-GameObject* animationTest;
 
-void ExecuteAsync() {
-	Console::WriteLine << "I am executed asyncly!";
-	throw std::invalid_argument("ERROR: This is a test showing we can know if a thread throws an exception on its work.\n");
-}
-Window wnd(1200,900);
+//void ExecuteAsync() {
+//	Console::WriteLine << "I am executed asyncly!";
+//	throw std::invalid_argument("ERROR: This is a test showing we can know if a thread throws an exception on its work.\n");
+//}
+Window wnd(1200, 900);
 void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//throw std::runtime_error("Nothing");
 
@@ -81,7 +80,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	_Pool_Base::RegisterMemory(&MemMan);
 	Console::WriteLine << "App has been initalized!";
-	
+
 	//=============================
 	//Multithreading Test
 	//=============================
@@ -103,7 +102,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 
 	rendInter = new Renderer();
 	audioMan = new AudioManager();
-	
+
 	player = new Player();
 	if(player->IsVR()) {
 		rendInter->Initialize(wnd, &player->transform);
@@ -124,7 +123,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	Console::WriteLine << "Nothing's wrong here......";
 
 	scrollMan = new ScrollingUVManager();
-	if (scrollMan) Console::WriteLine << "Scrolling UV Manager initialized......";
+	if(scrollMan) Console::WriteLine << "Scrolling UV Manager initialized......";
 	animMan = new AnimatorManager(rendInter->getAnimationManager());
 	if(animMan) Console::WriteLine << "Animation Manager initialized......";
 	phyMan = new PhysicsManager();
@@ -134,6 +133,10 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	objMan->Initialize(80);
 	ObjectFactory::Initialize(objMan, "NOT USED STRING");
 	Console::WriteLine << "Object Factory Initialized......";
+
+
+
+	//This is absurd.  Will move soon.
 
 	ObjectFactory::RegisterPrefabBase<Turret_Long>(102);
 	ObjectFactory::RegisterPrefabBase<Turret_Medium>(102);
@@ -356,7 +359,7 @@ void Setup(HINSTANCE hInstance, int nCmdShow) {
 	//ObjectFactory::CreatePrefab(&std::string("Assets/MTDSLEnemy.ghost"), "MTDSLEnemy");
 
 	//ObjectFactory::CreatePrefab(&std::string("Assets/TransparencyTest.ghost"), "Ttest");
-	
+
 	Console::WriteLine << "Prefabs created......";
 	//=============================
 
@@ -420,7 +423,7 @@ void Loop() {
 	//ThreadPool::CreateMemberJob<void>(scrollMan, &ScrollingUVManager::Update);
 	//ThreadPool::CreateMemberJob<void>(rendInter, &Renderer::Render);
 
-	if (!game->IsPaused()) {
+	if(!game->IsPaused()) {
 		phyMan->Update();
 		audioMan->Update();
 
@@ -465,7 +468,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	UNREFERENCED_PARAMETER(hPrevInstance); UNREFERENCED_PARAMETER(lpCmdLine);
 
 	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_GHOSTBAIT));
-	
+
 	Setup(hInstance, nCmdShow);
 
 	MSG msg;
@@ -474,7 +477,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			if(msg.message == WM_QUIT) { break; }
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-		} else {
+		}
+		else {
 			Loop();
 			wnd.UpdateTitle(std::to_wstring(GhostTime::FrameRate()));
 		}

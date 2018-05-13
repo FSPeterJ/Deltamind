@@ -76,19 +76,13 @@ ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _
 
 	InitShaders();
 
-
-
 	texMan = new ParticleTextureManager(device, context);
 
 	CD3D11_BUFFER_DESC constantBufferDesc(sizeof(DirectX::XMFLOAT4X4), D3D11_BIND_CONSTANT_BUFFER);
-	//device->CreateBuffer(&constantBufferDesc, nullptr, &viewBuff);
-	//device->CreateBuffer(&constantBufferDesc, nullptr, &projBuff);
-	//TEMP CODE YOU DUMMY GET THIS OUT OF HERE
 
-	//texMan->AddTexture("HELLO.png");
-	//texMan->AddTexture("StartCube.fbm/startCube.png");
-
+	//----------------
 	//Particle Buffer
+	//==============================
 	D3D11_BUFFER_DESC bufferDesc;
 	ZeroMemory(&bufferDesc, sizeof(bufferDesc));
 
@@ -99,77 +93,79 @@ ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _
 	bufferDesc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
 	bufferDesc.StructureByteStride = sizeof(GPUParticle);
 
+	//Particle Buffer SRV
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 	ZeroMemory(&srvDesc, sizeof(srvDesc));
 	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
 	srvDesc.Buffer.ElementWidth = MAX_PARTICLES;
 
+	//Particle Buffer UAV
 	D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc;
 	ZeroMemory(&uavDesc, sizeof(uavDesc));
-
-	D3D11_SUBRESOURCE_DATA resData = { 0 };
-
 	uavDesc.Format = DXGI_FORMAT_UNKNOWN;
 	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
 	uavDesc.Buffer.FirstElement = 0;
 	uavDesc.Buffer.NumElements = MAX_PARTICLES;
 	uavDesc.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_COUNTER;
 
+
+
+	D3D11_SUBRESOURCE_DATA resData = { 0 };
+#ifdef _DEBUG
 	//TESTING CODE
-	//GPUParticle* testParticle = new GPUParticle[MAX_PARTICLES];
-	////testParticle->position = DirectX::XMFLOAT3(1, 2.0f, 1.5f);
-	////testParticle->endSize = 0.1f;
-	////testParticle->velocity = DirectX::XMFLOAT3(0, 0, 0.5f);
-	////testParticle->startSize = 0.1f;
-	////testParticle->age = 3.0f;
-	////testParticle->lifespan = 3.0f;
-	////testParticle->StartColorA = DirectX::XMFLOAT4(0, 1, 0, 0.9f);;
-	////testParticle->EndColorA = DirectX::XMFLOAT4(1, 0, 0, 0);;
-	////testParticle->properties = 512u << 20| 512u << 8 | 0u;
+	GPUParticle* testParticle = new GPUParticle[MAX_PARTICLES];
 
-	//for(unsigned i = 0; i < MAX_PARTICLES; ++i) {
-	//	float indexcolorer = ((float)(MAX_PARTICLES -i -1) / (float)MAX_PARTICLES);
-	//	testParticle[MAX_PARTICLES - i - 1].size = 0.1f;
-	//	testParticle[MAX_PARTICLES - i - 1].position = DirectX::XMFLOAT3((float)i*0.5f, 1.5f-(float)i*0.1f, 3);
-	//	testParticle[MAX_PARTICLES - i - 1].endSize = 0.1f;
-	//	testParticle[MAX_PARTICLES - i - 1].velocity = DirectX::XMFLOAT3(0, 0, 0);
-	//	testParticle[MAX_PARTICLES - i - 1].startSize = 0.1f;
-	//	testParticle[MAX_PARTICLES - i - 1].age = 3.0f;
-	//	testParticle[MAX_PARTICLES - i - 1].lifespan = 3.0f;
-	//	testParticle[MAX_PARTICLES - i - 1].Color = DirectX::XMFLOAT4(1.0f * indexcolorer, 0, 1.0f * (1.0f - indexcolorer), 1.0f);
-	//	testParticle[MAX_PARTICLES - i - 1].StartColor = DirectX::XMFLOAT4(1.0f * indexcolorer, 0, 1.0f * (1.0f - indexcolorer), 1.0f);
-	//	testParticle[MAX_PARTICLES - i - 1].EndColor = DirectX::XMFLOAT4(1.0f * indexcolorer, 0, 1.0f * (1.0f - indexcolorer), 1.0f);
-	//	//testParticle[i].properties = 512u << 20| 512u << 8 | 0u;
-	//}
-	//resData.pSysMem = testParticle;
+	//Particles will fade from blue to red based on memory index
+	for(unsigned i = 0; i < MAX_PARTICLES; ++i) {
+		float indexcolorer = ((float)(MAX_PARTICLES -i -1) / (float)MAX_PARTICLES);
+		testParticle[MAX_PARTICLES - i - 1].size = 0.1f;
+		testParticle[MAX_PARTICLES - i - 1].position = DirectX::XMFLOAT3((float)i*0.5f, 1.5f-(float)i*0.1f, 3);
+		testParticle[MAX_PARTICLES - i - 1].endSize = 0.1f;
+		testParticle[MAX_PARTICLES - i - 1].velocity = DirectX::XMFLOAT3(0, 0, 0);
+		testParticle[MAX_PARTICLES - i - 1].startSize = 0.1f;
+		testParticle[MAX_PARTICLES - i - 1].age = 3.0f;
+		testParticle[MAX_PARTICLES - i - 1].lifespan = 3.0f;
+		testParticle[MAX_PARTICLES - i - 1].Color = DirectX::XMFLOAT4(1.0f * indexcolorer, 0, 1.0f * (1.0f - indexcolorer), 1.0f);
+		testParticle[MAX_PARTICLES - i - 1].StartColor = DirectX::XMFLOAT4(1.0f * indexcolorer, 0, 1.0f * (1.0f - indexcolorer), 1.0f);
+		testParticle[MAX_PARTICLES - i - 1].EndColor = DirectX::XMFLOAT4(1.0f * indexcolorer, 0, 1.0f * (1.0f - indexcolorer), 1.0f);
+		//testParticle[i].properties = 512 << 20| 512 << 8 | 0; // Packed Texture data
+	}
+	resData.pSysMem = testParticle;
 	//END TEST
-
-	//device->CreateBuffer(&bufferDesc, nullptr, &ParticleBuffer);
-
-	assert(&bufferDesc != nullptr);
 	assert(&resData != nullptr);
+#endif
+	assert(&bufferDesc != nullptr);
+#ifdef _DEBUG
+	auto temp = device->CreateBuffer(&bufferDesc, &resData, &ParticleBuffer);
+	delete[] testParticle;
+#else
 	auto temp = device->CreateBuffer(&bufferDesc, nullptr, &ParticleBuffer);
+#endif
 	assert(ParticleBuffer);
-
-	//delete[] testParticle;
 	device->CreateShaderResourceView(ParticleBuffer, &srvDesc, &ParticleSRV);
 	device->CreateUnorderedAccessView(ParticleBuffer, &uavDesc, &ParticleUAV);
 
+	//----------------
 	// Index Buffers
+	//==============================
 	bufferDesc.ByteWidth = sizeof(UINT) * MAX_PARTICLES;
 	bufferDesc.StructureByteStride = sizeof(UINT);
-	//Active
 
-	//TESTING CODE
+
 	ZeroMemory(&resData, sizeof(resData));
 	UINT* indexData = new UINT[MAX_PARTICLES];
-	resData.pSysMem = indexData;
+	//resData.pSysMem = indexData;
 
-	//END TEST
 
-	device->CreateBuffer(&bufferDesc, nullptr, &ActiveParticleIndexBuffer);
+	// Active Index Buffer
+#ifdef _DEBUG
 	//device->CreateBuffer(&bufferDesc, &resData, &ActiveParticleIndexBuffer);
+	device->CreateBuffer(&bufferDesc, nullptr, &ActiveParticleIndexBuffer);
+#else
+	device->CreateBuffer(&bufferDesc, nullptr, &ActiveParticleIndexBuffer);
+#endif
+
 	device->CreateShaderResourceView(ActiveParticleIndexBuffer, &srvDesc, &ActiveParticleIndexSRV);
 	device->CreateUnorderedAccessView(ActiveParticleIndexBuffer, &uavDesc, &ActiveParticleIndexUAV);
 
@@ -178,7 +174,7 @@ ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _
 	}
 	resData.pSysMem = indexData;
 
-	//Inactive
+	// Inactive Index Buffer
 	device->CreateBuffer(&bufferDesc, &resData, &InactiveParticleIndexBuffer);
 	device->CreateShaderResourceView(InactiveParticleIndexBuffer, &srvDesc, &InactiveParticleIndexSRV);
 	device->CreateUnorderedAccessView(InactiveParticleIndexBuffer, &uavDesc, &InactiveParticleIndexUAV);
@@ -189,7 +185,7 @@ ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _
 
 	uavDesc.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_APPEND;
 
-	//Sort Buffer
+	// Sort Buffer
 	device->CreateBuffer(&bufferDesc, nullptr, &SortParticleIndexBuffer);
 	device->CreateShaderResourceView(SortParticleIndexBuffer, &srvDesc, &SortParticleIndexSRV);
 	device->CreateUnorderedAccessView(SortParticleIndexBuffer, &uavDesc, &SortParticleIndexUAV);
@@ -199,41 +195,42 @@ ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _
 	bufferDesc.ByteWidth = sizeof(UINT) * 4;
 	bufferDesc.MiscFlags = 0;
 
+
+	//This is pointless outside of testing as they get overwritten almost immediately 
 	ZeroMemory(&resData, sizeof(resData));
-	UINT* countData = new UINT[4];
-	countData[1] = MAX_PARTICLES;
+	UINT countData[4];
+	countData[0] = 0;
 	//countData[0] = 1u;
 
-	resData.pSysMem = countData;
+	resData.pSysMem = &countData;
 	device->CreateBuffer(&bufferDesc, &resData, &ActiveParticleConstantBuffer);
-	//countData[0] = MAX_PARTICLES;
-	resData.pSysMem = countData;
+	countData[0] = MAX_PARTICLES;
+	resData.pSysMem = &countData;
 	device->CreateBuffer(&bufferDesc, &resData, &InactiveParticleConstantBuffer);
-	delete[] countData;
 
 	//Emitter constant buffer
-	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	bufferDesc.ByteWidth = sizeof(EmitterConstant);
+	//bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	//bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	//bufferDesc.ByteWidth = sizeof(EmitterConstant);
 	//device->CreateBuffer(&bufferDesc, nullptr, &EmitterConstantBuffer);
 
 
-
-	CD3D11_BUFFER_DESC NconstantBufferDesc(sizeof(EmitterConstant), D3D11_BIND_CONSTANT_BUFFER);
+	// Emitter CBuffer
+	CD3D11_BUFFER_DESC EmitterconstantBufferDesc(sizeof(EmitterConstant), D3D11_BIND_CONSTANT_BUFFER);
 	resData.pSysMem = &emitterConstant;
-	NconstantBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	NconstantBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	device->CreateBuffer(&NconstantBufferDesc, &resData, &EmitterConstantBuffer);
+	EmitterconstantBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	EmitterconstantBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	device->CreateBuffer(&EmitterconstantBufferDesc, &resData, &EmitterConstantBuffer);
 
-
-	CD3D11_BUFFER_DESC SortParametersconstantBufferDesc(sizeof(SortParameters), D3D11_BIND_CONSTANT_BUFFER);
-	SortParametersconstantBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	SortParametersconstantBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	// Sort Argument CBuffer
+	CD3D11_BUFFER_DESC IndirectSortParametersconstantBufferDesc(sizeof(SortParameters), D3D11_BIND_CONSTANT_BUFFER);
+	IndirectSortParametersconstantBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	IndirectSortParametersconstantBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	resData.pSysMem = &sortParams;
-	device->CreateBuffer(&SortParametersconstantBufferDesc, &resData, &SortParametersConstantBuffer);
+	device->CreateBuffer(&IndirectSortParametersconstantBufferDesc, &resData, &IndirectSortParametersConstantBuffer);
 
 
-
+	// IndirectDraw Argument Buffer
 	ZeroMemory(&resData, sizeof(resData));
 	UINT argData[4];
 	argData[0] = 1u;
@@ -248,6 +245,7 @@ ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _
 	bufferDesc.ByteWidth = sizeof(UINT) * 4;
 	bufferDesc.MiscFlags = D3D11_RESOURCE_MISC_DRAWINDIRECT_ARGS;
 	device->CreateBuffer(&bufferDesc, &resData, &IndirectDrawArgsBuffer);
+	device->CreateBuffer(&bufferDesc, nullptr, &DispatchIndirectArgsBuffer);
 
 	ZeroMemory(&uavDesc, sizeof(uavDesc));
 	uavDesc.Format = DXGI_FORMAT_R32_UINT;
@@ -257,29 +255,41 @@ ParticleManager::ParticleManager(ID3D11Device * _device, ID3D11DeviceContext * _
 	uavDesc.Buffer.Flags = 0;
 
 	device->CreateUnorderedAccessView(IndirectDrawArgsBuffer, &uavDesc, &IndirectDrawArgsUAV);
-
-
-	device->CreateBuffer(&bufferDesc, nullptr, &DispatchIndirectArgsBuffer);
-
 	device->CreateUnorderedAccessView(DispatchIndirectArgsBuffer, &uavDesc, &IndirectSortArgsBufferUAV);
+
+
+	//Initialize UAV Data - Others are included for testing
+
+#ifdef _DEBUG
 
 	ID3D11UnorderedAccessView* uavs[] = { InactiveParticleIndexUAV, ActiveParticleIndexUAV, SortParticleIndexUAV, IndirectSortArgsBufferUAV };
 	UINT counts[] = { (MAX_PARTICLES), 0, 0, 0 };
+#else
+	ID3D11UnorderedAccessView* uavs[] = { InactiveParticleIndexUAV };
+	UINT counts[] = { (MAX_PARTICLES) };
+#endif
 	context->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavs), uavs, counts);
 	ZeroMemory(uavs, sizeof(uavs));
 	context->CSSetUnorderedAccessViews(0, ARRAYSIZE(uavs), uavs, counts);
 
-	ID3D11Buffer* buffers[] = { perFrame, ActiveParticleConstantBuffer, InactiveParticleConstantBuffer, EmitterConstantBuffer, SortParametersConstantBuffer };
+
+	//This should not change in our current setup so don't repeatedly set it
+	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	//!! NOTE: IF WE USE COMPUTE SHADERS ANYWHERE ELSE THIS WILL HAVE TO BE CHANGED!!
+	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	ID3D11Buffer* buffers[] = { perFrame, ActiveParticleConstantBuffer, InactiveParticleConstantBuffer, EmitterConstantBuffer, IndirectSortParametersConstantBuffer };
 	context->CSSetConstantBuffers(0, ARRAYSIZE(buffers), buffers);
 
+	//Small debug Cbuffer for GPU -> CPU debugging
 	ZeroMemory(&bufferDesc, sizeof(bufferDesc));
-
 	bufferDesc.Usage = D3D11_USAGE_STAGING;
 	bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
 	bufferDesc.BindFlags = 0;
 	bufferDesc.ByteWidth = sizeof(UINT) * 4;
 
 	device->CreateBuffer(&bufferDesc, NULL, &debugBuffer);
+
+	//Programatic frame cature events
 
 	//MessageEvents::Subscribe(EVENT_Input, [=](EventMessageBase* e) {
 	//	InputMessage* msg = (InputMessage*)e;
@@ -339,8 +349,8 @@ void ParticleManager::RenderParticles() {
 	context->PSSetShader(PixelShader, NULL, NULL);
 	//context->VSSetConstantBuffers(1, 1, &ActiveParticleConstantBuffer);
 
-
 	ID3D11ShaderResourceView* SRV[] = { ParticleSRV, SortParticleIndexSRV, ActiveParticleIndexSRV, InactiveParticleIndexSRV };
+	//Starts at slot 10 to not interfer with standard render pipeline - Increase if standard pipeline uses more slots
 	context->VSSetShaderResources(10, 4, SRV);
 
 	context->CopyStructureCount(IndirectDrawArgsBuffer, 0, ActiveParticleIndexUAV);
@@ -360,10 +370,6 @@ void ParticleManager::RenderParticles() {
 
 	ZeroMemory(SRV, sizeof(SRV));
 	context->VSSetShaderResources(10, 4, SRV);
-
-
-
-
 }
 
 void ParticleManager::DebugCounters() {
@@ -410,12 +416,13 @@ ComponentBase* ParticleManager::GetReferenceComponent(const char* _FilePath, con
 ComponentBase* ParticleManager::CloneComponent(ComponentBase* reference, Object* objPtr) {
 	ComponentBase* newEmitter = emitterPool.ActivateMemory();
 	//EmitterComponent* data = (EmitterComponent*)reference;
+
+	//This might be ineffective if the emitters become more complex
 	memcpy(newEmitter, reference, sizeof(Emitter));
 	return newEmitter;
 }
 
 void ParticleManager::ResetComponent(ComponentBase* reset) {
-	//((EmitterComponent*)reset)->rigidBody.Reset();
 	emitterPool.DeactivateMemory(reset);
 }
 
@@ -443,45 +450,43 @@ ParticleManager::~ParticleManager() {
 	//Releasing Particle Resources
 	//==========================================
 
-	ParticleBuffer->Release();
-	ParticleSRV->Release();
-	ParticleUAV->Release();
+	SAFE_RELEASE(ParticleBuffer);
+	SAFE_RELEASE(ParticleSRV);
+	SAFE_RELEASE(ParticleUAV);
 	//Inactive
-	InactiveParticleConstantBuffer->Release();
-	InactiveParticleIndexBuffer->Release();
-	InactiveParticleIndexSRV->Release();
-	InactiveParticleIndexUAV->Release();
+	SAFE_RELEASE(InactiveParticleConstantBuffer);
+	SAFE_RELEASE(InactiveParticleIndexBuffer);
+	SAFE_RELEASE(InactiveParticleIndexSRV);
+	SAFE_RELEASE(InactiveParticleIndexUAV);
 	//Active
-	ActiveParticleConstantBuffer->Release();
-	ActiveParticleIndexBuffer->Release();
-	ActiveParticleIndexSRV->Release();
-	ActiveParticleIndexUAV->Release();
+	SAFE_RELEASE(ActiveParticleConstantBuffer);
+	SAFE_RELEASE(ActiveParticleIndexBuffer);
+	SAFE_RELEASE(ActiveParticleIndexSRV);
+	SAFE_RELEASE(ActiveParticleIndexUAV);
 	//Emitter
-	EmitterConstantBuffer->Release();
-
+	SAFE_RELEASE(EmitterConstantBuffer);
 	//Drawing Arguments
-	IndirectDrawArgsUAV->Release();
-	IndirectDrawArgsBuffer->Release();
+	SAFE_RELEASE(IndirectDrawArgsUAV);
+	SAFE_RELEASE(IndirectDrawArgsBuffer);
 	//Shaders
-	ParticleUpdateShader->Release();
-	ParticleEmitShader->Release();
-	VertexShader->Release();
-	GeometryShader->Release();
-	PixelShader->Release();
+	SAFE_RELEASE(ParticleUpdateShader);
+	SAFE_RELEASE(ParticleEmitShader);
+	SAFE_RELEASE(VertexShader);
+	SAFE_RELEASE(GeometryShader);
+	SAFE_RELEASE(PixelShader);
 
 	SAFE_RELEASE(SortParticleIndexBuffer);
 	SAFE_RELEASE(SortParticleIndexUAV);
 	SAFE_RELEASE(SortParticleIndexSRV);
 	SAFE_RELEASE(DispatchIndirectArgsBuffer);
 	SAFE_RELEASE(IndirectSortArgsBufferUAV);
-	SAFE_RELEASE(SortParametersConstantBuffer);
-
-
-
+	SAFE_RELEASE(IndirectSortParametersConstantBuffer);
+	//Sorting
 	SAFE_RELEASE(ParticleIndirectArgsInitShader);
 	SAFE_RELEASE(ParticleSortFinalShader);
 	SAFE_RELEASE(ParticleSortStepShader);
 	SAFE_RELEASE(ParticleSortInitialShader);
+	//Debugging
 	SAFE_RELEASE(debugBuffer);
 	SAFE_RELEASE(VertexShader_DEBUG);
 	SAFE_RELEASE(VertexShader_DEBUG1);
@@ -661,7 +666,7 @@ bool ParticleManager::sortIncremental(unsigned presorted) const {
 	for(unsigned distance = subArraySize; distance>256; distance = distance>>1) {
 		D3D11_MAPPED_SUBRESOURCE MappedResource;
 
-		context->Map(SortParametersConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource);
+		context->Map(IndirectSortParametersConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource);
 		SortParameters* sc = (SortParameters*)MappedResource.pData;
 		sc->distance = distance;
 		if(distance == subArraySize) {
@@ -672,7 +677,7 @@ bool ParticleManager::sortIncremental(unsigned presorted) const {
 			sc->jump = distance;
 			sc->direction = 1;
 		}
-		context->Unmap(SortParametersConstantBuffer, 0);
+		context->Unmap(IndirectSortParametersConstantBuffer, 0);
 
 		context->Dispatch(numThreadGroups, 1, 1);
 	}

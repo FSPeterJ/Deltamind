@@ -2,7 +2,11 @@
 #include <unordered_map>
 #include <atomic>
 
-//TODO: FIX THIS LATER
+//This was an odd test of custom sorta-RTTI with template metaprogramming.  Most of it is done at compile time
+//The main goal was to have a system for indexing into manageable sized arrays by type while also being able to access them through multiple different strings if necessary.
+//Honestly it was done more for fun but it works alright.
+
+//Note: you should not use any string comparisons durring the game loop runtime.  Only during setup and initialization, store a local index number if needed.
 
 class TypeMap {
 	static std::atomic_uint lastTypeID;
@@ -29,17 +33,17 @@ public:
 		static const unsigned id = lastComponentTypeID++;
 		return id;
 	}
-
+	//Will return 0 if name is not registered
 	static unsigned GetNameId(std::string &name) {
-		return mapname[name]; //Will return 0 if name is not registered
+		return mapname[name]; 
 	}
-
+	//Will return 0 if name is not registered
 	static unsigned GetObjectNameID(std::string &_name) {
-		return mapnameObject[_name];//Will return 0 if name is not registered
+		return mapnameObject[_name];
 	}
-
+	//Will return 0 if name is not registered
 	static unsigned GetComponentNameID(std::string &_name) {
-		return mapnameComponent[_name];//Will return 0 if name is not registered
+		return mapnameComponent[_name];
 	}
 	template <typename ComponentType>
 	static void RegisterAlias(const std::string _name) {

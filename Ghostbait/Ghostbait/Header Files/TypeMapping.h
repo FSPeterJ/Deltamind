@@ -2,7 +2,7 @@
 #include <unordered_map>
 #include <atomic>
 
-//This was an odd test of custom sorta-RTTI with template metaprogramming.  Most of it is done at compile time
+//This was an odd test of custom sorta-RTTI with template metaprogramming (Most of it is done at compile time).  
 //The main goal was to have a system for indexing into manageable sized arrays by type while also being able to access them through multiple different strings if necessary.
 //Honestly it was done more for fun but it works alright.
 
